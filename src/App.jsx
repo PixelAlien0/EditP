@@ -972,13 +972,27 @@ export default function App() {
   const [swapUnitFactionFilter, setSwapUnitFactionFilter] = useState('all');
   const [activeParamTab, setActiveParamTab] = useState('structure');
   const [comparisonMode, setComparisonMode] = useState(false);
-  const [showAllWeaponParams, setShowAllWeaponParams] = useState(false);
+  const [showAllWeaponParams, setShowAllWeaponParams] = useState(() => {
+    try {
+      const savedPreference = localStorage.getItem('editp_weapon_parameter_view');
+      return savedPreference === null ? true : savedPreference === 'all';
+    } catch {
+      return true;
+    }
+  });
   const [activeRelationshipKey, setActiveRelationshipKey] = useState(null);
 
   useEffect(() => {
     setActiveRelationshipKey(null);
-    setShowAllWeaponParams(false);
   }, [selectedUnitId, activeParamTab, activeWeaponSlotTab]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('editp_weapon_parameter_view', showAllWeaponParams ? 'all' : 'relevant');
+    } catch {
+      // The preference remains available for this session when storage is blocked.
+    }
+  }, [showAllWeaponParams]);
 
   // Dragging logic for Weapon Swap window
   const [swapPosition, setSwapPosition] = useState({ x: 260, y: 100 });
