@@ -15910,6 +15910,71 @@ html[data-theme="dark"] {
   font-style: normal;
 }
 
+/* Presence placement — brand metadata in-editor, utility badge on the menu. */
+.app-header .header-brand-group {
+  min-width: 0;
+  display: grid !important;
+  grid-template-columns: max-content;
+  grid-template-rows: auto auto;
+  align-content: center;
+  align-items: center;
+  gap: 1px !important;
+}
+
+.app-header .header-brand-group .header-brand {
+  width: max-content;
+  min-width: 0;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.app-header .header-brand-group .brand-text {
+  min-width: max-content;
+}
+
+.app-header .header-brand-group .brand-text h1 {
+  white-space: nowrap;
+}
+
+.app-header .header-brand-group .online-presence {
+  min-height: 12px;
+  margin-left: 44px;
+  padding: 0;
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: start;
+  gap: 5px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.app-header .header-brand-group .online-presence__dot {
+  width: 5px;
+  height: 5px;
+  box-shadow: none;
+}
+
+.main-menu__utilities > .online-presence {
+  min-height: var(--control-height-sm);
+  padding-inline: var(--space-3);
+  border-color: color-mix(in srgb, var(--color-success) 24%, var(--color-border));
+  background: var(--color-surface);
+}
+
+@media (max-width: 1180px) {
+  .app-header .header-brand-group .online-presence {
+    display: none;
+  }
+}
+
 /* Canonical selected-unit dossier header. */
 .editor-unit-header {
   min-height: 96px !important;

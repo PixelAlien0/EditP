@@ -3,9 +3,7 @@ export default function OnlinePresenceBadge({ count, status, compact = false }) 
 
   const connected = status === 'connected' && Number.isFinite(count);
   const label = connected
-    ? compact
-      ? `${count} online`
-      : `${count} ${count === 1 ? 'editor' : 'editors'} online`
+    ? `${count} ${count === 1 ? 'editor' : 'editors'} online`
     : status === 'unavailable'
       ? 'Presence unavailable'
       : 'Connecting';
