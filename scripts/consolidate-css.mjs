@@ -9,6 +9,7 @@ const stylesheetOrder = [
   'src/styles/theme-tokens.css',
   'src/index.css',
   'src/styles/features/dark-mode.css',
+  'src/styles/features/batch-adjust.css',
   'src/styles/features/build-menu.css',
   'src/styles/features/editor-parameters.css',
   'src/styles/features/credits.css',

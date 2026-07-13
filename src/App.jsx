@@ -1,7 +1,6 @@
 import { lazy, Suspense, useState, useMemo, useEffect, useRef, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 import unitsDb from './data/units.json';
-import unitpicManifest from './data/unitpic-manifest.json';
 import factoryRosters from './data/factory-rosters.json';
 import { BUILD_MENU_PACKS, buildEffectiveFactoryRosters, getBuildMenuPackSource } from './data/build-menu-packs.js';
 import { getFactionOfUnit, getTagsOfUnit as getUnitTags, getTechTierOfUnit as getUnitTechTier } from './utils/categories.js';
@@ -9,6 +8,9 @@ import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
+import BatchAdjustDialog from './components/BatchAdjustDialog.jsx';
+import UnitArtwork from './components/UnitArtwork.jsx';
+import { getUnitIconUrl } from './utils/unitArtwork.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, Switch, StatCard } from './components/ui.jsx';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
@@ -55,6 +57,36 @@ const STAT_KEYS = [
   { key: 'cantbetransported', label: 'No Transport', icon: '[NTR]', type: 'boolean', patchKey: 'cantBeTransported' },
   { key: 'cruisealt', label: 'Cruise Altitude', icon: '[ALT]', type: 'number' },
   { key: 'airsubalt', label: 'Sub-Altitude', icon: '[SUB]', type: 'number' }
+];
+
+const BULK_PARAMETER_GROUPS = [
+  {
+    label: 'Common unit stats',
+    options: [
+      { value: 'health', label: 'Unit Health (HP)', description: 'Adjust the maximum durability of every eligible unit.' },
+      { value: 'metalcost', label: 'Metal Cost', description: 'Adjust the metal investment required to build each unit.' },
+      { value: 'energycost', label: 'Energy Cost', description: 'Adjust the energy investment required to build each unit.' },
+      { value: 'buildtime', label: 'Build Time', description: 'Adjust the build work required to complete each unit.' },
+      { value: 'maxvelocity', label: 'Max Velocity (Speed)', description: 'Adjust the maximum movement speed of eligible units.' },
+    ],
+  },
+  {
+    label: 'Weapon slots',
+    options: [
+      { value: 'all_weapons_damage', label: 'All Weapons Damage', description: 'Adjust every weapon slot’s base damage for each eligible unit.' },
+      { value: 'all_weapons_range', label: 'All Weapons Range', description: 'Adjust every weapon slot’s maximum range for each eligible unit.' },
+    ],
+  },
+  {
+    label: 'Additional numeric stats',
+    options: STAT_KEYS
+      .filter(stat => stat.type === 'number' && !['health', 'metalcost', 'energycost', 'buildtime', 'maxvelocity'].includes(stat.key))
+      .map(stat => ({
+        value: stat.key,
+        label: stat.label,
+        description: `Adjust ${stat.label.toLowerCase()} across every eligible unit.`,
+      })),
+  },
 ];
 
 const MOBILITY_STAT_KEYS = new Set([
@@ -703,34 +735,6 @@ function getValidationWarning(key, value) {
   return null;
 }
 
-function getUnitIconUrl(id) {
-  if (!id) return '/logo.svg';
-  const lowerId = id.toLowerCase();
-  return unitpicManifest.units?.[lowerId] || '/logo.svg';
-}
-
-function UnitArtwork({ unitId, src, alt = '', eager = false, onError, ...props }) {
-  const handleError = event => {
-    if (event.currentTarget.dataset.fallbackApplied === 'true') return;
-    event.currentTarget.dataset.fallbackApplied = 'true';
-    event.currentTarget.src = '/logo.svg';
-    onError?.(event);
-  };
-  return (
-    <img
-      {...props}
-      src={src || getUnitIconUrl(unitId)}
-      alt={alt}
-      width="192"
-      height="192"
-      loading={eager ? 'eager' : 'lazy'}
-      fetchPriority={eager ? 'high' : 'auto'}
-      decoding="async"
-      onError={handleError}
-    />
-  );
-}
-
 function hexToRgbUnit(hex) {
   const clean = String(hex || '#ffffff').replace('#', '').padEnd(6, 'f').slice(0, 6);
   return [0, 2, 4].map(index => parseInt(clean.slice(index, index + 2), 16) / 255);
@@ -1345,6 +1349,11 @@ export default function App() {
     });
   }, [allUnitsList, selectedFaction, selectedCats, queryFilterFn, showModifiedOnly, tweaks, disabledUnitIds]);
 
+  const bulkTargetUnits = useMemo(() => filteredUnits.filter(unit => {
+    const baseId = unit.isClone ? unit.baseId : unit.id;
+    return defaultsDb[baseId] !== undefined;
+  }), [filteredUnits, defaultsDb]);
+
   const clearUnitFilters = () => {
     setSearchQuery('');
     setSelectedFaction('all');
@@ -1929,12 +1938,7 @@ export default function App() {
     }
 
     let count = 0;
-    const targeted = filteredUnits.filter(u => {
-      const baseId = u.isClone ? u.baseId : u.id;
-      return defaultsDb[baseId] !== undefined;
-    });
-
-    targeted.forEach(unit => {
+    bulkTargetUnits.forEach(unit => {
       const baseId = unit.isClone ? unit.baseId : unit.id;
       const defaults = defaultsDb[baseId];
 
@@ -5553,182 +5557,19 @@ export default function App() {
         </div>
       )}
 
-      {/* Bulk Editor Modal */}
-      {showBulkPanel && (
-        <div className="bulk-editor-overlay" style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(10, 9, 8, 0.7)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', zIndex: 101
-        }}>
-          <div className="panel-card bulk-editor-modal" style={{
-            width: '95vw', maxWidth: '520px', display: 'flex', flexDirection: 'column',
-            padding: '24px', border: '1px solid rgba(235, 220, 208, 0.09)', borderRadius: '14px',
-            background: 'rgba(30, 28, 25, 0.85)', backdropFilter: 'blur(20px)',
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', borderBottom: '1px solid rgba(235, 220, 208, 0.06)', paddingBottom: '10px' }}>
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--border-accent)' }}>
-                <path d="M2 3h12M2 8h12M2 13h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-bright)' }}>Batch Adjust Stats</h3>
-            </div>
-
-            <div className="clone-form" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '4px', letterSpacing: '0.04em' }}>Select Parameter</label>
-                <select
-                  className="form-select"
-                  value={bulkStatKey}
-                  onChange={e => setBulkStatKey(e.target.value)}
-                  style={{ width: '100%', background: 'rgba(18, 17, 15, 0.6)' }}
-                >
-                  <option value="health">Unit Health (HP)</option>
-                  <option value="metalcost">Metal Cost</option>
-                  <option value="energycost">Energy Cost</option>
-                  <option value="buildtime">Build Time</option>
-                  <option value="maxvelocity">Max Velocity (Speed)</option>
-                  <option value="all_weapons_damage">All Weapons Damage</option>
-                  <option value="all_weapons_range">All Weapons Range</option>
-                  {STAT_KEYS.filter(s => s.type === 'number' && !['health', 'metalcost', 'energycost', 'buildtime', 'maxvelocity'].includes(s.key)).map(s => (
-                    <option key={s.key} value={s.key}>{s.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Mode Toggle Selection */}
-              <div style={{ margin: 0 }}>
-                <label style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '6px', letterSpacing: '0.04em' }}>Adjustment Type</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBulkMode('percent');
-                      setBulkPercent('10');
-                    }}
-                    style={{
-                      background: bulkMode === 'percent' ? 'var(--border-accent)' : 'rgba(18, 17, 15, 0.4)',
-                      color: bulkMode === 'percent' ? '#1a1814' : 'var(--text-normal)',
-                      border: '1px solid rgba(235, 220, 208, 0.08)',
-                      borderRadius: '6px',
-                      padding: '8px 0',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    Percentage Change
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBulkMode('flat');
-                      setBulkPercent('50');
-                    }}
-                    style={{
-                      background: bulkMode === 'flat' ? 'var(--border-accent)' : 'rgba(18, 17, 15, 0.4)',
-                      color: bulkMode === 'flat' ? '#1a1814' : 'var(--text-normal)',
-                      border: '1px solid rgba(235, 220, 208, 0.08)',
-                      borderRadius: '6px',
-                      padding: '8px 0',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    Flat Offset
-                  </button>
-                </div>
-              </div>
-
-              {/* Value Input and Slider */}
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', marginBottom: '4px', letterSpacing: '0.04em' }}>
-                  <span>Adjustment Value</span>
-                  <span style={{ fontWeight: 800, color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>
-                    {parseFloat(bulkPercent) > 0 ? '+' : ''}{bulkPercent}{bulkMode === 'percent' ? '%' : ''}
-                  </span>
-                </label>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <input
-                    type="range"
-                    min={bulkMode === 'percent' ? -100 : -1000}
-                    max={bulkMode === 'percent' ? 200 : 1000}
-                    step={bulkMode === 'percent' ? 5 : 10}
-                    value={bulkPercent}
-                    onChange={e => setBulkPercent(e.target.value)}
-                    style={{ flex: 1, accentColor: 'var(--border-accent)', cursor: 'pointer', height: '6px' }}
-                  />
-                  <input
-                    type="number"
-                    className="form-input"
-                    style={{ width: '80px', textAlign: 'center', margin: 0, background: 'rgba(18, 17, 15, 0.6)' }}
-                    value={bulkPercent}
-                    onChange={e => setBulkPercent(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Target Preview Strip */}
-              <div style={{ margin: 0 }}>
-                <label style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '6px', letterSpacing: '0.04em' }}>
-                  Target Preview ({filteredUnits.length} Units Affected)
-                </label>
-                <div style={{
-                  display: 'flex',
-                  gap: '6px',
-                  overflowX: 'auto',
-                  background: 'rgba(18, 17, 15, 0.4)',
-                  border: '1px solid rgba(235, 220, 208, 0.06)',
-                  borderRadius: '8px',
-                  padding: '8px 10px',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {filteredUnits.length === 0 ? (
-                    <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>No units match current search filters</span>
-                  ) : (
-                    <>
-                      {filteredUnits.slice(0, 20).map(u => (
-                        <div key={u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(25, 24, 22, 0.6)', border: '1px solid rgba(235, 220, 208, 0.05)', borderRadius: '4px', padding: '3px 6px', fontSize: '9.5px' }}>
-                          <UnitArtwork unitId={u.id} alt="" style={{ width: '14px', height: '14px', borderRadius: '2px', objectFit: 'cover' }} />
-                          <span style={{ color: 'var(--text-normal)' }}>{u.name}</span>
-                        </div>
-                      ))}
-                      {filteredUnits.length > 20 && (
-                        <span style={{ fontSize: '9px', color: 'var(--text-muted)', alignSelf: 'center', paddingLeft: '4px', fontWeight: 600 }}>
-                          +{filteredUnits.length - 20} MORE...
-                        </span>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ fontSize: '9.5px', color: 'var(--text-muted)', lineHeight: '1.4', fontStyle: 'italic', marginTop: '2px' }}>
-                * This adjustment will apply to all units matching your current faction, category, and search query filters.
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                <button type="button" className="btn-action" style={{ flex: 1 }} onClick={handleApplyBulk}>
-                  Apply Batch Adjust
-                </button>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ padding: '8px 16px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', fontWeight: 700 }}
-                  onClick={() => setShowBulkPanel(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
+      <BatchAdjustDialog
+        open={showBulkPanel}
+        onClose={() => setShowBulkPanel(false)}
+        parameterGroups={BULK_PARAMETER_GROUPS}
+        statKey={bulkStatKey}
+        onStatKeyChange={setBulkStatKey}
+        mode={bulkMode}
+        onModeChange={setBulkMode}
+        value={bulkPercent}
+        onValueChange={setBulkPercent}
+        targetUnits={bulkTargetUnits}
+        onApply={handleApplyBulk}
+      />
       {/* Mod Summary Explorer Modal */}
       {showSummaryModal && (
         <div className="summary-explorer-overlay" style={{
