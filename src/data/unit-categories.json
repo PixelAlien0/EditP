@@ -1,0 +1,7266 @@
+{
+  "armaca": [
+    "aircraft",
+    "factories",
+    "t2"
+  ],
+  "armawac": [
+    "aircraft",
+    "t2"
+  ],
+  "armblade": [
+    "aircraft",
+    "t2"
+  ],
+  "armbrawl": [
+    "aircraft",
+    "t2"
+  ],
+  "armdfly": [
+    "aircraft",
+    "t2"
+  ],
+  "armhawk": [
+    "aircraft",
+    "t2"
+  ],
+  "armlance": [
+    "aircraft",
+    "t2"
+  ],
+  "armliche": [
+    "aircraft",
+    "t2"
+  ],
+  "armpnix": [
+    "aircraft",
+    "t2"
+  ],
+  "armstil": [
+    "aircraft",
+    "t2"
+  ],
+  "armatlas": [
+    "aircraft",
+    "t1"
+  ],
+  "armca": [
+    "aircraft",
+    "factories",
+    "t1"
+  ],
+  "armdrone": [
+    "aircraft",
+    "t1"
+  ],
+  "armdroneold": [
+    "aircraft",
+    "t1"
+  ],
+  "armfig": [
+    "aircraft",
+    "t1"
+  ],
+  "armhvytrans": [
+    "aircraft",
+    "t1"
+  ],
+  "armkam": [
+    "aircraft",
+    "t1"
+  ],
+  "armpeep": [
+    "aircraft",
+    "t1"
+  ],
+  "armthund": [
+    "aircraft",
+    "t1"
+  ],
+  "armaak": [
+    "bots",
+    "t2"
+  ],
+  "armack": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "armamph": [
+    "bots",
+    "t2"
+  ],
+  "armaser": [
+    "bots",
+    "t2"
+  ],
+  "armdecom": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "armfark": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "armfast": [
+    "bots",
+    "t2"
+  ],
+  "armfboy": [
+    "bots",
+    "t2"
+  ],
+  "armfido": [
+    "bots",
+    "t2"
+  ],
+  "armhack": [
+    "bots",
+    "factories",
+    "t3"
+  ],
+  "armmark": [
+    "bots",
+    "t2"
+  ],
+  "armmav": [
+    "bots",
+    "t2"
+  ],
+  "armsack": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "armscab": [
+    "bots",
+    "t2"
+  ],
+  "armsnipe": [
+    "bots",
+    "t2"
+  ],
+  "armspid": [
+    "bots",
+    "t2"
+  ],
+  "armsptk": [
+    "bots",
+    "t2"
+  ],
+  "armspy": [
+    "bots",
+    "t2"
+  ],
+  "armvader": [
+    "bots",
+    "t2"
+  ],
+  "armzeus": [
+    "bots",
+    "t2"
+  ],
+  "armck": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "armflea": [
+    "bots",
+    "t1"
+  ],
+  "armham": [
+    "bots",
+    "t1"
+  ],
+  "armjeth": [
+    "bots",
+    "t1"
+  ],
+  "armpw": [
+    "bots",
+    "t1"
+  ],
+  "armrectr": [
+    "bots",
+    "t1"
+  ],
+  "armrock": [
+    "bots",
+    "t1"
+  ],
+  "armwar": [
+    "bots",
+    "t1"
+  ],
+  "armamb": [
+    "defenses",
+    "t2"
+  ],
+  "armamd": [
+    "defenses",
+    "t2"
+  ],
+  "armanni": [
+    "defenses",
+    "t2"
+  ],
+  "armbeamer": [
+    "defenses",
+    "t1"
+  ],
+  "armbrtha": [
+    "defenses",
+    "t2"
+  ],
+  "armcir": [
+    "defenses",
+    "t1"
+  ],
+  "armclaw": [
+    "defenses",
+    "t1"
+  ],
+  "armemp": [
+    "defenses",
+    "t2"
+  ],
+  "armferret": [
+    "defenses",
+    "t1"
+  ],
+  "armflak": [
+    "defenses",
+    "t2"
+  ],
+  "armguard": [
+    "defenses",
+    "t1"
+  ],
+  "armhlt": [
+    "defenses",
+    "t1"
+  ],
+  "armjuno": [
+    "defenses",
+    "t1"
+  ],
+  "armllt": [
+    "defenses",
+    "t1"
+  ],
+  "armmercury": [
+    "defenses",
+    "t2"
+  ],
+  "armpb": [
+    "defenses",
+    "t2"
+  ],
+  "armrl": [
+    "defenses",
+    "t1"
+  ],
+  "armshockwave": [
+    "defenses",
+    "t2"
+  ],
+  "armsilo": [
+    "defenses",
+    "t2"
+  ],
+  "armvulc": [
+    "defenses",
+    "t2"
+  ],
+  "armadvsol": [
+    "buildings",
+    "t1"
+  ],
+  "armafus": [
+    "buildings",
+    "t2"
+  ],
+  "armageo": [
+    "buildings",
+    "t2"
+  ],
+  "armamex": [
+    "buildings",
+    "t1"
+  ],
+  "armckfus": [
+    "buildings",
+    "t2"
+  ],
+  "armestor": [
+    "buildings",
+    "t1"
+  ],
+  "armfus": [
+    "buildings",
+    "t2"
+  ],
+  "armgeo": [
+    "buildings",
+    "t1"
+  ],
+  "armgmm": [
+    "buildings",
+    "t2"
+  ],
+  "armmakr": [
+    "buildings",
+    "t1"
+  ],
+  "armmex": [
+    "buildings",
+    "t1"
+  ],
+  "armmmkr": [
+    "buildings",
+    "t2"
+  ],
+  "armmoho": [
+    "buildings",
+    "t2"
+  ],
+  "armmstor": [
+    "buildings",
+    "t1"
+  ],
+  "armsolar": [
+    "buildings",
+    "t1"
+  ],
+  "armwin": [
+    "buildings",
+    "t1"
+  ],
+  "armaap": [
+    "factories",
+    "t2"
+  ],
+  "armalab": [
+    "factories",
+    "t2"
+  ],
+  "armap": [
+    "factories",
+    "t1"
+  ],
+  "armavp": [
+    "factories",
+    "t2"
+  ],
+  "armhaap": [
+    "factories",
+    "t3"
+  ],
+  "armhaapuw": [
+    "factories",
+    "t2"
+  ],
+  "armhalab": [
+    "factories",
+    "t3"
+  ],
+  "armhavp": [
+    "factories",
+    "t3"
+  ],
+  "armhp": [
+    "factories",
+    "t1.5"
+  ],
+  "armlab": [
+    "factories",
+    "t1"
+  ],
+  "armsaap": [
+    "factories",
+    "t2"
+  ],
+  "armsalab": [
+    "factories",
+    "t2"
+  ],
+  "armsavp": [
+    "factories",
+    "t2"
+  ],
+  "armshltx": [
+    "factories",
+    "t3"
+  ],
+  "armvp": [
+    "factories",
+    "t1"
+  ],
+  "armarad": [
+    "buildings",
+    "t2"
+  ],
+  "armdf": [
+    "buildings",
+    "t2"
+  ],
+  "armdrag": [
+    "buildings",
+    "t1"
+  ],
+  "armeyes": [
+    "buildings",
+    "t1"
+  ],
+  "armfort": [
+    "buildings",
+    "t2"
+  ],
+  "armgate": [
+    "defenses",
+    "t2"
+  ],
+  "armjamt": [
+    "buildings",
+    "t1"
+  ],
+  "armmine1": [
+    "defenses",
+    "t1"
+  ],
+  "armmine2": [
+    "defenses",
+    "t1"
+  ],
+  "armmine3": [
+    "defenses",
+    "t1"
+  ],
+  "armnanotc": [
+    "buildings",
+    "t1"
+  ],
+  "armnanotct2": [
+    "buildings",
+    "t1"
+  ],
+  "armrad": [
+    "buildings",
+    "t1"
+  ],
+  "armsd": [
+    "buildings",
+    "t2"
+  ],
+  "armtarg": [
+    "buildings",
+    "t2"
+  ],
+  "armveil": [
+    "buildings",
+    "t2"
+  ],
+  "armanavaldefturret": [
+    "defenses",
+    "t2"
+  ],
+  "armatl": [
+    "defenses",
+    "t2"
+  ],
+  "armdl": [
+    "defenses",
+    "t1"
+  ],
+  "armfflak": [
+    "defenses",
+    "t2"
+  ],
+  "armfhlt": [
+    "defenses",
+    "t1"
+  ],
+  "armfrock": [
+    "defenses",
+    "t1"
+  ],
+  "armfrt": [
+    "defenses",
+    "t1"
+  ],
+  "armgplat": [
+    "defenses",
+    "t1"
+  ],
+  "armkraken": [
+    "defenses",
+    "t2"
+  ],
+  "armnavaldefturret": [
+    "defenses",
+    "t1"
+  ],
+  "armtl": [
+    "defenses",
+    "t1"
+  ],
+  "armfmkr": [
+    "buildings",
+    "t1"
+  ],
+  "armtide": [
+    "buildings",
+    "t1"
+  ],
+  "armuwadves": [
+    "buildings",
+    "t2"
+  ],
+  "armuwadvms": [
+    "buildings",
+    "t2"
+  ],
+  "armuwageo": [
+    "buildings",
+    "t2"
+  ],
+  "armuwes": [
+    "buildings",
+    "t1"
+  ],
+  "armuwfus": [
+    "buildings",
+    "t2"
+  ],
+  "armuwgeo": [
+    "buildings",
+    "t1"
+  ],
+  "armuwmme": [
+    "buildings",
+    "t2"
+  ],
+  "armuwmmm": [
+    "buildings",
+    "t2"
+  ],
+  "armuwms": [
+    "buildings",
+    "t1"
+  ],
+  "armamsub": [
+    "ships",
+    "factories",
+    "t1.5"
+  ],
+  "armasy": [
+    "factories",
+    "t2"
+  ],
+  "armfhp": [
+    "factories",
+    "t1.5"
+  ],
+  "armhasy": [
+    "factories",
+    "t3"
+  ],
+  "armplat": [
+    "factories",
+    "t1.5"
+  ],
+  "armsasy": [
+    "factories",
+    "t2"
+  ],
+  "armshltxuw": [
+    "factories",
+    "t3"
+  ],
+  "armsy": [
+    "factories",
+    "t1"
+  ],
+  "armason": [
+    "buildings",
+    "t2"
+  ],
+  "armfatf": [
+    "buildings",
+    "t2"
+  ],
+  "armfdrag": [
+    "buildings",
+    "t1"
+  ],
+  "armfgate": [
+    "defenses",
+    "t2"
+  ],
+  "armfmine3": [
+    "defenses",
+    "t1"
+  ],
+  "armfrad": [
+    "buildings",
+    "t1"
+  ],
+  "armnanotc2plat": [
+    "buildings",
+    "t1"
+  ],
+  "armnanotcplat": [
+    "buildings",
+    "t1"
+  ],
+  "armsonar": [
+    "buildings",
+    "t1"
+  ],
+  "armbanth": [
+    "t3"
+  ],
+  "armlun": [
+    "t3"
+  ],
+  "armmar": [
+    "t3"
+  ],
+  "armprowl": [
+    "t3"
+  ],
+  "armthor": [
+    "t3"
+  ],
+  "armvang": [
+    "t3"
+  ],
+  "armah": [
+    "hovercraft",
+    "t1"
+  ],
+  "armanac": [
+    "hovercraft",
+    "t1"
+  ],
+  "armch": [
+    "hovercraft",
+    "factories",
+    "t1"
+  ],
+  "armmh": [
+    "hovercraft",
+    "t1"
+  ],
+  "armsh": [
+    "hovercraft",
+    "t1"
+  ],
+  "armcsa": [
+    "aircraft",
+    "factories",
+    "t1"
+  ],
+  "armhaca": [
+    "aircraft",
+    "factories",
+    "t3"
+  ],
+  "armsaber": [
+    "aircraft",
+    "t1"
+  ],
+  "armsb": [
+    "aircraft",
+    "t1"
+  ],
+  "armseap": [
+    "aircraft",
+    "t1"
+  ],
+  "armsehak": [
+    "aircraft",
+    "t1"
+  ],
+  "armsfig": [
+    "aircraft",
+    "t1"
+  ],
+  "armsfig2": [
+    "aircraft",
+    "t1"
+  ],
+  "armaas": [
+    "ships",
+    "t2"
+  ],
+  "armacsub": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "armantiship": [
+    "ships",
+    "t2"
+  ],
+  "armbats": [
+    "ships",
+    "t2"
+  ],
+  "armcarry": [
+    "ships",
+    "t2"
+  ],
+  "armcrus": [
+    "ships",
+    "t2"
+  ],
+  "armdronecarry": [
+    "ships",
+    "t2"
+  ],
+  "armepoch": [
+    "ships",
+    "t2"
+  ],
+  "armexcalibur": [
+    "ships",
+    "t2"
+  ],
+  "armhacs": [
+    "ships",
+    "factories",
+    "t3"
+  ],
+  "armlship": [
+    "ships",
+    "t2"
+  ],
+  "armmls": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "armmship": [
+    "ships",
+    "t2"
+  ],
+  "armsacsub": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "armseadragon": [
+    "ships",
+    "t2"
+  ],
+  "armserp": [
+    "ships",
+    "t2"
+  ],
+  "armsjam": [
+    "ships",
+    "t2"
+  ],
+  "armsubk": [
+    "ships",
+    "t2"
+  ],
+  "armtdrone": [
+    "ships",
+    "defenses",
+    "t1"
+  ],
+  "armtrident": [
+    "ships",
+    "defenses",
+    "t2"
+  ],
+  "armcs": [
+    "ships",
+    "factories",
+    "t1"
+  ],
+  "armdecade": [
+    "ships",
+    "t1"
+  ],
+  "armpship": [
+    "ships",
+    "t1"
+  ],
+  "armpt": [
+    "ships",
+    "t1"
+  ],
+  "armrecl": [
+    "ships",
+    "t1"
+  ],
+  "armroy": [
+    "ships",
+    "t1"
+  ],
+  "armsub": [
+    "ships",
+    "t1"
+  ],
+  "armtorps": [
+    "ships",
+    "t1"
+  ],
+  "armacv": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "armbull": [
+    "vehicles",
+    "t2"
+  ],
+  "armconsul": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "armcroc": [
+    "vehicles",
+    "t2"
+  ],
+  "armgremlin": [
+    "vehicles",
+    "t2"
+  ],
+  "armhacv": [
+    "vehicles",
+    "factories",
+    "t3"
+  ],
+  "armjam": [
+    "vehicles",
+    "t2"
+  ],
+  "armlatnk": [
+    "vehicles",
+    "t2"
+  ],
+  "armmanni": [
+    "vehicles",
+    "t2"
+  ],
+  "armmart": [
+    "vehicles",
+    "t2"
+  ],
+  "armmerl": [
+    "vehicles",
+    "t2"
+  ],
+  "armsacv": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "armseer": [
+    "vehicles",
+    "t2"
+  ],
+  "armyork": [
+    "vehicles",
+    "t2"
+  ],
+  "armart": [
+    "vehicles",
+    "t1"
+  ],
+  "armbeaver": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "armcv": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "armfav": [
+    "vehicles",
+    "t1"
+  ],
+  "armflash": [
+    "vehicles",
+    "t1"
+  ],
+  "armjanus": [
+    "vehicles",
+    "t1"
+  ],
+  "armmlv": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "armpincer": [
+    "vehicles",
+    "t1"
+  ],
+  "armsam": [
+    "vehicles",
+    "t1"
+  ],
+  "armstump": [
+    "vehicles",
+    "t1"
+  ],
+  "coraca": [
+    "aircraft",
+    "factories",
+    "t2"
+  ],
+  "corape": [
+    "aircraft",
+    "t2"
+  ],
+  "corawac": [
+    "aircraft",
+    "t2"
+  ],
+  "corcrwh": [
+    "aircraft",
+    "t2"
+  ],
+  "corhurc": [
+    "aircraft",
+    "t2"
+  ],
+  "corseah": [
+    "aircraft",
+    "t2"
+  ],
+  "cortitan": [
+    "aircraft",
+    "t2"
+  ],
+  "corvamp": [
+    "aircraft",
+    "t2"
+  ],
+  "corbw": [
+    "aircraft",
+    "t1"
+  ],
+  "corca": [
+    "aircraft",
+    "factories",
+    "t1"
+  ],
+  "cordrone": [
+    "aircraft",
+    "t1"
+  ],
+  "cordroneold": [
+    "aircraft",
+    "t1"
+  ],
+  "corfink": [
+    "aircraft",
+    "t1"
+  ],
+  "corhvytrans": [
+    "aircraft",
+    "t1"
+  ],
+  "corshad": [
+    "aircraft",
+    "t1"
+  ],
+  "corvalk": [
+    "aircraft",
+    "t1"
+  ],
+  "corveng": [
+    "aircraft",
+    "t1"
+  ],
+  "coraak": [
+    "bots",
+    "t2"
+  ],
+  "corack": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "coramph": [
+    "bots",
+    "t2"
+  ],
+  "corcan": [
+    "bots",
+    "t2"
+  ],
+  "cordecom": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "corfast": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "corhack": [
+    "bots",
+    "factories",
+    "t3"
+  ],
+  "corhrk": [
+    "bots",
+    "t2"
+  ],
+  "cormando": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "cormort": [
+    "bots",
+    "t2"
+  ],
+  "corpyro": [
+    "bots",
+    "t2"
+  ],
+  "corroach": [
+    "bots",
+    "t2"
+  ],
+  "corsack": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "corsktl": [
+    "bots",
+    "t2"
+  ],
+  "corspec": [
+    "bots",
+    "t2"
+  ],
+  "corspy": [
+    "bots",
+    "t2"
+  ],
+  "corsumo": [
+    "bots",
+    "t2"
+  ],
+  "cortermite": [
+    "bots",
+    "t2"
+  ],
+  "corvoyr": [
+    "bots",
+    "t2"
+  ],
+  "corak": [
+    "bots",
+    "t1"
+  ],
+  "corck": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "corcrash": [
+    "bots",
+    "t1"
+  ],
+  "cornecro": [
+    "bots",
+    "t1"
+  ],
+  "corstorm": [
+    "bots",
+    "t1"
+  ],
+  "corthud": [
+    "bots",
+    "t1"
+  ],
+  "corbhmth": [
+    "defenses",
+    "t2"
+  ],
+  "corbuzz": [
+    "defenses",
+    "t2"
+  ],
+  "cordoom": [
+    "defenses",
+    "t2"
+  ],
+  "corerad": [
+    "defenses",
+    "t1"
+  ],
+  "corexp": [
+    "defenses",
+    "t1"
+  ],
+  "corflak": [
+    "defenses",
+    "t2"
+  ],
+  "corfmd": [
+    "defenses",
+    "t2"
+  ],
+  "corhllt": [
+    "defenses",
+    "t1"
+  ],
+  "corhlt": [
+    "defenses",
+    "t1"
+  ],
+  "corint": [
+    "defenses",
+    "t2"
+  ],
+  "corjuno": [
+    "defenses",
+    "t1"
+  ],
+  "corllt": [
+    "defenses",
+    "t1"
+  ],
+  "cormadsam": [
+    "defenses",
+    "t1"
+  ],
+  "cormaw": [
+    "defenses",
+    "t1"
+  ],
+  "cormexp": [
+    "defenses",
+    "t2"
+  ],
+  "corpun": [
+    "defenses",
+    "t1"
+  ],
+  "corrl": [
+    "defenses",
+    "t1"
+  ],
+  "corscreamer": [
+    "defenses",
+    "t2"
+  ],
+  "corsilo": [
+    "defenses",
+    "t2"
+  ],
+  "cortoast": [
+    "defenses",
+    "t2"
+  ],
+  "cortron": [
+    "defenses",
+    "t2"
+  ],
+  "corvipe": [
+    "defenses",
+    "t2"
+  ],
+  "coradvsol": [
+    "buildings",
+    "t1"
+  ],
+  "corafus": [
+    "buildings",
+    "t2"
+  ],
+  "corageo": [
+    "buildings",
+    "t2"
+  ],
+  "corestor": [
+    "buildings",
+    "t1"
+  ],
+  "corfus": [
+    "buildings",
+    "t2"
+  ],
+  "corgeo": [
+    "buildings",
+    "t1"
+  ],
+  "cormakr": [
+    "buildings",
+    "t1"
+  ],
+  "cormex": [
+    "buildings",
+    "t1"
+  ],
+  "cormmkr": [
+    "buildings",
+    "t2"
+  ],
+  "cormoho": [
+    "buildings",
+    "t2"
+  ],
+  "cormstor": [
+    "buildings",
+    "t1"
+  ],
+  "corsolar": [
+    "buildings",
+    "t1"
+  ],
+  "corwin": [
+    "buildings",
+    "t1"
+  ],
+  "coraap": [
+    "factories",
+    "t2"
+  ],
+  "coralab": [
+    "factories",
+    "t2"
+  ],
+  "corap": [
+    "factories",
+    "t1"
+  ],
+  "coravp": [
+    "factories",
+    "t2"
+  ],
+  "corgant": [
+    "factories",
+    "t3"
+  ],
+  "corhaap": [
+    "factories",
+    "t3"
+  ],
+  "corhaapuw": [
+    "factories",
+    "t2"
+  ],
+  "corhalab": [
+    "factories",
+    "t3"
+  ],
+  "corhavp": [
+    "factories",
+    "t3"
+  ],
+  "corhp": [
+    "factories",
+    "t1.5"
+  ],
+  "corlab": [
+    "factories",
+    "t1"
+  ],
+  "corsaap": [
+    "factories",
+    "t2"
+  ],
+  "corsalab": [
+    "factories",
+    "t2"
+  ],
+  "corsavp": [
+    "factories",
+    "t2"
+  ],
+  "corvp": [
+    "factories",
+    "t1"
+  ],
+  "leghaap": [
+    "factories",
+    "t3"
+  ],
+  "corarad": [
+    "buildings",
+    "t2"
+  ],
+  "cordrag": [
+    "buildings",
+    "t1"
+  ],
+  "coreyes": [
+    "buildings",
+    "t1"
+  ],
+  "corfort": [
+    "buildings",
+    "t2"
+  ],
+  "corgate": [
+    "defenses",
+    "t2"
+  ],
+  "corjamt": [
+    "buildings",
+    "t1"
+  ],
+  "cormine1": [
+    "defenses",
+    "t1"
+  ],
+  "cormine2": [
+    "defenses",
+    "t1"
+  ],
+  "cormine3": [
+    "defenses",
+    "t1"
+  ],
+  "cormine4": [
+    "defenses",
+    "t1"
+  ],
+  "cornanotc": [
+    "buildings",
+    "t1"
+  ],
+  "cornanotct2": [
+    "buildings",
+    "t1"
+  ],
+  "corrad": [
+    "buildings",
+    "t1"
+  ],
+  "corsd": [
+    "buildings",
+    "t2"
+  ],
+  "corshroud": [
+    "buildings",
+    "t2"
+  ],
+  "cortarg": [
+    "buildings",
+    "t2"
+  ],
+  "coranavaldefturret": [
+    "defenses",
+    "t2"
+  ],
+  "coratl": [
+    "defenses",
+    "t2"
+  ],
+  "cordl": [
+    "defenses",
+    "t1"
+  ],
+  "corenaa": [
+    "defenses",
+    "t2"
+  ],
+  "corfdoom": [
+    "defenses",
+    "t2"
+  ],
+  "corfhlt": [
+    "defenses",
+    "t1"
+  ],
+  "corfrock": [
+    "defenses",
+    "t1"
+  ],
+  "corfrt": [
+    "defenses",
+    "t1"
+  ],
+  "corgplat": [
+    "defenses",
+    "t1"
+  ],
+  "cornavaldefturret": [
+    "defenses",
+    "t1"
+  ],
+  "cortl": [
+    "defenses",
+    "t1"
+  ],
+  "corfmkr": [
+    "buildings",
+    "t1"
+  ],
+  "cortide": [
+    "buildings",
+    "t1"
+  ],
+  "coruwadves": [
+    "buildings",
+    "t2"
+  ],
+  "coruwadvms": [
+    "buildings",
+    "t2"
+  ],
+  "coruwageo": [
+    "buildings",
+    "t2"
+  ],
+  "coruwes": [
+    "buildings",
+    "t1"
+  ],
+  "coruwfus": [
+    "buildings",
+    "t2"
+  ],
+  "coruwgeo": [
+    "buildings",
+    "t1"
+  ],
+  "coruwmme": [
+    "buildings",
+    "t2"
+  ],
+  "coruwmmm": [
+    "buildings",
+    "t2"
+  ],
+  "coruwms": [
+    "buildings",
+    "t1"
+  ],
+  "coramsub": [
+    "ships",
+    "factories",
+    "t1.5"
+  ],
+  "corasy": [
+    "factories",
+    "t2"
+  ],
+  "corfhp": [
+    "factories",
+    "t1.5"
+  ],
+  "corgantuw": [
+    "factories",
+    "t3"
+  ],
+  "corhasy": [
+    "factories",
+    "t3"
+  ],
+  "corplat": [
+    "factories",
+    "t1.5"
+  ],
+  "corsasy": [
+    "factories",
+    "t2"
+  ],
+  "corsy": [
+    "factories",
+    "t1"
+  ],
+  "corason": [
+    "buildings",
+    "t2"
+  ],
+  "corfatf": [
+    "buildings",
+    "t2"
+  ],
+  "corfdrag": [
+    "buildings",
+    "t1"
+  ],
+  "corfgate": [
+    "defenses",
+    "t2"
+  ],
+  "corfmine3": [
+    "defenses",
+    "t1"
+  ],
+  "corfrad": [
+    "buildings",
+    "t1"
+  ],
+  "cornanotc2plat": [
+    "buildings",
+    "t1"
+  ],
+  "cornanotcplat": [
+    "buildings",
+    "t1"
+  ],
+  "corsonar": [
+    "buildings",
+    "t1"
+  ],
+  "corcat": [
+    "t3"
+  ],
+  "cordemon": [
+    "t3"
+  ],
+  "corjugg": [
+    "t3"
+  ],
+  "corkarg": [
+    "t3"
+  ],
+  "corkorg": [
+    "t3"
+  ],
+  "corshiva": [
+    "t3"
+  ],
+  "corsok": [
+    "t3"
+  ],
+  "corah": [
+    "hovercraft",
+    "t1"
+  ],
+  "corch": [
+    "hovercraft",
+    "factories",
+    "t1"
+  ],
+  "corhal": [
+    "hovercraft",
+    "t1"
+  ],
+  "cormh": [
+    "hovercraft",
+    "t1"
+  ],
+  "corsh": [
+    "hovercraft",
+    "t1"
+  ],
+  "corsnap": [
+    "hovercraft",
+    "t1"
+  ],
+  "corcsa": [
+    "aircraft",
+    "factories",
+    "t1"
+  ],
+  "corcut": [
+    "aircraft",
+    "t1"
+  ],
+  "corhaca": [
+    "aircraft",
+    "factories",
+    "t3"
+  ],
+  "corhunt": [
+    "aircraft",
+    "t1"
+  ],
+  "corsb": [
+    "aircraft",
+    "t1"
+  ],
+  "corseap": [
+    "aircraft",
+    "t1"
+  ],
+  "corsfig": [
+    "aircraft",
+    "t1"
+  ],
+  "corsfig2": [
+    "aircraft",
+    "t1"
+  ],
+  "leghaca": [
+    "aircraft",
+    "factories",
+    "t2"
+  ],
+  "coracsub": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "corantiship": [
+    "ships",
+    "t2"
+  ],
+  "corarch": [
+    "ships",
+    "t2"
+  ],
+  "corbats": [
+    "ships",
+    "t2"
+  ],
+  "corblackhy": [
+    "ships",
+    "t2"
+  ],
+  "corcarry": [
+    "ships",
+    "t2"
+  ],
+  "corcrus": [
+    "ships",
+    "t2"
+  ],
+  "cordesolator": [
+    "ships",
+    "t2"
+  ],
+  "cordronecarry": [
+    "ships",
+    "t2"
+  ],
+  "corfship": [
+    "ships",
+    "t2"
+  ],
+  "corhacs": [
+    "ships",
+    "factories",
+    "t3"
+  ],
+  "cormls": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "cormship": [
+    "ships",
+    "t2"
+  ],
+  "coronager": [
+    "ships",
+    "t2"
+  ],
+  "corprince": [
+    "ships",
+    "t2"
+  ],
+  "corsacvsub": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "corsentinel": [
+    "ships",
+    "defenses",
+    "t2"
+  ],
+  "corshark": [
+    "ships",
+    "t2"
+  ],
+  "corsjam": [
+    "ships",
+    "t2"
+  ],
+  "corssub": [
+    "ships",
+    "t2"
+  ],
+  "cortdrone": [
+    "ships",
+    "defenses",
+    "t1"
+  ],
+  "corcs": [
+    "ships",
+    "factories",
+    "t1"
+  ],
+  "coresupp": [
+    "ships",
+    "t1"
+  ],
+  "corpship": [
+    "ships",
+    "t1"
+  ],
+  "corpt": [
+    "ships",
+    "t1"
+  ],
+  "correcl": [
+    "ships",
+    "t1"
+  ],
+  "corroy": [
+    "ships",
+    "t1"
+  ],
+  "corsub": [
+    "ships",
+    "t1"
+  ],
+  "coracv": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "corban": [
+    "vehicles",
+    "t2"
+  ],
+  "coreter": [
+    "vehicles",
+    "t2"
+  ],
+  "corgol": [
+    "vehicles",
+    "t2"
+  ],
+  "corhacv": [
+    "vehicles",
+    "factories",
+    "t3"
+  ],
+  "cormabm": [
+    "vehicles",
+    "t2"
+  ],
+  "cormart": [
+    "vehicles",
+    "t2"
+  ],
+  "corparrow": [
+    "vehicles",
+    "t2"
+  ],
+  "corphantom": [
+    "vehicles",
+    "t2"
+  ],
+  "corprinter": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "correap": [
+    "vehicles",
+    "t2"
+  ],
+  "corsacv": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "corsala": [
+    "vehicles",
+    "t2"
+  ],
+  "corseal": [
+    "vehicles",
+    "t2"
+  ],
+  "corsent": [
+    "vehicles",
+    "t2"
+  ],
+  "corsiegebreaker": [
+    "vehicles",
+    "defenses",
+    "t2"
+  ],
+  "cortrem": [
+    "vehicles",
+    "t2"
+  ],
+  "corvac": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "corvacct": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "corvrad": [
+    "vehicles",
+    "t2"
+  ],
+  "corvroc": [
+    "vehicles",
+    "t2"
+  ],
+  "corcv": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "corfav": [
+    "vehicles",
+    "t1"
+  ],
+  "corgarp": [
+    "vehicles",
+    "t1"
+  ],
+  "corgator": [
+    "vehicles",
+    "t1"
+  ],
+  "corlevlr": [
+    "vehicles",
+    "t1"
+  ],
+  "cormist": [
+    "vehicles",
+    "t1"
+  ],
+  "cormlv": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "cormuskrat": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "corraid": [
+    "vehicles",
+    "t1"
+  ],
+  "corwolv": [
+    "vehicles",
+    "t1"
+  ],
+  "legafigdef": [
+    "t2"
+  ],
+  "legatorpbomber": [
+    "t2"
+  ],
+  "legfort": [
+    "t2"
+  ],
+  "legheavydrone": [
+    "t1"
+  ],
+  "legheavydronesmall": [
+    "t1"
+  ],
+  "legionnaire": [
+    "t2"
+  ],
+  "legmineb": [
+    "t2"
+  ],
+  "legnap": [
+    "t2"
+  ],
+  "legphoenix": [
+    "t2"
+  ],
+  "legstronghold": [
+    "t2"
+  ],
+  "legvenator": [
+    "t2"
+  ],
+  "legwhisper": [
+    "t2"
+  ],
+  "legatrans": [
+    "t1"
+  ],
+  "legcib": [
+    "t1"
+  ],
+  "legdrone": [
+    "t1"
+  ],
+  "legfig": [
+    "t1"
+  ],
+  "legkam": [
+    "t1"
+  ],
+  "leglts": [
+    "t1"
+  ],
+  "legmos": [
+    "t1"
+  ],
+  "legadvaabot": [
+    "bots",
+    "t2"
+  ],
+  "legajamk": [
+    "bots",
+    "t2"
+  ],
+  "legamph": [
+    "bots",
+    "t2"
+  ],
+  "legaradk": [
+    "bots",
+    "t2"
+  ],
+  "legaspy": [
+    "bots",
+    "t2"
+  ],
+  "legdecom": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "leghrk": [
+    "bots",
+    "t2"
+  ],
+  "leginc": [
+    "bots",
+    "t2"
+  ],
+  "leginfestor": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "legshot": [
+    "bots",
+    "t2"
+  ],
+  "legsnapper": [
+    "bots",
+    "t2"
+  ],
+  "legsrail": [
+    "bots",
+    "t2"
+  ],
+  "legaabot": [
+    "bots",
+    "t1"
+  ],
+  "legbal": [
+    "bots",
+    "t1"
+  ],
+  "legcen": [
+    "bots",
+    "t1"
+  ],
+  "leggob": [
+    "bots",
+    "t1"
+  ],
+  "leglob": [
+    "bots",
+    "t1"
+  ],
+  "legrezbot": [
+    "bots",
+    "t1"
+  ],
+  "legch": [
+    "factories",
+    "t1"
+  ],
+  "leghack": [
+    "factories",
+    "t2"
+  ],
+  "leghacv": [
+    "factories",
+    "t2"
+  ],
+  "legabm": [
+    "defenses",
+    "t2"
+  ],
+  "legacluster": [
+    "defenses",
+    "t2"
+  ],
+  "legapopupdef": [
+    "defenses",
+    "t2"
+  ],
+  "legbastion": [
+    "defenses",
+    "t2"
+  ],
+  "legbombard": [
+    "defenses",
+    "t2"
+  ],
+  "legcluster": [
+    "defenses",
+    "t1"
+  ],
+  "legdrag": [
+    "buildings",
+    "t1"
+  ],
+  "legdtr": [
+    "defenses",
+    "t1"
+  ],
+  "legflak": [
+    "defenses",
+    "t2"
+  ],
+  "legforti": [
+    "buildings",
+    "t2"
+  ],
+  "leggatet3": [
+    "defenses",
+    "t3"
+  ],
+  "leghive": [
+    "defenses",
+    "t1"
+  ],
+  "leglht": [
+    "defenses",
+    "t1"
+  ],
+  "leglraa": [
+    "defenses",
+    "t2"
+  ],
+  "leglrpc": [
+    "defenses",
+    "t2"
+  ],
+  "leglupara": [
+    "defenses",
+    "t1"
+  ],
+  "legmg": [
+    "defenses",
+    "t1"
+  ],
+  "legperdition": [
+    "defenses",
+    "t2"
+  ],
+  "legrhapsis": [
+    "defenses",
+    "t1"
+  ],
+  "legrl": [
+    "defenses",
+    "t1"
+  ],
+  "legsilo": [
+    "defenses",
+    "t2"
+  ],
+  "legstarfall": [
+    "defenses",
+    "t2"
+  ],
+  "legadveconv": [
+    "buildings",
+    "t2"
+  ],
+  "legadvestore": [
+    "buildings",
+    "t2"
+  ],
+  "legadvsol": [
+    "buildings",
+    "t1"
+  ],
+  "legafus": [
+    "buildings",
+    "t2"
+  ],
+  "legageo": [
+    "buildings",
+    "t2"
+  ],
+  "legamstor": [
+    "buildings",
+    "t2"
+  ],
+  "legeconv": [
+    "buildings",
+    "t1"
+  ],
+  "legestor": [
+    "buildings",
+    "t1"
+  ],
+  "legfus": [
+    "buildings",
+    "t2"
+  ],
+  "leggeo": [
+    "buildings",
+    "t1"
+  ],
+  "legmex": [
+    "buildings",
+    "t1"
+  ],
+  "legmext15": [
+    "buildings",
+    "t1"
+  ],
+  "legmoho": [
+    "buildings",
+    "t2"
+  ],
+  "legmohobp": [
+    "buildings",
+    "t2"
+  ],
+  "legmohobpct": [
+    "buildings",
+    "t1"
+  ],
+  "legmohocon": [
+    "buildings",
+    "t2"
+  ],
+  "legmohoconct": [
+    "buildings",
+    "t2"
+  ],
+  "legmohoconin": [
+    "buildings",
+    "t2"
+  ],
+  "legmstor": [
+    "buildings",
+    "t1"
+  ],
+  "legrampart": [
+    "defenses",
+    "t2"
+  ],
+  "legsolar": [
+    "buildings",
+    "t1"
+  ],
+  "legwin": [
+    "buildings",
+    "t1"
+  ],
+  "legah": [
+    "hovercraft",
+    "t1"
+  ],
+  "legcar": [
+    "hovercraft",
+    "t1"
+  ],
+  "legmh": [
+    "hovercraft",
+    "t1"
+  ],
+  "legner": [
+    "hovercraft",
+    "t1"
+  ],
+  "legsh": [
+    "hovercraft",
+    "t1"
+  ],
+  "legaap": [
+    "factories",
+    "t2"
+  ],
+  "legamphlab": [
+    "factories",
+    "t1.5"
+  ],
+  "legap": [
+    "factories",
+    "t1"
+  ],
+  "legfhp": [
+    "factories",
+    "t1.5"
+  ],
+  "leghalab": [
+    "factories",
+    "t3"
+  ],
+  "leghavp": [
+    "factories",
+    "t3"
+  ],
+  "leghp": [
+    "factories",
+    "t1.5"
+  ],
+  "leglab": [
+    "factories",
+    "t1"
+  ],
+  "legsy": [
+    "factories",
+    "t1"
+  ],
+  "legcomecon": [
+    "factories",
+    "t1"
+  ],
+  "legcomoff": [
+    "factories",
+    "t1"
+  ],
+  "legcomt2com": [
+    "factories",
+    "t1"
+  ],
+  "legcomt2def": [
+    "factories",
+    "t1"
+  ],
+  "legcomt2off": [
+    "factories",
+    "t1"
+  ],
+  "legvision": [
+    "buildings",
+    "t1"
+  ],
+  "leganavalaaturret": [
+    "defenses",
+    "t2"
+  ],
+  "leganavaldefturret": [
+    "defenses",
+    "t2"
+  ],
+  "leganavaltorpturret": [
+    "defenses",
+    "t2"
+  ],
+  "legctl": [
+    "defenses",
+    "t1"
+  ],
+  "legfdrag": [
+    "buildings",
+    "t1"
+  ],
+  "legfhive": [
+    "defenses",
+    "t1"
+  ],
+  "legfmg": [
+    "defenses",
+    "t1"
+  ],
+  "legfrl": [
+    "defenses",
+    "t1"
+  ],
+  "legnavaldefturret": [
+    "defenses",
+    "t1"
+  ],
+  "legtl": [
+    "defenses",
+    "t1"
+  ],
+  "leganavaladvgeo": [
+    "buildings",
+    "t2"
+  ],
+  "leganavaleconv": [
+    "buildings",
+    "t2"
+  ],
+  "leganavalfusion": [
+    "buildings",
+    "t2"
+  ],
+  "leganavalmex": [
+    "buildings",
+    "t2"
+  ],
+  "legfeconv": [
+    "buildings",
+    "t1"
+  ],
+  "legtide": [
+    "buildings",
+    "t1"
+  ],
+  "leguwestore": [
+    "buildings",
+    "t1"
+  ],
+  "leguwgeo": [
+    "buildings",
+    "t1"
+  ],
+  "leguwmstore": [
+    "buildings",
+    "t1"
+  ],
+  "legspbomber": [
+    "aircraft",
+    "t1"
+  ],
+  "legspfighter": [
+    "aircraft",
+    "t1"
+  ],
+  "legspradarsonarplane": [
+    "aircraft",
+    "t1"
+  ],
+  "legspsurfacegunship": [
+    "aircraft",
+    "t1"
+  ],
+  "legsptorpgunship": [
+    "aircraft",
+    "t1"
+  ],
+  "leganavalpinpointer": [
+    "buildings",
+    "t2"
+  ],
+  "leganavalsonarstation": [
+    "buildings",
+    "t2"
+  ],
+  "legfrad": [
+    "buildings",
+    "t1"
+  ],
+  "leganavyantinukecarrier": [
+    "ships",
+    "t2"
+  ],
+  "leganavyantiswarm": [
+    "ships",
+    "t2"
+  ],
+  "leganavyartyship": [
+    "ships",
+    "t2"
+  ],
+  "leganavybattleship": [
+    "ships",
+    "t2"
+  ],
+  "leganavycruiser": [
+    "ships",
+    "t2"
+  ],
+  "leganavyflagship": [
+    "ships",
+    "t2"
+  ],
+  "leganavyheavysub": [
+    "ships",
+    "t2"
+  ],
+  "leganavyradjamship": [
+    "ships",
+    "t2"
+  ],
+  "legnavyaaship": [
+    "ships",
+    "t1"
+  ],
+  "legnavyartyship": [
+    "ships",
+    "t1"
+  ],
+  "legnavydestro": [
+    "ships",
+    "t1"
+  ],
+  "legnavyfrigate": [
+    "ships",
+    "t1"
+  ],
+  "legnavyrezsub": [
+    "ships",
+    "t1"
+  ],
+  "legnavyscout": [
+    "ships",
+    "t1"
+  ],
+  "legnavysub": [
+    "ships",
+    "t1"
+  ],
+  "leegmech": [
+    "t3"
+  ],
+  "legbunk": [
+    "t3"
+  ],
+  "legeheatraymech": [
+    "t3"
+  ],
+  "legeheatraymech_old": [
+    "t3"
+  ],
+  "legehovertank": [
+    "hovercraft",
+    "t3"
+  ],
+  "legelrpcmech": [
+    "t3"
+  ],
+  "legerailtank": [
+    "t3"
+  ],
+  "legjav": [
+    "t3"
+  ],
+  "legkeres": [
+    "t3"
+  ],
+  "legajam": [
+    "buildings",
+    "t2"
+  ],
+  "legarad": [
+    "buildings",
+    "t2"
+  ],
+  "legdeflector": [
+    "defenses",
+    "t2"
+  ],
+  "legeyes": [
+    "buildings",
+    "t1"
+  ],
+  "legjam": [
+    "buildings",
+    "t1"
+  ],
+  "legjuno": [
+    "defenses",
+    "t1"
+  ],
+  "legmine1": [
+    "defenses",
+    "t1"
+  ],
+  "legmine2": [
+    "defenses",
+    "t1"
+  ],
+  "legmine3": [
+    "defenses",
+    "t1"
+  ],
+  "legnanotc": [
+    "buildings",
+    "t1"
+  ],
+  "legnanotcplat": [
+    "buildings",
+    "t1"
+  ],
+  "legnanotct2": [
+    "buildings",
+    "t2"
+  ],
+  "legnanotct2plat": [
+    "buildings",
+    "t2"
+  ],
+  "legrad": [
+    "buildings",
+    "t1"
+  ],
+  "legsd": [
+    "buildings",
+    "t2"
+  ],
+  "legtarg": [
+    "buildings",
+    "t2"
+  ],
+  "legaheattank": [
+    "vehicles",
+    "t2"
+  ],
+  "legamcluster": [
+    "vehicles",
+    "t2"
+  ],
+  "legaskirmtank": [
+    "vehicles",
+    "t2"
+  ],
+  "legavantinuke": [
+    "vehicles",
+    "t2"
+  ],
+  "legavjam": [
+    "vehicles",
+    "t2"
+  ],
+  "legavrad": [
+    "vehicles",
+    "t2"
+  ],
+  "legavroc": [
+    "vehicles",
+    "t2"
+  ],
+  "legfloat": [
+    "vehicles",
+    "t2"
+  ],
+  "leginf": [
+    "vehicles",
+    "t2"
+  ],
+  "legmed": [
+    "vehicles",
+    "t2"
+  ],
+  "legmrv": [
+    "vehicles",
+    "t2"
+  ],
+  "legvcarry": [
+    "vehicles",
+    "t2"
+  ],
+  "legvflak": [
+    "vehicles",
+    "t2"
+  ],
+  "legamphtank": [
+    "vehicles",
+    "t1"
+  ],
+  "legbar": [
+    "vehicles",
+    "t1"
+  ],
+  "leggat": [
+    "vehicles",
+    "t1"
+  ],
+  "leghades": [
+    "vehicles",
+    "t1"
+  ],
+  "leghelios": [
+    "vehicles",
+    "t1"
+  ],
+  "legmlv": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "legrail": [
+    "vehicles",
+    "t1"
+  ],
+  "legscout": [
+    "vehicles",
+    "t1"
+  ],
+  "legcom": [
+    "factories",
+    "t1"
+  ],
+  "armfepocht4": [
+    "t3"
+  ],
+  "armfify": [
+    "t1"
+  ],
+  "armlichet4": [
+    "t3"
+  ],
+  "armminebomber": [
+    "t1"
+  ],
+  "armthundt4": [
+    "t3"
+  ],
+  "corcrw": [
+    "t2"
+  ],
+  "corcrwt4": [
+    "t3"
+  ],
+  "cordronecarryair": [
+    "t3"
+  ],
+  "cords": [
+    "t1"
+  ],
+  "corfblackhyt4": [
+    "t3"
+  ],
+  "legfortt4": [
+    "t3"
+  ],
+  "legmost3": [
+    "t1"
+  ],
+  "armcomboss": [
+    "factories",
+    "t4"
+  ],
+  "corcomboss": [
+    "factories",
+    "t4"
+  ],
+  "armassimilator": [
+    "bots",
+    "t3"
+  ],
+  "armlunchbox": [
+    "bots",
+    "t3"
+  ],
+  "armmeatball": [
+    "bots",
+    "t3"
+  ],
+  "armpwt4": [
+    "bots",
+    "t3"
+  ],
+  "armsptkt4": [
+    "bots",
+    "t3"
+  ],
+  "corakt4": [
+    "bots",
+    "t1"
+  ],
+  "cordeadeye": [
+    "bots",
+    "t2"
+  ],
+  "corkarganetht4": [
+    "bots",
+    "t3"
+  ],
+  "corkark": [
+    "bots",
+    "t1"
+  ],
+  "cormandot4": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "corthermite": [
+    "bots",
+    "t3"
+  ],
+  "leggobt3": [
+    "bots",
+    "t1"
+  ],
+  "legpede": [
+    "bots",
+    "t3"
+  ],
+  "legsrailt4": [
+    "bots",
+    "t3"
+  ],
+  "armannit3": [
+    "defenses",
+    "t3"
+  ],
+  "armbotrail": [
+    "bots",
+    "defenses",
+    "t2"
+  ],
+  "armlwall": [
+    "defenses",
+    "t2"
+  ],
+  "armminivulc": [
+    "defenses",
+    "t2"
+  ],
+  "cordoomt3": [
+    "defenses",
+    "t3"
+  ],
+  "corhllllt": [
+    "defenses",
+    "t2"
+  ],
+  "corminibuzz": [
+    "defenses",
+    "t2"
+  ],
+  "cormwall": [
+    "defenses",
+    "t2"
+  ],
+  "corscavdrag": [
+    "buildings",
+    "t1"
+  ],
+  "corscavdtf": [
+    "defenses",
+    "t1"
+  ],
+  "corscavdtl": [
+    "defenses",
+    "t1"
+  ],
+  "corscavdtm": [
+    "defenses",
+    "t1"
+  ],
+  "corscavfort": [
+    "buildings",
+    "t1"
+  ],
+  "legdtf": [
+    "defenses",
+    "t1"
+  ],
+  "legdtl": [
+    "defenses",
+    "t1"
+  ],
+  "legdtm": [
+    "defenses",
+    "t1"
+  ],
+  "legministarfall": [
+    "defenses",
+    "t2"
+  ],
+  "legrwall": [
+    "defenses",
+    "t2"
+  ],
+  "armafust3": [
+    "buildings",
+    "t3"
+  ],
+  "armmmkrt3": [
+    "buildings",
+    "t3"
+  ],
+  "armwint2": [
+    "buildings",
+    "t2"
+  ],
+  "corafust3": [
+    "buildings",
+    "t3"
+  ],
+  "cormmkrt3": [
+    "buildings",
+    "t3"
+  ],
+  "corwint2": [
+    "buildings",
+    "t2"
+  ],
+  "legadveconvt3": [
+    "buildings",
+    "t3"
+  ],
+  "legafust3": [
+    "buildings",
+    "t3"
+  ],
+  "legwint2": [
+    "buildings",
+    "t2"
+  ],
+  "armgatet3": [
+    "defenses",
+    "t3"
+  ],
+  "corgatet3": [
+    "defenses",
+    "t3"
+  ],
+  "scavbeacon_t1": [
+    "defenses",
+    "t1"
+  ],
+  "scavbeacon_t2": [
+    "defenses",
+    "t1"
+  ],
+  "scavbeacon_t3": [
+    "defenses",
+    "t1"
+  ],
+  "scavbeacon_t4": [
+    "defenses",
+    "t1"
+  ],
+  "scavsafeareabeacon": [
+    "buildings",
+    "t1"
+  ],
+  "scavempspawner": [
+    "defenses",
+    "t1"
+  ],
+  "scavengerdroppod": [
+    "defenses",
+    "t1"
+  ],
+  "scavengerdroppodfriendly": [
+    "defenses",
+    "t1"
+  ],
+  "scavtacnukespawner": [
+    "defenses",
+    "t1"
+  ],
+  "armdronecarryland": [
+    "vehicles",
+    "t3"
+  ],
+  "armrattet4": [
+    "vehicles",
+    "t3"
+  ],
+  "armvadert4": [
+    "vehicles",
+    "t3"
+  ],
+  "armzapper": [
+    "vehicles",
+    "t1"
+  ],
+  "corforge": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "corftiger": [
+    "vehicles",
+    "t2"
+  ],
+  "corgatreap": [
+    "vehicles",
+    "t2"
+  ],
+  "corgolt4": [
+    "vehicles",
+    "t3"
+  ],
+  "cortorch": [
+    "vehicles",
+    "t1"
+  ],
+  "corves": [
+    "vehicles",
+    "t3"
+  ],
+  "armcom": [
+    "factories",
+    "t1"
+  ],
+  "armcomcon": [
+    "factories",
+    "t1"
+  ],
+  "corcom": [
+    "factories",
+    "t1"
+  ],
+  "corcomcon": [
+    "factories",
+    "t1"
+  ],
+  "armsat": [
+    "t2"
+  ],
+  "chip": [
+    "t1"
+  ],
+  "corsat": [
+    "t2"
+  ],
+  "critter_ant": [
+    "t1"
+  ],
+  "critter_crab": [
+    "t1"
+  ],
+  "critter_duck": [
+    "t1"
+  ],
+  "critter_goldfish": [
+    "t1"
+  ],
+  "critter_gull": [
+    "t1"
+  ],
+  "critter_penguin": [
+    "t1"
+  ],
+  "critter_penguinbro": [
+    "t1"
+  ],
+  "critter_penguinking": [
+    "t1"
+  ],
+  "dbg_sphere": [
+    "t1"
+  ],
+  "dbg_sphere_fullmetal": [
+    "t1"
+  ],
+  "dice": [
+    "t1"
+  ],
+  "corcomlvl3": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl4": [
+    "factories",
+    "t1"
+  ],
+  "freefusion": [
+    "buildings",
+    "t2"
+  ],
+  "lootboxbronze": [
+    "t1"
+  ],
+  "lootboxgold": [
+    "t1"
+  ],
+  "lootboxplatinum": [
+    "t1"
+  ],
+  "lootboxsilver": [
+    "t1"
+  ],
+  "lootdroppod_gold": [
+    "defenses",
+    "t1"
+  ],
+  "lootdroppod_printer": [
+    "defenses",
+    "t1"
+  ],
+  "meteor": [
+    "defenses",
+    "t1"
+  ],
+  "mission_command_tower": [
+    "buildings",
+    "t2"
+  ],
+  "nuketest": [
+    "defenses",
+    "t1"
+  ],
+  "nuketestcor": [
+    "defenses",
+    "t1"
+  ],
+  "nuketestorg": [
+    "defenses",
+    "t1"
+  ],
+  "pbr_cube": [
+    "t1"
+  ],
+  "raptor_air_bomber_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_acid_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_acids_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptorartillery": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t4_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t4_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t2_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t2_v3": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t2_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t2_v3": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t1_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t2_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t4_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_brood_t4_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_brood_t4_v3": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_brood_t4_v4": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_brood_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_brood_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_brood_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_brood_t3_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_brood_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_emp_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_kamikaze_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_kamikaze_emp_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t1_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t2_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t2_v3": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t2_v4": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_fire_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_fire_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_fire_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptorh1b": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_kamikaze_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_kamikaze_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_kamikaze_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_acid": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_basic": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_electric": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_fire": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_spectre": [
+    "bots",
+    "t1"
+  ],
+  "raptorh5": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_scout_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_scout_basic_t3_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_scout_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_spectre_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_spectre_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_spiker_spectre_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_spectre_t3_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_spectre_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_spiker_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_spiker_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_antinuke": [
+    "bots",
+    "defenses",
+    "t2"
+  ],
+  "raptor_hive": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_acid_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_acid_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_acid_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antiair_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antiair_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antiair_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antinuke_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antinuke_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_basic_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_basic_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_basic_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_burrow_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_emp_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_emp_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_emp_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_meteor_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_worm_green": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t4_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_6legged_l": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_basic_t3_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t1_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t2_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t2_v3": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t2_v4": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t3_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t3_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t3_v3": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_gunship_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_gunship_antiair_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_gunship_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_gunship_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_gunship_fire_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "resourcecheat": [
+    "buildings",
+    "t2"
+  ],
+  "volcano_projectile_unit": [
+    "t1"
+  ],
+  "xmasball1_1": [
+    "t1"
+  ],
+  "xmasball1_2": [
+    "t1"
+  ],
+  "xmasball1_3": [
+    "t1"
+  ],
+  "xmasball1_4": [
+    "t1"
+  ],
+  "xmasball1_5": [
+    "t1"
+  ],
+  "xmasball1_6": [
+    "t1"
+  ],
+  "xmasball2_1": [
+    "t1"
+  ],
+  "xmasball2_2": [
+    "t1"
+  ],
+  "xmasball2_3": [
+    "t1"
+  ],
+  "xmasball2_4": [
+    "t1"
+  ],
+  "xmasball2_5": [
+    "t1"
+  ],
+  "xmasball2_6": [
+    "t1"
+  ],
+  "scav_armaca": [
+    "aircraft",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armawac": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armblade": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armbrawl": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armdfly": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armhawk": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armlance": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armliche": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armpnix": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armstil": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armatlas": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armca": [
+    "aircraft",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armdrone": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armdroneold": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfig": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armhvytrans": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armkam": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armpeep": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armthund": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armaak": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armack": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armamph": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armaser": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armdecom": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armfark": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armfast": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armfboy": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armfido": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armhack": [
+    "bots",
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armmark": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armmav": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsack": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armscab": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsnipe": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armspid": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsptk": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armspy": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armvader": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armzeus": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armck": [
+    "bots",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armflea": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armham": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armjeth": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armpw": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armrectr": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armrock": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armwar": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armamb": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armamd": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armanni": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armbeamer": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armbrtha": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armcir": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armclaw": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armemp": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armferret": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armflak": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armguard": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armhlt": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armjuno": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armllt": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armmercury": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armpb": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armrl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armshockwave": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsilo": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armvulc": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armadvsol": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armafus": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armageo": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armamex": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armckfus": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armestor": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfus": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armgeo": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armgmm": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armmakr": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armmex": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armmmkr": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armmoho": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armmstor": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsolar": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armwin": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armaap": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armalab": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armap": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armavp": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armhaap": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armhaapuw": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armhalab": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armhavp": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armhp": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_armlab": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsaap": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsalab": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsavp": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armshltx": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armvp": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armarad": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armdf": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armdrag": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armeyes": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfort": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armgate": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armjamt": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armmine1": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armmine2": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armmine3": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armnanotc": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armnanotct2": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armrad": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsd": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armtarg": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armveil": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armanavaldefturret": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armatl": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armdl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfflak": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armfhlt": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfrock": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfrt": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armgplat": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armkraken": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armnavaldefturret": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armtl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfmkr": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armtide": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armuwadves": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armuwadvms": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armuwageo": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armuwes": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armuwfus": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armuwgeo": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armuwmme": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armuwmmm": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armuwms": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armamsub": [
+    "ships",
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_armasy": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armfhp": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_armhasy": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armplat": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_armsasy": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armshltxuw": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armsy": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armason": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armfatf": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armfdrag": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfgate": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armfmine3": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfrad": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armnanotc2plat": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armnanotcplat": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsonar": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armbanth": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_armlun": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_armmar": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_armprowl": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_armthor": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_armvang": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_armah": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armanac": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armch": [
+    "hovercraft",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armmh": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsh": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcsa": [
+    "aircraft",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armhaca": [
+    "aircraft",
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armsaber": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsb": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armseap": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsehak": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsfig": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsfig2": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armaas": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armacsub": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armantiship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armbats": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armcarry": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armcrus": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armdronecarry": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armepoch": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armexcalibur": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armhacs": [
+    "ships",
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armlship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armmls": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armmship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsacsub": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armseadragon": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armserp": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsjam": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsubk": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armtdrone": [
+    "ships",
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armtrident": [
+    "ships",
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armcs": [
+    "ships",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armdecade": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armpship": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armpt": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armrecl": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armroy": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsub": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armtorps": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armacv": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armbull": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armconsul": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armcroc": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armgremlin": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armhacv": [
+    "vehicles",
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armjam": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armlatnk": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armmanni": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armmart": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armmerl": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsacv": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armseer": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armyork": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armart": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armbeaver": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcv": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfav": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armflash": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armjanus": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armmlv": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armpincer": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsam": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armstump": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coraca": [
+    "aircraft",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corape": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corawac": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corcrwh": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corhurc": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corseah": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cortitan": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corvamp": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corbw": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corca": [
+    "aircraft",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cordrone": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cordroneold": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfink": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corhvytrans": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corshad": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corvalk": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corveng": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coraak": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corack": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coramph": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corcan": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cordecom": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corfast": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corhack": [
+    "bots",
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corhrk": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cormando": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cormort": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corpyro": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corroach": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsack": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsktl": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corspec": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corspy": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsumo": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cortermite": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corvoyr": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corak": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corck": [
+    "bots",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcrash": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cornecro": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corstorm": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corthud": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corbhmth": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corbuzz": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cordoom": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corerad": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corexp": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corflak": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corfmd": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corhllt": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corhlt": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corint": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corjuno": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corllt": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormadsam": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormaw": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormexp": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corpun": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corrl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corscreamer": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsilo": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cortoast": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cortron": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corvipe": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coradvsol": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corafus": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corageo": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corestor": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfus": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corgeo": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormakr": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormex": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormmkr": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cormoho": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cormstor": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsolar": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corwin": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coraap": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coralab": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corap": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coravp": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corgant": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corhaap": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corhaapuw": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corhalab": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corhavp": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corhp": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_corlab": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsaap": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsalab": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsavp": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corvp": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leghaap": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corarad": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cordrag": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coreyes": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfort": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corgate": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corjamt": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormine1": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormine2": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormine3": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormine4": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cornanotc": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cornanotct2": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corrad": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsd": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corshroud": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cortarg": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coranavaldefturret": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coratl": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cordl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corenaa": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corfdoom": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corfhlt": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfrock": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfrt": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corgplat": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cornavaldefturret": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cortl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfmkr": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cortide": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coruwadves": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coruwadvms": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coruwageo": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coruwes": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coruwfus": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coruwgeo": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coruwmme": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coruwmmm": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coruwms": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coramsub": [
+    "ships",
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_corasy": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corfhp": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_corgantuw": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corhasy": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corplat": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_corsasy": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsy": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corason": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corfatf": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corfdrag": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfgate": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corfmine3": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfrad": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cornanotc2plat": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cornanotcplat": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsonar": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcat": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_cordemon": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_corjugg": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_corkarg": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_corkorg": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_corshiva": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_corsok": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_corah": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corch": [
+    "hovercraft",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corhal": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormh": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsh": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsnap": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcsa": [
+    "aircraft",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcut": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corhaca": [
+    "aircraft",
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corhunt": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsb": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corseap": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsfig": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsfig2": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leghaca": [
+    "aircraft",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coracsub": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corantiship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corarch": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corbats": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corblackhy": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corcarry": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corcrus": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cordesolator": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cordronecarry": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corfship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corhacs": [
+    "ships",
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_cormls": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cormship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coronager": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corprince": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsacvsub": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsentinel": [
+    "ships",
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corshark": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsjam": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corssub": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cortdrone": [
+    "ships",
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcs": [
+    "ships",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coresupp": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corpship": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corpt": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_correcl": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corroy": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsub": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coracv": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corban": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_coreter": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corgol": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corhacv": [
+    "vehicles",
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_cormabm": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cormart": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corparrow": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corphantom": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corprinter": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_correap": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsacv": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsala": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corseal": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsent": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsiegebreaker": [
+    "vehicles",
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cortrem": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corvac": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corvacct": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corvrad": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corvroc": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corcv": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfav": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corgarp": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corgator": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corlevlr": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormist": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormlv": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormuskrat": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corraid": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corwolv": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legafigdef": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legatorpbomber": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legfort": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legheavydrone": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_legheavydronesmall": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_legionnaire": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legmineb": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legnap": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legphoenix": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legstronghold": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legvenator": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legwhisper": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_legatrans": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcib": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_legdrone": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_legfig": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_legkam": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_leglts": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmos": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_legadvaabot": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legajamk": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legamph": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legaradk": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legaspy": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legdecom": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leghrk": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leginc": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leginfestor": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legshot": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legsnapper": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legsrail": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legaabot": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legbal": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcen": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leggob": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leglob": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legrezbot": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legch": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leghack": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leghacv": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legabm": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legacluster": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legapopupdef": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legbastion": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legbombard": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legcluster": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legdrag": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legdtr": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legflak": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legforti": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leggatet3": [
+    "defenses",
+    "t3",
+    "scavenger"
+  ],
+  "scav_leghive": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leglht": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leglraa": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leglrpc": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leglupara": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmg": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legperdition": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legrhapsis": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legrl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legsilo": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legstarfall": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legadveconv": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legadvestore": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legadvsol": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legafus": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legageo": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legamstor": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legeconv": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legestor": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legfus": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leggeo": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmex": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmext15": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmoho": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legmohobp": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legmohobpct": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmohocon": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legmohoconct": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legmohoconin": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legmstor": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legrampart": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legsolar": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legwin": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legah": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcar": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmh": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legner": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legsh": [
+    "hovercraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legaap": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legamphlab": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_legap": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legfhp": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_leghalab": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_leghavp": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_leghp": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_leglab": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legsy": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcomecon": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcomoff": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcomt2com": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcomt2def": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcomt2off": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legvision": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leganavalaaturret": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavaldefturret": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavaltorpturret": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legctl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legfdrag": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legfhive": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legfmg": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legfrl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavaldefturret": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legtl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leganavaladvgeo": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavaleconv": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavalfusion": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavalmex": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legfeconv": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legtide": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leguwestore": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leguwgeo": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leguwmstore": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legspbomber": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legspfighter": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legspradarsonarplane": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legspsurfacegunship": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legsptorpgunship": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leganavalpinpointer": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavalsonarstation": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legfrad": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leganavyantinukecarrier": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavyantiswarm": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavyartyship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavybattleship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavycruiser": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavyflagship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavyheavysub": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavyradjamship": [
+    "ships",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legnavyaaship": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavyartyship": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavydestro": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavyfrigate": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavyrezsub": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavyscout": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavysub": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leegmech": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legbunk": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legeheatraymech": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legeheatraymech_old": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legehovertank": [
+    "hovercraft",
+    "t3",
+    "scavenger"
+  ],
+  "scav_legelrpcmech": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legerailtank": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legjav": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legkeres": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legajam": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legarad": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legdeflector": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legeyes": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legjam": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legjuno": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmine1": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmine2": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmine3": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnanotc": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnanotcplat": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnanotct2": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legnanotct2plat": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legrad": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legsd": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legtarg": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legaheattank": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legamcluster": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legaskirmtank": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legavantinuke": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legavjam": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legavrad": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legavroc": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legfloat": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leginf": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legmed": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legmrv": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legvcarry": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legvflak": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legamphtank": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legbar": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leggat": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leghades": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leghelios": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmlv": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legrail": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legscout": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcom": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armfepocht4": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_armfify": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_armlichet4": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_armminebomber": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_armthundt4": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_corcrw": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_corcrwt4": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_cordronecarryair": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_cords": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_corfblackhyt4": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legfortt4": [
+    "t3",
+    "scavenger"
+  ],
+  "scav_legmost3": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomboss": [
+    "factories",
+    "t4",
+    "scavenger"
+  ],
+  "scav_corcomboss": [
+    "factories",
+    "t4",
+    "scavenger"
+  ],
+  "scav_armassimilator": [
+    "bots",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armlunchbox": [
+    "bots",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armmeatball": [
+    "bots",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armpwt4": [
+    "bots",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armsptkt4": [
+    "bots",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corakt4": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cordeadeye": [
+    "bots",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corkarganetht4": [
+    "bots",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corkark": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormandot4": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corthermite": [
+    "bots",
+    "t3",
+    "scavenger"
+  ],
+  "scav_leggobt3": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legpede": [
+    "bots",
+    "t3",
+    "scavenger"
+  ],
+  "scav_legsrailt4": [
+    "bots",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armannit3": [
+    "defenses",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armbotrail": [
+    "bots",
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armlwall": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armminivulc": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cordoomt3": [
+    "defenses",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corhllllt": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corminibuzz": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cormwall": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legdtf": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legdtl": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legdtm": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legministarfall": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legrwall": [
+    "defenses",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armafust3": [
+    "buildings",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armmmkrt3": [
+    "buildings",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armwint2": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corafust3": [
+    "buildings",
+    "t3",
+    "scavenger"
+  ],
+  "scav_cormmkrt3": [
+    "buildings",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corwint2": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legadveconvt3": [
+    "buildings",
+    "t3",
+    "scavenger"
+  ],
+  "scav_legafust3": [
+    "buildings",
+    "t3",
+    "scavenger"
+  ],
+  "scav_legwint2": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armgatet3": [
+    "defenses",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corgatet3": [
+    "defenses",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armdronecarryland": [
+    "vehicles",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armrattet4": [
+    "vehicles",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armvadert4": [
+    "vehicles",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armzapper": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corforge": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corftiger": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corgatreap": [
+    "vehicles",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corgolt4": [
+    "vehicles",
+    "t3",
+    "scavenger"
+  ],
+  "scav_cortorch": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corves": [
+    "vehicles",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armcom": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomcon": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcom": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomcon": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsat": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_chip": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsat": [
+    "t2",
+    "scavenger"
+  ],
+  "scav_critter_ant": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_crab": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_duck": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_goldfish": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_gull": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_penguin": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_penguinbro": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_penguinking": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_dbg_sphere": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_dbg_sphere_fullmetal": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_dice": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl3": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl4": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_freefusion": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_lootboxbronze": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootboxgold": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootboxplatinum": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootboxsilver": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootdroppod_gold": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootdroppod_printer": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_meteor": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_mission_command_tower": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_nuketest": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_nuketestcor": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_nuketestorg": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_pbr_cube": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_resourcecheat": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_volcano_projectile_unit": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_1": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_2": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_3": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_4": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_5": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_6": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_1": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_2": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_3": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_4": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_5": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_6": [
+    "t1",
+    "scavenger"
+  ]
+}

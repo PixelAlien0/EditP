@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.cache/
+.unitpics-staging/
+.skill-staging/
+.agents/
+docs/
+*.log

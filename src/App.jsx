@@ -1,0 +1,6089 @@
+import { lazy, Suspense, useState, useMemo, useEffect, useRef, useCallback, useId } from 'react';
+import { createPortal } from 'react-dom';
+import unitsDb from './data/units.json';
+import unitpicManifest from './data/unitpic-manifest.json';
+import factoryRosters from './data/factory-rosters.json';
+import { getFactionOfUnit, getTagsOfUnit as getUnitTags, getTechTierOfUnit as getUnitTechTier } from './utils/categories.js';
+import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
+import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
+import { Button, Switch, StatCard } from './components/ui.jsx';
+
+const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
+const LazyPresetGalleryPage = lazy(() => import('./components/PresetGalleryPage.jsx'));
+const LazyReviewPage = lazy(() => import('./components/ReviewPage.jsx'));
+
+// Keep the laboratory code available while this experimental workspace is temporarily unpublished.
+const WEAPON_LAB_ENABLED = false;
+const SHOW_LEGACY_REVIEW_REFERENCE = false;
+
+// Curated parameters list with monospaced text labels instead of emojis
+const STAT_KEYS = [
+  { key: 'metalcost', label: 'Metal Cost', icon: '[MET]', type: 'number' },
+  { key: 'energycost', label: 'Energy Cost', icon: '[ENG]', type: 'number' },
+  { key: 'buildtime', label: 'Build Time', icon: '[TIM]', type: 'number' },
+  { key: 'health', label: 'Health (HP)', icon: '[HP]', type: 'number' },
+  { key: 'maxvelocity', label: 'Max Speed', icon: '[SPD]', type: 'number', patchKey: 'speed' },
+  { key: 'acceleration', label: 'Acceleration', icon: '[ACC]', type: 'number' },
+  { key: 'brakerate', label: 'Brake Rate', icon: '[BRK]', type: 'number', patchKey: 'brakeRate' },
+  { key: 'turnrate', label: 'Turn Rate', icon: '[TRN]', type: 'number', patchKey: 'turnRate' },
+  { key: 'mass', label: 'Mass', icon: '[MSS]', type: 'number' },
+  { key: 'sightdistance', label: 'Sight Range', icon: '[SIG]', type: 'number' },
+  { key: 'radardistance', label: 'Radar Range', icon: '[RAD]', type: 'number' },
+  { key: 'sonardistance', label: 'Sonar Range', icon: '[SON]', type: 'number' },
+  { key: 'stealth', label: 'Radar Stealth', icon: '[STL]', type: 'boolean' },
+  { key: 'sonarstealth', label: 'Sonar Stealth', icon: '[SST]', type: 'boolean', patchKey: 'sonarStealth' },
+  { key: 'workertime', label: 'Worker Power', icon: '[WRK]', type: 'number' },
+  { key: 'metalmake', label: 'Metal Prod.', icon: '[PROD]', type: 'number' },
+  { key: 'extractsmetal', label: 'Metal Extract', icon: '[EXT]', type: 'number' },
+  { key: 'energymake', label: 'Energy Prod.', icon: '[ENM]', type: 'number' },
+  { key: 'metalstorage', label: 'Metal Storage', icon: '[MS]', type: 'number' },
+  { key: 'energystorage', label: 'Energy Storage', icon: '[ES]', type: 'number' },
+  { key: 'cloakcost', label: 'Cloak Cost', icon: '[CLK]', type: 'number' },
+  { key: 'cloakcostmoving', label: 'Cloak Move', icon: '[CLKM]', type: 'number' },
+  { key: 'builddistance', label: 'Build Range', icon: '[RNG]', type: 'number' },
+  { key: 'autoheal', label: 'Regen Rate', icon: '[REG]', type: 'number' },
+  { key: 'customparams.techlevel', label: 'Tech Tier', icon: '[TCH]', type: 'number', nestedIn: 'customparams', patchKey: 'techlevel' },
+  { key: 'customparams.energyconv_capacity', label: 'Conv. Capacity', icon: '[CAP]', type: 'number', nestedIn: 'customparams', patchKey: 'energyconv_capacity' },
+  { key: 'customparams.energyconv_efficiency', label: 'Conv. Effic.', icon: '[EFF]', type: 'number', nestedIn: 'customparams', patchKey: 'energyconv_efficiency' },
+  { key: 'maxslope', label: 'Max Slope', icon: '[SLP]', type: 'number' },
+  { key: 'maxwaterdepth', label: 'Max Depth', icon: '[DEP]', type: 'number' },
+  { key: 'minwaterdepth', label: 'Min Depth', icon: '[MIN]', type: 'number' },
+  { key: 'transportcapacity', label: 'Trans. Cap.', icon: '[TRN]', type: 'number', patchKey: 'transportCapacity' },
+  { key: 'cantbetransported', label: 'No Transport', icon: '[NTR]', type: 'boolean', patchKey: 'cantBeTransported' },
+  { key: 'cruisealt', label: 'Cruise Altitude', icon: '[ALT]', type: 'number' },
+  { key: 'airsubalt', label: 'Sub-Altitude', icon: '[SUB]', type: 'number' }
+];
+
+const MOBILITY_STAT_KEYS = new Set([
+  'maxvelocity', 'acceleration', 'brakerate', 'turnrate', 'maxslope', 'maxwaterdepth',
+  'minwaterdepth', 'transportcapacity', 'cantbetransported', 'cruisealt', 'airsubalt'
+]);
+
+const ENVIRONMENT_FIELDS = [
+  { key: 'gravity', label: 'Gravity', icon: '[G]', desc: 'Custom gravity (default: ~130)' },
+  { key: 'windmin', label: 'Wind Min', icon: '[W↓]', desc: 'Minimum wind speed for wind generators' },
+  { key: 'windmax', label: 'Wind Max', icon: '[W↑]', desc: 'Maximum wind speed for wind generators' },
+  { key: 'tidalmaker', label: 'Tidal Maker', icon: '[T]', desc: 'Tidal energy production rate' }
+];
+
+const WORKSPACE_TAB_DEFINITIONS = [
+  { id: 'structure', label: 'Economy & Durability', description: 'Costs, health, production', panelId: 'workspace-panel-structure' },
+  { id: 'mobility', label: 'Movement & Sensors', description: 'Speed, terrain, detection', panelId: 'workspace-panel-mobility' },
+  { id: 'weapons', label: 'Weapons', description: 'Damage, targeting, projectiles', panelId: 'workspace-panel-weapons' },
+  { id: 'environment', label: 'Map Environment', description: 'Wind, gravity, tides', panelId: 'workspace-panel-environment' }
+];
+
+const PARAMETER_RELATIONSHIPS = [
+  { section: 'structure', title: 'Construction economy', description: 'Cost and build work combine to determine how expensive and slow a unit is to field.', keys: ['metalcost', 'energycost', 'buildtime', 'workertime'] },
+  { section: 'structure', title: 'Durability and physics', description: 'Health, mass, and regeneration shape survivability and impulse response.', keys: ['health', 'mass', 'autoheal'] },
+  { section: 'structure', title: 'Detection profile', description: 'Visual, radar, sonar, and stealth values determine when this unit can see or be seen.', keys: ['sightdistance', 'radardistance', 'sonardistance', 'stealth', 'sonarstealth'] },
+  { section: 'structure', title: 'Resource production', description: 'Production, extraction, and storage should be balanced as one economy package.', keys: ['metalmake', 'extractsmetal', 'energymake', 'metalstorage', 'energystorage'] },
+  { section: 'structure', title: 'Cloak economy', description: 'Cloak drain is safest to tune alongside energy income and storage.', keys: ['cloakcost', 'cloakcostmoving', 'energymake', 'energystorage'] },
+  { section: 'structure', title: 'Converter output', description: 'Conversion capacity and efficiency jointly control the converter’s useful output.', keys: ['customparams.energyconv_capacity', 'customparams.energyconv_efficiency', 'energymake'] },
+  { section: 'mobility', title: 'Movement response', description: 'Top speed, acceleration, braking, and turning determine the complete handling profile.', keys: ['maxvelocity', 'acceleration', 'brakerate', 'turnrate'] },
+  { section: 'mobility', title: 'Terrain access', description: 'Slope and water-depth limits decide which parts of a map the unit can traverse.', keys: ['maxslope', 'maxwaterdepth', 'minwaterdepth'] },
+  { section: 'mobility', title: 'Transport behavior', description: 'Capacity, transport eligibility, and mass interact with carrying roles.', keys: ['transportcapacity', 'cantbetransported'] },
+  { section: 'mobility', title: 'Aircraft altitude', description: 'Cruise and attack altitude should be tuned together with aircraft speed.', keys: ['cruisealt', 'airsubalt', 'maxvelocity'] },
+  { section: 'weapons', title: 'Damage throughput', description: 'Damage, reload, projectile count, and burst timing combine into sustained DPS.', keys: ['damage', 'reload', 'projectiles', 'burst', 'burstrate'] },
+  { section: 'weapons', title: 'Armor damage profile', description: 'Specific armor values override base damage for matching target classes.', keys: ['damage', 'damage_vs_light', 'damage_vs_medium', 'damage_vs_heavy', 'damage_vs_commander'] },
+  { section: 'weapons', title: 'Range and projectile travel', description: 'Range must be reachable within projectile speed, acceleration, and lifetime limits.', keys: ['range', 'velocity', 'flighttime', 'startvelocity', 'weaponacceleration', 'burnblow'] },
+  { section: 'weapons', title: 'Accuracy and leading', description: 'Spread, movement error, prediction, and firing tolerance jointly determine practical hit rate.', keys: ['accuracy', 'sprayangle', 'movingaccuracy', 'targetmoveerror', 'predictboost', 'leadlimit', 'leadbonus', 'tolerance', 'firetolerance'] },
+  { section: 'weapons', title: 'Splash behavior', description: 'Area, edge damage, impact rules, and self-damage define how explosions apply damage.', keys: ['aoe', 'edgeeffectiveness', 'impactonly', 'noexplode', 'noselfdamage'] },
+  { section: 'weapons', title: 'Guidance and trajectory', description: 'Tracking, turn rate, arc, and flight motion determine whether guided shots can connect.', keys: ['tracks', 'turnrate', 'trajectoryheight', 'wobble', 'dance', 'flighttime'] },
+  { section: 'weapons', title: 'Collision and bounce', description: 'Collision masks and bounce retention control how a projectile interacts with the world.', keys: ['collidefriendly', 'collidefeature', 'collideneutral', 'collideground', 'collisionSize', 'groundbounce', 'waterbounce', 'numbounce', 'bounceslip', 'bouncerebound'] },
+  { section: 'weapons', title: 'Target eligibility', description: 'Ground, air, water, and category masks jointly decide which targets are valid or preferred.', keys: ['canattackground', 'toairweapon', 'waterweapon', 'firesubmersed', 'onlytargetcategory', 'badtargetcategory'] },
+  { section: 'weapons', title: 'Stockpile and shot cost', description: 'Ammunition timing, limits, and per-shot resources determine firing availability.', keys: ['stockpile', 'stockpiletime', 'stockpilelimit', 'energypershot', 'metalpershot'] },
+  { section: 'weapons', title: 'Beam behavior', description: 'Beam duration, burst mode, sweep behavior, and falloff shape delivered damage.', keys: ['beamtime', 'beamburst', 'sweepfire', 'minintensity', 'duration', 'hardstop', 'falloffrate'] },
+  { section: 'weapons', title: 'Projectile presentation', description: 'Trail, model, impact effect, colors, thickness, and intensity form one visual language.', keys: ['cegTag', 'model', 'explosiongenerator', 'rgbcolor', 'rgbcolor2', 'thickness', 'corethickness', 'laserflaresize', 'intensity'] },
+  { section: 'weapons', title: 'Weapon audio', description: 'Fire, impact, and water-impact sounds should be authored as a coordinated set.', keys: ['soundstart', 'soundhit', 'soundhitwet'] },
+  { section: 'environment', title: 'Wind envelope', description: 'Minimum and maximum wind define the map’s available wind-power range.', keys: ['windmin', 'windmax'] }
+];
+
+const PARAMETER_LABEL_OVERRIDES = {
+  aoe: 'Splash AoE', cegTag: 'Visual Effect / Trail', collisionSize: 'Collision Size',
+  canattackground: 'Can Target Ground', toairweapon: 'Anti-Air Only',
+  onlytargetcategory: 'Allow Targets', badtargetcategory: 'De-prioritise Targets',
+  soundstart: 'Fire Sound', soundhit: 'Hit Sound', soundhitwet: 'Water Hit Sound'
+};
+
+function getRelationshipLabel(key) {
+  return STAT_KEYS.find(item => item.key === key)?.label
+    || ENVIRONMENT_FIELDS.find(item => item.key === key)?.label
+    || PARAMETER_LABEL_OVERRIDES[key]
+    || key.replace(/^customparams\./, '').replaceAll('_', ' ').replace(/\b\w/g, character => character.toUpperCase());
+}
+
+function getParameterRelationship(section, key) {
+  if (!key) return null;
+  const matches = PARAMETER_RELATIONSHIPS.filter(group => group.section === section && group.keys.includes(key));
+  if (matches.length === 0) return null;
+  if (matches.length === 1) return matches[0];
+  return {
+    section,
+    title: `${getRelationshipLabel(key)} connects ${matches.length} systems`,
+    description: matches.map(group => group.title).join(' · '),
+    keys: [...new Set(matches.flatMap(group => group.keys))]
+  };
+}
+
+function ParameterRelationshipPanel({ section, activeKey, onSelect, onClear }) {
+  if (!activeKey) {
+    return (
+      <aside className="parameter-relationship-panel is-empty" aria-label="Contextual parameter relationships">
+        <div><span>Parameter relationships</span><small>Focus or click a parameter to reveal the values that should be tuned with it.</small></div>
+      </aside>
+    );
+  }
+  const relationship = getParameterRelationship(section, activeKey);
+  if (!relationship) {
+    return (
+      <aside className="parameter-relationship-panel is-empty" aria-live="polite">
+        <div><span>{getRelationshipLabel(activeKey)}</span><small>No direct dependency group is mapped for this parameter.</small></div>
+        <button type="button" className="parameter-relationship-clear" onClick={onClear} aria-label="Clear selected parameter">×</button>
+      </aside>
+    );
+  }
+  return (
+    <aside className="parameter-relationship-panel" aria-live="polite">
+      <div className="parameter-relationship-copy">
+        <span>{relationship.title}</span>
+        <small>{relationship.description}</small>
+      </div>
+      <div className="parameter-relationship-links" aria-label={`Related to ${getRelationshipLabel(activeKey)}`}>
+        <em>{getRelationshipLabel(activeKey)}</em>
+        {relationship.keys.filter(key => key !== activeKey).map(key => (
+          <button type="button" key={key} onClick={() => onSelect(key)}>{getRelationshipLabel(key)}</button>
+        ))}
+      </div>
+      <button type="button" className="parameter-relationship-clear" onClick={onClear} aria-label="Clear selected parameter">×</button>
+    </aside>
+  );
+}
+
+function ComparisonValue({ active, before, after, beforeLabel = 'Inherited' }) {
+  if (!active) return null;
+  const display = value => value === undefined || value === '' ? beforeLabel : String(value);
+  return (
+    <div className="before-after-value" aria-label={`Before ${display(before)}, after ${display(after)}`}>
+      <span><small>Before</small><strong>{display(before)}</strong></span>
+      <i aria-hidden="true">→</i>
+      <span><small>After</small><strong>{display(after)}</strong></span>
+    </div>
+  );
+}
+
+const TARGET_CATEGORY_GROUPS = [
+  { label: 'Unit types', categories: ['VTOL', 'SURFACE', 'UNDERWATER', 'SUB', 'SHIP', 'HOVER', 'LAND', 'FLOAT', 'SWIM', 'IMMOBILE', 'MINE'] },
+  { label: 'Exclusions', categories: ['NOTAIR', 'NOTSUB', 'NOTSHIP', 'NOTHOVER', 'NOTLAND'] },
+  { label: 'Special', categories: ['EMPABLE'] }
+];
+
+const CATEGORIES = [
+  'bots', 'vehicles', 'aircraft', 'ships', 'hovercraft', 'factories', 'defenses', 'buildings', 't1', 't2', 't3', 't4'
+];
+
+const WEAPON_SLOT_BOOLEAN_PARAMS = new Set([
+  'canattackground', 'toairweapon', 'stockpile', 'avoidfriendly', 'collidefriendly',
+  'impactonly', 'noexplode', 'burnblow', 'noselfdamage', 'paralyzer', 'waterweapon',
+  'firesubmersed', 'collidefeature', 'collideneutral', 'collideground', 'tracks',
+  'fixedlauncher', 'smoketrail', 'groundbounce', 'waterbounce', 'beamburst', 'sweepfire',
+  'hardstop', 'explosionscar', 'alwaysvisible'
+]);
+
+const WEAPON_SLOT_STRING_PARAMS = new Set([
+  'weapontype', 'cegTag', 'model', 'explosiongenerator', 'rgbcolor', 'rgbcolor2',
+  'soundstart', 'soundhit', 'soundhitwet'
+]);
+
+const WEAPON_SLOT_PATHS = {
+  damage: 'damage.default',
+  damage_vs_light: 'damage.light',
+  damage_vs_medium: 'damage.medium',
+  damage_vs_heavy: 'damage.heavy',
+  damage_vs_commander: 'damage.commander',
+  reload: 'reloadtime',
+  velocity: 'weaponvelocity',
+  aoe: 'areaofeffect',
+  stockpilelimit: 'customparams.stockpilelimit',
+  cegTag: 'cegtag',
+  interceptedbyshieldtype: 'interceptedbyshieldtype',
+  collisionSize: 'collisionsize',
+  startvelocity: 'startvelocity',
+  weaponacceleration: 'weaponacceleration',
+  turnrate: 'turnrate',
+  trajectoryheight: 'trajectoryheight',
+  targetmoveerror: 'targetmoveerror',
+  targetborder: 'targetborder',
+  cylindertargeting: 'cylindertargeting',
+  firetolerance: 'firetolerance',
+  proximitypriority: 'proximitypriority',
+  edgeeffectiveness: 'edgeeffectiveness',
+  impulsefactor: 'impulsefactor',
+  impulseboost: 'impulseboost',
+  energypershot: 'energypershot',
+  metalpershot: 'metalpershot',
+  paralyzetime: 'paralyzetime',
+  movingaccuracy: 'movingaccuracy',
+  predictboost: 'predictboost',
+  leadlimit: 'leadlimit',
+  leadbonus: 'leadbonus',
+  heightboostfactor: 'heightboostfactor',
+  numbounce: 'numbounce',
+  bounceslip: 'bounceslip',
+  bouncerebound: 'bouncerebound',
+  beamtime: 'beamtime',
+  minintensity: 'minintensity',
+  duration: 'duration',
+  falloffrate: 'falloffrate',
+  thickness: 'thickness',
+  corethickness: 'corethickness',
+  laserflaresize: 'laserflaresize',
+  intensity: 'intensity'
+};
+
+const PARAMETER_HELP = {
+  metalcost: 'Metal required to build the unit.', energycost: 'Energy required to build the unit.', buildtime: 'Base work required to finish construction.', health: 'Maximum hit points before destruction.',
+  maxvelocity: 'Maximum movement speed.', acceleration: 'How quickly the unit reaches speed.', brakerate: 'How quickly the unit slows down.', mass: 'Affects collision and impulse reactions.',
+  sightdistance: 'Visual detection range.', radardistance: 'Radar detection range.', sonardistance: 'Underwater detection range.', stealth: 'Prevents radar detection.', sonarstealth: 'Prevents sonar detection.',
+  workertime: 'Build, repair, reclaim, and terraform power.', metalmake: 'Passive metal production.', extractsmetal: 'Metal extraction amount.', energymake: 'Passive energy production.',
+  metalstorage: 'Maximum stored metal.', energystorage: 'Maximum stored energy.', cloakcost: 'Energy used per second while cloaked.', cloakcostmoving: 'Energy used per second while moving while cloaked.',
+  builddistance: 'Maximum building and repair range.', maxslope: 'Steepest terrain the unit can use.', maxwaterdepth: 'Deepest water the unit can enter.', minwaterdepth: 'Minimum water depth required.',
+  transportcapacity: 'Number of transport slots provided.', cantbetransported: 'Prevents the unit from being carried.', cruisealt: 'Preferred aircraft altitude.', airsubalt: 'Aircraft altitude when attacking.',
+  'customparams.techlevel': 'Technology tier used by BAR content and filters.', 'customparams.energyconv_capacity': 'Energy-converter capacity custom parameter.', 'customparams.energyconv_efficiency': 'Energy-converter efficiency custom parameter.',
+  damage: 'Base damage against targets without a specific armor class.', reload: 'Seconds between firing cycles.', range: 'Maximum firing range in elmos.', velocity: 'Projectile speed.',
+  flighttime: 'How long a guided projectile retains fuel and guidance.', aoe: 'Explosion diameter that can damage nearby units.', accuracy: 'Base shot spread; lower is more accurate.',
+  sprayangle: 'Spread between projectiles in a burst.', heightmod: 'How range changes with target elevation.', randomdecay: 'Legacy projectile spread behavior; use with caution.',
+  hightrajectory: 'Cannon arc mode: low, high, or player-toggleable.', projectiles: 'Projectiles released per firing event.', burst: 'Shots fired in one burst.', burstrate: 'Delay between shots inside a burst.',
+  canattackground: 'Allows force-firing at a ground position.', toairweapon: 'Legacy anti-air convenience flag. Prefer target categories for precise control.', stockpile: 'Requires ammunition to be stockpiled before firing.',
+  avoidfriendly: 'Makes projectiles try to avoid friendly units.', collidefriendly: 'Allows projectile collision with friendly units.', interceptedbyshieldtype: 'Shield interception bitmask. Zero means shields do not intercept it.',
+  stockpiletime: 'Seconds required to produce one stockpiled round.', stockpilelimit: 'Custom maximum number of stockpiled rounds.', weapontype: 'Engine projectile behavior class.',
+  cegTag: 'Continuous effect emitted by the projectile while it travels.', model: '3D projectile model file.', explosiongenerator: 'Custom explosion effect spawned on impact.',
+  edgeeffectiveness: 'Fraction of base damage retained at the outer edge of splash range.', impactonly: 'Deals damage only through direct impact, not splash.',
+  noexplode: 'Projectile continues after impact. Can multiply damage while inside a collision volume.', burnblow: 'Explodes when it reaches maximum range.', noselfdamage: 'Prevents the firing unit from taking its own explosion damage.',
+  impulsefactor: 'Multiplier for knockback impulse.', impulseboost: 'Flat knockback added before the multiplier.', energypershot: 'Energy consumed each time the weapon fires.', metalpershot: 'Metal consumed each time the weapon fires.',
+  paralyzer: 'Turns damage into paralysis rather than hit-point loss.', paralyzetime: 'Maximum paralysis duration.', mygravity: 'Overrides map gravity for ballistic weapons.', heightboostfactor: 'Terrain-height effect on cannon range.',
+  startvelocity: 'Projectile speed immediately after launch.', weaponacceleration: 'Speed gained per second until maximum velocity.', tracks: 'Enables homing guidance.', turnrate: 'How quickly a guided projectile can turn.',
+  trajectoryheight: 'Guided missile arc height.', wobble: 'Random direction variation during flight.', dance: 'Random positional variation during flight.', fixedlauncher: 'Uses the firing piece orientation at launch.',
+  smoketrail: 'Emits the weapon type’s smoke trail.', waterweapon: 'Can target underwater units and pass through water.', firesubmersed: 'Allows the weapon to fire while underwater.',
+  movingaccuracy: 'Shot spread while the firing unit is moving.', targetmoveerror: 'Random error based on target movement.', predictboost: 'How strongly the weapon predicts target movement.',
+  leadlimit: 'Maximum distance used when leading a target; -1 is unlimited.', leadbonus: 'Experience bonus added to lead limit.', targetborder: 'Aim point from far edge to near edge of the target.',
+  cylindertargeting: 'Uses cylindrical instead of spherical range behavior.', tolerance: 'Aim error allowed before the weapon may fire.', firetolerance: 'Final angle check that stops sideways shots.',
+  proximitypriority: 'Target-priority multiplier based on distance.', collidefeature: 'Whether projectiles collide with map features.', collideneutral: 'Whether projectiles collide with neutral units.',
+  collideground: 'Whether projectiles collide with terrain.', collisionSize: 'Projectile collision size; engine effect varies by weapon type.', groundbounce: 'Enables bouncing off terrain.',
+  waterbounce: 'Enables bouncing off water.', numbounce: 'Number of bounces before explosion; -1 permits unlimited bounces.', bounceslip: 'Horizontal velocity kept after a bounce.',
+  bouncerebound: 'Vertical velocity kept after a bounce.', beamtime: 'Beam duration; damage is distributed across this time.', beamburst: 'Uses burst behavior instead of continuous beam timing.',
+  sweepfire: 'Allows a beam to continue while aiming at a new target.', minintensity: 'Minimum beam damage retained at maximum range.', duration: 'Visual laser length multiplier.',
+  hardstop: 'Stops a laser projectile sharply instead of fading out.', falloffrate: 'Laser fade rate after maximum range.', thickness: 'Beam or laser width.',
+  corethickness: 'Width of the beam’s bright core.', laserflaresize: 'Size of the firing flare.', intensity: 'Visual transparency/intensity for sprite projectiles.',
+  rgbcolor: 'Primary projectile RGB color, for example “1 0.2 0.2”.', rgbcolor2: 'Secondary/core projectile RGB color.', explosionscar: 'Leaves an explosion scar on terrain.',
+  alwaysvisible: 'Renders the projectile even outside line of sight.', soundstart: 'Sound asset played when firing.', soundhit: 'Sound asset played on impact.', soundhitwet: 'Sound asset played on water impact.',
+  onlytargetcategory: 'Categories this slot is allowed to target.', badtargetcategory: 'Categories this slot de-prioritizes but can still target.',
+  gravity: 'Global map gravity override.', windmin: 'Minimum map wind strength.', windmax: 'Maximum map wind strength.', tidalmaker: 'Global tidal energy yield.'
+};
+
+function getParameterHelp(key, label) {
+  if (key === 'turnrate' && label === 'Turn Rate') return 'How quickly the unit rotates.';
+  if (PARAMETER_HELP[key]) return PARAMETER_HELP[key];
+  if (key.startsWith('damage_vs_')) return `Damage against the ${key.replace('damage_vs_', '')} armor class.`;
+  return `${label}. Enter a value to create an override; clear or reset it to return to the inherited game value.`;
+}
+
+function ParameterHelp({ paramKey, label }) {
+  const help = getParameterHelp(paramKey, label);
+  const triggerRef = useRef(null);
+  const tooltipId = useId();
+  const [isOpen, setIsOpen] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState(null);
+
+  const updateTooltipPosition = useCallback(() => {
+    const triggerRect = triggerRef.current?.getBoundingClientRect();
+    if (!triggerRect) return;
+
+    const viewportInset = 12;
+    const tooltipWidth = Math.min(260, window.innerWidth - viewportInset * 2);
+    const hasRoomAbove = triggerRect.top - 72 >= viewportInset;
+    const left = Math.min(
+      Math.max(triggerRect.left + triggerRect.width / 2, tooltipWidth / 2 + viewportInset),
+      window.innerWidth - tooltipWidth / 2 - viewportInset
+    );
+
+    setTooltipPosition({
+      left,
+      top: hasRoomAbove ? triggerRect.top - 8 : triggerRect.bottom + 8,
+      placement: hasRoomAbove ? 'above' : 'below'
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    updateTooltipPosition();
+    window.addEventListener('resize', updateTooltipPosition);
+    window.addEventListener('scroll', updateTooltipPosition, true);
+    return () => {
+      window.removeEventListener('resize', updateTooltipPosition);
+      window.removeEventListener('scroll', updateTooltipPosition, true);
+    };
+  }, [isOpen, updateTooltipPosition]);
+
+  return (
+    <span className="parameter-help">
+      <button
+        ref={triggerRef}
+        type="button"
+        className="parameter-help-trigger"
+        aria-label={`Help: ${label}`}
+        aria-describedby={isOpen ? tooltipId : undefined}
+        onPointerEnter={() => setIsOpen(true)}
+        onPointerLeave={() => setIsOpen(false)}
+        onFocus={() => setIsOpen(true)}
+        onBlur={() => setIsOpen(false)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            setIsOpen(false);
+            event.currentTarget.blur();
+          }
+        }}
+      >
+        ?
+      </button>
+      {isOpen && tooltipPosition && createPortal(
+        <span
+          id={tooltipId}
+          className={`parameter-help-tooltip parameter-help-tooltip--floating parameter-help-tooltip--${tooltipPosition.placement}`}
+          role="tooltip"
+          style={{ left: tooltipPosition.left, top: tooltipPosition.top }}
+        >
+          {help}
+        </span>,
+        document.body
+      )}
+    </span>
+  );
+}
+
+function ParameterGuide({ section }) {
+  const sectionCopy = {
+    structure: 'Unit attributes apply to the selected unit. A changed field becomes a project override; Reset removes only that override.',
+    mobility: 'Movement changes affect how the selected unit travels. Use small changes first, then validate in-game.',
+    weapons: 'Values apply to the selected weapon slot. Inherited means the untouched BAR definition is used. Advanced fields are engine-specific; hover ? for behavior and constraints.',
+    environment: 'Environment overrides apply to the whole project rather than a single unit.'
+  };
+  return (
+    <details className="editor-parameter-guide">
+      <summary>Parameter guide</summary>
+      <p>{sectionCopy[section] || sectionCopy.structure}</p>
+      <p><strong>How to change:</strong> enter a value or choose a state. Edited cards are marked; use Reset or × to restore the inherited value.</p>
+    </details>
+  );
+}
+
+const CREDIT_SOURCES = [
+  {
+    kind: 'Game data',
+    name: 'Beyond All Reason',
+    description: 'Unit definitions, weapon definitions, internal IDs, balance defaults, and build-picture references used by the editor.',
+    href: 'https://github.com/beyond-all-reason/Beyond-All-Reason'
+  },
+  {
+    kind: 'Unit artwork',
+    name: 'BAR unitpics',
+    description: 'The unit thumbnails shown throughout the library are web conversions of build pictures from the BAR game repository.',
+    href: 'https://github.com/beyond-all-reason/Beyond-All-Reason/tree/master/unitpics'
+  },
+  {
+    kind: 'Engine behavior',
+    name: 'Recoil Engine',
+    description: 'Weapon and unit fields ultimately follow the engine behavior implemented by Recoil and its Spring engine heritage.',
+    href: 'https://github.com/beyond-all-reason/RecoilEngine'
+  },
+  {
+    kind: 'Effects reference',
+    name: 'Spring CEG documentation',
+    description: 'Custom explosion generator terminology and effect properties are informed by the public Spring CEG reference.',
+    href: 'https://springrts.com/wiki/CEG%3ADefs'
+  },
+  {
+    kind: 'Official game',
+    name: 'Beyond All Reason website',
+    description: 'Game downloads, community links, news, and the official presentation of Beyond All Reason.',
+    href: 'https://www.beyondallreason.info/'
+  }
+];
+
+const CREDIT_NOTICES = [
+  {
+    title: 'Independent fan project',
+    copy: 'BAR Editor is an independently developed modding companion. It is not affiliated with, authorized by, or endorsed by the Beyond All Reason team, the Recoil/Spring contributors, or the owners of any underlying game properties.'
+  },
+  {
+    title: 'Ownership stays upstream',
+    copy: 'Names, logos, unit artwork, game data, sounds, and other third-party material remain the property of their respective creators and rights holders. Their appearance here is attribution, not a transfer of ownership.'
+  },
+  {
+    title: 'Licenses vary by asset',
+    copy: 'BAR contains material under multiple licenses and folder-specific notices. This editor does not relicense those assets. Check the current upstream license and attribution files before redistributing a mod or any bundled media.'
+  },
+  {
+    title: 'Generated output needs testing',
+    copy: 'Generated Lua and project files are editing aids, not a guarantee of balance, engine compatibility, multiplayer safety, or acceptance by BAR. Test changes in an isolated development environment before release.'
+  },
+  {
+    title: 'Game updates can drift',
+    copy: 'The editor uses a bundled snapshot of public definitions. BAR and Recoil evolve continuously, so field behavior, defaults, and available assets may differ from the version currently installed on a player’s machine.'
+  },
+  {
+    title: 'Your project stays local',
+    copy: 'Editor drafts use browser storage, and Save Project creates a local file. The editor does not publish a project for you; sharing an export or generated mod remains an intentional user action.'
+  }
+];
+
+const CREDIT_IMAGE_PREVIEWS = [
+  { id: 'armcom', alt: 'Armada commander unit artwork' },
+  { id: 'corcom', alt: 'Cortex commander unit artwork' },
+  { id: 'legcom', alt: 'Legion commander unit artwork' },
+  { id: 'armdfly', alt: 'Armada unit artwork' }
+];
+
+function CreditsModal({ onClose }) {
+  const dialogRef = useRef(null);
+  const closeButtonRef = useRef(null);
+
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      const focusable = dialogRef.current?.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus?.();
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="credits-overlay"
+      onPointerDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        ref={dialogRef}
+        className="credits-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="credits-modal-title"
+        aria-describedby="credits-modal-summary"
+      >
+        <header className="credits-modal__header">
+          <div>
+            <span className="credits-modal__eyebrow">Project information</span>
+            <h2 id="credits-modal-title">Disclaimer &amp; credits</h2>
+          </div>
+          <button ref={closeButtonRef} type="button" className="credits-modal__close" onClick={onClose} aria-label="Close disclaimer and credits">
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+
+        <div className="credits-modal__body">
+          <section className="credits-intro" aria-labelledby="credits-intro-title">
+            <img src="/logo.svg" alt="" className="credits-intro__logo" />
+            <div>
+              <span className="credits-intro__status">Independent fan-made editor</span>
+              <h3 id="credits-intro-title">Built for experimenting with BAR definitions</h3>
+              <p id="credits-modal-summary">BAR Editor helps creators inspect, adjust, clone, and export game definitions. It is a community tool and is separate from the official Beyond All Reason project.</p>
+            </div>
+          </section>
+
+          <section className="credits-notice" aria-labelledby="credits-important-title">
+            <div className="credits-section-heading">
+              <span>Read before publishing</span>
+              <h3 id="credits-important-title">Important use notes</h3>
+            </div>
+            <div className="credits-notice__grid">
+              {CREDIT_NOTICES.map((notice, index) => (
+                <article key={notice.title} className="credits-notice__item">
+                  <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h4>{notice.title}</h4>
+                    <p>{notice.copy}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="credits-assets" aria-labelledby="credits-assets-title">
+            <div className="credits-assets__previews" aria-label="Examples of credited BAR unit artwork">
+              {CREDIT_IMAGE_PREVIEWS.map(image => <UnitArtwork key={image.id} unitId={image.id} alt={image.alt} />)}
+            </div>
+            <div className="credits-assets__copy">
+              <span>Image provenance</span>
+              <h3 id="credits-assets-title">Unit imagery comes from BAR build pictures</h3>
+              <p>Images in the unit library are converted for browser display from the BAR repository’s <code>unitpics</code> assets. Sound parameters only reference engine asset names; the editor does not package or redistribute BAR sound files.</p>
+            </div>
+          </section>
+
+          <section className="credits-sources" aria-labelledby="credits-sources-title">
+            <div className="credits-section-heading">
+              <span>Primary references</span>
+              <h3 id="credits-sources-title">Sources &amp; acknowledgements</h3>
+              <p>Follow the original projects for current code, documentation, licenses, and contributor history.</p>
+            </div>
+            <div className="credits-sources__grid">
+              {CREDIT_SOURCES.map(source => (
+                <a key={source.name} className="credits-source-card" href={source.href} target="_blank" rel="noreferrer">
+                  <span>{source.kind}</span>
+                  <strong>{source.name}</strong>
+                  <p>{source.description}</p>
+                  <small>Open source ↗</small>
+                </a>
+              ))}
+            </div>
+          </section>
+
+          <footer className="credits-modal__footer">
+            <div className="credits-maintainer">
+              <span>Web application</span>
+              <strong>Maintained by [Grump]SunlessK</strong>
+            </div>
+            <button type="button" className="ui-button" onClick={onClose}>Done</button>
+          </footer>
+        </div>
+      </section>
+    </div>,
+    document.body
+  );
+}
+
+function MainMenu({
+  themeMode,
+  unitCount,
+  projectName,
+  projectChangeCount,
+  cloneCount,
+  rosterCount,
+  onToggleTheme,
+  onOpenCredits,
+  onEditUnits,
+  onBuildMenus,
+  onReviewExport,
+  onLoadProject
+}) {
+  const menuItems = [
+    {
+      step: '01',
+      title: 'Edit units',
+      description: 'Tune economy, movement, weapons, targeting, and environment definitions.',
+      meta: projectChangeCount > 0 ? `${projectChangeCount} active changes` : 'Primary workspace',
+      primary: true,
+      onSelect: onEditUnits
+    },
+    {
+      step: '02',
+      title: 'Build menus',
+      description: 'Compose factory rosters and decide where custom units enter production.',
+      meta: rosterCount > 0 ? `${rosterCount} roster changes` : 'Factory designer',
+      onSelect: onBuildMenus
+    },
+    {
+      step: '03',
+      title: 'Review & export',
+      description: 'Inspect validation, project metadata, generated Lua, and export readiness.',
+      meta: 'Compile project',
+      onSelect: onReviewExport
+    }
+  ];
+
+  return (
+    <main className="main-menu">
+      <header className="main-menu__topbar">
+        <div className="main-menu__brand">
+          <img src="/logo.svg" alt="" />
+          <div>
+            <span>Mod workspace</span>
+            <strong>Bar EditP</strong>
+          </div>
+        </div>
+        <div className="main-menu__utilities">
+          <button type="button" onClick={onToggleTheme} aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}>
+            <span aria-hidden="true">{themeMode === 'dark' ? '☼' : '◐'}</span>
+            {themeMode === 'dark' ? 'Light' : 'Dark'}
+          </button>
+          <button type="button" onClick={onOpenCredits}>Credits</button>
+        </div>
+      </header>
+
+      <div className="main-menu__canvas">
+        <section className="main-menu__hero" aria-labelledby="main-menu-title">
+          <div className="main-menu__edition">
+            <span>編集工房</span>
+            <small>Definition workshop · Session 01</small>
+          </div>
+          <h1 id="main-menu-title">
+            <span>Bar</span>
+            <em>EditP</em>
+          </h1>
+          <p>A focused BAR definition workspace for unit editing, weapon tuning, factory composition, and clean project exports.</p>
+          <button type="button" className="main-menu__enter" onClick={onEditUnits}>
+            <span>{projectChangeCount > 0 ? 'Continue workshop' : 'Enter workshop'}</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10h12" /><path d="m11.5 5.5 4.5 4.5-4.5 4.5" /></svg>
+          </button>
+
+          <dl className="main-menu__session-stats" aria-label="Current project status">
+            <div><dt>Definitions</dt><dd>{unitCount.toLocaleString()}</dd></div>
+            <div><dt>Project changes</dt><dd>{projectChangeCount}</dd></div>
+            <div><dt>Custom units</dt><dd>{cloneCount}</dd></div>
+          </dl>
+        </section>
+
+        <section className="main-menu__directory" aria-labelledby="main-menu-directory-title">
+          <div className="main-menu__directory-heading">
+            <div>
+              <span>Main menu</span>
+              <h2 id="main-menu-directory-title">Choose a workspace</h2>
+            </div>
+            <small>{projectName || 'Untitled project'}</small>
+          </div>
+
+          <nav className="main-menu__nav" aria-label="Main menu destinations">
+            {menuItems.map(item => (
+              <button key={item.step} type="button" className={item.primary ? 'is-primary' : ''} onClick={item.onSelect}>
+                <span className="main-menu__nav-step">{item.step}</span>
+                <span className="main-menu__nav-copy">
+                  <strong>{item.title}</strong>
+                  <small>{item.description}</small>
+                </span>
+                <span className="main-menu__nav-meta">{item.meta}</span>
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9" /><path d="m9 4.5 3.5 3.5L9 11.5" /></svg>
+              </button>
+            ))}
+          </nav>
+
+          <div className="main-menu__project-actions">
+            <label>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7" /><path d="m5.25 7 2.75 2.75L10.75 7" /><path d="M3 12.5h10" /></svg>
+              <span><strong>Load project</strong><small>Open a previously exported JSON workspace</small></span>
+              <input type="file" accept=".json" onChange={onLoadProject} />
+            </label>
+            <button type="button" onClick={onOpenCredits}>
+              <span><strong>About this editor</strong><small>Disclaimer, sources, and asset credits</small></span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+
+        </section>
+      </div>
+
+      <footer className="main-menu__footer">
+        <span>Maintained by <strong>[Grump]SunlessK</strong></span>
+        <span>Local project session · BAR definitions loaded</span>
+      </footer>
+    </main>
+  );
+}
+
+function getValidationWarning(key, value) {
+  if (value === undefined || value === '') return null;
+  const num = parseFloat(value);
+  if (isNaN(num)) return null;
+
+  const isKey = (pattern) => {
+    return key.toLowerCase().includes(pattern.toLowerCase());
+  };
+
+  if (isKey('reload') || isKey('burstrate') || isKey('stockpiletime')) {
+    if (num <= 0) return { level: 'error', message: 'Value must be positive' };
+    if (num < 0.03) return { level: 'warning', message: 'Below engine limit (0.033s)' };
+  }
+  if (isKey('range') || isKey('sightdistance') || isKey('radardistance') || isKey('sonardistance') || isKey('builddistance')) {
+    if (num < 0) return { level: 'error', message: 'Range cannot be negative' };
+    if (num > 10000) return { level: 'warning', message: 'Exceeds standard map scale (10000)' };
+  }
+  if (isKey('metalcost') || isKey('energycost')) {
+    if (num < 0) return { level: 'error', message: 'Cost cannot be negative' };
+  }
+  if (isKey('buildtime')) {
+    if (num <= 0) return { level: 'error', message: 'Build time must be positive' };
+  }
+  if (isKey('health')) {
+    if (num <= 0) return { level: 'error', message: 'Health must be positive' };
+  }
+  if (isKey('maxvelocity')) {
+    if (num < 0) return { level: 'error', message: 'Speed cannot be negative' };
+    if (num > 400) return { level: 'warning', message: 'High speed may glitch (>400)' };
+  }
+  if (isKey('stockpilelimit')) {
+    if (num < 0) return { level: 'error', message: 'Limit cannot be negative' };
+  }
+  return null;
+}
+
+function getUnitIconUrl(id) {
+  if (!id) return '/logo.svg';
+  const lowerId = id.toLowerCase();
+  return unitpicManifest.units?.[lowerId] || '/logo.svg';
+}
+
+function UnitArtwork({ unitId, src, alt = '', eager = false, onError, ...props }) {
+  const handleError = event => {
+    if (event.currentTarget.dataset.fallbackApplied === 'true') return;
+    event.currentTarget.dataset.fallbackApplied = 'true';
+    event.currentTarget.src = '/logo.svg';
+    onError?.(event);
+  };
+  return (
+    <img
+      {...props}
+      src={src || getUnitIconUrl(unitId)}
+      alt={alt}
+      width="192"
+      height="192"
+      loading={eager ? 'eager' : 'lazy'}
+      fetchPriority={eager ? 'high' : 'auto'}
+      decoding="async"
+      onError={handleError}
+    />
+  );
+}
+
+function hexToRgbUnit(hex) {
+  const clean = String(hex || '#ffffff').replace('#', '').padEnd(6, 'f').slice(0, 6);
+  return [0, 2, 4].map(index => parseInt(clean.slice(index, index + 2), 16) / 255);
+}
+
+function generateWeaponVfxPackLua(blueprints) {
+  const entries = [];
+  const inRange = (value, min, max, fallback) => {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : fallback;
+  };
+  blueprints.filter(item => item.appearance?.vfxEnabled).forEach(blueprint => {
+    const safeId = blueprint.id.replace(/[^a-z0-9_]/gi, '_').toLowerCase();
+    const appearance = blueprint.appearance || {};
+    const primary = hexToRgbUnit(appearance.color);
+    const secondary = hexToRgbUnit(appearance.secondaryColor || appearance.color);
+    const brightness = inRange(appearance.brightness, 0.1, 2, 1);
+    const particleSize = inRange(appearance.particleSize, 1, 40, 5);
+    const particleCount = Math.round(inRange(appearance.particleCount, 1, 32, 4));
+    const particleLife = Math.round(inRange(appearance.particleLife, 1, 90, 12));
+    const spread = inRange(appearance.spread, 0, 90, 3);
+    const trailSize = inRange(appearance.trailSize, 1, 80, particleSize * 1.35);
+    const trailLength = inRange(appearance.trailLength, 1, 160, particleSize * 4);
+    const trailGrowth = inRange(appearance.trailGrowth, -1, 5, 0.15);
+    const trailLife = Math.round(inRange(appearance.trailLife, 1, 60, 5));
+    const trailOffset = inRange(appearance.trailOffset, 0, 1, 0.2);
+    const heatSize = inRange(appearance.heatSize, 1, 120, particleSize * 2.4);
+    const heatGrowth = inRange(appearance.heatGrowth, 0, 20, Math.max(0.2, particleSize * 0.08));
+    const heatFalloff = inRange(appearance.heatFalloff, 0.1, 12, 1.1);
+    const flashSize = inRange(appearance.flashSize, 1, 250, particleSize * 5);
+    const flashAlpha = inRange(appearance.flashAlpha, 0, 1, 0.55);
+    const flashGrowth = inRange(appearance.flashGrowth, 0, 40, particleSize * 0.55);
+    const flashLife = Math.round(inRange(appearance.flashLife, 1, 60, 8));
+    const texture = String(appearance.texture || 'flare').replace(/[^a-z0-9_-]/gi, '') || 'flare';
+    const colorMap = `${primary.map(v => Math.min(1, v * brightness).toFixed(3)).join(' ')} 0.85  ${secondary.map(v => Math.min(1, v * brightness).toFixed(3)).join(' ')} 0.35  0 0 0 0.01`;
+
+    entries.push(`  ["bmf_${safeId}_trail"] = {\n    usedefaultexplosions = false,\n    muzzleflare = {\n      air = true, ground = true, water = true, underwater = true,\n      class = "CBitmapMuzzleFlame", count = 1,\n      properties = {\n        colormap = [[${colorMap}]], dir = [[dir]], frontoffset = ${trailOffset.toFixed(2)},\n        fronttexture = [[${texture}]], sidetexture = [[${texture}]],\n        length = ${trailLength.toFixed(2)}, size = ${trailSize.toFixed(2)}, sizegrowth = ${trailGrowth.toFixed(2)}, ttl = ${trailLife},\n      },\n    },\n  }`);
+    const impactSpawners = [];
+    if (appearance.heatEnabled !== false) impactSpawners.push(`    core = {\n      air = true, ground = true, water = true, underwater = true,\n      class = "CHeatCloudProjectile", count = 1,\n      properties = {\n        heat = ${Math.round(12 * brightness)}, maxheat = ${Math.round(16 * brightness)}, heatfalloff = ${heatFalloff.toFixed(2)},\n        pos = [[0, 3, 0]], size = ${heatSize.toFixed(2)}, sizegrowth = ${heatGrowth.toFixed(2)}, texture = [[${texture}]],\n      },\n    }`);
+    if (appearance.particlesEnabled !== false) impactSpawners.push(`    sparks = {\n      air = true, ground = true, water = true, underwater = true,\n      class = "CSimpleParticleSystem", count = 1,\n      properties = {\n        airdrag = 0.88, colormap = [[${colorMap}]], directional = true,\n        emitrot = 35, emitrotspread = ${spread.toFixed(2)}, emitvector = [[0, 1, 0]],\n        gravity = [[0, -0.08, 0]], numparticles = ${particleCount * 2},\n        particlelife = ${particleLife}, particlelifespread = 4, particlesize = ${(particleSize * 0.8).toFixed(2)},\n        particlespeed = ${Math.max(1, particleSize * 0.45).toFixed(2)}, particlespeedspread = 1.5,\n        sizegrowth = -0.04, texture = [[${texture}]],\n      },\n    }`);
+    if (appearance.groundFlashEnabled !== false) impactSpawners.push(`    groundflash = {\n      color = [[${primary.map(v => v.toFixed(3)).join(' ')}]], circlealpha = ${(flashAlpha * 0.55).toFixed(2)}, circlegrowth = ${flashGrowth.toFixed(2)},\n      flashalpha = ${flashAlpha.toFixed(2)}, flashsize = ${flashSize.toFixed(2)}, ttl = ${flashLife},\n    }`);
+    entries.push(`  ["bmf_${safeId}_impact"] = {\n    usedefaultexplosions = false,\n${impactSpawners.join(',\n')}\n  }`);
+  });
+  return `-- Generated by BAR Editor Weapon Laboratory\n-- Place this file inside your mod's effects/ directory.\nreturn {\n${entries.join(',\n')}\n}\n`;
+}
+
+export default function App() {
+  const [defaultsDb, setDefaultsDb] = useState({});
+  const [coreDataStatus, setCoreDataStatus] = useState('loading');
+
+  useEffect(() => {
+    let cancelled = false;
+    import('./data/unit-defaults.json')
+      .then(module => {
+        if (cancelled) return;
+        setDefaultsDb(module.default || {});
+        setCoreDataStatus('ready');
+      })
+      .catch(() => {
+        if (!cancelled) setCoreDataStatus('error');
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const getTechTierOfUnit = useCallback(unitId => getUnitTechTier(unitId, defaultsDb), [defaultsDb]);
+  const getTagsOfUnit = useCallback(unitId => getUnitTags(unitId, defaultsDb), [defaultsDb]);
+
+  const [showMainMenu, setShowMainMenu] = useState(true);
+  const [activeWorkspace, setActiveWorkspace] = useState('edit');
+  const [themeMode, setThemeMode] = useState(() => {
+    try {
+      return localStorage.getItem('bmf_theme') === 'dark' ? 'dark' : 'light';
+    } catch {
+      return 'light';
+    }
+  });
+  const [selectedFaction, setSelectedFaction] = useState('all');
+  const [selectedCats, setSelectedCats] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showModifiedOnly, setShowModifiedOnly] = useState(false);
+  const [selectedUnitId, setSelectedUnitId] = useState('armdfly');
+  const [unitListScrollTop, setUnitListScrollTop] = useState(0);
+  const [unitListViewportHeight, setUnitListViewportHeight] = useState(0);
+  const unitListContainerRef = useRef(null);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = themeMode;
+    try {
+      localStorage.setItem('bmf_theme', themeMode);
+    } catch {
+      // Preferences are optional when storage is unavailable.
+    }
+  }, [themeMode]);
+
+  const [tweaks, setTweaks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bmf_tweaks');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const [clones, setClones] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bmf_clones');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const getProjectUnitIconUrl = (unitId) => {
+    const clone = clones.find(item => item.newId.toLowerCase() === unitId?.toLowerCase());
+    return getUnitIconUrl(clone?.baseId || unitId);
+  };
+
+  const [disabledUnitIds, setDisabledUnitIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bmf_disabled');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [unitDescriptions, setUnitDescriptions] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bmf_descriptions');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Persist unit descriptions to localStorage
+  useEffect(() => {
+    try {
+      if (Object.keys(unitDescriptions).length > 0) {
+        localStorage.setItem('bmf_descriptions', JSON.stringify(unitDescriptions));
+      } else {
+        localStorage.removeItem('bmf_descriptions');
+      }
+    } catch {
+      // Project descriptions remain usable when storage is unavailable.
+    }
+  }, [unitDescriptions]);
+
+  // Global Environment Settings (wind/gravity/tide)
+  const [environmentSettings, setEnvironmentSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bmf_environment');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (Object.keys(environmentSettings).length > 0) {
+        localStorage.setItem('bmf_environment', JSON.stringify(environmentSettings));
+      } else {
+        localStorage.removeItem('bmf_environment');
+      }
+    } catch {
+      // Environment editing remains usable when storage is unavailable.
+    }
+  }, [environmentSettings]);
+
+  // Build Menu Wizard/Designer state
+  const [buildMenuSteps, setBuildMenuSteps] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bmf_buildmenu_steps');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [base64Options, setBase64Options] = useState({ urlSafe: false, padding: true });
+  const tweakDefsLua = '';
+  const [toast, setToast] = useState({ show: false, message: '' });
+
+  // Clone Creator modal states
+  const [cloneBaseId, setCloneBaseId] = useState('');
+  const [cloneNewId, setCloneNewId] = useState('');
+  const [cloneName, setCloneName] = useState('');
+  const [cloneBuilders, setCloneBuilders] = useState([]);
+  const [showClonePanel, setShowClonePanel] = useState(false);
+
+  // Bulk Edit states
+  const [showBulkPanel, setShowBulkPanel] = useState(false);
+  const [showRandomPanel, setShowRandomPanel] = useState(false);
+  const [randomScope, setRandomScope] = useState('selected');
+  const [randomIntensity, setRandomIntensity] = useState('balanced');
+  const [randomDomains, setRandomDomains] = useState({ economy: true, durability: true, mobility: true, weapons: true });
+  const [bulkStatKey, setBulkStatKey] = useState('health');
+  const [bulkPercent, setBulkPercent] = useState('10');
+  const [bulkMode, setBulkMode] = useState('percent');
+
+  // Build Menu Designer Modal states
+  const [showDesignerPanel, setShowDesignerPanel] = useState(false);
+  const [selectedFactoryId, setSelectedFactoryId] = useState('armlab');
+  const [designerFaction, setDesignerFaction] = useState('all');
+  const [availableFactionFilter, setAvailableFactionFilter] = useState('factory');
+  const [availableSearchQuery, setAvailableSearchQuery] = useState('');
+  const [factorySearchQuery, setFactorySearchQuery] = useState('');
+
+  // Weapon Swap states
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [swapSearchQuery, setSwapSearchQuery] = useState('');
+  const [codePaneCollapsed, setCodePaneCollapsed] = useState(true);
+  const [selectedSwapUnitId, setSelectedSwapUnitId] = useState(null);
+  const [activeSwapSlotNum, setActiveSwapSlotNum] = useState(1);
+  const [activeWeaponSlotTab, setActiveWeaponSlotTab] = useState(1);
+  const [swapWeaponTypeFilter, setSwapWeaponTypeFilter] = useState('all');
+  const [swapUnitFactionFilter, setSwapUnitFactionFilter] = useState('all');
+  const [activeParamTab, setActiveParamTab] = useState('structure');
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [activeRelationshipKey, setActiveRelationshipKey] = useState(null);
+
+  useEffect(() => {
+    setActiveRelationshipKey(null);
+  }, [selectedUnitId, activeParamTab, activeWeaponSlotTab]);
+
+  // Dragging logic for Weapon Swap window
+  const [swapPosition, setSwapPosition] = useState({ x: 260, y: 100 });
+  const [isDraggingSwap, setIsDraggingSwap] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!isDraggingSwap) return;
+
+    const handleMouseMove = (e) => {
+      setSwapPosition({
+        x: e.clientX - dragOffset.x,
+        y: e.clientY - dragOffset.y
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingSwap(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingSwap, dragOffset]);
+
+  // Summary Explorer states
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [activeSummaryTab, setActiveSummaryTab] = useState('tweaks');
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
+  const [showPresetGallery, setShowPresetGallery] = useState(false);
+  const [presetName, setPresetName] = useState('');
+  const [presetDescription, setPresetDescription] = useState('');
+  const [presets, setPresets] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bmf_presets');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [showWeaponLab, setShowWeaponLab] = useState(false);
+  const [weaponBlueprintDraft, setWeaponBlueprintDraft] = useState(null);
+  const [weaponLibrary, setWeaponLibrary] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bmf_weapon_library');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Project Metadata states
+  const [projectName, setProjectName] = useState(() => {
+    const savedName = localStorage.getItem('bmf_project_name');
+    return !savedName || savedName === 'BAR EDITP Mod' ? 'BAR Editor Mod' : savedName;
+  });
+  const [projectAuthor, setProjectAuthor] = useState(() => localStorage.getItem('bmf_project_author') || 'Developer');
+  const [projectDesc, setProjectDesc] = useState(() => localStorage.getItem('bmf_project_desc') || 'A custom unit configuration mod.');
+
+  // Compile options states
+  const [includeTweaks, setIncludeTweaks] = useState(() => {
+    const saved = localStorage.getItem('bmf_inc_tweaks');
+    return saved === null ? true : saved === 'true';
+  });
+  const [includeClones, setIncludeClones] = useState(() => {
+    const saved = localStorage.getItem('bmf_inc_clones');
+    return saved === null ? true : saved === 'true';
+  });
+  const [includeRosters, setIncludeRosters] = useState(() => {
+    const saved = localStorage.getItem('bmf_inc_rosters');
+    return saved === null ? true : saved === 'true';
+  });
+
+  const [includeHeader, setIncludeHeader] = useState(() => {
+    const saved = localStorage.getItem('bmf_inc_header');
+    return saved === null ? true : saved === 'true';
+  });
+
+  // Active Output tab
+  const [activeOutputTab, setActiveOutputTab] = useState('tweakdefs_lua'); // 'tweakunits_lua' | 'tweakdefs_lua' | 'tweakunits_b64' | 'tweakdefs_b64'
+
+  // Clone description input state
+  const [cloneDesc, setCloneDesc] = useState('');
+
+  // Project history tracks the core editable mod state.
+  const projectSnapshot = useMemo(() => ({
+    tweaks,
+    clones,
+    disabledUnitIds,
+    buildMenuSteps,
+    environmentSettings,
+    weaponLibrary
+  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, environmentSettings, weaponLibrary]);
+  const [historyPast, setHistoryPast] = useState([]);
+  const [historyFuture, setHistoryFuture] = useState([]);
+  const lastSnapshotRef = useRef(projectSnapshot);
+  const applyingHistoryRef = useRef(false);
+  const toolsMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (applyingHistoryRef.current) {
+      applyingHistoryRef.current = false;
+      lastSnapshotRef.current = projectSnapshot;
+      return;
+    }
+
+    if (JSON.stringify(lastSnapshotRef.current) === JSON.stringify(projectSnapshot)) return;
+    const previousSnapshot = lastSnapshotRef.current;
+    setHistoryPast(prev => [...prev.slice(-49), previousSnapshot]);
+    setHistoryFuture([]);
+    lastSnapshotRef.current = projectSnapshot;
+  }, [projectSnapshot]);
+
+  const applyProjectSnapshot = useCallback((snapshot) => {
+    setTweaks(snapshot.tweaks || {});
+    setClones(snapshot.clones || []);
+    setDisabledUnitIds(snapshot.disabledUnitIds || []);
+    setBuildMenuSteps(snapshot.buildMenuSteps || []);
+    setEnvironmentSettings(snapshot.environmentSettings || {});
+    setWeaponLibrary(snapshot.weaponLibrary || []);
+  }, []);
+
+  const handleUndo = useCallback(() => {
+    if (historyPast.length === 0) return;
+    const target = historyPast[historyPast.length - 1];
+    applyingHistoryRef.current = true;
+    setHistoryPast(prev => prev.slice(0, -1));
+    setHistoryFuture(prev => [projectSnapshot, ...prev].slice(0, 50));
+    lastSnapshotRef.current = target;
+    applyProjectSnapshot(target);
+  }, [historyPast, projectSnapshot, applyProjectSnapshot]);
+
+  const handleRedo = useCallback(() => {
+    if (historyFuture.length === 0) return;
+    const target = historyFuture[0];
+    applyingHistoryRef.current = true;
+    setHistoryPast(prev => [...prev.slice(-49), projectSnapshot]);
+    setHistoryFuture(prev => prev.slice(1));
+    lastSnapshotRef.current = target;
+    applyProjectSnapshot(target);
+  }, [historyFuture, projectSnapshot, applyProjectSnapshot]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_tweaks', JSON.stringify(tweaks));
+  }, [tweaks]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_clones', JSON.stringify(clones));
+  }, [clones]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_disabled', JSON.stringify(disabledUnitIds));
+  }, [disabledUnitIds]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_buildmenu_steps', JSON.stringify(buildMenuSteps));
+  }, [buildMenuSteps]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_project_name', projectName);
+  }, [projectName]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_project_author', projectAuthor);
+  }, [projectAuthor]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_project_desc', projectDesc);
+  }, [projectDesc]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_inc_tweaks', String(includeTweaks));
+  }, [includeTweaks]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_inc_clones', String(includeClones));
+  }, [includeClones]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_inc_rosters', String(includeRosters));
+  }, [includeRosters]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_inc_header', String(includeHeader));
+  }, [includeHeader]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_presets', JSON.stringify(presets));
+  }, [presets]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_weapon_library', JSON.stringify(weaponLibrary));
+  }, [weaponLibrary]);
+
+  const showToast = (message) => {
+    setToast({ show: true, message });
+    setTimeout(() => setToast({ show: false, message: '' }), 2500);
+  };
+
+  const createPresetSnapshot = () => ({
+    tweaks,
+    clones,
+    disabledUnitIds,
+    unitDescriptions,
+    buildMenuSteps,
+    environmentSettings,
+    weaponLibrary,
+    projectName,
+    projectAuthor,
+    projectDesc,
+    includeTweaks,
+    includeClones,
+    includeRosters,
+    includeHeader
+  });
+
+  const handleSavePreset = () => {
+    const name = presetName.trim() || `${projectName} preset`;
+    const snapshot = createPresetSnapshot();
+    const preset = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      name,
+      description: presetDescription.trim(),
+      createdAt: new Date().toISOString(),
+      snapshot
+    };
+    setPresets(prev => [preset, ...prev].slice(0, 30));
+    setPresetName('');
+    setPresetDescription('');
+    showToast(`Saved preset: ${name}`);
+  };
+
+  const handleApplyPreset = (preset) => {
+    const snapshot = preset.snapshot || {};
+    applyingHistoryRef.current = true;
+    applyProjectSnapshot(snapshot);
+    setUnitDescriptions(snapshot.unitDescriptions || {});
+    setProjectName(snapshot.projectName || 'BAR Editor Mod');
+    setProjectAuthor(snapshot.projectAuthor || 'Developer');
+    setProjectDesc(snapshot.projectDesc || 'A custom unit configuration mod.');
+    setIncludeTweaks(snapshot.includeTweaks ?? true);
+    setIncludeClones(snapshot.includeClones ?? true);
+    setIncludeRosters(snapshot.includeRosters ?? true);
+    setIncludeHeader(snapshot.includeHeader ?? true);
+    setShowPresetGallery(false);
+    showToast(`Applied preset: ${preset.name}`);
+  };
+
+  // Compile list of units (vanilla + clones)
+  const allUnitsList = useMemo(() => {
+    const list = Object.entries(unitsDb.names).map(([id, name]) => {
+      const faction = getFactionOfUnit(id);
+      const tags = getTagsOfUnit(id);
+      return {
+        id,
+        name,
+        desc: unitsDb.descriptions[id] || '',
+        faction,
+        tags,
+        isClone: false
+      };
+    });
+
+    clones.forEach(c => {
+      list.push({
+        id: c.newId,
+        name: c.displayName || c.newId,
+        desc: `Cloned from ${unitsDb.names[c.baseId] || c.baseId}`,
+        faction: getFactionOfUnit(c.baseId),
+        tags: [...getTagsOfUnit(c.baseId)],
+        isClone: true,
+        baseId: c.baseId
+      });
+    });
+
+    return list.sort((a, b) => a.name.localeCompare(b.name));
+  }, [clones, getTagsOfUnit]);
+
+  // Parse advanced search query (e.g. hp > 1000)
+  const queryFilterFn = useMemo(() => {
+    if (!searchQuery.trim()) return () => true;
+
+    const advancedRegex = /^(hp|health|metal|energy|cost|speed|velocity|range)\s*(>=|<=|>|<|==|=)\s*(\d+(\.\d+)?)$/i;
+    const match = searchQuery.trim().match(advancedRegex);
+
+    if (match) {
+      const field = match[1].toLowerCase();
+      const op = match[2];
+      const val = parseFloat(match[3]);
+
+      let dbField = 'health';
+      if (field === 'metal' || field === 'cost') dbField = 'metalcost';
+      if (field === 'energy') dbField = 'energycost';
+      if (field === 'speed' || field === 'velocity') dbField = 'maxvelocity';
+      if (field === 'range') {
+        return (unit) => {
+          const stats = defaultsDb[unit.isClone ? unit.baseId : unit.id];
+          if (!stats || !stats.weaponSlots) return false;
+          return stats.weaponSlots.some(slot => {
+            const r = parseFloat(slot.range);
+            if (isNaN(r)) return false;
+            switch (op) {
+              case '>': return r > val;
+              case '<': return r < val;
+              case '>=': return r >= val;
+              case '<=': return r <= val;
+              case '=':
+              case '==': return r === val;
+              default: return false;
+            }
+          });
+        };
+      }
+
+      return (unit) => {
+        const stats = defaultsDb[unit.isClone ? unit.baseId : unit.id];
+        if (!stats) return false;
+
+        let statVal = stats[dbField];
+        if (statVal === undefined) return false;
+        statVal = parseFloat(statVal);
+
+        switch (op) {
+          case '>': return statVal > val;
+          case '<': return statVal < val;
+          case '>=': return statVal >= val;
+          case '<=': return statVal <= val;
+          case '=':
+          case '==': return statVal === val;
+          default: return false;
+        }
+      };
+    }
+
+    const lowerQuery = searchQuery.toLowerCase();
+    return (unit) =>
+      unit.id.toLowerCase().includes(lowerQuery) ||
+      unit.name.toLowerCase().includes(lowerQuery) ||
+      unit.desc.toLowerCase().includes(lowerQuery);
+  }, [searchQuery, defaultsDb]);
+
+  // Filter list
+  const filteredUnits = useMemo(() => {
+    return allUnitsList.filter(unit => {
+      if (selectedFaction !== 'all' && unit.faction !== selectedFaction) {
+        return false;
+      }
+      if (selectedCats.length > 0) {
+        const hasAllCats = selectedCats.every(cat => unit.tags.includes(cat));
+        if (!hasAllCats) return false;
+      }
+      if (showModifiedOnly) {
+        const hasTweaks = Boolean(tweaks[unit.id] && Object.keys(tweaks[unit.id]).length > 0);
+        const isDisabled = disabledUnitIds.includes(unit.id);
+        if (!hasTweaks && !isDisabled && !unit.isClone) return false;
+      }
+      return queryFilterFn(unit);
+    });
+  }, [allUnitsList, selectedFaction, selectedCats, queryFilterFn, showModifiedOnly, tweaks, disabledUnitIds]);
+
+  const clearUnitFilters = () => {
+    setSearchQuery('');
+    setSelectedFaction('all');
+    setSelectedCats([]);
+    setShowModifiedOnly(false);
+  };
+
+  const hasActiveUnitFilters = Boolean(searchQuery.trim() || selectedFaction !== 'all' || selectedCats.length > 0 || showModifiedOnly);
+
+  const unitRowHeight = 58;
+  const unitListOverscan = 8;
+  const virtualUnitRange = useMemo(() => {
+    const estimatedViewportRows = 18;
+    const start = Math.max(0, Math.floor(unitListScrollTop / unitRowHeight) - unitListOverscan);
+    const end = Math.min(filteredUnits.length, start + estimatedViewportRows + unitListOverscan * 2);
+    return {
+      start,
+      end,
+      units: filteredUnits.slice(start, end)
+    };
+  }, [filteredUnits, unitListScrollTop]);
+
+  const unitScrollHint = useMemo(() => {
+    const viewportHeight = unitListViewportHeight || unitRowHeight * 18;
+    const visibleEnd = Math.min(filteredUnits.length, Math.ceil((unitListScrollTop + viewportHeight) / unitRowHeight));
+    const remaining = Math.max(0, filteredUnits.length - visibleEnd);
+    return { remaining, hasMore: remaining > 0 };
+  }, [filteredUnits.length, unitListScrollTop, unitListViewportHeight]);
+
+  useEffect(() => {
+    setUnitListScrollTop(0);
+    unitListContainerRef.current?.scrollTo({ top: 0 });
+  }, [searchQuery, selectedFaction, selectedCats, showModifiedOnly]);
+
+  useEffect(() => {
+    const container = unitListContainerRef.current;
+    if (!container) return undefined;
+    const updateViewport = () => setUnitListViewportHeight(container.clientHeight);
+    updateViewport();
+    const observer = new ResizeObserver(updateViewport);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [activeWorkspace, showMainMenu]);
+
+  // Selection defaults
+  useEffect(() => {
+    if (filteredUnits.length > 0 && !selectedUnitId) {
+      setSelectedUnitId(filteredUnits[0].id);
+    }
+  }, [filteredUnits, selectedUnitId]);
+
+  const selectedUnit = useMemo(() => {
+    return allUnitsList.find(u => u.id === selectedUnitId) || null;
+  }, [allUnitsList, selectedUnitId]);
+
+  const selectedUnitDefaults = useMemo(() => {
+    if (!selectedUnit) return null;
+    const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+    const defaults = { ...(defaultsDb[baseId] || {}) };
+
+    const cloneInfo = selectedUnit.isClone ? clones.find(c => c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) : null;
+    if (cloneInfo?.weaponSwaps && defaults.weaponSlots) {
+      defaults.weaponSlots = defaults.weaponSlots.map(wSlot => {
+        const slotKey = String(wSlot.slot);
+        const swap = cloneInfo.weaponSwaps[slotKey];
+        if (swap) {
+          const swapDefaults = defaultsDb[swap.sourceUnitId.toLowerCase()];
+          if (swapDefaults && swapDefaults.weaponSlots) {
+            const srcSlot = swapDefaults.weaponSlots.find(s => s.defKey === swap.sourceWeaponDefKey.toLowerCase());
+            if (srcSlot) {
+              const blueprint = swap.libraryWeaponId
+                ? weaponLibrary.find(item => item.id === swap.libraryWeaponId)
+                : null;
+              const overrides = blueprint?.overrides || {};
+              return {
+                ...srcSlot,
+                damage: Number.isFinite(Number(overrides.damage)) ? Number(overrides.damage) : srcSlot.damage,
+                range: Number.isFinite(Number(overrides.range)) ? Number(overrides.range) : srcSlot.range,
+                reload: Number.isFinite(Number(overrides.reload)) ? Number(overrides.reload) : srcSlot.reload,
+                velocity: Number.isFinite(Number(overrides.velocity)) ? Number(overrides.velocity) : srcSlot.velocity,
+                aoe: Number.isFinite(Number(overrides.aoe)) ? Number(overrides.aoe) : srcSlot.aoe,
+                projectiles: Number.isFinite(Number(overrides.projectiles)) ? Number(overrides.projectiles) : srcSlot.projectiles,
+                burst: Number.isFinite(Number(overrides.burst)) ? Number(overrides.burst) : srcSlot.burst,
+                burstrate: Number.isFinite(Number(overrides.burstrate)) ? Number(overrides.burstrate) : srcSlot.burstrate,
+                cegTag: overrides.cegtag || srcSlot.cegTag,
+                explosiongenerator: overrides.explosiongenerator || srcSlot.explosiongenerator,
+                model: overrides.model || srcSlot.model,
+                slot: wSlot.slot // Retain destination slot number
+              };
+            }
+          }
+        }
+        return wSlot;
+      });
+
+      // Update legacy properties of slot 1 if it exists and was swapped
+      const slot1 = defaults.weaponSlots.find(s => s.slot === 1);
+      if (slot1) {
+        defaults.weapon1def = slot1.defKey;
+        defaults.weapon1Damage = slot1.damage;
+        defaults.weapon1Reload = slot1.reload;
+        defaults.weapon1Range = slot1.range;
+        defaults.weapon1Velocity = slot1.velocity;
+        defaults.weapon1Flighttime = slot1.flighttime;
+        defaults.weapon1Aoe = slot1.aoe;
+        defaults.weapon1Accuracy = slot1.accuracy;
+        defaults.weapon1Sprayangle = slot1.sprayangle;
+        defaults.weapon1Projectiles = slot1.projectiles;
+        defaults.weapon1Burst = slot1.burst;
+        defaults.weapon1Burstrate = slot1.burstrate;
+      }
+    }
+
+    return defaults;
+  }, [selectedUnit, clones, weaponLibrary, defaultsDb]);
+
+  const openWeaponLab = () => {
+    if (!WEAPON_LAB_ENABLED) {
+      showToast('Weapon Laboratory is temporarily unavailable.');
+      return;
+    }
+    const activeSlot = selectedUnitDefaults?.weaponSlots?.find(slot => slot.slot === activeWeaponSlotTab)
+      || selectedUnitDefaults?.weaponSlots?.[0];
+    if (!selectedUnit || !activeSlot) {
+      showToast('Select a unit with an active weapon slot first.');
+      return;
+    }
+    const sourceUnitId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+    setWeaponBlueprintDraft({
+      id: '',
+      name: `${activeSlot.defKey.toUpperCase()} Variant`,
+      sourceUnitId,
+      sourceWeaponDefKey: activeSlot.defKey,
+      description: '',
+      appearance: {
+        vfxEnabled: true,
+        color: '#c69a68',
+        secondaryColor: '#f0d5a8',
+        brightness: 1,
+        particleSize: 5,
+        particleCount: 4,
+        particleLife: 12,
+        spread: 3,
+        texture: 'flare',
+        trailSize: 7,
+        trailLength: 20,
+        trailGrowth: 0.15,
+        trailLife: 5,
+        trailOffset: 0.2,
+        particlesEnabled: true,
+        heatEnabled: true,
+        heatSize: 12,
+        heatGrowth: 0.4,
+        heatFalloff: 1.1,
+        groundFlashEnabled: true,
+        flashSize: 25,
+        flashAlpha: 0.55,
+        flashGrowth: 3,
+        flashLife: 8
+      },
+      overrides: {
+        damage: activeSlot.damage ?? '',
+        range: activeSlot.range ?? '',
+        reload: activeSlot.reload ?? '',
+        velocity: activeSlot.velocity ?? '',
+        aoe: activeSlot.aoe ?? '',
+        projectiles: activeSlot.projectiles ?? '',
+        burst: activeSlot.burst ?? '',
+        burstrate: activeSlot.burstrate ?? '',
+        accuracy: activeSlot.accuracy ?? '',
+        sprayangle: activeSlot.sprayangle ?? '',
+        flighttime: activeSlot.flighttime ?? '',
+        cegtag: activeSlot.cegTag || '',
+        explosiongenerator: activeSlot.explosiongenerator || '',
+        model: activeSlot.model || ''
+      }
+    });
+    setShowWeaponLab(true);
+    setActiveWorkspace('weapon-lab');
+  };
+
+  const persistWeaponBlueprint = (draft = weaponBlueprintDraft) => {
+    if (!draft?.sourceUnitId || !draft?.sourceWeaponDefKey) return null;
+    const id = draft.id || `weapon_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const safeId = id.replace(/[^a-z0-9_]/gi, '_').toLowerCase();
+    const appearance = {
+      vfxEnabled: false,
+      secondaryColor: draft.appearance?.color || '#ffffff',
+      particleSize: 5,
+      particleCount: 4,
+      particleLife: 12,
+      spread: 3,
+      texture: 'flare',
+      trailSize: 7,
+      trailLength: 20,
+      trailGrowth: 0.15,
+      trailLife: 5,
+      trailOffset: 0.2,
+      particlesEnabled: true,
+      heatEnabled: true,
+      heatSize: 12,
+      heatGrowth: 0.4,
+      heatFalloff: 1.1,
+      groundFlashEnabled: true,
+      flashSize: 25,
+      flashAlpha: 0.55,
+      flashGrowth: 3,
+      flashLife: 8,
+      ...draft.appearance
+    };
+    const blueprint = {
+      ...draft,
+      id,
+      appearance,
+      overrides: {
+        ...draft.overrides,
+        ...(appearance.vfxEnabled ? {
+          cegtag: `bmf_${safeId}_trail`,
+          explosiongenerator: `custom:bmf_${safeId}_impact`
+        } : {})
+      },
+      name: draft.name.trim() || `${draft.sourceWeaponDefKey.toUpperCase()} Variant`,
+      updatedAt: new Date().toISOString()
+    };
+    setWeaponLibrary(prev => {
+      const exists = prev.some(item => item.id === blueprint.id);
+      return exists ? prev.map(item => item.id === blueprint.id ? blueprint : item) : [blueprint, ...prev];
+    });
+    setWeaponBlueprintDraft(blueprint);
+    return blueprint;
+  };
+
+  const equipWeaponBlueprint = (blueprint) => {
+    if (!selectedUnit?.isClone) {
+      showToast('Weapon blueprints can be equipped on custom clone units only.');
+      return;
+    }
+    const slotNum = activeWeaponSlotTab || selectedUnitDefaults?.weaponSlots?.[0]?.slot;
+    if (!slotNum) return;
+    setClones(prev => prev.map(clone => {
+      if (clone.newId.toLowerCase() !== selectedUnit.id.toLowerCase()) return clone;
+      const weaponSwaps = { ...(clone.weaponSwaps || {}) };
+      weaponSwaps[String(slotNum)] = {
+        sourceUnitId: blueprint.sourceUnitId,
+        sourceWeaponDefKey: blueprint.sourceWeaponDefKey,
+        libraryWeaponId: blueprint.id
+      };
+      return { ...clone, weaponSwaps };
+    }));
+    showToast(`Equipped ${blueprint.name} on slot ${slotNum}.`);
+  };
+
+  const handleDownloadWeaponVfxPack = () => {
+    const enabled = weaponLibrary.filter(item => item.appearance?.vfxEnabled);
+    if (enabled.length === 0) {
+      showToast('Enable custom VFX on at least one saved weapon blueprint first.');
+      return;
+    }
+    const lua = generateWeaponVfxPackLua(enabled);
+    const blob = new Blob([lua], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'bmf_weapon_effects.lua';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
+    showToast(`Exported ${enabled.length} custom weapon VFX definitions.`);
+  };
+
+  // Update tweaked stat value
+  const handleStatChange = (unitId, statKey, value) => {
+    setTweaks(prev => {
+      const unitTweaks = { ...prev[unitId] };
+      if (value === '' || value === undefined) {
+        delete unitTweaks[statKey];
+      } else {
+        unitTweaks[statKey] = value;
+      }
+
+      const next = { ...prev };
+      if (Object.keys(unitTweaks).length === 0) {
+        delete next[unitId];
+      } else {
+        next[unitId] = unitTweaks;
+      }
+      return next;
+    });
+  };
+
+  const setNestedVal = (obj, path, val) => {
+    const keys = path.split('.');
+    let cur = obj;
+    for (let i = 0; i < keys.length - 1; i++) {
+      const k = keys[i];
+      if (!cur[k]) cur[k] = {};
+      cur = cur[k];
+    }
+    cur[keys[keys.length - 1]] = val;
+  };
+
+  // Compile Lua tweaks script
+  const generatedTweakUnitsLua = useMemo(() => {
+    if (!includeTweaks) return '{\n}';
+    const patchObj = {};
+
+    const getActiveWeaponSlotsForUnit = (uId) => {
+      const uInfo = allUnitsList.find(u => u.id === uId);
+      if (!uInfo) return [];
+      const bId = uInfo.isClone ? uInfo.baseId : uId;
+      const baseDefaults = defaultsDb[bId];
+      if (!baseDefaults) return [];
+      let slots = baseDefaults.weaponSlots ? JSON.parse(JSON.stringify(baseDefaults.weaponSlots)) : [];
+      const cloneInfo = uInfo.isClone ? clones.find(c => c.newId.toLowerCase() === uId.toLowerCase()) : null;
+      if (cloneInfo?.weaponSwaps && slots.length > 0) {
+        slots = slots.map(wSlot => {
+          const slotKey = String(wSlot.slot);
+          const swap = cloneInfo.weaponSwaps[slotKey];
+          if (swap) {
+            const swapDefaults = defaultsDb[swap.sourceUnitId.toLowerCase()];
+            if (swapDefaults && swapDefaults.weaponSlots) {
+              const srcSlot = swapDefaults.weaponSlots.find(s => s.defKey === swap.sourceWeaponDefKey.toLowerCase());
+              if (srcSlot) {
+                return { ...srcSlot, slot: wSlot.slot };
+              }
+            }
+          }
+          return wSlot;
+        });
+      }
+      return slots;
+    };
+
+    Object.entries(tweaks).forEach(([unitId, statPatch]) => {
+      const unitInfo = allUnitsList.find(u => u.id === unitId);
+      const defaults = defaultsDb[unitInfo?.isClone ? unitInfo.baseId : unitId];
+      if (!defaults) return;
+
+      const unitPatch = {};
+
+      Object.entries(statPatch).forEach(([key, val]) => {
+        // Multi-slot weapon properties
+        if (key.startsWith('weapon_slot_')) {
+          const match = key.match(/^weapon_slot_(\d+)_(.+)$/);
+          if (match) {
+            const slotNum = parseInt(match[1], 10);
+            const param = match[2];
+            const activeSlots = getActiveWeaponSlotsForUnit(unitId);
+            const slot = activeSlots.find(s => s.slot === slotNum);
+            if (slot && slot.defKey) {
+              const wDef = slot.defKey.toLowerCase();
+              let typedVal = null;
+              let subPath = null;
+              if (param === 'onlytargetcategory' || param === 'badtargetcategory') {
+                // Target categories belong to the UnitDef weapon slot, not the WeaponDef.
+                setNestedVal(unitPatch, `weapons.${slotNum}.${param}`, val ? String(val) : '');
+              } else if (param === 'interceptedbyshields') {
+                // Compatibility for projects saved before the bitmask correction.
+                subPath = 'interceptedbyshieldtype';
+                typedVal = val === 'true' || val === true ? 1 : 0;
+              } else if (WEAPON_SLOT_BOOLEAN_PARAMS.has(param)) {
+                subPath = WEAPON_SLOT_PATHS[param] || param;
+                typedVal = val === 'true' || val === true;
+                if (param === 'toairweapon' && typedVal && !Object.prototype.hasOwnProperty.call(statPatch, `weapon_slot_${slotNum}_onlytargetcategory`)) {
+                  setNestedVal(unitPatch, `weapons.${slotNum}.onlytargetcategory`, 'VTOL');
+                }
+              } else if (WEAPON_SLOT_STRING_PARAMS.has(param)) {
+                subPath = WEAPON_SLOT_PATHS[param] || param;
+                typedVal = val ? String(val) : '';
+              } else {
+                const parsedNum = parseFloat(val);
+                if (!Number.isNaN(parsedNum)) {
+                  typedVal = parsedNum;
+                  subPath = WEAPON_SLOT_PATHS[param] || param;
+                }
+              }
+              if (subPath && typedVal !== null) {
+                setNestedVal(unitPatch, `weapondefs.${wDef}.${subPath}`, typedVal);
+              }
+            }
+          }
+          return;
+        }
+
+        // Legacy compatibility fallback for weapon1... keys
+        if (key.startsWith('weapon1')) {
+          const legacyParam = key.slice(7).toLowerCase();
+          const activeSlots = getActiveWeaponSlotsForUnit(unitId);
+          const slot = activeSlots.find(s => s.slot === 1);
+          if (slot && slot.defKey) {
+            const wDef = slot.defKey.toLowerCase();
+            let typedVal = parseFloat(val);
+            if (!Number.isNaN(typedVal)) {
+              let subPath = null;
+              if (legacyParam === 'damage') subPath = 'damage.default';
+              else if (legacyParam === 'reload') subPath = 'reloadtime';
+              else if (legacyParam === 'range') subPath = 'range';
+              else if (legacyParam === 'velocity') subPath = 'weaponvelocity';
+              else if (legacyParam === 'flighttime') subPath = 'flighttime';
+              else if (legacyParam === 'aoe') subPath = 'areaofeffect';
+              else if (legacyParam === 'accuracy') subPath = 'accuracy';
+              else if (legacyParam === 'sprayangle') subPath = 'sprayangle';
+              else if (legacyParam === 'projectiles') subPath = 'projectiles';
+              else if (legacyParam === 'burst') subPath = 'burst';
+              else if (legacyParam === 'burstrate') subPath = 'burstrate';
+
+              if (subPath) {
+                setNestedVal(unitPatch, `weapondefs.${wDef}.${subPath}`, typedVal);
+              }
+            }
+          }
+          return;
+        }
+
+        const config = STAT_KEYS.find(s => s.key === key);
+        if (!config) return;
+
+        let typedVal = val;
+        if (config.type === 'number') {
+          typedVal = parseFloat(val);
+          if (Number.isNaN(typedVal)) return;
+        } else if (config.type === 'boolean') {
+          typedVal = val === 'true' || val === true;
+        }
+
+        if (config.key === 'energymake') {
+          unitPatch.energymake = typedVal;
+        } else {
+          const patchKey = config.patchKey ?? config.key;
+          if (patchKey.includes('.')) {
+            setNestedVal(unitPatch, patchKey, typedVal);
+          } else {
+            unitPatch[patchKey] = typedVal;
+          }
+        }
+      });
+
+      if (Object.keys(unitPatch).length > 0) {
+        patchObj[unitId] = unitPatch;
+      }
+    });
+
+    return Object.keys(patchObj).length > 0 ? serializeLuaTable(patchObj) : '{\n}';
+  }, [tweaks, allUnitsList, includeTweaks, clones, defaultsDb]);
+
+  // Base64 Tweak Units
+  const tweakUnitsB64 = useMemo(() => {
+    if (generatedTweakUnitsLua === '{\n}') return '';
+    return encodeBase64(generatedTweakUnitsLua + ' ', base64Options);
+  }, [generatedTweakUnitsLua, base64Options]);
+
+  // Compile Lua Tweak Defs
+  const generatedTweakDefsLua = useMemo(() => {
+    return compileTweakDefsLua({
+      currentTweakDefsLua: tweakDefsLua,
+      customUnitClones: clones,
+      buildMenuWizardSteps: buildMenuSteps,
+      disabledUnitIds,
+      unitBuildOptions: factoryRosters,
+      projectMeta: includeHeader ? { name: projectName, author: projectAuthor, desc: projectDesc } : null,
+      compileFlags: { includeClones, includeRosters },
+      environmentSettings,
+      weaponLibrary
+    });
+  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, environmentSettings, weaponLibrary]);
+
+  const tweakDefsB64 = useMemo(() => {
+    if (!generatedTweakDefsLua.trim()) return '';
+    return encodeBase64(generatedTweakDefsLua + ' ', base64Options);
+  }, [generatedTweakDefsLua, base64Options]);
+
+  const totalBytesUsed = tweakUnitsB64.length + tweakDefsB64.length;
+  const lobbyByteLimit = 12000;
+  const limitRisk = totalBytesUsed > lobbyByteLimit ? 'error' : totalBytesUsed > lobbyByteLimit * 0.8 ? 'warning' : 'ok';
+
+  // Toggle Category selection
+  const handleCatClick = (cat) => {
+    setSelectedCats(prev => {
+      if (prev.includes(cat)) {
+        return prev.filter(c => c !== cat);
+      } else {
+        return [...prev, cat];
+      }
+    });
+  };
+
+  // Add Clone
+  const applyCloneBuilderAssignments = (steps, cloneId, builderIds) => {
+    const normalizedCloneId = cloneId.trim().toLowerCase();
+    const desiredBuilders = new Set(builderIds.map(id => id.trim().toLowerCase()).filter(Boolean));
+    const next = steps.map(step => ({
+      ...step,
+      add: step.add.filter(id => id.toLowerCase() !== normalizedCloneId)
+    }));
+
+    desiredBuilders.forEach(builderId => {
+      const idx = next.findIndex(step => step.builderId.toLowerCase() === builderId);
+      if (idx === -1) {
+        next.push({ builderId, add: [normalizedCloneId], remove: [] });
+      } else {
+        next[idx] = {
+          ...next[idx],
+          remove: next[idx].remove.filter(id => id.toLowerCase() !== normalizedCloneId),
+          add: [...next[idx].add, normalizedCloneId]
+        };
+      }
+    });
+
+    return next.filter(step => step.add.length > 0 || step.remove.length > 0 || (step.order && step.order.length > 0));
+  };
+
+  const handleCloneBuildersChange = (cloneId, builderIds) => {
+    const normalized = [...new Set(builderIds.map(id => id.trim().toLowerCase()).filter(Boolean))];
+    setClones(prev => prev.map(clone => (
+      clone.newId.toLowerCase() === cloneId.toLowerCase()
+        ? { ...clone, builderIds: normalized }
+        : clone
+    )));
+    setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, cloneId, normalized));
+  };
+
+  const handleCreateClone = (e) => {
+    e.preventDefault();
+    const cleanBase = cloneBaseId.trim();
+    const cleanNew = cloneNewId.trim().toLowerCase();
+    const cleanName = cloneName.trim();
+
+    if (!cleanBase || !cleanNew) {
+      showToast('Error: Base and New ID are required');
+      return;
+    }
+
+    if (allUnitsList.some(u => u.id === cleanNew)) {
+      showToast('Error: Unit ID already exists');
+      return;
+    }
+
+    const cleanBuilders = cloneBuilders
+      .map(b => b.trim().toLowerCase())
+      .filter(Boolean);
+
+    const newClone = {
+      baseId: cleanBase,
+      newId: cleanNew,
+      displayName: cleanName || cleanNew,
+      description: cloneDesc.trim() || undefined,
+      builderIds: cleanBuilders.length > 0 ? cleanBuilders : ['armlab'],
+      addToOriginalBuilders: true
+    };
+
+    setClones(prev => [...prev, newClone]);
+    setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, cleanNew, newClone.builderIds));
+    setSelectedUnitId(cleanNew);
+    setShowClonePanel(false);
+    showToast(`Created clone: ${cleanNew}`);
+
+    setCloneBaseId('');
+    setCloneNewId('');
+    setCloneName('');
+    setCloneBuilders([]);
+    setCloneDesc('');
+  };
+
+  // Reset tweaks
+  const handleResetUnit = (unitId) => {
+    setTweaks(prev => {
+      const next = { ...prev };
+      delete next[unitId];
+      return next;
+    });
+    setDisabledUnitIds(prev => prev.filter(id => id !== unitId));
+    showToast(`Reset stats for ${unitId}`);
+  };
+
+  // Apply Bulk edit
+  const handleApplyBulk = () => {
+    const changeVal = parseFloat(bulkPercent);
+    if (Number.isNaN(changeVal)) {
+      showToast('Error: Invalid bulk adjustment value');
+      return;
+    }
+
+    let count = 0;
+    const targeted = filteredUnits.filter(u => {
+      const baseId = u.isClone ? u.baseId : u.id;
+      return defaultsDb[baseId] !== undefined;
+    });
+
+    targeted.forEach(unit => {
+      const baseId = unit.isClone ? unit.baseId : unit.id;
+      const defaults = defaultsDb[baseId];
+
+      if (bulkStatKey === 'all_weapons_damage' || bulkStatKey === 'all_weapons_range') {
+        const slots = defaults.weaponSlots || [];
+        slots.forEach(slot => {
+          const subKey = bulkStatKey === 'all_weapons_damage' ? 'damage' : 'range';
+          const tweakKey = `weapon_slot_${slot.slot}_${subKey}`;
+          const currentTweak = tweaks[unit.id]?.[tweakKey];
+          const defaultVal = slot[subKey] || 0;
+          const baseVal = currentTweak !== undefined ? parseFloat(currentTweak) : defaultVal;
+
+          let newVal = baseVal;
+          if (bulkMode === 'percent') {
+            newVal = baseVal * (1 + changeVal / 100);
+          } else {
+            newVal = baseVal + changeVal;
+          }
+          if (newVal < 0) newVal = 0;
+          handleStatChange(unit.id, tweakKey, newVal.toFixed(2));
+        });
+        count++;
+      } else {
+        const defaultVal = parseFloat(defaults[bulkStatKey] || 0);
+        const currentTweak = tweaks[unit.id]?.[bulkStatKey];
+        const baseVal = currentTweak !== undefined ? parseFloat(currentTweak) : defaultVal;
+
+        let newVal = baseVal;
+        if (bulkMode === 'percent') {
+          newVal = baseVal * (1 + changeVal / 100);
+        } else {
+          newVal = baseVal + changeVal;
+        }
+
+        if (newVal < 0 && (bulkStatKey.includes('cost') || bulkStatKey.includes('health') || bulkStatKey.includes('velocity'))) {
+          newVal = 0;
+        }
+        handleStatChange(unit.id, bulkStatKey, newVal.toFixed(2));
+        count++;
+      }
+    });
+
+    setShowBulkPanel(false);
+    showToast(`Adjusted ${bulkStatKey} for ${count} units by ${bulkMode === 'percent' ? (changeVal > 0 ? '+' : '') + changeVal + '%' : (changeVal > 0 ? '+' : '') + changeVal}`);
+  };
+
+  // Mutation Lab — controlled random adjustments with explicit scope and domains.
+  const handleRandomAdjustments = () => {
+    const intensityRanges = {
+      cautious: [0.90, 1.10],
+      balanced: [0.75, 1.25],
+      chaos: [0.50, 1.50]
+    };
+    const [minRatio, maxRatio] = intensityRanges[randomIntensity];
+    const targets = randomScope === 'selected' ? (selectedUnit ? [selectedUnit] : []) : filteredUnits;
+    const enabledDomains = Object.entries(randomDomains).filter(([, enabled]) => enabled).map(([domain]) => domain);
+
+    if (targets.length === 0) {
+      showToast(randomScope === 'selected' ? 'Select a unit before starting a mutation.' : 'No units match the current filters.');
+      return;
+    }
+    if (enabledDomains.length === 0) {
+      showToast('Choose at least one mutation domain.');
+      return;
+    }
+
+    setTweaks(prev => {
+      const next = { ...prev };
+      const applyValue = (unitId, key, value) => {
+        const unitPatch = { ...(next[unitId] || {}) };
+        unitPatch[key] = value;
+        next[unitId] = unitPatch;
+      };
+      const mutateValue = (value, decimals = 0) => {
+        const ratio = minRatio + Math.random() * (maxRatio - minRatio);
+        return (value * ratio).toFixed(decimals);
+      };
+
+      targets.forEach(unit => {
+        const baseId = unit.isClone ? unit.baseId : unit.id;
+        const defaults = defaultsDb[baseId];
+        if (!defaults) return;
+
+        if (randomDomains.durability && Number.isFinite(Number(defaults.health))) {
+          applyValue(unit.id, 'health', mutateValue(Number(defaults.health)));
+        }
+        if (randomDomains.economy) {
+          ['metalcost', 'energycost', 'buildtime'].forEach(key => {
+            if (Number.isFinite(Number(defaults[key]))) applyValue(unit.id, key, mutateValue(Number(defaults[key])));
+          });
+        }
+        if (randomDomains.mobility && Number.isFinite(Number(defaults.maxvelocity)) && Number(defaults.maxvelocity) > 0) {
+          applyValue(unit.id, 'maxvelocity', mutateValue(Number(defaults.maxvelocity), 1));
+        }
+        if (randomDomains.weapons && defaults.weaponSlots) {
+          defaults.weaponSlots.forEach(slot => {
+            ['damage', 'range', 'reload'].forEach(key => {
+              const value = Number(slot[key]);
+              if (Number.isFinite(value) && value > 0) {
+                applyValue(unit.id, `weapon_slot_${slot.slot}_${key}`, mutateValue(value, key === 'reload' ? 2 : 1));
+              }
+            });
+          });
+        }
+      });
+      return next;
+    });
+
+    setShowRandomPanel(false);
+    showToast(`Mutation generated across ${targets.length} ${targets.length === 1 ? 'unit' : 'units'} in ${randomIntensity} mode.`);
+  };
+
+  // Mod Import/Export Handlers
+  const handleExportConfig = () => {
+    const config = {
+      version: '1.3',
+      tweaks,
+      clones,
+      disabledUnitIds,
+      buildMenuSteps,
+      unitDescriptions,
+      environmentSettings,
+      weaponLibrary,
+      projectName,
+      projectAuthor,
+      projectDesc,
+      includeTweaks,
+      includeClones,
+      includeRosters,
+      includeHeader
+    };
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${projectName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_mod_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Configuration exported!');
+  };
+
+  const handleImportConfig = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const config = JSON.parse(event.target.result);
+        if (config.tweaks) setTweaks(config.tweaks);
+        if (config.clones) setClones(config.clones);
+        if (config.disabledUnitIds) setDisabledUnitIds(config.disabledUnitIds);
+        if (config.unitDescriptions) setUnitDescriptions(config.unitDescriptions);
+        if (config.buildMenuSteps) setBuildMenuSteps(config.buildMenuSteps);
+
+        // Metadata & Flags imports if present
+        if (config.projectName) setProjectName(config.projectName);
+        if (config.projectAuthor) setProjectAuthor(config.projectAuthor);
+        if (config.projectDesc) setProjectDesc(config.projectDesc);
+        if (config.includeTweaks !== undefined) setIncludeTweaks(config.includeTweaks);
+        if (config.includeClones !== undefined) setIncludeClones(config.includeClones);
+        if (config.includeRosters !== undefined) setIncludeRosters(config.includeRosters);
+        if (config.includeHeader !== undefined) setIncludeHeader(config.includeHeader);
+        if (config.environmentSettings) setEnvironmentSettings(config.environmentSettings);
+        if (config.weaponLibrary) setWeaponLibrary(config.weaponLibrary);
+
+        showToast('Configuration imported successfully!');
+      } catch {
+        showToast('Error: Invalid config file');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  // Keyboard Shortcuts Hook
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) handleRedo();
+        else handleUndo();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        handleRedo();
+        return;
+      }
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'SELECT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) searchInput.focus();
+      }
+      if (e.key === 'Escape') {
+        setShowSwapModal(false);
+        setShowClonePanel(false);
+        setShowBulkPanel(false);
+        setShowDesignerPanel(false);
+        setShowSummaryModal(false);
+        setShowCreditsModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo, handleRedo]);
+
+  useEffect(() => {
+    if (!showToolsMenu) return undefined;
+
+    const closeMenuOnOutsidePointer = (event) => {
+      if (!toolsMenuRef.current?.contains(event.target)) setShowToolsMenu(false);
+    };
+    const closeMenuOnEscape = (event) => {
+      if (event.key === 'Escape') {
+        setShowToolsMenu(false);
+        toolsMenuRef.current?.querySelector('.header-tools-trigger')?.focus();
+      }
+    };
+
+    document.addEventListener('pointerdown', closeMenuOnOutsidePointer);
+    window.addEventListener('keydown', closeMenuOnEscape);
+    toolsMenuRef.current?.querySelector('[role="menuitem"]')?.focus();
+    return () => {
+      document.removeEventListener('pointerdown', closeMenuOnOutsidePointer);
+      window.removeEventListener('keydown', closeMenuOnEscape);
+    };
+  }, [showToolsMenu]);
+
+  // --- Roster Designer Helpers ---
+  const factoryIdsList = useMemo(() => {
+    return Object.keys(factoryRosters).sort((a, b) => a.localeCompare(b));
+  }, []);
+
+  const filteredFactoryIds = useMemo(() => {
+    return factoryIdsList.filter(id => {
+      const faction = getFactionOfUnit(id);
+      if (designerFaction !== 'all' && faction !== designerFaction) return false;
+      if (factorySearchQuery.trim()) {
+        const query = factorySearchQuery.toLowerCase();
+        const name = (unitsDb.names[id] || id).toLowerCase();
+        if (!id.toLowerCase().includes(query) && !name.includes(query)) return false;
+      }
+      return true;
+    });
+  }, [factoryIdsList, designerFaction, factorySearchQuery]);
+
+  const activeRosterItems = useMemo(() => {
+    const defaults = factoryRosters[selectedFactoryId] || [];
+    const step = buildMenuSteps.find(s => s.builderId === selectedFactoryId);
+    const removedSet = new Set(step ? step.remove.map(r => r.toLowerCase()) : []);
+    const addedList = step ? step.add : [];
+
+    let items = defaults.map(id => ({
+      id,
+      name: unitsDb.names[id] || id,
+      status: removedSet.has(id.toLowerCase()) ? 'removed' : 'default'
+    }));
+
+    addedList.forEach(id => {
+      if (!defaults.map(d => d.toLowerCase()).includes(id.toLowerCase())) {
+        const cloneInfo = clones.find(c => c.newId.toLowerCase() === id.toLowerCase());
+        const name = cloneInfo ? (cloneInfo.displayName || cloneInfo.newId) : (unitsDb.names[id] || id);
+        items.push({
+          id,
+          name,
+          status: 'added'
+        });
+      }
+    });
+
+    if (step && step.order && step.order.length > 0) {
+      const orderMap = {};
+      step.order.forEach((id, idx) => {
+        orderMap[id.toLowerCase()] = idx;
+      });
+      items.sort((a, b) => {
+        const idxA = orderMap[a.id.toLowerCase()];
+        const idxB = orderMap[b.id.toLowerCase()];
+        if (idxA !== undefined && idxB !== undefined) {
+          return idxA - idxB;
+        }
+        if (idxA !== undefined) return -1;
+        if (idxB !== undefined) return 1;
+        return 0;
+      });
+    }
+
+    return items;
+  }, [selectedFactoryId, buildMenuSteps, clones]);
+
+  const availableUnitsForFactory = useMemo(() => {
+    const activeIds = new Set(
+      activeRosterItems
+        .filter(item => item.status !== 'removed')
+        .map(item => item.id.toLowerCase())
+    );
+    const factoryFaction = getFactionOfUnit(selectedFactoryId);
+
+    return allUnitsList.filter(unit => {
+      if (activeIds.has(unit.id.toLowerCase())) return false;
+
+      if (availableFactionFilter === 'clone') {
+        if (!unit.isClone) return false;
+      } else if (availableFactionFilter === 'factory') {
+        if (unit.faction !== factoryFaction) return false;
+      } else if (availableFactionFilter !== 'all') {
+        if (unit.faction !== availableFactionFilter) return false;
+      }
+
+      if (availableSearchQuery.trim()) {
+        const query = availableSearchQuery.toLowerCase();
+        return unit.id.toLowerCase().includes(query) || unit.name.toLowerCase().includes(query);
+      }
+
+      return true;
+    });
+  }, [allUnitsList, activeRosterItems, selectedFactoryId, availableFactionFilter, availableSearchQuery]);
+
+  const validationIssues = useMemo(() => {
+    const issues = [];
+    Object.entries(tweaks).forEach(([unitId, patch]) => {
+      const unitName = unitsDb.names[unitId] || clones.find(c => c.newId.toLowerCase() === unitId.toLowerCase())?.displayName || unitId;
+      Object.entries(patch).forEach(([key, val]) => {
+        const warning = getValidationWarning(key, val);
+        if (warning) {
+          issues.push({
+            unitId,
+            unitName,
+            key,
+            value: val,
+            ...warning
+          });
+        }
+      });
+    });
+    return issues;
+  }, [tweaks, clones]);
+
+  const factoryIsModified = (factoryId) => {
+    const step = buildMenuSteps.find(s => s.builderId === factoryId);
+    return step && (step.add.length > 0 || step.remove.length > 0);
+  };
+
+  const handleAddUnitToFactory = (factoryId, unitId) => {
+    setBuildMenuSteps(prev => {
+      const next = [...prev];
+      let idx = next.findIndex(s => s.builderId === factoryId);
+      if (idx === -1) {
+        next.push({ builderId: factoryId, add: [unitId], remove: [] });
+      } else {
+        const step = { ...next[idx] };
+        step.remove = step.remove.filter(r => r.toLowerCase() !== unitId.toLowerCase());
+        const defaults = factoryRosters[factoryId] || [];
+        const isDefault = defaults.map(d => d.toLowerCase()).includes(unitId.toLowerCase());
+        if (!isDefault && !step.add.map(a => a.toLowerCase()).includes(unitId.toLowerCase())) {
+          step.add = [...step.add, unitId];
+        }
+        if (step.order && step.order.length > 0) {
+          if (!step.order.map(o => o.toLowerCase()).includes(unitId.toLowerCase())) {
+            step.order = [...step.order, unitId];
+          }
+        }
+        next[idx] = step;
+      }
+      return next.filter(s => s.add.length > 0 || s.remove.length > 0 || (s.order && s.order.length > 0));
+    });
+    if (clones.some(clone => clone.newId.toLowerCase() === unitId.toLowerCase())) {
+      setClones(prev => prev.map(clone => (
+        clone.newId.toLowerCase() === unitId.toLowerCase()
+          ? { ...clone, builderIds: [...new Set([...(clone.builderIds || []), factoryId.toLowerCase()])] }
+          : clone
+      )));
+    }
+  };
+
+  const handleRemoveUnitFromFactory = (factoryId, unitId) => {
+    setBuildMenuSteps(prev => {
+      const next = [...prev];
+      let idx = next.findIndex(s => s.builderId === factoryId);
+      if (idx === -1) {
+        next.push({ builderId: factoryId, add: [], remove: [unitId] });
+      } else {
+        const step = { ...next[idx] };
+        step.add = step.add.filter(a => a.toLowerCase() !== unitId.toLowerCase());
+        const defaults = factoryRosters[factoryId] || [];
+        const isDefault = defaults.map(d => d.toLowerCase()).includes(unitId.toLowerCase());
+        if (isDefault && !step.remove.map(r => r.toLowerCase()).includes(unitId.toLowerCase())) {
+          step.remove = [...step.remove, unitId];
+        }
+        if (step.order && step.order.length > 0) {
+          step.order = step.order.filter(o => o.toLowerCase() !== unitId.toLowerCase());
+        }
+        next[idx] = step;
+      }
+      return next.filter(s => s.add.length > 0 || s.remove.length > 0 || (s.order && s.order.length > 0));
+    });
+    if (clones.some(clone => clone.newId.toLowerCase() === unitId.toLowerCase())) {
+      setClones(prev => prev.map(clone => (
+        clone.newId.toLowerCase() === unitId.toLowerCase()
+          ? { ...clone, builderIds: (clone.builderIds || []).filter(id => id.toLowerCase() !== factoryId.toLowerCase()) }
+          : clone
+      )));
+    }
+  };
+
+  const handleRevertUnitInFactory = (factoryId, unitId) => {
+    setBuildMenuSteps(prev => {
+      const next = [...prev];
+      let idx = next.findIndex(s => s.builderId === factoryId);
+      if (idx !== -1) {
+        const step = { ...next[idx] };
+        step.remove = step.remove.filter(r => r.toLowerCase() !== unitId.toLowerCase());
+        step.add = step.add.filter(a => a.toLowerCase() !== unitId.toLowerCase());
+        if (step.order && step.order.length > 0) {
+          const defaults = factoryRosters[factoryId] || [];
+          const isDefault = defaults.map(d => d.toLowerCase()).includes(unitId.toLowerCase());
+          if (isDefault && !step.order.map(o => o.toLowerCase()).includes(unitId.toLowerCase())) {
+            const defIdx = defaults.findIndex(d => d.toLowerCase() === unitId.toLowerCase());
+            const newOrder = [...step.order];
+            newOrder.splice(defIdx >= 0 ? defIdx : newOrder.length, 0, unitId);
+            step.order = newOrder;
+          }
+        }
+        next[idx] = step;
+      }
+      return next.filter(s => s.add.length > 0 || s.remove.length > 0 || (s.order && s.order.length > 0));
+    });
+  };
+
+  const handleReorderFactoryRoster = (factoryId, reorderedIds) => {
+    setBuildMenuSteps(prev => {
+      const next = [...prev];
+      let idx = next.findIndex(s => s.builderId === factoryId);
+      if (idx === -1) {
+        next.push({ builderId: factoryId, add: [], remove: [], order: reorderedIds });
+      } else {
+        const step = { ...next[idx] };
+        step.order = reorderedIds;
+        next[idx] = step;
+      }
+      return next;
+    });
+  };
+
+  const activeFaction = useMemo(() => {
+    if (selectedUnit) {
+      return selectedUnit.faction || 'all';
+    }
+    return selectedFaction;
+  }, [selectedUnit, selectedFaction]);
+
+  const factionAccentColor = useMemo(() => {
+    switch (activeFaction) {
+      case 'arm': return '#668895'; // weathered indigo
+      case 'cor': return '#a96862'; // persimmon clay
+      case 'leg': return '#8b7899'; // muted wisteria
+      case 'rap': return '#a47b48'; // roasted tea
+      case 'scav': return '#7d8768'; // moss
+      default: return '#b56f7b'; // sakura ink
+    }
+  }, [activeFaction]);
+
+  const modifiedUnitIds = Object.keys(tweaks).filter(id => Object.keys(tweaks[id] || {}).length > 0);
+  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + Object.keys(environmentSettings).length;
+  const activeCompiledOutput = activeOutputTab === 'tweakdefs_lua'
+    ? generatedTweakDefsLua
+    : activeOutputTab === 'tweakunits_lua'
+      ? generatedTweakUnitsLua
+      : activeOutputTab === 'tweakdefs_b64'
+        ? tweakDefsB64
+        : tweakUnitsB64;
+  const activeCompiledOutputFallback = activeOutputTab.includes('lua') ? '{\n}' : 'No encoded output generated yet.';
+
+  if (coreDataStatus !== 'ready') {
+    return (
+      <main className="core-data-gate" role={coreDataStatus === 'error' ? 'alert' : 'status'}>
+        <img src="/logo.svg" alt="" />
+        <span className="brand-kicker">BAR Editor</span>
+        <h1>{coreDataStatus === 'error' ? 'Game definitions unavailable' : 'Preparing the unit library'}</h1>
+        <p>{coreDataStatus === 'error' ? 'Reload the editor to try loading the bundled BAR data again.' : 'Loading unit statistics and weapon definitions…'}</p>
+        {coreDataStatus === 'error' && <Button variant="primary" onClick={() => window.location.reload()}>Reload editor</Button>}
+      </main>
+    );
+  }
+
+  if (showMainMenu) {
+    return (
+      <>
+        {toast.show && <div className="toast">{toast.message}</div>}
+        <MainMenu
+          themeMode={themeMode}
+          unitCount={allUnitsList.length}
+          projectName={projectName}
+          projectChangeCount={projectChangeCount}
+          cloneCount={clones.length}
+          rosterCount={buildMenuSteps.length}
+          onToggleTheme={() => setThemeMode(mode => mode === 'dark' ? 'light' : 'dark')}
+          onOpenCredits={() => setShowCreditsModal(true)}
+          onEditUnits={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('edit');
+            if (activeParamTab === 'environment') setActiveParamTab('structure');
+            setShowMainMenu(false);
+          }}
+          onBuildMenus={() => {
+            setShowPresetGallery(false);
+            setShowDesignerPanel(true);
+            setActiveWorkspace('designer');
+            setShowMainMenu(false);
+          }}
+          onReviewExport={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('review');
+            setShowMainMenu(false);
+          }}
+          onLoadProject={(event) => {
+            handleImportConfig(event);
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('edit');
+            setShowMainMenu(false);
+          }}
+        />
+        {showCreditsModal && <CreditsModal onClose={() => setShowCreditsModal(false)} />}
+      </>
+    );
+  }
+
+  return (
+    <div className="app-container" style={{ '--border-accent': factionAccentColor }}>
+      {/* Toast */}
+      {toast.show && <div className="toast">{toast.message}</div>}
+
+      {/* Header */}
+      <header className="app-header">
+        <button type="button" className="brand-section header-brand" onClick={() => setShowMainMenu(true)} title="Return to main menu">
+          <img src="/logo.svg" alt="BAR Editor" className="app-logo" />
+          <div className="brand-text">
+            <span className="brand-kicker">Mod workspace</span>
+            <h1>BAR Editor</h1>
+          </div>
+        </button>
+
+        <nav className="workflow-nav" aria-label="Editor workflow">
+          <button
+            className={activeWorkspace === 'edit' && activeParamTab !== 'environment' ? 'active' : ''}
+            aria-current={activeWorkspace === 'edit' && activeParamTab !== 'environment' ? 'page' : undefined}
+            onClick={() => {
+              setActiveWorkspace('edit');
+              if (activeParamTab === 'environment') setActiveParamTab('structure');
+            }}
+          >
+            <span className="workflow-nav__step">01</span>
+            <span className="workflow-nav__label">Edit Units</span>
+          </button>
+          <button
+            className={activeWorkspace === 'designer' ? 'active' : ''}
+            aria-current={activeWorkspace === 'designer' ? 'page' : undefined}
+            onClick={() => { setShowDesignerPanel(true); setActiveWorkspace('designer'); }}
+          >
+            <span className="workflow-nav__step">02</span>
+            <span className="workflow-nav__label">Build Menus</span>
+          </button>
+          <button
+            className={activeWorkspace === 'review' ? 'active' : ''}
+            aria-current={activeWorkspace === 'review' ? 'page' : undefined}
+            onClick={() => setActiveWorkspace('review')}
+          >
+            <span className="workflow-nav__step">03</span>
+            <span className="workflow-nav__label">Review &amp; Export</span>
+          </button>
+        </nav>
+
+        <div className="header-actions header-utility-actions">
+          <div className="header-control-cluster">
+          <button
+            className="btn-action btn-secondary header-menu-action"
+            type="button"
+            onClick={() => setShowMainMenu(true)}
+            title="Return to main menu"
+            aria-label="Return to main menu"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M6.5 3.25 1.75 8l4.75 4.75" />
+              <path d="M2.25 8h8.25a3.25 3.25 0 0 1 3.25 3.25v1" />
+            </svg>
+            <span className="header-menu-label">Main menu</span>
+          </button>
+          <button
+            className="theme-toggle"
+            type="button"
+            aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}
+            aria-pressed={themeMode === 'dark'}
+            onClick={() => setThemeMode(mode => mode === 'dark' ? 'light' : 'dark')}
+          >
+            <span className="theme-toggle-mark" aria-hidden="true">{themeMode === 'dark' ? '☼' : '◐'}</span>
+            <span>{themeMode === 'dark' ? 'Light' : 'Dark'}</span>
+          </button>
+          <div className="history-controls" aria-label="Change history">
+            <button onClick={handleUndo} disabled={historyPast.length === 0} title="Undo (Ctrl+Z)">↶</button>
+            <button onClick={handleRedo} disabled={historyFuture.length === 0} title="Redo (Ctrl+Y)">↷</button>
+          </div>
+          <button
+            className="btn-action btn-secondary header-credits-action"
+            type="button"
+            onClick={() => setShowCreditsModal(true)}
+            title="Disclaimer, asset sources, and project credits"
+          >
+            <span className="header-credits-icon" aria-hidden="true">i</span>
+            <span className="header-credits-label">Credits</span>
+          </button>
+          </div>
+          <Button
+            className="btn-action btn-secondary header-create-action"
+            aria-label="Create a clone of the selected unit"
+            title="Create a clone of the selected unit"
+            onClick={() => {
+              if (selectedUnit) {
+                setCloneBaseId(selectedUnit.id);
+                setCloneName(`${selectedUnit.name} (Clone)`);
+
+                // Pre-populate clone builders from parent unit
+                const parentBuilders = [];
+                Object.entries(factoryRosters).forEach(([factoryId, roster]) => {
+                  if (Array.isArray(roster) && roster.includes(selectedUnit.id.toLowerCase())) {
+                    parentBuilders.push(factoryId);
+                  }
+                });
+                setCloneBuilders(parentBuilders.length > 0 ? parentBuilders : ['armlab']);
+
+                setShowClonePanel(true);
+              } else {
+                showToast('Please select a unit to clone first');
+              }
+            }}
+          >
+            <svg className="header-create-icon" viewBox="0 0 16 16" aria-hidden="true">
+              <rect x="2.25" y="2.25" width="8.5" height="8.5" rx="1.25" />
+              <path d="M5.25 5.25h7.5a1 1 0 0 1 1 1v7.5" />
+              <path d="M10 11.5h4" />
+              <path d="M12 9.5v4" />
+            </svg>
+            <span className="header-create-label">Clone unit</span>
+          </Button>
+
+          <div className="header-tools" ref={toolsMenuRef}>
+            <button
+              className="btn-action btn-secondary header-tools-trigger"
+              type="button"
+              aria-expanded={showToolsMenu}
+              aria-controls="header-tools-menu"
+              onClick={() => setShowToolsMenu(open => !open)}
+            >
+              Tools <span aria-hidden="true">⌄</span>
+            </button>
+            {showToolsMenu && (
+              <div className="header-tools-menu" id="header-tools-menu" role="menu" aria-label="Editor tools">
+                <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>Batch Adjust</button>
+                <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>Preset Gallery</button>
+                {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}>Weapon Lab</button>}
+                <button type="button" role="menuitem" onClick={() => { setShowRandomPanel(true); setShowToolsMenu(false); }}>Mutation Lab</button>
+                <div className="header-tools-menu-project-actions" role="group" aria-label="Project files">
+                  <button type="button" onClick={() => { handleExportConfig(); setShowToolsMenu(false); }}>Save Project</button>
+                  <label>
+                    Load Project
+                    <input type="file" accept=".json" onChange={(event) => { handleImportConfig(event); setShowToolsMenu(false); }} />
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="header-project-actions">
+            <button
+              className="btn-action btn-secondary header-file-action"
+              onClick={handleExportConfig}
+              title="Download your configuration profile locally"
+            >
+              Save Project
+            </button>
+            <label className="btn-action btn-secondary header-file-action" title="Upload an exported .json config">
+              Load Project
+              <input type="file" accept=".json" onChange={handleImportConfig} />
+            </label>
+          </div>
+        </div>
+      </header>
+
+      {showCreditsModal && <CreditsModal onClose={() => setShowCreditsModal(false)} />}
+
+      {/* Main Workspace */}
+      {activeWorkspace === 'edit' ? (
+      <div className="main-layout">
+
+        {/* Sidebar Panel */}
+        <aside className="sidebar">
+          <div className="sidebar-heading">
+            <div>
+              <span className="sidebar-eyebrow">Unit library</span>
+              <h2>Browse forces</h2>
+            </div>
+            <span className="sidebar-total">{allUnitsList.length.toLocaleString()}</span>
+          </div>
+          <div className="search-filter-section">
+
+            {/* Search */}
+            <div className="search-wrapper">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search unit name, ID, or stat..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+              <div className="stat-search-query-tip">
+                Query format: <code>hp &gt; 3000</code> or <code>speed &lt; 50</code>
+              </div>
+            </div>
+
+            {/* Faction selector (no emojis) */}
+            <div className="sidebar-filter-label">Faction</div>
+            <div className="faction-tabs">
+              <button
+                className={`faction-tab ${selectedFaction === 'all' ? 'active' : ''}`}
+                onClick={() => setSelectedFaction('all')}
+              >
+                ALL
+              </button>
+              <button
+                className={`faction-tab ${selectedFaction === 'arm' ? 'active' : ''}`}
+                onClick={() => setSelectedFaction('arm')}
+              >
+                <img src="/factions/armada.png" alt="Armada" />
+              </button>
+              <button
+                className={`faction-tab ${selectedFaction === 'cor' ? 'active' : ''}`}
+                onClick={() => setSelectedFaction('cor')}
+              >
+                <img src="/factions/cortex.png" alt="Cortex" />
+              </button>
+              <button
+                className={`faction-tab ${selectedFaction === 'leg' ? 'active' : ''}`}
+                onClick={() => setSelectedFaction('leg')}
+              >
+                <img src="/factions/legion.png" alt="Legion" />
+              </button>
+              <button
+                className={`faction-tab ${selectedFaction === 'rap' ? 'active' : ''}`}
+                onClick={() => setSelectedFaction('rap')}
+                title="Raptors"
+              >
+                Raptors
+              </button>
+              <button
+                className={`faction-tab ${selectedFaction === 'scav' ? 'active' : ''}`}
+                onClick={() => setSelectedFaction('scav')}
+                title="Scavengers"
+              >
+                Scavs
+              </button>
+            </div>
+
+            {/* Category tags */}
+            <div className="sidebar-filter-label">Classification</div>
+            <div className="category-chips" role="group" aria-label="Unit classification filters">
+              {CATEGORIES.map(cat => (
+                <button
+                  type="button"
+                  key={cat}
+                  className={`category-chip ${selectedCats.includes(cat) ? 'active' : ''}`}
+                  onClick={() => handleCatClick(cat)}
+                  aria-pressed={selectedCats.includes(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <div className="filter-actions">
+              <button
+                className={`filter-action-btn ${showModifiedOnly ? 'active' : ''}`}
+                onClick={() => setShowModifiedOnly(prev => !prev)}
+                title="Show changed, disabled, and cloned units"
+              >
+                Modified only
+              </button>
+              <button
+                className="filter-action-btn"
+                onClick={clearUnitFilters}
+                disabled={!hasActiveUnitFilters}
+              >
+                Clear filters
+              </button>
+            </div>
+
+            <div className="results-summary" aria-live="polite">
+              <span>{filteredUnits.length.toLocaleString()} units</span>
+              {hasActiveUnitFilters && <span>Filtered</span>}
+            </div>
+
+          </div>
+
+          {/* Scrollable list of units with icons */}
+          <div className="unit-list-region">
+          <div
+            ref={unitListContainerRef}
+            className="unit-list-container"
+            onScroll={event => setUnitListScrollTop(event.currentTarget.scrollTop)}
+          >
+              {filteredUnits.length === 0 ? (
+                <div className="unit-list-empty">
+                  <strong>No matching units</strong>
+                  <span>Try removing a category or clearing the current filters.</span>
+                  <button className="filter-action-btn active" onClick={clearUnitFilters}>Clear all filters</button>
+                </div>
+              ) : (
+              <div className="unit-list-virtual" style={{ height: `${filteredUnits.length * unitRowHeight}px` }}>
+              <div className="unit-list" style={{ transform: `translateY(${virtualUnitRange.start * unitRowHeight}px)` }}>
+              {virtualUnitRange.units.map(unit => {
+                const isModified = tweaks[unit.id] && Object.keys(tweaks[unit.id]).length > 0;
+                const isDisabled = disabledUnitIds.includes(unit.id);
+                const iconSourceId = unit.isClone ? unit.baseId : unit.id;
+
+                return (
+                  <button
+                    type="button"
+                    key={unit.id}
+                    className={`unit-item ${selectedUnitId === unit.id ? 'active' : ''}`}
+                    onClick={() => setSelectedUnitId(unit.id)}
+                    aria-pressed={selectedUnitId === unit.id}
+                    style={{ height: `${unitRowHeight}px` }}
+                  >
+                    <div className="unit-item-icon">
+                      <UnitArtwork unitId={iconSourceId} alt="" />
+                    </div>
+                    <div className="unit-item-info">
+                      <div className="unit-item-header">
+                        <span className="unit-item-name">
+                          {unit.name}
+                        </span>
+                        {isModified && (
+                          <span className="unit-status unit-status--modified">MOD</span>
+                        )}
+                        {isDisabled && (
+                          <span className="unit-status unit-status--disabled">DIS</span>
+                        )}
+                      </div>
+                      <span className="unit-item-id">
+                        {unit.id}
+                      </span>
+                    </div>
+                    {(() => {
+                      const tier = getTechTierOfUnit(unit.isClone ? unit.baseId : unit.id).toUpperCase();
+                      return (
+                        <span className="unit-tier">
+                          {tier}
+                        </span>
+                      );
+                    })()}
+                  </button>
+                );
+              })}
+              </div>
+            </div>
+              )}
+          </div>
+          {unitScrollHint.hasMore && (
+            <div className="unit-scroll-hint" aria-hidden="true">
+              <svg viewBox="0 0 16 16"><path d="M8 3.25v8.5" /><path d="m4.75 8.5 3.25 3.25 3.25-3.25" /></svg>
+              <span>Scroll to browse</span>
+              <strong>{unitScrollHint.remaining.toLocaleString()} more</strong>
+            </div>
+          )}
+          </div>
+        </aside>
+
+        {/* Center: selected unit stat parameters editor */}
+        <main className="editor-workspace">
+          {selectedUnit ? (() => {
+            const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+            const defaults = defaultsDb[baseId] || {};
+            const slots = defaults.weaponSlots || [];
+
+            const activeSlotIdx = slots.some(s => s.slot === activeWeaponSlotTab) ? activeWeaponSlotTab : (slots[0]?.slot || 1);
+            const slot = slots.find(s => s.slot === activeSlotIdx) || slots[0];
+            const cloneInfo = selectedUnit.isClone ? clones.find(c => c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) : null;
+            const swap = cloneInfo?.weaponSwaps?.[String(slot?.slot)];
+
+            let calculatedDps = '0.0';
+            let rawRange = 0;
+            let rawSpray = 0;
+            if (slot) {
+              const rawDamage = parseFloat(tweaks[selectedUnit.id]?.[`weapon_slot_${slot.slot}_damage`] ?? slot.damage ?? 0);
+              const rawReload = parseFloat(tweaks[selectedUnit.id]?.[`weapon_slot_${slot.slot}_reload`] ?? slot.reload ?? 1);
+              const rawProj = parseInt(tweaks[selectedUnit.id]?.[`weapon_slot_${slot.slot}_projectiles`] ?? slot.projectiles ?? 1, 10);
+              const rawBurst = parseInt(tweaks[selectedUnit.id]?.[`weapon_slot_${slot.slot}_burst`] ?? slot.burst ?? 1, 10);
+              rawRange = parseFloat(tweaks[selectedUnit.id]?.[`weapon_slot_${slot.slot}_range`] ?? slot.range ?? 0);
+              rawSpray = parseFloat(tweaks[selectedUnit.id]?.[`weapon_slot_${slot.slot}_sprayangle`] ?? slot.sprayangle ?? 0);
+              calculatedDps = rawReload > 0 ? (((rawDamage * rawProj * rawBurst) / rawReload).toFixed(1)) : '0.0';
+            }
+
+            const slotParams = [
+              { key: 'damage', label: 'Damage', sub: 'damage.default', type: 'number' },
+              { key: 'damage_vs_light', label: 'Damage vs Light', sub: 'damage.light', type: 'number' },
+              { key: 'damage_vs_medium', label: 'Damage vs Medium', sub: 'damage.medium', type: 'number' },
+              { key: 'damage_vs_heavy', label: 'Damage vs Heavy', sub: 'damage.heavy', type: 'number' },
+              { key: 'damage_vs_commander', label: 'Damage vs Commander', sub: 'damage.commander', type: 'number' },
+              { key: 'reload', label: 'Reload (s)', sub: 'reloadtime', type: 'number' },
+              { key: 'range', label: 'Range', sub: 'range', type: 'number' },
+              { key: 'velocity', label: 'Velocity', sub: 'weaponvelocity', type: 'number' },
+              { key: 'flighttime', label: 'Lifetime', sub: 'flighttime', type: 'number' },
+              { key: 'aoe', label: 'Splash AoE', sub: 'areaofeffect', type: 'number' },
+              { key: 'accuracy', label: 'Inaccuracy', sub: 'accuracy', type: 'number' },
+              { key: 'sprayangle', label: 'Spray Angle', sub: 'sprayangle', type: 'number' },
+              { key: 'heightmod', label: 'Height Modifier', sub: 'heightmod', type: 'number' },
+              { key: 'randomdecay', label: 'Random Decay', sub: 'randomdecay', type: 'number' },
+              { key: 'hightrajectory', label: 'High Trajectory', sub: 'hightrajectory', type: 'text', options: ['0', '1', '2'] },
+              { key: 'projectiles', label: 'Projectiles', sub: 'projectiles', type: 'number' },
+              { key: 'burst', label: 'Burst Count', sub: 'burst', type: 'number' },
+              { key: 'burstrate', label: 'Burst Rate', sub: 'burstrate', type: 'number' },
+              { key: 'canattackground', label: 'Can Target Ground', sub: 'canattackground', type: 'boolean' },
+              { key: 'toairweapon', label: 'Anti-Air Only', sub: 'toairweapon', type: 'boolean' },
+              { key: 'stockpile', label: 'Stockpile Required', sub: 'stockpile', type: 'boolean' },
+              { key: 'avoidfriendly', label: 'Avoid Friendly', sub: 'avoidfriendly', type: 'boolean' },
+              { key: 'collidefriendly', label: 'Collide Friendly', sub: 'collidefriendly', type: 'boolean' },
+              { key: 'interceptedbyshieldtype', label: 'Shield Intercept Mask', sub: 'interceptedbyshieldtype', type: 'number' },
+              { key: 'stockpiletime', label: 'Stockpile Time (s)', sub: 'stockpiletime', type: 'number' },
+              { key: 'stockpilelimit', label: 'Stockpile Limit', sub: 'customparams.stockpilelimit', type: 'number' },
+              { key: 'weapontype', label: 'Projectile Class', sub: 'weapontype', type: 'text', options: ['LaserCannon', 'Cannon', 'MissileLauncher', 'EmgCannon', 'AircraftBomb', 'Flame', 'BeamLaser'] },
+              { key: 'cegTag', label: 'Visual Effect / Trail', sub: 'cegTag', type: 'text', options: ['redlaser', 'greenlaser', 'bluebeam', 'purpleshield', 'plasma_exp', 'lightning_stream', 'electric_arc', 'flamethrower'] },
+              { key: 'model', label: '3D Projectile Model', sub: 'model', type: 'text', options: ['torpedo.3do', 'missile.3do', 'bomb.3do', 'laserbolt.3do', 'rocket.3do'] },
+              { key: 'explosiongenerator', label: 'Explosion Generator', sub: 'explosiongenerator', type: 'text', options: ['custom:bluelaser_explosion', 'custom:redlaser_explosion', 'custom:plasma_big', 'custom:lightning_spark', 'custom:fire_medium'] }
+            ];
+
+            const advancedWeaponGroups = [
+              {
+                title: 'Impact & resource behavior',
+                description: 'Damage falloff, projectile persistence, impulse, and per-shot costs.',
+                params: [
+                  { key: 'edgeeffectiveness', label: 'AoE Edge Damage', type: 'number' },
+                  { key: 'impactonly', label: 'Direct Hit Only', type: 'tri-state' },
+                  { key: 'noexplode', label: 'Continue Through Impact', type: 'tri-state', danger: true },
+                  { key: 'burnblow', label: 'Explode at Max Range', type: 'tri-state' },
+                  { key: 'noselfdamage', label: 'No Self Damage', type: 'tri-state' },
+                  { key: 'impulsefactor', label: 'Impulse Multiplier', type: 'number' },
+                  { key: 'impulseboost', label: 'Impulse Boost', type: 'number' },
+                  { key: 'energypershot', label: 'Energy per Shot', type: 'number' },
+                  { key: 'metalpershot', label: 'Metal per Shot', type: 'number' },
+                  { key: 'paralyzer', label: 'Paralyzer', type: 'tri-state' },
+                  { key: 'paralyzetime', label: 'Paralyze Time', type: 'number' },
+                  { key: 'mygravity', label: 'Custom Gravity', type: 'number' },
+                  { key: 'heightboostfactor', label: 'Terrain Range Boost', type: 'number' }
+                ]
+              },
+              {
+                title: 'Guidance & trajectory',
+                description: 'Missile acceleration, tracking, arc, and flight motion.',
+                params: [
+                  { key: 'startvelocity', label: 'Start Velocity', type: 'number' },
+                  { key: 'weaponacceleration', label: 'Weapon Acceleration', type: 'number' },
+                  { key: 'tracks', label: 'Tracks Target', type: 'tri-state' },
+                  { key: 'turnrate', label: 'Guidance Turn Rate', type: 'number' },
+                  { key: 'trajectoryheight', label: 'Missile Arc Height', type: 'number' },
+                  { key: 'wobble', label: 'Wobble', type: 'number' },
+                  { key: 'dance', label: 'Dance', type: 'number' },
+                  { key: 'fixedlauncher', label: 'Fixed Launcher', type: 'tri-state' },
+                  { key: 'smoketrail', label: 'Smoke Trail', type: 'tri-state' },
+                  { key: 'waterweapon', label: 'Water Weapon', type: 'tri-state' },
+                  { key: 'firesubmersed', label: 'Fire Submerged', type: 'tri-state' }
+                ]
+              },
+              {
+                title: 'Aim, collision & bounce',
+                description: 'Practical hit chance, collision rules, and ricochet behavior.',
+                params: [
+                  { key: 'movingaccuracy', label: 'Moving Inaccuracy', type: 'number' },
+                  { key: 'targetmoveerror', label: 'Target Move Error', type: 'number' },
+                  { key: 'predictboost', label: 'Prediction Boost', type: 'number' },
+                  { key: 'leadlimit', label: 'Lead Limit', type: 'number' },
+                  { key: 'leadbonus', label: 'Experience Lead Bonus', type: 'number' },
+                  { key: 'targetborder', label: 'Target Border', type: 'number' },
+                  { key: 'cylindertargeting', label: 'Cylinder Targeting', type: 'number' },
+                  { key: 'tolerance', label: 'Aim Tolerance', type: 'number' },
+                  { key: 'firetolerance', label: 'Fire Tolerance', type: 'number' },
+                  { key: 'proximitypriority', label: 'Proximity Priority', type: 'number' },
+                  { key: 'collidefeature', label: 'Collide Features', type: 'tri-state' },
+                  { key: 'collideneutral', label: 'Collide Neutral Units', type: 'tri-state' },
+                  { key: 'collideground', label: 'Collide Ground', type: 'tri-state' },
+                  { key: 'collisionSize', label: 'Collision Size', type: 'number' },
+                  { key: 'groundbounce', label: 'Ground Bounce', type: 'tri-state' },
+                  { key: 'waterbounce', label: 'Water Bounce', type: 'tri-state' },
+                  { key: 'numbounce', label: 'Bounce Count', type: 'number' },
+                  { key: 'bounceslip', label: 'Bounce Slip', type: 'number' },
+                  { key: 'bouncerebound', label: 'Bounce Rebound', type: 'number' }
+                ]
+              },
+              {
+                title: 'Beam, visuals & audio',
+                description: 'Weapon-type-specific beam behavior and presentation overrides.',
+                params: [
+                  { key: 'beamtime', label: 'Beam Time', type: 'number' },
+                  { key: 'beamburst', label: 'Beam Burst', type: 'tri-state' },
+                  { key: 'sweepfire', label: 'Sweep Fire', type: 'tri-state' },
+                  { key: 'minintensity', label: 'Minimum Damage Intensity', type: 'number' },
+                  { key: 'duration', label: 'Laser Duration', type: 'number' },
+                  { key: 'hardstop', label: 'Laser Hard Stop', type: 'tri-state' },
+                  { key: 'falloffrate', label: 'Laser Falloff Rate', type: 'number' },
+                  { key: 'thickness', label: 'Beam Thickness', type: 'number' },
+                  { key: 'corethickness', label: 'Core Thickness', type: 'number' },
+                  { key: 'laserflaresize', label: 'Laser Flare Size', type: 'number' },
+                  { key: 'intensity', label: 'Visual Intensity', type: 'number' },
+                  { key: 'rgbcolor', label: 'Primary RGB Color', type: 'string' },
+                  { key: 'rgbcolor2', label: 'Core RGB Color', type: 'string' },
+                  { key: 'explosionscar', label: 'Explosion Scar', type: 'tri-state' },
+                  { key: 'alwaysvisible', label: 'Always Visible', type: 'tri-state' },
+                  { key: 'soundstart', label: 'Fire Sound', type: 'string' },
+                  { key: 'soundhit', label: 'Hit Sound', type: 'string' },
+                  { key: 'soundhitwet', label: 'Water Hit Sound', type: 'string' }
+                ]
+              }
+            ];
+
+            const structureParams = STAT_KEYS.filter(stat => !MOBILITY_STAT_KEYS.has(stat.key));
+            const mobilityParams = STAT_KEYS.filter(stat => {
+              if (!MOBILITY_STAT_KEYS.has(stat.key)) return false;
+              return !['cruisealt', 'airsubalt'].includes(stat.key) || getTagsOfUnit(baseId).includes('aircraft');
+            });
+            const weaponParameterCount = slot
+              ? slotParams.length + advancedWeaponGroups.reduce((total, group) => total + group.params.length, 0) + 2
+              : 0;
+            const workspaceTabs = WORKSPACE_TAB_DEFINITIONS.map(tab => ({
+              ...tab,
+              count: tab.id === 'structure'
+                ? structureParams.length
+                : tab.id === 'mobility'
+                  ? mobilityParams.length
+                  : tab.id === 'weapons'
+                    ? weaponParameterCount
+                    : ENVIRONMENT_FIELDS.length
+            }));
+            const activeComparisonCount = activeParamTab === 'structure'
+              ? structureParams.filter(stat => tweaks[selectedUnit.id]?.[stat.key] !== undefined).length
+              : activeParamTab === 'mobility'
+                ? mobilityParams.filter(stat => tweaks[selectedUnit.id]?.[stat.key] !== undefined).length
+                : activeParamTab === 'weapons'
+                  ? Object.keys(tweaks[selectedUnit.id] || {}).filter(key => slot && key.startsWith(`weapon_slot_${slot.slot}_`)).length
+                  : ENVIRONMENT_FIELDS.filter(field => environmentSettings[field.key] !== undefined).length;
+            const unitOverrideCount = Object.keys(tweaks[selectedUnit.id] || {}).length;
+            const unitIsDisabled = disabledUnitIds.includes(selectedUnit.id);
+            const activeRelationship = getParameterRelationship(activeParamTab, activeRelationshipKey);
+            const relationshipKeys = new Set(activeRelationship?.keys || []);
+            const getRelationshipStateClass = key => activeRelationshipKey === key
+              ? 'relationship-focus'
+              : relationshipKeys.has(key)
+                ? 'relationship-related'
+                : '';
+            const selectRelatedParameter = key => {
+              setActiveRelationshipKey(key);
+              requestAnimationFrame(() => {
+                const panel = document.getElementById(`workspace-panel-${activeParamTab}`);
+                const target = panel?.querySelector(`[data-param-key="${key}"]`);
+                target?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                target?.querySelector('input, select, button')?.focus({ preventScroll: true });
+              });
+            };
+
+            return (
+              <div className="editor-content">
+
+                {/* Unit info header */}
+                <div className="editor-unit-header">
+                  <div className="editor-unit-identity">
+                    <div className="unit-dossier-mark">
+                      <UnitArtwork unitId={baseId} alt="" eager />
+                      <span>{getTechTierOfUnit(baseId).toUpperCase()}</span>
+                    </div>
+                    <div className="unit-dossier-copy">
+                      <span className="unit-dossier-eyebrow">Unit dossier · {getFactionOfUnit(baseId).toUpperCase()}</span>
+                      <div className="unit-dossier-title-row">
+                        <span className="unit-dossier-title">{selectedUnit.name}</span>
+                      </div>
+                      <div className="unit-dossier-meta">
+                        <code className="unit-dossier-id">{selectedUnit.id}</code>
+                        {selectedUnit.isClone ? (
+                          <span className="clone-badge">Clone Prototype</span>
+                        ) : (
+                          <span className="clone-badge unit-source-badge">Vanilla Unit</span>
+                        )}
+                        {unitOverrideCount > 0 && (
+                          <span className="unit-override-badge">{unitOverrideCount} override{unitOverrideCount === 1 ? '' : 's'}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="unit-dossier-metrics" aria-label="Selected unit summary">
+                    <div>
+                      <span>Tier</span>
+                      <strong>{getTechTierOfUnit(baseId).toUpperCase()}</strong>
+                    </div>
+                    <div>
+                      <span>Class</span>
+                      <strong>{selectedUnit.tags?.[0] || 'Unit'}</strong>
+                    </div>
+                    <div>
+                      <span>Weapons</span>
+                      <strong>{slots.length}</strong>
+                    </div>
+                    <div className={unitOverrideCount > 0 ? 'has-overrides' : ''}>
+                      <span>Overrides</span>
+                      <strong>{unitOverrideCount}</strong>
+                    </div>
+                  </div>
+                  <div className="editor-unit-actions">
+                    <div className="unit-state-summary">
+                      <span>Unit state</span>
+                      <strong className={unitIsDisabled ? 'is-disabled' : 'is-active'}>
+                        {unitIsDisabled ? 'Excluded' : 'Active'}
+                      </strong>
+                    </div>
+                    <div className="unit-action-controls">
+                      <div className="unit-disable-control">
+                        <span>{unitIsDisabled ? 'Enable unit' : 'Disable unit'}</span>
+                        <Switch
+                          label={`Disable ${selectedUnit.name}`}
+                          checked={unitIsDisabled}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setDisabledUnitIds(prev => [...prev, selectedUnit.id]);
+                            } else {
+                              setDisabledUnitIds(prev => prev.filter(id => id !== selectedUnit.id));
+                            }
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="reset-unit-btn"
+                        disabled={unitOverrideCount === 0 && !unitIsDisabled}
+                        onClick={() => handleResetUnit(selectedUnit.id)}
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tab Selector Navigation for Parameters */}
+                <div className="workspace-tabs editor-section-tabs" role="tablist" aria-label="Editor parameter sections">
+                  {workspaceTabs.map(tab => (
+                    <button
+                      key={tab.id}
+                      id={`workspace-tab-${tab.id}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeParamTab === tab.id}
+                      aria-controls={tab.panelId}
+                      onClick={() => setActiveParamTab(tab.id)}
+                      className={`workspace-tab-btn ${activeParamTab === tab.id ? 'active' : ''}`}
+                    >
+                      <span className="workspace-tab-heading">
+                        <span className="workspace-tab-label">{tab.label}</span>
+                        <span className="workspace-tab-count" aria-label={`${tab.count} parameters`}>{tab.count}</span>
+                      </span>
+                      <small>{tab.description}</small>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Selected Unit Context HUD Bar (Stacked Vertically On Top of Parameters Scroll Area) */}
+                <div className="unit-context-strip unit-context-strip--canonical">
+                  {/* Unit Profile Hero Card */}
+                  <div className="unit-context-card unit-profile-card">
+                    <span className="unit-context-label unit-profile-label">Unit Profile</span>
+                    <UnitArtwork
+                      className="unit-profile-thumb"
+                      unitId={baseId}
+                      alt=""
+                      eager
+                    />
+                    <div className="unit-profile-copy">
+                      <span className="unit-profile-faction">
+                        {getFactionOfUnit(baseId)} Division
+                      </span>
+                      <span className="unit-profile-chassis">
+                        {getTechTierOfUnit(baseId)} Combat Chassis
+                      </span>
+                      <div className="unit-profile-description">
+                        <input
+                          type="text"
+                          className={`form-input ${unitDescriptions[selectedUnit.id] !== undefined ? 'has-custom-value' : ''}`}
+                          data-context-description
+                          placeholder={selectedUnit.desc || 'No chassis description available for this archetype.'}
+                          value={unitDescriptions[selectedUnit.id] || ''}
+                          onChange={e => {
+                            const val = e.target.value;
+                            const nextDescriptions = { ...unitDescriptions };
+                            if (val === '') {
+                              delete nextDescriptions[selectedUnit.id];
+                            } else {
+                              nextDescriptions[selectedUnit.id] = val;
+                            }
+                            setUnitDescriptions(nextDescriptions);
+                          }}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') e.target.blur();
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Efficiency Analysis Card */}
+                  <div className="unit-context-card unit-efficiency-card">
+                    <span className="unit-context-label">
+                      Efficiency Analysis
+                    </span>
+                    {(() => {
+                      const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+                      const uDefaults = defaultsDb[baseId] || {};
+                      const metalCost = parseFloat(tweaks[selectedUnit.id]?.metalcost ?? uDefaults.metalcost ?? 1);
+                      const health = parseFloat(tweaks[selectedUnit.id]?.health ?? uDefaults.health ?? 1);
+                      const buildTime = parseFloat(tweaks[selectedUnit.id]?.buildtime ?? uDefaults.buildtime ?? 1);
+                      const costPerHp = health > 0 ? (metalCost / health).toFixed(3) : '—';
+                      const dpsVal = parseFloat(calculatedDps) || 0;
+                      const dpsPerMetal = metalCost > 0 ? ((dpsVal / metalCost) * 100).toFixed(2) : '—';
+                      const buildEfficiency = buildTime > 0 ? (health / buildTime).toFixed(2) : '—';
+                      const effRows = [
+                        { label: 'Cost / HP', value: costPerHp, unit: 'm', tone: 'wisteria' },
+                        { label: 'DPS / 100m', value: dpsPerMetal, unit: '', tone: 'sakura' },
+                        { label: 'HP / Build-s', value: buildEfficiency, unit: '', tone: 'earth' }
+                      ];
+                      return (
+                        <div className="unit-efficiency-metrics">
+                          {effRows.map(r => (
+                            <div className={`unit-efficiency-metric tone-${r.tone}`} key={r.label}>
+                              <span>{r.label}</span>
+                              <span>
+                                {r.value}<small> {r.unit}</small>
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Weapon Slot Nodes Selector List */}
+                  {slots.length > 0 && (
+                    <div className="unit-context-card unit-weapon-card">
+                      <span className="unit-context-label">
+                        Chassis Weapon Slots ({slots.length})
+                      </span>
+                      <div className="unit-slot-list">
+                        {slots.map(s => {
+                          const isCurrent = s.slot === activeSlotIdx;
+                          const isSwapped = cloneInfo?.weaponSwaps?.[String(s.slot)];
+                          return (
+                            <button
+                              type="button"
+                              key={s.slot}
+                              onClick={() => setActiveWeaponSlotTab(s.slot)}
+                              className={`unit-slot-node ${isCurrent ? 'active' : ''} ${isSwapped ? 'swapped' : ''}`}
+                              aria-pressed={isCurrent}
+                            >
+                              <span className="unit-slot-index">{s.slot}</span>
+                              <span className="unit-slot-name">
+                                {s.defKey.toUpperCase()}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Vector Arc Radar Arc */}
+                  {slot && (
+                    <div className="unit-context-card unit-trajectory-card">
+                      <span className="unit-context-label">Firing Profile</span>
+                      <svg className="unit-trajectory-diagram" width="56" height="56" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="var(--color-border)" strokeWidth="1" />
+                        <circle cx="50" cy="50" r="30" fill="none" stroke="var(--color-border)" strokeWidth="0.5" strokeDasharray="3 3" />
+                        <line x1="50" y1="5" x2="50" y2="95" stroke="var(--color-border)" strokeWidth="0.5" />
+                        <line x1="5" y1="50" x2="95" y2="50" stroke="var(--color-border)" strokeWidth="0.5" />
+                        {(() => {
+                          const angle = Math.max(5, Math.min(360, rawSpray || 10));
+                          const startAngle = -angle / 2;
+                          const endAngle = angle / 2;
+                          const rad = 45;
+                          const x1 = 50 + rad * Math.cos((startAngle * Math.PI) / 180);
+                          const y1 = 50 + rad * Math.sin((startAngle * Math.PI) / 180);
+                          const x2 = 50 + rad * Math.cos((endAngle * Math.PI) / 180);
+                          const y2 = 50 + rad * Math.sin((endAngle * Math.PI) / 180);
+                          const largeArc = angle > 180 ? 1 : 0;
+                          return (
+                            <path
+                              d={`M 50 50 L ${x1} ${y1} A ${rad} ${rad} 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                              fill="var(--color-accent-soft)"
+                              stroke="var(--color-accent)"
+                              strokeWidth="1.5"
+                            />
+                          );
+                        })()}
+                        <circle cx="50" cy="50" r="2.5" fill="var(--color-accent)" />
+                      </svg>
+
+                      <div className="unit-trajectory-copy">
+                        <div className="unit-trajectory-values">
+                          <div>
+                            <span>DPS</span>
+                            <span className="tone-wisteria">
+                              {calculatedDps} <small>/s</small>
+                            </span>
+                          </div>
+                          <div>
+                            <span>Range</span>
+                            <span className="tone-sakura">
+                              {rawRange} <small>el</small>
+                            </span>
+                          </div>
+                          <div>
+                            <span>Spread</span>
+                            <span>{rawSpray > 0 ? `${rawSpray}°` : 'Direct'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Clone Identity Panel (Editable) */}
+                  {selectedUnit.isClone && (() => {
+                    const cloneInfo = clones.find(c => c.newId.toLowerCase() === selectedUnit.id.toLowerCase());
+                    if (!cloneInfo) return null;
+
+                    return (
+                      <div className="clone-identity-card clone-identity-card--canonical">
+                        <div className="clone-identity-heading">
+                          <span>Clone identity</span>
+                          <small>Live project metadata</small>
+                        </div>
+                        <div className="clone-identity-fields">
+                          <div className="clone-identity-field">
+                            <label>Name</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              value={cloneInfo.displayName || ''}
+                              onChange={e => {
+                                const val = e.target.value;
+                                setClones(prev => prev.map(c => {
+                                  if (c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) {
+                                    return { ...c, displayName: val };
+                                  }
+                                  return c;
+                                }));
+                              }}
+                            />
+                          </div>
+                          <div className="clone-identity-field">
+                            <label>Builders</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              value={cloneInfo.builderIds?.join(', ') || ''}
+                              onChange={e => {
+                                const val = e.target.value;
+                                handleCloneBuildersChange(selectedUnit.id, val.split(','));
+                              }}
+                            />
+                            <div className="clone-builder-meta">
+                              <span className="clone-builder-sync-note">Synced with Build Menus</span>
+                              <span>{cloneInfo.builderIds?.length || 0} assigned</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Editor viewport scroll area (Scrollable Grid) */}
+                <div className={`editor-scroll-area ${comparisonMode ? 'comparison-mode' : ''}`} style={{ flex: 1, overflowY: 'auto', padding: '16px', margin: 0 }}>
+                  <ParameterGuide section={activeParamTab} />
+                  <ParameterRelationshipPanel
+                    section={activeParamTab}
+                    activeKey={activeRelationshipKey}
+                    onSelect={selectRelatedParameter}
+                    onClear={() => setActiveRelationshipKey(null)}
+                  />
+                  <div className="comparison-mode-toolbar">
+                    <div>
+                      <span>{comparisonMode ? 'Before / after comparison' : 'Parameter editing'}</span>
+                      <small>{comparisonMode ? `${activeComparisonCount} override${activeComparisonCount === 1 ? '' : 's'} shown against its inherited value.` : 'Review inherited values and overrides side by side.'}</small>
+                    </div>
+                    <button
+                      type="button"
+                      className={`comparison-mode-toggle ${comparisonMode ? 'active' : ''}`}
+                      aria-pressed={comparisonMode}
+                      onClick={() => setComparisonMode(current => !current)}
+                    >
+                      {comparisonMode ? 'Exit comparison' : 'Compare before / after'}
+                    </button>
+                  </div>
+
+                  {/* Structure View */}
+                  {activeParamTab === 'structure' && (
+                    <div id="workspace-panel-structure" role="tabpanel" aria-labelledby="workspace-tab-structure" tabIndex={0} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div className="section-heading" style={{ margin: '0 0 4px 0' }}>Structure & Economic Metrics</div>
+                      <div className="editor-grid">
+                        {structureParams.map(stat => {
+                          const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+                          const defaults = defaultsDb[baseId] || {};
+                          let defaultVal = defaults[stat.key];
+
+                          if (stat.weaponSubPath && defaultVal === undefined && defaults.weaponSlots) {
+                            const wDef = defaults.weapon1def;
+                            if (wDef) {
+                              const slot = defaults.weaponSlots[0];
+                              if (slot) {
+                                if (stat.key.endsWith('Reload')) defaultVal = slot.reload;
+                                if (stat.key.endsWith('Range')) defaultVal = slot.range;
+                                if (stat.key.endsWith('Velocity')) defaultVal = slot.velocity;
+                                if (stat.key.endsWith('Flighttime')) defaultVal = slot.flighttime;
+                              }
+                            }
+                          }
+
+                          const currentTweakValue = tweaks[selectedUnit.id]?.[stat.key];
+                          const isModified = currentTweakValue !== undefined;
+                          const displayValue = isModified ? currentTweakValue : (defaultVal !== undefined ? defaultVal : '');
+
+                          let diffPercent = null;
+                          if (isModified && defaultVal !== undefined && typeof defaultVal === 'number') {
+                            const cur = parseFloat(currentTweakValue);
+                            const def = parseFloat(defaultVal);
+                            if (def !== 0) {
+                              diffPercent = (((cur - def) / def) * 100).toFixed(0);
+                            }
+                          }
+
+                          return (
+                            <StatCard
+                              key={stat.key}
+                              modified={isModified}
+                              className={getRelationshipStateClass(stat.key)}
+                              data-param-key={stat.key}
+                              onFocusCapture={() => setActiveRelationshipKey(stat.key)}
+                              onClick={() => setActiveRelationshipKey(stat.key)}
+                            >
+                              <div className="stat-card-label">
+                                <span>
+                                  <span className="icon">{stat.icon}</span>
+                                  {stat.label}
+                                  <ParameterHelp paramKey={stat.key} label={stat.label} />
+                                </span>
+                                {diffPercent !== null && (
+                                  <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
+                                    {diffPercent >= 0 ? '+' : ''}{diffPercent}%
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="stat-card-input-wrapper">
+                                {stat.type === 'boolean' ? (
+                                  <Switch
+                                    label={stat.label}
+                                    checked={displayValue === 'true' || displayValue === true}
+                                    onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.checked)}
+                                  />
+                                ) : (
+                                  (() => {
+                                    const warning = getValidationWarning(stat.key, displayValue);
+                                    return (
+                                      <div className="stat-card-field">
+                                        <input
+                                          type="number"
+                                          className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
+                                          value={displayValue}
+                                          placeholder={defaultVal !== undefined ? String(defaultVal) : 'N/A'}
+                                          onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.value)}
+                                        />
+                                        {warning && (
+                                          <div className={`stat-card-warning is-${warning.level}`}>
+                                            {warning.message}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })()
+                                )}
+                                {isModified && (
+                                  <button
+                                    type="button"
+                                    className="stat-card-default-pill"
+                                    title="Reset to default"
+                                    onClick={() => handleStatChange(selectedUnit.id, stat.key, undefined)}
+                                  >
+                                    Reset
+                                  </button>
+                                )}
+                              </div>
+                              <ComparisonValue active={comparisonMode && isModified} before={defaultVal} after={currentTweakValue} />
+                            </StatCard>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mobility View */}
+                  {activeParamTab === 'mobility' && (
+                    <div id="workspace-panel-mobility" role="tabpanel" aria-labelledby="workspace-tab-mobility" tabIndex={0} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div className="section-heading" style={{ margin: '0 0 4px 0' }}>Mobility & Movement Vectors</div>
+                      <div className="editor-grid">
+                        {mobilityParams.map(stat => {
+                          const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+                          const defaults = defaultsDb[baseId] || {};
+                          const defaultVal = defaults[stat.key];
+
+                          const currentTweakValue = tweaks[selectedUnit.id]?.[stat.key];
+                          const isModified = currentTweakValue !== undefined;
+                          const displayValue = isModified ? currentTweakValue : (defaultVal !== undefined ? defaultVal : '');
+
+                          let diffPercent = null;
+                          if (isModified && defaultVal !== undefined && typeof defaultVal === 'number') {
+                            const cur = parseFloat(currentTweakValue);
+                            const def = parseFloat(defaultVal);
+                            if (def !== 0) {
+                              diffPercent = (((cur - def) / def) * 100).toFixed(0);
+                            }
+                          }
+
+                          return (
+                            <StatCard
+                              key={stat.key}
+                              modified={isModified}
+                              className={getRelationshipStateClass(stat.key)}
+                              data-param-key={stat.key}
+                              onFocusCapture={() => setActiveRelationshipKey(stat.key)}
+                              onClick={() => setActiveRelationshipKey(stat.key)}
+                            >
+                              <div className="stat-card-label">
+                                <span>
+                                  <span className="icon">{stat.icon}</span>
+                                  {stat.label}
+                                  <ParameterHelp paramKey={stat.key} label={stat.label} />
+                                </span>
+                                {diffPercent !== null && (
+                                  <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
+                                    {diffPercent >= 0 ? '+' : ''}{diffPercent}%
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="stat-card-input-wrapper">
+                                {stat.type === 'boolean' ? (
+                                  <Switch
+                                    label={stat.label}
+                                    checked={displayValue === 'true' || displayValue === true}
+                                    onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.checked)}
+                                  />
+                                ) : (
+                                  (() => {
+                                    const warning = getValidationWarning(stat.key, displayValue);
+                                    return (
+                                      <div className="stat-card-field">
+                                        <input
+                                          type="number"
+                                          className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
+                                          value={displayValue}
+                                          placeholder={defaultVal !== undefined ? String(defaultVal) : 'N/A'}
+                                          onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.value)}
+                                        />
+                                        {warning && (
+                                          <div className={`stat-card-warning is-${warning.level}`}>
+                                            {warning.message}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })()
+                                )}
+                                {isModified && (
+                                  <button
+                                    type="button"
+                                    className="stat-card-default-pill"
+                                    title="Reset to default"
+                                    onClick={() => handleStatChange(selectedUnit.id, stat.key, undefined)}
+                                  >
+                                    Reset
+                                  </button>
+                                )}
+                              </div>
+                              <ComparisonValue active={comparisonMode && isModified} before={defaultVal} after={currentTweakValue} />
+                            </StatCard>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Weapon Systems View */}
+                  {activeParamTab === 'weapons' && (
+                    <div id="workspace-panel-weapons" role="tabpanel" aria-labelledby="workspace-tab-weapons" tabIndex={0}>
+                      {slot ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div className="section-heading" style={{ margin: 0 }}>Active Weapon Slot Parameters</div>
+                            {swap ? (
+                              <span style={{ fontSize: '9px', color: 'var(--border-accent)', fontWeight: 700, letterSpacing: '0.05em' }}>
+                                SUBSTITUTED FROM {swap.sourceUnitId.toUpperCase()}
+                              </span>
+                            ) : (
+                              <span style={{ fontSize: '9px', color: 'rgba(235,220,208,0.25)', fontWeight: 500, letterSpacing: '0.05em' }}>
+                                DEFAULT CHASSIS WEAPON
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Swap and Restore Actions */}
+                          {selectedUnit.isClone && (
+                            <section className={`weapon-substitution ${swap ? 'is-substituted' : ''}`} aria-label={`Weapon substitution for slot ${slot.slot}`}>
+                              <div className="weapon-substitution-summary">
+                                <span className="weapon-substitution-glyph" aria-hidden="true">
+                                  <svg viewBox="0 0 16 16" fill="none">
+                                    <path d="M2 5h10M9 2l3 3-3 3M14 11H4M7 8l-3 3 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                  </svg>
+                                </span>
+                                <div className="weapon-substitution-copy">
+                                  <span>Slot {slot.slot} · Clone loadout</span>
+                                  <div className="weapon-substitution-title">
+                                    <strong>Weapon substitution</strong>
+                                    <span className="weapon-substitution-status" aria-live="polite">
+                                      {swap ? 'Borrowed' : 'Original'}
+                                    </span>
+                                  </div>
+                                  {swap ? (
+                                    <div className="weapon-substitution-route">
+                                      <code>{slot.defKey.toUpperCase()}</code>
+                                      <span aria-hidden="true">→</span>
+                                      <code>{swap.sourceWeaponDefKey.toUpperCase()}</code>
+                                    </div>
+                                  ) : (
+                                    <small>Borrow a compatible weapon while preserving this slot’s editable overrides.</small>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="weapon-substitution-actions">
+                                <button
+                                  type="button"
+                                  className="weapon-substitution-primary"
+                                  onClick={() => {
+                                    setActiveSwapSlotNum(slot.slot);
+                                    setSelectedSwapUnitId(null);
+                                    setSwapSearchQuery('');
+                                    setShowSwapModal(true);
+                                  }}
+                                >
+                                  {swap ? 'Replace weapon' : 'Choose weapon'}
+                                </button>
+                                {swap && (
+                                  <button
+                                    type="button"
+                                    className="weapon-substitution-restore"
+                                    onClick={() => {
+                                      setClones(prev => prev.map(c => {
+                                        if (c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) {
+                                          const nextSwaps = { ...(c.weaponSwaps || {}) };
+                                          delete nextSwaps[String(slot.slot)];
+                                          return { ...c, weaponSwaps: nextSwaps };
+                                        }
+                                        return c;
+                                      }));
+                                      showToast(`Restored default weapon on Slot ${slot.slot}`);
+                                    }}
+                                  >
+                                    Restore original
+                                  </button>
+                                )}
+                              </div>
+                            </section>
+                          )}
+
+                          {/* Active Slot Parameter Tweaks Grid */}
+                          <div className="editor-grid weapon-parameter-grid">
+                            {slotParams.map(param => {
+                              const tweakKey = `weapon_slot_${slot.slot}_${param.key}`;
+                              const currentTweakValue = tweaks[selectedUnit.id]?.[tweakKey];
+                              const isModified = currentTweakValue !== undefined;
+                              const defaultVal = slot[param.key];
+                              const displayValue = isModified ? currentTweakValue : (defaultVal !== undefined ? defaultVal : '');
+
+                              let diffPercent = null;
+                              if (isModified && defaultVal !== undefined && typeof defaultVal === 'number' && defaultVal !== 0) {
+                                diffPercent = (((parseFloat(currentTweakValue) - defaultVal) / defaultVal) * 100).toFixed(0);
+                              }
+
+                              return (
+                                <div
+                                  key={param.key}
+                                  className={`stat-card ${isModified ? 'modified' : ''} ${getRelationshipStateClass(param.key)}`}
+                                  data-param-key={param.key}
+                                  onFocusCapture={() => setActiveRelationshipKey(param.key)}
+                                  onClick={() => setActiveRelationshipKey(param.key)}
+                                >
+                                  <div className="stat-card-label">
+                                    <span>{param.label}<ParameterHelp paramKey={param.key} label={param.label} /></span>
+                                    {diffPercent !== null && (
+                                      <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
+                                        {diffPercent >= 0 ? '+' : ''}{diffPercent}%
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="stat-card-input-wrapper">
+                                    {param.type === 'text' ? (
+                                      <select
+                                        className="stat-card-input"
+                                        value={displayValue}
+                                        onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value)}
+                                      >
+                                        <option value="">Default (Inherited)</option>
+                                        {param.options?.map(opt => (
+                                          <option key={opt} value={opt}>{opt}</option>
+                                        ))}
+                                      </select>
+                                    ) : param.type === 'boolean' ? (
+                                      <Switch
+                                          className="weapon-parameter-switch"
+                                          label={param.label}
+                                          checked={displayValue === 'true' || displayValue === true}
+                                          onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.checked)}
+                                      />
+                                    ) : (
+                                      (() => {
+                                        const warning = getValidationWarning(param.key, displayValue);
+                                        return (
+                                          <div className="stat-card-field">
+                                            <input
+                                              type="number"
+                                              className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
+                                              value={displayValue}
+                                              placeholder={defaultVal !== undefined ? String(defaultVal) : '0'}
+                                              onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value)}
+                                            />
+                                            {warning && (
+                                              <div className={`stat-card-warning is-${warning.level}`}>
+                                                {warning.message}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })()
+                                    )}
+                                    {isModified && (
+                                      <button
+                                        type="button"
+                                        className="stat-card-default-pill"
+                                        aria-label={`Reset ${param.label}`}
+                                        title="Reset to default"
+                                        onClick={() => handleStatChange(selectedUnit.id, tweakKey, undefined)}
+                                      >
+                                        ×
+                                      </button>
+                                    )}
+                                  </div>
+                                  <ComparisonValue active={comparisonMode && isModified} before={defaultVal} after={currentTweakValue} />
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          <div className="weapon-advanced-groups">
+                            {advancedWeaponGroups.map(group => (
+                              <section className="weapon-advanced-group" key={group.title}>
+                                <div className="weapon-advanced-group-heading">
+                                  <div>
+                                    <span>{group.title}</span>
+                                    <small>{group.description}</small>
+                                  </div>
+                                </div>
+                                <div className="editor-grid weapon-parameter-grid weapon-advanced-grid">
+                                  {group.params.map(param => {
+                                    const tweakKey = `weapon_slot_${slot.slot}_${param.key}`;
+                                    const currentTweakValue = tweaks[selectedUnit.id]?.[tweakKey];
+                                    const isModified = currentTweakValue !== undefined;
+                                    const defaultVal = slot[param.key];
+                                    const displayValue = isModified ? currentTweakValue : (defaultVal !== undefined ? defaultVal : '');
+                                    return (
+                                      <div
+                                        key={param.key}
+                                        className={`stat-card stat-card--advanced ${isModified ? 'modified' : ''} ${getRelationshipStateClass(param.key)}`}
+                                        data-param-key={param.key}
+                                        onFocusCapture={() => setActiveRelationshipKey(param.key)}
+                                        onClick={() => setActiveRelationshipKey(param.key)}
+                                      >
+                                        <div className="stat-card-label">
+                                          <span>{param.label}<ParameterHelp paramKey={param.key} label={param.label} /></span>
+                                          {param.danger && <span className="stat-card-diff diff-negative">Caution</span>}
+                                        </div>
+                                        <div className="stat-card-input-wrapper">
+                                          {param.type === 'tri-state' ? (
+                                            <select
+                                              className="stat-card-input"
+                                              value={displayValue === true ? 'true' : displayValue === false ? 'false' : displayValue}
+                                              onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value === '' ? undefined : e.target.value)}
+                                            >
+                                              <option value="">Inherited</option>
+                                              <option value="true">Enabled</option>
+                                              <option value="false">Disabled</option>
+                                            </select>
+                                          ) : param.type === 'string' ? (
+                                            <input
+                                              type="text"
+                                              className="stat-card-input"
+                                              value={displayValue}
+                                              placeholder="Inherited"
+                                              onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value === '' ? undefined : e.target.value)}
+                                            />
+                                          ) : (
+                                            <input
+                                              type="number"
+                                              className="stat-card-input"
+                                              value={displayValue}
+                                              placeholder={defaultVal !== undefined ? String(defaultVal) : 'Inherited'}
+                                              onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value)}
+                                            />
+                                          )}
+                                          {isModified && (
+                                            <span
+                                              className="stat-card-default-pill"
+                                              title="Reset to inherited value"
+                                              onClick={() => handleStatChange(selectedUnit.id, tweakKey, undefined)}
+                                            >
+                                              Ã—
+                                            </span>
+                                          )}
+                                        </div>
+                                        <ComparisonValue active={comparisonMode && isModified} before={defaultVal} after={currentTweakValue} />
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </section>
+                            ))}
+                          </div>
+
+                          {/* Target Category Masks */}
+                          {(() => {
+                            const catFields = [
+                              { key: 'onlytargetcategory', label: 'Allow targets', helper: 'The weapon can only acquire matching unit categories.' },
+                              { key: 'badtargetcategory', label: 'De-prioritise targets', helper: 'Matching categories are targeted last, not blocked.' }
+                            ];
+                            return (
+                              <div className="target-filter-panel">
+                                <div className="section-heading target-filter-panel-heading">Target Category Filters</div>
+                                {catFields.map(cf => {
+                                  const tweakKey = `weapon_slot_${slot.slot}_${cf.key}`;
+                                  const currentVal = tweaks[selectedUnit.id]?.[tweakKey];
+                                  const activeCats = currentVal ? String(currentVal).split(/\s+/).filter(Boolean) : [];
+                                  const isModified = currentVal !== undefined;
+                                  return (
+                                    <div
+                                      key={cf.key}
+                                      className={`target-filter-row target-filter-row--${cf.key} ${getRelationshipStateClass(cf.key)}`}
+                                      data-param-key={cf.key}
+                                      onFocusCapture={() => setActiveRelationshipKey(cf.key)}
+                                      onClick={() => setActiveRelationshipKey(cf.key)}
+                                    >
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <div className="target-filter-copy">
+                                          <span className="target-filter-label">{cf.label}<ParameterHelp paramKey={cf.key} label={cf.label} /></span>
+                                          <span className="target-filter-helper">{cf.helper}</span>
+                                        </div>
+                                        <div className="target-filter-groups">
+                                          {TARGET_CATEGORY_GROUPS.map(group => (
+                                            <div className="target-filter-group" key={group.label}>
+                                              <span>{group.label}</span>
+                                              <div className="target-filter-chips">
+                                                {group.categories.map(cat => {
+                                                  const isActive = activeCats.includes(cat);
+                                                  return (
+                                                    <button
+                                                      type="button"
+                                                      key={cat}
+                                                      className={`target-filter-chip ${isActive ? 'active' : ''}`}
+                                                      onClick={() => {
+                                                        const next = isActive ? activeCats.filter(c => c !== cat) : [...activeCats, cat];
+                                                        handleStatChange(selectedUnit.id, tweakKey, next.length > 0 ? next.join(' ') : undefined);
+                                                      }}
+                                                    >
+                                                      {cat}
+                                                    </button>
+                                                  );
+                                                })}
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                        {isModified && (
+                                          <button
+                                            type="button"
+                                            className="target-filter-reset"
+                                            aria-label="Reset target categories"
+                                            onClick={() => handleStatChange(selectedUnit.id, tweakKey, undefined)}
+                                            style={{
+                                              fontSize: '9px', cursor: 'pointer', color: 'var(--text-muted)',
+                                              fontWeight: 600, opacity: 0.5, padding: '2px 6px'
+                                            }}
+                                          >
+                                            ×
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      ) : (
+                        <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
+                          No active weapon slot selected.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Environment View */}
+                  {activeParamTab === 'environment' && (
+                    <div id="workspace-panel-environment" role="tabpanel" aria-labelledby="workspace-tab-environment" tabIndex={0} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div className="section-heading" style={{ margin: '0 0 4px 0' }}>Global Environment Overrides</div>
+                      <div className="editor-grid">
+                        {ENVIRONMENT_FIELDS.map(field => {
+                          const currentVal = environmentSettings[field.key];
+                          const isModified = currentVal !== undefined;
+                          return (
+                            <div
+                              key={field.key}
+                              className={`stat-card ${isModified ? 'modified' : ''} ${getRelationshipStateClass(field.key)}`}
+                              data-param-key={field.key}
+                              onFocusCapture={() => setActiveRelationshipKey(field.key)}
+                              onClick={() => setActiveRelationshipKey(field.key)}
+                            >
+                              <div className="stat-card-label">
+                                <span><span className="icon">{field.icon}</span>{field.label}<ParameterHelp paramKey={field.key} label={field.label} /></span>
+                              </div>
+                              <div className="stat-card-input-wrapper">
+                                <div className="stat-card-field">
+                                  <input
+                                    type="number"
+                                    className="stat-card-input"
+                                    value={isModified ? currentVal : ''}
+                                    placeholder={field.desc}
+                                    onChange={e => {
+                                      setEnvironmentSettings(prev => {
+                                        const val = e.target.value;
+                                        const next = { ...prev };
+                                        if (val === '' || val === undefined) {
+                                          delete next[field.key];
+                                        } else {
+                                          next[field.key] = val;
+                                        }
+                                        return next;
+                                      });
+                                    }}
+                                  />
+                                </div>
+                                {isModified && (
+                                  <button
+                                    type="button"
+                                    className="stat-card-default-pill"
+                                    aria-label={`Reset ${field.label}`}
+                                    title="Reset to default"
+                                    onClick={() => {
+                                      setEnvironmentSettings(prev => {
+                                        const next = { ...prev };
+                                        delete next[field.key];
+                                        return next;
+                                      });
+                                    }}
+                                  >
+                                    Reset
+                                  </button>
+                                )}
+                              </div>
+                              <ComparisonValue active={comparisonMode && isModified} before={undefined} after={currentVal} beforeLabel="Map default" />
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontStyle: 'italic', padding: '4px 0' }}>
+                        These values override the map default. Leave blank to inherit the map setting.
+                        Output appears as a Lua comment block in the compiled tweakdefs.
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            );
+          })() : (
+            <div className="workspace-empty">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+              </svg>
+              <h3>No Unit Selected</h3>
+              <p>Select a unit from the sidebar to inspect parameters.</p>
+            </div>
+          )}
+        </main>
+
+        {/* Right side: Collapsible project changes drawer */}
+        <aside
+          className={`code-pane changes-drawer ${codePaneCollapsed ? 'collapsed' : ''}`}
+        >
+          {codePaneCollapsed && (
+            <button
+              type="button"
+              className="changes-drawer-toggle"
+              onClick={() => setCodePaneCollapsed(false)}
+              title="Open project changes"
+              aria-label="Open project changes"
+              aria-expanded="false"
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="m10 3.75-4.25 4.25L10 12.25" />
+              </svg>
+            </button>
+          )}
+
+          {!codePaneCollapsed ? (
+            <>
+              <div className="code-pane-header changes-pane-header">
+                <div className="changes-pane-heading">
+                  <span className="changes-pane-eyebrow">Project ledger</span>
+                  <div className="changes-pane-title-row">
+                    <h3>Project Changes</h3>
+                    <span className="changes-pane-count" aria-label={`${projectChangeCount} project changes`}>
+                      {projectChangeCount}
+                    </span>
+                  </div>
+                  <p className="changes-drawer-subtitle">Edits, validation, and export readiness</p>
+                </div>
+                <div className="changes-pane-header-actions">
+                  {validationIssues.length > 0 && (
+                    <span className="changes-pane-status needs-review">
+                      <span aria-hidden="true" />
+                      {`${validationIssues.length} ${validationIssues.length === 1 ? 'issue' : 'issues'}`}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    className="changes-pane-collapse"
+                    onClick={() => setCodePaneCollapsed(true)}
+                    title="Close project changes"
+                    aria-label="Close project changes"
+                    aria-expanded="true"
+                  >
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <path d="m6 3.75 4.25 4.25L6 12.25" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div className="code-scroll-area changes-pane-content">
+
+                {(() => {
+                  const healthState = validationIssues.some(issue => issue.level === 'error')
+                    ? 'error'
+                    : validationIssues.length > 0 ? 'warning' : 'ready';
+                  const isReady = healthState === 'ready';
+                  return (
+                    <div className={`change-health-card ${healthState}`} role="status" aria-live="polite">
+                      <span className="change-health-icon" aria-hidden="true">
+                        {isReady ? (
+                          <svg viewBox="0 0 16 16"><path d="m3.25 8.25 2.8 2.8 6.7-6.7" /></svg>
+                        ) : (
+                          <svg viewBox="0 0 16 16"><path d="M8 3v5.25" /><path d="M8 11.5h.01" /></svg>
+                        )}
+                      </span>
+                      <div className="change-health-copy">
+                        <span className="change-health-eyebrow">{isReady ? 'Validation complete' : healthState === 'error' ? 'Action required' : 'Review suggested'}</span>
+                        <strong>{isReady ? 'Project ready' : 'Review recommended'}</strong>
+                        <span>
+                          {isReady
+                            ? 'No validation issues detected'
+                            : `${validationIssues.length} validation ${validationIssues.length === 1 ? 'issue needs' : 'issues need'} attention`}
+                        </span>
+                      </div>
+                      <div className="change-health-budget" aria-label={`${totalBytesUsed.toLocaleString()} bytes in generated project output`}>
+                        <span>Export size</span>
+                        <strong>{totalBytesUsed.toLocaleString()}</strong>
+                        <small>bytes</small>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Active Tweaks Summary Strip */}
+                <div className="changes-summary-grid">
+                  <button
+                    onClick={() => {
+                      setActiveSummaryTab('tweaks');
+                      setShowSummaryModal(true);
+                    }}
+                    title="View/reset active tweaks"
+                  >
+                    Tweaks: <span style={{ color: 'var(--color-arm)', fontWeight: 800 }}>{Object.keys(tweaks).length}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveSummaryTab('clones');
+                      setShowSummaryModal(true);
+                    }}
+                    title="View/remove custom clones"
+                  >
+                    Clones: <span style={{ color: 'var(--color-leg)', fontWeight: 800 }}>{clones.length}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveSummaryTab('rosters');
+                      setShowSummaryModal(true);
+                    }}
+                    title="View/reset roster configurations"
+                  >
+                    Rosters: <span style={{ color: 'var(--color-rap)', fontWeight: 800 }}>{buildMenuSteps.length}</span>
+                  </button>
+                </div>
+
+                {/* Mod Project Settings Card */}
+                <div className="expert-settings-card project-metadata-card">
+                  <div className="drawer-section-heading">
+                    Project Metadata
+                  </div>
+                  <div className="project-metadata-grid">
+                    <div className="drawer-field">
+                      <label>Mod Name</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={projectName}
+                        onChange={e => setProjectName(e.target.value)}
+                      />
+                    </div>
+                    <div className="drawer-field">
+                      <label>Author</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={projectAuthor}
+                        onChange={e => setProjectAuthor(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="drawer-field">
+                    <label>Mod Description</label>
+                    <textarea
+                      className="form-input"
+                      value={projectDesc}
+                      onChange={e => setProjectDesc(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Compilation Flags Card */}
+                <div className="expert-settings-card compilation-flags-card">
+                  <div className="drawer-section-heading">
+                    Mod Compilation Flags
+                  </div>
+                  <div className="compilation-flags-list">
+                    <div className="expert-toggle-row">
+                      <span>Parameter Tweaks</span>
+                      <Switch
+                        label="Include parameter tweaks"
+                        checked={includeTweaks}
+                        onChange={e => setIncludeTweaks(e.target.checked)}
+                      />
+                    </div>
+                    <div className="expert-toggle-row">
+                      <span>Custom Cloned Units</span>
+                      <Switch
+                        label="Include custom cloned units"
+                        checked={includeClones}
+                        onChange={e => setIncludeClones(e.target.checked)}
+                      />
+                    </div>
+                    <div className="expert-toggle-row">
+                      <span>Factory Roster Changes</span>
+                      <Switch
+                        label="Include factory roster changes"
+                        checked={includeRosters}
+                        onChange={e => setIncludeRosters(e.target.checked)}
+                      />
+                    </div>
+                    <div className="expert-toggle-row">
+                      <span>Include Header Comments</span>
+                      <Switch
+                        label="Include header comments"
+                        checked={includeHeader}
+                        onChange={e => setIncludeHeader(e.target.checked)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tabs Row for Code outputs */}
+                <div className="compiled-output-section">
+                  <div className="compiled-output-tabs">
+                    {['tweakdefs_lua', 'tweakunits_lua', 'tweakdefs_b64', 'tweakunits_b64'].map(tab => {
+                      const isActive = activeOutputTab === tab;
+                      const label = tab === 'tweakdefs_lua' ? 'Defs Lua' : tab === 'tweakunits_lua' ? 'Units Lua' : tab === 'tweakdefs_b64' ? 'B64 Defs' : 'B64 Units';
+                      return (
+                        <button
+                          key={tab}
+                          className={`compiled-output-tab ${isActive ? 'active' : ''}`}
+                          onClick={() => setActiveOutputTab(tab)}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Dynamic Code Viewer Card */}
+                  {(() => {
+                    let codeVal = '';
+                    let isLua = false;
+                    let fallbackMsg = '';
+
+                    if (activeOutputTab === 'tweakdefs_lua') {
+                      codeVal = generatedTweakDefsLua;
+                      isLua = true;
+                      fallbackMsg = '-- No clone or custom builder definitions compile.';
+                    } else if (activeOutputTab === 'tweakunits_lua') {
+                      codeVal = generatedTweakUnitsLua;
+                      isLua = true;
+                      fallbackMsg = '{\n}';
+                    } else if (activeOutputTab === 'tweakdefs_b64') {
+                      codeVal = tweakDefsB64;
+                      fallbackMsg = 'No clones/disabled definitions base64 generated.';
+                    } else if (activeOutputTab === 'tweakunits_b64') {
+                      codeVal = tweakUnitsB64;
+                      fallbackMsg = 'No parameter tweaks base64 generated.';
+                    }
+
+                    return (
+                      <div className="code-block-wrapper compiled-code-wrapper">
+                        <div className="code-block-header">
+                          <span className="code-block-title">
+                            {activeOutputTab.includes('lua') ? 'Lua Source Code' : 'Encoded Base64'}
+                          </span>
+                          <button
+                            className="copy-output-button"
+                            onClick={() => {
+                              const valueToCopy = codeVal || fallbackMsg;
+                              navigator.clipboard.writeText(valueToCopy);
+                              showToast(`Copied current view text!`);
+                            }}
+                          >
+                            Copy to Clipboard
+                          </button>
+                        </div>
+                        {isLua ? (
+                          <pre className="code-box lua">
+                            {codeVal || fallbackMsg}
+                          </pre>
+                        ) : (
+                          <div className="code-box code-box--encoded">
+                            {codeVal || fallbackMsg}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Base64 toggles & Budget limit indicators at bottom */}
+                <div className="changes-pane-footer">
+                  {validationIssues.length > 0 && (
+                    <div className="drawer-validation-card">
+                      <span className="drawer-validation-title">
+                        ⚠️ Smart Validation Warning ({validationIssues.length})
+                      </span>
+                      <div className="drawer-validation-list">
+                        {validationIssues.map((issue, idx) => (
+                          <span key={idx} className="drawer-validation-item">
+                            <code>{issue.unitName}</code> ({issue.key.replace('weapon_slot_', 'Slot ')}): <span className={`drawer-validation-message ${issue.level}`}>{issue.message}</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className={`lobby-limit-indicator ${limitRisk}`}>
+                    Byte Budget: {totalBytesUsed} / {lobbyByteLimit} bytes
+                    {limitRisk === 'error' && <span> [LIMIT EXCEEDED]</span>}
+                    {limitRisk === 'warning' && <span> [APPROACHING LIMIT]</span>}
+                    {limitRisk === 'ok' && <span> [SAFE]</span>}
+                  </div>
+
+                  <div className="expert-settings-card base64-options-card">
+                    <div className="expert-toggle-row">
+                      <span>URL-Safe</span>
+                      <Switch
+                        label="Use URL-safe Base64 encoding"
+                        checked={base64Options.urlSafe}
+                        onChange={e => setBase64Options(prev => ({ ...prev, urlSafe: e.target.checked }))}
+                      />
+                    </div>
+                    <div className="expert-toggle-row">
+                      <span>Padding</span>
+                      <Switch
+                        label="Include Base64 padding"
+                        checked={base64Options.padding}
+                        onChange={e => setBase64Options(prev => ({ ...prev, padding: e.target.checked }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="collapsed-changes-rail">
+              <span className="drawer-count">{Object.keys(tweaks).length + clones.length + buildMenuSteps.length}</span>
+              <span className="collapsed-changes-label">Changes</span>
+              {validationIssues.length > 0 && <span className="drawer-warning">!</span>}
+            </div>
+          )}
+        </aside>
+
+      </div>
+      ) : activeWorkspace === 'review' ? (
+        <Suspense fallback={<main className="review-workspace workspace-loading"><span>Preparing project review…</span></main>}>
+          <LazyReviewPage
+            modifiedUnitIds={modifiedUnitIds}
+            tweaks={tweaks}
+            clones={clones}
+            buildMenuSteps={buildMenuSteps}
+            disabledUnitIds={disabledUnitIds}
+            validationIssues={validationIssues}
+            projectChangeCount={projectChangeCount}
+            unitNames={unitsDb.names}
+            projectName={projectName}
+            projectAuthor={projectAuthor}
+            projectDesc={projectDesc}
+            setProjectName={setProjectName}
+            setProjectAuthor={setProjectAuthor}
+            setProjectDesc={setProjectDesc}
+            includeTweaks={includeTweaks}
+            includeClones={includeClones}
+            includeRosters={includeRosters}
+            includeHeader={includeHeader}
+            setIncludeTweaks={setIncludeTweaks}
+            setIncludeClones={setIncludeClones}
+            setIncludeRosters={setIncludeRosters}
+            setIncludeHeader={setIncludeHeader}
+            activeOutputTab={activeOutputTab}
+            setActiveOutputTab={setActiveOutputTab}
+            activeCompiledOutput={activeCompiledOutput}
+            activeCompiledOutputFallback={activeCompiledOutputFallback}
+            totalBytesUsed={totalBytesUsed}
+            lobbyByteLimit={lobbyByteLimit}
+            limitRisk={limitRisk}
+            onBack={() => setActiveWorkspace('edit')}
+            onExport={handleExportConfig}
+            onOpenSummary={tab => { setActiveSummaryTab(tab); setShowSummaryModal(true); }}
+            onEditUnit={id => { setSelectedUnitId(id); setActiveWorkspace('edit'); }}
+            onToast={showToast}
+          />
+        </Suspense>
+      ) : null}
+
+      {/* Legacy review markup retained temporarily as a parity reference during extraction. */}
+      {SHOW_LEGACY_REVIEW_REFERENCE && (
+        <main className="review-workspace">
+          <div className="review-page-header">
+            <div>
+              <span className="workflow-eyebrow">Final review</span>
+              <h2>Review & Export</h2>
+              <p>Validate the project, inspect every change, and prepare the generated BAR configuration.</p>
+            </div>
+            <div className="review-header-actions">
+              <button className="btn-action btn-secondary" onClick={() => setActiveWorkspace('edit')}>Back to editor</button>
+              <button className="btn-action" onClick={handleExportConfig}>Download project file</button>
+            </div>
+          </div>
+
+          <div className="review-content-grid">
+            <div className="review-main-column">
+              <section className="review-summary-grid" aria-label="Project summary">
+                <button onClick={() => { setActiveSummaryTab('tweaks'); setShowSummaryModal(true); }}>
+                  <span>Modified units</span><strong>{modifiedUnitIds.length}</strong><small>Parameter overrides</small>
+                </button>
+                <button onClick={() => { setActiveSummaryTab('clones'); setShowSummaryModal(true); }}>
+                  <span>Custom units</span><strong>{clones.length}</strong><small>Cloned definitions</small>
+                </button>
+                <button onClick={() => { setActiveSummaryTab('rosters'); setShowSummaryModal(true); }}>
+                  <span>Build menus</span><strong>{buildMenuSteps.length}</strong><small>Roster operations</small>
+                </button>
+                <div>
+                  <span>Disabled units</span><strong>{disabledUnitIds.length}</strong><small>Removed from play</small>
+                </div>
+              </section>
+
+              <section className="review-card validation-center">
+                <div className="review-card-heading">
+                  <div>
+                    <span className="workflow-eyebrow">Validation center</span>
+                    <h3>{validationIssues.length === 0 ? 'Ready to export' : `${validationIssues.length} ${validationIssues.length === 1 ? 'issue' : 'issues'} to review`}</h3>
+                  </div>
+                  <span className={`review-status ${validationIssues.some(issue => issue.level === 'error') ? 'error' : validationIssues.length ? 'warning' : 'ready'}`}>
+                    {validationIssues.some(issue => issue.level === 'error') ? 'Blocked' : validationIssues.length ? 'Review' : 'Ready'}
+                  </span>
+                </div>
+                {validationIssues.length === 0 ? (
+                  <div className="review-empty-state">
+                    <strong>No validation issues detected</strong>
+                    <span>Your current parameter values pass the editor's safety checks.</span>
+                  </div>
+                ) : (
+                  <div className="validation-list">
+                    {validationIssues.map((issue, index) => (
+                      <div key={`${issue.unitName}-${issue.key}-${index}`} className={`validation-row ${issue.level}`}>
+                        <span>{issue.unitName}</span>
+                        <code>{issue.key.replace('weapon_slot_', 'Weapon ')}</code>
+                        <strong>{issue.message}</strong>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section className="review-card change-ledger">
+                <div className="review-card-heading">
+                  <div>
+                    <span className="workflow-eyebrow">Change ledger</span>
+                    <h3>{projectChangeCount} project changes</h3>
+                  </div>
+                  <button className="text-button" onClick={() => { setActiveSummaryTab('tweaks'); setShowSummaryModal(true); }}>Open full summary</button>
+                </div>
+                {modifiedUnitIds.length === 0 && clones.length === 0 && disabledUnitIds.length === 0 ? (
+                  <div className="review-empty-state">
+                    <strong>No unit changes yet</strong>
+                    <span>Return to Edit Units to begin modifying the project.</span>
+                  </div>
+                ) : (
+                  <div className="change-ledger-list">
+                    {modifiedUnitIds.slice(0, 8).map(id => (
+                      <button key={id} onClick={() => { setSelectedUnitId(id); setActiveWorkspace('edit'); }}>
+                        <span>{unitsDb.names[id] || id}</span>
+                        <code>{Object.keys(tweaks[id] || {}).length} fields</code>
+                        <strong>Edit →</strong>
+                      </button>
+                    ))}
+                    {modifiedUnitIds.length > 8 && <div className="ledger-more">+{modifiedUnitIds.length - 8} more modified units</div>}
+                  </div>
+                )}
+              </section>
+            </div>
+
+            <aside className="export-console">
+              <div className="export-console-header">
+                <div>
+                  <span className="workflow-eyebrow">Export console</span>
+                  <h3>{projectName}</h3>
+                </div>
+                <span className={`review-status ${limitRisk}`}>{totalBytesUsed.toLocaleString()} / {lobbyByteLimit.toLocaleString()} bytes</span>
+              </div>
+
+              <div className="export-metadata-grid">
+                <label>Mod name<input className="form-input" value={projectName} onChange={e => setProjectName(e.target.value)} /></label>
+                <label>Author<input className="form-input" value={projectAuthor} onChange={e => setProjectAuthor(e.target.value)} /></label>
+                <label className="full">Description<textarea className="form-input" value={projectDesc} onChange={e => setProjectDesc(e.target.value)} /></label>
+              </div>
+
+              <div className="export-flags">
+                <div><Switch label="Include parameter tweaks" checked={includeTweaks} onChange={e => setIncludeTweaks(e.target.checked)} /><span>Parameter tweaks</span></div>
+                <div><Switch label="Include custom units" checked={includeClones} onChange={e => setIncludeClones(e.target.checked)} /><span>Custom units</span></div>
+                <div><Switch label="Include build menus" checked={includeRosters} onChange={e => setIncludeRosters(e.target.checked)} /><span>Build menus</span></div>
+                <div><Switch label="Include header comments" checked={includeHeader} onChange={e => setIncludeHeader(e.target.checked)} /><span>Header comments</span></div>
+              </div>
+
+              <div className="export-output-tabs">
+                {[
+                  ['tweakdefs_lua', 'Definitions Lua'],
+                  ['tweakunits_lua', 'Units Lua'],
+                  ['tweakdefs_b64', 'Definitions Base64'],
+                  ['tweakunits_b64', 'Units Base64']
+                ].map(([id, label]) => (
+                  <button key={id} className={activeOutputTab === id ? 'active' : ''} onClick={() => setActiveOutputTab(id)}>{label}</button>
+                ))}
+              </div>
+
+              <pre className="export-code-preview">{activeCompiledOutput || activeCompiledOutputFallback}</pre>
+
+              <div className="export-primary-actions">
+                <button className="btn-action btn-secondary" onClick={() => {
+                  navigator.clipboard.writeText(activeCompiledOutput || activeCompiledOutputFallback);
+                  showToast('Compiled output copied');
+                }}>Copy current output</button>
+                <button className="btn-action" onClick={handleExportConfig}>Download project JSON</button>
+              </div>
+            </aside>
+          </div>
+        </main>
+      )}
+
+      {/* Roster Designer Page — lazy loaded on entry */}
+      {showDesignerPanel && activeWorkspace === 'designer' && (
+        <Suspense fallback={<main className="designer-page designer-page-loading"><span>Loading build menu designer…</span></main>}>
+          <LazyDesignerPage
+            factoryId={selectedFactoryId}
+            factoryName={unitsDb.names[selectedFactoryId] || selectedFactoryId}
+            factoryIconUrl={getUnitIconUrl(selectedFactoryId)}
+            activeSlotCount={activeRosterItems.filter(item => item.status !== 'removed').length}
+            changeCount={buildMenuSteps.filter(step => step.builderId === selectedFactoryId).length}
+            onClose={() => { setShowDesignerPanel(false); setActiveWorkspace('edit'); }}
+          >
+            <div className="designer-modal-content">
+              {/* Left Column: Factory Selection */}
+              <div className="designer-panel designer-factory-browser">
+                <div className="designer-panel-header">
+                  <span className="designer-panel-kicker">Factory catalog</span>
+                  <span className="designer-panel-title">Choose a producer <small>{filteredFactoryIds.length}</small></span>
+                  <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search factories..."
+                    value={factorySearchQuery}
+                    onChange={e => setFactorySearchQuery(e.target.value)}
+                  />
+                  <div className="faction-tabs designer-faction-tabs designer-faction-tabs--four">
+                    <button
+                      className={`faction-tab ${designerFaction === 'all' ? 'active' : ''}`}
+                      onClick={() => setDesignerFaction('all')}
+                    >
+                      ALL
+                    </button>
+                    <button
+                      className={`faction-tab ${designerFaction === 'arm' ? 'active' : ''}`}
+                      onClick={() => setDesignerFaction('arm')}
+                    >
+                      ARM
+                    </button>
+                    <button
+                      className={`faction-tab ${designerFaction === 'cor' ? 'active' : ''}`}
+                      onClick={() => setDesignerFaction('cor')}
+                    >
+                      COR
+                    </button>
+                    <button
+                      className={`faction-tab ${designerFaction === 'leg' ? 'active' : ''}`}
+                      onClick={() => setDesignerFaction('leg')}
+                    >
+                      LEG
+                    </button>
+                  </div>
+                </div>
+
+                <div className="designer-panel-scroll">
+                  {filteredFactoryIds.map(fid => {
+                    const isActive = selectedFactoryId === fid;
+                    const isMod = factoryIsModified(fid);
+                    return (
+                      <button
+                        type="button"
+                        key={fid}
+                        className={`designer-factory-item ${isActive ? 'active' : ''}`}
+                        onClick={() => setSelectedFactoryId(fid)}
+                        aria-pressed={isActive}
+                      >
+                        <div className="designer-unit-pic designer-unit-pic--factory">
+                          <UnitArtwork unitId={fid} alt="" />
+                        </div>
+                        <div className="designer-unit-info">
+                          <span className="designer-unit-name">
+                            {unitsDb.names[fid] || fid}
+                          </span>
+                          <div className="designer-unit-meta">
+                            <span className="designer-unit-id">{fid}</span>
+                            {isMod && <span className="designer-item-status designer-item-status--modified">Modified</span>}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Middle Column: Active Roster Grid (Build Menu Simulation) */}
+              <div className="designer-panel designer-roster-canvas">
+                <div className="designer-panel-header">
+                  <span className="designer-panel-kicker">Production sequence</span>
+                  <span className="designer-panel-title">
+                    {unitsDb.names[selectedFactoryId] || selectedFactoryId}
+                    {factoryIsModified(selectedFactoryId) && (
+                      <button
+                        type="button"
+                        className="designer-reset-factory"
+                        onClick={() => {
+                          setBuildMenuSteps(prev => prev.filter(s => s.builderId !== selectedFactoryId));
+                          showToast(`Reset build options for ${selectedFactoryId} to vanilla defaults`);
+                        }}
+                      >
+                        Reset Factory
+                      </button>
+                    )}
+                  </span>
+                  <div className="designer-panel-description">
+                    Drag units to reorder the build menu. Removed slots remain visible until restored.
+                  </div>
+                </div>
+
+                { }
+                <div className="designer-panel-scroll designer-roster-scroll">
+                  <div className="build-menu-grid">
+                    {activeRosterItems.map((item, index) => {
+                      const isAdded = item.status === 'added';
+                      const isRemoved = item.status === 'removed';
+                      const displayIndex = String(index + 1).padStart(2, '0');
+                      return (
+                        <div
+                          key={item.id}
+                          draggable={!isRemoved}
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData('text/plain', item.id);
+                            e.currentTarget.classList.add('dragging');
+                          }}
+                          onDragEnd={(e) => {
+                            e.currentTarget.classList.remove('dragging');
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            if (!isRemoved) {
+                              e.currentTarget.classList.add('drag-over');
+                            }
+                          }}
+                          onDragLeave={(e) => {
+                            e.currentTarget.classList.remove('drag-over');
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            e.currentTarget.classList.remove('drag-over');
+                            if (isRemoved) return;
+
+                            const draggedId = e.dataTransfer.getData('text/plain');
+                            if (draggedId === item.id) return;
+
+                            const activeIds = activeRosterItems.filter(x => x.status !== 'removed').map(x => x.id);
+                            const dragIdx = activeIds.indexOf(draggedId);
+                            const targetIdx = activeIds.indexOf(item.id);
+
+                            if (dragIdx === -1 || targetIdx === -1) return;
+
+                            const newOrder = [...activeIds];
+                            newOrder.splice(dragIdx, 1);
+                            newOrder.splice(targetIdx, 0, draggedId);
+
+                            handleReorderFactoryRoster(selectedFactoryId, newOrder);
+                          }}
+                          className={`build-menu-slot ${isAdded ? 'added' : ''} ${isRemoved ? 'removed' : ''}`}
+                        >
+                          <span className="slot-index">{displayIndex}</span>
+                          <UnitArtwork
+                            src={getProjectUnitIconUrl(item.id)}
+                            alt=""
+                            className="build-menu-slot-image"
+                          />
+
+                          <div className="slot-overlay-actions">
+                            <span className="slot-unit-name" title={item.name}>{item.name}</span>
+                            <span className="slot-unit-id">{item.id}</span>
+                            {!isRemoved ? (
+                              <button
+                                className="slot-btn slot-btn-remove"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveUnitFromFactory(selectedFactoryId, item.id);
+                                }}
+                              >
+                                Remove
+                              </button>
+                            ) : (
+                              <button
+                                className="slot-btn slot-btn-restore"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRevertUnitInFactory(selectedFactoryId, item.id);
+                                }}
+                              >
+                                Restore
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {activeRosterItems.filter(i => i.status !== 'removed').length === 0 && (
+                    <div className="designer-empty-state">
+                      <strong>No production options</strong>
+                      <span>
+                      Roster is currently empty. Game engine will not display this factory in-game.
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Column: Available Units to Add */}
+              { }
+              <div className="designer-panel designer-unit-library">
+                <div className="designer-panel-header">
+                  <span className="designer-panel-kicker">Unit library</span>
+                  <span className="designer-panel-title">Add production options <small>{availableUnitsForFactory.length}</small></span>
+                  <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search units to add..."
+                    value={availableSearchQuery}
+                    onChange={e => setAvailableSearchQuery(e.target.value)}
+                  />
+                  <div className="faction-tabs designer-faction-tabs designer-faction-tabs--three">
+                    <button
+                      className={`faction-tab ${availableFactionFilter === 'factory' ? 'active' : ''}`}
+                      onClick={() => setAvailableFactionFilter('factory')}
+                    >
+                      FAC FACTION
+                    </button>
+                    <button
+                      className={`faction-tab ${availableFactionFilter === 'all' ? 'active' : ''}`}
+                      onClick={() => setAvailableFactionFilter('all')}
+                    >
+                      ALL FACTIONS
+                    </button>
+                    <button
+                      className={`faction-tab ${availableFactionFilter === 'clone' ? 'active' : ''}`}
+                      onClick={() => setAvailableFactionFilter('clone')}
+                    >
+                      CLONES ONLY
+                    </button>
+                  </div>
+                </div>
+
+                <div className="designer-panel-scroll">
+                  {availableUnitsForFactory.map(unit => (
+                      <div key={unit.id} className="designer-roster-item">
+                        <div className="designer-unit-card">
+                          <div className="designer-unit-pic">
+                            <UnitArtwork
+                              src={getProjectUnitIconUrl(unit.id)}
+                              alt=""
+                            />
+                          </div>
+                          <div className="designer-unit-info">
+                            <span className="designer-unit-name">{unit.name}</span>
+                            <div className="designer-unit-meta">
+                              <span className="designer-unit-id">{unit.id}</span>
+                              {unit.isClone && <span className="designer-item-status designer-item-status--clone">Clone</span>}
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          className="designer-add-unit"
+                          onClick={() => handleAddUnitToFactory(selectedFactoryId, unit.id)}
+                        >
+                          + Add
+                        </button>
+                      </div>
+                    ))}
+                  {availableUnitsForFactory.length === 0 && (
+                    <div className="designer-empty-state">
+                      <strong>No matching units</strong>
+                      <span>Try another search or faction filter.</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </LazyDesignerPage>
+        </Suspense>
+      )}
+
+
+      {/* Weapon Swap Modal */}
+      {showSwapModal && (
+        <div className="weapon-swap-modal" style={{
+          position: 'fixed',
+          top: swapPosition.y,
+          left: swapPosition.x,
+          width: '95vw', maxWidth: '1150px', height: '85vh', maxHeight: '780px',
+          display: 'flex', flexDirection: 'column',
+          border: '4px solid var(--border-accent)',
+          background: 'var(--bg-secondary)',
+          overflow: 'hidden',
+          zIndex: 101
+        }}>
+          {/* Header (Drag Handle) */}
+          <div
+            className="weapon-swap-header"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '16px 20px',
+              borderBottom: '4px solid var(--border-color)',
+              background: 'var(--bg-primary)',
+              flexShrink: 0,
+              cursor: 'move',
+              userSelect: 'none'
+            }}
+            onMouseDown={(e) => {
+              if (e.button !== 0) return;
+              if (e.target.closest('button')) return;
+              setIsDraggingSwap(true);
+              setDragOffset({
+                x: e.clientX - swapPosition.x,
+                y: e.clientY - swapPosition.y
+              });
+            }}
+          >
+            <div className="weapon-swap-title-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--border-accent)' }}>
+                <path d="M2 5h10M9 2l3 3-3 3M14 11H4M7 8l-3 3 3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <div className="weapon-swap-title-copy">
+                <span>Loadout editor</span>
+                <h3>Borrow a weapon</h3>
+              </div>
+              <span className="weapon-swap-slot" style={{
+                fontSize: '9px',
+                background: 'rgba(196, 155, 118, 0.12)',
+                color: 'var(--border-accent)',
+                border: '1px solid var(--border-accent)',
+                padding: '2px 8px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                fontFamily: 'var(--font-mono), monospace'
+              }}>Slot {activeSwapSlotNum}</span>
+            </div>
+            <button
+              type="button"
+              className="weapon-swap-close"
+              style={{ padding: '6px 14px', fontSize: '10px', margin: 0 }}
+              onClick={() => setShowSwapModal(false)}
+            >
+              Close Window
+            </button>
+          </div>
+
+          <div className="weapon-swap-body" style={{ display: 'grid', gridTemplateColumns: '340px 1fr', flex: 1, overflow: 'hidden' }}>
+            {/* Left Column: Search, Faction Filters & Unit list */}
+            <div className="weapon-swap-library" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              padding: '20px',
+              borderRight: '4px solid var(--border-color)',
+              overflow: 'hidden',
+              background: 'var(--bg-primary)'
+            }}>
+              <div className="weapon-swap-library-heading">
+                <span>Source library</span>
+                <strong>Select a donor unit</strong>
+              </div>
+              {/* Faction Filter Chips */}
+              <div className="weapon-swap-factions" style={{ display: 'flex', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'arm', label: 'Arm' },
+                  { id: 'cor', label: 'Cor' },
+                  { id: 'leg', label: 'Leg' },
+                  { id: 'scav', label: 'Scav' }
+                ].map(f => (
+                  <button
+                    type="button"
+                    key={f.id}
+                    className={swapUnitFactionFilter === f.id ? 'active' : ''}
+                    onClick={() => setSwapUnitFactionFilter(f.id)}
+                    style={{
+                      flex: '1',
+                      background: swapUnitFactionFilter === f.id ? 'var(--border-accent)' : 'transparent',
+                      color: swapUnitFactionFilter === f.id ? '#1a1814' : 'var(--text-normal)',
+                      border: 'none',
+                      borderRight: f.id !== 'scav' ? '1px solid var(--border-color)' : 'none',
+                      padding: '8px 0',
+                      fontSize: '9px',
+                      fontWeight: swapUnitFactionFilter === f.id ? 800 : 500,
+                      cursor: 'pointer',
+                      fontFamily: 'var(--font-mono), monospace',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {f.label.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+
+              <input
+                type="text"
+                className="search-input weapon-swap-search"
+                placeholder="Search units to borrow weapon..."
+                style={{
+                  fontSize: '11px',
+                  padding: '8px 12px',
+                  width: '100%',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)'
+                }}
+                value={swapSearchQuery}
+                onChange={e => setSwapSearchQuery(e.target.value)}
+              />
+
+              <div className="weapon-swap-unit-list" style={{
+                flex: 1,
+                overflowY: 'auto',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-secondary)',
+                padding: '4px'
+              }}>
+                {allUnitsList
+                  .filter(u => {
+                    if (u.isClone) return false;
+
+                    // Search Query Filter
+                    if (swapSearchQuery.trim()) {
+                      const q = swapSearchQuery.toLowerCase();
+                      if (!u.id.toLowerCase().includes(q) && !u.name.toLowerCase().includes(q)) return false;
+                    }
+
+                    // Faction Filter
+                    if (swapUnitFactionFilter !== 'all') {
+                      const faction = getFactionOfUnit(u.id);
+                      if (faction !== swapUnitFactionFilter) return false;
+                    }
+
+                    // Only show units that actually have weaponSlots configurations
+                    const defaults = defaultsDb[u.id];
+                    return defaults && defaults.weaponSlots && defaults.weaponSlots.length > 0;
+                  })
+                  .map(u => {
+                    const faction = getFactionOfUnit(u.id);
+                    let factionColor = 'var(--text-muted)';
+                    if (faction === 'arm') factionColor = 'var(--color-arm)';
+                    else if (faction === 'cor') factionColor = 'var(--color-cor)';
+                    else if (faction === 'leg') factionColor = 'var(--color-leg)';
+                    else if (faction === 'scav') factionColor = 'var(--color-scav)';
+
+                    const isSelected = selectedSwapUnitId === u.id;
+
+                    return (
+                      <div
+                        key={u.id}
+                        className={`weapon-swap-unit ${isSelected ? 'active' : ''}`}
+                        onClick={() => setSelectedSwapUnitId(u.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          padding: '8px 12px',
+                          cursor: 'pointer',
+                          background: isSelected ? 'var(--bg-accent)' : 'transparent',
+                          borderBottom: '1px solid rgba(235, 220, 208, 0.03)',
+                          transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(235, 220, 208, 0.02)' }}
+                        onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent' }}
+                      >
+                        <div className="weapon-swap-unit-icon" style={{ width: '28px', height: '28px', overflow: 'hidden', border: '1px solid var(--border-color)', flexShrink: 0 }}>
+                          <UnitArtwork unitId={u.id} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div className="weapon-swap-unit-copy" style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                          <span style={{ fontSize: '11px', fontWeight: isSelected ? 700 : 500, color: isSelected ? 'var(--text-bright)' : 'var(--text-normal)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</span>
+                          <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono), monospace' }}>{u.id}</span>
+                        </div>
+
+                        {/* Desaturated status dot */}
+                        <div className="weapon-swap-faction-dot" style={{
+                          width: '6px',
+                          height: '6px',
+                          borderRadius: '50%',
+                          background: factionColor,
+                          flexShrink: 0
+                        }} title={faction.toUpperCase()} />
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* Right Column: Weapon selection list */}
+            <div className="weapon-swap-stage" style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              padding: '20px',
+              overflow: 'hidden',
+              background: 'var(--bg-secondary)'
+            }}>
+              {selectedSwapUnitId ? (() => {
+                const srcDefaults = defaultsDb[selectedSwapUnitId.toLowerCase()];
+                const srcName = unitsDb.names[selectedSwapUnitId] || selectedSwapUnitId;
+
+                // Extract available weapons from dynamic weaponSlots array
+                const weapons = srcDefaults?.weaponSlots || [];
+
+                // Classification helper
+                const getWeaponClass = (w) => {
+                  const name = w.defKey.toLowerCase();
+                  if (name.includes('laser') || name.includes('beam') || name.includes('lightning') || name.includes('heat_ray')) return 'laser';
+                  if (name.includes('missile') || name.includes('rocket') || name.includes('torpedo') || name.includes('flak')) return 'missile';
+                  if (name.includes('cannon') || name.includes('plasma') || name.includes('gauss') || name.includes('artillery')) return 'plasma';
+                  if (name.includes('shield') || name.includes('repulsor') || name.includes('jammer') || name.includes('stealth')) return 'utility';
+                  return 'other';
+                };
+
+                const getWeaponRoleLabel = (w) => {
+                  if (w.reload <= 0.15 || w.burst > 5) return 'RAPID FIRE';
+                  if (w.range >= 750) return 'LONG RANGE';
+                  if (w.aoe >= 64) return 'AREA OF EFFECT';
+                  if (w.projectiles > 3) return 'SHOTGUN VOLLEY';
+                  return 'DIRECT FIRE';
+                };
+
+                // Filter weapons
+                const filteredWeapons = weapons.filter(w => {
+                  if (swapWeaponTypeFilter === 'all') return true;
+                  return getWeaponClass(w) === swapWeaponTypeFilter;
+                });
+
+                // Current weapon equipped on destination slot for live comparison
+                const destDefaults = selectedUnitDefaults;
+                const currentWep = destDefaults?.weaponSlots?.find(s => s.slot === activeSwapSlotNum);
+
+                return (
+                  <div className="weapon-swap-stage-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', overflow: 'hidden' }}>
+                    {/* Source Unit Information */}
+                    <div className="weapon-swap-source" style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                      background: 'var(--bg-primary)',
+                      padding: '14px 18px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '0px'
+                    }}>
+                      <div className="weapon-swap-source-unit" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div className="weapon-swap-source-icon" style={{ width: '36px', height: '36px', overflow: 'hidden', border: '1px solid var(--border-color)', flexShrink: 0 }}>
+                          <UnitArtwork unitId={selectedSwapUnitId} alt="" eager style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '12px', fontWeight: 800, color: 'var(--text-bright)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{srcName}</h4>
+                          <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>ID: <code style={{ color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>{selectedSwapUnitId}</code></span>
+                        </div>
+                      </div>
+
+                      {/* Category filter tabs */}
+                      <div className="weapon-swap-type-filters" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
+                        {[
+                          { id: 'all', label: 'All weapons' },
+                          { id: 'laser', label: 'Lasers' },
+                          { id: 'missile', label: 'Missiles' },
+                          { id: 'plasma', label: 'Plasma' },
+                          { id: 'utility', label: 'Shields/Util' }
+                        ].map(t => (
+                          <button
+                            type="button"
+                            key={t.id}
+                            className={swapWeaponTypeFilter === t.id ? 'active' : ''}
+                            onClick={() => setSwapWeaponTypeFilter(t.id)}
+                            style={{
+                              border: `1px solid ${swapWeaponTypeFilter === t.id ? 'var(--border-accent)' : 'var(--border-color)'}`,
+                              background: swapWeaponTypeFilter === t.id ? 'var(--border-accent)' : 'transparent',
+                              color: swapWeaponTypeFilter === t.id ? '#1a1814' : 'var(--text-normal)',
+                              padding: '4px 12px',
+                              fontSize: '9px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              fontFamily: 'var(--font-mono), monospace',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            {t.label.toUpperCase()}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Weapons List Container */}
+                    <div className="weapon-swap-weapons" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '4px' }}>
+                      {filteredWeapons.length > 0 ? filteredWeapons.map(w => {
+                        const wRole = getWeaponRoleLabel(w);
+
+                        // Delta calculations against current weapon
+                        const dmgDiff = currentWep ? (w.damage - currentWep.damage) : null;
+                        const rldDiff = currentWep ? (w.reload - currentWep.reload) : null;
+                        const rngDiff = currentWep ? (w.range - currentWep.range) : null;
+
+                        return (
+                          <div
+                            key={w.slot}
+                            className="weapon-swap-weapon"
+                            style={{
+                              padding: '14px 18px',
+                              background: 'var(--bg-primary)',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '0px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              gap: '16px'
+                            }}
+                          >
+                            <div className="weapon-swap-weapon-main" style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                              <div className="weapon-swap-weapon-heading" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>
+                                  {w.defKey.toUpperCase()}
+                                </span>
+                                <span style={{
+                                  fontSize: '8px',
+                                  color: 'var(--text-muted)',
+                                  padding: '2px 6px',
+                                  border: '1px solid var(--border-color)',
+                                  fontWeight: 700,
+                                  fontFamily: 'var(--font-mono), monospace'
+                                }}>
+                                  {wRole}
+                                </span>
+                              </div>
+
+                              {/* Live Comparison Layout */}
+                              <div className="weapon-swap-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '4px' }}>
+                                <div className="weapon-swap-metric" style={{ background: 'var(--bg-secondary)', padding: '8px 10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                  <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Damage</span>
+                                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-bright)', fontFamily: 'var(--font-mono), monospace' }}>{w.damage}</span>
+                                  {dmgDiff !== null && dmgDiff !== 0 && (
+                                    <span style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-mono), monospace', color: dmgDiff > 0 ? 'var(--color-arm)' : 'var(--color-cor)' }}>
+                                      {dmgDiff > 0 ? '+' : ''}{dmgDiff}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="weapon-swap-metric" style={{ background: 'var(--bg-secondary)', padding: '8px 10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                  <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Range</span>
+                                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-bright)', fontFamily: 'var(--font-mono), monospace' }}>{w.range}</span>
+                                  {rngDiff !== null && rngDiff !== 0 && (
+                                    <span style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-mono), monospace', color: rngDiff > 0 ? 'var(--color-arm)' : 'var(--color-cor)' }}>
+                                      {rngDiff > 0 ? '+' : ''}{rngDiff}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="weapon-swap-metric" style={{ background: 'var(--bg-secondary)', padding: '8px 10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                  <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Reload</span>
+                                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-bright)', fontFamily: 'var(--font-mono), monospace' }}>{w.reload}s</span>
+                                  {rldDiff !== null && rldDiff !== 0 && (
+                                    <span style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-mono), monospace', color: rldDiff < 0 ? 'var(--color-arm)' : 'var(--color-cor)' }}>
+                                      {rldDiff < 0 ? '' : '+'}{rldDiff.toFixed(2)}s
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              className="btn-action weapon-swap-borrow"
+                              style={{
+                                padding: '8px 16px',
+                                background: 'var(--border-accent)',
+                                color: '#1a1814',
+                                border: '1px solid var(--border-accent)',
+                                borderRadius: '0px',
+                                fontSize: '10px',
+                                fontWeight: 800,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease',
+                                boxShadow: 'none',
+                                margin: 0
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--border-accent)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'var(--border-accent)'; e.currentTarget.style.color = '#1a1814'; }}
+                              onClick={() => {
+                                setClones(prev => prev.map(c => {
+                                  if (c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) {
+                                    const swaps = { ...(c.weaponSwaps || {}) };
+                                    swaps[String(activeSwapSlotNum)] = {
+                                      sourceUnitId: selectedSwapUnitId,
+                                      sourceWeaponDefKey: w.defKey
+                                    };
+                                    return {
+                                      ...c,
+                                      weaponSwaps: swaps
+                                    };
+                                  }
+                                  return c;
+                                }));
+                                showToast(`Equipped ${w.defKey.toUpperCase()} on Slot ${activeSwapSlotNum}!`);
+                                setShowSwapModal(false);
+                              }}
+                            >
+                              Borrow
+                            </button>
+                          </div>
+                        );
+                      }) : (
+                        <div className="weapon-swap-empty" style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'var(--font-mono), monospace' }}>
+                          NO WEAPONS FOUND IN THIS CATEGORY.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })() : (
+                <div className="weapon-swap-welcome" style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  color: 'var(--text-muted)',
+                  border: '1px dashed var(--border-color)',
+                  borderRadius: '0px',
+                  background: 'var(--bg-primary)',
+                  padding: '20px'
+                }}>
+                  <svg width="24" height="24" viewBox="0 0 16 16" fill="none" style={{ marginBottom: '12px', opacity: 0.4 }}>
+                    <path d="M8 12a4 4 0 100-8 4 4 0 000 8zM8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                  <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-normal)' }}>Select a source unit on the left list</span>
+                  <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', marginTop: '4px' }}>to browse its available weapon systems</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Weapon Laboratory */}
+      {showWeaponLab && activeWorkspace === 'weapon-lab' && weaponBlueprintDraft && (
+        <main className="weapon-lab-page" aria-labelledby="weapon-lab-title">
+          <div className="weapon-lab-modal">
+            <div className="weapon-lab-header">
+              <div className="weapon-lab-header-copy">
+                <span className="weapon-lab-header-kicker">Armament forge <i /> Phase 02</span>
+                <h3 id="weapon-lab-title">Weapon Laboratory</h3>
+                <p>Clone, tune, and export a reusable weapon definition with engine-native CEG bindings.</p>
+              </div>
+              <div className="weapon-lab-page-actions"><div className="weapon-lab-header-stat"><strong>{weaponLibrary.length}</strong><span>saved designs</span></div><div className="weapon-lab-header-stat"><strong>{weaponBlueprintDraft.sourceWeaponDefKey.toUpperCase()}</strong><span>source weapon</span></div><button type="button" className="weapon-lab-close" onClick={() => { setShowWeaponLab(false); setActiveWorkspace('edit'); }}>Back to editor</button></div>
+            </div>
+
+            <div className="weapon-lab-layout">
+              <div className="weapon-lab-editor">
+                <div className="weapon-lab-source">
+                  <span>Source weapon</span>
+                  <strong>{weaponBlueprintDraft.sourceWeaponDefKey.toUpperCase()}</strong>
+                  <small>{weaponBlueprintDraft.sourceUnitId}</small>
+                </div>
+
+                <div className="weapon-lab-identity">
+                  <label>Name<input className="form-input" value={weaponBlueprintDraft.name} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, name: e.target.value }))} /></label>
+                  <label>Library note<input className="form-input" placeholder="Optional role or design note" value={weaponBlueprintDraft.description} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, description: e.target.value }))} /></label>
+                </div>
+
+                <section className="weapon-lab-section">
+                  <div className="weapon-lab-section-heading"><span>Core profile</span><small>Exported gameplay values</small></div>
+                  <div className="weapon-lab-core-grid">
+                    {[
+                      ['damage', 'Damage'], ['range', 'Range'], ['reload', 'Reload'], ['velocity', 'Velocity'],
+                      ['aoe', 'Splash AoE'], ['projectiles', 'Projectiles'], ['burst', 'Burst'], ['burstrate', 'Burst Rate'],
+                      ['accuracy', 'Accuracy'], ['sprayangle', 'Spray angle'], ['flighttime', 'Flight time']
+                    ].map(([key, label]) => (
+                      <label key={key}>{label}
+                        <input type="number" className="form-input" value={weaponBlueprintDraft.overrides[key]} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, overrides: { ...prev.overrides, [key]: e.target.value } }))} />
+                      </label>
+                    ))}
+                  </div>
+                  <div className="weapon-lab-performance-strip">
+                    <div><span>Damage / second</span><strong>{(() => { const damage = Number(weaponBlueprintDraft.overrides.damage) || 0; const reload = Number(weaponBlueprintDraft.overrides.reload) || 1; const burst = Number(weaponBlueprintDraft.overrides.burst) || 1; const projectiles = Number(weaponBlueprintDraft.overrides.projectiles) || 1; return ((damage * burst * projectiles) / reload).toFixed(1); })()}</strong></div>
+                    <div><span>Engagement range</span><strong>{Number(weaponBlueprintDraft.overrides.range || 0).toLocaleString()}</strong></div>
+                    <div><span>Impact radius</span><strong>{Number(weaponBlueprintDraft.overrides.aoe || 0).toLocaleString()}</strong></div>
+                    <div><span>Delivery</span><strong>{Number(weaponBlueprintDraft.overrides.burst) > 1 ? 'Burst' : Number(weaponBlueprintDraft.overrides.projectiles) > 1 ? 'Volley' : 'Direct'}</strong></div>
+                  </div>
+                </section>
+
+                <section className="weapon-lab-section">
+                  <div className="weapon-lab-section-heading"><span>Effect studio</span><small>Live study + exportable Spring CEG</small></div>
+                  <div className="weapon-lab-vfx-toggle">
+                    <Switch className="weapon-lab-switch" label="Generate custom trail and impact" checked={weaponBlueprintDraft.appearance.vfxEnabled} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, vfxEnabled: e.target.checked } }))} />
+                    <span><strong>Generate custom trail + impact</strong><small>Saving assigns unique CEG names to this blueprint.</small></span>
+                  </div>
+                  <div className="weapon-lab-visual-grid">
+                    <label>Trail / CEG<input className="form-input" placeholder="e.g. bluebeam" value={weaponBlueprintDraft.overrides.cegtag} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, overrides: { ...prev.overrides, cegtag: e.target.value } }))} /></label>
+                    <label>Explosion<input className="form-input" placeholder="e.g. custom:plasma_big" value={weaponBlueprintDraft.overrides.explosiongenerator} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, overrides: { ...prev.overrides, explosiongenerator: e.target.value } }))} /></label>
+                    <label>Projectile model<input className="form-input" placeholder="e.g. missile.3do" value={weaponBlueprintDraft.overrides.model} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, overrides: { ...prev.overrides, model: e.target.value } }))} /></label>
+                    <label>Core colour<input type="color" value={weaponBlueprintDraft.appearance.color} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, color: e.target.value } }))} /></label>
+                    <label>Falloff colour<input type="color" value={weaponBlueprintDraft.appearance.secondaryColor} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, secondaryColor: e.target.value } }))} /></label>
+                    <label>Texture<select className="form-input" value={weaponBlueprintDraft.appearance.texture} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, texture: e.target.value } }))}><option value="flare">Flare</option><option value="plasma">Plasma</option><option value="smoke">Smoke</option><option value="heatcloud">Heat cloud</option></select></label>
+                    <label>Brightness <em>{weaponBlueprintDraft.appearance.brightness.toFixed(1)}×</em><input type="number" min="0.4" max="2" step="0.1" className="form-input" value={weaponBlueprintDraft.appearance.brightness} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, brightness: Number(e.target.value) } }))} /></label>
+                    <label>Particle size<input type="number" min="1" max="40" className="form-input" value={weaponBlueprintDraft.appearance.particleSize} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, particleSize: Number(e.target.value) } }))} /></label>
+                    <label>Particle count<input type="number" min="1" max="32" className="form-input" value={weaponBlueprintDraft.appearance.particleCount} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, particleCount: Number(e.target.value) } }))} /></label>
+                    <label>Particle life<input type="number" min="1" max="90" className="form-input" value={weaponBlueprintDraft.appearance.particleLife} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, particleLife: Number(e.target.value) } }))} /></label>
+                    <label>Spread<input type="number" min="0" max="30" className="form-input" value={weaponBlueprintDraft.appearance.spread} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, spread: Number(e.target.value) } }))} /></label>
+                  </div>
+                  <div className="weapon-ceg-builder">
+                    <section>
+                      <div className="weapon-ceg-builder-heading"><div><span>Trail emitter</span><small>CBitmapMuzzleFlame · directional flare, beam, or rail trace</small></div><strong>CEG trail</strong></div>
+                      <div className="weapon-ceg-controls">
+                        <label>Width<input type="number" min="1" max="80" className="form-input" value={weaponBlueprintDraft.appearance.trailSize ?? 7} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailSize: Number(e.target.value) } }))} /></label>
+                        <label>Length<input type="number" min="1" max="160" className="form-input" value={weaponBlueprintDraft.appearance.trailLength ?? 20} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailLength: Number(e.target.value) } }))} /></label>
+                        <label>Growth<input type="number" min="-1" max="5" step="0.05" className="form-input" value={weaponBlueprintDraft.appearance.trailGrowth ?? 0.15} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailGrowth: Number(e.target.value) } }))} /></label>
+                        <label>Lifetime<input type="number" min="1" max="60" className="form-input" value={weaponBlueprintDraft.appearance.trailLife ?? 5} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailLife: Number(e.target.value) } }))} /></label>
+                        <label>Front offset<input type="number" min="0" max="1" step="0.05" className="form-input" value={weaponBlueprintDraft.appearance.trailOffset ?? 0.2} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailOffset: Number(e.target.value) } }))} /></label>
+                      </div>
+                    </section>
+                    <section>
+                      <div className="weapon-ceg-builder-heading"><div><span>Impact particles</span><small>CSimpleParticleSystem · moving debris, sparks, and energy</small></div><div className="weapon-ceg-switch"><Switch label="Enable impact particles" checked={weaponBlueprintDraft.appearance.particlesEnabled !== false} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, particlesEnabled: e.target.checked } }))} /><span>Enabled</span></div></div>
+                      <div className="weapon-ceg-note">Uses the particle size, count, lifetime, and spread controls above. The emitter applies gravity, drag, directional motion, and lifetime spread automatically.</div>
+                    </section>
+                    <section>
+                      <div className="weapon-ceg-builder-heading"><div><span>Heat core</span><small>CHeatCloudProjectile · expanding background burst</small></div><div className="weapon-ceg-switch"><Switch label="Enable heat core" checked={weaponBlueprintDraft.appearance.heatEnabled !== false} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, heatEnabled: e.target.checked } }))} /><span>Enabled</span></div></div>
+                      <div className="weapon-ceg-controls">
+                        <label>Initial size<input type="number" min="1" max="120" className="form-input" value={weaponBlueprintDraft.appearance.heatSize ?? 12} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, heatSize: Number(e.target.value) } }))} /></label>
+                        <label>Size growth<input type="number" min="0" max="20" step="0.1" className="form-input" value={weaponBlueprintDraft.appearance.heatGrowth ?? 0.4} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, heatGrowth: Number(e.target.value) } }))} /></label>
+                        <label>Heat falloff<input type="number" min="0.1" max="12" step="0.1" className="form-input" value={weaponBlueprintDraft.appearance.heatFalloff ?? 1.1} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, heatFalloff: Number(e.target.value) } }))} /></label>
+                      </div>
+                    </section>
+                    <section>
+                      <div className="weapon-ceg-builder-heading"><div><span>Ground flash</span><small>CStandardGroundFlash · impact light and expanding ring</small></div><div className="weapon-ceg-switch"><Switch label="Enable ground flash" checked={weaponBlueprintDraft.appearance.groundFlashEnabled !== false} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, groundFlashEnabled: e.target.checked } }))} /><span>Enabled</span></div></div>
+                      <div className="weapon-ceg-controls">
+                        <label>Flash size<input type="number" min="1" max="250" className="form-input" value={weaponBlueprintDraft.appearance.flashSize ?? 25} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, flashSize: Number(e.target.value) } }))} /></label>
+                        <label>Flash alpha<input type="number" min="0" max="1" step="0.05" className="form-input" value={weaponBlueprintDraft.appearance.flashAlpha ?? 0.55} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, flashAlpha: Number(e.target.value) } }))} /></label>
+                        <label>Ring growth<input type="number" min="0" max="40" step="0.1" className="form-input" value={weaponBlueprintDraft.appearance.flashGrowth ?? 3} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, flashGrowth: Number(e.target.value) } }))} /></label>
+                        <label>Lifetime<input type="number" min="1" max="60" className="form-input" value={weaponBlueprintDraft.appearance.flashLife ?? 8} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, flashLife: Number(e.target.value) } }))} /></label>
+                      </div>
+                    </section>
+                  </div>
+                  <div className="weapon-ceg-manifest">
+                    <div><span>Export manifest</span><small>Rendering is validated in Recoil, not simulated in the browser.</small></div>
+                    <code>bmf_{weaponBlueprintDraft.id || 'new_weapon'}_trail</code>
+                    <span>CBitmapMuzzleFlame</span>
+                    {weaponBlueprintDraft.appearance.particlesEnabled !== false && <span>CSimpleParticleSystem</span>}
+                    {weaponBlueprintDraft.appearance.heatEnabled !== false && <span>CHeatCloudProjectile</span>}
+                    {weaponBlueprintDraft.appearance.groundFlashEnabled !== false && <span>CStandardGroundFlash</span>}
+                  </div>
+                  <p className="weapon-lab-export-note">The downloaded Lua belongs in your full mod's <code>effects/</code> folder. Lobby tweakdefs can reference CEGs, but cannot register new effect definitions by themselves.</p>
+                </section>
+
+                <div className="weapon-lab-actions">
+                  <button type="button" className="weapon-lab-export-vfx" onClick={handleDownloadWeaponVfxPack}>Download VFX Lua</button>
+                  <button type="button" className="weapon-lab-save" onClick={() => { persistWeaponBlueprint(); showToast('Weapon blueprint saved to library.'); }}>Save blueprint</button>
+                  <button type="button" className="weapon-lab-equip" onClick={() => { const blueprint = persistWeaponBlueprint(); if (blueprint) equipWeaponBlueprint(blueprint); }}>Save & equip on slot {activeWeaponSlotTab}</button>
+                </div>
+              </div>
+
+              <aside className="weapon-library-panel">
+                <div className="weapon-library-heading"><span>Weapon library</span><strong>{weaponLibrary.length} blueprints</strong></div>
+                <div className="weapon-library-list">
+                  {weaponLibrary.length > 0 ? weaponLibrary.map(blueprint => (
+                    <article className="weapon-library-card" key={blueprint.id}>
+                      <div className="weapon-library-card-main">
+                        <span className="weapon-library-swatch" style={{ background: blueprint.appearance?.color || '#c69a68' }} />
+                        <div><strong>{blueprint.name}</strong><small>{blueprint.sourceWeaponDefKey} · {blueprint.sourceUnitId}</small></div>
+                      </div>
+                      <p>{blueprint.description || 'Reusable weapon blueprint'}</p>
+                      <div>
+                        <button type="button" onClick={() => { setWeaponBlueprintDraft(blueprint); }}>Edit</button>
+                        <button type="button" onClick={() => equipWeaponBlueprint(blueprint)}>Equip</button>
+                        <button type="button" className="weapon-library-delete" onClick={() => setWeaponLibrary(prev => prev.filter(item => item.id !== blueprint.id))}>Delete</button>
+                      </div>
+                    </article>
+                  )) : <div className="weapon-library-empty"><strong>Library is empty</strong><span>Save the active weapon as a blueprint to build a reusable collection.</span></div>}
+                </div>
+              </aside>
+            </div>
+          </div>
+        </main>
+      )}
+
+      {/* Mutation Lab */}
+      {showRandomPanel && (
+        <div className="mutation-lab-overlay">
+          <div className="mutation-lab-modal" role="dialog" aria-modal="true" aria-labelledby="mutation-lab-title">
+            <div className="mutation-lab-header">
+              <div>
+                <span>Guided randomization</span>
+                <h3 id="mutation-lab-title">Mutation Lab</h3>
+                <p>Generate a controlled variation from each unit’s original values. Every change remains editable and undoable.</p>
+              </div>
+              <button type="button" className="mutation-lab-close" onClick={() => setShowRandomPanel(false)}>Close</button>
+            </div>
+
+            <div className="mutation-lab-body">
+              <section className="mutation-lab-section">
+                <div className="mutation-lab-section-heading">
+                  <span>01</span>
+                  <div><strong>Choose scope</strong><small>Decide what the mutation touches.</small></div>
+                </div>
+                <div className="mutation-choice-grid">
+                  <button type="button" className={randomScope === 'selected' ? 'active' : ''} onClick={() => setRandomScope('selected')}>
+                    <strong>Selected unit</strong><span>{selectedUnit?.name || 'No unit selected'}</span>
+                  </button>
+                  <button type="button" className={randomScope === 'filtered' ? 'active' : ''} onClick={() => setRandomScope('filtered')}>
+                    <strong>Filtered units</strong><span>{filteredUnits.length.toLocaleString()} units match current filters</span>
+                  </button>
+                </div>
+              </section>
+
+              <section className="mutation-lab-section">
+                <div className="mutation-lab-section-heading">
+                  <span>02</span>
+                  <div><strong>Set volatility</strong><small>Changes are calculated from each original stat.</small></div>
+                </div>
+                <div className="mutation-intensity-row">
+                  {[
+                    { id: 'cautious', label: 'Cautious', note: '±10%' },
+                    { id: 'balanced', label: 'Balanced', note: '±25%' },
+                    { id: 'chaos', label: 'Chaos', note: '±50%' }
+                  ].map(option => (
+                    <button type="button" key={option.id} className={randomIntensity === option.id ? 'active' : ''} onClick={() => setRandomIntensity(option.id)}>
+                      <strong>{option.label}</strong><span>{option.note}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section className="mutation-lab-section">
+                <div className="mutation-lab-section-heading">
+                  <span>03</span>
+                  <div><strong>Select mutation domains</strong><small>Only checked domains receive a new value.</small></div>
+                </div>
+                <div className="mutation-domain-grid">
+                  {[
+                    { id: 'durability', label: 'Durability', note: 'Health' },
+                    { id: 'economy', label: 'Economy', note: 'Costs & build time' },
+                    { id: 'mobility', label: 'Mobility', note: 'Movement speed' },
+                    { id: 'weapons', label: 'Weapons', note: 'Damage, range & reload' }
+                  ].map(domain => (
+                    <div key={domain.id} className={`mutation-domain-option ${randomDomains[domain.id] ? 'active' : ''}`}>
+                      <Switch label={`Mutate ${domain.label}`} checked={randomDomains[domain.id]} onChange={e => setRandomDomains(prev => ({ ...prev, [domain.id]: e.target.checked }))} />
+                      <span><strong>{domain.label}</strong><small>{domain.note}</small></span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <div className="mutation-lab-actions">
+              <span>{randomScope === 'selected' ? 'One unit will be mutated.' : `${filteredUnits.length.toLocaleString()} filtered units will be mutated.`}</span>
+              <div>
+                <button type="button" className="mutation-cancel" onClick={() => setShowRandomPanel(false)}>Cancel</button>
+                <button type="button" className="mutation-apply" onClick={handleRandomAdjustments}>Generate mutation</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preset Gallery Page — lazy loaded on entry */}
+      {showPresetGallery && activeWorkspace === 'preset-gallery' && (
+        <Suspense fallback={<main className="preset-gallery-page preset-gallery-loading"><span>Loading experiment library…</span></main>}>
+          <LazyPresetGalleryPage
+            presets={presets}
+            projectName={projectName}
+            presetName={presetName}
+            presetDescription={presetDescription}
+            onPresetNameChange={setPresetName}
+            onPresetDescriptionChange={setPresetDescription}
+            onSave={handleSavePreset}
+            onApply={handleApplyPreset}
+            onDelete={presetId => setPresets(prev => prev.filter(item => item.id !== presetId))}
+            onClose={() => { setShowPresetGallery(false); setActiveWorkspace('edit'); }}
+          />
+        </Suspense>
+      )}
+
+      {/* Clone Creator Modal */}
+      {showClonePanel && (
+        <div className="clone-creator-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(10, 10, 12, 0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 100
+        }}>
+          <div className="panel-card clone-creator-modal" style={{ width: '100%', maxWidth: '480px' }}>
+            <div className="clone-creator-header">
+              <span>Unit fork workflow</span>
+              <h3>Clone Unit Creator</h3>
+              <p>Create a new editable unit from the selected chassis and assign its initial production sources.</p>
+            </div>
+
+            <form onSubmit={handleCreateClone} className="clone-form clone-creator-form">
+              <div className="form-group clone-field clone-field--parent">
+                <label>Parent Unit</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={cloneBaseId}
+                  disabled
+                />
+              </div>
+
+              <div className="form-group clone-field clone-field--id">
+                <label>New Unit ID</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. armpw_epic"
+                  value={cloneNewId}
+                  onChange={e => setCloneNewId(e.target.value.toLowerCase())}
+                  required
+                />
+              </div>
+
+              <div className="form-group clone-field clone-field--name">
+                <label>Display Name</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. Epic Vanguard pawn"
+                  value={cloneName}
+                  onChange={e => setCloneName(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group clone-field clone-field--description">
+                <label>Custom Description</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. Heavy infantry bot with lightning gun"
+                  value={cloneDesc}
+                  onChange={e => setCloneDesc(e.target.value)}
+                />
+              </div>
+
+              {cloneBaseId.startsWith('raptor_') && (
+                <div className="panel-card" style={{
+                  padding: '10px 14px', marginBottom: '10px',
+                  background: 'rgba(220, 150, 30, 0.12)', border: '1px solid rgba(220, 150, 30, 0.3)'
+                }}>
+                  <div style={{ fontSize: '12px', color: '#e8b84b', fontWeight: 600, marginBottom: '4px' }}>
+                    ⚠ Raptor base unit — verify in-game
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'rgba(232, 184, 75, 0.8)', lineHeight: 1.4 }}>
+                    Raptor units are loaded into UnitDefs and should be cloneable. The generated code
+                    strips raptor-specific properties (maxthisunit, customparams) that could prevent the
+                    clone from appearing in player build menus. Test in-game and adjust if needed.
+                  </div>
+                </div>
+              )}
+              {cloneBaseId.startsWith('scav_') && (
+                <div className="panel-card" style={{
+                  padding: '10px 14px', marginBottom: '10px',
+                  background: 'rgba(220, 150, 30, 0.12)', border: '1px solid rgba(220, 150, 30, 0.3)'
+                }}>
+                  <div style={{ fontSize: '12px', color: '#e8b84b', fontWeight: 600, marginBottom: '4px' }}>
+                    ⚠ Scavenger unit — the clone will use the base unit as source
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'rgba(232, 184, 75, 0.8)', lineHeight: 1.4 }}>
+                    Scavenger units don't exist in UnitDefs at tweakdefs time. The tool will clone from the
+                    equivalent base unit (e.g. armflash) instead.
+                  </div>
+                </div>
+              )}
+              <div className="form-group clone-field clone-field--builders">
+                <label>Builder IDs (comma separated)</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. armlab, armavp"
+                  value={cloneBuilders.join(', ')}
+                  onChange={e => setCloneBuilders(e.target.value.split(',').map(b => b.trim()))}
+                />
+                <small>These assignments are created in Build Menus and remain synchronized after cloning.</small>
+              </div>
+
+              <div className="clone-creator-actions" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                <button type="submit" className="btn-action" style={{ flex: 1 }}>
+                  Create Clone
+                </button>
+                <button
+                  type="button"
+                  className="btn-action btn-secondary"
+                  onClick={() => setShowClonePanel(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Editor Modal */}
+      {showBulkPanel && (
+        <div className="bulk-editor-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(10, 9, 8, 0.7)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 101
+        }}>
+          <div className="panel-card bulk-editor-modal" style={{
+            width: '95vw', maxWidth: '520px', display: 'flex', flexDirection: 'column',
+            padding: '24px', border: '1px solid rgba(235, 220, 208, 0.09)', borderRadius: '14px',
+            background: 'rgba(30, 28, 25, 0.85)', backdropFilter: 'blur(20px)',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', borderBottom: '1px solid rgba(235, 220, 208, 0.06)', paddingBottom: '10px' }}>
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--border-accent)' }}>
+                <path d="M2 3h12M2 8h12M2 13h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-bright)' }}>Batch Adjust Stats</h3>
+            </div>
+
+            <div className="clone-form" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '4px', letterSpacing: '0.04em' }}>Select Parameter</label>
+                <select
+                  className="form-select"
+                  value={bulkStatKey}
+                  onChange={e => setBulkStatKey(e.target.value)}
+                  style={{ width: '100%', background: 'rgba(18, 17, 15, 0.6)' }}
+                >
+                  <option value="health">Unit Health (HP)</option>
+                  <option value="metalcost">Metal Cost</option>
+                  <option value="energycost">Energy Cost</option>
+                  <option value="buildtime">Build Time</option>
+                  <option value="maxvelocity">Max Velocity (Speed)</option>
+                  <option value="all_weapons_damage">All Weapons Damage</option>
+                  <option value="all_weapons_range">All Weapons Range</option>
+                  {STAT_KEYS.filter(s => s.type === 'number' && !['health', 'metalcost', 'energycost', 'buildtime', 'maxvelocity'].includes(s.key)).map(s => (
+                    <option key={s.key} value={s.key}>{s.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Mode Toggle Selection */}
+              <div style={{ margin: 0 }}>
+                <label style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '6px', letterSpacing: '0.04em' }}>Adjustment Type</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBulkMode('percent');
+                      setBulkPercent('10');
+                    }}
+                    style={{
+                      background: bulkMode === 'percent' ? 'var(--border-accent)' : 'rgba(18, 17, 15, 0.4)',
+                      color: bulkMode === 'percent' ? '#1a1814' : 'var(--text-normal)',
+                      border: '1px solid rgba(235, 220, 208, 0.08)',
+                      borderRadius: '6px',
+                      padding: '8px 0',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    Percentage Change
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBulkMode('flat');
+                      setBulkPercent('50');
+                    }}
+                    style={{
+                      background: bulkMode === 'flat' ? 'var(--border-accent)' : 'rgba(18, 17, 15, 0.4)',
+                      color: bulkMode === 'flat' ? '#1a1814' : 'var(--text-normal)',
+                      border: '1px solid rgba(235, 220, 208, 0.08)',
+                      borderRadius: '6px',
+                      padding: '8px 0',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    Flat Offset
+                  </button>
+                </div>
+              </div>
+
+              {/* Value Input and Slider */}
+              <div className="form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', marginBottom: '4px', letterSpacing: '0.04em' }}>
+                  <span>Adjustment Value</span>
+                  <span style={{ fontWeight: 800, color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>
+                    {parseFloat(bulkPercent) > 0 ? '+' : ''}{bulkPercent}{bulkMode === 'percent' ? '%' : ''}
+                  </span>
+                </label>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <input
+                    type="range"
+                    min={bulkMode === 'percent' ? -100 : -1000}
+                    max={bulkMode === 'percent' ? 200 : 1000}
+                    step={bulkMode === 'percent' ? 5 : 10}
+                    value={bulkPercent}
+                    onChange={e => setBulkPercent(e.target.value)}
+                    style={{ flex: 1, accentColor: 'var(--border-accent)', cursor: 'pointer', height: '6px' }}
+                  />
+                  <input
+                    type="number"
+                    className="form-input"
+                    style={{ width: '80px', textAlign: 'center', margin: 0, background: 'rgba(18, 17, 15, 0.6)' }}
+                    value={bulkPercent}
+                    onChange={e => setBulkPercent(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Target Preview Strip */}
+              <div style={{ margin: 0 }}>
+                <label style={{ fontSize: '10px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '6px', letterSpacing: '0.04em' }}>
+                  Target Preview ({filteredUnits.length} Units Affected)
+                </label>
+                <div style={{
+                  display: 'flex',
+                  gap: '6px',
+                  overflowX: 'auto',
+                  background: 'rgba(18, 17, 15, 0.4)',
+                  border: '1px solid rgba(235, 220, 208, 0.06)',
+                  borderRadius: '8px',
+                  padding: '8px 10px',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {filteredUnits.length === 0 ? (
+                    <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>No units match current search filters</span>
+                  ) : (
+                    <>
+                      {filteredUnits.slice(0, 20).map(u => (
+                        <div key={u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(25, 24, 22, 0.6)', border: '1px solid rgba(235, 220, 208, 0.05)', borderRadius: '4px', padding: '3px 6px', fontSize: '9.5px' }}>
+                          <UnitArtwork unitId={u.id} alt="" style={{ width: '14px', height: '14px', borderRadius: '2px', objectFit: 'cover' }} />
+                          <span style={{ color: 'var(--text-normal)' }}>{u.name}</span>
+                        </div>
+                      ))}
+                      {filteredUnits.length > 20 && (
+                        <span style={{ fontSize: '9px', color: 'var(--text-muted)', alignSelf: 'center', paddingLeft: '4px', fontWeight: 600 }}>
+                          +{filteredUnits.length - 20} MORE...
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ fontSize: '9.5px', color: 'var(--text-muted)', lineHeight: '1.4', fontStyle: 'italic', marginTop: '2px' }}>
+                * This adjustment will apply to all units matching your current faction, category, and search query filters.
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                <button type="button" className="btn-action" style={{ flex: 1 }} onClick={handleApplyBulk}>
+                  Apply Batch Adjust
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ padding: '8px 16px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', fontWeight: 700 }}
+                  onClick={() => setShowBulkPanel(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mod Summary Explorer Modal */}
+      {showSummaryModal && (
+        <div className="summary-explorer-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(10, 9, 8, 0.7)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 101
+        }}>
+          <div className="panel-card summary-explorer-modal" style={{
+            width: '90vw', maxWidth: '850px', height: '80vh', maxHeight: '680px',
+            display: 'flex', flexDirection: 'column', padding: '20px 24px',
+            border: '1px solid rgba(235, 220, 208, 0.09)', borderRadius: '14px',
+            background: 'rgba(30, 28, 25, 0.85)', backdropFilter: 'blur(20px)',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', borderBottom: '1px solid rgba(235, 220, 208, 0.06)', paddingBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--border-accent)' }}>
+                  <path d="M4 4h8v8H4zM2 2h4v2H2zM10 2h4v2h-4zM2 10h4v2H2zM10 10h4v2h-4z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-bright)' }}>Mod Summary Explorer</h3>
+              </div>
+              <button
+                className="btn-secondary"
+                style={{ padding: '6px 14px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', fontWeight: 700 }}
+                onClick={() => setShowSummaryModal(false)}
+              >
+                Close Window
+              </button>
+            </div>
+
+            {/* Tabs Row */}
+            <div className="workspace-tabs" style={{ padding: 0, background: 'transparent', borderBottom: 'none', gap: '6px', marginBottom: '16px' }}>
+              <button
+                className={`workspace-tab-btn ${activeSummaryTab === 'tweaks' ? 'active' : ''}`}
+                onClick={() => setActiveSummaryTab('tweaks')}
+                style={{ borderRadius: '6px' }}
+              >
+                TWEAKS ({Object.keys(tweaks).length})
+              </button>
+              <button
+                className={`workspace-tab-btn ${activeSummaryTab === 'clones' ? 'active' : ''}`}
+                onClick={() => setActiveSummaryTab('clones')}
+                style={{ borderRadius: '6px' }}
+              >
+                CLONES ({clones.length})
+              </button>
+              <button
+                className={`workspace-tab-btn ${activeSummaryTab === 'rosters' ? 'active' : ''}`}
+                onClick={() => setActiveSummaryTab('rosters')}
+                style={{ borderRadius: '6px' }}
+              >
+                ROSTERS ({buildMenuSteps.length})
+              </button>
+            </div>
+
+            {/* Tab Contents Area */}
+            <div className="summary-explorer-body" style={{
+              flex: 1,
+              overflowY: 'auto',
+              border: '1px solid rgba(235, 220, 208, 0.06)',
+              borderRadius: '8px',
+              background: 'rgba(18, 17, 15, 0.3)',
+              padding: '16px'
+            }}>
+              {activeSummaryTab === 'tweaks' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(235,220,208,0.06)', paddingBottom: '10px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Modified Unit Parameters</span>
+                    {Object.keys(tweaks).length > 0 && (
+                      <button
+                        style={{
+                          padding: '5px 12px',
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          background: 'transparent',
+                          color: 'rgba(217, 100, 96, 0.85)',
+                          border: '1px solid rgba(217, 100, 96, 0.25)',
+                          borderRadius: '5px',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
+                        onClick={() => {
+                          if (window.confirm('Reset all parameters to vanilla defaults?')) {
+                            setTweaks({});
+                            showToast('Cleared all parameters modifications');
+                          }
+                        }}
+                      >
+                        Reset All Tweaks
+                      </button>
+                    )}
+                  </div>
+
+                  {Object.keys(tweaks).length === 0 ? (
+                    <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                      No unit tweaks active. Select parameters in the stats grid to tweak them.
+                    </div>
+                  ) : (
+                    Object.entries(tweaks).map(([unitId, patch]) => {
+                      const name = unitsDb.names[unitId] || clones.find(c => c.newId.toLowerCase() === unitId.toLowerCase())?.displayName || unitId;
+                      return (
+                        <div
+                          key={unitId}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            background: 'rgba(25, 24, 22, 0.4)',
+                            border: '1px solid rgba(235, 220, 208, 0.07)',
+                            borderRadius: '8px',
+                            padding: '12px 16px'
+                          }}
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0, flex: 1 }}>
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-bright)' }}>{name}</span>
+                            <span style={{ fontSize: '9.5px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={Object.keys(patch).join(', ')}>
+                              ID: <code style={{ color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>{unitId}</code> | Tweaked: {Object.keys(patch).join(', ')}
+                            </span>
+                          </div>
+                          <button
+                            style={{
+                              padding: '5px 12px',
+                              fontSize: '9.5px',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                              background: 'transparent',
+                              color: 'rgba(217, 100, 96, 0.85)',
+                              border: '1px solid rgba(217, 100, 96, 0.25)',
+                              borderRadius: '5px',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                              marginLeft: '12px',
+                              flexShrink: 0
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
+                            onClick={() => {
+                              setTweaks(prev => {
+                                const next = { ...prev };
+                                delete next[unitId];
+                                return next;
+                              });
+                              showToast(`Reset stats for ${unitId}`);
+                            }}
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              )}
+
+              {activeSummaryTab === 'clones' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(235,220,208,0.06)', paddingBottom: '10px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Custom Cloned Units</span>
+                    {clones.length > 0 && (
+                      <button
+                        style={{
+                          padding: '5px 12px',
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          background: 'transparent',
+                          color: 'rgba(217, 100, 96, 0.85)',
+                          border: '1px solid rgba(217, 100, 96, 0.25)',
+                          borderRadius: '5px',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
+                        onClick={() => {
+                          if (window.confirm('Delete all custom unit clones? This also clears their associated tweaks.')) {
+                            setClones([]);
+                            setTweaks(prev => {
+                              const next = { ...prev };
+                              clones.forEach(c => delete next[c.newId]);
+                              return next;
+                            });
+                            showToast('Deleted all cloned units');
+                          }
+                        }}
+                      >
+                        Delete All Clones
+                      </button>
+                    )}
+                  </div>
+
+                  {clones.length === 0 ? (
+                    <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                      No custom clones active. Click "Clone Unit" in the header to create clones.
+                    </div>
+                  ) : (
+                    clones.map(c => (
+                      <div
+                        key={c.newId}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          background: 'rgba(25, 24, 22, 0.4)',
+                          border: '1px solid rgba(235, 220, 208, 0.07)',
+                          borderRadius: '8px',
+                          padding: '12px 16px'
+                        }}
+                      >
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0, flex: 1 }}>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-bright)' }}>{c.displayName || c.newId}</span>
+                          <span style={{ fontSize: '9.5px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            New ID: <code style={{ color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>{c.newId}</code> | Cloned from: <code style={{ color: 'var(--text-normal)', fontFamily: 'var(--font-mono), monospace' }}>{c.baseId}</code>
+                          </span>
+                        </div>
+                        <button
+                          style={{
+                            padding: '5px 12px',
+                            fontSize: '9.5px',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            background: 'transparent',
+                            color: 'rgba(217, 100, 96, 0.85)',
+                            border: '1px solid rgba(217, 100, 96, 0.25)',
+                            borderRadius: '5px',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                            marginLeft: '12px',
+                            flexShrink: 0
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
+                          onClick={() => {
+                            setClones(prev => prev.filter(item => item.newId !== c.newId));
+                            setTweaks(prev => {
+                              const next = { ...prev };
+                              delete next[c.newId];
+                              return next;
+                            });
+                            if (selectedUnitId === c.newId) {
+                              setSelectedUnitId(c.baseId);
+                            }
+                            showToast(`Deleted clone ${c.newId}`);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeSummaryTab === 'rosters' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(235,220,208,0.06)', paddingBottom: '10px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Customized Factory Build Menus</span>
+                    {buildMenuSteps.length > 0 && (
+                      <button
+                        style={{
+                          padding: '5px 12px',
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          background: 'transparent',
+                          color: 'rgba(217, 100, 96, 0.85)',
+                          border: '1px solid rgba(217, 100, 96, 0.25)',
+                          borderRadius: '5px',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
+                        onClick={() => {
+                          if (window.confirm('Revert all factory build menu rosters back to game defaults?')) {
+                            setBuildMenuSteps([]);
+                            showToast('Reverted all custom build rosters');
+                          }
+                        }}
+                      >
+                        Revert All
+                      </button>
+                    )}
+                  </div>
+
+                  {buildMenuSteps.length === 0 ? (
+                    <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                      No custom rosters active. Open "Roster designer" to add/remove units from factories.
+                    </div>
+                  ) : (
+                    buildMenuSteps.map(step => {
+                      const factoryName = unitsDb.names[step.builderId] || step.builderId;
+                      return (
+                        <div
+                          key={step.builderId}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            background: 'rgba(25, 24, 22, 0.4)',
+                            border: '1px solid rgba(235, 220, 208, 0.07)',
+                            borderRadius: '8px',
+                            padding: '12px 16px'
+                          }}
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0, flex: 1 }}>
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-bright)' }}>{factoryName}</span>
+                            <span style={{ fontSize: '9.5px', color: 'var(--text-muted)' }}>
+                              ID: <code style={{ color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>{step.builderId}</code> | Added: {step.add.length} | Removed: {step.remove.length}
+                            </span>
+                          </div>
+                          <button
+                            style={{
+                              padding: '5px 12px',
+                              fontSize: '9.5px',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                              background: 'transparent',
+                              color: 'rgba(217, 100, 96, 0.85)',
+                              border: '1px solid rgba(217, 100, 96, 0.25)',
+                              borderRadius: '5px',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                              marginLeft: '12px',
+                              flexShrink: 0
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
+                            onClick={() => {
+                              setBuildMenuSteps(prev => prev.filter(s => s.builderId !== step.builderId));
+                              showToast(`Reverted builder roster for ${step.builderId}`);
+                            }}
+                          >
+                            Revert
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

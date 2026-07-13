@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Outer border -->
+  <rect x="15" y="15" width="70" height="70" rx="8" fill="none" stroke="#c49b76" stroke-width="2" />
+  
+  <!-- Subtle inner grid lines -->
+  <line x1="15" y1="50" x2="85" y2="50" stroke="rgba(235, 220, 208, 0.15)" stroke-width="1.5" stroke-dasharray="3 3" />
+  <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(235, 220, 208, 0.15)" stroke-width="1.5" stroke-dasharray="3 3" />
+  
+  <!-- Stylized editor slider/handle (ochre circle and inner dot) -->
+  <circle cx="50" cy="50" r="16" fill="rgba(196, 155, 118, 0.12)" stroke="#c49b76" stroke-width="2" />
+  <circle cx="50" cy="50" r="4" fill="#ebdcd0" />
+  
+  <!-- Minimalist pointer/edit handles on the corners -->
+  <rect x="12" y="12" width="6" height="6" fill="#c49b76" rx="1" />
+  <rect x="82" y="12" width="6" height="6" fill="#c49b76" rx="1" />
+  <rect x="12" y="82" width="6" height="6" fill="#c49b76" rx="1" />
+  <rect x="82" y="82" width="6" height="6" fill="#c49b76" rx="1" />
+</svg>

@@ -1,0 +1,147 @@
+:root {
+  color-scheme: light;
+  /* Sakura Atelier color system — edit theme values here. */
+  --color-canvas: #f2eee7;
+  --color-surface: #faf7f1;
+  --color-surface-raised: #fffdf9;
+  --color-surface-muted: #e9e2d9;
+  --color-surface-hover: #eee7de;
+  --color-code-canvas: #302d2b;
+  --color-code-raised: #373330;
+
+  --color-text-strong: #2e2a27;
+  --color-text: #5f5751;
+  --color-text-muted: #817871;
+  --color-text-on-dark: #eee5dc;
+
+  --color-border-subtle: rgba(63, 55, 50, 0.08);
+  --color-border: rgba(63, 55, 50, 0.14);
+  --color-border-strong: rgba(63, 55, 50, 0.24);
+
+  --color-accent: #b56f7b;
+  --color-accent-strong: #965866;
+  --color-accent-soft: #f2e2e4;
+  --color-success: #77826a;
+  --color-warning: #a47b48;
+  --color-danger: #a85454;
+  --color-focus-ring: rgba(181, 111, 123, 0.24);
+
+  /* Component materials — components consume roles, never literal palette values. */
+  --color-surface-context: #ebe4dc;
+  --color-surface-accent-subtle: #fff8f7;
+  --color-surface-subtle: #f8f3ed;
+  --color-surface-status: #f6eee7;
+  --color-border-warm: #bdb3a9;
+  --color-border-muted: #d5cbc1;
+  --color-border-accent-muted: #bd8c95;
+  --color-shadow-offset: #d9d0c7;
+  --color-shadow-accent-offset: #e6cfd2;
+  --color-text-inverse: #fffaf8;
+  --color-scrollbar: #c8bdb3;
+  --color-scrollbar-hover: #a99d93;
+  --shadow-selection: 0 2px 0 rgba(93, 73, 62, 0.08);
+  --color-success-surface: #edf2e9;
+  --color-warning-surface: #f6eee1;
+  --color-danger-surface: #f7e8e8;
+  --color-disabled-surface: #eee8e1;
+  --color-overlay: rgba(31, 27, 25, 0.56);
+
+  --color-faction-arm: #668895;
+  --color-faction-cor: #a96862;
+  --color-faction-leg: #8b7899;
+  --color-faction-rap: #a47b48;
+  --color-faction-scav: #7d8768;
+
+  /* Shared dimensions. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 18px;
+  --line-height-ui: 1.35;
+  --line-height-body: 1.55;
+
+  --control-height-sm: 32px;
+  --control-height-md: 38px;
+  --control-target-min: 32px;
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+
+  --header-height: 76px;
+  --sidebar-width: 304px;
+  --changes-pane-width: 420px;
+  --changes-rail-width: 52px;
+  --content-max-width: 1540px;
+
+  --font-ui: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
+  --z-dropdown: 60;
+  --z-dialog: 100;
+  --z-toast: 120;
+
+  --shadow-soft: 0 5px 18px rgba(58, 48, 42, 0.07);
+  --shadow-float: 0 18px 48px rgba(58, 48, 42, 0.12);
+  --shadow-focus: 0 0 0 3px var(--color-focus-ring);
+  --motion-fast: 150ms ease;
+  --motion-pane: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Optional night palette: same Sakura Atelier materials, deeper ink and plum. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-canvas: #191817;
+  --color-surface: #232120;
+  --color-surface-raised: #2c2927;
+  --color-surface-muted: #201e1d;
+  --color-surface-hover: #373230;
+  --color-code-canvas: #181716;
+  --color-code-raised: #211f1e;
+  --color-text-strong: #f2e9df;
+  --color-text: #ddd2c8;
+  --color-text-muted: #b5a79c;
+  --color-text-on-dark: #f7eee5;
+  --color-border-subtle: rgba(239, 222, 207, 0.1);
+  --color-border: rgba(239, 222, 207, 0.2);
+  --color-border-strong: rgba(239, 222, 207, 0.34);
+  --color-accent: #d49aa5;
+  --color-accent-strong: #e0aeb7;
+  --color-accent-soft: #463237;
+  --color-success: #9daa88;
+  --color-warning: #d3a66e;
+  --color-danger: #d88682;
+  --color-focus-ring: rgba(212, 154, 165, 0.28);
+  --color-surface-context: #2a2625;
+  --color-surface-accent-subtle: #392b2e;
+  --color-surface-subtle: #292625;
+  --color-surface-status: #302b29;
+  --color-border-warm: #625852;
+  --color-border-muted: #504844;
+  --color-border-accent-muted: #8d6470;
+  --color-shadow-offset: #191716;
+  --color-shadow-accent-offset: #241b1d;
+  --color-text-inverse: #fff8f2;
+  --color-scrollbar: #665a54;
+  --color-scrollbar-hover: #88766f;
+  --shadow-selection: 0 2px 0 rgba(0, 0, 0, 0.2);
+  --color-success-surface: #293229;
+  --color-warning-surface: #392f24;
+  --color-danger-surface: #3b2929;
+  --color-disabled-surface: #292624;
+  --color-overlay: rgba(8, 7, 7, 0.72);
+  --shadow-soft: 0 5px 18px rgba(0, 0, 0, 0.2);
+  --shadow-float: 0 18px 48px rgba(0, 0, 0, 0.34);
+}
