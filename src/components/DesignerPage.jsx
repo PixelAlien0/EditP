@@ -1,4 +1,4 @@
-import { Button, PageShell } from './ui.jsx';
+import { Button, PageShell, Switch } from './ui.jsx';
 
 export default function DesignerPage({
   children,
@@ -7,6 +7,9 @@ export default function DesignerPage({
   factoryIconUrl,
   activeSlotCount,
   changeCount,
+  rosterPacks,
+  packDefinitions,
+  onToggleRosterPack,
   onClose
 }) {
   return (
@@ -28,6 +31,29 @@ export default function DesignerPage({
             <Button className="designer-close-button" onClick={onClose}>Back to editor</Button>
           </div>
         </div>
+        <section className="designer-roster-profiles" aria-labelledby="designer-roster-profiles-title">
+          <div className="designer-roster-profiles__intro">
+            <span className="designer-panel-kicker">Game setup</span>
+            <strong id="designer-roster-profiles-title">Roster profile</strong>
+            <small>Preview the same conditional build options enabled in a BAR lobby.</small>
+          </div>
+          <div className="designer-roster-profiles__options">
+            {Object.entries(packDefinitions).map(([packId, pack]) => (
+              <Switch
+                key={packId}
+                className="designer-pack-option"
+                checked={Boolean(rosterPacks[packId])}
+                onChange={() => onToggleRosterPack(packId)}
+                label={`${pack.label}: ${rosterPacks[packId] ? 'enabled' : 'disabled'}`}
+              >
+                <span className="designer-pack-option__copy">
+                  <strong>{pack.label}</strong>
+                  <small>{pack.description}</small>
+                </span>
+              </Switch>
+            ))}
+          </div>
+        </section>
         {children}
       </div>
     </PageShell>

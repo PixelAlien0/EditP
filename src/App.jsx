@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import unitsDb from './data/units.json';
 import unitpicManifest from './data/unitpic-manifest.json';
 import factoryRosters from './data/factory-rosters.json';
+import { BUILD_MENU_PACKS, buildEffectiveFactoryRosters, getBuildMenuPackSource } from './data/build-menu-packs.js';
 import { getFactionOfUnit, getTagsOfUnit as getUnitTags, getTechTierOfUnit as getUnitTechTier } from './utils/categories.js';
 import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
@@ -958,6 +959,21 @@ export default function App() {
       return [];
     }
   });
+  const [buildMenuPacks, setBuildMenuPacks] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('bmf_buildmenu_packs') || '{}');
+      return {
+        extraUnits: Boolean(saved.extraUnits),
+        scavengerUnits: Boolean(saved.scavengerUnits)
+      };
+    } catch {
+      return { extraUnits: false, scavengerUnits: false };
+    }
+  });
+  const activeFactoryRosters = useMemo(
+    () => buildEffectiveFactoryRosters(factoryRosters, buildMenuPacks),
+    [buildMenuPacks]
+  );
 
   const [base64Options, setBase64Options] = useState({ urlSafe: false, padding: true });
   const tweakDefsLua = '';
@@ -1099,9 +1115,10 @@ export default function App() {
     clones,
     disabledUnitIds,
     buildMenuSteps,
+    buildMenuPacks,
     environmentSettings,
     weaponLibrary
-  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, environmentSettings, weaponLibrary]);
+  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, environmentSettings, weaponLibrary]);
   const [historyPast, setHistoryPast] = useState([]);
   const [historyFuture, setHistoryFuture] = useState([]);
   const lastSnapshotRef = useRef(projectSnapshot);
@@ -1127,6 +1144,7 @@ export default function App() {
     setClones(snapshot.clones || []);
     setDisabledUnitIds(snapshot.disabledUnitIds || []);
     setBuildMenuSteps(snapshot.buildMenuSteps || []);
+    setBuildMenuPacks(snapshot.buildMenuPacks || { extraUnits: false, scavengerUnits: false });
     setEnvironmentSettings(snapshot.environmentSettings || {});
     setWeaponLibrary(snapshot.weaponLibrary || []);
   }, []);
@@ -1166,6 +1184,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('bmf_buildmenu_steps', JSON.stringify(buildMenuSteps));
   }, [buildMenuSteps]);
+
+  useEffect(() => {
+    localStorage.setItem('bmf_buildmenu_packs', JSON.stringify(buildMenuPacks));
+  }, [buildMenuPacks]);
 
   useEffect(() => {
     localStorage.setItem('bmf_project_name', projectName);
@@ -1214,6 +1236,7 @@ export default function App() {
     disabledUnitIds,
     unitDescriptions,
     buildMenuSteps,
+    buildMenuPacks,
     environmentSettings,
     weaponLibrary,
     projectName,
@@ -1828,13 +1851,13 @@ export default function App() {
       customUnitClones: clones,
       buildMenuWizardSteps: buildMenuSteps,
       disabledUnitIds,
-      unitBuildOptions: factoryRosters,
+      unitBuildOptions: activeFactoryRosters,
       projectMeta: includeHeader ? { name: projectName, author: projectAuthor, desc: projectDesc } : null,
       compileFlags: { includeClones, includeRosters },
       environmentSettings,
       weaponLibrary
     });
-  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, environmentSettings, weaponLibrary]);
+  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, activeFactoryRosters, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, environmentSettings, weaponLibrary]);
 
   const tweakDefsB64 = useMemo(() => {
     if (!generatedTweakDefsLua.trim()) return '';
@@ -2074,11 +2097,12 @@ export default function App() {
   // Mod Import/Export Handlers
   const handleExportConfig = () => {
     const config = {
-      version: '1.3',
+      version: '1.4',
       tweaks,
       clones,
       disabledUnitIds,
       buildMenuSteps,
+      buildMenuPacks,
       unitDescriptions,
       environmentSettings,
       weaponLibrary,
@@ -2114,6 +2138,7 @@ export default function App() {
         if (config.disabledUnitIds) setDisabledUnitIds(config.disabledUnitIds);
         if (config.unitDescriptions) setUnitDescriptions(config.unitDescriptions);
         if (config.buildMenuSteps) setBuildMenuSteps(config.buildMenuSteps);
+        if (config.buildMenuPacks) setBuildMenuPacks(config.buildMenuPacks);
 
         // Metadata & Flags imports if present
         if (config.projectName) setProjectName(config.projectName);
@@ -2191,8 +2216,8 @@ export default function App() {
 
   // --- Roster Designer Helpers ---
   const factoryIdsList = useMemo(() => {
-    return Object.keys(factoryRosters).sort((a, b) => a.localeCompare(b));
-  }, []);
+    return Object.keys(activeFactoryRosters).sort((a, b) => a.localeCompare(b));
+  }, [activeFactoryRosters]);
 
   const filteredFactoryIds = useMemo(() => {
     return factoryIdsList.filter(id => {
@@ -2208,7 +2233,7 @@ export default function App() {
   }, [factoryIdsList, designerFaction, factorySearchQuery]);
 
   const activeRosterItems = useMemo(() => {
-    const defaults = factoryRosters[selectedFactoryId] || [];
+    const defaults = activeFactoryRosters[selectedFactoryId] || [];
     const step = buildMenuSteps.find(s => s.builderId === selectedFactoryId);
     const removedSet = new Set(step ? step.remove.map(r => r.toLowerCase()) : []);
     const addedList = step ? step.add : [];
@@ -2216,7 +2241,8 @@ export default function App() {
     let items = defaults.map(id => ({
       id,
       name: unitsDb.names[id] || id,
-      status: removedSet.has(id.toLowerCase()) ? 'removed' : 'default'
+      status: removedSet.has(id.toLowerCase()) ? 'removed' : 'default',
+      sourcePack: getBuildMenuPackSource(selectedFactoryId, id, buildMenuPacks)
     }));
 
     addedList.forEach(id => {
@@ -2249,7 +2275,7 @@ export default function App() {
     }
 
     return items;
-  }, [selectedFactoryId, buildMenuSteps, clones]);
+  }, [selectedFactoryId, buildMenuSteps, clones, activeFactoryRosters, buildMenuPacks]);
 
   const availableUnitsForFactory = useMemo(() => {
     const activeIds = new Set(
@@ -2313,7 +2339,7 @@ export default function App() {
       } else {
         const step = { ...next[idx] };
         step.remove = step.remove.filter(r => r.toLowerCase() !== unitId.toLowerCase());
-        const defaults = factoryRosters[factoryId] || [];
+        const defaults = activeFactoryRosters[factoryId] || [];
         const isDefault = defaults.map(d => d.toLowerCase()).includes(unitId.toLowerCase());
         if (!isDefault && !step.add.map(a => a.toLowerCase()).includes(unitId.toLowerCase())) {
           step.add = [...step.add, unitId];
@@ -2345,7 +2371,7 @@ export default function App() {
       } else {
         const step = { ...next[idx] };
         step.add = step.add.filter(a => a.toLowerCase() !== unitId.toLowerCase());
-        const defaults = factoryRosters[factoryId] || [];
+        const defaults = activeFactoryRosters[factoryId] || [];
         const isDefault = defaults.map(d => d.toLowerCase()).includes(unitId.toLowerCase());
         if (isDefault && !step.remove.map(r => r.toLowerCase()).includes(unitId.toLowerCase())) {
           step.remove = [...step.remove, unitId];
@@ -2375,7 +2401,7 @@ export default function App() {
         step.remove = step.remove.filter(r => r.toLowerCase() !== unitId.toLowerCase());
         step.add = step.add.filter(a => a.toLowerCase() !== unitId.toLowerCase());
         if (step.order && step.order.length > 0) {
-          const defaults = factoryRosters[factoryId] || [];
+          const defaults = activeFactoryRosters[factoryId] || [];
           const isDefault = defaults.map(d => d.toLowerCase()).includes(unitId.toLowerCase());
           if (isDefault && !step.order.map(o => o.toLowerCase()).includes(unitId.toLowerCase())) {
             const defIdx = defaults.findIndex(d => d.toLowerCase() === unitId.toLowerCase());
@@ -2591,7 +2617,7 @@ export default function App() {
 
                 // Pre-populate clone builders from parent unit
                 const parentBuilders = [];
-                Object.entries(factoryRosters).forEach(([factoryId, roster]) => {
+                Object.entries(activeFactoryRosters).forEach(([factoryId, roster]) => {
                   if (Array.isArray(roster) && roster.includes(selectedUnit.id.toLowerCase())) {
                     parentBuilders.push(factoryId);
                   }
@@ -4488,6 +4514,11 @@ export default function App() {
             factoryIconUrl={getUnitIconUrl(selectedFactoryId)}
             activeSlotCount={activeRosterItems.filter(item => item.status !== 'removed').length}
             changeCount={buildMenuSteps.filter(step => step.builderId === selectedFactoryId).length}
+            rosterPacks={buildMenuPacks}
+            packDefinitions={BUILD_MENU_PACKS}
+            onToggleRosterPack={(packId) => {
+              setBuildMenuPacks(current => ({ ...current, [packId]: !current[packId] }));
+            }}
             onClose={() => { setShowDesignerPanel(false); setActiveWorkspace('edit'); }}
           >
             <div className="designer-modal-content">
@@ -4573,7 +4604,7 @@ export default function App() {
                         className="designer-reset-factory"
                         onClick={() => {
                           setBuildMenuSteps(prev => prev.filter(s => s.builderId !== selectedFactoryId));
-                          showToast(`Reset build options for ${selectedFactoryId} to vanilla defaults`);
+                          showToast(`Reset build options for ${selectedFactoryId} to the selected game setup`);
                         }}
                       >
                         Reset Factory
@@ -4644,6 +4675,11 @@ export default function App() {
                           <div className="slot-overlay-actions">
                             <span className="slot-unit-name" title={item.name}>{item.name}</span>
                             <span className="slot-unit-id">{item.id}</span>
+                            {item.sourcePack && (
+                              <span className={`slot-pack-source slot-pack-source--${item.sourcePack}`}>
+                                {item.sourcePack === 'extraUnits' ? 'Extra pack' : 'Scavenger pack'}
+                              </span>
+                            )}
                             {!isRemoved ? (
                               <button
                                 className="slot-btn slot-btn-remove"

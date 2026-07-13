@@ -16,7 +16,7 @@ export const Button = forwardRef(function Button(
   );
 });
 
-export function Switch({ checked, onChange, label, className = '', disabled = false, ...props }) {
+export function Switch({ checked, onChange, label, className = '', disabled = false, children, ...props }) {
   return (
     <label className={`ui-switch ${className}`.trim()}>
       <input
@@ -30,6 +30,7 @@ export function Switch({ checked, onChange, label, className = '', disabled = fa
       <span className="ui-switch-track" aria-hidden="true">
         <span className="ui-switch-thumb" />
       </span>
+      {children}
     </label>
   );
 }
