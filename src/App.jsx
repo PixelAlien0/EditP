@@ -6,6 +6,8 @@ import factoryRosters from './data/factory-rosters.json';
 import { getFactionOfUnit, getTagsOfUnit as getUnitTags, getTechTierOfUnit as getUnitTechTier } from './utils/categories.js';
 import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
+import { useOnlinePresence } from './hooks/useOnlinePresence.js';
+import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import { Button, Switch, StatCard } from './components/ui.jsx';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
@@ -588,6 +590,8 @@ function MainMenu({
   projectChangeCount,
   cloneCount,
   rosterCount,
+  presenceCount,
+  presenceStatus,
   onToggleTheme,
   onOpenCredits,
   onEditUnits,
@@ -631,6 +635,7 @@ function MainMenu({
           </div>
         </div>
         <div className="main-menu__utilities">
+          <OnlinePresenceBadge count={presenceCount} status={presenceStatus} />
           <button type="button" onClick={onToggleTheme} aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}>
             <span aria-hidden="true">{themeMode === 'dark' ? '☼' : '◐'}</span>
             {themeMode === 'dark' ? 'Light' : 'Dark'}
@@ -821,6 +826,7 @@ function generateWeaponVfxPackLua(blueprints) {
 export default function App() {
   const [defaultsDb, setDefaultsDb] = useState({});
   const [coreDataStatus, setCoreDataStatus] = useState('loading');
+  const { count: onlineCount, status: presenceStatus } = useOnlinePresence();
 
   useEffect(() => {
     let cancelled = false;
@@ -2450,6 +2456,8 @@ export default function App() {
           projectChangeCount={projectChangeCount}
           cloneCount={clones.length}
           rosterCount={buildMenuSteps.length}
+          presenceCount={onlineCount}
+          presenceStatus={presenceStatus}
           onToggleTheme={() => setThemeMode(mode => mode === 'dark' ? 'light' : 'dark')}
           onOpenCredits={() => setShowCreditsModal(true)}
           onEditUnits={() => {
@@ -2491,13 +2499,16 @@ export default function App() {
 
       {/* Header */}
       <header className="app-header">
-        <button type="button" className="brand-section header-brand" onClick={() => setShowMainMenu(true)} title="Return to main menu">
-          <img src="/logo.svg" alt="BAR Editor" className="app-logo" />
-          <div className="brand-text">
-            <span className="brand-kicker">Mod workspace</span>
-            <h1>BAR Editor</h1>
-          </div>
-        </button>
+        <div className="header-brand-group">
+          <button type="button" className="brand-section header-brand" onClick={() => setShowMainMenu(true)} title="Return to main menu">
+            <img src="/logo.svg" alt="BAR Editor" className="app-logo" />
+            <div className="brand-text">
+              <span className="brand-kicker">Mod workspace</span>
+              <h1>BAR Editor</h1>
+            </div>
+          </button>
+          <OnlinePresenceBadge count={onlineCount} status={presenceStatus} compact />
+        </div>
 
         <nav className="workflow-nav" aria-label="Editor workflow">
           <button
