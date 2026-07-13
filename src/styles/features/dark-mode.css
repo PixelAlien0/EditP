@@ -233,7 +233,6 @@ html[data-theme="dark"] {
 
 [data-theme="dark"] .header-brand h1,
 [data-theme="dark"] .unit-dossier-title,
-[data-theme="dark"] .section-heading,
 [data-theme="dark"] .review-page-header h2 {
   color: var(--color-text-strong) !important;
 }
@@ -396,7 +395,6 @@ html[data-theme="dark"] {
 
 [data-theme="dark"] .stat-card-label,
 [data-theme="dark"] .target-filter-label,
-[data-theme="dark"] .target-filter-panel-heading,
 [data-theme="dark"] .weapon-substitution-copy > strong {
   color: var(--color-text-strong) !important;
 }

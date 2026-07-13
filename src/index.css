@@ -1222,21 +1222,6 @@ input[type="checkbox"]:checked::after {
   border-color: rgba(185, 90, 90, 0.18);
 }
 
-/* ── Section headings ────────────────────────────────────────── */
-
-.section-heading {
-  font-size: 9px;
-  font-weight: 700;
-  margin-bottom: var(--sp-sm);
-  display: flex;
-  align-items: center;
-  gap: var(--sp-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  border-left: 1px solid var(--b-a);
-  padding-left: 10px;
-}
-
 /* ── Custom params ───────────────────────────────────────────── */
 
 .custom-params-section {
@@ -2117,18 +2102,6 @@ select:focus-visible,
   background: var(--paper-clean) !important;
   color: var(--ink) !important;
   box-shadow: none;
-}
-
-.target-filter-panel-heading {
-  margin: 0 !important;
-  padding: 0 0 13px !important;
-  border-bottom: 1px solid #ded6cd !important;
-  color: var(--ink-strong) !important;
-  font-family: var(--font-display);
-  font-size: 18px !important;
-  font-weight: 550;
-  letter-spacing: -0.01em;
-  text-transform: none;
 }
 
 .target-filter-row {
@@ -3869,17 +3842,6 @@ select:focus-visible,
   margin: 0 auto;
 }
 
-.section-heading {
-  margin-bottom: 12px !important;
-  padding-left: 12px;
-  border-left: 2px solid var(--b-a);
-  color: var(--t0);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
 .editor-grid {
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 10px;
@@ -5187,15 +5149,6 @@ select:focus-visible,
   border: 1px solid rgba(215, 197, 172, 0.075);
   border-radius: 7px;
   background: rgba(19, 18, 14, 0.46);
-}
-
-.target-filter-panel-heading {
-  margin: 0 0 4px !important;
-  padding: 0 1px 9px;
-  border-bottom: 1px solid rgba(215, 197, 172, 0.065);
-  color: #c3ae90 !important;
-  font-size: 10px !important;
-  letter-spacing: 0.10em;
 }
 
 .target-filter-row {
@@ -9262,17 +9215,6 @@ textarea.form-input {
   width: 100%;
   max-width: 1540px !important;
   margin: 0 auto;
-}
-
-.section-heading {
-  margin: 6px 0 14px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  color: var(--ink-strong);
-  font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 550;
-  letter-spacing: -0.01em;
 }
 
 .editor-grid {

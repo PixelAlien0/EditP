@@ -11,7 +11,7 @@ import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import BatchAdjustDialog from './components/BatchAdjustDialog.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
 import { getUnitIconUrl } from './utils/unitArtwork.js';
-import { Button, ButtonGroup, Dialog, FileButton, IconButton, Switch, StatCard } from './components/ui.jsx';
+import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
 const LazyPresetGalleryPage = lazy(() => import('./components/PresetGalleryPage.jsx'));
@@ -3380,7 +3380,13 @@ export default function App() {
                   {/* Structure View */}
                   {activeParamTab === 'structure' && (
                     <div id="workspace-panel-structure" role="tabpanel" aria-labelledby="workspace-tab-structure" tabIndex={0} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div className="section-heading" style={{ margin: '0 0 4px 0' }}>Structure & Economic Metrics</div>
+                      <SectionHeader
+                        className="section-heading"
+                        eyebrow="Unit parameters"
+                        title="Structure & Economic Metrics"
+                        description="Costs, durability, production, storage, and utility systems."
+                        actions={<span className="section-heading__meta">{structureParams.length} fields</span>}
+                      />
                       <div className="editor-grid">
                         {structureParams.map(stat => {
                           const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
@@ -3485,7 +3491,13 @@ export default function App() {
                   {/* Mobility View */}
                   {activeParamTab === 'mobility' && (
                     <div id="workspace-panel-mobility" role="tabpanel" aria-labelledby="workspace-tab-mobility" tabIndex={0} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div className="section-heading" style={{ margin: '0 0 4px 0' }}>Mobility & Movement Vectors</div>
+                      <SectionHeader
+                        className="section-heading"
+                        eyebrow="Unit parameters"
+                        title="Mobility & Movement Vectors"
+                        description="Speed, handling, terrain response, altitude, and detection."
+                        actions={<span className="section-heading__meta">{mobilityParams.length} fields</span>}
+                      />
                       <div className="editor-grid">
                         {mobilityParams.map(stat => {
                           const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
@@ -3580,18 +3592,17 @@ export default function App() {
                       {slot ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div className="section-heading" style={{ margin: 0 }}>Active Weapon Slot Parameters</div>
-                            {swap ? (
-                              <span style={{ fontSize: '9px', color: 'var(--border-accent)', fontWeight: 700, letterSpacing: '0.05em' }}>
-                                SUBSTITUTED FROM {swap.sourceUnitId.toUpperCase()}
-                              </span>
-                            ) : (
-                              <span style={{ fontSize: '9px', color: 'rgba(235,220,208,0.25)', fontWeight: 500, letterSpacing: '0.05em' }}>
-                                DEFAULT CHASSIS WEAPON
+                          <SectionHeader
+                            className="section-heading"
+                            eyebrow={`Weapon slot ${slot.slot}`}
+                            title="Active Weapon Slot Parameters"
+                            description="Tune the selected slot without changing the rest of the unit loadout."
+                            actions={(
+                              <span className={`section-heading__status ${swap ? 'is-substituted' : ''}`}>
+                                {swap ? `Substituted from ${swap.sourceUnitId}` : 'Default chassis weapon'}
                               </span>
                             )}
-                          </div>
+                          />
 
                           {/* Swap and Restore Actions */}
                           {selectedUnit.isClone && (
@@ -3881,7 +3892,14 @@ export default function App() {
                             ];
                             return (
                               <div className="target-filter-panel">
-                                <div className="section-heading target-filter-panel-heading">Target Category Filters</div>
+                                <SectionHeader
+                                  className="section-heading section-heading--compact target-filter-panel-heading"
+                                  eyebrow="Target logic"
+                                  title="Target Category Filters"
+                                  description="Control target eligibility and priority through engine category masks."
+                                  actions={<span className="section-heading__meta">{catFields.length} masks</span>}
+                                  headingLevel={3}
+                                />
                                 {catFields.map(cf => {
                                   const tweakKey = `weapon_slot_${slot.slot}_${cf.key}`;
                                   const currentVal = tweaks[selectedUnit.id]?.[tweakKey];
