@@ -32,10 +32,12 @@ export default function TemporaryChatDialog({ chat, onClose }) {
   const [formError, setFormError] = useState('');
   const inputRef = useRef(null);
   const closeButtonRef = useRef(null);
-  const messageEndRef = useRef(null);
+  const messageListRef = useRef(null);
 
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ block: 'end' });
+    const messageList = messageListRef.current;
+    if (!messageList) return;
+    messageList.scrollTop = messageList.scrollHeight;
   }, [chat.messages.length]);
 
   const handleSubmit = async event => {
@@ -77,7 +79,7 @@ export default function TemporaryChatDialog({ chat, onClose }) {
           <p id="temporary-chat-description">Plain-text notes for people currently using BAR Editor.</p>
         </div>
         <IconButton ref={closeButtonRef} variant="quiet" className="temporary-chat__close" onClick={onClose} label="Close editor chat">
-          ×
+          <svg viewBox="0 0 16 16"><path d="m4 4 8 8M12 4l-8 8" /></svg>
         </IconButton>
       </header>
 
@@ -87,30 +89,39 @@ export default function TemporaryChatDialog({ chat, onClose }) {
         <span>Clears after {chat.retentionMinutes} minutes</span>
       </div>
 
-      <ChatStatus status={chat.status} error={chat.error} />
-
-      <div className="temporary-chat__messages" role="log" aria-live="polite" aria-relevant="additions text">
-        {chat.messages.length === 0 ? (
-          <div className="temporary-chat__empty">
-            <span aria-hidden="true">話</span>
-            <strong>The workshop is quiet.</strong>
-            <p>Leave a short note for anyone currently editing.</p>
-          </div>
-        ) : (
-          chat.messages.map(message => {
-            const isOwn = message.sender_id === chat.identity.id;
-            return (
-              <article key={message.id} className={`temporary-chat__message ${isOwn ? 'is-own' : ''}`}>
-                <div className="temporary-chat__message-meta">
-                  <strong>{isOwn ? 'You' : message.sender_name}</strong>
-                  <time dateTime={message.created_at}>{formatMessageAge(message.created_at)}</time>
-                </div>
-                <p>{message.body}</p>
-              </article>
-            );
-          })
-        )}
-        <div ref={messageEndRef} />
+      <div className="temporary-chat__feed">
+        <ChatStatus status={chat.status} error={chat.error} />
+        <div
+          ref={messageListRef}
+          className="temporary-chat__messages"
+          role="log"
+          aria-label="Temporary editor chat messages"
+          aria-live="polite"
+          aria-relevant="additions text"
+        >
+          {chat.messages.length === 0 ? (
+            <div className="temporary-chat__empty">
+              <span aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M5 5.5h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-7l-4.5 3v-3H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" /><path d="M7.5 9.5h9M7.5 12.5h6" /></svg>
+              </span>
+              <strong>The workshop is quiet.</strong>
+              <p>Leave a short note for anyone currently editing.</p>
+            </div>
+          ) : (
+            chat.messages.map(message => {
+              const isOwn = message.sender_id === chat.identity.id;
+              return (
+                <article key={message.id} className={`temporary-chat__message ${isOwn ? 'is-own' : ''}`}>
+                  <div className="temporary-chat__message-meta">
+                    <strong>{isOwn ? 'You' : message.sender_name}</strong>
+                    <time dateTime={message.created_at}>{formatMessageAge(message.created_at)}</time>
+                  </div>
+                  <p>{message.body}</p>
+                </article>
+              );
+            })
+          )}
+        </div>
       </div>
 
       <form className="temporary-chat__composer" onSubmit={handleSubmit}>
