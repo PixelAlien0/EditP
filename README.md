@@ -34,3 +34,7 @@ npm run audit-unitpics:dist
 ```
 
 The audit verifies manifest coverage, WebP signatures, content uniqueness, orphaned files, per-image limits, the 75 MB artwork budget, and the 80 MB production-build budget. The browser loads only self-hosted, immutable hashed assets and does not depend on an external artwork CDN at runtime.
+
+## Temporary editor chat
+
+The header chat uses the existing Supabase project for short, plain-text workshop notes. Run [`supabase/temporary-chat.sql`](supabase/temporary-chat.sql) once in the Supabase SQL Editor before deploying the feature. See [`docs/temporary-chat-setup.md`](docs/temporary-chat-setup.md) for the short setup and verification checklist.

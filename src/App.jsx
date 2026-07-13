@@ -7,7 +7,9 @@ import { getFactionOfUnit, getTagsOfUnit as getUnitTags, getTechTierOfUnit as ge
 import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
+import { useTemporaryChat } from './hooks/useTemporaryChat.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
+import TemporaryChatDialog from './components/TemporaryChatDialog.jsx';
 import BatchAdjustDialog from './components/BatchAdjustDialog.jsx';
 import SummaryExplorerDialog from './components/SummaryExplorerDialog.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
@@ -778,6 +780,7 @@ export default function App() {
   const [defaultsDb, setDefaultsDb] = useState({});
   const [coreDataStatus, setCoreDataStatus] = useState('loading');
   const { count: onlineCount, status: presenceStatus } = useOnlinePresence();
+  const temporaryChat = useTemporaryChat();
 
   useEffect(() => {
     let cancelled = false;
@@ -999,6 +1002,8 @@ export default function App() {
   const [activeSummaryTab, setActiveSummaryTab] = useState('tweaks');
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [chatReadAt, setChatReadAt] = useState(() => Date.now());
   const [showPresetGallery, setShowPresetGallery] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [presetDescription, setPresetDescription] = useState('');
@@ -1068,6 +1073,19 @@ export default function App() {
   const lastSnapshotRef = useRef(projectSnapshot);
   const applyingHistoryRef = useRef(false);
   const toolsMenuRef = useRef(null);
+
+  const unreadChatCount = useMemo(() => {
+    if (showChatModal) return 0;
+    return temporaryChat.messages.filter(message => (
+      message.sender_id !== temporaryChat.identity.id
+      && Date.parse(message.created_at) > chatReadAt
+    )).length;
+  }, [chatReadAt, showChatModal, temporaryChat.identity.id, temporaryChat.messages]);
+
+  const closeTemporaryChat = useCallback(() => {
+    setShowChatModal(false);
+    setChatReadAt(Date.now());
+  }, []);
 
   useEffect(() => {
     if (applyingHistoryRef.current) {
@@ -2216,6 +2234,7 @@ export default function App() {
         setShowDesignerPanel(false);
         setShowSummaryModal(false);
         setShowCreditsModal(false);
+        setShowChatModal(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -2635,6 +2654,27 @@ export default function App() {
             <span className="header-credits-icon" aria-hidden="true">i</span>
             <span className="header-credits-label">Credits</span>
           </Button>
+          <Button
+            variant="quiet"
+            className="btn-action btn-secondary header-chat-action"
+            onClick={() => {
+              setChatReadAt(Date.now());
+              setShowChatModal(true);
+            }}
+            aria-haspopup="dialog"
+            title="Open temporary editor chat"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3 3.25h10a1.5 1.5 0 0 1 1.5 1.5v5.5a1.5 1.5 0 0 1-1.5 1.5H8l-3.25 2v-2H3a1.5 1.5 0 0 1-1.5-1.5v-5.5A1.5 1.5 0 0 1 3 3.25Z" />
+              <path d="M4.5 6.5h7M4.5 8.75h4.75" />
+            </svg>
+            <span className="header-chat-label">Chat</span>
+            {unreadChatCount > 0 && (
+              <span className="header-chat-unread" aria-label={`${unreadChatCount} unread chat messages`}>
+                {Math.min(unreadChatCount, 9)}{unreadChatCount > 9 ? '+' : ''}
+              </span>
+            )}
+          </Button>
           </div>
           <Button
             className="btn-action btn-secondary header-create-action"
@@ -2705,6 +2745,7 @@ export default function App() {
       </header>
 
       {showCreditsModal && <CreditsModal onClose={() => setShowCreditsModal(false)} />}
+      {showChatModal && <TemporaryChatDialog chat={temporaryChat} onClose={closeTemporaryChat} />}
 
       {/* Main Workspace */}
       {activeWorkspace === 'edit' ? (

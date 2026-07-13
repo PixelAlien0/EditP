@@ -1,22 +1,8 @@
 import { useEffect, useState } from 'react';
 import { isSupabaseConfigured, supabase } from '../lib/supabase.js';
+import { getBrowserIdentity } from '../lib/browserIdentity.js';
 
 const PRESENCE_CHANNEL = 'editp-online';
-const BROWSER_ID_KEY = 'editp_presence_browser_id';
-
-function getAnonymousBrowserId() {
-  try {
-    const storedId = localStorage.getItem(BROWSER_ID_KEY);
-    if (storedId) return storedId;
-    const generatedId = globalThis.crypto?.randomUUID?.()
-      || `browser-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    localStorage.setItem(BROWSER_ID_KEY, generatedId);
-    return generatedId;
-  } catch {
-    return globalThis.crypto?.randomUUID?.()
-      || `session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  }
-}
 
 export function useOnlinePresence() {
   const [presence, setPresence] = useState({
@@ -28,7 +14,7 @@ export function useOnlinePresence() {
     if (!supabase) return undefined;
 
     let disposed = false;
-    const browserId = getAnonymousBrowserId();
+    const browserId = getBrowserIdentity().id;
     const channel = supabase.channel(PRESENCE_CHANNEL, {
       config: { presence: { key: browserId } },
     });
