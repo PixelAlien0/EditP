@@ -11733,8 +11733,7 @@ input:checked + .weapon-ceg-track {
 
 [data-theme="dark"] .editor-workspace .unit-context-strip--canonical .unit-context-label,
 [data-theme="dark"] .editor-workspace .unit-context-strip--canonical .unit-profile-chassis,
-[data-theme="dark"] .editor-workspace .unit-context-strip--canonical .unit-efficiency-metric > span:first-child,
-[data-theme="dark"] .editor-workspace .unit-context-strip--canonical .unit-trajectory-values > div > span:first-child {
+[data-theme="dark"] .editor-workspace .unit-context-strip--canonical .unit-efficiency-metric > span:first-child {
   color: var(--color-text-muted) !important;
 }
 
@@ -11759,8 +11758,7 @@ input:checked + .weapon-ceg-track {
   border-color: var(--color-accent) !important;
 }
 
-[data-theme="dark"] .editor-workspace .unit-context-strip--canonical .unit-efficiency-metric,
-[data-theme="dark"] .editor-workspace .unit-context-strip--canonical .unit-trajectory-values > div {
+[data-theme="dark"] .editor-workspace .unit-context-strip--canonical .unit-efficiency-metric {
   border-left-color: var(--color-border-subtle) !important;
 }
 

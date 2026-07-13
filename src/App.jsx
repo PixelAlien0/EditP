@@ -3330,11 +3330,18 @@ export default function App() {
                   {slot && (
                     <div className="unit-context-card unit-trajectory-card">
                       <span className="unit-context-label">Firing Profile</span>
-                      <svg className="unit-trajectory-diagram" width="56" height="56" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="45" fill="none" stroke="var(--color-border)" strokeWidth="1" />
-                        <circle cx="50" cy="50" r="30" fill="none" stroke="var(--color-border)" strokeWidth="0.5" strokeDasharray="3 3" />
-                        <line x1="50" y1="5" x2="50" y2="95" stroke="var(--color-border)" strokeWidth="0.5" />
-                        <line x1="5" y1="50" x2="95" y2="50" stroke="var(--color-border)" strokeWidth="0.5" />
+                      <svg
+                        className="unit-trajectory-diagram"
+                        width="56"
+                        height="56"
+                        viewBox="0 0 100 100"
+                        role="img"
+                        aria-label={`Weapon firing profile with ${rawSpray > 0 ? `${rawSpray} degree spread` : 'direct fire'}`}
+                      >
+                        <circle className="unit-trajectory-ring unit-trajectory-ring--outer" cx="50" cy="50" r="45" />
+                        <circle className="unit-trajectory-ring unit-trajectory-ring--inner" cx="50" cy="50" r="30" />
+                        <line className="unit-trajectory-axis" x1="50" y1="5" x2="50" y2="95" />
+                        <line className="unit-trajectory-axis" x1="5" y1="50" x2="95" y2="50" />
                         {(() => {
                           const angle = Math.max(5, Math.min(360, rawSpray || 10));
                           const startAngle = -angle / 2;
@@ -3347,14 +3354,13 @@ export default function App() {
                           const largeArc = angle > 180 ? 1 : 0;
                           return (
                             <path
+                              className="unit-trajectory-sector"
                               d={`M 50 50 L ${x1} ${y1} A ${rad} ${rad} 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                              fill="var(--color-accent-soft)"
-                              stroke="var(--color-accent)"
-                              strokeWidth="1.5"
                             />
                           );
                         })()}
-                        <circle cx="50" cy="50" r="2.5" fill="var(--color-accent)" />
+                        <line className="unit-trajectory-vector" x1="50" y1="50" x2="91" y2="50" />
+                        <circle className="unit-trajectory-origin" cx="50" cy="50" r="3" />
                       </svg>
 
                       <div className="unit-trajectory-copy">
