@@ -941,6 +941,7 @@ export default function App() {
   const [cloneNewId, setCloneNewId] = useState('');
   const [cloneName, setCloneName] = useState('');
   const [cloneBuilders, setCloneBuilders] = useState([]);
+  const [cloneAutoAssignBuilders, setCloneAutoAssignBuilders] = useState(false);
   const [showClonePanel, setShowClonePanel] = useState(false);
 
   // Bulk Edit states
@@ -1892,6 +1893,23 @@ export default function App() {
     setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, cloneId, normalized));
   };
 
+  const getAutomaticCloneBuilders = unitId => {
+    const targetId = unitId.trim().toLowerCase();
+    const builders = new Set(
+      Object.entries(activeFactoryRosters)
+        .filter(([, roster]) => Array.isArray(roster) && roster.some(id => id.toLowerCase() === targetId))
+        .map(([factoryId]) => factoryId.toLowerCase())
+    );
+
+    buildMenuSteps.forEach(step => {
+      const builderId = step.builderId.trim().toLowerCase();
+      if ((step.remove || []).some(id => id.toLowerCase() === targetId)) builders.delete(builderId);
+      if ((step.add || []).some(id => id.toLowerCase() === targetId)) builders.add(builderId);
+    });
+
+    return [...builders];
+  };
+
   const handleCreateClone = (e) => {
     e.preventDefault();
     const cleanBase = cloneBaseId.trim();
@@ -1917,7 +1935,7 @@ export default function App() {
       newId: cleanNew,
       displayName: cleanName || cleanNew,
       description: cloneDesc.trim() || undefined,
-      builderIds: cleanBuilders.length > 0 ? cleanBuilders : ['armlab'],
+      builderIds: cleanBuilders,
       addToOriginalBuilders: true
     };
 
@@ -1931,6 +1949,7 @@ export default function App() {
     setCloneNewId('');
     setCloneName('');
     setCloneBuilders([]);
+    setCloneAutoAssignBuilders(false);
     setCloneDesc('');
   };
 
@@ -2588,14 +2607,8 @@ export default function App() {
                 setCloneBaseId(selectedUnit.id);
                 setCloneName(`${selectedUnit.name} (Clone)`);
 
-                // Pre-populate clone builders from parent unit
-                const parentBuilders = [];
-                Object.entries(activeFactoryRosters).forEach(([factoryId, roster]) => {
-                  if (Array.isArray(roster) && roster.includes(selectedUnit.id.toLowerCase())) {
-                    parentBuilders.push(factoryId);
-                  }
-                });
-                setCloneBuilders(parentBuilders.length > 0 ? parentBuilders : ['armlab']);
+                setCloneAutoAssignBuilders(false);
+                setCloneBuilders([]);
 
                 setShowClonePanel(true);
               } else {
@@ -5606,6 +5619,27 @@ export default function App() {
                   </div>
                 </div>
               )}
+              <div className={`clone-builder-mode ${cloneAutoAssignBuilders ? 'is-active' : ''}`}>
+                <Switch
+                  label="Automatically assign the clone to its parent unit builders"
+                  checked={cloneAutoAssignBuilders}
+                  onChange={event => {
+                    const enabled = event.target.checked;
+                    setCloneAutoAssignBuilders(enabled);
+                    setCloneBuilders(enabled ? getAutomaticCloneBuilders(cloneBaseId) : []);
+                  }}
+                />
+                <div>
+                  <strong>Auto-assign parent builders</strong>
+                  <small>
+                    {cloneAutoAssignBuilders
+                      ? cloneBuilders.length > 0
+                        ? `${cloneBuilders.length} matching ${cloneBuilders.length === 1 ? 'builder' : 'builders'} found in the active Build Menus.`
+                        : 'No active Build Menu currently contains the parent unit.'
+                      : 'Off by default. The clone starts with no production assignment.'}
+                  </small>
+                </div>
+              </div>
               <div className="form-group clone-field clone-field--builders">
                 <label>Builder IDs (comma separated)</label>
                 <input
@@ -5613,9 +5647,14 @@ export default function App() {
                   className="form-input"
                   placeholder="e.g. armlab, armavp"
                   value={cloneBuilders.join(', ')}
+                  disabled={cloneAutoAssignBuilders}
                   onChange={e => setCloneBuilders(e.target.value.split(',').map(b => b.trim()))}
                 />
-                <small>These assignments are created in Build Menus and remain synchronized after cloning.</small>
+                <small>
+                  {cloneAutoAssignBuilders
+                    ? 'Builder IDs are derived from the parent unit. Turn off auto-assign to enter a custom list.'
+                    : 'Optional. Leave empty for an unassigned clone, or enter builder IDs manually.'}
+                </small>
               </div>
 
               <div className="clone-creator-actions" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>

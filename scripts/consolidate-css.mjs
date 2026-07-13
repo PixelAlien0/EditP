@@ -10,6 +10,7 @@ const stylesheetOrder = [
   'src/index.css',
   'src/styles/features/dark-mode.css',
   'src/styles/features/batch-adjust.css',
+  'src/styles/features/clone-creator.css',
   'src/styles/features/build-menu.css',
   'src/styles/features/editor-parameters.css',
   'src/styles/features/credits.css',
