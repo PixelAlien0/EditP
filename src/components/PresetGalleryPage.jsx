@@ -1,4 +1,4 @@
-import { Button, PageShell } from './ui.jsx';
+import { Button, EmptyState, PageShell, TextField } from './ui.jsx';
 
 export default function PresetGalleryPage({
   presets,
@@ -32,14 +32,8 @@ export default function PresetGalleryPage({
             <span>Capture current work</span>
             <small>Includes tweaks, clones, build menus, environment, and export settings.</small>
           </div>
-          <label className="ui-field">
-            <span>Preset name</span>
-            <input className="form-input" placeholder={`${projectName} preset`} value={presetName} onChange={event => onPresetNameChange(event.target.value)} />
-          </label>
-          <label className="ui-field">
-            <span>Project note</span>
-            <input className="form-input" placeholder="Optional note, e.g. fast T1 air experiment" value={presetDescription} onChange={event => onPresetDescriptionChange(event.target.value)} />
-          </label>
+          <TextField label="Preset name" placeholder={`${projectName} preset`} value={presetName} onChange={event => onPresetNameChange(event.target.value)} />
+          <TextField label="Project note" placeholder="Optional note, e.g. fast T1 air experiment" value={presetDescription} onChange={event => onPresetDescriptionChange(event.target.value)} />
           <Button variant="primary" className="preset-save-action" onClick={onSave}>Save preset</Button>
         </div>
 
@@ -78,10 +72,11 @@ export default function PresetGalleryPage({
               </article>
             );
           }) : (
-            <div className="preset-empty-state">
-              <strong>No saved presets yet</strong>
-              <span>Capture the current project above to begin a personal experiment library.</span>
-            </div>
+            <EmptyState
+              className="preset-empty-state"
+              title="No saved presets yet"
+              description="Capture the current project above to begin a personal experiment library."
+            />
           )}
         </div>
       </div>

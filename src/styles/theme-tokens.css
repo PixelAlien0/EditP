@@ -24,6 +24,7 @@
   --color-success: #77826a;
   --color-warning: #a47b48;
   --color-danger: #a85454;
+  --color-info: #668895;
   --color-focus-ring: rgba(181, 111, 123, 0.24);
 
   /* Component materials — components consume roles, never literal palette values. */
@@ -43,6 +44,7 @@
   --color-success-surface: #edf2e9;
   --color-warning-surface: #f6eee1;
   --color-danger-surface: #f7e8e8;
+  --color-info-surface: #e7eff1;
   --color-disabled-surface: #eee8e1;
   --color-overlay: rgba(31, 27, 25, 0.56);
 
@@ -72,13 +74,16 @@
 
   --control-height-sm: 32px;
   --control-height-md: 38px;
+  --control-height-lg: 44px;
   --control-target-min: 32px;
   --icon-size-sm: 16px;
   --icon-size-md: 20px;
+  --icon-size-xs: 12px;
 
   --radius-xs: 3px;
   --radius-sm: 5px;
   --radius-md: 8px;
+  --radius-pill: 999px;
 
   --header-height: 76px;
   --sidebar-width: 304px;
@@ -123,6 +128,7 @@
   --color-success: #9daa88;
   --color-warning: #d3a66e;
   --color-danger: #d88682;
+  --color-info: #91b2bd;
   --color-focus-ring: rgba(212, 154, 165, 0.28);
   --color-surface-context: #2a2625;
   --color-surface-accent-subtle: #392b2e;
@@ -140,6 +146,7 @@
   --color-success-surface: #293229;
   --color-warning-surface: #392f24;
   --color-danger-surface: #3b2929;
+  --color-info-surface: #263236;
   --color-disabled-surface: #292624;
   --color-overlay: rgba(8, 7, 7, 0.72);
   --shadow-soft: 0 5px 18px rgba(0, 0, 0, 0.2);

@@ -1,4 +1,11 @@
-import { Button, PageShell, Switch } from './ui.jsx';
+import { Button, EmptyState, PageShell, SwitchField, Tabs, TextAreaField, TextField } from './ui.jsx';
+
+const EXPORT_TABS = [
+  { id: 'tweakdefs_lua', label: 'Definitions Lua' },
+  { id: 'tweakunits_lua', label: 'Units Lua' },
+  { id: 'tweakdefs_b64', label: 'Definitions Base64' },
+  { id: 'tweakunits_b64', label: 'Units Base64' }
+];
 
 export default function ReviewPage({
   modifiedUnitIds, tweaks, clones, buildMenuSteps, disabledUnitIds, validationIssues,
@@ -45,7 +52,7 @@ export default function ReviewPage({
               <span className={`review-status ${validationIssues.some(issue => issue.level === 'error') ? 'error' : validationIssues.length ? 'warning' : 'ready'}`}>{validationIssues.some(issue => issue.level === 'error') ? 'Blocked' : validationIssues.length ? 'Review' : 'Ready'}</span>
             </div>
             {validationIssues.length === 0 ? (
-              <div className="review-empty-state"><strong>No validation issues detected</strong><span>Your current parameter values pass the editor's safety checks.</span></div>
+              <EmptyState compact className="review-empty-state" title="No validation issues detected" description="Your current parameter values pass the editor's safety checks." />
             ) : (
               <div className="validation-list">{validationIssues.map((issue, index) => <div key={`${issue.unitName}-${issue.key}-${index}`} className={`validation-row ${issue.level}`}><span>{issue.unitName}</span><code>{issue.key.replace('weapon_slot_', 'Weapon ')}</code><strong>{issue.message}</strong></div>)}</div>
             )}
@@ -54,7 +61,7 @@ export default function ReviewPage({
           <section className="review-card change-ledger">
             <div className="review-card-heading"><div><span className="workflow-eyebrow">Change ledger</span><h3>{projectChangeCount} project changes</h3></div><button className="text-button" onClick={() => openSummary('tweaks')}>Open full summary</button></div>
             {modifiedUnitIds.length === 0 && clones.length === 0 && disabledUnitIds.length === 0 ? (
-              <div className="review-empty-state"><strong>No unit changes yet</strong><span>Return to Edit Units to begin modifying the project.</span></div>
+              <EmptyState compact className="review-empty-state" title="No unit changes yet" description="Return to Edit Units to begin modifying the project." />
             ) : (
               <div className="change-ledger-list">
                 {modifiedUnitIds.slice(0, 8).map(id => <button key={id} onClick={() => onEditUnit(id)}><span>{unitNames[id] || id}</span><code>{Object.keys(tweaks[id] || {}).length} fields</code><strong>Edit →</strong></button>)}
@@ -67,17 +74,17 @@ export default function ReviewPage({
         <aside className="export-console">
           <div className="export-console-header"><div><span className="workflow-eyebrow">Export console</span><h3>{projectName}</h3></div><span className={`review-status ${limitRisk}`}>{totalBytesUsed.toLocaleString()} / {lobbyByteLimit.toLocaleString()} bytes</span></div>
           <div className="export-metadata-grid">
-            <label>Mod name<input className="form-input" value={projectName} onChange={event => setProjectName(event.target.value)} /></label>
-            <label>Author<input className="form-input" value={projectAuthor} onChange={event => setProjectAuthor(event.target.value)} /></label>
-            <label className="full">Description<textarea className="form-input" value={projectDesc} onChange={event => setProjectDesc(event.target.value)} /></label>
+            <TextField label="Mod name" value={projectName} onChange={event => setProjectName(event.target.value)} />
+            <TextField label="Author" value={projectAuthor} onChange={event => setProjectAuthor(event.target.value)} />
+            <TextAreaField className="full" label="Description" value={projectDesc} onChange={event => setProjectDesc(event.target.value)} />
           </div>
           <div className="export-flags">
-            <label><Switch label="Include parameter tweaks" checked={includeTweaks} onChange={event => setIncludeTweaks(event.target.checked)} /><span>Parameter tweaks</span></label>
-            <label><Switch label="Include custom units" checked={includeClones} onChange={event => setIncludeClones(event.target.checked)} /><span>Custom units</span></label>
-            <label><Switch label="Include build menus" checked={includeRosters} onChange={event => setIncludeRosters(event.target.checked)} /><span>Build menus</span></label>
-            <label><Switch label="Include header comments" checked={includeHeader} onChange={event => setIncludeHeader(event.target.checked)} /><span>Header comments</span></label>
+            <SwitchField label="Parameter tweaks" checked={includeTweaks} onChange={event => setIncludeTweaks(event.target.checked)} />
+            <SwitchField label="Custom units" checked={includeClones} onChange={event => setIncludeClones(event.target.checked)} />
+            <SwitchField label="Build menus" checked={includeRosters} onChange={event => setIncludeRosters(event.target.checked)} />
+            <SwitchField label="Header comments" checked={includeHeader} onChange={event => setIncludeHeader(event.target.checked)} />
           </div>
-          <div className="export-output-tabs">{[['tweakdefs_lua', 'Definitions Lua'], ['tweakunits_lua', 'Units Lua'], ['tweakdefs_b64', 'Definitions Base64'], ['tweakunits_b64', 'Units Base64']].map(([id, label]) => <button key={id} className={activeOutputTab === id ? 'active' : ''} onClick={() => setActiveOutputTab(id)}>{label}</button>)}</div>
+          <Tabs className="export-output-tabs" size="sm" label="Generated output format" items={EXPORT_TABS} value={activeOutputTab} onChange={setActiveOutputTab} />
           <pre className="export-code-preview">{activeCompiledOutput || activeCompiledOutputFallback}</pre>
           <div className="export-primary-actions"><Button onClick={copyOutput}>Copy current output</Button><Button variant="primary" onClick={onExport}>Download project JSON</Button></div>
         </aside>

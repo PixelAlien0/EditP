@@ -9,7 +9,7 @@ import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
-import { Button, Switch, StatCard } from './components/ui.jsx';
+import { Button, ButtonGroup, Dialog, FileButton, IconButton, Switch, StatCard } from './components/ui.jsx';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
 const LazyPresetGalleryPage = lazy(() => import('./components/PresetGalleryPage.jsx'));
@@ -448,69 +448,24 @@ const CREDIT_IMAGE_PREVIEWS = [
 ];
 
 function CreditsModal({ onClose }) {
-  const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
-
-  useEffect(() => {
-    const previouslyFocused = document.activeElement;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    closeButtonRef.current?.focus();
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key !== 'Tab') return;
-
-      const focusable = dialogRef.current?.querySelectorAll(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
-      if (!focusable?.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = previousOverflow;
-      previouslyFocused?.focus?.();
-    };
-  }, [onClose]);
-
-  return createPortal(
-    <div
-      className="credits-overlay"
-      onPointerDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+  return (
+    <Dialog
+      onClose={onClose}
+      initialFocusRef={closeButtonRef}
+      overlayClassName="credits-overlay"
+      className="credits-modal"
+      labelledBy="credits-modal-title"
+      describedBy="credits-modal-summary"
     >
-      <section
-        ref={dialogRef}
-        className="credits-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="credits-modal-title"
-        aria-describedby="credits-modal-summary"
-      >
         <header className="credits-modal__header">
           <div>
             <span className="credits-modal__eyebrow">Project information</span>
             <h2 id="credits-modal-title">Disclaimer &amp; credits</h2>
           </div>
-          <button ref={closeButtonRef} type="button" className="credits-modal__close" onClick={onClose} aria-label="Close disclaimer and credits">
+          <IconButton ref={closeButtonRef} variant="quiet" className="credits-modal__close" onClick={onClose} label="Close disclaimer and credits">
             <span aria-hidden="true">×</span>
-          </button>
+          </IconButton>
         </header>
 
         <div className="credits-modal__body">
@@ -575,12 +530,10 @@ function CreditsModal({ onClose }) {
               <span>Web application</span>
               <strong>Maintained by [Grump]SunlessK</strong>
             </div>
-            <button type="button" className="ui-button" onClick={onClose}>Done</button>
+            <Button onClick={onClose}>Done</Button>
           </footer>
         </div>
-      </section>
-    </div>,
-    document.body
+    </Dialog>
   );
 }
 
@@ -2569,9 +2522,9 @@ export default function App() {
 
         <div className="header-actions header-utility-actions">
           <div className="header-control-cluster">
-          <button
+          <Button
+            variant="quiet"
             className="btn-action btn-secondary header-menu-action"
-            type="button"
             onClick={() => setShowMainMenu(true)}
             title="Return to main menu"
             aria-label="Return to main menu"
@@ -2581,30 +2534,30 @@ export default function App() {
               <path d="M2.25 8h8.25a3.25 3.25 0 0 1 3.25 3.25v1" />
             </svg>
             <span className="header-menu-label">Main menu</span>
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="quiet"
             className="theme-toggle"
-            type="button"
             aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}
             aria-pressed={themeMode === 'dark'}
             onClick={() => setThemeMode(mode => mode === 'dark' ? 'light' : 'dark')}
           >
             <span className="theme-toggle-mark" aria-hidden="true">{themeMode === 'dark' ? '☼' : '◐'}</span>
             <span>{themeMode === 'dark' ? 'Light' : 'Dark'}</span>
-          </button>
-          <div className="history-controls" aria-label="Change history">
-            <button onClick={handleUndo} disabled={historyPast.length === 0} title="Undo (Ctrl+Z)">↶</button>
-            <button onClick={handleRedo} disabled={historyFuture.length === 0} title="Redo (Ctrl+Y)">↷</button>
-          </div>
-          <button
+          </Button>
+          <ButtonGroup className="history-controls" label="Change history">
+            <IconButton variant="quiet" size="sm" label="Undo" onClick={handleUndo} disabled={historyPast.length === 0} title="Undo (Ctrl+Z)">↶</IconButton>
+            <IconButton variant="quiet" size="sm" label="Redo" onClick={handleRedo} disabled={historyFuture.length === 0} title="Redo (Ctrl+Y)">↷</IconButton>
+          </ButtonGroup>
+          <Button
+            variant="quiet"
             className="btn-action btn-secondary header-credits-action"
-            type="button"
             onClick={() => setShowCreditsModal(true)}
             title="Disclaimer, asset sources, and project credits"
           >
             <span className="header-credits-icon" aria-hidden="true">i</span>
             <span className="header-credits-label">Credits</span>
-          </button>
+          </Button>
           </div>
           <Button
             className="btn-action btn-secondary header-create-action"
@@ -2640,15 +2593,14 @@ export default function App() {
           </Button>
 
           <div className="header-tools" ref={toolsMenuRef}>
-            <button
+            <Button
               className="btn-action btn-secondary header-tools-trigger"
-              type="button"
               aria-expanded={showToolsMenu}
               aria-controls="header-tools-menu"
               onClick={() => setShowToolsMenu(open => !open)}
             >
               Tools <span aria-hidden="true">⌄</span>
-            </button>
+            </Button>
             {showToolsMenu && (
               <div className="header-tools-menu" id="header-tools-menu" role="menu" aria-label="Editor tools">
                 <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>Batch Adjust</button>
@@ -2667,17 +2619,16 @@ export default function App() {
           </div>
 
           <div className="header-project-actions">
-            <button
+            <Button
               className="btn-action btn-secondary header-file-action"
               onClick={handleExportConfig}
               title="Download your configuration profile locally"
             >
               Save Project
-            </button>
-            <label className="btn-action btn-secondary header-file-action" title="Upload an exported .json config">
+            </Button>
+            <FileButton className="btn-action btn-secondary header-file-action" title="Upload an exported .json config" accept=".json" onChange={handleImportConfig}>
               Load Project
-              <input type="file" accept=".json" onChange={handleImportConfig} />
-            </label>
+            </FileButton>
           </div>
         </div>
       </header>
