@@ -3,8 +3,6 @@ export const CLONE_BEGIN = '-- BMF_CLONE_UNITS_BEGIN';
 export const CLONE_END = '-- BMF_CLONE_UNITS_END';
 export const BUILDMENU_BEGIN = '-- BMF_BUILDMENU_BEGIN';
 export const BUILDMENU_END = '-- BMF_BUILDMENU_END';
-export const ENV_BEGIN = '-- BMF_ENVIRONMENT_BEGIN';
-export const ENV_END = '-- BMF_ENVIRONMENT_END';
 
 
 function escapeLuaString(str) {
@@ -477,44 +475,6 @@ export function extractBlock(luaScript, beginMarker, endMarker) {
   return trimScript.slice(startIdx, endIdx + endMarker.length);
 }
 
-export function generateEnvironmentBlockLua(env) {
-  if (!env || Object.keys(env).length === 0) return '';
-  const lines = ['do'];
-  let hasAny = false;
-  const gravity = env.gravity;
-  if (gravity !== undefined && gravity !== '') {
-    lines.push(`  if Spring and Spring.SetModOptions then`);
-    lines.push(`    local mo = Spring.GetModOptions() or {}`);
-    lines.push(`    mo.gravity = ${JSON.stringify(String(gravity))}`);
-    lines.push(`    Spring.SetModOptions(mo)`);
-    lines.push(`  end`);
-    hasAny = true;
-  }
-  const windmin = env.windmin;
-  const windmax = env.windmax;
-  if ((windmin !== undefined && windmin !== '') || (windmax !== undefined && windmax !== '')) {
-    lines.push(`  if Spring and Spring.SetModOptions then`);
-    lines.push(`    local mo = Spring.GetModOptions() or {}`);
-    if (windmin !== undefined && windmin !== '') lines.push(`    mo.windmin = ${JSON.stringify(String(windmin))}`);
-    if (windmax !== undefined && windmax !== '') lines.push(`    mo.windmax = ${JSON.stringify(String(windmax))}`);
-    lines.push(`    Spring.SetModOptions(mo)`);
-    lines.push(`  end`);
-    hasAny = true;
-  }
-  const tidalmaker = env.tidalmaker;
-  if (tidalmaker !== undefined && tidalmaker !== '') {
-    lines.push(`  if Spring and Spring.SetModOptions then`);
-    lines.push(`    local mo = Spring.GetModOptions() or {}`);
-    lines.push(`    mo.tidalmaker = ${JSON.stringify(String(tidalmaker))}`);
-    lines.push(`    Spring.SetModOptions(mo)`);
-    lines.push(`  end`);
-    hasAny = true;
-  }
-  if (!hasAny) return '';
-  lines.push('end');
-  return lines.join('\n');
-}
-
 export function compileTweakDefsLua({ 
   currentTweakDefsLua, 
   customUnitClones, 
@@ -523,7 +483,6 @@ export function compileTweakDefsLua({
   unitBuildOptions,
   projectMeta,
   compileFlags,
-  environmentSettings,
   weaponLibrary = []
 }) {
   // Strip out any existing comments or headers that start with "-- Mod Name:" to avoid piling up duplicate headers
@@ -548,11 +507,8 @@ export function compileTweakDefsLua({
     ? generateBuildMenuBlockLua(updatedSteps)
     : '';
   
-  const envBlock = generateEnvironmentBlockLua(environmentSettings);
-  
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);
-  if (envBlock.length > 0) parts.push(envBlock);
   if (clonesBlock.length > 0) {
     parts.push(clonesBlock);
   }

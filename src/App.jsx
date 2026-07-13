@@ -94,18 +94,10 @@ const MOBILITY_STAT_KEYS = new Set([
   'minwaterdepth', 'transportcapacity', 'cantbetransported', 'cruisealt', 'airsubalt'
 ]);
 
-const ENVIRONMENT_FIELDS = [
-  { key: 'gravity', label: 'Gravity', icon: '[G]', desc: 'Custom gravity (default: ~130)' },
-  { key: 'windmin', label: 'Wind Min', icon: '[W↓]', desc: 'Minimum wind speed for wind generators' },
-  { key: 'windmax', label: 'Wind Max', icon: '[W↑]', desc: 'Maximum wind speed for wind generators' },
-  { key: 'tidalmaker', label: 'Tidal Maker', icon: '[T]', desc: 'Tidal energy production rate' }
-];
-
 const WORKSPACE_TAB_DEFINITIONS = [
   { id: 'structure', label: 'Economy & Durability', description: 'Costs, health, production', panelId: 'workspace-panel-structure' },
   { id: 'mobility', label: 'Movement & Sensors', description: 'Speed, terrain, detection', panelId: 'workspace-panel-mobility' },
-  { id: 'weapons', label: 'Weapons', description: 'Damage, targeting, projectiles', panelId: 'workspace-panel-weapons' },
-  { id: 'environment', label: 'Map Environment', description: 'Wind, gravity, tides', panelId: 'workspace-panel-environment' }
+  { id: 'weapons', label: 'Weapons', description: 'Damage, targeting, projectiles', panelId: 'workspace-panel-weapons' }
 ];
 
 const PARAMETER_RELATIONSHIPS = [
@@ -130,8 +122,7 @@ const PARAMETER_RELATIONSHIPS = [
   { section: 'weapons', title: 'Stockpile and shot cost', description: 'Ammunition timing, limits, and per-shot resources determine firing availability.', keys: ['stockpile', 'stockpiletime', 'stockpilelimit', 'energypershot', 'metalpershot'] },
   { section: 'weapons', title: 'Beam behavior', description: 'Beam duration, burst mode, sweep behavior, and falloff shape delivered damage.', keys: ['beamtime', 'beamburst', 'sweepfire', 'minintensity', 'duration', 'hardstop', 'falloffrate'] },
   { section: 'weapons', title: 'Projectile presentation', description: 'Trail, model, impact effect, colors, thickness, and intensity form one visual language.', keys: ['cegTag', 'model', 'explosiongenerator', 'rgbcolor', 'rgbcolor2', 'thickness', 'corethickness', 'laserflaresize', 'intensity'] },
-  { section: 'weapons', title: 'Weapon audio', description: 'Fire, impact, and water-impact sounds should be authored as a coordinated set.', keys: ['soundstart', 'soundhit', 'soundhitwet'] },
-  { section: 'environment', title: 'Wind envelope', description: 'Minimum and maximum wind define the map’s available wind-power range.', keys: ['windmin', 'windmax'] }
+  { section: 'weapons', title: 'Weapon audio', description: 'Fire, impact, and water-impact sounds should be authored as a coordinated set.', keys: ['soundstart', 'soundhit', 'soundhitwet'] }
 ];
 
 const PARAMETER_LABEL_OVERRIDES = {
@@ -143,7 +134,6 @@ const PARAMETER_LABEL_OVERRIDES = {
 
 function getRelationshipLabel(key) {
   return STAT_KEYS.find(item => item.key === key)?.label
-    || ENVIRONMENT_FIELDS.find(item => item.key === key)?.label
     || PARAMETER_LABEL_OVERRIDES[key]
     || key.replace(/^customparams\./, '').replaceAll('_', ' ').replace(/\b\w/g, character => character.toUpperCase());
 }
@@ -400,8 +390,7 @@ function ParameterGuide({ section }) {
   const sectionCopy = {
     structure: 'Unit attributes apply to the selected unit. A changed field becomes a project override; Reset removes only that override.',
     mobility: 'Movement changes affect how the selected unit travels. Use small changes first, then validate in-game.',
-    weapons: 'Values apply to the selected weapon slot. Inherited means the untouched BAR definition is used. Advanced fields are engine-specific; hover ? for behavior and constraints.',
-    environment: 'Environment overrides apply to the whole project rather than a single unit.'
+    weapons: 'Values apply to the selected weapon slot. Inherited means the untouched BAR definition is used. Advanced fields are engine-specific; hover ? for behavior and constraints.'
   };
   return (
     <details className="editor-parameter-guide">
@@ -589,7 +578,7 @@ function MainMenu({
     {
       step: '01',
       title: 'Edit units',
-      description: 'Tune economy, movement, weapons, targeting, and environment definitions.',
+      description: 'Tune economy, movement, weapons, and targeting definitions.',
       meta: projectChangeCount > 0 ? `${projectChangeCount} active changes` : 'Primary workspace',
       primary: true,
       onSelect: onEditUnits
@@ -708,9 +697,12 @@ function getValidationWarning(key, value) {
     return key.toLowerCase().includes(pattern.toLowerCase());
   };
 
-  if (isKey('reload') || isKey('burstrate') || isKey('stockpiletime')) {
+  if (isKey('reload') || isKey('stockpiletime')) {
     if (num <= 0) return { level: 'error', message: 'Value must be positive' };
     if (num < 0.03) return { level: 'warning', message: 'Below engine limit (0.033s)' };
+  }
+  if (isKey('burstrate') && num < 0) {
+    return { level: 'error', message: 'Burst rate cannot be negative' };
   }
   if (isKey('range') || isKey('sightdistance') || isKey('radardistance') || isKey('sonardistance') || isKey('builddistance')) {
     if (num < 0) return { level: 'error', message: 'Range cannot be negative' };
@@ -885,28 +877,6 @@ export default function App() {
     }
   }, [unitDescriptions]);
 
-  // Global Environment Settings (wind/gravity/tide)
-  const [environmentSettings, setEnvironmentSettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('bmf_environment');
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-
-  useEffect(() => {
-    try {
-      if (Object.keys(environmentSettings).length > 0) {
-        localStorage.setItem('bmf_environment', JSON.stringify(environmentSettings));
-      } else {
-        localStorage.removeItem('bmf_environment');
-      }
-    } catch {
-      // Environment editing remains usable when storage is unavailable.
-    }
-  }, [environmentSettings]);
-
   // Build Menu Wizard/Designer state
   const [buildMenuSteps, setBuildMenuSteps] = useState(() => {
     try {
@@ -975,10 +945,10 @@ export default function App() {
   const [comparisonMode, setComparisonMode] = useState(false);
   const [showAllWeaponParams, setShowAllWeaponParams] = useState(() => {
     try {
-      const savedPreference = localStorage.getItem('editp_weapon_parameter_view');
-      return savedPreference === null ? true : savedPreference === 'all';
+      const savedPreference = localStorage.getItem('editp_weapon_parameter_view_v2');
+      return savedPreference === 'all';
     } catch {
-      return true;
+      return false;
     }
   });
   const [activeRelationshipKey, setActiveRelationshipKey] = useState(null);
@@ -989,7 +959,7 @@ export default function App() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('editp_weapon_parameter_view', showAllWeaponParams ? 'all' : 'relevant');
+      localStorage.setItem('editp_weapon_parameter_view_v2', showAllWeaponParams ? 'all' : 'relevant');
     } catch {
       // The preference remains available for this session when storage is blocked.
     }
@@ -1090,9 +1060,8 @@ export default function App() {
     disabledUnitIds,
     buildMenuSteps,
     buildMenuPacks,
-    environmentSettings,
     weaponLibrary
-  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, environmentSettings, weaponLibrary]);
+  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary]);
   const [historyPast, setHistoryPast] = useState([]);
   const [historyFuture, setHistoryFuture] = useState([]);
   const lastSnapshotRef = useRef(projectSnapshot);
@@ -1119,7 +1088,6 @@ export default function App() {
     setDisabledUnitIds(snapshot.disabledUnitIds || []);
     setBuildMenuSteps(snapshot.buildMenuSteps || []);
     setBuildMenuPacks(snapshot.buildMenuPacks || { extraUnits: false, scavengerUnits: false });
-    setEnvironmentSettings(snapshot.environmentSettings || {});
     setWeaponLibrary(snapshot.weaponLibrary || []);
   }, []);
 
@@ -1211,7 +1179,6 @@ export default function App() {
     unitDescriptions,
     buildMenuSteps,
     buildMenuPacks,
-    environmentSettings,
     weaponLibrary,
     projectName,
     projectAuthor,
@@ -1833,10 +1800,9 @@ export default function App() {
       unitBuildOptions: activeFactoryRosters,
       projectMeta: includeHeader ? { name: projectName, author: projectAuthor, desc: projectDesc } : null,
       compileFlags: { includeClones, includeRosters },
-      environmentSettings,
       weaponLibrary
     });
-  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, activeFactoryRosters, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, environmentSettings, weaponLibrary]);
+  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, activeFactoryRosters, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, weaponLibrary]);
 
   const tweakDefsB64 = useMemo(() => {
     if (!generatedTweakDefsLua.trim()) return '';
@@ -2096,7 +2062,6 @@ export default function App() {
       buildMenuSteps,
       buildMenuPacks,
       unitDescriptions,
-      environmentSettings,
       weaponLibrary,
       projectName,
       projectAuthor,
@@ -2140,7 +2105,6 @@ export default function App() {
         if (config.includeClones !== undefined) setIncludeClones(config.includeClones);
         if (config.includeRosters !== undefined) setIncludeRosters(config.includeRosters);
         if (config.includeHeader !== undefined) setIncludeHeader(config.includeHeader);
-        if (config.environmentSettings) setEnvironmentSettings(config.environmentSettings);
         if (config.weaponLibrary) setWeaponLibrary(config.weaponLibrary);
 
         showToast('Configuration imported successfully!');
@@ -2442,7 +2406,7 @@ export default function App() {
   }, [activeFaction]);
 
   const modifiedUnitIds = Object.keys(tweaks).filter(id => Object.keys(tweaks[id] || {}).length > 0);
-  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + Object.keys(environmentSettings).length;
+  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length;
   const activeCompiledOutput = activeOutputTab === 'tweakdefs_lua'
     ? generatedTweakDefsLua
     : activeOutputTab === 'tweakunits_lua'
@@ -2483,7 +2447,6 @@ export default function App() {
             setShowDesignerPanel(false);
             setShowPresetGallery(false);
             setActiveWorkspace('edit');
-            if (activeParamTab === 'environment') setActiveParamTab('structure');
             setShowMainMenu(false);
           }}
           onBuildMenus={() => {
@@ -2531,12 +2494,9 @@ export default function App() {
 
         <nav className="workflow-nav" aria-label="Editor workflow">
           <button
-            className={activeWorkspace === 'edit' && activeParamTab !== 'environment' ? 'active' : ''}
-            aria-current={activeWorkspace === 'edit' && activeParamTab !== 'environment' ? 'page' : undefined}
-            onClick={() => {
-              setActiveWorkspace('edit');
-              if (activeParamTab === 'environment') setActiveParamTab('structure');
-            }}
+            className={activeWorkspace === 'edit' ? 'active' : ''}
+            aria-current={activeWorkspace === 'edit' ? 'page' : undefined}
+            onClick={() => setActiveWorkspace('edit')}
           >
             <span className="workflow-nav__step">01</span>
             <span className="workflow-nav__label">Edit Units</span>
@@ -3052,17 +3012,13 @@ export default function App() {
                 ? structureParams.length
                 : tab.id === 'mobility'
                   ? mobilityParams.length
-                  : tab.id === 'weapons'
-                    ? weaponParameterCount
-                    : ENVIRONMENT_FIELDS.length
+                  : weaponParameterCount
             }));
             const activeComparisonCount = activeParamTab === 'structure'
               ? structureParams.filter(stat => tweaks[selectedUnit.id]?.[stat.key] !== undefined).length
               : activeParamTab === 'mobility'
                 ? mobilityParams.filter(stat => tweaks[selectedUnit.id]?.[stat.key] !== undefined).length
-                : activeParamTab === 'weapons'
-                  ? Object.keys(tweaks[selectedUnit.id] || {}).filter(key => slot && key.startsWith(`weapon_slot_${slot.slot}_`)).length
-                  : ENVIRONMENT_FIELDS.filter(field => environmentSettings[field.key] !== undefined).length;
+                : Object.keys(tweaks[selectedUnit.id] || {}).filter(key => slot && key.startsWith(`weapon_slot_${slot.slot}_`)).length;
             const unitOverrideCount = Object.keys(tweaks[selectedUnit.id] || {}).length;
             const unitIsDisabled = disabledUnitIds.includes(selectedUnit.id);
             const activeRelationship = getParameterRelationship(activeParamTab, activeRelationshipKey);
@@ -3714,14 +3670,29 @@ export default function App() {
                             <div className="weapon-parameter-profile__status">
                               <span><strong>{detectedWeaponParameterCount}</strong> detected</span>
                               <span><strong>{weaponParameterCount}</strong> visible</span>
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                aria-pressed={showAllWeaponParams}
-                                onClick={() => setShowAllWeaponParams(current => !current)}
-                              >
-                                {showAllWeaponParams ? 'Show relevant' : 'Show all'}
-                              </Button>
+                              <div className="weapon-parameter-view-toggle" role="group" aria-label="Weapon parameter view">
+                                <span>Parameter view</span>
+                                <div>
+                                  <button
+                                    type="button"
+                                    className={!showAllWeaponParams ? 'is-active' : ''}
+                                    aria-pressed={!showAllWeaponParams}
+                                    onClick={() => setShowAllWeaponParams(false)}
+                                  >
+                                    <strong>Relevant</strong>
+                                    <small>Detected</small>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className={showAllWeaponParams ? 'is-active' : ''}
+                                    aria-pressed={showAllWeaponParams}
+                                    onClick={() => setShowAllWeaponParams(true)}
+                                  >
+                                    <strong>All</strong>
+                                    <small>Engine fields</small>
+                                  </button>
+                                </div>
+                              </div>
                             </div>
                           </section>
 
@@ -3967,76 +3938,6 @@ export default function App() {
                           No active weapon slot selected.
                         </div>
                       )}
-                    </div>
-                  )}
-
-                  {/* Environment View */}
-                  {activeParamTab === 'environment' && (
-                    <div id="workspace-panel-environment" role="tabpanel" aria-labelledby="workspace-tab-environment" tabIndex={0} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div className="section-heading" style={{ margin: '0 0 4px 0' }}>Global Environment Overrides</div>
-                      <div className="editor-grid">
-                        {ENVIRONMENT_FIELDS.map(field => {
-                          const currentVal = environmentSettings[field.key];
-                          const isModified = currentVal !== undefined;
-                          return (
-                            <div
-                              key={field.key}
-                              className={`stat-card ${isModified ? 'modified' : ''} ${getRelationshipStateClass(field.key)}`}
-                              data-param-key={field.key}
-                              onFocusCapture={() => setActiveRelationshipKey(field.key)}
-                              onClick={() => setActiveRelationshipKey(field.key)}
-                            >
-                              <div className="stat-card-label">
-                                <span><span className="icon">{field.icon}</span>{field.label}<ParameterHelp paramKey={field.key} label={field.label} /></span>
-                              </div>
-                              <div className="stat-card-input-wrapper">
-                                <div className="stat-card-field">
-                                  <input
-                                    type="number"
-                                    className="stat-card-input"
-                                    value={isModified ? currentVal : ''}
-                                    placeholder={field.desc}
-                                    onChange={e => {
-                                      setEnvironmentSettings(prev => {
-                                        const val = e.target.value;
-                                        const next = { ...prev };
-                                        if (val === '' || val === undefined) {
-                                          delete next[field.key];
-                                        } else {
-                                          next[field.key] = val;
-                                        }
-                                        return next;
-                                      });
-                                    }}
-                                  />
-                                </div>
-                                {isModified && (
-                                  <button
-                                    type="button"
-                                    className="stat-card-default-pill"
-                                    aria-label={`Reset ${field.label}`}
-                                    title="Reset to default"
-                                    onClick={() => {
-                                      setEnvironmentSettings(prev => {
-                                        const next = { ...prev };
-                                        delete next[field.key];
-                                        return next;
-                                      });
-                                    }}
-                                  >
-                                    Reset
-                                  </button>
-                                )}
-                              </div>
-                              <ComparisonValue active={comparisonMode && isModified} before={undefined} after={currentVal} beforeLabel="Map default" />
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div style={{ fontSize: '9px', color: 'var(--text-muted)', fontStyle: 'italic', padding: '4px 0' }}>
-                        These values override the map default. Leave blank to inherit the map setting.
-                        Output appears as a Lua comment block in the compiled tweakdefs.
-                      </div>
                     </div>
                   )}
 

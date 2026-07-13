@@ -30,7 +30,7 @@ export default function PresetGalleryPage({
         <div className="preset-save-panel">
           <div className="preset-save-copy">
             <span>Capture current work</span>
-            <small>Includes tweaks, clones, build menus, environment, and export settings.</small>
+            <small>Includes tweaks, clones, build menus, and export settings.</small>
           </div>
           <TextField label="Preset name" placeholder={`${projectName} preset`} value={presetName} onChange={event => onPresetNameChange(event.target.value)} />
           <TextField label="Project note" placeholder="Optional note, e.g. fast T1 air experiment" value={presetDescription} onChange={event => onPresetDescriptionChange(event.target.value)} />
