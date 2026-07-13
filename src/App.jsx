@@ -9,6 +9,7 @@ import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import BatchAdjustDialog from './components/BatchAdjustDialog.jsx';
+import SummaryExplorerDialog from './components/SummaryExplorerDialog.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
 import { getUnitIconUrl } from './utils/unitArtwork.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
@@ -1930,6 +1931,79 @@ export default function App() {
     showToast(`Reset stats for ${unitId}`);
   };
 
+  const handleResetSummaryUnitEdits = (unitId) => {
+    setTweaks(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== unitId.toLowerCase())));
+    setUnitDescriptions(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== unitId.toLowerCase())));
+    showToast(`Reset all edits for ${unitId}`);
+  };
+
+  const handleResetAllSummaryUnitEdits = () => {
+    setTweaks({});
+    setUnitDescriptions({});
+    setActiveRelationshipKey(null);
+    showToast('Reset all unit edits');
+  };
+
+  const handleDeleteSummaryClone = (clone) => {
+    const cloneId = clone.newId.toLowerCase();
+    setClones(prev => prev.filter(item => item.newId.toLowerCase() !== cloneId));
+    setTweaks(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== cloneId)));
+    setUnitDescriptions(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== cloneId)));
+    setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, clone.newId, []));
+    if (selectedUnitId?.toLowerCase() === cloneId) setSelectedUnitId(clone.baseId);
+    showToast(`Deleted clone ${clone.newId}`);
+  };
+
+  const handleDeleteAllSummaryClones = () => {
+    const cloneIds = new Set(clones.map(clone => clone.newId.toLowerCase()));
+    const selectedClone = clones.find(clone => clone.newId.toLowerCase() === selectedUnitId?.toLowerCase());
+    setClones([]);
+    setTweaks(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => !cloneIds.has(id.toLowerCase()))));
+    setUnitDescriptions(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => !cloneIds.has(id.toLowerCase()))));
+    setBuildMenuSteps(prev => clones.reduce((steps, clone) => applyCloneBuilderAssignments(steps, clone.newId, []), prev));
+    if (selectedClone) setSelectedUnitId(selectedClone.baseId);
+    showToast('Deleted all custom clones');
+  };
+
+  const handleRevertSummaryRoster = (builderId) => {
+    setBuildMenuSteps(prev => prev.filter(step => step.builderId.toLowerCase() !== builderId.toLowerCase()));
+    showToast(`Reverted build menu for ${builderId}`);
+  };
+
+  const handleResetAllSummaryRosters = () => {
+    setBuildMenuSteps([]);
+    setBuildMenuPacks({ extraUnits: false, scavengerUnits: false });
+    showToast('Reverted all build-menu changes');
+  };
+
+  const handleDisableSummaryBuildMenuPack = (packId) => {
+    setBuildMenuPacks(prev => ({ ...prev, [packId]: false }));
+    showToast(`Disabled ${packId === 'extraUnits' ? 'Extra Units Pack' : 'Scavenger Units Pack'}`);
+  };
+
+  const handleRestoreSummaryUnit = (unitId) => {
+    setDisabledUnitIds(prev => prev.filter(id => id.toLowerCase() !== unitId.toLowerCase()));
+    showToast(`Restored ${unitId}`);
+  };
+
+  const handleRestoreAllSummaryUnits = () => {
+    setDisabledUnitIds([]);
+    showToast('Restored all disabled units');
+  };
+
+  const handleResetAllProjectChanges = () => {
+    const selectedClone = clones.find(clone => clone.newId.toLowerCase() === selectedUnitId?.toLowerCase());
+    setTweaks({});
+    setUnitDescriptions({});
+    setClones([]);
+    setDisabledUnitIds([]);
+    setBuildMenuSteps([]);
+    setBuildMenuPacks({ extraUnits: false, scavengerUnits: false });
+    setActiveRelationshipKey(null);
+    if (selectedClone) setSelectedUnitId(selectedClone.baseId);
+    showToast('Reset all active project changes');
+  };
+
   // Apply Bulk edit
   const handleApplyBulk = () => {
     const changeVal = parseFloat(bulkPercent);
@@ -2405,8 +2479,12 @@ export default function App() {
     }
   }, [activeFaction]);
 
-  const modifiedUnitIds = Object.keys(tweaks).filter(id => Object.keys(tweaks[id] || {}).length > 0);
-  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length;
+  const modifiedUnitIds = [...new Set([
+    ...Object.keys(tweaks).filter(id => Object.keys(tweaks[id] || {}).length > 0),
+    ...Object.keys(unitDescriptions)
+  ])];
+  const activeBuildMenuPackCount = Object.values(buildMenuPacks).filter(Boolean).length;
+  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount;
   const activeCompiledOutput = activeOutputTab === 'tweakdefs_lua'
     ? generatedTweakDefsLua
     : activeOutputTab === 'tweakunits_lua'
@@ -2438,7 +2516,7 @@ export default function App() {
           projectName={projectName}
           projectChangeCount={projectChangeCount}
           cloneCount={clones.length}
-          rosterCount={buildMenuSteps.length}
+          rosterCount={buildMenuSteps.length + activeBuildMenuPackCount}
           presenceCount={onlineCount}
           presenceStatus={presenceStatus}
           onToggleTheme={() => setThemeMode(mode => mode === 'dark' ? 'light' : 'dark')}
@@ -4084,7 +4162,7 @@ export default function App() {
                     }}
                     title="View/reset active tweaks"
                   >
-                    Tweaks: <span style={{ color: 'var(--color-arm)', fontWeight: 800 }}>{Object.keys(tweaks).length}</span>
+                    Tweaks: <span style={{ color: 'var(--color-arm)', fontWeight: 800 }}>{modifiedUnitIds.length}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -4102,7 +4180,7 @@ export default function App() {
                     }}
                     title="View/reset roster configurations"
                   >
-                    Rosters: <span style={{ color: 'var(--color-rap)', fontWeight: 800 }}>{buildMenuSteps.length}</span>
+                    Rosters: <span style={{ color: 'var(--color-rap)', fontWeight: 800 }}>{buildMenuSteps.length + activeBuildMenuPackCount}</span>
                   </button>
                 </div>
 
@@ -4300,7 +4378,7 @@ export default function App() {
             </>
           ) : (
             <div className="collapsed-changes-rail">
-              <span className="drawer-count">{Object.keys(tweaks).length + clones.length + buildMenuSteps.length}</span>
+              <span className="drawer-count">{projectChangeCount}</span>
               <span className="collapsed-changes-label">Changes</span>
               {validationIssues.length > 0 && <span className="drawer-warning">!</span>}
             </div>
@@ -4374,7 +4452,7 @@ export default function App() {
                   <span>Custom units</span><strong>{clones.length}</strong><small>Cloned definitions</small>
                 </button>
                 <button onClick={() => { setActiveSummaryTab('rosters'); setShowSummaryModal(true); }}>
-                  <span>Build menus</span><strong>{buildMenuSteps.length}</strong><small>Roster operations</small>
+                  <span>Build menus</span><strong>{buildMenuSteps.length + activeBuildMenuPackCount}</strong><small>Roster operations and packs</small>
                 </button>
                 <div>
                   <span>Disabled units</span><strong>{disabledUnitIds.length}</strong><small>Removed from play</small>
@@ -5620,360 +5698,29 @@ export default function App() {
         targetUnits={bulkTargetUnits}
         onApply={handleApplyBulk}
       />
-      {/* Mod Summary Explorer Modal */}
-      {showSummaryModal && (
-        <div className="summary-explorer-overlay" style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(10, 9, 8, 0.7)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', zIndex: 101
-        }}>
-          <div className="panel-card summary-explorer-modal" style={{
-            width: '90vw', maxWidth: '850px', height: '80vh', maxHeight: '680px',
-            display: 'flex', flexDirection: 'column', padding: '20px 24px',
-            border: '1px solid rgba(235, 220, 208, 0.09)', borderRadius: '14px',
-            background: 'rgba(30, 28, 25, 0.85)', backdropFilter: 'blur(20px)',
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', borderBottom: '1px solid rgba(235, 220, 208, 0.06)', paddingBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--border-accent)' }}>
-                  <path d="M4 4h8v8H4zM2 2h4v2H2zM10 2h4v2h-4zM2 10h4v2H2zM10 10h4v2h-4z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <h3 style={{ margin: 0, fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-bright)' }}>Mod Summary Explorer</h3>
-              </div>
-              <button
-                className="btn-secondary"
-                style={{ padding: '6px 14px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', fontWeight: 700 }}
-                onClick={() => setShowSummaryModal(false)}
-              >
-                Close Window
-              </button>
-            </div>
-
-            {/* Tabs Row */}
-            <div className="workspace-tabs" style={{ padding: 0, background: 'transparent', borderBottom: 'none', gap: '6px', marginBottom: '16px' }}>
-              <button
-                className={`workspace-tab-btn ${activeSummaryTab === 'tweaks' ? 'active' : ''}`}
-                onClick={() => setActiveSummaryTab('tweaks')}
-                style={{ borderRadius: '6px' }}
-              >
-                TWEAKS ({Object.keys(tweaks).length})
-              </button>
-              <button
-                className={`workspace-tab-btn ${activeSummaryTab === 'clones' ? 'active' : ''}`}
-                onClick={() => setActiveSummaryTab('clones')}
-                style={{ borderRadius: '6px' }}
-              >
-                CLONES ({clones.length})
-              </button>
-              <button
-                className={`workspace-tab-btn ${activeSummaryTab === 'rosters' ? 'active' : ''}`}
-                onClick={() => setActiveSummaryTab('rosters')}
-                style={{ borderRadius: '6px' }}
-              >
-                ROSTERS ({buildMenuSteps.length})
-              </button>
-            </div>
-
-            {/* Tab Contents Area */}
-            <div className="summary-explorer-body" style={{
-              flex: 1,
-              overflowY: 'auto',
-              border: '1px solid rgba(235, 220, 208, 0.06)',
-              borderRadius: '8px',
-              background: 'rgba(18, 17, 15, 0.3)',
-              padding: '16px'
-            }}>
-              {activeSummaryTab === 'tweaks' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(235,220,208,0.06)', paddingBottom: '10px', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Modified Unit Parameters</span>
-                    {Object.keys(tweaks).length > 0 && (
-                      <button
-                        style={{
-                          padding: '5px 12px',
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          background: 'transparent',
-                          color: 'rgba(217, 100, 96, 0.85)',
-                          border: '1px solid rgba(217, 100, 96, 0.25)',
-                          borderRadius: '5px',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
-                        onClick={() => {
-                          if (window.confirm('Reset all parameters to vanilla defaults?')) {
-                            setTweaks({});
-                            showToast('Cleared all parameters modifications');
-                          }
-                        }}
-                      >
-                        Reset All Tweaks
-                      </button>
-                    )}
-                  </div>
-
-                  {Object.keys(tweaks).length === 0 ? (
-                    <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                      No unit tweaks active. Select parameters in the stats grid to tweak them.
-                    </div>
-                  ) : (
-                    Object.entries(tweaks).map(([unitId, patch]) => {
-                      const name = unitsDb.names[unitId] || clones.find(c => c.newId.toLowerCase() === unitId.toLowerCase())?.displayName || unitId;
-                      return (
-                        <div
-                          key={unitId}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            background: 'rgba(25, 24, 22, 0.4)',
-                            border: '1px solid rgba(235, 220, 208, 0.07)',
-                            borderRadius: '8px',
-                            padding: '12px 16px'
-                          }}
-                        >
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0, flex: 1 }}>
-                            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-bright)' }}>{name}</span>
-                            <span style={{ fontSize: '9.5px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={Object.keys(patch).join(', ')}>
-                              ID: <code style={{ color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>{unitId}</code> | Tweaked: {Object.keys(patch).join(', ')}
-                            </span>
-                          </div>
-                          <button
-                            style={{
-                              padding: '5px 12px',
-                              fontSize: '9.5px',
-                              fontWeight: 700,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                              background: 'transparent',
-                              color: 'rgba(217, 100, 96, 0.85)',
-                              border: '1px solid rgba(217, 100, 96, 0.25)',
-                              borderRadius: '5px',
-                              cursor: 'pointer',
-                              transition: 'all 0.15s ease',
-                              marginLeft: '12px',
-                              flexShrink: 0
-                            }}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
-                            onClick={() => {
-                              setTweaks(prev => {
-                                const next = { ...prev };
-                                delete next[unitId];
-                                return next;
-                              });
-                              showToast(`Reset stats for ${unitId}`);
-                            }}
-                          >
-                            Reset
-                          </button>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              )}
-
-              {activeSummaryTab === 'clones' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(235,220,208,0.06)', paddingBottom: '10px', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Custom Cloned Units</span>
-                    {clones.length > 0 && (
-                      <button
-                        style={{
-                          padding: '5px 12px',
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          background: 'transparent',
-                          color: 'rgba(217, 100, 96, 0.85)',
-                          border: '1px solid rgba(217, 100, 96, 0.25)',
-                          borderRadius: '5px',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
-                        onClick={() => {
-                          if (window.confirm('Delete all custom unit clones? This also clears their associated tweaks.')) {
-                            setClones([]);
-                            setTweaks(prev => {
-                              const next = { ...prev };
-                              clones.forEach(c => delete next[c.newId]);
-                              return next;
-                            });
-                            showToast('Deleted all cloned units');
-                          }
-                        }}
-                      >
-                        Delete All Clones
-                      </button>
-                    )}
-                  </div>
-
-                  {clones.length === 0 ? (
-                    <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                      No custom clones active. Click "Clone Unit" in the header to create clones.
-                    </div>
-                  ) : (
-                    clones.map(c => (
-                      <div
-                        key={c.newId}
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          background: 'rgba(25, 24, 22, 0.4)',
-                          border: '1px solid rgba(235, 220, 208, 0.07)',
-                          borderRadius: '8px',
-                          padding: '12px 16px'
-                        }}
-                      >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0, flex: 1 }}>
-                          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-bright)' }}>{c.displayName || c.newId}</span>
-                          <span style={{ fontSize: '9.5px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            New ID: <code style={{ color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>{c.newId}</code> | Cloned from: <code style={{ color: 'var(--text-normal)', fontFamily: 'var(--font-mono), monospace' }}>{c.baseId}</code>
-                          </span>
-                        </div>
-                        <button
-                          style={{
-                            padding: '5px 12px',
-                            fontSize: '9.5px',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            background: 'transparent',
-                            color: 'rgba(217, 100, 96, 0.85)',
-                            border: '1px solid rgba(217, 100, 96, 0.25)',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                            transition: 'all 0.15s ease',
-                            marginLeft: '12px',
-                            flexShrink: 0
-                          }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
-                          onClick={() => {
-                            setClones(prev => prev.filter(item => item.newId !== c.newId));
-                            setTweaks(prev => {
-                              const next = { ...prev };
-                              delete next[c.newId];
-                              return next;
-                            });
-                            if (selectedUnitId === c.newId) {
-                              setSelectedUnitId(c.baseId);
-                            }
-                            showToast(`Deleted clone ${c.newId}`);
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-
-              {activeSummaryTab === 'rosters' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(235,220,208,0.06)', paddingBottom: '10px', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Customized Factory Build Menus</span>
-                    {buildMenuSteps.length > 0 && (
-                      <button
-                        style={{
-                          padding: '5px 12px',
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          background: 'transparent',
-                          color: 'rgba(217, 100, 96, 0.85)',
-                          border: '1px solid rgba(217, 100, 96, 0.25)',
-                          borderRadius: '5px',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
-                        onClick={() => {
-                          if (window.confirm('Revert all factory build menu rosters back to game defaults?')) {
-                            setBuildMenuSteps([]);
-                            showToast('Reverted all custom build rosters');
-                          }
-                        }}
-                      >
-                        Revert All
-                      </button>
-                    )}
-                  </div>
-
-                  {buildMenuSteps.length === 0 ? (
-                    <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                      No custom rosters active. Open "Roster designer" to add/remove units from factories.
-                    </div>
-                  ) : (
-                    buildMenuSteps.map(step => {
-                      const factoryName = unitsDb.names[step.builderId] || step.builderId;
-                      return (
-                        <div
-                          key={step.builderId}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            background: 'rgba(25, 24, 22, 0.4)',
-                            border: '1px solid rgba(235, 220, 208, 0.07)',
-                            borderRadius: '8px',
-                            padding: '12px 16px'
-                          }}
-                        >
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0, flex: 1 }}>
-                            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-bright)' }}>{factoryName}</span>
-                            <span style={{ fontSize: '9.5px', color: 'var(--text-muted)' }}>
-                              ID: <code style={{ color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>{step.builderId}</code> | Added: {step.add.length} | Removed: {step.remove.length}
-                            </span>
-                          </div>
-                          <button
-                            style={{
-                              padding: '5px 12px',
-                              fontSize: '9.5px',
-                              fontWeight: 700,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                              background: 'transparent',
-                              color: 'rgba(217, 100, 96, 0.85)',
-                              border: '1px solid rgba(217, 100, 96, 0.25)',
-                              borderRadius: '5px',
-                              cursor: 'pointer',
-                              transition: 'all 0.15s ease',
-                              marginLeft: '12px',
-                              flexShrink: 0
-                            }}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(217, 100, 96, 0.08)'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.5)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(217, 100, 96, 0.25)'; }}
-                            onClick={() => {
-                              setBuildMenuSteps(prev => prev.filter(s => s.builderId !== step.builderId));
-                              showToast(`Reverted builder roster for ${step.builderId}`);
-                            }}
-                          >
-                            Revert
-                          </button>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <SummaryExplorerDialog
+        open={showSummaryModal}
+        activeTab={activeSummaryTab}
+        onTabChange={setActiveSummaryTab}
+        onClose={() => setShowSummaryModal(false)}
+        tweaks={tweaks}
+        clones={clones}
+        disabledUnitIds={disabledUnitIds}
+        unitDescriptions={unitDescriptions}
+        buildMenuSteps={buildMenuSteps}
+        buildMenuPacks={buildMenuPacks}
+        unitNames={unitsDb.names}
+        onResetUnitEdits={handleResetSummaryUnitEdits}
+        onResetAllUnitEdits={handleResetAllSummaryUnitEdits}
+        onDeleteClone={handleDeleteSummaryClone}
+        onDeleteAllClones={handleDeleteAllSummaryClones}
+        onRevertRoster={handleRevertSummaryRoster}
+        onResetAllRosters={handleResetAllSummaryRosters}
+        onDisableBuildMenuPack={handleDisableSummaryBuildMenuPack}
+        onRestoreUnit={handleRestoreSummaryUnit}
+        onRestoreAllUnits={handleRestoreAllSummaryUnits}
+        onResetAllChanges={handleResetAllProjectChanges}
+      />
     </div>
   );
 }

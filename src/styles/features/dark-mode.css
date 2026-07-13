@@ -560,14 +560,12 @@ html[data-theme="dark"] {
 
 /* Dialogs and experimental tools */
 [data-theme="dark"] .clone-creator-overlay,
-[data-theme="dark"] .summary-explorer-overlay,
 [data-theme="dark"] .mutation-lab-overlay,
 [data-theme="dark"] .weapon-swap-overlay {
   background: var(--color-overlay) !important;
 }
 
 [data-theme="dark"] .clone-creator-modal,
-[data-theme="dark"] .summary-explorer-modal,
 [data-theme="dark"] .mutation-lab-modal,
 [data-theme="dark"] .weapon-swap-modal,
 [data-theme="dark"] .weapon-swap-library,

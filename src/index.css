@@ -1711,7 +1711,6 @@ input[type="checkbox"]:checked::after {
 
 .clone-creator-overlay,
 .bulk-editor-overlay,
-.summary-explorer-overlay,
 .mutation-lab-overlay {
   background: rgba(61, 53, 49, 0.28) !important;
   backdrop-filter: blur(8px) !important;
@@ -1719,7 +1718,6 @@ input[type="checkbox"]:checked::after {
 
 .clone-creator-modal,
 .bulk-editor-modal,
-.summary-explorer-modal,
 .mutation-lab-modal {
   border: 1px solid var(--color-border) !important;
   border-radius: var(--radius-md) !important;
@@ -1729,7 +1727,6 @@ input[type="checkbox"]:checked::after {
 
 .clone-creator-header,
 .mutation-lab-header,
-.summary-explorer-modal > div:first-child,
 .bulk-editor-modal > div:first-child {
   border-bottom-color: var(--color-border) !important;
   background: var(--color-surface) !important;
@@ -1737,7 +1734,6 @@ input[type="checkbox"]:checked::after {
 
 .clone-creator-header h3,
 .mutation-lab-header h3,
-.summary-explorer-modal h3,
 .bulk-editor-modal h3 {
   color: var(--color-text-strong) !important;
   font-family: var(--font-display) !important;
@@ -1765,27 +1761,6 @@ input[type="checkbox"]:checked::after {
 .bulk-editor-modal button[type="button"]:hover {
   border-color: var(--color-accent) !important;
   background: var(--color-accent-soft) !important;
-}
-
-.summary-explorer-body {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface) !important;
-}
-
-.summary-explorer-body > div > div:not(:first-child) {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface-raised) !important;
-}
-
-.summary-explorer-body span,
-.summary-explorer-body code {
-  color: var(--color-text) !important;
-}
-
-.summary-explorer-body button {
-  border-color: color-mix(in srgb, var(--color-danger) 32%, transparent) !important;
-  background: transparent !important;
-  color: var(--color-danger) !important;
 }
 
 .mutation-lab-body,
@@ -9661,7 +9636,6 @@ input:checked + .weapon-ceg-track {
 
 .clone-creator-modal,
 .bulk-editor-modal,
-.summary-explorer-modal,
 .mutation-lab-modal {
   background: var(--color-surface-raised) !important;
   border-color: var(--color-border) !important;
@@ -9669,16 +9643,10 @@ input:checked + .weapon-ceg-track {
 }
 
 .bulk-editor-modal [style*="rgba(18"],
-.bulk-editor-modal [style*="rgba(25"],
-.summary-explorer-modal [style*="rgba(18"],
-.summary-explorer-modal [style*="rgba(25"] {
+.bulk-editor-modal [style*="rgba(25"] {
   background: var(--color-surface) !important;
   border-color: var(--color-border) !important;
   color: var(--color-text) !important;
-}
-
-.summary-explorer-modal [style*="rgba(30"] {
-  background: var(--color-surface-raised) !important;
 }
 
 /* Edited values: sakura signal, never a dark input. */
