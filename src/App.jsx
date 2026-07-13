@@ -3379,7 +3379,7 @@ export default function App() {
 
                   {/* Structure View */}
                   {activeParamTab === 'structure' && (
-                    <div id="workspace-panel-structure" role="tabpanel" aria-labelledby="workspace-tab-structure" tabIndex={0} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div id="workspace-panel-structure" className="workspace-parameter-panel" role="tabpanel" aria-labelledby="workspace-tab-structure" tabIndex={0}>
                       <SectionHeader
                         className="section-heading"
                         eyebrow="Unit parameters"
@@ -3490,7 +3490,7 @@ export default function App() {
 
                   {/* Mobility View */}
                   {activeParamTab === 'mobility' && (
-                    <div id="workspace-panel-mobility" role="tabpanel" aria-labelledby="workspace-tab-mobility" tabIndex={0} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div id="workspace-panel-mobility" className="workspace-parameter-panel" role="tabpanel" aria-labelledby="workspace-tab-mobility" tabIndex={0}>
                       <SectionHeader
                         className="section-heading"
                         eyebrow="Unit parameters"
@@ -3588,9 +3588,9 @@ export default function App() {
 
                   {/* Weapon Systems View */}
                   {activeParamTab === 'weapons' && (
-                    <div id="workspace-panel-weapons" role="tabpanel" aria-labelledby="workspace-tab-weapons" tabIndex={0}>
+                    <div id="workspace-panel-weapons" className="workspace-parameter-panel" role="tabpanel" aria-labelledby="workspace-tab-weapons" tabIndex={0}>
                       {slot ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        <div className="workspace-parameter-panel__content">
 
                           <SectionHeader
                             className="section-heading"
