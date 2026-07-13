@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import unitsDb from './data/units.json';
 import factoryRosters from './data/factory-rosters.json';
 import { BUILD_MENU_PACKS, buildEffectiveFactoryRosters, getBuildMenuPackSource } from './data/build-menu-packs.js';
-import { getFactionOfUnit, getTagsOfUnit as getUnitTags, getTechTierOfUnit as getUnitTechTier } from './utils/categories.js';
+import { getFactionOfUnit, getTagsOfUnit as getUnitTags, getTechTierFromValue, getTechTierOfUnit as getUnitTechTier } from './utils/categories.js';
 import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
@@ -836,6 +836,24 @@ export default function App() {
     }
   });
 
+  const techTierOverrideSignature = useMemo(() => JSON.stringify(
+    Object.entries(tweaks)
+      .flatMap(([unitId, unitTweaks]) => (
+        unitTweaks?.['customparams.techlevel'] === undefined
+          ? []
+          : [[unitId, unitTweaks['customparams.techlevel']]]
+      ))
+      .sort(([leftId], [rightId]) => leftId.localeCompare(rightId))
+  ), [tweaks]);
+  const techTierOverrides = useMemo(
+    () => new Map(JSON.parse(techTierOverrideSignature)),
+    [techTierOverrideSignature]
+  );
+  const getEffectiveTechTier = useCallback((unitId, baseId = unitId) => {
+    const override = techTierOverrides.get(unitId);
+    return override === undefined ? getTechTierOfUnit(baseId) : getTechTierFromValue(override);
+  }, [getTechTierOfUnit, techTierOverrides]);
+
   const [clones, setClones] = useState(() => {
     try {
       const saved = localStorage.getItem('bmf_clones');
@@ -1244,31 +1262,35 @@ export default function App() {
   const allUnitsList = useMemo(() => {
     const list = Object.entries(unitsDb.names).map(([id, name]) => {
       const faction = getFactionOfUnit(id);
-      const tags = getTagsOfUnit(id);
+      const techTier = getEffectiveTechTier(id);
+      const tags = [...getTagsOfUnit(id).filter(tag => !/^t[1-4]$/.test(tag)), techTier];
       return {
         id,
         name,
         desc: unitsDb.descriptions[id] || '',
         faction,
         tags,
+        techTier,
         isClone: false
       };
     });
 
     clones.forEach(c => {
+      const techTier = getEffectiveTechTier(c.newId, c.baseId);
       list.push({
         id: c.newId,
         name: c.displayName || c.newId,
         desc: `Cloned from ${unitsDb.names[c.baseId] || c.baseId}`,
         faction: getFactionOfUnit(c.baseId),
-        tags: [...getTagsOfUnit(c.baseId)],
+        tags: [...getTagsOfUnit(c.baseId).filter(tag => !/^t[1-4]$/.test(tag)), techTier],
+        techTier,
         isClone: true,
         baseId: c.baseId
       });
     });
 
     return list.sort((a, b) => a.name.localeCompare(b.name));
-  }, [clones, getTagsOfUnit]);
+  }, [clones, getEffectiveTechTier, getTagsOfUnit]);
 
   // Parse advanced search query (e.g. hp > 1000)
   const queryFilterFn = useMemo(() => {
@@ -2908,14 +2930,9 @@ export default function App() {
                         {unit.id}
                       </span>
                     </div>
-                    {(() => {
-                      const tier = getTechTierOfUnit(unit.isClone ? unit.baseId : unit.id).toUpperCase();
-                      return (
-                        <span className="unit-tier">
-                          {tier}
-                        </span>
-                      );
-                    })()}
+                    <span className="unit-tier">
+                      {unit.techTier.toUpperCase()}
+                    </span>
                   </button>
                 );
               })}
@@ -2940,6 +2957,7 @@ export default function App() {
             const originalDefaults = defaultsDb[baseId] || {};
             const defaults = selectedUnitDefaults || originalDefaults;
             const slots = defaults.weaponSlots || [];
+            const activeTechTier = selectedUnit.techTier || getEffectiveTechTier(selectedUnit.id, baseId);
 
             const activeSlotIdx = slots.some(s => s.slot === activeWeaponSlotTab) ? activeWeaponSlotTab : (slots[0]?.slot || 1);
             const slot = slots.find(s => s.slot === activeSlotIdx) || slots[0];
@@ -3165,7 +3183,7 @@ export default function App() {
                   <div className="editor-unit-identity">
                     <div className="unit-dossier-mark">
                       <UnitArtwork unitId={baseId} alt="" eager />
-                      <span>{getTechTierOfUnit(baseId).toUpperCase()}</span>
+                      <span>{activeTechTier.toUpperCase()}</span>
                     </div>
                     <div className="unit-dossier-copy">
                       <span className="unit-dossier-eyebrow">Unit dossier · {getFactionOfUnit(baseId).toUpperCase()}</span>
@@ -3189,7 +3207,7 @@ export default function App() {
                   <div className="unit-dossier-metrics" aria-label="Selected unit summary">
                     <div>
                       <span>Tier</span>
-                      <strong>{getTechTierOfUnit(baseId).toUpperCase()}</strong>
+                      <strong>{activeTechTier.toUpperCase()}</strong>
                     </div>
                     <div>
                       <span>Class</span>
@@ -3276,7 +3294,7 @@ export default function App() {
                         {getFactionOfUnit(baseId)} Division
                       </span>
                       <span className="unit-profile-chassis">
-                        {getTechTierOfUnit(baseId)} Combat Chassis
+                        {activeTechTier} Combat Chassis
                       </span>
                       <div className="unit-profile-description">
                         <input
@@ -3479,7 +3497,7 @@ export default function App() {
                 </div>
 
                 {/* Editor viewport scroll area (Scrollable Grid) */}
-                <div className={`editor-scroll-area ${comparisonMode ? 'comparison-mode' : ''}`} style={{ flex: 1, overflowY: 'auto', padding: '16px', margin: 0 }}>
+                <div className={`editor-scroll-area ${comparisonMode ? 'comparison-mode' : ''}`}>
                   <ParameterGuide section={activeParamTab} />
                   <ParameterRelationshipPanel
                     section={activeParamTab}

@@ -43,10 +43,7 @@ export function getFactionOfUnit(unitId) {
   return 'other';
 }
 
-export function getTechTierOfUnit(unitId, defaultsDb = {}) {
-  const defaultData = defaultsDb[unitId];
-  if (!defaultData) return 't1';
-  const lvl = defaultData['customparams.techlevel'];
+export function getTechTierFromValue(lvl) {
   let n = null;
   if (typeof lvl === 'number' && Number.isFinite(lvl)) {
     n = Math.floor(lvl);
@@ -59,6 +56,12 @@ export function getTechTierOfUnit(unitId, defaultsDb = {}) {
   if (n === 3) return 't3';
   if (n >= 4) return 't4';
   return 't1';
+}
+
+export function getTechTierOfUnit(unitId, defaultsDb = {}) {
+  const defaultData = defaultsDb[unitId];
+  if (!defaultData) return 't1';
+  return getTechTierFromValue(defaultData['customparams.techlevel']);
 }
 
 export function getTagsOfUnit(unitId, defaultsDb = {}) {

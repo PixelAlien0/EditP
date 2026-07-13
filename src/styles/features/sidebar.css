@@ -47,3 +47,10 @@
   font: 700 9px/1 var(--font-mono);
   white-space: nowrap;
 }
+
+@media (min-width: 1920px) {
+  .main-layout > .sidebar {
+    width: clamp(304px, 15vw, 360px) !important;
+    flex: 0 0 clamp(304px, 15vw, 360px);
+  }
+}

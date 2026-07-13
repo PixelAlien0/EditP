@@ -1,9 +1,41 @@
 /* Every parameter panel owns its spacing instead of relying on adjacent margins. */
 .workspace-parameter-panel {
+  width: 100%;
+  max-width: none;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   padding-top: var(--space-2);
+}
+
+/* Fluid desktop canvas: fill the workspace while keeping cards readable. */
+.editor-scroll-area {
+  padding-inline: clamp(var(--space-4), 1.55vw, var(--space-8)) !important;
+}
+
+.editor-scroll-area > div {
+  width: 100%;
+  max-width: var(--content-max-width) !important;
+  margin-inline: 0 !important;
+}
+
+.editor-scroll-area .editor-grid,
+.editor-scroll-area .editor-grid.weapon-parameter-grid {
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)) !important;
+}
+
+@media (min-width: 2200px) {
+  .editor-scroll-area .editor-grid,
+  .editor-scroll-area .editor-grid.weapon-parameter-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .editor-scroll-area .editor-grid,
+  .editor-scroll-area .editor-grid.weapon-parameter-grid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)) !important;
+  }
 }
 
 .workspace-parameter-panel__content {

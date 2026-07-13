@@ -139,6 +139,28 @@
   flex-basis: 340px !important;
 }
 
+@media (min-width: 1800px) {
+  .editor-workspace .unit-context-strip--canonical .unit-profile-card {
+    flex: 1.2 1 340px !important;
+  }
+
+  .editor-workspace .unit-context-strip--canonical .unit-efficiency-card {
+    flex: 1 1 278px !important;
+  }
+
+  .editor-workspace .unit-context-strip--canonical .unit-weapon-card {
+    flex: 1 1 300px !important;
+  }
+
+  .editor-workspace .unit-context-strip--canonical .unit-trajectory-card {
+    flex: 1.1 1 350px !important;
+  }
+
+  .editor-workspace .unit-context-strip--canonical .clone-identity-card {
+    flex: 1.2 1 340px !important;
+  }
+}
+
 /* Canonical editor parameter navigation: a quiet, count-aware single-row rail. */
 .editor-section-tabs {
   display: flex !important;

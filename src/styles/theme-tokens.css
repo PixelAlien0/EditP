@@ -89,7 +89,7 @@
   --sidebar-width: 304px;
   --changes-pane-width: 420px;
   --changes-rail-width: 52px;
-  --content-max-width: 1540px;
+  --content-max-width: 100%;
 
   --font-ui: 'Manrope', system-ui, -apple-system, sans-serif;
   --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
