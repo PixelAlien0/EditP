@@ -3659,39 +3659,53 @@ export default function App() {
 
                           <section className="weapon-parameter-profile" aria-label="Active weapon parameter profile">
                             <div className="weapon-parameter-profile__identity">
-                              <span>Dynamic parameter profile</span>
-                              <strong>{weaponProfile}</strong>
-                              <small>
+                              <span className="weapon-parameter-profile__label">Parameter profile</span>
+                              <div className="weapon-parameter-profile__heading">
+                                <strong>{weaponProfile}</strong>
+                                <span className={`weapon-parameter-profile__origin ${swap ? 'is-borrowed' : 'is-native'}`}>
+                                  {swap ? 'Borrowed' : 'Native'}
+                                </span>
+                              </div>
+                              <small className="weapon-parameter-profile__source">
                                 {swap
                                   ? `Copied from ${unitsDb.names[swap.sourceUnitId] || swap.sourceUnitId} · ${swap.sourceWeaponDefKey.toUpperCase()}`
                                   : `${slot.defKey.toUpperCase()} · native slot ${slot.slot}`}
                               </small>
                             </div>
-                            <div className="weapon-parameter-profile__status">
-                              <span><strong>{detectedWeaponParameterCount}</strong> detected</span>
-                              <span><strong>{weaponParameterCount}</strong> visible</span>
-                              <div className="weapon-parameter-view-toggle" role="group" aria-label="Weapon parameter view">
-                                <span>Parameter view</span>
-                                <div>
-                                  <button
-                                    type="button"
-                                    className={!showAllWeaponParams ? 'is-active' : ''}
-                                    aria-pressed={!showAllWeaponParams}
-                                    onClick={() => setShowAllWeaponParams(false)}
-                                  >
-                                    <strong>Relevant</strong>
-                                    <small>Detected</small>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className={showAllWeaponParams ? 'is-active' : ''}
-                                    aria-pressed={showAllWeaponParams}
-                                    onClick={() => setShowAllWeaponParams(true)}
-                                  >
-                                    <strong>All</strong>
-                                    <small>Engine fields</small>
-                                  </button>
-                                </div>
+                            <div className="weapon-parameter-profile__coverage" aria-label="Parameter coverage">
+                              <span className="weapon-parameter-profile__label">Coverage</span>
+                              <div className="weapon-parameter-profile__metrics" aria-live="polite">
+                                <span className="weapon-parameter-profile__metric">
+                                  <strong>{detectedWeaponParameterCount}</strong>
+                                  <small>Detected</small>
+                                </span>
+                                <span className="weapon-parameter-profile__metric">
+                                  <strong>{weaponParameterCount}</strong>
+                                  <small>Visible</small>
+                                </span>
+                              </div>
+                            </div>
+                            <div className="weapon-parameter-view-toggle" role="group" aria-label="Weapon parameter view">
+                              <span className="weapon-parameter-profile__label">Parameter view</span>
+                              <div className="weapon-parameter-view-toggle__options">
+                                <button
+                                  type="button"
+                                  className={!showAllWeaponParams ? 'is-active' : ''}
+                                  aria-pressed={!showAllWeaponParams}
+                                  onClick={() => setShowAllWeaponParams(false)}
+                                >
+                                  <strong>Relevant</strong>
+                                  <small>Detected fields</small>
+                                </button>
+                                <button
+                                  type="button"
+                                  className={showAllWeaponParams ? 'is-active' : ''}
+                                  aria-pressed={showAllWeaponParams}
+                                  onClick={() => setShowAllWeaponParams(true)}
+                                >
+                                  <strong>All</strong>
+                                  <small>Engine fields</small>
+                                </button>
                               </div>
                             </div>
                           </section>

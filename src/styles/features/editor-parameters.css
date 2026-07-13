@@ -1,38 +1,70 @@
-/* Advanced weapon parameters stay grouped and scannable at desktop scale. */
+/* The active weapon profile is one reference rail with a shared label baseline. */
 .weapon-parameter-profile {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-5);
-  margin-bottom: var(--space-5);
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-subtle);
-}
-
-.weapon-parameter-profile__identity {
-  min-width: 0;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: baseline;
-  gap: 3px var(--space-3);
+  grid-template-columns: minmax(220px, 1fr) auto minmax(264px, auto);
+  align-items: stretch;
+  margin-bottom: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-selection);
+  overflow: hidden;
 }
 
-.weapon-parameter-profile__identity > span {
-  grid-column: 1 / -1;
-  color: var(--color-accent-strong);
+.weapon-parameter-profile__identity,
+.weapon-parameter-profile__coverage,
+.weapon-parameter-view-toggle {
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+.weapon-parameter-profile__label {
+  color: var(--color-text-muted);
   font: 700 var(--font-size-xs)/var(--line-height-ui) var(--font-mono);
   letter-spacing: .08em;
   text-transform: uppercase;
 }
 
-.weapon-parameter-profile__identity > strong {
-  color: var(--color-text-strong);
-  font: 600 var(--font-size-lg)/1.15 var(--font-display);
+.weapon-parameter-profile__heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.weapon-parameter-profile__identity > small {
+.weapon-parameter-profile__heading > strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 600 var(--font-size-lg)/1.15 var(--font-display);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-parameter-profile__origin {
+  flex: 0 0 auto;
+  min-height: 20px;
+  padding-inline: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  font: 700 var(--font-size-xs)/1 var(--font-ui);
+}
+
+.weapon-parameter-profile__origin.is-borrowed {
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.weapon-parameter-profile__source {
   min-width: 0;
   overflow: hidden;
   color: var(--color-text-muted);
@@ -41,71 +73,60 @@
   white-space: nowrap;
 }
 
-.weapon-parameter-profile__status {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: var(--space-2);
+.weapon-parameter-profile__coverage {
+  min-width: 176px;
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
 }
 
-.weapon-parameter-profile__status > span {
-  min-height: var(--control-height-sm);
-  padding-inline: 10px;
-  display: inline-flex;
+.weapon-parameter-profile__metrics {
+  display: flex;
   align-items: center;
+  gap: var(--space-4);
+}
+
+.weapon-parameter-profile__metric {
+  min-width: 56px;
+  display: flex;
+  align-items: baseline;
   gap: 5px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xs);
-  background: var(--color-surface-raised);
+}
+
+.weapon-parameter-profile__metric strong {
+  color: var(--color-text-strong);
+  font: 650 var(--font-size-md)/1 var(--font-mono);
+}
+
+.weapon-parameter-profile__metric small {
   color: var(--color-text-muted);
   font: 600 var(--font-size-xs)/1 var(--font-ui);
 }
 
-.weapon-parameter-profile__status > span strong {
-  color: var(--color-text-strong);
-  font-family: var(--font-mono);
-}
-
 .weapon-parameter-view-toggle {
-  padding: 4px;
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: center;
-  gap: var(--space-2);
-  border: 1px solid var(--color-border-accent-muted);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
-  box-shadow: var(--shadow-selection);
+  background: var(--color-surface-subtle);
 }
 
-.weapon-parameter-view-toggle > span {
-  padding-left: 6px;
-  color: var(--color-accent-strong);
-  font: 700 var(--font-size-xs)/1 var(--font-mono);
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
-
-.weapon-parameter-view-toggle > div {
+.weapon-parameter-view-toggle__options {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3px;
+  gap: var(--space-1);
 }
 
 .weapon-parameter-view-toggle button {
-  min-width: 78px;
+  min-width: 112px;
   min-height: var(--control-height-md);
-  padding: 5px 10px;
+  padding: 6px var(--space-3);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   flex-direction: column;
-  border: 1px solid transparent;
-  border-radius: var(--radius-xs);
-  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: border-color var(--motion-fast), background var(--motion-fast), color var(--motion-fast);
+  text-align: center;
+  transition: border-color var(--motion-fast), background-color var(--motion-fast), color var(--motion-fast);
 }
 
 .weapon-parameter-view-toggle button strong,
@@ -119,19 +140,19 @@
 
 .weapon-parameter-view-toggle button small {
   margin-top: 2px;
-  font: 600 9px/1 var(--font-mono);
+  font: 600 var(--font-size-xs)/1 var(--font-ui);
 }
 
 .weapon-parameter-view-toggle button:hover:not(.is-active) {
-  border-color: var(--color-border);
+  border-color: var(--color-border-strong);
   background: var(--color-surface-hover);
   color: var(--color-text-strong);
 }
 
 .weapon-parameter-view-toggle button.is-active {
-  border-color: var(--color-accent-strong);
-  background: var(--color-accent-strong);
-  color: var(--color-text-inverse);
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
 }
 
 .weapon-parameter-view-toggle button:focus-visible {
@@ -142,14 +163,23 @@
 
 @media (max-width: 1180px) {
   .weapon-parameter-profile {
-    align-items: stretch;
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
-  .weapon-parameter-profile__status {
-    align-items: stretch;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+  .weapon-parameter-profile__coverage {
+    min-width: 0;
+    border-top: 1px solid var(--color-border);
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+    border-left: 0;
+  }
+
+  .weapon-parameter-view-toggle__options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weapon-parameter-view-toggle button {
+    min-width: 0;
   }
 }
 
