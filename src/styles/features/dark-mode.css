@@ -1,0 +1,632 @@
+/* Dark mode â€” a quiet plum/ink night palette, without gradients or glow. */
+.theme-toggle {
+  min-height: 32px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-muted) !important;
+  font-size: 10px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  border-color: var(--color-accent) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+.theme-toggle-mark {
+  font-size: 14px;
+  line-height: 1;
+}
+
+[data-theme="dark"] html,
+[data-theme="dark"] body,
+[data-theme="dark"] #root,
+[data-theme="dark"] .app-container {
+  background: var(--color-canvas) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .app-header,
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .editor-unit-header,
+[data-theme="dark"] .editor-section-tabs,
+[data-theme="dark"] .editor-workspace,
+[data-theme="dark"] .editor-content {
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .sidebar {
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .sidebar-heading,
+[data-theme="dark"] .search-filter-section,
+[data-theme="dark"] .results-summary {
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .sidebar-heading h2,
+[data-theme="dark"] .sidebar-eyebrow,
+[data-theme="dark"] .sidebar-filter-label,
+[data-theme="dark"] .results-summary,
+[data-theme="dark"] .unit-dossier-title,
+[data-theme="dark"] .editor-section-tabs .workspace-tab-btn,
+[data-theme="dark"] .editor-section-tabs .workspace-tab-btn.active {
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .search-input,
+[data-theme="dark"] .form-input,
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .search-input::placeholder,
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .faction-tab,
+[data-theme="dark"] .category-chip,
+[data-theme="dark"] .filter-action-btn,
+[data-theme="dark"] .btn-action,
+[data-theme="dark"] .history-controls button,
+[data-theme="dark"] .changes-drawer-toggle {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .faction-tab:hover,
+[data-theme="dark"] .category-chip:hover,
+[data-theme="dark"] .filter-action-btn:hover,
+[data-theme="dark"] .btn-action:hover,
+[data-theme="dark"] .history-controls button:hover:not(:disabled) {
+  border-color: var(--color-accent) !important;
+  background: var(--color-surface-hover) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+[data-theme="dark"] .faction-tab.active,
+[data-theme="dark"] .category-chip.active,
+[data-theme="dark"] .filter-action-btn.active {
+  color: var(--color-accent-strong) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .sidebar .unit-list-container {
+  background: var(--color-surface-muted) !important;
+}
+
+[data-theme="dark"] .sidebar .unit-item {
+  border-color: transparent !important;
+  border-bottom-color: var(--color-border) !important;
+  background: transparent !important;
+}
+
+[data-theme="dark"] .sidebar .unit-item:hover {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-hover) !important;
+}
+
+[data-theme="dark"] .sidebar .unit-item.active {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  box-shadow: var(--shadow-selection) !important;
+}
+
+[data-theme="dark"] .sidebar .unit-item-icon {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .sidebar .unit-item-name,
+[data-theme="dark"] .unit-item-name {
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .sidebar .unit-item-id,
+[data-theme="dark"] .unit-item-id,
+[data-theme="dark"] .unit-tier {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .editor-section-tabs .workspace-tab-btn:hover,
+[data-theme="dark"] .editor-section-tabs .workspace-tab-btn.active {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .unit-context-card,
+[data-theme="dark"] .clone-identity-card,
+[data-theme="dark"] .project-metadata-card,
+[data-theme="dark"] .compilation-flags-card,
+[data-theme="dark"] .expert-settings-card,
+[data-theme="dark"] .preset-card {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .stat-card input,
+[data-theme="dark"] .stat-card select,
+[data-theme="dark"] .stat-card textarea {
+  background: var(--color-surface) !important;
+  color: var(--color-text-strong) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .changes-drawer,
+[data-theme="dark"] .changes-pane-content,
+[data-theme="dark"] .compiled-output-tabs,
+[data-theme="dark"] .code-pane.changes-drawer {
+  background: var(--color-surface-muted) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .changes-pane-header,
+[data-theme="dark"] .code-pane-header,
+[data-theme="dark"] .changes-summary-grid > button,
+[data-theme="dark"] .changes-summary-button {
+  background: var(--color-surface-raised) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .changes-pane-header h3,
+[data-theme="dark"] .drawer-section-heading,
+[data-theme="dark"] .changes-summary-grid > button span {
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar);
+  background-clip: padding-box;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-hover);
+  background-clip: padding-box;
+}
+
+/* Complete dark-theme coverage for every active workspace and overlay. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  background: var(--color-canvas);
+}
+
+[data-theme="dark"] .main-layout,
+[data-theme="dark"] .editor-scroll-area,
+[data-theme="dark"] .review-workspace,
+[data-theme="dark"] .designer-page,
+[data-theme="dark"] .preset-gallery-page,
+[data-theme="dark"] .weapon-lab-page {
+  background: var(--color-canvas) !important;
+  color: var(--color-text) !important;
+}
+
+/* Header and unit dossier */
+[data-theme="dark"] .app-logo,
+[data-theme="dark"] .unit-dossier-mark,
+[data-theme="dark"] .unit-profile-thumb {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .header-brand h1,
+[data-theme="dark"] .unit-dossier-title,
+[data-theme="dark"] .section-heading,
+[data-theme="dark"] .review-page-header h2 {
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .brand-kicker,
+[data-theme="dark"] .unit-dossier-eyebrow,
+[data-theme="dark"] .unit-profile-faction,
+[data-theme="dark"] .workflow-eyebrow {
+  color: var(--color-accent-strong) !important;
+}
+
+[data-theme="dark"] .unit-source-badge,
+[data-theme="dark"] .clone-badge,
+[data-theme="dark"] .sidebar-total {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .unit-dossier-metrics {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .unit-dossier-metrics > div,
+[data-theme="dark"] .editor-unit-actions {
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .unit-dossier-metrics span,
+[data-theme="dark"] .unit-dossier-id,
+[data-theme="dark"] .unit-profile-chassis {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .unit-dossier-metrics strong {
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .unit-disable-control {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .reset-unit-btn {
+  border-color: color-mix(in srgb, var(--color-danger) 55%, var(--color-border)) !important;
+  background: transparent !important;
+  color: var(--color-danger) !important;
+}
+
+/* Sidebar filters and roster */
+[data-theme="dark"] .sidebar-heading,
+[data-theme="dark"] .search-filter-section {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .sidebar-eyebrow,
+[data-theme="dark"] .sidebar-filter-label {
+  color: var(--color-accent-strong) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="dark"] .stat-search-query-tip,
+[data-theme="dark"] .stat-search-query-tip code,
+[data-theme="dark"] .results-summary {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .faction-tab,
+[data-theme="dark"] .category-chip,
+[data-theme="dark"] .filter-action-btn {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .faction-tab.active,
+[data-theme="dark"] .category-chip.active,
+[data-theme="dark"] .filter-action-btn.active {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .filter-action-btn:disabled {
+  border-color: var(--color-border-subtle) !important;
+  background: var(--color-disabled-surface) !important;
+  color: var(--color-text-muted) !important;
+}
+
+/* Section navigation, context strip, and parameter editor */
+[data-theme="dark"] .editor-section-tabs {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .editor-section-tabs .workspace-tab-btn {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .editor-section-tabs .workspace-tab-btn:hover {
+  background: var(--color-surface-hover) !important;
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .editor-section-tabs .workspace-tab-btn.active {
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .editor-workspace .unit-context-strip {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .editor-workspace .unit-context-card,
+[data-theme="dark"] .editor-workspace .clone-identity-card {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .editor-workspace .unit-profile-card {
+  border-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-border)) !important;
+  background: var(--color-surface-raised) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .unit-efficiency-metric,
+[data-theme="dark"] .unit-trajectory-diagram,
+[data-theme="dark"] .unit-profile-copy [data-context-description],
+[data-theme="dark"] .unit-slot-node {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .unit-efficiency-metric > span:last-child,
+[data-theme="dark"] .unit-trajectory-values > div > span:last-child,
+[data-theme="dark"] .unit-slot-name {
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .unit-context-label {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .stat-card:hover,
+[data-theme="dark"] .target-filter-panel,
+[data-theme="dark"] .target-filter-row,
+[data-theme="dark"] .weapon-substitution {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .stat-card-label,
+[data-theme="dark"] .target-filter-label,
+[data-theme="dark"] .target-filter-panel-heading,
+[data-theme="dark"] .weapon-substitution-copy > strong {
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .stat-card-label span.icon,
+[data-theme="dark"] .target-filter-helper,
+[data-theme="dark"] .target-filter-group > span,
+[data-theme="dark"] .weapon-substitution-copy > span,
+[data-theme="dark"] .weapon-substitution-copy > small {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .stat-card-input,
+[data-theme="dark"] .stat-card select,
+[data-theme="dark"] .clone-identity-fields input,
+[data-theme="dark"] .clone-identity-fields select {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-strong) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .stat-card.modified,
+[data-theme="dark"] .stat-card.modified .stat-card-input {
+  border-color: color-mix(in srgb, var(--color-accent) 72%, var(--color-border)) !important;
+  background: var(--color-surface-accent-subtle) !important;
+}
+
+[data-theme="dark"] .stat-card-default-pill,
+[data-theme="dark"] .target-filter-chip,
+[data-theme="dark"] .target-filter-reset {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .target-filter-chip.active {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+/* Project changes drawer and export code */
+[data-theme="dark"] .changes-pane-content,
+[data-theme="dark"] .changes-drawer.collapsed,
+[data-theme="dark"] .collapsed-changes-rail {
+  background: var(--color-surface-muted) !important;
+}
+
+[data-theme="dark"] .change-health-card {
+  border-color: var(--color-border) !important;
+  border-left-color: var(--color-success) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] .change-health-card.warning {
+  border-left-color: var(--color-warning) !important;
+}
+
+[data-theme="dark"] .change-health-card.error {
+  border-left-color: var(--color-danger) !important;
+}
+
+[data-theme="dark"] .change-health-card strong,
+[data-theme="dark"] .change-health-badge {
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .change-health-card span {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .change-health-badge,
+[data-theme="dark"] .expert-settings-card,
+[data-theme="dark"] .base64-options-card {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .lobby-limit-indicator.ok {
+  border-color: color-mix(in srgb, var(--color-success) 48%, var(--color-border)) !important;
+  background: var(--color-success-surface) !important;
+  color: var(--color-success) !important;
+}
+
+[data-theme="dark"] .lobby-limit-indicator.warning {
+  border-color: color-mix(in srgb, var(--color-warning) 48%, var(--color-border)) !important;
+  background: var(--color-warning-surface) !important;
+  color: var(--color-warning) !important;
+}
+
+[data-theme="dark"] .lobby-limit-indicator.error {
+  border-color: color-mix(in srgb, var(--color-danger) 48%, var(--color-border)) !important;
+  background: var(--color-danger-surface) !important;
+  color: var(--color-danger) !important;
+}
+
+[data-theme="dark"] .code-box,
+[data-theme="dark"] .compiled-code-wrapper,
+[data-theme="dark"] .export-code-preview {
+  border-color: var(--color-border) !important;
+  background: var(--color-code-canvas) !important;
+  color: var(--color-text-on-dark) !important;
+}
+
+/* Review, designer, preset gallery */
+[data-theme="dark"] .review-summary-grid > *,
+[data-theme="dark"] .review-card,
+[data-theme="dark"] .export-console,
+[data-theme="dark"] .validation-row,
+[data-theme="dark"] .change-ledger-list > button,
+[data-theme="dark"] .preset-gallery-page .preset-card,
+[data-theme="dark"] .preset-gallery-page .preset-save-panel,
+[data-theme="dark"] .designer-page .designer-panel-header,
+[data-theme="dark"] .designer-page .build-menu-slot {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .review-card-heading,
+[data-theme="dark"] .export-console-header,
+[data-theme="dark"] .preset-gallery-page .preset-gallery-header,
+[data-theme="dark"] .designer-page .designer-modal-header,
+[data-theme="dark"] .designer-page .designer-panel,
+[data-theme="dark"] .designer-page .designer-panel-scroll,
+[data-theme="dark"] .designer-page .designer-roster-canvas {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .designer-page .designer-modal-content {
+  background: var(--color-border) !important;
+}
+
+[data-theme="dark"] .designer-page .designer-roster-canvas .designer-panel-scroll,
+[data-theme="dark"] .preset-gallery-page .preset-gallery-content {
+  background: var(--color-canvas) !important;
+}
+
+[data-theme="dark"] .designer-page .build-menu-slot.removed {
+  border-color: var(--color-border) !important;
+  background: var(--color-disabled-surface) !important;
+}
+
+[data-theme="dark"] .review-status.ready,
+[data-theme="dark"] .review-status.ok {
+  background: var(--color-success-surface) !important;
+  color: var(--color-success) !important;
+}
+
+[data-theme="dark"] .review-status.warning {
+  background: var(--color-warning-surface) !important;
+  color: var(--color-warning) !important;
+}
+
+[data-theme="dark"] .review-status.error {
+  background: var(--color-danger-surface) !important;
+  color: var(--color-danger) !important;
+}
+
+/* Dialogs and experimental tools */
+[data-theme="dark"] .clone-creator-overlay,
+[data-theme="dark"] .bulk-editor-overlay,
+[data-theme="dark"] .summary-explorer-overlay,
+[data-theme="dark"] .mutation-lab-overlay,
+[data-theme="dark"] .weapon-swap-overlay {
+  background: var(--color-overlay) !important;
+}
+
+[data-theme="dark"] .clone-creator-modal,
+[data-theme="dark"] .bulk-editor-modal,
+[data-theme="dark"] .summary-explorer-modal,
+[data-theme="dark"] .mutation-lab-modal,
+[data-theme="dark"] .weapon-swap-modal,
+[data-theme="dark"] .weapon-swap-library,
+[data-theme="dark"] .weapon-swap-stage,
+[data-theme="dark"] .weapon-swap-source,
+[data-theme="dark"] .weapon-swap-weapon,
+[data-theme="dark"] .mutation-lab-section,
+[data-theme="dark"] .mutation-choice-grid button,
+[data-theme="dark"] .mutation-intensity-row button,
+[data-theme="dark"] .mutation-domain-grid label {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .clone-creator-header,
+[data-theme="dark"] .mutation-lab-header,
+[data-theme="dark"] .mutation-lab-actions,
+[data-theme="dark"] .weapon-swap-header,
+[data-theme="dark"] .weapon-swap-library-heading {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .mutation-choice-grid button.active,
+[data-theme="dark"] .mutation-intensity-row button.active,
+[data-theme="dark"] .mutation-domain-grid label.active,
+[data-theme="dark"] .weapon-swap-unit.active,
+[data-theme="dark"] .weapon-swap-type-filters button.active {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text-strong) !important;
+}
+
+/* Native controls and all switch variants */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  color-scheme: dark;
+  border-color: var(--color-border) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-text-strong) !important;
+}
+
+[data-theme="dark"] .expert-toggle-row input[type="checkbox"],
+[data-theme="dark"] .unit-disable-control input[type="checkbox"],
+[data-theme="dark"] .compact-switch-control input[type="checkbox"] {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-muted) !important;
+}
+
+[data-theme="dark"] .expert-toggle-row input[type="checkbox"]:checked,
+[data-theme="dark"] .unit-disable-control input[type="checkbox"]:checked,
+[data-theme="dark"] .compact-switch-control input[type="checkbox"]:checked {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+}

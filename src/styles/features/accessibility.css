@@ -1,0 +1,27 @@
+/* Shared focus language for every native and custom desktop control. */
+:is(button, [role="button"], input, select, textarea, summary, label[tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent-strong) !important;
+  outline-offset: 2px !important;
+  box-shadow: var(--shadow-focus) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+.parameter-help:hover .parameter-help-tooltip--legacy,
+.parameter-help:focus-within .parameter-help-tooltip--legacy {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Legacy local help overlays must be able to escape a parameter card. */
+.stat-card:has(.parameter-help-tooltip--legacy) {
+  contain: layout style !important;
+  overflow: visible !important;
+}

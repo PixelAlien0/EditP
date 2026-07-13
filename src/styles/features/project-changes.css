@@ -1,0 +1,119 @@
+/* Project health — one clear validation summary, not a legacy alert card. */
+.changes-pane-content .change-health-card {
+  min-height: 82px;
+  padding: var(--space-3) !important;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border) !important;
+  border-left-width: 1px !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--color-surface-raised) !important;
+  box-shadow: none !important;
+}
+
+.changes-pane-content .change-health-card.ready {
+  border-color: color-mix(in srgb, var(--color-success) 46%, var(--color-border)) !important;
+  background: color-mix(in srgb, var(--color-success-surface) 48%, var(--color-surface-raised)) !important;
+}
+
+.changes-pane-content .change-health-card.warning {
+  border-color: color-mix(in srgb, var(--color-warning) 52%, var(--color-border)) !important;
+  background: color-mix(in srgb, var(--color-warning-surface) 52%, var(--color-surface-raised)) !important;
+}
+
+.changes-pane-content .change-health-card.error {
+  border-color: color-mix(in srgb, var(--color-danger) 54%, var(--color-border)) !important;
+  background: color-mix(in srgb, var(--color-danger-surface) 52%, var(--color-surface-raised)) !important;
+}
+
+.change-health-icon {
+  width: var(--control-target-min);
+  height: var(--control-target-min);
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--color-success) 52%, var(--color-border));
+  border-radius: 50%;
+  background: var(--color-surface-raised);
+  color: var(--color-success);
+}
+
+.change-health-card.warning .change-health-icon {
+  border-color: color-mix(in srgb, var(--color-warning) 56%, var(--color-border));
+  color: var(--color-warning);
+}
+
+.change-health-card.error .change-health-icon {
+  border-color: color-mix(in srgb, var(--color-danger) 56%, var(--color-border));
+  color: var(--color-danger);
+}
+
+.change-health-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.changes-pane-content .change-health-copy {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.change-health-copy .change-health-eyebrow {
+  color: var(--color-text-muted) !important;
+  font: 700 9px/var(--line-height-ui) var(--font-mono);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.change-health-copy strong {
+  color: var(--color-text-strong) !important;
+  font: 700 var(--font-size-sm)/var(--line-height-ui) var(--font-ui);
+}
+
+.change-health-copy > span:last-child {
+  overflow: hidden;
+  color: var(--color-text-muted) !important;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.changes-pane-content .change-health-budget {
+  min-width: 76px;
+  padding-left: var(--space-3);
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: var(--space-1);
+  align-items: baseline;
+  border-left: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  text-align: right;
+}
+
+.change-health-budget > span {
+  grid-column: 1 / -1;
+  margin-bottom: 1px;
+  color: var(--color-text-muted) !important;
+  font: 700 8px/var(--line-height-ui) var(--font-mono);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.change-health-budget strong {
+  color: var(--color-text-strong) !important;
+  font: 700 var(--font-size-sm)/1 var(--font-mono);
+}
+
+.change-health-budget small {
+  color: var(--color-text-muted);
+  font: 500 8px/1 var(--font-mono);
+}

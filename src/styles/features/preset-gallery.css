@@ -1,0 +1,183 @@
+/* Preset Gallery — uses the shared workspace palette in both themes. */
+.preset-gallery-page {
+  inset: var(--header-height) 0 0 !important;
+  background: var(--color-canvas) !important;
+  color: var(--color-text) !important;
+}
+
+.preset-gallery-page .preset-gallery-modal {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--color-canvas) !important;
+  box-shadow: none !important;
+}
+
+.preset-gallery-page .preset-gallery-header {
+  min-height: 84px;
+  padding: 16px clamp(24px, 2.6vw, 48px);
+  border-bottom: 1px solid var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+}
+
+.preset-gallery-page .preset-gallery-header > div:first-child > span,
+.preset-gallery-page .preset-save-copy > span,
+.preset-gallery-page .preset-card-overline {
+  color: var(--color-accent-strong) !important;
+}
+
+.preset-gallery-page .preset-gallery-header > div:first-child > span i {
+  display: none;
+}
+
+.preset-gallery-page .preset-gallery-header h3,
+.preset-gallery-page .preset-card-heading h4 {
+  color: var(--color-text-strong) !important;
+  font-family: var(--font-display) !important;
+}
+
+.preset-gallery-page .preset-gallery-header p,
+.preset-gallery-page .preset-save-copy small,
+.preset-gallery-page .preset-card-heading time,
+.preset-gallery-page .preset-card p,
+.preset-gallery-page .preset-card-footer > span {
+  color: var(--color-text-muted) !important;
+}
+
+.preset-gallery-page .preset-gallery-header-actions > span {
+  border-left-color: var(--color-border) !important;
+  color: var(--color-text-muted) !important;
+}
+
+.preset-gallery-page .preset-gallery-close {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+
+.preset-gallery-page .preset-gallery-close:hover {
+  border-color: var(--color-accent-strong) !important;
+  background: var(--color-surface-hover) !important;
+  color: var(--color-text-strong) !important;
+}
+
+.preset-gallery-page .preset-save-panel {
+  grid-template-columns: minmax(210px, 1fr) minmax(220px, 1fr) minmax(300px, 1.4fr) auto;
+  gap: 12px;
+  padding: 14px clamp(24px, 2.6vw, 48px);
+  border-bottom: 1px solid var(--color-border) !important;
+  background: var(--color-surface) !important;
+}
+
+.preset-gallery-page .preset-save-panel .form-input {
+  min-height: 40px;
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-strong) !important;
+}
+
+.preset-gallery-page .preset-save-panel .form-input::placeholder {
+  color: var(--color-text-muted) !important;
+  opacity: 1;
+}
+
+.preset-gallery-page .preset-save-action,
+.preset-gallery-page .preset-apply-action {
+  border-color: var(--color-accent-strong) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+.preset-gallery-page .preset-save-action:hover,
+.preset-gallery-page .preset-apply-action:hover {
+  background: var(--color-accent-strong) !important;
+  color: var(--color-text-inverse) !important;
+}
+
+.preset-gallery-page .preset-delete-action {
+  border-color: color-mix(in srgb, var(--color-danger) 48%, var(--color-border)) !important;
+  background: transparent !important;
+  color: var(--color-danger) !important;
+}
+
+.preset-gallery-page .preset-delete-action:hover {
+  background: var(--color-danger-surface) !important;
+}
+
+.preset-gallery-page .preset-gallery-content {
+  gap: 14px;
+  padding: 22px clamp(24px, 2.6vw, 48px) 36px;
+  background: var(--color-canvas) !important;
+}
+
+.preset-gallery-page .preset-card {
+  min-height: 228px;
+  padding: 0;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--color-surface-raised) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: border-color var(--motion-fast), background var(--motion-fast) !important;
+}
+
+.preset-gallery-page .preset-card::before {
+  display: none !important;
+}
+
+.preset-gallery-page .preset-card:hover {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-hover) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.preset-gallery-page .preset-card-main {
+  padding: 18px 18px 14px;
+}
+
+.preset-gallery-page .preset-card-mark {
+  border-color: var(--color-border-strong) !important;
+  border-radius: var(--radius-xs) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+.preset-gallery-page .preset-card-metrics > div {
+  border-color: var(--color-border) !important;
+  border-radius: var(--radius-xs) !important;
+  background: var(--color-surface) !important;
+}
+
+.preset-gallery-page .preset-card-metrics strong,
+.preset-gallery-page .preset-card-footer > span strong {
+  color: var(--color-text-strong) !important;
+}
+
+.preset-gallery-page .preset-card-metrics span {
+  color: var(--color-text-muted) !important;
+}
+
+.preset-gallery-page .preset-card-footer {
+  border-top-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+}
+
+.preset-gallery-page.preset-gallery-loading {
+  background: var(--color-canvas) !important;
+  color: var(--color-text-muted) !important;
+}
+
+@media (max-width: 900px) {
+  .preset-gallery-page .preset-save-panel {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .preset-gallery-page .preset-save-panel {
+    grid-template-columns: 1fr;
+  }
+}

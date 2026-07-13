@@ -1,0 +1,190 @@
+/* Advanced weapon parameters stay grouped and scannable at desktop scale. */
+.weapon-advanced-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.weapon-advanced-group {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.weapon-advanced-group-heading {
+  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.weapon-advanced-group-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.weapon-advanced-group-heading span {
+  color: var(--color-text-strong);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 560;
+}
+
+.weapon-advanced-group-heading small {
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.weapon-advanced-grid {
+  margin-bottom: 0;
+}
+
+.stat-card--advanced {
+  min-height: 92px !important;
+}
+
+.stat-card--advanced .stat-card-input {
+  min-width: 0;
+}
+
+/* Compact, keyboard-accessible parameter help. */
+.editor-parameter-guide {
+  margin: 0 0 var(--space-4);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.editor-parameter-guide summary {
+  color: var(--color-text-strong);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editor-parameter-guide p {
+  max-width: 80ch;
+  margin-top: 7px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.editor-parameter-guide strong {
+  color: var(--color-text-strong);
+}
+
+.parameter-help {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
+.parameter-help-trigger {
+  width: var(--control-target-min);
+  height: var(--control-target-min);
+  margin: -9px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid transparent !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  color: var(--color-text-muted) !important;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+}
+
+.parameter-help-trigger::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: transparent;
+}
+
+.stat-card-default-pill:focus-visible {
+  outline: 2px solid var(--color-accent-strong) !important;
+  outline-offset: 2px !important;
+  box-shadow: var(--shadow-focus) !important;
+}
+
+.stat-card-field {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card-input.is-error { border-color: var(--color-danger) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 12%, transparent) !important; }
+.stat-card-input.is-warning { border-color: var(--color-warning) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-warning) 12%, transparent) !important; }
+.stat-card-warning { margin-top: 3px; font-size: var(--font-size-xs); font-weight: 650; line-height: var(--line-height-ui); }
+.stat-card-warning.is-error { color: var(--color-danger); }
+.stat-card-warning.is-warning { color: var(--color-warning); }
+
+.stat-card-default-pill {
+  appearance: none;
+  min-height: var(--control-target-min) !important;
+}
+
+.category-chip,
+.unit-item,
+.unit-slot-node,
+.changes-drawer-toggle {
+  appearance: none;
+  font: inherit;
+}
+
+.unit-item {
+  width: 100%;
+  color: inherit;
+  text-align: left;
+}
+
+.parameter-help-trigger:hover,
+.parameter-help-trigger:focus-visible {
+  border-color: transparent !important;
+  color: var(--color-accent-strong) !important;
+}
+
+.parameter-help-trigger:hover::after,
+.parameter-help-trigger:focus-visible::after {
+  border-color: var(--color-accent);
+}
+
+.parameter-help-tooltip--floating {
+  width: min(260px, calc(100vw - 24px));
+  padding: var(--space-2) calc(var(--space-2) + 1px);
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-float);
+  color: var(--color-text) !important;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.parameter-help-tooltip--above {
+  transform: translate(-50%, -100%);
+}
+
+.parameter-help-tooltip--below {
+  transform: translateX(-50%);
+}

@@ -10,6 +10,8 @@
     "sync-unitpics": "node scripts/sync-unitpics.mjs",
     "audit-unitpics": "node scripts/audit-unitpics.mjs",
     "audit-unitpics:dist": "node scripts/audit-unitpics.mjs --dist",
+    "audit-css": "node scripts/audit-css.mjs",
+    "consolidate-css": "node scripts/consolidate-css.mjs --write",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -22,6 +24,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "oxlint": "^1.71.0",
+    "postcss": "^8.5.16",
     "sharp": "^0.34.5",
     "three": "^0.185.1",
     "vite": "^8.1.1"

@@ -1,0 +1,49 @@
+/* Virtualized unit roster — make off-screen results discoverable. */
+.sidebar .unit-list-region {
+  min-height: 0;
+  position: relative;
+  flex: 1;
+}
+
+.sidebar .unit-list-region .unit-list-container {
+  height: 100%;
+  min-height: 0;
+}
+
+.unit-scroll-hint {
+  min-height: 28px;
+  padding: 0 var(--space-2);
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  left: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-border-accent-muted);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-surface-raised) 94%, transparent);
+  box-shadow: var(--shadow-soft);
+  color: var(--color-text-muted);
+  font: 650 9px/var(--line-height-ui) var(--font-ui);
+  letter-spacing: .01em;
+  pointer-events: none;
+}
+
+.unit-scroll-hint svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: var(--color-accent-strong);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.35;
+}
+
+.unit-scroll-hint strong {
+  margin-left: auto;
+  color: var(--color-accent-strong);
+  font: 700 9px/1 var(--font-mono);
+  white-space: nowrap;
+}

@@ -1,0 +1,126 @@
+/* Header primary action — clear priority without becoming a separate visual system. */
+.app-header .header-utility-actions .header-create-action {
+  min-width: 104px;
+  padding-inline: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-color: var(--color-border-accent-muted) !important;
+  background: var(--color-surface-accent-subtle) !important;
+  color: var(--color-accent-strong) !important;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.app-header .header-create-icon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.25;
+}
+
+.app-header .header-create-action:hover:not(:disabled) {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+.app-header .header-create-action:active:not(:disabled) {
+  background: var(--color-surface-hover) !important;
+}
+
+@media (max-width: 1180px) {
+  .app-header .header-utility-actions .header-create-action {
+    min-width: 0;
+    padding-inline: 9px;
+  }
+}
+
+/* Workflow navigation — compact progress cues rather than a second row of buttons. */
+.app-header .workflow-nav {
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+}
+
+.app-header .workflow-nav button {
+  min-width: 0;
+  min-height: var(--control-height-md);
+  padding: 0 var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent !important;
+  border-radius: var(--radius-sm) !important;
+  background: transparent !important;
+  color: var(--color-text-muted) !important;
+  box-shadow: none !important;
+  font: 650 var(--font-size-xs)/var(--line-height-ui) var(--font-ui) !important;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.app-header .workflow-nav__step {
+  min-width: 18px;
+  color: var(--color-text-muted) !important;
+  font: 700 9px/1 var(--font-mono) !important;
+  letter-spacing: .04em;
+}
+
+.app-header .workflow-nav__label {
+  color: inherit !important;
+}
+
+.app-header .workflow-nav button:hover {
+  background: var(--color-surface-hover) !important;
+  color: var(--color-text-strong) !important;
+}
+
+.app-header .workflow-nav button.active {
+  border-color: var(--color-border-accent-muted) !important;
+  background: var(--color-surface-accent-subtle) !important;
+  color: var(--color-text-strong) !important;
+}
+
+.app-header .workflow-nav button.active .workflow-nav__step {
+  color: var(--color-accent-strong) !important;
+}
+
+@media (max-width: 1180px) {
+  .app-header .workflow-nav {
+    justify-self: center;
+  }
+
+  .app-header .workflow-nav button {
+    padding-inline: var(--space-2);
+  }
+
+  .app-header .workflow-nav__step {
+    display: none !important;
+  }
+
+  .app-header .workflow-nav__label {
+    display: inline !important;
+  }
+}
+
+@media (max-width: 1080px) {
+  .app-header .workflow-nav button {
+    padding-inline: 7px;
+  }
+
+  .app-header .workflow-nav__label {
+    display: inline !important;
+  }
+}
