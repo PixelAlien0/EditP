@@ -849,9 +849,10 @@ export default function App() {
   const [activeWorkspace, setActiveWorkspace] = useState('edit');
   const [themeMode, setThemeMode] = useState(() => {
     try {
-      return localStorage.getItem('bmf_theme') === 'dark' ? 'dark' : 'light';
+      const savedTheme = localStorage.getItem('bmf_theme');
+      return savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
     } catch {
-      return 'light';
+      return 'dark';
     }
   });
   const [selectedFaction, setSelectedFaction] = useState('all');
