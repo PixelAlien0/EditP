@@ -972,10 +972,12 @@ export default function App() {
   const [swapUnitFactionFilter, setSwapUnitFactionFilter] = useState('all');
   const [activeParamTab, setActiveParamTab] = useState('structure');
   const [comparisonMode, setComparisonMode] = useState(false);
+  const [showAllWeaponParams, setShowAllWeaponParams] = useState(false);
   const [activeRelationshipKey, setActiveRelationshipKey] = useState(null);
 
   useEffect(() => {
     setActiveRelationshipKey(null);
+    setShowAllWeaponParams(false);
   }, [selectedUnitId, activeParamTab, activeWeaponSlotTab]);
 
   // Dragging logic for Weapon Swap window
@@ -2829,13 +2831,15 @@ export default function App() {
         <main className="editor-workspace">
           {selectedUnit ? (() => {
             const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
-            const defaults = defaultsDb[baseId] || {};
+            const originalDefaults = defaultsDb[baseId] || {};
+            const defaults = selectedUnitDefaults || originalDefaults;
             const slots = defaults.weaponSlots || [];
 
             const activeSlotIdx = slots.some(s => s.slot === activeWeaponSlotTab) ? activeWeaponSlotTab : (slots[0]?.slot || 1);
             const slot = slots.find(s => s.slot === activeSlotIdx) || slots[0];
             const cloneInfo = selectedUnit.isClone ? clones.find(c => c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) : null;
             const swap = cloneInfo?.weaponSwaps?.[String(slot?.slot)];
+            const originalSlot = originalDefaults.weaponSlots?.find(item => item.slot === slot?.slot);
 
             let calculatedDps = '0.0';
             let rawRange = 0;
@@ -2971,13 +2975,49 @@ export default function App() {
               }
             ];
 
+            const activeSlotTweaks = tweaks[selectedUnit.id] || {};
+            const hasWeaponParameter = key => slot && (
+              Object.prototype.hasOwnProperty.call(slot, key)
+              || Object.prototype.hasOwnProperty.call(activeSlotTweaks, `weapon_slot_${slot.slot}_${key}`)
+            );
+            const essentialWeaponParams = new Set([
+              'damage', 'reload', 'range', 'velocity', 'aoe', 'projectiles', 'burst', 'burstrate',
+              'canattackground', 'toairweapon'
+            ]);
+            const applicableSlotParams = showAllWeaponParams
+              ? slotParams
+              : slotParams.filter(param => essentialWeaponParams.has(param.key) || hasWeaponParameter(param.key));
+            const applicableAdvancedWeaponGroups = advancedWeaponGroups
+              .map(group => ({
+                ...group,
+                params: showAllWeaponParams ? group.params : group.params.filter(param => hasWeaponParameter(param.key))
+              }))
+              .filter(group => group.params.length > 0);
+            const detectedWeaponParameterCount = slot
+              ? slotParams.filter(param => hasWeaponParameter(param.key)).length
+                + advancedWeaponGroups.reduce((total, group) => total + group.params.filter(param => hasWeaponParameter(param.key)).length, 0)
+                + 2
+              : 0;
+            const weaponSignature = `${slot?.weapontype || ''} ${slot?.defKey || ''}`.toLowerCase();
+            const weaponProfile = !slot
+              ? 'No weapon selected'
+              : slot.paralyzer || weaponSignature.includes('emp') || weaponSignature.includes('paraly')
+                ? 'EMP / paralyzer'
+                : hasWeaponParameter('beamtime') || hasWeaponParameter('thickness') || /beam|laser|lightning/.test(weaponSignature)
+                  ? 'Beam / energy'
+                  : hasWeaponParameter('tracks') || hasWeaponParameter('weaponacceleration') || /missile|rocket|torpedo|starburst/.test(weaponSignature)
+                    ? 'Guided projectile'
+                    : hasWeaponParameter('groundbounce') || hasWeaponParameter('waterbounce')
+                      ? 'Bouncing projectile'
+                      : 'Ballistic / direct fire';
+
             const structureParams = STAT_KEYS.filter(stat => !MOBILITY_STAT_KEYS.has(stat.key));
             const mobilityParams = STAT_KEYS.filter(stat => {
               if (!MOBILITY_STAT_KEYS.has(stat.key)) return false;
               return !['cruisealt', 'airsubalt'].includes(stat.key) || getTagsOfUnit(baseId).includes('aircraft');
             });
             const weaponParameterCount = slot
-              ? slotParams.length + advancedWeaponGroups.reduce((total, group) => total + group.params.length, 0) + 2
+              ? applicableSlotParams.length + applicableAdvancedWeaponGroups.reduce((total, group) => total + group.params.length, 0) + 2
               : 0;
             const workspaceTabs = WORKSPACE_TAB_DEFINITIONS.map(tab => ({
               ...tab,
@@ -3589,7 +3629,7 @@ export default function App() {
                                   </div>
                                   {swap ? (
                                     <div className="weapon-substitution-route">
-                                      <code>{slot.defKey.toUpperCase()}</code>
+                                      <code>{(originalSlot?.defKey || slot.defKey).toUpperCase()}</code>
                                       <span aria-hidden="true">→</span>
                                       <code>{swap.sourceWeaponDefKey.toUpperCase()}</code>
                                     </div>
@@ -3634,9 +3674,33 @@ export default function App() {
                             </section>
                           )}
 
+                          <section className="weapon-parameter-profile" aria-label="Active weapon parameter profile">
+                            <div className="weapon-parameter-profile__identity">
+                              <span>Dynamic parameter profile</span>
+                              <strong>{weaponProfile}</strong>
+                              <small>
+                                {swap
+                                  ? `Copied from ${unitsDb.names[swap.sourceUnitId] || swap.sourceUnitId} · ${swap.sourceWeaponDefKey.toUpperCase()}`
+                                  : `${slot.defKey.toUpperCase()} · native slot ${slot.slot}`}
+                              </small>
+                            </div>
+                            <div className="weapon-parameter-profile__status">
+                              <span><strong>{detectedWeaponParameterCount}</strong> detected</span>
+                              <span><strong>{weaponParameterCount}</strong> visible</span>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                aria-pressed={showAllWeaponParams}
+                                onClick={() => setShowAllWeaponParams(current => !current)}
+                              >
+                                {showAllWeaponParams ? 'Show relevant' : 'Show all'}
+                              </Button>
+                            </div>
+                          </section>
+
                           {/* Active Slot Parameter Tweaks Grid */}
                           <div className="editor-grid weapon-parameter-grid">
-                            {slotParams.map(param => {
+                            {applicableSlotParams.map(param => {
                               const tweakKey = `weapon_slot_${slot.slot}_${param.key}`;
                               const currentTweakValue = tweaks[selectedUnit.id]?.[tweakKey];
                               const isModified = currentTweakValue !== undefined;
@@ -3723,7 +3787,7 @@ export default function App() {
                           </div>
 
                           <div className="weapon-advanced-groups">
-                            {advancedWeaponGroups.map(group => (
+                            {applicableAdvancedWeaponGroups.map(group => (
                               <section className="weapon-advanced-group" key={group.title}>
                                 <div className="weapon-advanced-group-heading">
                                   <div>

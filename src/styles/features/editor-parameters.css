@@ -1,4 +1,82 @@
 /* Advanced weapon parameters stay grouped and scannable at desktop scale. */
+.weapon-parameter-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
+}
+
+.weapon-parameter-profile__identity {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 3px var(--space-3);
+}
+
+.weapon-parameter-profile__identity > span {
+  grid-column: 1 / -1;
+  color: var(--color-accent-strong);
+  font: 700 var(--font-size-xs)/var(--line-height-ui) var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.weapon-parameter-profile__identity > strong {
+  color: var(--color-text-strong);
+  font: 600 var(--font-size-lg)/1.15 var(--font-display);
+}
+
+.weapon-parameter-profile__identity > small {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-xs)/var(--line-height-ui) var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-parameter-profile__status {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.weapon-parameter-profile__status > span {
+  min-height: var(--control-height-sm);
+  padding-inline: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  font: 600 var(--font-size-xs)/1 var(--font-ui);
+}
+
+.weapon-parameter-profile__status > span strong {
+  color: var(--color-text-strong);
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 1180px) {
+  .weapon-parameter-profile {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .weapon-parameter-profile__status {
+    justify-content: flex-start;
+  }
+}
+
 .weapon-advanced-groups {
   display: flex;
   flex-direction: column;
