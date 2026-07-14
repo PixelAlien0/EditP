@@ -189,6 +189,30 @@ test('selected unit actions keep an even vertical inset in the desktop header', 
   expect(Math.abs(inset.top - inset.bottom)).toBeLessThanOrEqual(1);
 });
 
+test('parameter tabs keep the selected state inset from the editor section edge', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const tabList = page.getByRole('tablist', { name: 'Editor parameter sections' });
+  const activeTab = tabList.getByRole('tab', { selected: true });
+  await expect(activeTab.locator('small')).toBeVisible();
+
+  const inset = await tabList.evaluate(list => {
+    const listBounds = list.getBoundingClientRect();
+    const activeBounds = list.querySelector('[aria-selected="true"]').getBoundingClientRect();
+    return {
+      top: activeBounds.top - listBounds.top,
+      bottom: listBounds.bottom - activeBounds.bottom,
+      radius: getComputedStyle(list.querySelector('[aria-selected="true"]')).borderRadius,
+    };
+  });
+
+  expect(inset.top).toBeGreaterThan(0);
+  expect(inset.bottom).toBeGreaterThan(0);
+  expect(inset.radius).not.toBe('0px');
+});
+
 test('clone identity remains editable and nested clones keep the selected clone as parent', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);

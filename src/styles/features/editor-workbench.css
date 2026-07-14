@@ -182,21 +182,95 @@
 
 
 .editor-section-tabs {
-  min-height: 52px !important;
-  height: 52px;
-  padding-inline: var(--space-5) !important;
+  min-height: 76px !important;
+  height: auto;
+  padding: var(--space-2) var(--space-5) !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: var(--space-2) !important;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
   position: relative;
   z-index: 5;
-  border-top: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--color-border) !important;
   background: var(--color-surface) !important;
 }
 
 .editor-section-tabs .workspace-tab-btn {
-  min-height: 51px !important;
-  padding: var(--space-2) var(--space-4) 7px !important;
+  min-width: 0;
+  min-height: 58px !important;
+  padding: var(--space-2) var(--space-3) !important;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: center;
+  justify-content: start;
+  gap: 3px !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--color-surface-subtle) !important;
+  color: var(--color-text-muted) !important;
+  transition: border-color var(--motion-fast), background-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast);
 }
 
-.editor-section-tabs .workspace-tab-btn > small { display: none; }
+.editor-section-tabs .workspace-tab-btn:hover:not(.active) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-hover) !important;
+  color: var(--color-text-strong) !important;
+}
+
+.editor-section-tabs .workspace-tab-btn.active {
+  border-color: var(--color-border-accent-muted) !important;
+  border-bottom-color: var(--color-border-accent-muted) !important;
+  background: var(--color-accent-soft) !important;
+  box-shadow: inset 3px 0 0 var(--color-accent-strong);
+  color: var(--color-text-strong) !important;
+}
+
+.editor-section-tabs .workspace-tab-btn:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  box-shadow: inset 3px 0 0 var(--color-accent-strong), var(--shadow-focus);
+}
+
+.editor-section-tabs .workspace-tab-btn > small {
+  display: block !important;
+  max-width: 100%;
+  color: var(--color-text-muted) !important;
+  font-size: 9px !important;
+  font-weight: 500;
+  line-height: 1.25;
+  opacity: 1;
+}
+
+.editor-section-tabs .workspace-tab-btn.active > small {
+  color: var(--color-text) !important;
+}
+
+.editor-section-tabs .workspace-tab-heading {
+  gap: var(--space-2);
+}
+
+.editor-section-tabs .workspace-tab-label {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.editor-section-tabs .workspace-tab-count {
+  min-width: 20px;
+  padding: 2px 5px;
+}
+
+@container (max-width: 760px) {
+  .editor-section-tabs {
+    grid-template-columns: repeat(3, minmax(196px, 1fr));
+    padding-inline: var(--space-3) !important;
+  }
+}
 
 .editor-workspace .operational-overview {
   min-height: 72px !important;
