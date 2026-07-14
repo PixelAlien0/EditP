@@ -273,47 +273,83 @@
 }
 
 .editor-workspace .operational-overview {
-  min-height: 72px !important;
-  height: 72px;
-  padding: 0 var(--space-5) !important;
-  display: flex !important;
+  min-height: 112px !important;
+  height: auto;
+  padding: var(--space-3) clamp(var(--space-4), 1.35vw, var(--space-6)) !important;
+  display: grid !important;
+  grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
   align-items: stretch !important;
-  overflow-x: auto !important;
+  gap: var(--space-4) !important;
+  overflow: hidden !important;
   border-bottom: 1px solid var(--color-border) !important;
-  background: var(--color-surface-subtle) !important;
+  background: var(--color-canvas) !important;
+}
+
+.operational-overview__header {
+  min-width: 0;
+  padding-right: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--color-border);
+}
+
+.operational-overview__eyebrow {
+  margin-bottom: 3px;
+  color: var(--color-accent-strong);
+  font: 700 9px/1.2 var(--font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.operational-overview__header > h2 {
+  margin: 0;
+  color: var(--color-text-strong);
+  font: 560 17px/1.15 var(--font-display);
+  letter-spacing: -.01em;
+}
+
+.operational-overview__header > small {
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font: 500 9px/1.35 var(--font-ui);
+}
+
+.operational-overview__modules {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(250px, 1.15fr) minmax(210px, 1fr) minmax(225px, .95fr);
+  gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .editor-workspace .operational-overview .unit-context-card {
-  min-height: 72px !important;
-  padding: var(--space-2) var(--space-4) !important;
+  min-width: 0;
+  min-height: 86px !important;
+  padding: var(--space-3) !important;
   display: flex !important;
-  justify-content: center;
-  min-width: 220px;
-  flex: 1 1 220px !important;
-  border: 0 !important;
-  border-right: 1px solid var(--color-border) !important;
-  background: transparent !important;
+  flex: none !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: var(--space-2) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--color-surface-raised) !important;
 }
 
 .editor-workspace .operational-overview .unit-context-label {
   margin: 0 !important;
-  color: var(--color-text-muted) !important;
-  font: 650 9px/1.2 var(--font-ui) !important;
-  letter-spacing: .08em !important;
+  color: var(--color-text) !important;
+  font: 700 9px/1.2 var(--font-ui) !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
-.editor-workspace .operational-overview .unit-efficiency-card,
-.editor-workspace .operational-overview .unit-weapon-card {
-  flex-direction: column !important;
-  align-items: stretch !important;
-  justify-content: center !important;
-  gap: 6px !important;
-}
-
 .editor-workspace .operational-overview .unit-efficiency-card {
-  min-width: 260px;
-  flex-basis: 300px !important;
+  min-width: 250px;
 }
 
 .editor-workspace .operational-overview .unit-efficiency-metrics {
@@ -326,9 +362,9 @@
 
 .editor-workspace .operational-overview .unit-efficiency-metric {
   min-width: 0;
-  padding: 0 var(--space-2);
+  padding: 2px var(--space-3) 0;
   display: grid;
-  gap: 2px;
+  gap: 3px;
   border-left: 1px solid var(--color-border-subtle);
 }
 
@@ -346,13 +382,14 @@
 
 .editor-workspace .operational-overview .unit-efficiency-metric > span:first-child {
   color: var(--color-text-muted) !important;
-  font: 600 8px/1.2 var(--font-ui) !important;
+  font: 650 8px/1.2 var(--font-ui) !important;
   letter-spacing: .05em;
+  text-transform: uppercase;
 }
 
 .editor-workspace .operational-overview .unit-efficiency-metric > span:last-child {
   color: var(--color-text-strong) !important;
-  font: 650 12px/1.1 var(--font-mono) !important;
+  font: 700 13px/1.1 var(--font-mono) !important;
 }
 
 .editor-workspace .operational-overview .unit-efficiency-metric small {
@@ -361,8 +398,7 @@
 }
 
 .editor-workspace .operational-overview .unit-weapon-card {
-  min-width: 220px;
-  flex-basis: 250px !important;
+  min-width: 210px;
 }
 
 .editor-workspace .operational-overview .unit-slot-list {
@@ -374,47 +410,21 @@
 }
 
 .editor-workspace .operational-overview .unit-slot-node {
-  min-height: 28px;
+  min-height: 30px;
+  padding-inline: var(--space-2) !important;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
+  border-radius: var(--radius-xs) !important;
   white-space: nowrap;
 }
 
-.editor-workspace .operational-overview .unit-context-card:first-child {
-  padding-left: 0 !important;
-}
-
-.editor-workspace .operational-overview .unit-context-card:last-child {
-  border-right: 0 !important;
-}
-
 .editor-workspace .operational-overview .unit-trajectory-card {
-  min-width: 280px;
-  flex-basis: 320px !important;
-  display: grid !important;
-  grid-template-columns: 40px minmax(0, 1fr);
-  grid-template-rows: auto 1fr;
-  align-items: center !important;
-  column-gap: var(--space-3) !important;
-  row-gap: 3px !important;
-}
-
-.editor-workspace .operational-overview .unit-trajectory-card > .unit-context-label {
-  grid-column: 1 / -1;
-}
-
-.editor-workspace .operational-overview .unit-trajectory-diagram {
-  grid-column: 1;
-  grid-row: 2;
-  width: 40px !important;
-  height: 40px !important;
+  min-width: 225px;
 }
 
 .editor-workspace .operational-overview .unit-trajectory-copy {
   min-width: 0;
-  grid-column: 2;
-  grid-row: 2;
 }
 
 .editor-workspace .operational-overview .unit-trajectory-values {
@@ -427,9 +437,9 @@
 
 .editor-workspace .operational-overview .unit-trajectory-values > div {
   min-width: 0;
-  padding: 0 var(--space-2);
+  padding: 2px var(--space-3) 0;
   display: grid;
-  gap: 2px;
+  gap: 3px;
   border-left: 1px solid var(--color-border-subtle);
 }
 
@@ -446,18 +456,45 @@
 
 .editor-workspace .operational-overview .unit-trajectory-values > div > span:first-child {
   color: var(--color-text-muted) !important;
-  font: 600 8px/1.2 var(--font-ui) !important;
+  font: 650 8px/1.2 var(--font-ui) !important;
   letter-spacing: .05em;
+  text-transform: uppercase;
 }
 
 .editor-workspace .operational-overview .unit-trajectory-values > div > span:last-child {
   color: var(--color-text-strong) !important;
-  font: 650 12px/1.1 var(--font-mono) !important;
+  font: 700 13px/1.1 var(--font-mono) !important;
 }
 
 .editor-workspace .operational-overview .unit-trajectory-values small {
   color: var(--color-text-muted);
   font-size: 8px;
+}
+
+@container (max-width: 900px) {
+  .editor-workspace .operational-overview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3) !important;
+  }
+
+  .operational-overview__header {
+    padding: 0 0 var(--space-2);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px var(--space-2);
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .operational-overview__eyebrow {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+
+  .operational-overview__header > small {
+    margin: 0;
+    align-self: end;
+  }
 }
 
 .parameter-canvas {

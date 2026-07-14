@@ -3225,7 +3225,17 @@ export default function App() {
                 </div>
 
                 {/* Operational overview: analysis and weapon context without duplicating unit identity. */}
-                <div className="unit-context-strip unit-context-strip--canonical operational-overview">
+                <section
+                  className="unit-context-strip unit-context-strip--canonical operational-overview"
+                  aria-labelledby="operational-overview-title"
+                >
+                  <header className="operational-overview__header">
+                    <span className="operational-overview__eyebrow">Live analysis</span>
+                    <h2 id="operational-overview-title">Operational overview</h2>
+                    <small>Performance and hardpoint telemetry</small>
+                  </header>
+
+                  <div className="operational-overview__modules">
 
                   {/* Efficiency Analysis Card */}
                   <div className="unit-context-card unit-efficiency-card">
@@ -3291,43 +3301,10 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Vector Arc Radar Arc */}
+                  {/* Current weapon firing profile */}
                   {slot && (
                     <div className="unit-context-card unit-trajectory-card">
                       <span className="unit-context-label">Firing Profile</span>
-                      <svg
-                        className="unit-trajectory-diagram"
-                        width="56"
-                        height="56"
-                        viewBox="0 0 100 100"
-                        role="img"
-                        aria-label={`Weapon firing profile with ${rawSpray > 0 ? `${rawSpray} degree spread` : 'direct fire'}`}
-                      >
-                        <circle className="unit-trajectory-ring unit-trajectory-ring--outer" cx="50" cy="50" r="45" />
-                        <circle className="unit-trajectory-ring unit-trajectory-ring--inner" cx="50" cy="50" r="30" />
-                        <line className="unit-trajectory-axis" x1="50" y1="5" x2="50" y2="95" />
-                        <line className="unit-trajectory-axis" x1="5" y1="50" x2="95" y2="50" />
-                        {(() => {
-                          const angle = Math.max(5, Math.min(360, rawSpray || 10));
-                          const startAngle = -angle / 2;
-                          const endAngle = angle / 2;
-                          const rad = 45;
-                          const x1 = 50 + rad * Math.cos((startAngle * Math.PI) / 180);
-                          const y1 = 50 + rad * Math.sin((startAngle * Math.PI) / 180);
-                          const x2 = 50 + rad * Math.cos((endAngle * Math.PI) / 180);
-                          const y2 = 50 + rad * Math.sin((endAngle * Math.PI) / 180);
-                          const largeArc = angle > 180 ? 1 : 0;
-                          return (
-                            <path
-                              className="unit-trajectory-sector"
-                              d={`M 50 50 L ${x1} ${y1} A ${rad} ${rad} 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                            />
-                          );
-                        })()}
-                        <line className="unit-trajectory-vector" x1="50" y1="50" x2="91" y2="50" />
-                        <circle className="unit-trajectory-origin" cx="50" cy="50" r="3" />
-                      </svg>
-
                       <div className="unit-trajectory-copy">
                         <div className="unit-trajectory-values">
                           <div>
@@ -3351,7 +3328,8 @@ export default function App() {
                     </div>
                   )}
 
-                </div>
+                  </div>
+                </section>
 
                 <ParameterCanvas comparisonMode={comparisonMode}>
 

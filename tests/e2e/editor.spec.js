@@ -228,6 +228,24 @@ test('parameter tabs keep the selected state inset from the editor section edge'
   expect(inset.radius).not.toBe('0px');
 });
 
+test('operational overview uses telemetry modules without the legacy trajectory diagram', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const overview = page.getByRole('region', { name: 'Operational overview' });
+  await expect(overview).toBeVisible();
+  await expect(overview.getByRole('heading', { name: 'Operational overview' })).toBeVisible();
+  await expect(overview.locator('.unit-context-card')).toHaveCount(3);
+  await expect(overview.locator('.unit-trajectory-diagram')).toHaveCount(0);
+
+  const layout = await overview.evaluate(element => ({
+    width: element.getBoundingClientRect().width,
+    scrollWidth: element.scrollWidth,
+  }));
+  expect(layout.scrollWidth).toBeLessThanOrEqual(Math.ceil(layout.width));
+});
+
 test('borrow weapon dialog exposes the themed donor and comparison workflow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
