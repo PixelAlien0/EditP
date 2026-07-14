@@ -160,10 +160,12 @@ test('selected unit header reflows within a narrow editor canvas', async ({ page
   await expect(metrics).toHaveCSS('grid-row-start', '2');
   await expect(actions).toHaveCSS('grid-column-start', '2');
   await expect(identity).toBeVisible();
+  await expect(actions).toHaveCSS('width', '222px');
 
   await page.setViewportSize({ width: 700, height: 900 });
   await expect(actions).toHaveCSS('grid-column-start', '1');
   await expect(actions).toHaveCSS('grid-row-start', '3');
+  await expect(actions).not.toHaveCSS('width', '222px');
   const compactLayout = await header.evaluate(element => ({
     width: element.getBoundingClientRect().width,
     scrollWidth: element.scrollWidth,
