@@ -95,12 +95,27 @@ test('editor workbench panes resize, collapse, and persist', async ({ page }) =>
   await page.keyboard.press('ArrowRight');
   await expect(librarySeparator).toHaveAttribute('aria-valuenow', '312');
 
+  const separatorBounds = await librarySeparator.boundingBox();
+  await page.mouse.move(separatorBounds.x + (separatorBounds.width / 2), separatorBounds.y + 120);
+  await page.mouse.down();
+  await page.mouse.move(separatorBounds.x - 160, separatorBounds.y + 120, { steps: 4 });
+  await page.mouse.up();
+  await expect(librarySeparator).toHaveAttribute('aria-valuenow', '216');
+  await expect(library).toHaveCSS('width', '216px');
+  await expect(library.locator('.sidebar-total')).toBeHidden();
+  const collapseControlFits = await library.evaluate(element => {
+    const pane = element.getBoundingClientRect();
+    const control = element.querySelector('.workspace-pane-collapse-action').getBoundingClientRect();
+    return control.left >= pane.left && control.right <= pane.right;
+  });
+  expect(collapseControlFits).toBe(true);
+
   await page.getByRole('button', { name: 'Collapse unit library' }).click();
   await expect(library).toHaveClass(/is-collapsed/);
   await expect(page.getByRole('button', { name: 'Open unit library' })).toBeVisible();
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('editp_workspace_layout_v1')));
-  expect(saved.leftWidth).toBe(312);
+  expect(saved.leftWidth).toBe(216);
   expect(saved.leftCollapsed).toBe(true);
 });
 

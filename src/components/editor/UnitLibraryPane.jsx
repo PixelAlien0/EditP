@@ -1,4 +1,4 @@
-export default function UnitLibraryPane({ collapsed, total, filteredCount, onToggle, children }) {
+export default function UnitLibraryPane({ collapsed, compact = false, total, filteredCount, onToggle, children }) {
   if (collapsed) {
     return (
       <aside id="unit-library-pane" className="sidebar unit-library-pane is-collapsed" aria-label="Unit library">
@@ -31,7 +31,7 @@ export default function UnitLibraryPane({ collapsed, total, filteredCount, onTog
           <h2>Browse forces</h2>
         </div>
         <div className="unit-library-pane__heading-actions">
-          <span className="sidebar-total">{total.toLocaleString()}</span>
+          {!compact && <span className="sidebar-total">{total.toLocaleString()}</span>}
           <button
             type="button"
             className="workspace-pane-collapse-action"

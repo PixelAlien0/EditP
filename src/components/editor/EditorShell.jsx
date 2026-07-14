@@ -1,4 +1,4 @@
-import { Children, useCallback } from 'react';
+import { Children, cloneElement, isValidElement, useCallback } from 'react';
 import { WORKSPACE_LAYOUT_LIMITS } from '../../hooks/useWorkspaceLayout.js';
 
 function PaneSeparator({ side, value, onChange, controls, disabled }) {
@@ -75,13 +75,16 @@ export default function EditorShell({ layout, actions, children }) {
     '--workspace-left-width': `${layout.leftWidth}px`,
     '--workspace-right-width': `${layout.rightWidth}px`,
   };
+  const libraryPane = isValidElement(library)
+    ? cloneElement(library, { compact: layout.leftWidth <= 232 })
+    : library;
 
   return (
     <div
       className={`main-layout editor-shell density-${layout.density} ${layout.leftCollapsed ? 'is-library-collapsed' : 'is-library-open'} ${layout.rightCollapsed ? 'is-inspector-collapsed' : 'is-inspector-open'}`}
       style={style}
     >
-      {library}
+      {libraryPane}
       <PaneSeparator
         side="left"
         value={layout.leftWidth}

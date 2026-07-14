@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 export const WORKSPACE_LAYOUT_STORAGE_KEY = 'editp_workspace_layout_v1';
 
 export const WORKSPACE_LAYOUT_LIMITS = Object.freeze({
-  left: { min: 248, max: 380, default: 304 },
+  left: { min: 216, max: 380, default: 304 },
   right: { min: 320, max: 520, default: 380 },
 });
 

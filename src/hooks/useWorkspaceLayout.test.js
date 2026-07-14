@@ -11,7 +11,7 @@ describe('normalizeWorkspaceLayout', () => {
 
   it('clamps pane widths without discarding other preferences', () => {
     expect(normalizeWorkspaceLayout({ leftWidth: 10, rightWidth: 900, rightCollapsed: true })).toMatchObject({
-      leftWidth: 248,
+      leftWidth: 216,
       rightWidth: 520,
       rightCollapsed: true,
     });
