@@ -300,7 +300,14 @@
 }
 
 .collection-members__result-bar span { color: var(--color-text-strong); text-transform: uppercase; }
-.collection-members__list { min-height: 0; padding: var(--space-2); overflow: auto; }
+.collection-members__list {
+  min-height: 0;
+  padding: var(--space-2);
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  overflow: auto;
+}
 
 .collection-member-row {
   min-width: 720px;
@@ -310,8 +317,7 @@
   grid-template-columns: 66px 42px minmax(150px, 1.4fr) minmax(155px, 1fr) 90px 82px;
   align-items: center;
   gap: var(--space-2);
-  border: 1px solid transparent;
-  border-bottom-color: var(--color-border-subtle);
+  border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
 }
 

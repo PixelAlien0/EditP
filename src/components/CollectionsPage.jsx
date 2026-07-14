@@ -157,8 +157,8 @@ export default function CollectionsPage({
           ) : (
             <div className="collection-members__blank">
               <span>Collection workspace</span>
-              <h3 id="collection-members-title">Choose a folder to manage membership</h3>
-              <p>Select an existing folder from the tree, or create a new root collection. Units are never moved or deleted when folders change.</p>
+              <h3 id="collection-members-title">Select a collection to inspect its unit scope</h3>
+              <p>Choose an existing collection or create a new one to review included units, nested scope inheritance, and editing impact.</p>
             </div>
           )}
         </section>
