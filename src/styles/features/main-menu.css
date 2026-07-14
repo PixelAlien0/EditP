@@ -159,17 +159,20 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-6);
-  border: 1px solid var(--color-accent-strong);
+  border: 1px solid var(--color-border-accent-muted);
   border-radius: var(--radius-sm);
-  background: var(--color-accent-strong);
-  color: var(--color-text-inverse);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
+  box-shadow: inset 3px 0 0 var(--color-accent);
   font: 700 var(--font-size-sm)/1 var(--font-ui);
   cursor: pointer;
+  transition: border-color var(--motion-fast), background-color var(--motion-fast), color var(--motion-fast);
 }
 
 .main-menu__enter:hover {
-  border-color: var(--color-accent);
-  background: var(--color-accent);
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+  color: var(--color-text-strong);
 }
 
 .main-menu__enter svg {

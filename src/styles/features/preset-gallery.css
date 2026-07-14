@@ -92,8 +92,9 @@
 
 .preset-gallery-page .preset-save-action:hover,
 .preset-gallery-page .preset-apply-action:hover {
-  background: var(--color-accent-strong) !important;
-  color: var(--color-text-inverse) !important;
+  border-color: var(--color-accent-strong) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text-strong) !important;
 }
 
 .preset-gallery-page .preset-delete-action {

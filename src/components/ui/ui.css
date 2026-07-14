@@ -30,8 +30,21 @@
 .ui-button--sm { min-height: var(--control-height-sm); padding-inline: 10px; }
 .ui-button--lg { min-height: var(--control-height-lg); padding-inline: var(--space-4); font-size: var(--font-size-sm); }
 .ui-button--full { width: 100%; }
-.ui-button--primary { border-color: var(--color-accent-strong); background: var(--color-accent-strong); color: var(--color-text-inverse); }
-.ui-button--primary:hover:not(:disabled) { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-text-inverse); }
+.ui-button--primary {
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
+}
+.ui-button--primary:hover:not(:disabled) {
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+  color: var(--color-text-strong);
+}
+.ui-button--primary:active:not(:disabled) {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent-soft) 72%, var(--color-surface-muted));
+  color: var(--color-text-strong);
+}
 .ui-button--quiet { border-color: transparent; background: transparent; color: var(--color-text); }
 .ui-button--quiet:hover:not(:disabled) { border-color: var(--color-border); background: var(--color-surface-hover); color: var(--color-text-strong); }
 .ui-button--danger { border-color: color-mix(in srgb, var(--color-danger) 60%, var(--color-border)); background: transparent; color: var(--color-danger); }

@@ -6,6 +6,24 @@ async function waitForMainMenu(page) {
   await expect(page.getByRole('heading', { name: /Bar EditP/i })).toBeVisible({ timeout: 30_000 });
 }
 
+async function readPrimaryActionPalette(locator) {
+  return locator.evaluate(element => {
+    const resolveColor = token => {
+      const probe = document.createElement('span');
+      probe.style.color = `var(${token})`;
+      document.body.append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    };
+    return {
+      background: getComputedStyle(element).backgroundColor,
+      accent: resolveColor('--color-accent-strong'),
+      subtle: resolveColor('--color-surface-accent-subtle'),
+    };
+  });
+}
+
 test('main workflow remains keyboard accessible', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
@@ -32,6 +50,28 @@ test('main menu and editor have no serious accessibility violations', async ({ p
   await expect(page.getByRole('navigation', { name: 'Editor workflow' })).toBeVisible();
   results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
   expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
+});
+
+test('primary actions use restrained accent surfaces instead of solid pink fills', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.addInitScript(() => localStorage.setItem('bmf_theme', 'dark'));
+  await waitForMainMenu(page);
+
+  const enterAction = page.getByRole('button', { name: /Enter workshop|Continue workshop/i });
+  let palette = await readPrimaryActionPalette(enterAction);
+  expect(palette.background).toBe(palette.subtle);
+  expect(palette.background).not.toBe(palette.accent);
+  await enterAction.click();
+
+  const createAction = page.getByRole('button', { name: /Create a clone of the selected unit/i });
+  palette = await readPrimaryActionPalette(createAction);
+  expect(palette.background).toBe(palette.subtle);
+  await createAction.click();
+
+  const submitAction = page.getByRole('dialog', { name: 'Clone Unit Creator' }).getByRole('button', { name: 'Create Clone' });
+  palette = await readPrimaryActionPalette(submitAction);
+  expect(palette.background).toBe(palette.subtle);
+  expect(palette.background).not.toBe(palette.accent);
 });
 
 test('project edits recover after reload', async ({ page }) => {
@@ -281,7 +321,11 @@ test('borrow weapon dialog exposes the themed donor and comparison workflow', as
   await cloneDialog.getByRole('button', { name: 'Create Clone' }).click();
 
   await page.getByRole('tab', { name: /Weapons/ }).click();
-  await page.getByRole('button', { name: 'Choose weapon' }).click();
+  const chooseWeaponAction = page.getByRole('button', { name: 'Choose weapon' });
+  const chooseWeaponPalette = await readPrimaryActionPalette(chooseWeaponAction);
+  expect(chooseWeaponPalette.background).toBe(chooseWeaponPalette.subtle);
+  expect(chooseWeaponPalette.background).not.toBe(chooseWeaponPalette.accent);
+  await chooseWeaponAction.click();
 
   const borrowDialog = page.getByRole('dialog', { name: 'Borrow a weapon' });
   await expect(borrowDialog).toBeVisible();
