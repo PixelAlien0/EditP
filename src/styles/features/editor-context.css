@@ -370,7 +370,7 @@
   min-height: 72px !important;
   height: 72px;
   display: grid !important;
-  grid-template-columns: minmax(260px, 1fr) auto minmax(222px, auto) !important;
+  grid-template-columns: minmax(260px, 1fr) auto minmax(238px, auto) !important;
   align-items: center !important;
   gap: var(--space-5) !important;
   padding: var(--space-2) var(--space-5) !important;
@@ -556,14 +556,15 @@
 }
 
 .editor-unit-actions {
-  width: 222px;
-  min-width: 222px;
+  min-width: 238px;
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
+  align-self: stretch;
+  justify-content: center;
   justify-self: end;
-  gap: var(--space-2) !important;
-  padding-left: var(--space-3) !important;
+  gap: var(--space-1) !important;
+  padding-left: var(--space-4) !important;
   border: 0 !important;
   border-left: 1px solid var(--color-border) !important;
 }
@@ -573,6 +574,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  line-height: 1;
 }
 
 .unit-state-summary > span {
@@ -688,7 +690,6 @@
     grid-column: 1;
     grid-row: 3;
     width: 100%;
-    min-width: 0;
     padding: var(--space-3) 0 0 !important;
     border-left: 0 !important;
     border-top: 1px solid var(--color-border) !important;

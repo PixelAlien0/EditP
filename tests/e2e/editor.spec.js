@@ -160,17 +160,33 @@ test('selected unit header reflows within a narrow editor canvas', async ({ page
   await expect(metrics).toHaveCSS('grid-row-start', '2');
   await expect(actions).toHaveCSS('grid-column-start', '2');
   await expect(identity).toBeVisible();
-  await expect(actions).toHaveCSS('width', '222px');
 
   await page.setViewportSize({ width: 700, height: 900 });
   await expect(actions).toHaveCSS('grid-column-start', '1');
   await expect(actions).toHaveCSS('grid-row-start', '3');
-  await expect(actions).not.toHaveCSS('width', '222px');
   const compactLayout = await header.evaluate(element => ({
     width: element.getBoundingClientRect().width,
     scrollWidth: element.scrollWidth,
   }));
   expect(compactLayout.scrollWidth).toBeLessThanOrEqual(Math.ceil(compactLayout.width));
+});
+
+test('selected unit actions keep an even vertical inset in the desktop header', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const inset = await page.locator('.editor-unit-header').evaluate(header => {
+    const headerBounds = header.getBoundingClientRect();
+    const actionBounds = header.querySelector('.editor-unit-actions').getBoundingClientRect();
+    return {
+      top: actionBounds.top - headerBounds.top,
+      bottom: headerBounds.bottom - actionBounds.bottom,
+    };
+  });
+
+  expect(inset.top).toBeGreaterThan(0);
+  expect(Math.abs(inset.top - inset.bottom)).toBeLessThanOrEqual(1);
 });
 
 test('clone identity remains editable and nested clones keep the selected clone as parent', async ({ page }) => {
