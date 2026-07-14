@@ -1,4 +1,5 @@
 import { Button, EmptyState, PageShell, TextField } from './ui.jsx';
+import '../styles/features/preset-gallery.css';
 
 export default function PresetGalleryPage({
   presets,

@@ -9187,7 +9187,6 @@ textarea.form-input {
 }
 
 .editor-scroll-area > div {
-  width: 100%;
   max-width: 1540px !important;
   margin: 0 auto;
 }
@@ -11540,8 +11539,6 @@ input:checked + .weapon-ceg-track {
 }
 
 .editor-workspace .unit-context-strip--canonical .unit-trajectory-diagram {
-  width: 56px !important;
-  height: 56px !important;
   opacity: .9;
 }
 

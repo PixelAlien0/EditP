@@ -43,3 +43,18 @@ const crossOwned = [...selectorOwners.entries()].filter(([, owners]) => owners.s
 console.log(`\nTotal: ${files.length} files, ${totalBytes} bytes, ${totalImportant} !important declarations`);
 console.log(`Selectors owned by more than one file: ${crossOwned.length}`);
 crossOwned.slice(0, 20).forEach(([selector, owners]) => console.log(`- ${selector}: ${[...owners].join(', ')}`));
+
+const budgets = { bytes: 435000, important: 2175, crossOwned: 138 };
+const failures = [
+  totalBytes > budgets.bytes && `CSS size ${totalBytes} exceeds ${budgets.bytes} bytes`,
+  totalImportant > budgets.important && `${totalImportant} !important declarations exceed ${budgets.important}`,
+  crossOwned.length > budgets.crossOwned && `${crossOwned.length} shared selectors exceed ${budgets.crossOwned}`,
+].filter(Boolean);
+
+if (failures.length) {
+  console.error('\nCSS budgets failed:');
+  failures.forEach(failure => console.error(`- ${failure}`));
+  process.exitCode = 1;
+} else {
+  console.log('CSS regression budgets passed.');
+}

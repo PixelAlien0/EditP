@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getBrowserIdentity } from '../lib/browserIdentity.js';
-import { isSupabaseConfigured, supabase } from '../lib/supabase.js';
+import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase.js';
 
 export const CHAT_RETENTION_MINUTES = 8;
 export const CHAT_MAX_LENGTH = 280;
@@ -47,7 +47,7 @@ export function validateChatMessage(value) {
   return { body, error: null };
 }
 
-export function useTemporaryChat() {
+export function useTemporaryChat(enabled = true) {
   const identity = useMemo(() => getBrowserIdentity(), []);
   const [messages, setMessages] = useState([]);
   const [status, setStatus] = useState(isSupabaseConfigured ? 'loading' : 'unconfigured');
@@ -55,29 +55,37 @@ export function useTemporaryChat() {
   const lastSentAtRef = useRef(0);
 
   useEffect(() => {
-    if (!supabase) return undefined;
+    if (!enabled || !isSupabaseConfigured) return undefined;
 
     let disposed = false;
-    const channel = supabase
-      .channel(CHAT_CHANNEL)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: CHAT_TABLE },
-        payload => {
-          if (!disposed) setMessages(current => mergeMessages(current, [payload.new]));
+    let client = null;
+    let channel = null;
+    let expiryTimer = null;
+    setStatus('loading');
+
+    const connect = async () => {
+      const supabase = await getSupabaseClient();
+      if (disposed || !supabase) return;
+      client = supabase;
+      channel = supabase
+        .channel(CHAT_CHANNEL)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: CHAT_TABLE },
+          payload => {
+            if (!disposed) setMessages(current => mergeMessages(current, [payload.new]));
+          }
+        );
+
+      channel.subscribe(subscriptionStatus => {
+        if (disposed) return;
+        if (subscriptionStatus === 'SUBSCRIBED') setStatus(current => current === 'loading' ? 'connected' : current);
+        if (subscriptionStatus === 'CHANNEL_ERROR' || subscriptionStatus === 'TIMED_OUT') {
+          setStatus('unavailable');
+          setError('The temporary chat connection is unavailable.');
         }
-      );
+      });
 
-    channel.subscribe(subscriptionStatus => {
-      if (disposed) return;
-      if (subscriptionStatus === 'SUBSCRIBED') setStatus(current => current === 'loading' ? 'connected' : current);
-      if (subscriptionStatus === 'CHANNEL_ERROR' || subscriptionStatus === 'TIMED_OUT') {
-        setStatus('unavailable');
-        setError('The temporary chat connection is unavailable.');
-      }
-    });
-
-    const loadMessages = async () => {
       const cutoff = new Date(Date.now() - CHAT_RETENTION_MS).toISOString();
       const { data, error: loadError } = await supabase
         .from(CHAT_TABLE)
@@ -99,23 +107,29 @@ export function useTemporaryChat() {
       setMessages(current => mergeMessages(current, data || []));
       setStatus('connected');
       setError('');
+      expiryTimer = window.setInterval(() => {
+        if (!disposed) setMessages(current => mergeMessages(current, []));
+      }, 15000);
     };
 
-    void loadMessages();
-    const expiryTimer = window.setInterval(() => {
-      if (!disposed) setMessages(current => mergeMessages(current, []));
-    }, 15000);
+    void connect().catch(() => {
+      if (!disposed) {
+        setStatus('unavailable');
+        setError('The temporary chat connection is unavailable.');
+      }
+    });
 
     return () => {
       disposed = true;
-      window.clearInterval(expiryTimer);
-      void supabase.removeChannel(channel);
+      if (expiryTimer) window.clearInterval(expiryTimer);
+      if (channel && client) void client.removeChannel(channel);
     };
-  }, []);
+  }, [enabled]);
 
   const sendMessage = useCallback(async value => {
     const validation = validateChatMessage(value);
     if (validation.error) throw new Error(validation.error);
+    const supabase = await getSupabaseClient();
     if (!supabase) throw new Error('Temporary chat is not configured.');
 
     const cooldownRemaining = CHAT_SEND_COOLDOWN_MS - (Date.now() - lastSentAtRef.current);

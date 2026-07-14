@@ -1,67 +1,41 @@
 import { lazy, Suspense, useState, useMemo, useEffect, useRef, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
-import unitsDb from './data/units.json';
-import factoryRosters from './data/factory-rosters.json';
+import unitsDbUrl from './data/units.json?url';
+import unitDefaultsUrl from './data/unit-defaults.json?url';
+import unitpicManifestUrl from './data/unitpic-manifest.json?url';
+import factoryRostersUrl from './data/factory-rosters.json?url';
 import { BUILD_MENU_PACKS, buildEffectiveFactoryRosters, getBuildMenuPackSource } from './data/build-menu-packs.js';
 import { getFactionOfUnit, getTagsOfUnit as getUnitTags, getTechTierFromValue, getTechTierOfUnit as getUnitTechTier } from './utils/categories.js';
 import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import { useTemporaryChat } from './hooks/useTemporaryChat.js';
+import { useProjectPersistence } from './hooks/useProjectPersistence.js';
+import { useProjectStore } from './state/useProjectStore.js';
+import { assertProjectSize, normalizeProjectDocument } from './project/projectDocument.js';
 import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
+import {
+  MOBILITY_STAT_KEYS, STAT_KEYS, TARGET_CATEGORY_GROUPS, UNIT_CATEGORIES as CATEGORIES,
+  WEAPON_SLOT_BOOLEAN_PARAMS, WEAPON_SLOT_PATHS, WEAPON_SLOT_STRING_PARAMS,
+  WORKSPACE_TAB_DEFINITIONS,
+} from './config/editorParameters.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
-import TemporaryChatDialog from './components/TemporaryChatDialog.jsx';
-import BatchAdjustDialog from './components/BatchAdjustDialog.jsx';
-import SummaryExplorerDialog from './components/SummaryExplorerDialog.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
-import { getUnitIconUrl } from './utils/unitArtwork.js';
+import { getUnitIconUrl, setUnitArtworkManifest } from './utils/unitArtwork.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
 const LazyPresetGalleryPage = lazy(() => import('./components/PresetGalleryPage.jsx'));
 const LazyReviewPage = lazy(() => import('./components/ReviewPage.jsx'));
+const LazyTemporaryChatDialog = lazy(() => import('./components/TemporaryChatDialog.jsx'));
+const LazyBatchAdjustDialog = lazy(() => import('./components/BatchAdjustDialog.jsx'));
+const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplorerDialog.jsx'));
+const LazyCommandPalette = lazy(() => import('./components/CommandPalette.jsx'));
+const LazyProjectCheckpointsDialog = lazy(() => import('./components/ProjectCheckpointsDialog.jsx'));
 
 // Keep the laboratory code available while this experimental workspace is temporarily unpublished.
 const WEAPON_LAB_ENABLED = false;
 const SHOW_LEGACY_REVIEW_REFERENCE = false;
-
-// Curated parameters list with monospaced text labels instead of emojis
-const STAT_KEYS = [
-  { key: 'metalcost', label: 'Metal Cost', icon: '[MET]', type: 'number' },
-  { key: 'energycost', label: 'Energy Cost', icon: '[ENG]', type: 'number' },
-  { key: 'buildtime', label: 'Build Time', icon: '[TIM]', type: 'number' },
-  { key: 'health', label: 'Health (HP)', icon: '[HP]', type: 'number' },
-  { key: 'maxvelocity', label: 'Max Speed', icon: '[SPD]', type: 'number', patchKey: 'speed' },
-  { key: 'acceleration', label: 'Acceleration', icon: '[ACC]', type: 'number' },
-  { key: 'brakerate', label: 'Brake Rate', icon: '[BRK]', type: 'number', patchKey: 'brakeRate' },
-  { key: 'turnrate', label: 'Turn Rate', icon: '[TRN]', type: 'number', patchKey: 'turnRate' },
-  { key: 'mass', label: 'Mass', icon: '[MSS]', type: 'number' },
-  { key: 'sightdistance', label: 'Sight Range', icon: '[SIG]', type: 'number' },
-  { key: 'radardistance', label: 'Radar Range', icon: '[RAD]', type: 'number' },
-  { key: 'sonardistance', label: 'Sonar Range', icon: '[SON]', type: 'number' },
-  { key: 'stealth', label: 'Radar Stealth', icon: '[STL]', type: 'boolean' },
-  { key: 'sonarstealth', label: 'Sonar Stealth', icon: '[SST]', type: 'boolean', patchKey: 'sonarStealth' },
-  { key: 'workertime', label: 'Worker Power', icon: '[WRK]', type: 'number' },
-  { key: 'metalmake', label: 'Metal Prod.', icon: '[PROD]', type: 'number' },
-  { key: 'extractsmetal', label: 'Metal Extract', icon: '[EXT]', type: 'number' },
-  { key: 'energymake', label: 'Energy Prod.', icon: '[ENM]', type: 'number' },
-  { key: 'metalstorage', label: 'Metal Storage', icon: '[MS]', type: 'number' },
-  { key: 'energystorage', label: 'Energy Storage', icon: '[ES]', type: 'number' },
-  { key: 'cloakcost', label: 'Cloak Cost', icon: '[CLK]', type: 'number' },
-  { key: 'cloakcostmoving', label: 'Cloak Move', icon: '[CLKM]', type: 'number' },
-  { key: 'builddistance', label: 'Build Range', icon: '[RNG]', type: 'number' },
-  { key: 'autoheal', label: 'Regen Rate', icon: '[REG]', type: 'number' },
-  { key: 'customparams.techlevel', label: 'Tech Tier', icon: '[TCH]', type: 'number', nestedIn: 'customparams', patchKey: 'techlevel' },
-  { key: 'customparams.energyconv_capacity', label: 'Conv. Capacity', icon: '[CAP]', type: 'number', nestedIn: 'customparams', patchKey: 'energyconv_capacity' },
-  { key: 'customparams.energyconv_efficiency', label: 'Conv. Effic.', icon: '[EFF]', type: 'number', nestedIn: 'customparams', patchKey: 'energyconv_efficiency' },
-  { key: 'maxslope', label: 'Max Slope', icon: '[SLP]', type: 'number' },
-  { key: 'maxwaterdepth', label: 'Max Depth', icon: '[DEP]', type: 'number' },
-  { key: 'minwaterdepth', label: 'Min Depth', icon: '[MIN]', type: 'number' },
-  { key: 'transportcapacity', label: 'Trans. Cap.', icon: '[TRN]', type: 'number', patchKey: 'transportCapacity' },
-  { key: 'cantbetransported', label: 'No Transport', icon: '[NTR]', type: 'boolean', patchKey: 'cantBeTransported' },
-  { key: 'cruisealt', label: 'Cruise Altitude', icon: '[ALT]', type: 'number' },
-  { key: 'airsubalt', label: 'Sub-Altitude', icon: '[SUB]', type: 'number' }
-];
 
 const BULK_PARAMETER_GROUPS = [
   {
@@ -91,17 +65,6 @@ const BULK_PARAMETER_GROUPS = [
         description: `Adjust ${stat.label.toLowerCase()} across every eligible unit.`,
       })),
   },
-];
-
-const MOBILITY_STAT_KEYS = new Set([
-  'maxvelocity', 'acceleration', 'brakerate', 'turnrate', 'maxslope', 'maxwaterdepth',
-  'minwaterdepth', 'transportcapacity', 'cantbetransported', 'cruisealt', 'airsubalt'
-]);
-
-const WORKSPACE_TAB_DEFINITIONS = [
-  { id: 'structure', label: 'Economy & Durability', description: 'Costs, health, production', panelId: 'workspace-panel-structure' },
-  { id: 'mobility', label: 'Movement & Sensors', description: 'Speed, terrain, detection', panelId: 'workspace-panel-mobility' },
-  { id: 'weapons', label: 'Weapons', description: 'Damage, targeting, projectiles', panelId: 'workspace-panel-weapons' }
 ];
 
 const PARAMETER_RELATIONSHIPS = [
@@ -200,75 +163,6 @@ function ComparisonValue({ active, before, after, beforeLabel = 'Inherited' }) {
     </div>
   );
 }
-
-const TARGET_CATEGORY_GROUPS = [
-  { label: 'Unit types', categories: ['VTOL', 'SURFACE', 'UNDERWATER', 'SUB', 'SHIP', 'HOVER', 'LAND', 'FLOAT', 'SWIM', 'IMMOBILE', 'MINE'] },
-  { label: 'Exclusions', categories: ['NOTAIR', 'NOTSUB', 'NOTSHIP', 'NOTHOVER', 'NOTLAND'] },
-  { label: 'Special', categories: ['EMPABLE'] }
-];
-
-const CATEGORIES = [
-  'bots', 'vehicles', 'aircraft', 'ships', 'hovercraft', 'factories', 'defenses', 'buildings', 't1', 't2', 't3', 't4'
-];
-
-const WEAPON_SLOT_BOOLEAN_PARAMS = new Set([
-  'canattackground', 'toairweapon', 'stockpile', 'avoidfriendly', 'collidefriendly',
-  'impactonly', 'noexplode', 'burnblow', 'noselfdamage', 'paralyzer', 'waterweapon',
-  'firesubmersed', 'collidefeature', 'collideneutral', 'collideground', 'tracks',
-  'fixedlauncher', 'smoketrail', 'groundbounce', 'waterbounce', 'beamburst', 'sweepfire',
-  'hardstop', 'explosionscar', 'alwaysvisible'
-]);
-
-const WEAPON_SLOT_STRING_PARAMS = new Set([
-  'weapontype', 'cegTag', 'model', 'explosiongenerator', 'rgbcolor', 'rgbcolor2',
-  'soundstart', 'soundhit', 'soundhitwet'
-]);
-
-const WEAPON_SLOT_PATHS = {
-  damage: 'damage.default',
-  damage_vs_light: 'damage.light',
-  damage_vs_medium: 'damage.medium',
-  damage_vs_heavy: 'damage.heavy',
-  damage_vs_commander: 'damage.commander',
-  reload: 'reloadtime',
-  velocity: 'weaponvelocity',
-  aoe: 'areaofeffect',
-  stockpilelimit: 'customparams.stockpilelimit',
-  cegTag: 'cegtag',
-  interceptedbyshieldtype: 'interceptedbyshieldtype',
-  collisionSize: 'collisionsize',
-  startvelocity: 'startvelocity',
-  weaponacceleration: 'weaponacceleration',
-  turnrate: 'turnrate',
-  trajectoryheight: 'trajectoryheight',
-  targetmoveerror: 'targetmoveerror',
-  targetborder: 'targetborder',
-  cylindertargeting: 'cylindertargeting',
-  firetolerance: 'firetolerance',
-  proximitypriority: 'proximitypriority',
-  edgeeffectiveness: 'edgeeffectiveness',
-  impulsefactor: 'impulsefactor',
-  impulseboost: 'impulseboost',
-  energypershot: 'energypershot',
-  metalpershot: 'metalpershot',
-  paralyzetime: 'paralyzetime',
-  movingaccuracy: 'movingaccuracy',
-  predictboost: 'predictboost',
-  leadlimit: 'leadlimit',
-  leadbonus: 'leadbonus',
-  heightboostfactor: 'heightboostfactor',
-  numbounce: 'numbounce',
-  bounceslip: 'bounceslip',
-  bouncerebound: 'bouncerebound',
-  beamtime: 'beamtime',
-  minintensity: 'minintensity',
-  duration: 'duration',
-  falloffrate: 'falloffrate',
-  thickness: 'thickness',
-  corethickness: 'corethickness',
-  laserflaresize: 'laserflaresize',
-  intensity: 'intensity'
-};
 
 const PARAMETER_HELP = {
   metalcost: 'Metal required to build the unit.', energycost: 'Energy required to build the unit.', buildtime: 'Base work required to finish construction.', health: 'Maximum hit points before destruction.',
@@ -785,22 +679,44 @@ function generateWeaponVfxPackLua(blueprints) {
 }
 
 export default function App() {
+  const [unitsDb, setUnitsDb] = useState({ names: {}, descriptions: {} });
+  const [factoryRosters, setFactoryRosters] = useState({});
   const [defaultsDb, setDefaultsDb] = useState({});
   const [coreDataStatus, setCoreDataStatus] = useState('loading');
-  const temporaryChat = useTemporaryChat();
 
   useEffect(() => {
     let cancelled = false;
-    import('./data/unit-defaults.json')
-      .then(module => {
+    const fetchJson = url => fetch(url).then(response => {
+      if (!response.ok) throw new Error(`Bundled data request failed: ${response.status}`);
+      return response.json();
+    });
+    const loadDefaults = () => Promise.all([
+      fetchJson(unitDefaultsUrl),
+      fetchJson(unitsDbUrl),
+      fetchJson(factoryRostersUrl),
+      fetchJson(unitpicManifestUrl),
+    ])
+      .then(([defaults, units, rosters, artworkManifest]) => {
         if (cancelled) return;
-        setDefaultsDb(module.default || {});
+        setDefaultsDb(defaults || {});
+        setUnitsDb(units || { names: {}, descriptions: {} });
+        setFactoryRosters(rosters || {});
+        setUnitArtworkManifest(artworkManifest);
         setCoreDataStatus('ready');
       })
       .catch(() => {
         if (!cancelled) setCoreDataStatus('error');
       });
-    return () => { cancelled = true; };
+
+    const idleHandle = 'requestIdleCallback' in window
+      ? window.requestIdleCallback(loadDefaults, { timeout: 1500 })
+      : window.setTimeout(loadDefaults, 0);
+
+    return () => {
+      cancelled = true;
+      if ('cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle);
+      else window.clearTimeout(idleHandle);
+    };
   }, []);
 
   const getTechTierOfUnit = useCallback(unitId => getUnitTechTier(unitId, defaultsDb), [defaultsDb]);
@@ -834,14 +750,19 @@ export default function App() {
     }
   }, [themeMode]);
 
-  const [tweaks, setTweaks] = useState(() => {
-    try {
-      const saved = localStorage.getItem('bmf_tweaks');
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
+  const {
+    state: projectStore,
+    setTweaks, setClones, setDisabledUnitIds, setUnitDescriptions,
+    setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary,
+    setProjectName, setProjectAuthor, setProjectDesc,
+    setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
+    hydrateProjectStore,
+  } = useProjectStore();
+  const {
+    tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
+    presets, weaponLibrary, projectName, projectAuthor, projectDesc,
+    includeTweaks, includeClones, includeRosters, includeHeader,
+  } = projectStore;
 
   const techTierOverrideSignature = useMemo(() => JSON.stringify(
     Object.entries(tweaks)
@@ -860,15 +781,6 @@ export default function App() {
     const override = techTierOverrides.get(unitId);
     return override === undefined ? getTechTierOfUnit(baseId) : getTechTierFromValue(override);
   }, [getTechTierOfUnit, techTierOverrides]);
-
-  const [clones, setClones] = useState(() => {
-    try {
-      const saved = localStorage.getItem('bmf_clones');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
 
   const getCloneLineage = useCallback((unitId) => {
     const lineage = [];
@@ -907,60 +819,10 @@ export default function App() {
     return getUnitIconUrl(resolveCloneRootId(unitId));
   };
 
-  const [disabledUnitIds, setDisabledUnitIds] = useState(() => {
-    try {
-      const saved = localStorage.getItem('bmf_disabled');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [unitDescriptions, setUnitDescriptions] = useState(() => {
-    try {
-      const saved = localStorage.getItem('bmf_descriptions');
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-
-  // Persist unit descriptions to localStorage
-  useEffect(() => {
-    try {
-      if (Object.keys(unitDescriptions).length > 0) {
-        localStorage.setItem('bmf_descriptions', JSON.stringify(unitDescriptions));
-      } else {
-        localStorage.removeItem('bmf_descriptions');
-      }
-    } catch {
-      // Project descriptions remain usable when storage is unavailable.
-    }
-  }, [unitDescriptions]);
-
   // Build Menu Wizard/Designer state
-  const [buildMenuSteps, setBuildMenuSteps] = useState(() => {
-    try {
-      const saved = localStorage.getItem('bmf_buildmenu_steps');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-  const [buildMenuPacks, setBuildMenuPacks] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('bmf_buildmenu_packs') || '{}');
-      return {
-        extraUnits: Boolean(saved.extraUnits),
-        scavengerUnits: Boolean(saved.scavengerUnits)
-      };
-    } catch {
-      return { extraUnits: false, scavengerUnits: false };
-    }
-  });
   const activeFactoryRosters = useMemo(
     () => buildEffectiveFactoryRosters(factoryRosters, buildMenuPacks),
-    [buildMenuPacks]
+    [buildMenuPacks, factoryRosters]
   );
 
   const [base64Options, setBase64Options] = useState({ urlSafe: false, padding: true });
@@ -1060,18 +922,13 @@ export default function App() {
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showProjectCheckpoints, setShowProjectCheckpoints] = useState(false);
+  const temporaryChat = useTemporaryChat(showChatModal);
   const [chatReadAt, setChatReadAt] = useState(() => Date.now());
   const [showPresetGallery, setShowPresetGallery] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [presetDescription, setPresetDescription] = useState('');
-  const [presets, setPresets] = useState(() => {
-    try {
-      const saved = localStorage.getItem('bmf_presets');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
   const [showWeaponLab, setShowWeaponLab] = useState(false);
   const [weaponBlueprintDraft, setWeaponBlueprintDraft] = useState(null);
   const presenceActivity = useMemo(() => {
@@ -1095,42 +952,6 @@ export default function App() {
     status: presenceStatus,
     activityCounts: presenceActivityCounts
   } = useOnlinePresence(presenceActivity);
-  const [weaponLibrary, setWeaponLibrary] = useState(() => {
-    try {
-      const saved = localStorage.getItem('bmf_weapon_library');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  // Project Metadata states
-  const [projectName, setProjectName] = useState(() => {
-    const savedName = localStorage.getItem('bmf_project_name');
-    return !savedName || savedName === 'BAR EDITP Mod' ? 'BAR Editor Mod' : savedName;
-  });
-  const [projectAuthor, setProjectAuthor] = useState(() => localStorage.getItem('bmf_project_author') || 'Developer');
-  const [projectDesc, setProjectDesc] = useState(() => localStorage.getItem('bmf_project_desc') || 'A custom unit configuration mod.');
-
-  // Compile options states
-  const [includeTweaks, setIncludeTweaks] = useState(() => {
-    const saved = localStorage.getItem('bmf_inc_tweaks');
-    return saved === null ? true : saved === 'true';
-  });
-  const [includeClones, setIncludeClones] = useState(() => {
-    const saved = localStorage.getItem('bmf_inc_clones');
-    return saved === null ? true : saved === 'true';
-  });
-  const [includeRosters, setIncludeRosters] = useState(() => {
-    const saved = localStorage.getItem('bmf_inc_rosters');
-    return saved === null ? true : saved === 'true';
-  });
-
-  const [includeHeader, setIncludeHeader] = useState(() => {
-    const saved = localStorage.getItem('bmf_inc_header');
-    return saved === null ? true : saved === 'true';
-  });
-
   // Active Output tab
   const [activeOutputTab, setActiveOutputTab] = useState('tweakdefs_lua'); // 'tweakunits_lua' | 'tweakdefs_lua' | 'tweakunits_b64' | 'tweakdefs_b64'
 
@@ -1186,7 +1007,7 @@ export default function App() {
     setBuildMenuSteps(snapshot.buildMenuSteps || []);
     setBuildMenuPacks(snapshot.buildMenuPacks || { extraUnits: false, scavengerUnits: false });
     setWeaponLibrary(snapshot.weaponLibrary || []);
-  }, []);
+  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setTweaks, setWeaponLibrary]);
 
   const handleUndo = useCallback(() => {
     if (historyPast.length === 0) return;
@@ -1208,66 +1029,15 @@ export default function App() {
     applyProjectSnapshot(target);
   }, [historyFuture, projectSnapshot, applyProjectSnapshot]);
 
-  useEffect(() => {
-    localStorage.setItem('bmf_tweaks', JSON.stringify(tweaks));
-  }, [tweaks]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_clones', JSON.stringify(clones));
-  }, [clones]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_disabled', JSON.stringify(disabledUnitIds));
-  }, [disabledUnitIds]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_buildmenu_steps', JSON.stringify(buildMenuSteps));
-  }, [buildMenuSteps]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_buildmenu_packs', JSON.stringify(buildMenuPacks));
-  }, [buildMenuPacks]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_project_name', projectName);
-  }, [projectName]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_project_author', projectAuthor);
-  }, [projectAuthor]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_project_desc', projectDesc);
-  }, [projectDesc]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_inc_tweaks', String(includeTweaks));
-  }, [includeTweaks]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_inc_clones', String(includeClones));
-  }, [includeClones]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_inc_rosters', String(includeRosters));
-  }, [includeRosters]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_inc_header', String(includeHeader));
-  }, [includeHeader]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_presets', JSON.stringify(presets));
-  }, [presets]);
-
-  useEffect(() => {
-    localStorage.setItem('bmf_weapon_library', JSON.stringify(weaponLibrary));
-  }, [weaponLibrary]);
-
-  const showToast = (message) => {
+  const showToast = useCallback((message) => {
     setToast({ show: true, message });
     setTimeout(() => setToast({ show: false, message: '' }), 2500);
-  };
+  }, []);
+
+  const {
+    document: normalizedProjectDocument,
+    createCheckpoint,
+  } = useProjectPersistence({ state: projectStore, hydrate: hydrateProjectStore, onNotice: showToast });
 
   const createPresetSnapshot = () => ({
     tweaks,
@@ -1357,7 +1127,7 @@ export default function App() {
     });
 
     return list.sort((a, b) => a.name.localeCompare(b.name));
-  }, [clones, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId]);
+  }, [clones, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitsDb.descriptions, unitsDb.names]);
 
   // Parse advanced search query (e.g. hp > 1000)
   const queryFilterFn = useMemo(() => {
@@ -2252,23 +2022,7 @@ export default function App() {
 
   // Mod Import/Export Handlers
   const handleExportConfig = () => {
-    const config = {
-      version: '1.4',
-      tweaks,
-      clones,
-      disabledUnitIds,
-      buildMenuSteps,
-      buildMenuPacks,
-      unitDescriptions,
-      weaponLibrary,
-      projectName,
-      projectAuthor,
-      projectDesc,
-      includeTweaks,
-      includeClones,
-      includeRosters,
-      includeHeader
-    };
+    const config = normalizedProjectDocument;
     const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2284,39 +2038,85 @@ export default function App() {
   const handleImportConfig = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    try {
+      assertProjectSize(file.size);
+    } catch (error) {
+      showToast(error.message);
+      e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const config = JSON.parse(event.target.result);
-        if (config.tweaks) setTweaks(config.tweaks);
-        if (config.clones) setClones(config.clones);
-        if (config.disabledUnitIds) setDisabledUnitIds(config.disabledUnitIds);
-        if (config.unitDescriptions) setUnitDescriptions(config.unitDescriptions);
-        if (config.buildMenuSteps) setBuildMenuSteps(config.buildMenuSteps);
-        if (config.buildMenuPacks) setBuildMenuPacks(config.buildMenuPacks);
-
-        // Metadata & Flags imports if present
-        if (config.projectName) setProjectName(config.projectName);
-        if (config.projectAuthor) setProjectAuthor(config.projectAuthor);
-        if (config.projectDesc) setProjectDesc(config.projectDesc);
-        if (config.includeTweaks !== undefined) setIncludeTweaks(config.includeTweaks);
-        if (config.includeClones !== undefined) setIncludeClones(config.includeClones);
-        if (config.includeRosters !== undefined) setIncludeRosters(config.includeRosters);
-        if (config.includeHeader !== undefined) setIncludeHeader(config.includeHeader);
-        if (config.weaponLibrary) setWeaponLibrary(config.weaponLibrary);
-
+        const config = normalizeProjectDocument(JSON.parse(event.target.result));
+        void createCheckpoint('before import').catch(() => undefined);
+        hydrateProjectStore(config);
         showToast('Configuration imported successfully!');
-      } catch {
-        showToast('Error: Invalid config file');
+      } catch (error) {
+        showToast(error?.message || 'Error: Invalid config file');
       }
     };
     reader.readAsText(file);
     e.target.value = '';
   };
 
+  const commandPaletteCommands = useMemo(() => {
+    const openEditor = () => {
+      setShowMainMenu(false);
+      setShowDesignerPanel(false);
+      setShowPresetGallery(false);
+      setActiveWorkspace('edit');
+    };
+    const commands = [
+      { id: 'workspace-edit', kind: 'Workspace', label: 'Edit units', description: 'Open the unit parameter editor.', priority: 30, onSelect: openEditor },
+      { id: 'workspace-build', kind: 'Workspace', label: 'Build menus', description: 'Open Factory Roster Designer.', priority: 29, onSelect: () => { setShowMainMenu(false); setShowPresetGallery(false); setShowDesignerPanel(true); setActiveWorkspace('designer'); } },
+      { id: 'workspace-review', kind: 'Workspace', label: 'Review & export', description: 'Validate and compile the current project.', priority: 28, onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('review'); } },
+      { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Apply one adjustment across matching units.', onSelect: () => { openEditor(); setShowBulkPanel(true); } },
+      { id: 'tool-presets', kind: 'Tool', label: 'Preset gallery', description: 'Save or apply reusable project snapshots.', onSelect: () => { setShowMainMenu(false); setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); } },
+      { id: 'tool-mutation', kind: 'Tool', label: 'Mutation lab', description: 'Generate controlled random adjustments.', onSelect: () => { openEditor(); setShowRandomPanel(true); } },
+    ];
+
+    STAT_KEYS.forEach(parameter => commands.push({
+      id: `parameter-${parameter.key}`,
+      kind: 'Parameter',
+      label: parameter.label,
+      description: `Open ${MOBILITY_STAT_KEYS.has(parameter.key) ? 'Movement & Sensors' : 'Economy & Durability'} and focus this field.`,
+      keywords: `${parameter.key} ${parameter.icon}`,
+      onSelect: () => {
+        openEditor();
+        setActiveParamTab(MOBILITY_STAT_KEYS.has(parameter.key) ? 'mobility' : 'structure');
+        setActiveRelationshipKey(parameter.key);
+      },
+    }));
+
+    Object.keys(WEAPON_SLOT_PATHS).forEach(key => commands.push({
+      id: `weapon-parameter-${key}`,
+      kind: 'Weapon field',
+      label: getRelationshipLabel(key),
+      description: 'Open the active weapon slot and focus this field.',
+      keywords: key,
+      onSelect: () => { openEditor(); setActiveParamTab('weapons'); setActiveRelationshipKey(key); },
+    }));
+
+    allUnitsList.forEach(unit => commands.push({
+      id: `unit-${unit.id}`,
+      kind: unit.isClone ? 'Clone' : 'Unit',
+      label: unit.name,
+      description: unit.id,
+      keywords: `${unit.id} ${unit.faction} ${unit.tags.join(' ')}`,
+      onSelect: () => { openEditor(); setSelectedUnitId(unit.id); },
+    }));
+    return commands;
+  }, [allUnitsList]);
+
   // Keyboard Shortcuts Hook
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(open => !open);
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         if (e.shiftKey) handleRedo();
@@ -2341,6 +2141,8 @@ export default function App() {
         setShowSummaryModal(false);
         setShowCreditsModal(false);
         setShowChatModal(false);
+        setShowCommandPalette(false);
+        setShowProjectCheckpoints(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -2385,7 +2187,7 @@ export default function App() {
       }
       return true;
     });
-  }, [factoryIdsList, designerFaction, factorySearchQuery]);
+  }, [factoryIdsList, designerFaction, factorySearchQuery, unitsDb.names]);
 
   const activeRosterItems = useMemo(() => {
     const defaults = activeFactoryRosters[selectedFactoryId] || [];
@@ -2430,7 +2232,7 @@ export default function App() {
     }
 
     return items;
-  }, [selectedFactoryId, buildMenuSteps, clones, activeFactoryRosters, buildMenuPacks]);
+  }, [selectedFactoryId, buildMenuSteps, clones, activeFactoryRosters, buildMenuPacks, unitsDb.names]);
 
   const availableUnitsForFactory = useMemo(() => {
     const activeIds = new Set(
@@ -2478,7 +2280,7 @@ export default function App() {
       });
     });
     return issues;
-  }, [tweaks, clones]);
+  }, [tweaks, clones, unitsDb.names]);
 
   const factoryIsModified = (factoryId) => {
     const step = buildMenuSteps.find(s => s.builderId === factoryId);
@@ -2619,7 +2421,7 @@ export default function App() {
         : tweakUnitsB64;
   const activeCompiledOutputFallback = activeOutputTab.includes('lua') ? '{\n}' : 'No encoded output generated yet.';
 
-  if (coreDataStatus !== 'ready') {
+  if (!showMainMenu && coreDataStatus !== 'ready') {
     return (
       <main className="core-data-gate" role={coreDataStatus === 'error' ? 'alert' : 'status'}>
         <img src="/logo.svg" alt="" />
@@ -2637,7 +2439,7 @@ export default function App() {
         {toast.show && <div className="toast">{toast.message}</div>}
         <MainMenu
           themeMode={themeMode}
-          unitCount={allUnitsList.length}
+          unitCount={allUnitsList.length || 1731}
           projectName={projectName}
           projectChangeCount={projectChangeCount}
           cloneCount={clones.length}
@@ -2675,6 +2477,21 @@ export default function App() {
           }}
         />
         {showCreditsModal && <CreditsModal onClose={() => setShowCreditsModal(false)} />}
+        {showCommandPalette && (
+          <Suspense fallback={null}>
+            <LazyCommandPalette commands={commandPaletteCommands} onClose={() => setShowCommandPalette(false)} />
+          </Suspense>
+        )}
+        {showProjectCheckpoints && (
+          <Suspense fallback={null}>
+            <LazyProjectCheckpointsDialog
+              currentDocument={normalizedProjectDocument}
+              onRestore={hydrateProjectStore}
+              onNotice={showToast}
+              onClose={() => setShowProjectCheckpoints(false)}
+            />
+          </Suspense>
+        )}
       </>
     );
   }
@@ -2828,6 +2645,8 @@ export default function App() {
             </Button>
             {showToolsMenu && (
               <div className="header-tools-menu" id="header-tools-menu" role="menu" aria-label="Editor tools">
+                <button type="button" role="menuitem" onClick={() => { setShowCommandPalette(true); setShowToolsMenu(false); }}>Command Palette <span aria-hidden="true">Ctrl K</span></button>
+                <button type="button" role="menuitem" onClick={() => { setShowProjectCheckpoints(true); setShowToolsMenu(false); }}>Project Checkpoints</button>
                 <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>Batch Adjust</button>
                 <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>Preset Gallery</button>
                 {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}>Weapon Lab</button>}
@@ -2859,7 +2678,26 @@ export default function App() {
       </header>
 
       {showCreditsModal && <CreditsModal onClose={() => setShowCreditsModal(false)} />}
-      {showChatModal && <TemporaryChatDialog chat={temporaryChat} onClose={closeTemporaryChat} />}
+      {showChatModal && (
+        <Suspense fallback={null}>
+          <LazyTemporaryChatDialog chat={temporaryChat} onClose={closeTemporaryChat} />
+        </Suspense>
+      )}
+      {showCommandPalette && (
+        <Suspense fallback={null}>
+          <LazyCommandPalette commands={commandPaletteCommands} onClose={() => setShowCommandPalette(false)} />
+        </Suspense>
+      )}
+      {showProjectCheckpoints && (
+        <Suspense fallback={null}>
+          <LazyProjectCheckpointsDialog
+            currentDocument={normalizedProjectDocument}
+            onRestore={hydrateProjectStore}
+            onNotice={showToast}
+            onClose={() => setShowProjectCheckpoints(false)}
+          />
+        </Suspense>
+      )}
 
       {/* Main Workspace */}
       {activeWorkspace === 'edit' ? (
@@ -5701,12 +5539,8 @@ export default function App() {
 
       {/* Clone Creator Modal */}
       {showClonePanel && (
-        <div className="clone-creator-overlay" style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(10, 10, 12, 0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', zIndex: 100
-        }}>
-          <div className="panel-card clone-creator-modal" style={{ width: '100%', maxWidth: '480px' }}>
+        <div className="clone-creator-overlay">
+          <div className="panel-card clone-creator-modal">
             <div className="clone-creator-header">
               <span>Unit fork workflow</span>
               <h3>Clone Unit Creator</h3>
@@ -5759,14 +5593,11 @@ export default function App() {
               </div>
 
               {cloneBaseId.startsWith('raptor_') && (
-                <div className="panel-card" style={{
-                  padding: '10px 14px', marginBottom: '10px',
-                  background: 'rgba(220, 150, 30, 0.12)', border: '1px solid rgba(220, 150, 30, 0.3)'
-                }}>
-                  <div style={{ fontSize: '12px', color: '#e8b84b', fontWeight: 600, marginBottom: '4px' }}>
+                <div className="panel-card clone-source-warning">
+                  <div className="clone-source-warning__title">
                     ⚠ Raptor base unit — verify in-game
                   </div>
-                  <div style={{ fontSize: '11px', color: 'rgba(232, 184, 75, 0.8)', lineHeight: 1.4 }}>
+                  <div className="clone-source-warning__copy">
                     Raptor units are loaded into UnitDefs and should be cloneable. The generated code
                     strips raptor-specific properties (maxthisunit, customparams) that could prevent the
                     clone from appearing in player build menus. Test in-game and adjust if needed.
@@ -5774,14 +5605,11 @@ export default function App() {
                 </div>
               )}
               {cloneBaseId.startsWith('scav_') && (
-                <div className="panel-card" style={{
-                  padding: '10px 14px', marginBottom: '10px',
-                  background: 'rgba(220, 150, 30, 0.12)', border: '1px solid rgba(220, 150, 30, 0.3)'
-                }}>
-                  <div style={{ fontSize: '12px', color: '#e8b84b', fontWeight: 600, marginBottom: '4px' }}>
+                <div className="panel-card clone-source-warning">
+                  <div className="clone-source-warning__title">
                     ⚠ Scavenger unit — the clone will use the base unit as source
                   </div>
-                  <div style={{ fontSize: '11px', color: 'rgba(232, 184, 75, 0.8)', lineHeight: 1.4 }}>
+                  <div className="clone-source-warning__copy">
                     Scavenger units don't exist in UnitDefs at tweakdefs time. The tool will clone from the
                     equivalent base unit (e.g. armflash) instead.
                   </div>
@@ -5825,24 +5653,22 @@ export default function App() {
                 </small>
               </div>
 
-              <div className="clone-creator-actions" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                <button type="submit" className="btn-action" style={{ flex: 1 }}>
-                  Create Clone
-                </button>
-                <button
+              <div className="clone-creator-actions">
+                <Button type="submit" variant="primary" className="clone-creator-submit">Create Clone</Button>
+                <Button
                   type="button"
-                  className="btn-action btn-secondary"
+                  variant="secondary"
                   onClick={() => setShowClonePanel(false)}
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      <BatchAdjustDialog
+      {showBulkPanel && <Suspense fallback={null}><LazyBatchAdjustDialog
         open={showBulkPanel}
         onClose={() => setShowBulkPanel(false)}
         parameterGroups={BULK_PARAMETER_GROUPS}
@@ -5854,8 +5680,8 @@ export default function App() {
         onValueChange={setBulkPercent}
         targetUnits={bulkTargetUnits}
         onApply={handleApplyBulk}
-      />
-      <SummaryExplorerDialog
+      /></Suspense>}
+      {showSummaryModal && <Suspense fallback={null}><LazySummaryExplorerDialog
         open={showSummaryModal}
         activeTab={activeSummaryTab}
         onTabChange={setActiveSummaryTab}
@@ -5877,7 +5703,7 @@ export default function App() {
         onRestoreUnit={handleRestoreSummaryUnit}
         onRestoreAllUnits={handleRestoreAllSummaryUnits}
         onResetAllChanges={handleResetAllProjectChanges}
-      />
+      /></Suspense>}
     </div>
   );
 }

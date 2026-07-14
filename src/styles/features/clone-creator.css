@@ -43,3 +43,26 @@
   color: var(--color-text-muted) !important;
   opacity: 1;
 }
+
+.clone-source-warning {
+  grid-column: 1 / -1;
+  margin-bottom: var(--space-2);
+  padding: var(--space-3);
+  border-color: color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
+  background: var(--color-warning-surface);
+}
+
+.clone-source-warning__title {
+  margin-bottom: var(--space-1);
+  color: var(--color-warning);
+  font: 700 var(--font-size-sm)/var(--line-height-ui) var(--font-ui);
+}
+
+.clone-source-warning__copy {
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-xs)/var(--line-height-body) var(--font-ui);
+}
+
+.clone-creator-submit {
+  flex: 1;
+}

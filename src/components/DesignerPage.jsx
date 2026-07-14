@@ -1,4 +1,5 @@
 import { Button, PageShell, Switch } from './ui.jsx';
+import '../styles/features/build-menu.css';
 
 export default function DesignerPage({
   children,

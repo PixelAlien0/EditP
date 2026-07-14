@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import '../styles/features/temporary-chat.css';
 import { Button, Dialog, IconButton } from './ui.jsx';
 
 function formatMessageAge(createdAt) {

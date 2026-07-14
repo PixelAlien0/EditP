@@ -1,6 +1,10 @@
-import unitpicManifest from '../data/unitpic-manifest.json';
+let unitpicUrls = {};
+
+export function setUnitArtworkManifest(manifest) {
+  unitpicUrls = manifest?.units && typeof manifest.units === 'object' ? manifest.units : {};
+}
 
 export function getUnitIconUrl(id) {
   if (!id) return '/logo.svg';
-  return unitpicManifest.units?.[id.toLowerCase()] || '/logo.svg';
+  return unitpicUrls[id.toLowerCase()] || '/logo.svg';
 }

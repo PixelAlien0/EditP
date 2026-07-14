@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import '../styles/features/summary-explorer.css';
 import { Button, Dialog, EmptyState, IconButton, Tabs } from './ui.jsx';
 
 const CONFIRMATION_COPY = {

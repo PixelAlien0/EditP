@@ -1,0 +1,15 @@
+.project-checkpoints { width: min(720px, calc(100vw - 40px)); max-height: min(760px, calc(100vh - 40px)); padding: 0; overflow: hidden; }
+.project-checkpoints__header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-5); padding: var(--space-5); border-bottom: 1px solid var(--color-border-subtle); }
+.project-checkpoints__header span { color: var(--color-accent); font: 700 var(--font-size-xs)/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+.project-checkpoints__header h2 { margin: var(--space-1) 0; color: var(--color-text-strong); font: 600 var(--font-size-lg)/1.15 var(--font-display); }
+.project-checkpoints__header p { margin: 0; color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.project-checkpoints__create { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2); padding: var(--space-4) var(--space-5); background: var(--color-surface-subtle); }
+.project-checkpoints__create label { grid-column: 1 / -1; color: var(--color-text-muted); font: 700 var(--font-size-xs)/1 var(--font-mono); text-transform: uppercase; }
+.project-checkpoints__create input { min-height: var(--control-height-md); padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface-raised); color: var(--color-text-strong); }
+.project-checkpoints__timeline { max-height: 470px; padding: var(--space-3) var(--space-5) var(--space-5); overflow-y: auto; }
+.project-checkpoints__timeline article { display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); min-height: 64px; border-bottom: 1px solid var(--color-border-subtle); }
+.project-checkpoints__timeline time { color: var(--color-text-muted); font: 600 var(--font-size-xs)/1.3 var(--font-mono); }
+.project-checkpoints__timeline strong, .project-checkpoints__timeline small { display: block; }
+.project-checkpoints__timeline strong { color: var(--color-text-strong); font-size: var(--font-size-sm); }
+.project-checkpoints__timeline small { margin-top: 3px; color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.project-checkpoints__status { padding: var(--space-8); color: var(--color-text-muted); text-align: center; }
