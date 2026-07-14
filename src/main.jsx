@@ -15,6 +15,7 @@ import './styles/features/editor-context.css'
 import './components/ui/ui.css'
 import './styles/features/online-presence.css'
 import './styles/features/editor-workbench.css'
+import './styles/features/weapon-borrow.css'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(

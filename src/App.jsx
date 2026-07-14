@@ -899,7 +899,7 @@ export default function App() {
   }, [showAllWeaponParams]);
 
   // Dragging logic for Weapon Swap window
-  const [swapPosition, setSwapPosition] = useState({ x: 260, y: 100 });
+  const [swapPosition, setSwapPosition] = useState(null);
   const [isDraggingSwap, setIsDraggingSwap] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
@@ -3636,6 +3636,7 @@ export default function App() {
                                     setActiveSwapSlotNum(slot.slot);
                                     setSelectedSwapUnitId(null);
                                     setSwapSearchQuery('');
+                                    setSwapPosition(null);
                                     setShowSwapModal(true);
                                   }}
                                 >
@@ -4838,87 +4839,67 @@ export default function App() {
 
       {/* Weapon Swap Modal */}
       {showSwapModal && (
-        <div className="weapon-swap-modal" style={{
-          position: 'fixed',
-          top: swapPosition.y,
-          left: swapPosition.x,
-          width: '95vw', maxWidth: '1150px', height: '85vh', maxHeight: '780px',
-          display: 'flex', flexDirection: 'column',
-          border: '4px solid var(--border-accent)',
-          background: 'var(--bg-secondary)',
-          overflow: 'hidden',
-          zIndex: 101
-        }}>
+        <div className="weapon-swap-overlay">
+        <div
+          className="weapon-swap-modal weapon-borrow-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="weapon-borrow-title"
+          style={swapPosition ? { top: swapPosition.y, left: swapPosition.x, transform: 'none' } : undefined}
+          onKeyDown={event => {
+            if (event.key !== 'Escape') return;
+            setShowSwapModal(false);
+            setSwapPosition(null);
+          }}
+        >
           {/* Header (Drag Handle) */}
           <div
             className="weapon-swap-header"
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '16px 20px',
-              borderBottom: '4px solid var(--border-color)',
-              background: 'var(--bg-primary)',
-              flexShrink: 0,
-              cursor: 'move',
-              userSelect: 'none'
-            }}
             onMouseDown={(e) => {
               if (e.button !== 0) return;
               if (e.target.closest('button')) return;
+              const modalBounds = e.currentTarget.closest('.weapon-swap-modal').getBoundingClientRect();
+              setSwapPosition({ x: modalBounds.left, y: modalBounds.top });
               setIsDraggingSwap(true);
               setDragOffset({
-                x: e.clientX - swapPosition.x,
-                y: e.clientY - swapPosition.y
+                x: e.clientX - modalBounds.left,
+                y: e.clientY - modalBounds.top
               });
             }}
           >
-            <div className="weapon-swap-title-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--border-accent)' }}>
+            <div className="weapon-swap-title-group">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M2 5h10M9 2l3 3-3 3M14 11H4M7 8l-3 3 3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <div className="weapon-swap-title-copy">
                 <span>Loadout editor</span>
-                <h3>Borrow a weapon</h3>
+                <h3 id="weapon-borrow-title">Borrow a weapon</h3>
               </div>
-              <span className="weapon-swap-slot" style={{
-                fontSize: '9px',
-                background: 'rgba(196, 155, 118, 0.12)',
-                color: 'var(--border-accent)',
-                border: '1px solid var(--border-accent)',
-                padding: '2px 8px',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                fontFamily: 'var(--font-mono), monospace'
-              }}>Slot {activeSwapSlotNum}</span>
+              <span className="weapon-swap-slot">Target slot {activeSwapSlotNum}</span>
             </div>
             <button
               type="button"
               className="weapon-swap-close"
-              style={{ padding: '6px 14px', fontSize: '10px', margin: 0 }}
-              onClick={() => setShowSwapModal(false)}
+              aria-label="Close borrow weapon dialog"
+              onClick={() => {
+                setShowSwapModal(false);
+                setSwapPosition(null);
+              }}
             >
-              Close Window
+              <span>Close</span>
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg>
             </button>
           </div>
 
-          <div className="weapon-swap-body" style={{ display: 'grid', gridTemplateColumns: '340px 1fr', flex: 1, overflow: 'hidden' }}>
+          <div className="weapon-swap-body">
             {/* Left Column: Search, Faction Filters & Unit list */}
-            <div className="weapon-swap-library" style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-              padding: '20px',
-              borderRight: '4px solid var(--border-color)',
-              overflow: 'hidden',
-              background: 'var(--bg-primary)'
-            }}>
+            <aside className="weapon-swap-library" aria-label="Weapon donor library">
               <div className="weapon-swap-library-heading">
                 <span>Source library</span>
                 <strong>Select a donor unit</strong>
               </div>
               {/* Faction Filter Chips */}
-              <div className="weapon-swap-factions" style={{ display: 'flex', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+              <div className="weapon-swap-factions" role="group" aria-label="Filter donor units by faction">
                 {[
                   { id: 'all', label: 'All' },
                   { id: 'arm', label: 'Arm' },
@@ -4930,48 +4911,27 @@ export default function App() {
                     type="button"
                     key={f.id}
                     className={swapUnitFactionFilter === f.id ? 'active' : ''}
+                    aria-pressed={swapUnitFactionFilter === f.id}
                     onClick={() => setSwapUnitFactionFilter(f.id)}
-                    style={{
-                      flex: '1',
-                      background: swapUnitFactionFilter === f.id ? 'var(--border-accent)' : 'transparent',
-                      color: swapUnitFactionFilter === f.id ? '#1a1814' : 'var(--text-normal)',
-                      border: 'none',
-                      borderRight: f.id !== 'scav' ? '1px solid var(--border-color)' : 'none',
-                      padding: '8px 0',
-                      fontSize: '9px',
-                      fontWeight: swapUnitFactionFilter === f.id ? 800 : 500,
-                      cursor: 'pointer',
-                      fontFamily: 'var(--font-mono), monospace',
-                      transition: 'all 0.15s ease',
-                    }}
                   >
-                    {f.label.toUpperCase()}
+                    {f.label}
                   </button>
                 ))}
               </div>
 
-              <input
-                type="text"
-                className="search-input weapon-swap-search"
-                placeholder="Search units to borrow weapon..."
-                style={{
-                  fontSize: '11px',
-                  padding: '8px 12px',
-                  width: '100%',
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)'
-                }}
-                value={swapSearchQuery}
-                onChange={e => setSwapSearchQuery(e.target.value)}
-              />
+              <label className="weapon-swap-search-field">
+                <span>Search donor units</span>
+                <input
+                  type="search"
+                  className="weapon-swap-search"
+                  placeholder="Unit name or ID"
+                  autoFocus
+                  value={swapSearchQuery}
+                  onChange={e => setSwapSearchQuery(e.target.value)}
+                />
+              </label>
 
-              <div className="weapon-swap-unit-list" style={{
-                flex: 1,
-                overflowY: 'auto',
-                border: '1px solid var(--border-color)',
-                background: 'var(--bg-secondary)',
-                padding: '4px'
-              }}>
+              <div className="weapon-swap-unit-list" role="listbox" aria-label="Donor units">
                 {allUnitsList
                   .filter(u => {
                     if (u.isClone) return false;
@@ -4994,63 +4954,40 @@ export default function App() {
                   })
                   .map(u => {
                     const faction = getFactionOfUnit(u.id);
-                    let factionColor = 'var(--text-muted)';
-                    if (faction === 'arm') factionColor = 'var(--color-arm)';
-                    else if (faction === 'cor') factionColor = 'var(--color-cor)';
-                    else if (faction === 'leg') factionColor = 'var(--color-leg)';
-                    else if (faction === 'scav') factionColor = 'var(--color-scav)';
+                    let factionColor = 'var(--color-text-muted)';
+                    if (faction === 'arm') factionColor = 'var(--color-faction-arm)';
+                    else if (faction === 'cor') factionColor = 'var(--color-faction-cor)';
+                    else if (faction === 'leg') factionColor = 'var(--color-faction-leg)';
+                    else if (faction === 'scav') factionColor = 'var(--color-faction-scav)';
 
                     const isSelected = selectedSwapUnitId === u.id;
 
                     return (
-                      <div
+                      <button
+                        type="button"
+                        role="option"
                         key={u.id}
                         className={`weapon-swap-unit ${isSelected ? 'active' : ''}`}
+                        aria-selected={isSelected}
                         onClick={() => setSelectedSwapUnitId(u.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          padding: '8px 12px',
-                          cursor: 'pointer',
-                          background: isSelected ? 'var(--bg-accent)' : 'transparent',
-                          borderBottom: '1px solid rgba(235, 220, 208, 0.03)',
-                          transition: 'all 0.15s ease',
-                        }}
-                        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(235, 220, 208, 0.02)' }}
-                        onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent' }}
                       >
-                        <div className="weapon-swap-unit-icon" style={{ width: '28px', height: '28px', overflow: 'hidden', border: '1px solid var(--border-color)', flexShrink: 0 }}>
-                          <UnitArtwork unitId={u.id} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div className="weapon-swap-unit-icon">
+                          <UnitArtwork unitId={u.id} alt="" />
                         </div>
-                        <div className="weapon-swap-unit-copy" style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
-                          <span style={{ fontSize: '11px', fontWeight: isSelected ? 700 : 500, color: isSelected ? 'var(--text-bright)' : 'var(--text-normal)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</span>
-                          <span style={{ fontSize: '8px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono), monospace' }}>{u.id}</span>
+                        <div className="weapon-swap-unit-copy">
+                          <strong>{u.name}</strong>
+                          <code>{u.id}</code>
                         </div>
 
-                        {/* Desaturated status dot */}
-                        <div className="weapon-swap-faction-dot" style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          background: factionColor,
-                          flexShrink: 0
-                        }} title={faction.toUpperCase()} />
-                      </div>
+                        <span className="weapon-swap-faction-dot" style={{ background: factionColor }} title={faction.toUpperCase()} />
+                      </button>
                     );
                   })}
               </div>
-            </div>
+            </aside>
 
             {/* Right Column: Weapon selection list */}
-            <div className="weapon-swap-stage" style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px',
-              padding: '20px',
-              overflow: 'hidden',
-              background: 'var(--bg-secondary)'
-            }}>
+            <div className="weapon-swap-stage">
               {selectedSwapUnitId ? (() => {
                 const srcDefaults = defaultsDb[selectedSwapUnitId.toLowerCase()];
                 const srcName = unitsDb.names[selectedSwapUnitId] || selectedSwapUnitId;
@@ -5087,29 +5024,22 @@ export default function App() {
                 const currentWep = destDefaults?.weaponSlots?.find(s => s.slot === activeSwapSlotNum);
 
                 return (
-                  <div className="weapon-swap-stage-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', overflow: 'hidden' }}>
+                  <div className="weapon-swap-stage-content">
                     {/* Source Unit Information */}
-                    <div className="weapon-swap-source" style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px',
-                      background: 'var(--bg-primary)',
-                      padding: '14px 18px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '0px'
-                    }}>
-                      <div className="weapon-swap-source-unit" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <div className="weapon-swap-source-icon" style={{ width: '36px', height: '36px', overflow: 'hidden', border: '1px solid var(--border-color)', flexShrink: 0 }}>
-                          <UnitArtwork unitId={selectedSwapUnitId} alt="" eager style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div className="weapon-swap-source">
+                      <div className="weapon-swap-source-unit">
+                        <div className="weapon-swap-source-icon">
+                          <UnitArtwork unitId={selectedSwapUnitId} alt="" eager />
                         </div>
-                        <div>
-                          <h4 style={{ margin: 0, fontSize: '12px', fontWeight: 800, color: 'var(--text-bright)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{srcName}</h4>
-                          <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>ID: <code style={{ color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>{selectedSwapUnitId}</code></span>
+                        <div className="weapon-swap-source-copy">
+                          <span>Selected donor</span>
+                          <h4>{srcName}</h4>
+                          <code>{selectedSwapUnitId}</code>
                         </div>
                       </div>
 
                       {/* Category filter tabs */}
-                      <div className="weapon-swap-type-filters" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
+                      <div className="weapon-swap-type-filters" role="group" aria-label="Filter donor weapons by type">
                         {[
                           { id: 'all', label: 'All weapons' },
                           { id: 'laser', label: 'Lasers' },
@@ -5121,27 +5051,17 @@ export default function App() {
                             type="button"
                             key={t.id}
                             className={swapWeaponTypeFilter === t.id ? 'active' : ''}
+                            aria-pressed={swapWeaponTypeFilter === t.id}
                             onClick={() => setSwapWeaponTypeFilter(t.id)}
-                            style={{
-                              border: `1px solid ${swapWeaponTypeFilter === t.id ? 'var(--border-accent)' : 'var(--border-color)'}`,
-                              background: swapWeaponTypeFilter === t.id ? 'var(--border-accent)' : 'transparent',
-                              color: swapWeaponTypeFilter === t.id ? '#1a1814' : 'var(--text-normal)',
-                              padding: '4px 12px',
-                              fontSize: '9px',
-                              fontWeight: 700,
-                              cursor: 'pointer',
-                              fontFamily: 'var(--font-mono), monospace',
-                              transition: 'all 0.15s ease'
-                            }}
                           >
-                            {t.label.toUpperCase()}
+                            {t.label}
                           </button>
                         ))}
                       </div>
                     </div>
 
                     {/* Weapons List Container */}
-                    <div className="weapon-swap-weapons" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingRight: '4px' }}>
+                    <div className="weapon-swap-weapons">
                       {filteredWeapons.length > 0 ? filteredWeapons.map(w => {
                         const wRole = getWeaponRoleLabel(w);
 
@@ -5149,91 +5069,54 @@ export default function App() {
                         const dmgDiff = currentWep ? (w.damage - currentWep.damage) : null;
                         const rldDiff = currentWep ? (w.reload - currentWep.reload) : null;
                         const rngDiff = currentWep ? (w.range - currentWep.range) : null;
+                        const metricRows = [
+                          {
+                            label: 'Damage',
+                            value: w.damage,
+                            deltaText: dmgDiff !== null && dmgDiff !== 0 ? `${dmgDiff > 0 ? '+' : ''}${dmgDiff}` : null,
+                            positive: dmgDiff > 0,
+                          },
+                          {
+                            label: 'Range',
+                            value: w.range,
+                            deltaText: rngDiff !== null && rngDiff !== 0 ? `${rngDiff > 0 ? '+' : ''}${rngDiff}` : null,
+                            positive: rngDiff > 0,
+                          },
+                          {
+                            label: 'Reload',
+                            value: `${w.reload}s`,
+                            deltaText: rldDiff !== null && rldDiff !== 0 ? `${rldDiff < 0 ? '' : '+'}${rldDiff.toFixed(2)}s` : null,
+                            positive: rldDiff < 0,
+                          },
+                        ];
 
                         return (
-                          <div
-                            key={w.slot}
-                            className="weapon-swap-weapon"
-                            style={{
-                              padding: '14px 18px',
-                              background: 'var(--bg-primary)',
-                              border: '1px solid var(--border-color)',
-                              borderRadius: '0px',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              gap: '16px'
-                            }}
-                          >
-                            <div className="weapon-swap-weapon-main" style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-                              <div className="weapon-swap-weapon-heading" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--border-accent)', fontFamily: 'var(--font-mono), monospace' }}>
-                                  {w.defKey.toUpperCase()}
-                                </span>
-                                <span style={{
-                                  fontSize: '8px',
-                                  color: 'var(--text-muted)',
-                                  padding: '2px 6px',
-                                  border: '1px solid var(--border-color)',
-                                  fontWeight: 700,
-                                  fontFamily: 'var(--font-mono), monospace'
-                                }}>
-                                  {wRole}
-                                </span>
+                          <article key={w.slot} className="weapon-swap-weapon">
+                            <div className="weapon-swap-weapon-main">
+                              <div className="weapon-swap-weapon-heading">
+                                <strong>{w.defKey.toUpperCase()}</strong>
+                                <span className="weapon-swap-weapon-role">{wRole}</span>
                               </div>
 
                               {/* Live Comparison Layout */}
-                              <div className="weapon-swap-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '4px' }}>
-                                <div className="weapon-swap-metric" style={{ background: 'var(--bg-secondary)', padding: '8px 10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                  <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Damage</span>
-                                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-bright)', fontFamily: 'var(--font-mono), monospace' }}>{w.damage}</span>
-                                  {dmgDiff !== null && dmgDiff !== 0 && (
-                                    <span style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-mono), monospace', color: dmgDiff > 0 ? 'var(--color-arm)' : 'var(--color-cor)' }}>
-                                      {dmgDiff > 0 ? '+' : ''}{dmgDiff}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="weapon-swap-metric" style={{ background: 'var(--bg-secondary)', padding: '8px 10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                  <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Range</span>
-                                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-bright)', fontFamily: 'var(--font-mono), monospace' }}>{w.range}</span>
-                                  {rngDiff !== null && rngDiff !== 0 && (
-                                    <span style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-mono), monospace', color: rngDiff > 0 ? 'var(--color-arm)' : 'var(--color-cor)' }}>
-                                      {rngDiff > 0 ? '+' : ''}{rngDiff}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="weapon-swap-metric" style={{ background: 'var(--bg-secondary)', padding: '8px 10px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                  <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Reload</span>
-                                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-bright)', fontFamily: 'var(--font-mono), monospace' }}>{w.reload}s</span>
-                                  {rldDiff !== null && rldDiff !== 0 && (
-                                    <span style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-mono), monospace', color: rldDiff < 0 ? 'var(--color-arm)' : 'var(--color-cor)' }}>
-                                      {rldDiff < 0 ? '' : '+'}{rldDiff.toFixed(2)}s
-                                    </span>
-                                  )}
-                                </div>
+                              <div className="weapon-swap-metrics">
+                                {metricRows.map(metric => (
+                                  <div className="weapon-swap-metric" key={metric.label}>
+                                    <span className="weapon-swap-metric-label">{metric.label}</span>
+                                    <strong className="weapon-swap-metric-value">{metric.value}</strong>
+                                    {metric.deltaText && (
+                                      <span className={`weapon-swap-metric-delta ${metric.positive ? 'is-positive' : 'is-negative'}`}>
+                                        {metric.deltaText}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
                               </div>
                             </div>
 
                             <button
                               type="button"
                               className="btn-action weapon-swap-borrow"
-                              style={{
-                                padding: '8px 16px',
-                                background: 'var(--border-accent)',
-                                color: '#1a1814',
-                                border: '1px solid var(--border-accent)',
-                                borderRadius: '0px',
-                                fontSize: '10px',
-                                fontWeight: 800,
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.05em',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease',
-                                boxShadow: 'none',
-                                margin: 0
-                              }}
-                              onMouseEnter={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--border-accent)'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = 'var(--border-accent)'; e.currentTarget.style.color = '#1a1814'; }}
                               onClick={() => {
                                 setClones(prev => prev.map(c => {
                                   if (c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) {
@@ -5251,42 +5134,38 @@ export default function App() {
                                 }));
                                 showToast(`Equipped ${w.defKey.toUpperCase()} on Slot ${activeSwapSlotNum}!`);
                                 setShowSwapModal(false);
+                                setSwapPosition(null);
                               }}
                             >
-                              Borrow
+                              Borrow to slot {activeSwapSlotNum}
+                              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
                             </button>
-                          </div>
+                          </article>
                         );
                       }) : (
-                        <div className="weapon-swap-empty" style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'var(--font-mono), monospace' }}>
-                          NO WEAPONS FOUND IN THIS CATEGORY.
+                        <div className="weapon-swap-empty">
+                          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 4l16 16M9.5 5.2A7.2 7.2 0 0 1 12 4.75c4.6 0 8 4.25 8 7.25a7.6 7.6 0 0 1-1.55 3.85M14.1 19.05a7.3 7.3 0 0 1-2.1.2c-4.6 0-8-4.25-8-7.25 0-1.3.65-2.8 1.75-4.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+                          <span>Filtered library</span>
+                          <h4>No matching weapons</h4>
+                          <p>Choose another weapon type to see this donor unit&rsquo;s available systems.</p>
                         </div>
                       )}
                     </div>
                   </div>
                 );
               })() : (
-                <div className="weapon-swap-welcome" style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '100%',
-                  color: 'var(--text-muted)',
-                  border: '1px dashed var(--border-color)',
-                  borderRadius: '0px',
-                  background: 'var(--bg-primary)',
-                  padding: '20px'
-                }}>
-                  <svg width="24" height="24" viewBox="0 0 16 16" fill="none" style={{ marginBottom: '12px', opacity: 0.4 }}>
+                <div className="weapon-swap-welcome">
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
                     <path d="M8 12a4 4 0 100-8 4 4 0 000 8zM8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
-                  <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-normal)' }}>Select a source unit on the left list</span>
-                  <span style={{ fontSize: '8.5px', color: 'var(--text-muted)', marginTop: '4px' }}>to browse its available weapon systems</span>
+                  <span>Donor selection</span>
+                  <h4>Choose a source unit</h4>
+                  <p>Select a unit from the library to compare its weapon systems with the current slot.</p>
                 </div>
               )}
             </div>
           </div>
+        </div>
         </div>
       )}
 

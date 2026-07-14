@@ -1,0 +1,669 @@
+.weapon-swap-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-overlay) !important;
+  backdrop-filter: blur(8px);
+}
+
+.weapon-swap-overlay .weapon-borrow-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(1120px, calc(100vw - 32px)) !important;
+  max-width: 1120px !important;
+  height: min(760px, calc(100vh - 32px)) !important;
+  max-height: 760px !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--color-border-strong) !important;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-float) !important;
+}
+
+.weapon-swap-overlay .weapon-swap-header {
+  min-height: 76px;
+  padding: var(--space-3) var(--space-4) !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex: 0 0 auto;
+  border: 0 !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  background: var(--color-surface) !important;
+  cursor: move;
+  user-select: none;
+}
+
+.weapon-swap-title-group {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.weapon-swap-title-group > svg {
+  width: 36px;
+  height: 36px;
+  padding: 9px;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border-accent-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  box-shadow: none;
+}
+
+.weapon-swap-title-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.weapon-swap-title-copy > span,
+.weapon-swap-library-heading > span,
+.weapon-swap-welcome > span,
+.weapon-swap-empty > span {
+  color: var(--color-accent-strong);
+  font: 700 9px/1.2 var(--font-mono);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.weapon-swap-title-copy h3 {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 560 20px/1.1 var(--font-display);
+  letter-spacing: -.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-swap-slot {
+  min-height: 24px;
+  padding: 4px var(--space-2) !important;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border-accent-muted) !important;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent-strong) !important;
+  font: 700 9px/1 var(--font-mono);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.weapon-swap-close {
+  min-height: var(--control-height-md);
+  padding: 0 var(--space-3) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  font: 700 var(--font-size-xs)/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.weapon-swap-close svg {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+  stroke: currentColor;
+}
+
+.weapon-swap-close:hover {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-hover) !important;
+  color: var(--color-text-strong) !important;
+}
+
+.weapon-swap-body {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  flex: 1;
+  overflow: hidden;
+}
+
+.weapon-swap-overlay .weapon-swap-library {
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-4) !important;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3) !important;
+  overflow: hidden;
+  border: 0 !important;
+  border-right: 1px solid var(--color-border) !important;
+  background: var(--color-surface) !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+}
+
+.weapon-swap-library-heading {
+  display: grid;
+  gap: 3px;
+}
+
+.weapon-swap-library-heading strong {
+  color: var(--color-text-strong);
+  font: 560 var(--font-size-lg)/1.15 var(--font-display);
+}
+
+.weapon-swap-factions {
+  padding: 3px;
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  overflow: visible !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle) !important;
+}
+
+.weapon-swap-factions button,
+.weapon-swap-type-filters button {
+  min-width: 0;
+  min-height: 30px;
+  padding: 5px var(--space-2) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--radius-xs);
+  background: transparent !important;
+  color: var(--color-text-muted) !important;
+  font: 700 9px/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.weapon-swap-factions button:hover:not(.active),
+.weapon-swap-type-filters button:hover:not(.active) {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-hover) !important;
+  color: var(--color-text-strong) !important;
+}
+
+.weapon-swap-factions button.active,
+.weapon-swap-type-filters button.active {
+  border-color: var(--color-border-accent-muted) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+.weapon-swap-search-field {
+  display: grid;
+  gap: 5px;
+}
+
+.weapon-swap-search-field > span {
+  color: var(--color-text-muted);
+  font: 700 9px/1.2 var(--font-ui);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.weapon-swap-overlay .weapon-swap-search {
+  width: 100%;
+  min-height: var(--control-height-md) !important;
+  padding: 8px 10px !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-strong) !important;
+  font: 500 var(--font-size-sm)/var(--line-height-ui) var(--font-ui);
+  backdrop-filter: none;
+}
+
+.weapon-swap-search:focus {
+  border-color: var(--color-accent-strong) !important;
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.weapon-swap-overlay .weapon-swap-unit-list {
+  min-height: 0;
+  padding: var(--space-1) !important;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle) !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+}
+
+.weapon-swap-overlay .weapon-swap-unit {
+  width: 100%;
+  min-height: 52px;
+  margin: 0;
+  padding: 7px var(--space-2) !important;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+  border: 1px solid transparent !important;
+  border-radius: var(--radius-sm);
+  background: transparent !important;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.weapon-swap-unit:hover {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-hover) !important;
+  transform: none;
+}
+
+.weapon-swap-unit.active {
+  border-color: var(--color-border-accent-muted) !important;
+  background: var(--color-accent-soft) !important;
+  box-shadow: inset 3px 0 0 var(--color-accent-strong);
+}
+
+.weapon-swap-unit:focus-visible,
+.weapon-swap-factions button:focus-visible,
+.weapon-swap-type-filters button:focus-visible,
+.weapon-swap-borrow:focus-visible,
+.weapon-swap-close:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.weapon-swap-overlay .weapon-swap-unit-icon,
+.weapon-swap-overlay .weapon-swap-source-icon {
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted) !important;
+}
+
+.weapon-swap-unit-icon {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.weapon-swap-unit-icon img,
+.weapon-swap-source-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.weapon-swap-unit-copy {
+  min-width: 0;
+  display: grid;
+  flex: 1;
+  gap: 2px;
+}
+
+.weapon-swap-unit-copy strong {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 650 var(--font-size-sm)/1.2 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-swap-unit-copy code {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font: 500 9px/1.2 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-swap-faction-dot {
+  width: 6px !important;
+  height: 6px !important;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  opacity: .8;
+}
+
+.weapon-swap-overlay .weapon-swap-stage {
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-4) !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 0 !important;
+  background: var(--color-canvas) !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+}
+
+.weapon-swap-stage-content {
+  min-height: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3) !important;
+  overflow: hidden;
+}
+
+.weapon-swap-overlay .weapon-swap-source {
+  padding: var(--space-3) var(--space-4) !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) !important;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--color-surface-raised) !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+}
+
+.weapon-swap-source-unit {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.weapon-swap-source-icon {
+  width: 44px !important;
+  height: 44px !important;
+}
+
+.weapon-swap-source-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.weapon-swap-source-copy > span {
+  color: var(--color-text-muted);
+  font: 700 9px/1 var(--font-ui);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.weapon-swap-source-copy h4 {
+  overflow: hidden;
+  color: var(--color-text-strong) !important;
+  font: 560 var(--font-size-lg)/1.1 var(--font-display) !important;
+  text-overflow: ellipsis;
+  text-transform: none !important;
+  white-space: nowrap;
+}
+
+.weapon-swap-source-copy code {
+  overflow: hidden;
+  color: var(--color-accent-strong);
+  font: 600 9px/1.2 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-swap-type-filters {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1) !important;
+  flex-wrap: wrap;
+}
+
+.weapon-swap-type-filters button {
+  min-height: 28px;
+  padding-inline: 9px !important;
+  white-space: nowrap;
+}
+
+.weapon-swap-overlay .weapon-swap-weapons {
+  min-height: 0;
+  padding: 1px 4px var(--space-2) 1px !important;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2) !important;
+  overflow-y: auto;
+}
+
+.weapon-swap-overlay .weapon-swap-weapon {
+  min-width: 0;
+  padding: var(--space-3) !important;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--color-surface-raised) !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+  transition: border-color var(--motion-fast), background-color var(--motion-fast);
+}
+
+.weapon-swap-weapon:hover {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-hover) !important;
+  transform: none;
+}
+
+.weapon-swap-weapon-main {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.weapon-swap-weapon-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.weapon-swap-weapon-heading strong {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 650 var(--font-size-sm)/1.2 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-swap-weapon-role {
+  min-height: 20px;
+  padding: 3px 6px;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  font: 700 8px/1 var(--font-ui);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.weapon-swap-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(82px, 1fr));
+  gap: var(--space-2) !important;
+}
+
+.weapon-swap-overlay .weapon-swap-metric {
+  min-height: 50px;
+  padding: 7px var(--space-2) !important;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 2px var(--space-1);
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle) !important;
+  box-shadow: none !important;
+}
+
+.weapon-swap-metric-label {
+  grid-column: 1 / -1;
+  color: var(--color-text-muted);
+  font: 700 8px/1.2 var(--font-ui);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.weapon-swap-metric-value {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 650 11px/1.1 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-swap-metric-delta {
+  color: var(--color-text-muted);
+  font: 700 9px/1.1 var(--font-mono);
+  white-space: nowrap;
+}
+
+.weapon-swap-metric-delta.is-positive { color: var(--color-success); }
+.weapon-swap-metric-delta.is-negative { color: var(--color-danger); }
+
+.weapon-swap-overlay .weapon-swap-borrow {
+  min-width: 126px;
+  min-height: var(--control-height-md);
+  padding: 0 var(--space-3) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-accent-strong) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--color-accent-strong) !important;
+  color: var(--color-text-inverse) !important;
+  font: 700 var(--font-size-xs)/1.2 var(--font-ui) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.weapon-swap-borrow svg {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.weapon-swap-borrow:hover {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-text-inverse) !important;
+}
+
+.weapon-swap-overlay .weapon-swap-welcome,
+.weapon-swap-overlay .weapon-swap-empty {
+  min-height: 220px;
+  padding: var(--space-6) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  border: 1px dashed var(--color-border-strong) !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--color-surface-subtle) !important;
+  color: var(--color-text-muted);
+  text-align: center;
+  backdrop-filter: none;
+}
+
+.weapon-swap-welcome svg,
+.weapon-swap-empty svg {
+  width: 32px;
+  height: 32px;
+  margin-bottom: var(--space-1);
+  color: var(--color-accent-strong);
+  opacity: .8;
+}
+
+.weapon-swap-welcome h4,
+.weapon-swap-empty h4 {
+  color: var(--color-text-strong);
+  font: 560 var(--font-size-lg)/1.2 var(--font-display);
+}
+
+.weapon-swap-welcome p,
+.weapon-swap-empty p {
+  max-width: 40ch;
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-sm)/var(--line-height-body) var(--font-ui);
+}
+
+@media (max-width: 900px) {
+  .weapon-swap-overlay .weapon-borrow-dialog {
+    width: calc(100vw - 16px) !important;
+    max-width: none !important;
+    height: calc(100vh - 16px) !important;
+    max-height: none !important;
+  }
+
+  .weapon-swap-body {
+    grid-template-columns: minmax(260px, 40%) minmax(0, 1fr);
+  }
+
+  .weapon-swap-overlay .weapon-swap-source {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .weapon-swap-type-filters { justify-content: flex-start; }
+
+  .weapon-swap-overlay .weapon-swap-weapon {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .weapon-swap-overlay .weapon-swap-borrow { width: 100%; }
+}
+
+@media (max-width: 680px) {
+  .weapon-swap-overlay { padding: var(--space-1); }
+
+  .weapon-swap-header { min-height: 68px; }
+  .weapon-swap-title-group > svg { display: none; }
+  .weapon-swap-slot { display: none; }
+  .weapon-swap-close span { display: none; }
+
+  .weapon-swap-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(210px, 38%) minmax(0, 1fr);
+  }
+
+  .weapon-swap-overlay .weapon-swap-library {
+    padding: var(--space-3) !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--color-border) !important;
+  }
+
+  .weapon-swap-library-heading { display: none; }
+  .weapon-swap-overlay .weapon-swap-stage { padding: var(--space-3) !important; }
+  .weapon-swap-source { display: none !important; }
+  .weapon-swap-metrics { grid-template-columns: repeat(3, minmax(68px, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weapon-swap-overlay * { transition: none !important; }
+}

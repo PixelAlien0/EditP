@@ -213,6 +213,41 @@ test('parameter tabs keep the selected state inset from the editor section edge'
   expect(inset.radius).not.toBe('0px');
 });
 
+test('borrow weapon dialog exposes the themed donor and comparison workflow', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  const cloneDialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await cloneDialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_borrow_ui_test');
+  await cloneDialog.getByRole('button', { name: 'Create Clone' }).click();
+
+  await page.getByRole('tab', { name: /Weapons/ }).click();
+  await page.getByRole('button', { name: 'Choose weapon' }).click();
+
+  const borrowDialog = page.getByRole('dialog', { name: 'Borrow a weapon' });
+  await expect(borrowDialog).toBeVisible();
+  await expect(borrowDialog.getByLabel('Search donor units')).toBeFocused();
+  await expect(borrowDialog.getByRole('listbox', { name: 'Donor units' })).toBeVisible();
+
+  await borrowDialog.getByRole('option').first().click();
+  await expect(borrowDialog.getByText('Selected donor')).toBeVisible();
+  await expect(borrowDialog.getByRole('button', { name: /Borrow to slot/ }).first()).toBeVisible();
+
+  const bounds = await borrowDialog.evaluate(dialog => {
+    const rect = dialog.getBoundingClientRect();
+    return { top: rect.top, left: rect.left, right: rect.right, bottom: rect.bottom };
+  });
+  expect(bounds.top).toBeGreaterThanOrEqual(0);
+  expect(bounds.left).toBeGreaterThanOrEqual(0);
+  expect(bounds.right).toBeLessThanOrEqual(1440);
+  expect(bounds.bottom).toBeLessThanOrEqual(900);
+
+  await page.keyboard.press('Escape');
+  await expect(borrowDialog).toBeHidden();
+});
+
 test('clone identity remains editable and nested clones keep the selected clone as parent', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
