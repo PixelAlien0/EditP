@@ -5538,13 +5538,19 @@ export default function App() {
       )}
 
       {/* Clone Creator Modal */}
-      {showClonePanel && (
-        <div className="clone-creator-overlay">
-          <div className="panel-card clone-creator-modal">
+      {showClonePanel && createPortal(
+        <div className="clone-creator-overlay" role="presentation">
+          <div
+            className="panel-card clone-creator-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="clone-creator-title"
+            aria-describedby="clone-creator-description"
+          >
             <div className="clone-creator-header">
               <span>Unit fork workflow</span>
-              <h3>Clone Unit Creator</h3>
-              <p>Create a new editable unit from the selected chassis and assign its initial production sources.</p>
+              <h3 id="clone-creator-title">Clone Unit Creator</h3>
+              <p id="clone-creator-description">Create a new editable unit from the selected chassis and assign its initial production sources.</p>
             </div>
 
             <form onSubmit={handleCreateClone} className="clone-form clone-creator-form">
@@ -5665,7 +5671,8 @@ export default function App() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {showBulkPanel && <Suspense fallback={null}><LazyBatchAdjustDialog

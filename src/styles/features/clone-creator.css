@@ -1,3 +1,27 @@
+.clone-creator-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dialog);
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-7);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.clone-creator-modal {
+  position: relative;
+  box-sizing: border-box;
+  width: min(720px, 100%);
+  max-height: calc(100dvh - (var(--space-7) * 2));
+  margin: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
 .clone-builder-mode {
   grid-column: 1 / -1;
   min-width: 0;
@@ -65,4 +89,29 @@
 
 .clone-creator-submit {
   flex: 1;
+}
+
+@media (max-width: 640px) {
+  .clone-creator-overlay {
+    padding: var(--space-3);
+  }
+
+  .clone-creator-modal {
+    max-height: calc(100dvh - (var(--space-3) * 2));
+  }
+
+  .clone-creator-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-height: 720px) {
+  .clone-creator-overlay {
+    place-items: start center;
+    padding-block: var(--space-3);
+  }
+
+  .clone-creator-modal {
+    max-height: calc(100dvh - (var(--space-3) * 2));
+  }
 }

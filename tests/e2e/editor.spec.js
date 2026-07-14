@@ -49,6 +49,37 @@ test('project edits recover after reload', async ({ page }) => {
   await expect(page.locator('.stat-card').filter({ hasText: 'METAL COST' }).first().locator('input').first()).toHaveValue('4321');
 });
 
+test('clone creator stays centered above the workspace', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await expect(page.getByRole('navigation', { name: 'Editor workflow' })).toBeVisible();
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+
+  const dialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  const overlay = page.locator('.clone-creator-overlay');
+  await expect(dialog).toBeVisible();
+  await expect(overlay).toHaveCSS('position', 'fixed');
+  await expect(overlay).toHaveCSS('inset', '0px');
+
+  const geometry = await dialog.evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    return {
+      parentIsBody: element.parentElement?.parentElement === document.body,
+      centerX: rect.left + (rect.width / 2),
+      centerY: rect.top + (rect.height / 2),
+      top: rect.top,
+      bottom: rect.bottom,
+    };
+  });
+
+  expect(geometry.parentIsBody).toBe(true);
+  expect(Math.abs(geometry.centerX - 720)).toBeLessThan(2);
+  expect(Math.abs(geometry.centerY - 450)).toBeLessThan(2);
+  expect(geometry.top).toBeGreaterThanOrEqual(0);
+  expect(geometry.bottom).toBeLessThanOrEqual(900);
+});
+
 for (const width of [1024, 1180, 1440, 1920, 2560]) {
   for (const theme of ['dark', 'light']) {
     test(`visual baseline ${theme} ${width}`, async ({ page }) => {
