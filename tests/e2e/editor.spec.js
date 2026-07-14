@@ -81,7 +81,7 @@ test('clone creator stays centered above the workspace', async ({ page }) => {
 });
 
 test('editor workbench panes resize, collapse, and persist', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.setViewportSize({ width: 1920, height: 900 });
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
   await expect(page.locator('.editor-shell')).toBeVisible();
