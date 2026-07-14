@@ -373,6 +373,31 @@ test('nested unit collections persist and scope expert workflows', async ({ page
   await expect(restoredCollections.getByText('T2 Strike', { exact: true })).toBeVisible();
 });
 
+test('custom units inherit their base artwork in collections', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  const cloneDialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await cloneDialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_collection_icon_test');
+  await cloneDialog.getByRole('button', { name: 'Create Clone' }).click();
+
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Collections/ }).click();
+  const collections = page.getByRole('region', { name: 'Collections' });
+  await collections.getByRole('button', { name: 'New' }).click();
+  await collections.getByLabel('New collection').fill('Custom artwork');
+  await collections.getByRole('button', { name: 'Save' }).click();
+  const baseRow = page.locator('.collection-member-row').filter({ has: page.getByText('armdfly', { exact: true }) });
+  const baseArtwork = await baseRow.locator('.collection-member-row__art').getAttribute('src');
+  expect(baseArtwork).toBeTruthy();
+  await page.getByLabel('Source').selectOption('custom');
+
+  const customRow = page.locator('.collection-member-row').filter({ hasText: 'armdfly_collection_icon_test' });
+  await expect(customRow).toBeVisible();
+  await expect(customRow.locator('.collection-member-row__art')).toHaveAttribute('src', baseArtwork);
+});
+
 test('borrow weapon dialog exposes the themed donor and comparison workflow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);

@@ -142,7 +142,7 @@ export default function CollectionsPage({
                         <span aria-hidden="true" />
                         <em>{isDirect ? 'Direct' : isNested ? 'Nested' : 'Add'}</em>
                       </label>
-                      <UnitArtwork src={getUnitIconUrl(unit.id)} alt="" className="collection-member-row__art" />
+                      <UnitArtwork src={getUnitIconUrl(unit.rootBaseId || unit.id)} alt="" className="collection-member-row__art" />
                       <div className="collection-member-row__identity"><strong>{unit.name}</strong><code>{unit.id}</code></div>
                       <div className="collection-member-row__meta"><span>{unit.isClone ? 'Custom' : 'Vanilla'}</span><span>{unit.faction}</span><span>{unit.tags.find(tag => /^t[1-4]$/.test(tag)) || '—'}</span></div>
                       <div className="collection-member-row__signals"><span>{Object.keys(tweaks[unit.id] || {}).length} edits</span><span>{issueCount} issues</span></div>
