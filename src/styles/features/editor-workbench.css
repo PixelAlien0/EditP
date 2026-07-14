@@ -203,12 +203,31 @@
 .unit-identity-edit {
   min-height: 24px;
   padding: 3px var(--space-2);
+  flex: 0 0 auto;
   border: 1px solid var(--color-border-accent-muted);
   border-radius: var(--radius-sm);
   background: var(--color-surface-accent-subtle);
   color: var(--color-accent-strong);
   font: 700 var(--font-size-xs)/1 var(--font-ui);
   cursor: pointer;
+}
+
+.unit-command-bar .unit-dossier-copy {
+  align-content: center;
+  gap: 1px !important;
+}
+
+.unit-command-bar .unit-dossier-meta {
+  gap: var(--space-1);
+  overflow: visible;
+}
+
+.unit-command-bar .unit-dossier-id {
+  flex: 0 1 auto;
+}
+
+.unit-command-bar .clone-badge {
+  flex: 0 0 auto;
 }
 
 .unit-command-bar .unit-dossier-metrics {
@@ -257,10 +276,97 @@
   padding: var(--space-2) var(--space-4) !important;
   display: flex !important;
   justify-content: center;
-  flex: 1 0 240px !important;
+  min-width: 220px;
+  flex: 1 1 220px !important;
   border: 0 !important;
   border-right: 1px solid var(--color-border) !important;
   background: transparent !important;
+}
+
+.editor-workspace .operational-overview .unit-context-label {
+  margin: 0 !important;
+  color: var(--color-text-muted) !important;
+  font: 650 9px/1.2 var(--font-ui) !important;
+  letter-spacing: .08em !important;
+  white-space: nowrap;
+}
+
+.editor-workspace .operational-overview .unit-efficiency-card,
+.editor-workspace .operational-overview .unit-weapon-card {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.editor-workspace .operational-overview .unit-efficiency-card {
+  min-width: 260px;
+  flex-basis: 300px !important;
+}
+
+.editor-workspace .operational-overview .unit-efficiency-metrics {
+  min-width: 0;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 0 !important;
+}
+
+.editor-workspace .operational-overview .unit-efficiency-metric {
+  min-width: 0;
+  padding: 0 var(--space-2);
+  display: grid;
+  gap: 2px;
+  border-left: 1px solid var(--color-border-subtle);
+}
+
+.editor-workspace .operational-overview .unit-efficiency-metric:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.editor-workspace .operational-overview .unit-efficiency-metric > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-workspace .operational-overview .unit-efficiency-metric > span:first-child {
+  color: var(--color-text-muted) !important;
+  font: 600 8px/1.2 var(--font-ui) !important;
+  letter-spacing: .05em;
+}
+
+.editor-workspace .operational-overview .unit-efficiency-metric > span:last-child {
+  color: var(--color-text-strong) !important;
+  font: 650 12px/1.1 var(--font-mono) !important;
+}
+
+.editor-workspace .operational-overview .unit-efficiency-metric small {
+  color: var(--color-text-muted);
+  font-size: 8px;
+}
+
+.editor-workspace .operational-overview .unit-weapon-card {
+  min-width: 220px;
+  flex-basis: 250px !important;
+}
+
+.editor-workspace .operational-overview .unit-slot-list {
+  min-width: 0;
+  display: flex !important;
+  align-items: center;
+  gap: var(--space-1) !important;
+  overflow-x: auto;
+}
+
+.editor-workspace .operational-overview .unit-slot-node {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
 }
 
 .editor-workspace .operational-overview .unit-context-card:first-child {
@@ -272,14 +378,74 @@
 }
 
 .editor-workspace .operational-overview .unit-trajectory-card {
-  flex-basis: 300px !important;
-  flex-direction: row !important;
+  min-width: 280px;
+  flex-basis: 320px !important;
+  display: grid !important;
+  grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
   align-items: center !important;
+  column-gap: var(--space-3) !important;
+  row-gap: 3px !important;
+}
+
+.editor-workspace .operational-overview .unit-trajectory-card > .unit-context-label {
+  grid-column: 1 / -1;
 }
 
 .editor-workspace .operational-overview .unit-trajectory-diagram {
-  width: 48px !important;
-  height: 48px !important;
+  grid-column: 1;
+  grid-row: 2;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.editor-workspace .operational-overview .unit-trajectory-copy {
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.editor-workspace .operational-overview .unit-trajectory-values {
+  min-width: 0;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 0 !important;
+}
+
+.editor-workspace .operational-overview .unit-trajectory-values > div {
+  min-width: 0;
+  padding: 0 var(--space-2);
+  display: grid;
+  gap: 2px;
+  border-left: 1px solid var(--color-border-subtle);
+}
+
+.editor-workspace .operational-overview .unit-trajectory-values > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.editor-workspace .operational-overview .unit-trajectory-values span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-workspace .operational-overview .unit-trajectory-values > div > span:first-child {
+  color: var(--color-text-muted) !important;
+  font: 600 8px/1.2 var(--font-ui) !important;
+  letter-spacing: .05em;
+}
+
+.editor-workspace .operational-overview .unit-trajectory-values > div > span:last-child {
+  color: var(--color-text-strong) !important;
+  font: 650 12px/1.1 var(--font-mono) !important;
+}
+
+.editor-workspace .operational-overview .unit-trajectory-values small {
+  color: var(--color-text-muted);
+  font-size: 8px;
 }
 
 .parameter-canvas {

@@ -16,17 +16,17 @@ export default function UnitCommandBar({
           <span className="unit-dossier-eyebrow">Unit dossier · {faction.toUpperCase()}</span>
           <div className="unit-dossier-title-row">
             <span className="unit-dossier-title">{name}</span>
-            {isClone && (
-              <button type="button" className="unit-identity-edit" onClick={onOpenIdentity}>
-                Edit identity
-              </button>
-            )}
           </div>
           <div className="unit-dossier-meta">
             <code className="unit-dossier-id">{unitId}</code>
             <span className={`clone-badge ${isClone ? '' : 'unit-source-badge'}`}>
               {isClone ? 'Clone prototype' : 'Vanilla unit'}
             </span>
+            {isClone && (
+              <button type="button" className="unit-identity-edit" onClick={onOpenIdentity}>
+                Edit identity
+              </button>
+            )}
           </div>
         </div>
       </div>
