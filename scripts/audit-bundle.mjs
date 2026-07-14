@@ -29,8 +29,8 @@ const budgets = {
   entryJs: 450 * 1024,
   entryGzip: 150 * 1024,
   largestJs: 500 * 1024,
-  entryCss: 310 * 1024,
-  totalCss: 350 * 1024,
+  entryCss: 325 * 1024,
+  totalCss: 365 * 1024,
   dist: 25 * 1024 * 1024
 };
 

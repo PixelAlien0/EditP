@@ -44,7 +44,7 @@ console.log(`\nTotal: ${files.length} files, ${totalBytes} bytes, ${totalImporta
 console.log(`Selectors owned by more than one file: ${crossOwned.length}`);
 crossOwned.slice(0, 20).forEach(([selector, owners]) => console.log(`- ${selector}: ${[...owners].join(', ')}`));
 
-const budgets = { bytes: 442000, important: 2175, crossOwned: 138 };
+const budgets = { bytes: 455000, important: 2175, crossOwned: 138 };
 const failures = [
   totalBytes > budgets.bytes && `CSS size ${totalBytes} exceeds ${budgets.bytes} bytes`,
   totalImportant > budgets.important && `${totalImportant} !important declarations exceed ${budgets.important}`,

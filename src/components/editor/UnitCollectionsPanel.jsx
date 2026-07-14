@@ -14,6 +14,7 @@ export default function UnitCollectionsPanel({
   activeCollectionId,
   selectedUnit,
   availableUnitIds,
+  variant = 'sidebar',
   onSelectCollection,
   onCreateCollection,
   onRenameCollection,
@@ -155,7 +156,7 @@ export default function UnitCollectionsPanel({
   });
 
   return (
-    <section className="unit-collections" aria-labelledby="unit-collections-title">
+    <section className={`unit-collections unit-collections--${variant}`} aria-labelledby="unit-collections-title">
       <header className="unit-collections__header">
         <div>
           <span>Workspace scopes</span>

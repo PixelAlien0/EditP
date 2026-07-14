@@ -26,7 +26,7 @@ import { getUnitIconUrl, setUnitArtworkManifest } from './utils/unitArtwork.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
 import EditorShell from './components/editor/EditorShell.jsx';
 import UnitLibraryPane from './components/editor/UnitLibraryPane.jsx';
-import UnitCollectionsPanel from './components/editor/UnitCollectionsPanel.jsx';
+import CollectionScopePicker from './components/editor/CollectionScopePicker.jsx';
 import UnitCommandBar from './components/editor/UnitCommandBar.jsx';
 import ParameterCanvas, { ParameterMatrix } from './components/editor/ParameterCanvas.jsx';
 import EditorInspector from './components/editor/EditorInspector.jsx';
@@ -37,6 +37,7 @@ import {
 } from './project/unitCollections.js';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
+const LazyCollectionsPage = lazy(() => import('./components/CollectionsPage.jsx'));
 const LazyPresetGalleryPage = lazy(() => import('./components/PresetGalleryPage.jsx'));
 const LazyReviewPage = lazy(() => import('./components/ReviewPage.jsx'));
 const LazyTemporaryChatDialog = lazy(() => import('./components/TemporaryChatDialog.jsx'));
@@ -956,6 +957,7 @@ export default function App() {
       || showPresetGallery
       || (WEAPON_LAB_ENABLED && showWeaponLab)
       || activeWorkspace === 'preset-gallery'
+      || activeWorkspace === 'collections'
       || activeWorkspace === 'weapon-lab'
     ) {
       return PRESENCE_ACTIVITY.TOOLS;
@@ -1149,7 +1151,6 @@ export default function App() {
     return list.sort((a, b) => a.name.localeCompare(b.name));
   }, [clones, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitsDb.descriptions, unitsDb.names]);
 
-  const availableUnitIds = useMemo(() => allUnitsList.map(unit => unit.id), [allUnitsList]);
   const activeCollection = useMemo(
     () => unitCollections.find(collection => collection.id === activeCollectionId) || null,
     [activeCollectionId, unitCollections]
@@ -2156,8 +2157,9 @@ export default function App() {
     };
     const commands = [
       { id: 'workspace-edit', kind: 'Workspace', label: 'Edit units', description: 'Open the unit parameter editor.', priority: 30, onSelect: openEditor },
-      { id: 'workspace-build', kind: 'Workspace', label: 'Build menus', description: 'Open Factory Roster Designer.', priority: 29, onSelect: () => { setShowMainMenu(false); setShowPresetGallery(false); setShowDesignerPanel(true); setActiveWorkspace('designer'); } },
-      { id: 'workspace-review', kind: 'Workspace', label: 'Review & export', description: 'Validate and compile the current project.', priority: 28, onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('review'); } },
+      { id: 'workspace-collections', kind: 'Workspace', label: 'Collections', description: 'Organize reusable nested unit scopes.', priority: 29, onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('collections'); } },
+      { id: 'workspace-build', kind: 'Workspace', label: 'Build menus', description: 'Open Factory Roster Designer.', priority: 28, onSelect: () => { setShowMainMenu(false); setShowPresetGallery(false); setShowDesignerPanel(true); setActiveWorkspace('designer'); } },
+      { id: 'workspace-review', kind: 'Workspace', label: 'Review & export', description: 'Validate and compile the current project.', priority: 27, onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('review'); } },
       { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Apply one adjustment across matching units.', onSelect: () => { openEditor(); setShowBulkPanel(true); } },
       { id: 'tool-presets', kind: 'Tool', label: 'Preset gallery', description: 'Save or apply reusable project snapshots.', onSelect: () => { setShowMainMenu(false); setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); } },
       { id: 'tool-mutation', kind: 'Tool', label: 'Mutation lab', description: 'Generate controlled random adjustments.', onSelect: () => { openEditor(); setShowRandomPanel(true); } },
@@ -2199,7 +2201,7 @@ export default function App() {
       label: collection.name,
       description: `${getCollectionUnitIds(unitCollections, collection.id).size} units including nested folders`,
       keywords: `folder scope ${collection.name}`,
-      onSelect: () => { openEditor(); setActiveCollectionId(collection.id); },
+      onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveCollectionId(collection.id); setActiveWorkspace('collections'); },
     }));
     return commands;
   }, [allUnitsList, unitCollections]);
@@ -2676,11 +2678,19 @@ export default function App() {
             <span className="workflow-nav__label">Edit Units</span>
           </button>
           <button
+            className={activeWorkspace === 'collections' ? 'active' : ''}
+            aria-current={activeWorkspace === 'collections' ? 'page' : undefined}
+            onClick={() => { setShowDesignerPanel(false); setActiveWorkspace('collections'); }}
+          >
+            <span className="workflow-nav__step">02</span>
+            <span className="workflow-nav__label">Collections</span>
+          </button>
+          <button
             className={activeWorkspace === 'designer' ? 'active' : ''}
             aria-current={activeWorkspace === 'designer' ? 'page' : undefined}
             onClick={() => { setShowDesignerPanel(true); setActiveWorkspace('designer'); }}
           >
-            <span className="workflow-nav__step">02</span>
+            <span className="workflow-nav__step">03</span>
             <span className="workflow-nav__label">Build Menus</span>
           </button>
           <button
@@ -2688,7 +2698,7 @@ export default function App() {
             aria-current={activeWorkspace === 'review' ? 'page' : undefined}
             onClick={() => setActiveWorkspace('review')}
           >
-            <span className="workflow-nav__step">03</span>
+            <span className="workflow-nav__step">04</span>
             <span className="workflow-nav__label">Review &amp; Export</span>
           </button>
         </nav>
@@ -2793,6 +2803,7 @@ export default function App() {
               <div className="header-tools-menu" id="header-tools-menu" role="menu" aria-label="Editor tools">
                 <button type="button" role="menuitem" onClick={() => { setShowCommandPalette(true); setShowToolsMenu(false); }}>Command Palette <span aria-hidden="true">Ctrl K</span></button>
                 <button type="button" role="menuitem" onClick={() => { setShowProjectCheckpoints(true); setShowToolsMenu(false); }}>Project Checkpoints</button>
+                <button type="button" role="menuitem" onClick={() => { setActiveWorkspace('collections'); setShowToolsMenu(false); }}>Collections</button>
                 <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>Batch Adjust</button>
                 <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>Preset Gallery</button>
                 {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}>Weapon Lab</button>}
@@ -2865,17 +2876,12 @@ export default function App() {
           filteredCount={filteredUnits.length}
           onToggle={workspaceLayout.setLeftCollapsed}
         >
-          <UnitCollectionsPanel
+          <CollectionScopePicker
             collections={unitCollections}
             activeCollectionId={activeCollectionId}
-            selectedUnit={selectedUnit}
-            availableUnitIds={availableUnitIds}
-            onSelectCollection={setActiveCollectionId}
-            onCreateCollection={handleCreateCollection}
-            onRenameCollection={handleRenameCollection}
-            onDeleteCollection={handleDeleteCollection}
-            onToggleMembership={handleToggleCollectionMembership}
-            onCleanupCollection={handleCleanupCollection}
+            totalUnits={allUnitsList.length}
+            onSelect={setActiveCollectionId}
+            onManage={() => setActiveWorkspace('collections')}
           />
           <div className="search-filter-section">
 
@@ -4483,6 +4489,25 @@ export default function App() {
         />
 
       </EditorShell>
+      ) : activeWorkspace === 'collections' ? (
+        <Suspense fallback={<main className="collections-page workspace-loading"><span>Preparing collections…</span></main>}>
+          <LazyCollectionsPage
+            collections={unitCollections}
+            activeCollectionId={activeCollectionId}
+            units={allUnitsList}
+            selectedUnit={selectedUnit}
+            tweaks={tweaks}
+            validationIssues={validationIssues}
+            onSelectCollection={setActiveCollectionId}
+            onCreateCollection={handleCreateCollection}
+            onRenameCollection={handleRenameCollection}
+            onDeleteCollection={handleDeleteCollection}
+            onToggleMembership={handleToggleCollectionMembership}
+            onCleanupCollection={handleCleanupCollection}
+            onEditUnit={id => { setSelectedUnitId(id); setActiveWorkspace('edit'); }}
+            onBack={() => setActiveWorkspace('edit')}
+          />
+        </Suspense>
       ) : activeWorkspace === 'review' ? (
         <Suspense fallback={<main className="review-workspace workspace-loading"><span>Preparing project review…</span></main>}>
           <LazyReviewPage

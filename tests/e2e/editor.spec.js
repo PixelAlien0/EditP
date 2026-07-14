@@ -41,13 +41,18 @@ test('main workflow remains keyboard accessible', async ({ page }) => {
   await page.keyboard.press('Escape');
 });
 
-test('main menu and editor have no serious accessibility violations', async ({ page }) => {
+test('main menu, editor, and collections have no serious accessibility violations', async ({ page }) => {
   await waitForMainMenu(page);
   let results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
   expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
 
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
   await expect(page.getByRole('navigation', { name: 'Editor workflow' })).toBeVisible();
+  results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
+  expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
+
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Collections/ }).click();
+  await expect(page.getByRole('heading', { name: 'Collections', exact: true })).toBeVisible();
   results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
   expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
 });
@@ -314,6 +319,8 @@ test('nested unit collections persist and scope expert workflows', async ({ page
   await page.setViewportSize({ width: 1920, height: 1000 });
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  const workflow = page.getByRole('navigation', { name: 'Editor workflow' });
+  await workflow.getByRole('button', { name: /Collections/ }).click();
 
   const collections = page.getByRole('region', { name: 'Collections' });
   await collections.getByRole('button', { name: 'New' }).click();
@@ -321,22 +328,24 @@ test('nested unit collections persist and scope expert workflows', async ({ page
   await collections.getByRole('button', { name: 'Save' }).click();
 
   let rootRow = collections.locator('.unit-collection-row').filter({ hasText: 'Air Ops' });
-  await rootRow.locator('.unit-collection-membership').click();
-  await expect(rootRow.locator('.unit-collection-membership')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.results-summary').getByText('1 units')).toBeVisible();
+  const rootMember = page.locator('.collection-member-row').filter({ hasText: 'armdfly' });
+  await rootMember.getByRole('checkbox').check();
+  await expect(rootMember).toHaveClass(/is-direct/);
 
   await rootRow.getByRole('button', { name: 'Manage Air Ops' }).click();
   await collections.getByRole('button', { name: 'New child' }).click();
   await collections.getByLabel('New child folder').fill('T2 Strike');
   await collections.getByRole('button', { name: 'Save' }).click();
 
-  const childRow = collections.locator('.unit-collection-row').filter({ hasText: 'T2 Strike' });
-  await childRow.locator('.unit-collection-membership').click();
-  await expect(childRow.locator('.unit-collection-membership')).toHaveAttribute('aria-pressed', 'true');
+  const childMember = page.locator('.collection-member-row').filter({ hasText: 'armdfly' });
+  await childMember.getByRole('checkbox').check();
+  await expect(childMember).toHaveClass(/is-direct/);
   rootRow = collections.locator('.unit-collection-row').filter({ hasText: 'Air Ops' });
-  await expect(rootRow.locator('.unit-collection-membership')).toHaveAttribute('aria-pressed', 'true');
-
   await rootRow.locator('.unit-collection-select').click();
+
+  await workflow.getByRole('button', { name: /Edit Units/ }).click();
+  await expect(page.locator('.collection-scope-picker')).toContainText('Air Ops');
+  await expect(page.locator('.results-summary').getByText('1 units')).toBeVisible();
   await page.getByRole('button', { name: /Tools/ }).click();
   await page.getByRole('menuitem', { name: 'Batch Adjust' }).click();
   const batchDialog = page.getByRole('dialog', { name: 'Batch Adjust Stats' });
@@ -347,7 +356,7 @@ test('nested unit collections persist and scope expert workflows', async ({ page
   await expect(page.getByText('Collection scope', { exact: true })).toBeVisible();
   await expect(page.getByText('1 available members')).toBeVisible();
 
-  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+  await workflow.getByRole('button', { name: /Review & Export/ }).click();
   const collectionSummary = page.locator('.review-collection-summary');
   await expect(collectionSummary.getByRole('heading', { name: 'Air Ops' })).toBeVisible();
   await expect(collectionSummary.getByText('Includes nested folders')).toBeVisible();
@@ -357,6 +366,7 @@ test('nested unit collections persist and scope expert workflows', async ({ page
   await page.reload();
   await expect(page.getByRole('heading', { name: /Bar EditP/i })).toBeVisible();
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Collections/ }).click();
   const restoredCollections = page.getByRole('region', { name: 'Collections' });
   await expect(restoredCollections.getByText('Air Ops', { exact: true })).toBeVisible();
   await restoredCollections.getByRole('button', { name: 'Expand Air Ops' }).click();
