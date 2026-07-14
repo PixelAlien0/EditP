@@ -8,6 +8,7 @@ import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import { useTemporaryChat } from './hooks/useTemporaryChat.js';
+import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import TemporaryChatDialog from './components/TemporaryChatDialog.jsx';
 import BatchAdjustDialog from './components/BatchAdjustDialog.jsx';
@@ -570,6 +571,8 @@ function MainMenu({
   rosterCount,
   presenceCount,
   presenceStatus,
+  presenceActivityCounts,
+  currentPresenceActivity,
   onToggleTheme,
   onOpenCredits,
   onEditUnits,
@@ -613,7 +616,12 @@ function MainMenu({
           </div>
         </div>
         <div className="main-menu__utilities">
-          <OnlinePresenceBadge count={presenceCount} status={presenceStatus} />
+          <OnlinePresenceBadge
+            count={presenceCount}
+            status={presenceStatus}
+            activityCounts={presenceActivityCounts}
+            currentActivity={currentPresenceActivity}
+          />
           <button type="button" onClick={onToggleTheme} aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}>
             <span aria-hidden="true">{themeMode === 'dark' ? '☼' : '◐'}</span>
             {themeMode === 'dark' ? 'Light' : 'Dark'}
@@ -779,7 +787,6 @@ function generateWeaponVfxPackLua(blueprints) {
 export default function App() {
   const [defaultsDb, setDefaultsDb] = useState({});
   const [coreDataStatus, setCoreDataStatus] = useState('loading');
-  const { count: onlineCount, status: presenceStatus } = useOnlinePresence();
   const temporaryChat = useTemporaryChat();
 
   useEffect(() => {
@@ -863,9 +870,41 @@ export default function App() {
     }
   });
 
+  const getCloneLineage = useCallback((unitId) => {
+    const lineage = [];
+    const visited = new Set();
+    let currentId = String(unitId || '').trim().toLowerCase();
+
+    while (currentId && !visited.has(currentId)) {
+      visited.add(currentId);
+      const clone = clones.find(item => item.newId?.trim().toLowerCase() === currentId);
+      if (!clone) break;
+      lineage.unshift(clone);
+      currentId = String(clone.baseId || '').trim().toLowerCase();
+    }
+
+    return { rootId: currentId, lineage };
+  }, [clones]);
+
+  const resolveCloneRootId = useCallback((unitId) => {
+    return getCloneLineage(unitId).rootId || String(unitId || '').trim().toLowerCase();
+  }, [getCloneLineage]);
+
+  const getInheritedCloneTweaks = useCallback((unitId) => {
+    const { lineage } = getCloneLineage(unitId);
+    return lineage.reduce((merged, clone) => {
+      const cloneId = clone.newId?.trim().toLowerCase();
+      return cloneId ? { ...merged, ...(tweaks[cloneId] || {}) } : merged;
+    }, {});
+  }, [getCloneLineage, tweaks]);
+
+  const getInheritedCloneWeaponSwaps = useCallback((unitId) => {
+    const { lineage } = getCloneLineage(unitId);
+    return lineage.reduce((merged, clone) => ({ ...merged, ...(clone.weaponSwaps || {}) }), {});
+  }, [getCloneLineage]);
+
   const getProjectUnitIconUrl = (unitId) => {
-    const clone = clones.find(item => item.newId.toLowerCase() === unitId?.toLowerCase());
-    return getUnitIconUrl(clone?.baseId || unitId);
+    return getUnitIconUrl(resolveCloneRootId(unitId));
   };
 
   const [disabledUnitIds, setDisabledUnitIds] = useState(() => {
@@ -1035,6 +1074,27 @@ export default function App() {
   });
   const [showWeaponLab, setShowWeaponLab] = useState(false);
   const [weaponBlueprintDraft, setWeaponBlueprintDraft] = useState(null);
+  const presenceActivity = useMemo(() => {
+    if (showMainMenu) return PRESENCE_ACTIVITY.MAIN_MENU;
+    if (
+      showBulkPanel
+      || showRandomPanel
+      || showPresetGallery
+      || (WEAPON_LAB_ENABLED && showWeaponLab)
+      || activeWorkspace === 'preset-gallery'
+      || activeWorkspace === 'weapon-lab'
+    ) {
+      return PRESENCE_ACTIVITY.TOOLS;
+    }
+    if (activeWorkspace === 'designer') return PRESENCE_ACTIVITY.BUILD_MENUS;
+    if (activeWorkspace === 'review') return PRESENCE_ACTIVITY.REVIEW_EXPORT;
+    return PRESENCE_ACTIVITY.EDIT_UNITS;
+  }, [activeWorkspace, showBulkPanel, showMainMenu, showPresetGallery, showRandomPanel, showWeaponLab]);
+  const {
+    count: onlineCount,
+    status: presenceStatus,
+    activityCounts: presenceActivityCounts
+  } = useOnlinePresence(presenceActivity);
   const [weaponLibrary, setWeaponLibrary] = useState(() => {
     try {
       const saved = localStorage.getItem('bmf_weapon_library');
@@ -1275,22 +1335,29 @@ export default function App() {
       };
     });
 
+    const cloneNames = new Map(clones.map(clone => [clone.newId.trim().toLowerCase(), clone.displayName || clone.newId]));
     clones.forEach(c => {
-      const techTier = getEffectiveTechTier(c.newId, c.baseId);
+      const rootBaseId = resolveCloneRootId(c.newId);
+      const inheritedTier = getInheritedCloneTweaks(c.newId)['customparams.techlevel'];
+      const techTier = inheritedTier === undefined
+        ? getEffectiveTechTier(c.newId, rootBaseId)
+        : getTechTierFromValue(inheritedTier);
+      const parentId = c.baseId.trim().toLowerCase();
       list.push({
         id: c.newId,
         name: c.displayName || c.newId,
-        desc: `Cloned from ${unitsDb.names[c.baseId] || c.baseId}`,
-        faction: getFactionOfUnit(c.baseId),
-        tags: [...getTagsOfUnit(c.baseId).filter(tag => !/^t[1-4]$/.test(tag)), techTier],
+        desc: `Cloned from ${cloneNames.get(parentId) || unitsDb.names[parentId] || c.baseId}`,
+        faction: getFactionOfUnit(rootBaseId),
+        tags: [...getTagsOfUnit(rootBaseId).filter(tag => !/^t[1-4]$/.test(tag)), techTier],
         techTier,
         isClone: true,
-        baseId: c.baseId
+        baseId: c.baseId,
+        rootBaseId
       });
     });
 
     return list.sort((a, b) => a.name.localeCompare(b.name));
-  }, [clones, getEffectiveTechTier, getTagsOfUnit]);
+  }, [clones, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId]);
 
   // Parse advanced search query (e.g. hp > 1000)
   const queryFilterFn = useMemo(() => {
@@ -1310,7 +1377,7 @@ export default function App() {
       if (field === 'speed' || field === 'velocity') dbField = 'maxvelocity';
       if (field === 'range') {
         return (unit) => {
-          const stats = defaultsDb[unit.isClone ? unit.baseId : unit.id];
+          const stats = defaultsDb[unit.isClone ? resolveCloneRootId(unit.id) : unit.id];
           if (!stats || !stats.weaponSlots) return false;
           return stats.weaponSlots.some(slot => {
             const r = parseFloat(slot.range);
@@ -1329,7 +1396,7 @@ export default function App() {
       }
 
       return (unit) => {
-        const stats = defaultsDb[unit.isClone ? unit.baseId : unit.id];
+        const stats = defaultsDb[unit.isClone ? resolveCloneRootId(unit.id) : unit.id];
         if (!stats) return false;
 
         let statVal = stats[dbField];
@@ -1353,7 +1420,7 @@ export default function App() {
       unit.id.toLowerCase().includes(lowerQuery) ||
       unit.name.toLowerCase().includes(lowerQuery) ||
       unit.desc.toLowerCase().includes(lowerQuery);
-  }, [searchQuery, defaultsDb]);
+  }, [searchQuery, defaultsDb, resolveCloneRootId]);
 
   // Filter list
   const filteredUnits = useMemo(() => {
@@ -1375,9 +1442,9 @@ export default function App() {
   }, [allUnitsList, selectedFaction, selectedCats, queryFilterFn, showModifiedOnly, tweaks, disabledUnitIds]);
 
   const bulkTargetUnits = useMemo(() => filteredUnits.filter(unit => {
-    const baseId = unit.isClone ? unit.baseId : unit.id;
+    const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
     return defaultsDb[baseId] !== undefined;
-  }), [filteredUnits, defaultsDb]);
+  }), [filteredUnits, defaultsDb, resolveCloneRootId]);
 
   const clearUnitFilters = () => {
     setSearchQuery('');
@@ -1436,16 +1503,18 @@ export default function App() {
 
   const selectedUnitDefaults = useMemo(() => {
     if (!selectedUnit) return null;
-    const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+    const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
     const defaults = { ...(defaultsDb[baseId] || {}) };
 
     const cloneInfo = selectedUnit.isClone ? clones.find(c => c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) : null;
-    if (cloneInfo?.weaponSwaps && defaults.weaponSlots) {
+    const effectiveWeaponSwaps = cloneInfo ? getInheritedCloneWeaponSwaps(selectedUnit.id) : null;
+    if (effectiveWeaponSwaps && defaults.weaponSlots) {
       defaults.weaponSlots = defaults.weaponSlots.map(wSlot => {
         const slotKey = String(wSlot.slot);
-        const swap = cloneInfo.weaponSwaps[slotKey];
+        const swap = effectiveWeaponSwaps[slotKey];
         if (swap) {
-          const swapDefaults = defaultsDb[swap.sourceUnitId.toLowerCase()];
+          const swapSourceId = resolveCloneRootId(swap.sourceUnitId);
+          const swapDefaults = defaultsDb[swapSourceId];
           if (swapDefaults && swapDefaults.weaponSlots) {
             const srcSlot = swapDefaults.weaponSlots.find(s => s.defKey === swap.sourceWeaponDefKey.toLowerCase());
             if (srcSlot) {
@@ -1493,7 +1562,7 @@ export default function App() {
     }
 
     return defaults;
-  }, [selectedUnit, clones, weaponLibrary, defaultsDb]);
+  }, [selectedUnit, clones, weaponLibrary, defaultsDb, getInheritedCloneWeaponSwaps, resolveCloneRootId]);
 
   const openWeaponLab = () => {
     if (!WEAPON_LAB_ENABLED) {
@@ -1506,7 +1575,7 @@ export default function App() {
       showToast('Select a unit with an active weapon slot first.');
       return;
     }
-    const sourceUnitId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+    const sourceUnitId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
     setWeaponBlueprintDraft({
       id: '',
       name: `${activeSlot.defKey.toUpperCase()} Variant`,
@@ -1689,17 +1758,18 @@ export default function App() {
     const getActiveWeaponSlotsForUnit = (uId) => {
       const uInfo = allUnitsList.find(u => u.id === uId);
       if (!uInfo) return [];
-      const bId = uInfo.isClone ? uInfo.baseId : uId;
+      const bId = uInfo.isClone ? resolveCloneRootId(uId) : uId;
       const baseDefaults = defaultsDb[bId];
       if (!baseDefaults) return [];
       let slots = baseDefaults.weaponSlots ? JSON.parse(JSON.stringify(baseDefaults.weaponSlots)) : [];
       const cloneInfo = uInfo.isClone ? clones.find(c => c.newId.toLowerCase() === uId.toLowerCase()) : null;
-      if (cloneInfo?.weaponSwaps && slots.length > 0) {
+      const effectiveWeaponSwaps = cloneInfo ? getInheritedCloneWeaponSwaps(uId) : null;
+      if (effectiveWeaponSwaps && slots.length > 0) {
         slots = slots.map(wSlot => {
           const slotKey = String(wSlot.slot);
-          const swap = cloneInfo.weaponSwaps[slotKey];
+          const swap = effectiveWeaponSwaps[slotKey];
           if (swap) {
-            const swapDefaults = defaultsDb[swap.sourceUnitId.toLowerCase()];
+            const swapDefaults = defaultsDb[resolveCloneRootId(swap.sourceUnitId)];
             if (swapDefaults && swapDefaults.weaponSlots) {
               const srcSlot = swapDefaults.weaponSlots.find(s => s.defKey === swap.sourceWeaponDefKey.toLowerCase());
               if (srcSlot) {
@@ -1715,7 +1785,7 @@ export default function App() {
 
     Object.entries(tweaks).forEach(([unitId, statPatch]) => {
       const unitInfo = allUnitsList.find(u => u.id === unitId);
-      const defaults = defaultsDb[unitInfo?.isClone ? unitInfo.baseId : unitId];
+      const defaults = defaultsDb[unitInfo?.isClone ? resolveCloneRootId(unitId) : unitId];
       if (!defaults) return;
 
       const unitPatch = {};
@@ -1823,7 +1893,7 @@ export default function App() {
     });
 
     return Object.keys(patchObj).length > 0 ? serializeLuaTable(patchObj) : '{\n}';
-  }, [tweaks, allUnitsList, includeTweaks, clones, defaultsDb]);
+  }, [tweaks, allUnitsList, includeTweaks, clones, defaultsDb, getInheritedCloneWeaponSwaps, resolveCloneRootId]);
 
   // Base64 Tweak Units
   const tweakUnitsB64 = useMemo(() => {
@@ -1919,7 +1989,7 @@ export default function App() {
 
   const handleCreateClone = (e) => {
     e.preventDefault();
-    const cleanBase = cloneBaseId.trim();
+    const cleanBase = cloneBaseId.trim().toLowerCase();
     const cleanNew = cloneNewId.trim().toLowerCase();
     const cleanName = cloneName.trim();
 
@@ -1937,16 +2007,30 @@ export default function App() {
       .map(b => b.trim().toLowerCase())
       .filter(Boolean);
 
+    const parentClone = clones.find(clone => clone.newId.trim().toLowerCase() === cleanBase);
+    const inheritedTweaks = parentClone ? getInheritedCloneTweaks(cleanBase) : {};
+    const inheritedWeaponSwaps = parentClone ? getInheritedCloneWeaponSwaps(cleanBase) : {};
+
     const newClone = {
       baseId: cleanBase,
       newId: cleanNew,
       displayName: cleanName || cleanNew,
       description: cloneDesc.trim() || undefined,
       builderIds: cleanBuilders,
-      addToOriginalBuilders: true
+      addToOriginalBuilders: true,
+      ...(Object.keys(inheritedWeaponSwaps).length > 0
+        ? {
+            weaponSwaps: Object.fromEntries(
+              Object.entries(inheritedWeaponSwaps).map(([slot, swap]) => [slot, { ...swap }])
+            )
+          }
+        : {})
     };
 
     setClones(prev => [...prev, newClone]);
+    if (Object.keys(inheritedTweaks).length > 0) {
+      setTweaks(prev => ({ ...prev, [cleanNew]: { ...inheritedTweaks } }));
+    }
     setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, cleanNew, newClone.builderIds));
     setSelectedUnitId(cleanNew);
     setShowClonePanel(false);
@@ -2054,7 +2138,7 @@ export default function App() {
 
     let count = 0;
     bulkTargetUnits.forEach(unit => {
-      const baseId = unit.isClone ? unit.baseId : unit.id;
+      const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
       const defaults = defaultsDb[baseId];
 
       if (bulkStatKey === 'all_weapons_damage' || bulkStatKey === 'all_weapons_range') {
@@ -2133,7 +2217,7 @@ export default function App() {
       };
 
       targets.forEach(unit => {
-        const baseId = unit.isClone ? unit.baseId : unit.id;
+        const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
         const defaults = defaultsDb[baseId];
         if (!defaults) return;
 
@@ -2560,6 +2644,8 @@ export default function App() {
           rosterCount={buildMenuSteps.length + activeBuildMenuPackCount}
           presenceCount={onlineCount}
           presenceStatus={presenceStatus}
+          presenceActivityCounts={presenceActivityCounts}
+          currentPresenceActivity={presenceActivity}
           onToggleTheme={() => setThemeMode(mode => mode === 'dark' ? 'light' : 'dark')}
           onOpenCredits={() => setShowCreditsModal(true)}
           onEditUnits={() => {
@@ -2608,7 +2694,13 @@ export default function App() {
               <h1>BAR Editor</h1>
             </div>
           </button>
-          <OnlinePresenceBadge count={onlineCount} status={presenceStatus} compact />
+          <OnlinePresenceBadge
+            count={onlineCount}
+            status={presenceStatus}
+            activityCounts={presenceActivityCounts}
+            currentActivity={presenceActivity}
+            compact
+          />
         </div>
 
         <nav className="workflow-nav" aria-label="Editor workflow">
@@ -2900,7 +2992,7 @@ export default function App() {
               {virtualUnitRange.units.map(unit => {
                 const isModified = tweaks[unit.id] && Object.keys(tweaks[unit.id]).length > 0;
                 const isDisabled = disabledUnitIds.includes(unit.id);
-                const iconSourceId = unit.isClone ? unit.baseId : unit.id;
+                const iconSourceId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
 
                 return (
                   <button
@@ -2953,7 +3045,7 @@ export default function App() {
         {/* Center: selected unit stat parameters editor */}
         <main className="editor-workspace">
           {selectedUnit ? (() => {
-            const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+            const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
             const originalDefaults = defaultsDb[baseId] || {};
             const defaults = selectedUnitDefaults || originalDefaults;
             const slots = defaults.weaponSlots || [];
@@ -2962,7 +3054,7 @@ export default function App() {
             const activeSlotIdx = slots.some(s => s.slot === activeWeaponSlotTab) ? activeWeaponSlotTab : (slots[0]?.slot || 1);
             const slot = slots.find(s => s.slot === activeSlotIdx) || slots[0];
             const cloneInfo = selectedUnit.isClone ? clones.find(c => c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) : null;
-            const swap = cloneInfo?.weaponSwaps?.[String(slot?.slot)];
+            const swap = cloneInfo ? getInheritedCloneWeaponSwaps(selectedUnit.id)?.[String(slot?.slot)] : null;
             const originalSlot = originalDefaults.weaponSlots?.find(item => item.slot === slot?.slot);
 
             let calculatedDps = '0.0';
@@ -3327,7 +3419,7 @@ export default function App() {
                       Efficiency Analysis
                     </span>
                     {(() => {
-                      const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+                      const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                       const uDefaults = defaultsDb[baseId] || {};
                       const metalCost = parseFloat(tweaks[selectedUnit.id]?.metalcost ?? uDefaults.metalcost ?? 1);
                       const health = parseFloat(tweaks[selectedUnit.id]?.health ?? uDefaults.health ?? 1);
@@ -3532,7 +3624,7 @@ export default function App() {
                       />
                       <div className="editor-grid">
                         {structureParams.map(stat => {
-                          const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+                          const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                           const defaults = defaultsDb[baseId] || {};
                           let defaultVal = defaults[stat.key];
 
@@ -3643,7 +3735,7 @@ export default function App() {
                       />
                       <div className="editor-grid">
                         {mobilityParams.map(stat => {
-                          const baseId = selectedUnit.isClone ? selectedUnit.baseId : selectedUnit.id;
+                          const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                           const defaults = defaultsDb[baseId] || {};
                           const defaultVal = defaults[stat.key];
 

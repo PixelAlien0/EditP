@@ -1,31 +1,62 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { isSupabaseConfigured, supabase } from '../lib/supabase.js';
 import { getBrowserIdentity } from '../lib/browserIdentity.js';
+import {
+  createPresenceActivityCounts,
+  normalizePresenceActivity,
+  PRESENCE_ACTIVITY,
+  summarizePresenceState
+} from '../config/presenceActivities.js';
 
 const PRESENCE_CHANNEL = 'editp-online';
 
-export function useOnlinePresence() {
+export function useOnlinePresence(activity = PRESENCE_ACTIVITY.EDIT_UNITS) {
+  const normalizedActivity = normalizePresenceActivity(activity);
   const [presence, setPresence] = useState({
     count: null,
-    status: isSupabaseConfigured ? 'connecting' : 'unconfigured',
+    activityCounts: createPresenceActivityCounts(),
+    status: isSupabaseConfigured ? 'connecting' : 'unconfigured'
   });
+  const channelRef = useRef(null);
+  const subscribedRef = useRef(false);
+  const activityRef = useRef(normalizedActivity);
+  const connectedAtRef = useRef(new Date().toISOString());
+  const browserIdRef = useRef(null);
+
+  const createTrackingPayload = useCallback(() => ({
+    browserId: browserIdRef.current,
+    activity: activityRef.current,
+    onlineAt: connectedAtRef.current,
+    activityUpdatedAt: new Date().toISOString()
+  }), []);
+
+  useEffect(() => {
+    activityRef.current = normalizedActivity;
+    if (channelRef.current && subscribedRef.current) {
+      void channelRef.current.track(createTrackingPayload());
+    }
+  }, [normalizedActivity, createTrackingPayload]);
 
   useEffect(() => {
     if (!supabase) return undefined;
 
     let disposed = false;
-    const browserId = getBrowserIdentity().id;
+    browserIdRef.current = getBrowserIdentity().id;
     const channel = supabase.channel(PRESENCE_CHANNEL, {
-      config: { presence: { key: browserId } },
+      config: { presence: { key: browserIdRef.current } }
     });
+    channelRef.current = channel;
 
     const syncPresence = () => {
       if (disposed) return;
-      const state = channel.presenceState();
-      const uniqueBrowsers = Object.values(state)
-        .filter(entries => Array.isArray(entries) && entries.length > 0)
-        .length;
-      setPresence({ count: Math.max(1, uniqueBrowsers), status: 'connected' });
+      const summary = summarizePresenceState(channel.presenceState());
+
+      if (summary.count === 0) {
+        summary.count = 1;
+        summary.activityCounts[activityRef.current] = 1;
+      }
+
+      setPresence({ ...summary, status: 'connected' });
     };
 
     channel
@@ -33,19 +64,27 @@ export function useOnlinePresence() {
       .subscribe(async status => {
         if (disposed) return;
         if (status === 'SUBSCRIBED') {
-          await channel.track({ onlineAt: new Date().toISOString() });
+          subscribedRef.current = true;
+          await channel.track(createTrackingPayload());
           return;
         }
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          setPresence({ count: null, status: 'unavailable' });
+          subscribedRef.current = false;
+          setPresence({
+            count: null,
+            activityCounts: createPresenceActivityCounts(),
+            status: 'unavailable'
+          });
         }
       });
 
     return () => {
       disposed = true;
+      subscribedRef.current = false;
+      channelRef.current = null;
       void channel.untrack().finally(() => supabase.removeChannel(channel));
     };
-  }, []);
+  }, [createTrackingPayload]);
 
   return presence;
 }

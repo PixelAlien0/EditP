@@ -10582,65 +10582,6 @@ input:checked + .weapon-ceg-track {
   }
 }
 
-/* Anonymous realtime presence — shared by the menu and editor header. */
-.online-presence {
-  min-height: 28px;
-  padding: 0 9px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface-subtle);
-  color: var(--color-text-muted);
-  font-family: var(--font-ui);
-  font-size: 9px;
-  font-weight: 650;
-  line-height: 1;
-  letter-spacing: .015em;
-  white-space: nowrap;
-}
-
-.online-presence__dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--color-text-muted);
-}
-
-.online-presence.is-connected {
-  border-color: color-mix(in srgb, var(--color-success) 28%, var(--color-border));
-  color: var(--color-text);
-}
-
-.online-presence.is-connected .online-presence__dot {
-  background: var(--color-success);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-success) 13%, transparent);
-}
-
-.online-presence.is-pending {
-  opacity: .72;
-}
-
-.app-header .header-brand-group {
-  display: flex;
-  gap: 10px;
-}
-
-.app-header .header-brand-group .header-brand {
-  flex: 0 1 auto;
-}
-
-.app-header .header-brand-group .online-presence {
-  min-height: 24px;
-  padding-inline: 7px;
-  font-size: 8px;
-}
-
-@media (max-width: 1180px) {
-}
-
 /* Dark dossier material: three calm surface levels, no decorative effects. */
 [data-theme="dark"] .editor-unit-header {
   background: var(--color-surface) !important;

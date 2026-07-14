@@ -123,18 +123,18 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
 }
 
 export function traceAncestor(unitId, clones) {
-  let currentId = unitId.trim();
+  let currentId = unitId.trim().toLowerCase();
   const visited = new Set();
   for (let i = 0; i < 16; i++) {
     if (!currentId || visited.has(currentId)) {
       return currentId.trim();
     }
     visited.add(currentId);
-    const parentClone = clones.find(c => c.newId === currentId);
+    const parentClone = clones.find(c => c.newId.trim().toLowerCase() === currentId);
     if (!parentClone) {
       return currentId;
     }
-    currentId = parentClone.baseId.trim();
+    currentId = parentClone.baseId.trim().toLowerCase();
   }
   return currentId;
 }
