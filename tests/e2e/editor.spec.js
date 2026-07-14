@@ -132,6 +132,45 @@ test('narrow workbench uses temporary overlay panes without overwriting desktop 
   expect(saved.rightCollapsed).toBe(false);
 });
 
+test('selected unit header reflows within a narrow editor canvas', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const header = page.locator('.editor-unit-header');
+  const identity = header.locator('.editor-unit-identity');
+  const metrics = header.locator('.unit-dossier-metrics');
+  const actions = header.locator('.editor-unit-actions');
+  await expect(header).toBeVisible();
+
+  const layout = await header.evaluate(element => {
+    const bounds = element.getBoundingClientRect();
+    const childBounds = [...element.children].map(child => child.getBoundingClientRect());
+    return {
+      width: bounds.width,
+      scrollWidth: element.scrollWidth,
+      childrenFit: childBounds.every(child => (
+        child.left >= bounds.left && child.right <= bounds.right
+      )),
+    };
+  });
+
+  expect(layout.childrenFit).toBe(true);
+  expect(layout.scrollWidth).toBeLessThanOrEqual(Math.ceil(layout.width));
+  await expect(metrics).toHaveCSS('grid-row-start', '2');
+  await expect(actions).toHaveCSS('grid-column-start', '2');
+  await expect(identity).toBeVisible();
+
+  await page.setViewportSize({ width: 700, height: 900 });
+  await expect(actions).toHaveCSS('grid-column-start', '1');
+  await expect(actions).toHaveCSS('grid-row-start', '3');
+  const compactLayout = await header.evaluate(element => ({
+    width: element.getBoundingClientRect().width,
+    scrollWidth: element.scrollWidth,
+  }));
+  expect(compactLayout.scrollWidth).toBeLessThanOrEqual(Math.ceil(compactLayout.width));
+});
+
 test('clone identity remains editable and nested clones keep the selected clone as parent', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);

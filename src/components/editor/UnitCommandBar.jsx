@@ -6,7 +6,7 @@ export default function UnitCommandBar({
   isClone, disabled, onDisabledChange, onReset, onOpenIdentity,
 }) {
   return (
-    <header className="editor-unit-header unit-command-bar">
+    <header className="editor-unit-header">
       <div className="editor-unit-identity">
         <div className="unit-dossier-mark">
           <UnitArtwork unitId={baseId} alt="" eager />

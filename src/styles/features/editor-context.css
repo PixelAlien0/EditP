@@ -365,16 +365,18 @@
 }
 
 /* Canonical selected-unit dossier header. */
+/* Canonical selected-unit dossier header. */
 .editor-unit-header {
-  min-height: 96px !important;
+  min-height: 72px !important;
+  height: 72px;
   display: grid !important;
-  grid-template-columns: minmax(260px, 1fr) auto minmax(222px, auto) !important;
+  grid-template-columns: minmax(260px, 1fr) auto minmax(238px, auto) !important;
   align-items: center !important;
-  gap: var(--space-6) !important;
-  padding: var(--space-4) var(--space-6) !important;
+  gap: var(--space-5) !important;
+  padding: var(--space-2) var(--space-5) !important;
   border: 0 !important;
   border-bottom: 1px solid var(--color-border) !important;
-  background: var(--color-surface-raised) !important;
+  background: var(--color-surface) !important;
   box-shadow: none !important;
 }
 
@@ -388,10 +390,10 @@
 .unit-dossier-mark {
   position: relative;
   box-sizing: border-box;
-  width: 60px !important;
-  height: 60px !important;
+  width: 48px !important;
+  height: 48px !important;
   padding: 4px !important;
-  flex: 0 0 60px;
+  flex: 0 0 48px;
   border: 1px solid var(--color-border-strong) !important;
   border-radius: var(--radius-md) !important;
   background: var(--color-surface-muted) !important;
@@ -426,7 +428,8 @@
 .unit-dossier-copy {
   min-width: 0;
   display: grid !important;
-  gap: 3px !important;
+  align-content: center;
+  gap: 1px !important;
 }
 
 .unit-dossier-eyebrow {
@@ -447,9 +450,9 @@
   max-width: 100%;
   color: var(--color-text-strong) !important;
   font-family: var(--font-display) !important;
-  font-size: 24px !important;
+  font-size: var(--font-size-lg) !important;
   font-weight: 550 !important;
-  line-height: 1.05;
+  line-height: 1.1;
   letter-spacing: -.025em !important;
 }
 
@@ -457,12 +460,13 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  overflow: hidden;
+  gap: var(--space-1);
+  overflow: visible;
 }
 
 .unit-dossier-id {
   min-width: 0;
+  flex: 0 1 auto;
   overflow: hidden;
   color: var(--color-text-muted) !important;
   font-family: var(--font-mono);
@@ -493,13 +497,26 @@
   color: var(--color-accent-strong) !important;
 }
 
+.unit-identity-edit {
+  min-height: 24px;
+  padding: 3px var(--space-2);
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border-accent-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
+  font: 700 var(--font-size-xs)/1 var(--font-ui);
+  cursor: pointer;
+}
+
 .unit-dossier-metrics {
+  height: 48px;
   display: grid !important;
   grid-template-columns: repeat(4, minmax(62px, auto)) !important;
   align-items: stretch;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--color-surface-raised) !important;
 }
 
 .unit-dossier-metrics > div {
@@ -510,6 +527,10 @@
   gap: 3px !important;
   border: 0 !important;
   border-left: 1px solid var(--color-border) !important;
+}
+
+.unit-dossier-metrics > div:first-child {
+  border-left: 0 !important;
 }
 
 .unit-dossier-metrics span {
@@ -535,13 +556,13 @@
 }
 
 .editor-unit-actions {
-  min-width: 222px;
+  min-width: 238px;
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
   justify-self: end;
   gap: var(--space-2) !important;
-  padding: 0 0 0 var(--space-4) !important;
+  padding-left: var(--space-4) !important;
   border: 0 !important;
   border-left: 1px solid var(--color-border) !important;
 }
@@ -634,6 +655,7 @@
 
 @container (max-width: 900px) {
   .editor-unit-header {
+    height: auto !important;
     grid-template-columns: minmax(0, 1fr) minmax(222px, auto) !important;
     gap: var(--space-3) var(--space-5) !important;
   }
@@ -656,6 +678,7 @@
 
 @container (max-width: 620px) {
   .editor-unit-header {
+    height: auto !important;
     grid-template-columns: minmax(0, 1fr) !important;
     padding-inline: var(--space-4) !important;
   }
