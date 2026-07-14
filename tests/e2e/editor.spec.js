@@ -80,6 +80,83 @@ test('clone creator stays centered above the workspace', async ({ page }) => {
   expect(geometry.bottom).toBeLessThanOrEqual(900);
 });
 
+test('editor workbench panes resize, collapse, and persist', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await expect(page.locator('.editor-shell')).toBeVisible();
+
+  const library = page.getByRole('complementary', { name: 'Unit library' });
+  const inspector = page.getByRole('complementary', { name: 'Editor inspector' });
+  const librarySeparator = page.getByRole('separator', { name: 'Resize unit library' });
+  await expect(library).not.toHaveClass(/is-collapsed/);
+  await expect(inspector).not.toHaveClass(/is-collapsed/);
+  await librarySeparator.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(librarySeparator).toHaveAttribute('aria-valuenow', '312');
+
+  await page.getByRole('button', { name: 'Collapse unit library' }).click();
+  await expect(library).toHaveClass(/is-collapsed/);
+  await expect(page.getByRole('button', { name: 'Open unit library' })).toBeVisible();
+
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('editp_workspace_layout_v1')));
+  expect(saved.leftWidth).toBe(312);
+  expect(saved.leftCollapsed).toBe(true);
+});
+
+test('narrow workbench uses temporary overlay panes without overwriting desktop preferences', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.addInitScript(() => localStorage.setItem('editp_workspace_layout_v1', JSON.stringify({
+    leftWidth: 330,
+    rightWidth: 410,
+    leftCollapsed: false,
+    rightCollapsed: false,
+    density: 'balanced',
+    inspectorTab: 'details',
+    collapsedGroups: {},
+  })));
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const library = page.getByRole('complementary', { name: 'Unit library' });
+  await expect(library).toHaveClass(/is-collapsed/);
+  await page.getByRole('button', { name: 'Open unit library' }).click();
+  await expect(library).not.toHaveClass(/is-collapsed/);
+  await expect(library).toHaveCSS('position', 'fixed');
+  await page.getByRole('button', { name: 'Close open workspace panel' }).click({ position: { x: 900, y: 400 } });
+  await expect(library).toHaveClass(/is-collapsed/);
+
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('editp_workspace_layout_v1')));
+  expect(saved.leftWidth).toBe(330);
+  expect(saved.leftCollapsed).toBe(false);
+  expect(saved.rightCollapsed).toBe(false);
+});
+
+test('clone identity remains editable and nested clones keep the selected clone as parent', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  let dialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await dialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_editorial_test');
+  await dialog.getByRole('button', { name: 'Create Clone' }).click();
+
+  await page.getByRole('button', { name: 'Edit identity' }).click();
+  await expect(page.getByRole('tab', { name: /Identity/ })).toHaveAttribute('aria-selected', 'true');
+  const inspector = page.getByRole('complementary', { name: 'Editor inspector' });
+  await inspector.getByLabel('Display name', { exact: true }).fill('Editorial Test Clone');
+
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  dialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await expect(dialog.getByLabel('Parent Unit', { exact: true })).toHaveValue('armdfly_editorial_test');
+  await dialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_editorial_nested_test');
+  await dialog.getByRole('button', { name: 'Create Clone' }).click();
+
+  await expect(page.getByRole('button', { name: 'Edit identity' })).toBeVisible();
+  await expect(page.getByText('armdfly_editorial_nested_test', { exact: true }).first()).toBeVisible();
+});
+
 for (const width of [1024, 1180, 1440, 1920, 2560]) {
   for (const theme of ['dark', 'light']) {
     test(`visual baseline ${theme} ${width}`, async ({ page }) => {

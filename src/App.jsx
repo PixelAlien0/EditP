@@ -11,6 +11,7 @@ import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import { useTemporaryChat } from './hooks/useTemporaryChat.js';
 import { useProjectPersistence } from './hooks/useProjectPersistence.js';
+import { useWorkspaceLayout } from './hooks/useWorkspaceLayout.js';
 import { useProjectStore } from './state/useProjectStore.js';
 import { assertProjectSize, normalizeProjectDocument } from './project/projectDocument.js';
 import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
@@ -23,6 +24,11 @@ import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
 import { getUnitIconUrl, setUnitArtworkManifest } from './utils/unitArtwork.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
+import EditorShell from './components/editor/EditorShell.jsx';
+import UnitLibraryPane from './components/editor/UnitLibraryPane.jsx';
+import UnitCommandBar from './components/editor/UnitCommandBar.jsx';
+import ParameterCanvas, { ParameterMatrix } from './components/editor/ParameterCanvas.jsx';
+import EditorInspector from './components/editor/EditorInspector.jsx';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
 const LazyPresetGalleryPage = lazy(() => import('./components/PresetGalleryPage.jsx'));
@@ -211,7 +217,7 @@ function getParameterHelp(key, label) {
   return `${label}. Enter a value to create an override; clear or reset it to return to the inherited game value.`;
 }
 
-function ParameterHelp({ paramKey, label }) {
+function ParameterHelp({ paramKey, label, onOpen }) {
   const help = getParameterHelp(paramKey, label);
   const triggerRef = useRef(null);
   const tooltipId = useId();
@@ -260,6 +266,10 @@ function ParameterHelp({ paramKey, label }) {
         onPointerLeave={() => setIsOpen(false)}
         onFocus={() => setIsOpen(true)}
         onBlur={() => setIsOpen(false)}
+        onClick={() => {
+          setIsOpen(true);
+          onOpen?.(paramKey);
+        }}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             setIsOpen(false);
@@ -858,7 +868,7 @@ export default function App() {
   // Weapon Swap states
   const [showSwapModal, setShowSwapModal] = useState(false);
   const [swapSearchQuery, setSwapSearchQuery] = useState('');
-  const [codePaneCollapsed, setCodePaneCollapsed] = useState(true);
+  const workspaceLayout = useWorkspaceLayout();
   const [selectedSwapUnitId, setSelectedSwapUnitId] = useState(null);
   const [activeSwapSlotNum, setActiveSwapSlotNum] = useState(1);
   const [activeWeaponSlotTab, setActiveWeaponSlotTab] = useState(1);
@@ -2412,6 +2422,41 @@ export default function App() {
   ])];
   const activeBuildMenuPackCount = Object.values(buildMenuPacks).filter(Boolean).length;
   const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount;
+  const selectedUnitOverrideEntries = Object.entries(tweaks[selectedUnit?.id] || {});
+  const inspectorTabs = [
+    { id: 'details', label: 'Details' },
+    { id: 'compare', label: 'Compare', count: selectedUnitOverrideEntries.length },
+    { id: 'changes', label: 'Changes', count: projectChangeCount },
+    ...(selectedUnit?.isClone ? [{ id: 'identity', label: 'Identity' }] : []),
+  ];
+  const activeInspectorTab = workspaceLayout.layout.inspectorTab;
+  const setInspectorTab = workspaceLayout.setInspectorTab;
+
+  useEffect(() => {
+    if (!selectedUnit?.isClone && activeInspectorTab === 'identity') {
+      setInspectorTab('details');
+    }
+  }, [activeInspectorTab, selectedUnit?.isClone, setInspectorTab]);
+
+  const selectInspectorParameter = useCallback(key => {
+    setActiveRelationshipKey(key);
+    requestAnimationFrame(() => {
+      const panel = document.getElementById(`workspace-panel-${activeParamTab}`);
+      const target = panel?.querySelector(`[data-param-key="${key}"]`);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      target?.querySelector('input, select, button')?.focus({ preventScroll: true });
+    });
+  }, [activeParamTab]);
+
+  const updateSelectedUnitDescription = useCallback(value => {
+    if (!selectedUnit) return;
+    setUnitDescriptions(current => {
+      const next = { ...current };
+      if (value === '') delete next[selectedUnit.id];
+      else next[selectedUnit.id] = value;
+      return next;
+    });
+  }, [selectedUnit, setUnitDescriptions]);
   const activeCompiledOutput = activeOutputTab === 'tweakdefs_lua'
     ? generatedTweakDefsLua
     : activeOutputTab === 'tweakunits_lua'
@@ -2701,17 +2746,24 @@ export default function App() {
 
       {/* Main Workspace */}
       {activeWorkspace === 'edit' ? (
-      <div className="main-layout">
+      <EditorShell
+        layout={workspaceLayout.layout}
+        actions={{
+          setLeftWidth: workspaceLayout.setLeftWidth,
+          setRightWidth: workspaceLayout.setRightWidth,
+          setLeftCollapsed: workspaceLayout.setLeftCollapsed,
+          setRightCollapsed: workspaceLayout.setRightCollapsed,
+          closeOverlayPanes: workspaceLayout.closeOverlayPanes,
+        }}
+      >
 
         {/* Sidebar Panel */}
-        <aside className="sidebar">
-          <div className="sidebar-heading">
-            <div>
-              <span className="sidebar-eyebrow">Unit library</span>
-              <h2>Browse forces</h2>
-            </div>
-            <span className="sidebar-total">{allUnitsList.length.toLocaleString()}</span>
-          </div>
+        <UnitLibraryPane
+          collapsed={workspaceLayout.layout.leftCollapsed}
+          total={allUnitsList.length}
+          filteredCount={filteredUnits.length}
+          onToggle={workspaceLayout.setLeftCollapsed}
+        >
           <div className="search-filter-section">
 
             {/* Search */}
@@ -2878,7 +2930,7 @@ export default function App() {
             </div>
           )}
           </div>
-        </aside>
+        </UnitLibraryPane>
 
         {/* Center: selected unit stat parameters editor */}
         <main className="editor-workspace">
@@ -2908,6 +2960,21 @@ export default function App() {
               calculatedDps = rawReload > 0 ? (((rawDamage * rawProj * rawBurst) / rawReload).toFixed(1)) : '0.0';
             }
 
+            const featuredWeaponParameters = new Set(['damage', 'reload', 'range', 'velocity', 'aoe']);
+            const weaponParameterGroups = {
+              damage: 'Damage & cadence', damage_vs_light: 'Damage & cadence', damage_vs_medium: 'Damage & cadence',
+              damage_vs_heavy: 'Damage & cadence', damage_vs_commander: 'Damage & cadence', reload: 'Damage & cadence',
+              projectiles: 'Damage & cadence', burst: 'Damage & cadence', burstrate: 'Damage & cadence',
+              range: 'Range & accuracy', velocity: 'Range & accuracy', flighttime: 'Range & accuracy', aoe: 'Range & accuracy',
+              accuracy: 'Range & accuracy', sprayangle: 'Range & accuracy', heightmod: 'Range & accuracy', randomdecay: 'Range & accuracy', hightrajectory: 'Range & accuracy',
+              canattackground: 'Targeting & safety', toairweapon: 'Targeting & safety', avoidfriendly: 'Targeting & safety', collidefriendly: 'Targeting & safety', interceptedbyshieldtype: 'Targeting & safety',
+              stockpile: 'Ammunition', stockpiletime: 'Ammunition', stockpilelimit: 'Ammunition',
+              weapontype: 'Presentation', cegTag: 'Presentation', model: 'Presentation', explosiongenerator: 'Presentation',
+            };
+            const weaponParameterUnits = {
+              damage: 'damage', reload: 'seconds', range: 'elmos', velocity: 'elmos/s', flighttime: 'seconds',
+              aoe: 'elmos', accuracy: 'angle', sprayangle: 'angle', burstrate: 'seconds', stockpiletime: 'seconds',
+            };
             const slotParams = [
               { key: 'damage', label: 'Damage', sub: 'damage.default', type: 'number' },
               { key: 'damage_vs_light', label: 'Damage vs Light', sub: 'damage.light', type: 'number' },
@@ -2939,7 +3006,13 @@ export default function App() {
               { key: 'cegTag', label: 'Visual Effect / Trail', sub: 'cegTag', type: 'text', options: ['redlaser', 'greenlaser', 'bluebeam', 'purpleshield', 'plasma_exp', 'lightning_stream', 'electric_arc', 'flamethrower'] },
               { key: 'model', label: '3D Projectile Model', sub: 'model', type: 'text', options: ['torpedo.3do', 'missile.3do', 'bomb.3do', 'laserbolt.3do', 'rocket.3do'] },
               { key: 'explosiongenerator', label: 'Explosion Generator', sub: 'explosiongenerator', type: 'text', options: ['custom:bluelaser_explosion', 'custom:redlaser_explosion', 'custom:plasma_big', 'custom:lightning_spark', 'custom:fire_medium'] }
-            ];
+            ].map((parameter, order) => ({
+              ...parameter,
+              featured: featuredWeaponParameters.has(parameter.key),
+              group: weaponParameterGroups[parameter.key] || 'Additional',
+              order,
+              unit: weaponParameterUnits[parameter.key] || '',
+            }));
 
             const advancedWeaponGroups = [
               {
@@ -3081,11 +3154,6 @@ export default function App() {
                   ? mobilityParams.length
                   : weaponParameterCount
             }));
-            const activeComparisonCount = activeParamTab === 'structure'
-              ? structureParams.filter(stat => tweaks[selectedUnit.id]?.[stat.key] !== undefined).length
-              : activeParamTab === 'mobility'
-                ? mobilityParams.filter(stat => tweaks[selectedUnit.id]?.[stat.key] !== undefined).length
-                : Object.keys(tweaks[selectedUnit.id] || {}).filter(key => slot && key.startsWith(`weapon_slot_${slot.slot}_`)).length;
             const unitOverrideCount = Object.keys(tweaks[selectedUnit.id] || {}).length;
             const unitIsDisabled = disabledUnitIds.includes(selectedUnit.id);
             const activeRelationship = getParameterRelationship(activeParamTab, activeRelationshipKey);
@@ -3095,96 +3163,31 @@ export default function App() {
               : relationshipKeys.has(key)
                 ? 'relationship-related'
                 : '';
-            const selectRelatedParameter = key => {
-              setActiveRelationshipKey(key);
-              requestAnimationFrame(() => {
-                const panel = document.getElementById(`workspace-panel-${activeParamTab}`);
-                const target = panel?.querySelector(`[data-param-key="${key}"]`);
-                target?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-                target?.querySelector('input, select, button')?.focus({ preventScroll: true });
-              });
-            };
-
             return (
               <div className="editor-content">
 
                 {/* Unit info header */}
-                <div className="editor-unit-header">
-                  <div className="editor-unit-identity">
-                    <div className="unit-dossier-mark">
-                      <UnitArtwork unitId={baseId} alt="" eager />
-                      <span>{activeTechTier.toUpperCase()}</span>
-                    </div>
-                    <div className="unit-dossier-copy">
-                      <span className="unit-dossier-eyebrow">Unit dossier · {getFactionOfUnit(baseId).toUpperCase()}</span>
-                      <div className="unit-dossier-title-row">
-                        <span className="unit-dossier-title">{selectedUnit.name}</span>
-                      </div>
-                      <div className="unit-dossier-meta">
-                        <code className="unit-dossier-id">{selectedUnit.id}</code>
-                        {selectedUnit.isClone ? (
-                          <span className="clone-badge">Clone Prototype</span>
-                        ) : (
-                          <span className="clone-badge unit-source-badge">Vanilla Unit</span>
-                        )}
-                        {unitOverrideCount > 0 && (
-                          <span className="unit-override-badge">{unitOverrideCount} override{unitOverrideCount === 1 ? '' : 's'}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="unit-dossier-metrics" aria-label="Selected unit summary">
-                    <div>
-                      <span>Tier</span>
-                      <strong>{activeTechTier.toUpperCase()}</strong>
-                    </div>
-                    <div>
-                      <span>Class</span>
-                      <strong>{selectedUnit.tags?.[0] || 'Unit'}</strong>
-                    </div>
-                    <div>
-                      <span>Weapons</span>
-                      <strong>{slots.length}</strong>
-                    </div>
-                    <div className={unitOverrideCount > 0 ? 'has-overrides' : ''}>
-                      <span>Overrides</span>
-                      <strong>{unitOverrideCount}</strong>
-                    </div>
-                  </div>
-                  <div className="editor-unit-actions">
-                    <div className="unit-state-summary">
-                      <span>Unit state</span>
-                      <strong className={unitIsDisabled ? 'is-disabled' : 'is-active'}>
-                        {unitIsDisabled ? 'Excluded' : 'Active'}
-                      </strong>
-                    </div>
-                    <div className="unit-action-controls">
-                      <div className="unit-disable-control">
-                        <span>{unitIsDisabled ? 'Enable unit' : 'Disable unit'}</span>
-                        <Switch
-                          label={`Disable ${selectedUnit.name}`}
-                          checked={unitIsDisabled}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setDisabledUnitIds(prev => [...prev, selectedUnit.id]);
-                            } else {
-                              setDisabledUnitIds(prev => prev.filter(id => id !== selectedUnit.id));
-                            }
-                          }}
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        className="reset-unit-btn"
-                        disabled={unitOverrideCount === 0 && !unitIsDisabled}
-                        onClick={() => handleResetUnit(selectedUnit.id)}
-                      >
-                        Reset
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <UnitCommandBar
+                  baseId={baseId}
+                  unitId={selectedUnit.id}
+                  name={selectedUnit.name}
+                  faction={getFactionOfUnit(baseId)}
+                  tier={activeTechTier}
+                  unitClass={selectedUnit.tags?.[0] || 'Unit'}
+                  weaponCount={slots.length}
+                  overrideCount={unitOverrideCount}
+                  isClone={selectedUnit.isClone}
+                  disabled={unitIsDisabled}
+                  onDisabledChange={nextDisabled => {
+                    if (nextDisabled) setDisabledUnitIds(previous => [...new Set([...previous, selectedUnit.id])]);
+                    else setDisabledUnitIds(previous => previous.filter(id => id !== selectedUnit.id));
+                  }}
+                  onReset={() => handleResetUnit(selectedUnit.id)}
+                  onOpenIdentity={() => {
+                    workspaceLayout.setInspectorTab('identity');
+                    workspaceLayout.setRightCollapsed(false);
+                  }}
+                />
 
                 {/* Tab Selector Navigation for Parameters */}
                 <div className="workspace-tabs editor-section-tabs" role="tablist" aria-label="Editor parameter sections">
@@ -3197,6 +3200,19 @@ export default function App() {
                       aria-selected={activeParamTab === tab.id}
                       aria-controls={tab.panelId}
                       onClick={() => setActiveParamTab(tab.id)}
+                      onKeyDown={event => {
+                        const tabs = [...event.currentTarget.closest('[role="tablist"]').querySelectorAll('[role="tab"]')];
+                        const currentIndex = tabs.indexOf(event.currentTarget);
+                        let nextIndex = currentIndex;
+                        if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length;
+                        else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+                        else if (event.key === 'Home') nextIndex = 0;
+                        else if (event.key === 'End') nextIndex = tabs.length - 1;
+                        else return;
+                        event.preventDefault();
+                        tabs[nextIndex].focus();
+                        tabs[nextIndex].click();
+                      }}
                       className={`workspace-tab-btn ${activeParamTab === tab.id ? 'active' : ''}`}
                     >
                       <span className="workspace-tab-heading">
@@ -3208,48 +3224,8 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* Selected Unit Context HUD Bar (Stacked Vertically On Top of Parameters Scroll Area) */}
-                <div className="unit-context-strip unit-context-strip--canonical">
-                  {/* Unit Profile Hero Card */}
-                  <div className="unit-context-card unit-profile-card">
-                    <span className="unit-context-label unit-profile-label">Unit Profile</span>
-                    <UnitArtwork
-                      className="unit-profile-thumb"
-                      unitId={baseId}
-                      alt=""
-                      eager
-                    />
-                    <div className="unit-profile-copy">
-                      <span className="unit-profile-faction">
-                        {getFactionOfUnit(baseId)} Division
-                      </span>
-                      <span className="unit-profile-chassis">
-                        {activeTechTier} Combat Chassis
-                      </span>
-                      <div className="unit-profile-description">
-                        <input
-                          type="text"
-                          className={`form-input ${unitDescriptions[selectedUnit.id] !== undefined ? 'has-custom-value' : ''}`}
-                          data-context-description
-                          placeholder={selectedUnit.desc || 'No chassis description available for this archetype.'}
-                          value={unitDescriptions[selectedUnit.id] || ''}
-                          onChange={e => {
-                            const val = e.target.value;
-                            const nextDescriptions = { ...unitDescriptions };
-                            if (val === '') {
-                              delete nextDescriptions[selectedUnit.id];
-                            } else {
-                              nextDescriptions[selectedUnit.id] = val;
-                            }
-                            setUnitDescriptions(nextDescriptions);
-                          }}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') e.target.blur();
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                {/* Operational overview: analysis and weapon context without duplicating unit identity. */}
+                <div className="unit-context-strip unit-context-strip--canonical operational-overview">
 
                   {/* Efficiency Analysis Card */}
                   <div className="unit-context-card unit-efficiency-card">
@@ -3375,80 +3351,9 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Clone Identity Panel (Editable) */}
-                  {selectedUnit.isClone && (() => {
-                    const cloneInfo = clones.find(c => c.newId.toLowerCase() === selectedUnit.id.toLowerCase());
-                    if (!cloneInfo) return null;
-
-                    return (
-                      <div className="clone-identity-card clone-identity-card--canonical">
-                        <div className="clone-identity-heading">
-                          <span>Clone identity</span>
-                          <small>Live project metadata</small>
-                        </div>
-                        <div className="clone-identity-fields">
-                          <div className="clone-identity-field">
-                            <label>Name</label>
-                            <input
-                              type="text"
-                              className="form-input"
-                              value={cloneInfo.displayName || ''}
-                              onChange={e => {
-                                const val = e.target.value;
-                                setClones(prev => prev.map(c => {
-                                  if (c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) {
-                                    return { ...c, displayName: val };
-                                  }
-                                  return c;
-                                }));
-                              }}
-                            />
-                          </div>
-                          <div className="clone-identity-field">
-                            <label>Builders</label>
-                            <input
-                              type="text"
-                              className="form-input"
-                              value={cloneInfo.builderIds?.join(', ') || ''}
-                              onChange={e => {
-                                const val = e.target.value;
-                                handleCloneBuildersChange(selectedUnit.id, val.split(','));
-                              }}
-                            />
-                            <div className="clone-builder-meta">
-                              <span className="clone-builder-sync-note">Synced with Build Menus</span>
-                              <span>{cloneInfo.builderIds?.length || 0} assigned</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })()}
                 </div>
 
-                {/* Editor viewport scroll area (Scrollable Grid) */}
-                <div className={`editor-scroll-area ${comparisonMode ? 'comparison-mode' : ''}`}>
-                  <ParameterGuide section={activeParamTab} />
-                  <ParameterRelationshipPanel
-                    section={activeParamTab}
-                    activeKey={activeRelationshipKey}
-                    onSelect={selectRelatedParameter}
-                    onClear={() => setActiveRelationshipKey(null)}
-                  />
-                  <div className="comparison-mode-toolbar">
-                    <div>
-                      <span>{comparisonMode ? 'Before / after comparison' : 'Parameter editing'}</span>
-                      <small>{comparisonMode ? `${activeComparisonCount} override${activeComparisonCount === 1 ? '' : 's'} shown against its inherited value.` : 'Review inherited values and overrides side by side.'}</small>
-                    </div>
-                    <button
-                      type="button"
-                      className={`comparison-mode-toggle ${comparisonMode ? 'active' : ''}`}
-                      aria-pressed={comparisonMode}
-                      onClick={() => setComparisonMode(current => !current)}
-                    >
-                      {comparisonMode ? 'Exit comparison' : 'Compare before / after'}
-                    </button>
-                  </div>
+                <ParameterCanvas comparisonMode={comparisonMode}>
 
                   {/* Structure View */}
                   {activeParamTab === 'structure' && (
@@ -3460,8 +3365,12 @@ export default function App() {
                         description="Costs, durability, production, storage, and utility systems."
                         actions={<span className="section-heading__meta">{structureParams.length} fields</span>}
                       />
-                      <div className="editor-grid">
-                        {structureParams.map(stat => {
+                      <ParameterMatrix
+                        sectionId="structure"
+                        parameters={structureParams}
+                        collapsedGroups={workspaceLayout.layout.collapsedGroups}
+                        onToggleGroup={workspaceLayout.toggleGroup}
+                        renderParameter={stat => {
                           const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                           const defaults = defaultsDb[baseId] || {};
                           let defaultVal = defaults[stat.key];
@@ -3496,8 +3405,9 @@ export default function App() {
                             <StatCard
                               key={stat.key}
                               modified={isModified}
-                              className={getRelationshipStateClass(stat.key)}
+                              className={`${stat.featured ? 'parameter-card--featured' : 'parameter-card--compact'} ${getRelationshipStateClass(stat.key)}`}
                               data-param-key={stat.key}
+                              data-param-unit={stat.unit || undefined}
                               onFocusCapture={() => setActiveRelationshipKey(stat.key)}
                               onClick={() => setActiveRelationshipKey(stat.key)}
                             >
@@ -3505,7 +3415,11 @@ export default function App() {
                                 <span>
                                   <span className="icon">{stat.icon}</span>
                                   {stat.label}
-                                  <ParameterHelp paramKey={stat.key} label={stat.label} />
+                                  <ParameterHelp paramKey={stat.key} label={stat.label} onOpen={() => {
+                                    setActiveRelationshipKey(stat.key);
+                                    workspaceLayout.setInspectorTab('details');
+                                    workspaceLayout.setRightCollapsed(false);
+                                  }} />
                                 </span>
                                 {diffPercent !== null && (
                                   <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
@@ -3556,8 +3470,8 @@ export default function App() {
                               <ComparisonValue active={comparisonMode && isModified} before={defaultVal} after={currentTweakValue} />
                             </StatCard>
                           );
-                        })}
-                      </div>
+                        }}
+                      />
                     </div>
                   )}
 
@@ -3571,8 +3485,12 @@ export default function App() {
                         description="Speed, handling, terrain response, altitude, and detection."
                         actions={<span className="section-heading__meta">{mobilityParams.length} fields</span>}
                       />
-                      <div className="editor-grid">
-                        {mobilityParams.map(stat => {
+                      <ParameterMatrix
+                        sectionId="mobility"
+                        parameters={mobilityParams}
+                        collapsedGroups={workspaceLayout.layout.collapsedGroups}
+                        onToggleGroup={workspaceLayout.toggleGroup}
+                        renderParameter={stat => {
                           const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                           const defaults = defaultsDb[baseId] || {};
                           const defaultVal = defaults[stat.key];
@@ -3594,8 +3512,9 @@ export default function App() {
                             <StatCard
                               key={stat.key}
                               modified={isModified}
-                              className={getRelationshipStateClass(stat.key)}
+                              className={`${stat.featured ? 'parameter-card--featured' : 'parameter-card--compact'} ${getRelationshipStateClass(stat.key)}`}
                               data-param-key={stat.key}
+                              data-param-unit={stat.unit || undefined}
                               onFocusCapture={() => setActiveRelationshipKey(stat.key)}
                               onClick={() => setActiveRelationshipKey(stat.key)}
                             >
@@ -3603,7 +3522,11 @@ export default function App() {
                                 <span>
                                   <span className="icon">{stat.icon}</span>
                                   {stat.label}
-                                  <ParameterHelp paramKey={stat.key} label={stat.label} />
+                                  <ParameterHelp paramKey={stat.key} label={stat.label} onOpen={() => {
+                                    setActiveRelationshipKey(stat.key);
+                                    workspaceLayout.setInspectorTab('details');
+                                    workspaceLayout.setRightCollapsed(false);
+                                  }} />
                                 </span>
                                 {diffPercent !== null && (
                                   <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
@@ -3654,8 +3577,8 @@ export default function App() {
                               <ComparisonValue active={comparisonMode && isModified} before={defaultVal} after={currentTweakValue} />
                             </StatCard>
                           );
-                        })}
-                      </div>
+                        }}
+                      />
                     </div>
                   )}
 
@@ -3794,9 +3717,12 @@ export default function App() {
                             </div>
                           </section>
 
-                          {/* Active Slot Parameter Tweaks Grid */}
-                          <div className="editor-grid weapon-parameter-grid">
-                            {applicableSlotParams.map(param => {
+                          <ParameterMatrix
+                            sectionId={`weapon-slot-${slot.slot}`}
+                            parameters={applicableSlotParams}
+                            collapsedGroups={workspaceLayout.layout.collapsedGroups}
+                            onToggleGroup={workspaceLayout.toggleGroup}
+                            renderParameter={param => {
                               const tweakKey = `weapon_slot_${slot.slot}_${param.key}`;
                               const currentTweakValue = tweaks[selectedUnit.id]?.[tweakKey];
                               const isModified = currentTweakValue !== undefined;
@@ -3811,13 +3737,18 @@ export default function App() {
                               return (
                                 <div
                                   key={param.key}
-                                  className={`stat-card ${isModified ? 'modified' : ''} ${getRelationshipStateClass(param.key)}`}
+                                  className={`stat-card ${param.featured ? 'parameter-card--featured' : 'parameter-card--compact'} ${isModified ? 'modified' : ''} ${getRelationshipStateClass(param.key)}`}
                                   data-param-key={param.key}
+                                  data-param-unit={param.unit || undefined}
                                   onFocusCapture={() => setActiveRelationshipKey(param.key)}
                                   onClick={() => setActiveRelationshipKey(param.key)}
                                 >
                                   <div className="stat-card-label">
-                                    <span>{param.label}<ParameterHelp paramKey={param.key} label={param.label} /></span>
+                                    <span>{param.label}<ParameterHelp paramKey={param.key} label={param.label} onOpen={() => {
+                                      setActiveRelationshipKey(param.key);
+                                      workspaceLayout.setInspectorTab('details');
+                                      workspaceLayout.setRightCollapsed(false);
+                                    }} /></span>
                                     {diffPercent !== null && (
                                       <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
                                         {diffPercent >= 0 ? '+' : ''}{diffPercent}%
@@ -3879,8 +3810,8 @@ export default function App() {
                                   <ComparisonValue active={comparisonMode && isModified} before={defaultVal} after={currentTweakValue} />
                                 </div>
                               );
-                            })}
-                          </div>
+                            }}
+                          />
 
                           <div className="weapon-advanced-groups">
                             {applicableAdvancedWeaponGroups.map(group => (
@@ -3907,7 +3838,11 @@ export default function App() {
                                         onClick={() => setActiveRelationshipKey(param.key)}
                                       >
                                         <div className="stat-card-label">
-                                          <span>{param.label}<ParameterHelp paramKey={param.key} label={param.label} /></span>
+                                          <span>{param.label}<ParameterHelp paramKey={param.key} label={param.label} onOpen={() => {
+                                            setActiveRelationshipKey(param.key);
+                                            workspaceLayout.setInspectorTab('details');
+                                            workspaceLayout.setRightCollapsed(false);
+                                          }} /></span>
                                           {param.danger && <span className="stat-card-diff diff-negative">Caution</span>}
                                         </div>
                                         <div className="stat-card-input-wrapper">
@@ -3944,7 +3879,7 @@ export default function App() {
                                               title="Reset to inherited value"
                                               onClick={() => handleStatChange(selectedUnit.id, tweakKey, undefined)}
                                             >
-                                              Ã—
+                                              ×
                                             </span>
                                           )}
                                         </div>
@@ -3988,7 +3923,11 @@ export default function App() {
                                     >
                                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <div className="target-filter-copy">
-                                          <span className="target-filter-label">{cf.label}<ParameterHelp paramKey={cf.key} label={cf.label} /></span>
+                                          <span className="target-filter-label">{cf.label}<ParameterHelp paramKey={cf.key} label={cf.label} onOpen={() => {
+                                            setActiveRelationshipKey(cf.key);
+                                            workspaceLayout.setInspectorTab('details');
+                                            workspaceLayout.setRightCollapsed(false);
+                                          }} /></span>
                                           <span className="target-filter-helper">{cf.helper}</span>
                                         </div>
                                         <div className="target-filter-groups">
@@ -4046,7 +3985,7 @@ export default function App() {
                     </div>
                   )}
 
-                </div>
+                </ParameterCanvas>
               </div>
             );
           })() : (
@@ -4060,61 +3999,118 @@ export default function App() {
           )}
         </main>
 
-        {/* Right side: Collapsible project changes drawer */}
-        <aside
-          className={`code-pane changes-drawer ${codePaneCollapsed ? 'collapsed' : ''}`}
-        >
-          {codePaneCollapsed && (
-            <button
-              type="button"
-              className="changes-drawer-toggle"
-              onClick={() => setCodePaneCollapsed(false)}
-              title="Open project changes"
-              aria-label="Open project changes"
-              aria-expanded="false"
-            >
-              <svg viewBox="0 0 16 16" aria-hidden="true">
-                <path d="m10 3.75-4.25 4.25L10 12.25" />
-              </svg>
-            </button>
-          )}
-
-          {!codePaneCollapsed ? (
-            <>
-              <div className="code-pane-header changes-pane-header">
-                <div className="changes-pane-heading">
-                  <span className="changes-pane-eyebrow">Project ledger</span>
-                  <div className="changes-pane-title-row">
-                    <h3>Project Changes</h3>
-                    <span className="changes-pane-count" aria-label={`${projectChangeCount} project changes`}>
-                      {projectChangeCount}
-                    </span>
-                  </div>
-                  <p className="changes-drawer-subtitle">Edits, validation, and export readiness</p>
-                </div>
-                <div className="changes-pane-header-actions">
-                  {validationIssues.length > 0 && (
-                    <span className="changes-pane-status needs-review">
-                      <span aria-hidden="true" />
-                      {`${validationIssues.length} ${validationIssues.length === 1 ? 'issue' : 'issues'}`}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    className="changes-pane-collapse"
-                    onClick={() => setCodePaneCollapsed(true)}
-                    title="Close project changes"
-                    aria-label="Close project changes"
-                    aria-expanded="true"
+        <EditorInspector
+          collapsed={workspaceLayout.layout.rightCollapsed}
+          onCollapsedChange={workspaceLayout.setRightCollapsed}
+          activeTab={workspaceLayout.layout.inspectorTab}
+          onTabChange={workspaceLayout.setInspectorTab}
+          tabs={inspectorTabs}
+          density={workspaceLayout.layout.density}
+          onDensityChange={workspaceLayout.setDensity}
+          projectChangeCount={projectChangeCount}
+          panels={{
+            details: (
+              <div className="inspector-panel-stack">
+                <section className="inspector-intro">
+                  <span>Selected parameter</span>
+                  <h3>{activeRelationshipKey ? getRelationshipLabel(activeRelationshipKey) : 'Choose a parameter'}</h3>
+                  <p>{activeRelationshipKey
+                    ? getParameterHelp(activeRelationshipKey, getRelationshipLabel(activeRelationshipKey))
+                    : 'Open a help control or select a relationship to inspect its behavior and connected values.'}</p>
+                </section>
+                <ParameterGuide section={activeParamTab} />
+                <ParameterRelationshipPanel
+                  section={activeParamTab}
+                  activeKey={activeRelationshipKey}
+                  onSelect={selectInspectorParameter}
+                  onClear={() => setActiveRelationshipKey(null)}
+                />
+                {selectedUnit && (
+                  <section className="inspector-section-card">
+                    <div className="inspector-section-heading">
+                      <span>Unit description</span>
+                      <small>Saved with this project</small>
+                    </div>
+                    <textarea
+                      className="form-input inspector-description-field"
+                      aria-label={`Custom description for ${selectedUnit.name}`}
+                      placeholder={selectedUnit.desc || 'No chassis description available.'}
+                      value={unitDescriptions[selectedUnit.id] || ''}
+                      onChange={event => updateSelectedUnitDescription(event.target.value)}
+                    />
+                  </section>
+                )}
+              </div>
+            ),
+            compare: (
+              <div className="inspector-panel-stack">
+                <section className="inspector-intro">
+                  <span>Before / after</span>
+                  <h3>{selectedUnitOverrideEntries.length} active override{selectedUnitOverrideEntries.length === 1 ? '' : 's'}</h3>
+                  <p>Compare edited values with their inherited BAR definitions directly in the parameter canvas.</p>
+                  <Button
+                    variant={comparisonMode ? 'secondary' : 'primary'}
+                    onClick={() => setComparisonMode(current => !current)}
                   >
-                    <svg viewBox="0 0 16 16" aria-hidden="true">
-                      <path d="m6 3.75 4.25 4.25L6 12.25" />
-                    </svg>
-                  </button>
+                    {comparisonMode ? 'Exit comparison' : 'Enable comparison'}
+                  </Button>
+                </section>
+                <div className="inspector-change-list">
+                  {selectedUnitOverrideEntries.length > 0 ? selectedUnitOverrideEntries.map(([key, value]) => (
+                    <button type="button" key={key} onClick={() => selectInspectorParameter(key.replace(/^weapon_slot_\d+_/, ''))}>
+                      <span>{getRelationshipLabel(key.replace(/^weapon_slot_\d+_/, ''))}</span>
+                      <code>{String(value)}</code>
+                    </button>
+                  )) : <p className="inspector-empty-copy">This unit still uses every inherited value.</p>}
                 </div>
               </div>
-
-              <div className="code-scroll-area changes-pane-content">
+            ),
+            identity: selectedUnit?.isClone ? (() => {
+              const selectedClone = clones.find(clone => clone.newId.toLowerCase() === selectedUnit.id.toLowerCase());
+              if (!selectedClone) return null;
+              return (
+                <div className="inspector-panel-stack">
+                  <section className="inspector-intro">
+                    <span>Clone identity</span>
+                    <h3>{selectedUnit.name}</h3>
+                    <p>Metadata stays synchronized with Build Menus and exported clone definitions.</p>
+                  </section>
+                  <div className="inspector-form-grid">
+                    <label>
+                      <span>Display name</span>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={selectedClone.displayName || ''}
+                        onChange={event => setClones(previous => previous.map(clone => clone.newId.toLowerCase() === selectedUnit.id.toLowerCase()
+                          ? { ...clone, displayName: event.target.value }
+                          : clone))}
+                      />
+                    </label>
+                    <label>
+                      <span>Builder IDs</span>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={selectedClone.builderIds?.join(', ') || ''}
+                        onChange={event => handleCloneBuildersChange(selectedUnit.id, event.target.value.split(','))}
+                      />
+                      <small>{selectedClone.builderIds?.length || 0} assigned · synced with Build Menus</small>
+                    </label>
+                  </div>
+                </div>
+              );
+            })() : null,
+            changes: (
+              <div className="editor-inspector-changes">
+                <div className="changes-context-summary">
+                  <div>
+                    <span>Project ledger</span>
+                    <strong>{projectChangeCount} tracked change{projectChangeCount === 1 ? '' : 's'}</strong>
+                  </div>
+                  {validationIssues.length > 0 && <small>{validationIssues.length} need review</small>}
+                </div>
+                <div className="code-scroll-area changes-pane-content">
 
                 {(() => {
                   const healthState = validationIssues.some(issue => issue.level === 'error')
@@ -4370,17 +4366,12 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            </>
-          ) : (
-            <div className="collapsed-changes-rail">
-              <span className="drawer-count">{projectChangeCount}</span>
-              <span className="collapsed-changes-label">Changes</span>
-              {validationIssues.length > 0 && <span className="drawer-warning">!</span>}
-            </div>
-          )}
-        </aside>
+              </div>
+            )
+          }}
+        />
 
-      </div>
+      </EditorShell>
       ) : activeWorkspace === 'review' ? (
         <Suspense fallback={<main className="review-workspace workspace-loading"><span>Preparing project review…</span></main>}>
           <LazyReviewPage
@@ -5555,8 +5546,9 @@ export default function App() {
 
             <form onSubmit={handleCreateClone} className="clone-form clone-creator-form">
               <div className="form-group clone-field clone-field--parent">
-                <label>Parent Unit</label>
+                <label htmlFor="clone-parent-unit">Parent Unit</label>
                 <input
+                  id="clone-parent-unit"
                   type="text"
                   className="form-input"
                   value={cloneBaseId}
@@ -5565,8 +5557,9 @@ export default function App() {
               </div>
 
               <div className="form-group clone-field clone-field--id">
-                <label>New Unit ID</label>
+                <label htmlFor="clone-new-unit-id">New Unit ID</label>
                 <input
+                  id="clone-new-unit-id"
                   type="text"
                   className="form-input"
                   placeholder="e.g. armpw_epic"
@@ -5577,8 +5570,9 @@ export default function App() {
               </div>
 
               <div className="form-group clone-field clone-field--name">
-                <label>Display Name</label>
+                <label htmlFor="clone-display-name">Display Name</label>
                 <input
+                  id="clone-display-name"
                   type="text"
                   className="form-input"
                   placeholder="e.g. Epic Vanguard pawn"
@@ -5588,8 +5582,9 @@ export default function App() {
               </div>
 
               <div className="form-group clone-field clone-field--description">
-                <label>Custom Description</label>
+                <label htmlFor="clone-custom-description">Custom Description</label>
                 <input
+                  id="clone-custom-description"
                   type="text"
                   className="form-input"
                   placeholder="e.g. Heavy infantry bot with lightning gun"
@@ -5643,8 +5638,9 @@ export default function App() {
                 </div>
               </div>
               <div className="form-group clone-field clone-field--builders">
-                <label>Builder IDs (comma separated)</label>
+                <label htmlFor="clone-builder-ids">Builder IDs (comma separated)</label>
                 <input
+                  id="clone-builder-ids"
                   type="text"
                   className="form-input"
                   placeholder="e.g. armlab, armavp"

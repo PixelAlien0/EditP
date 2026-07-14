@@ -1,3 +1,40 @@
+const STAT_PRESENTATION = Object.freeze({
+  metalcost: { featured: true, group: 'Economy', unit: 'metal' },
+  energycost: { featured: true, group: 'Economy', unit: 'energy' },
+  buildtime: { featured: true, group: 'Economy', unit: 'work' },
+  health: { featured: true, group: 'Durability', unit: 'HP' },
+  mass: { group: 'Durability', unit: 'mass' },
+  autoheal: { group: 'Durability', unit: 'HP/s' },
+  sightdistance: { group: 'Sensors', unit: 'elmos' },
+  radardistance: { group: 'Sensors', unit: 'elmos' },
+  sonardistance: { group: 'Sensors', unit: 'elmos' },
+  stealth: { group: 'Sensors' },
+  sonarstealth: { group: 'Sensors' },
+  workertime: { group: 'Economy', unit: 'work/s' },
+  metalmake: { group: 'Production', unit: 'metal/s' },
+  extractsmetal: { group: 'Production', unit: 'metal/s' },
+  energymake: { group: 'Production', unit: 'energy/s' },
+  metalstorage: { group: 'Storage & utility', unit: 'metal' },
+  energystorage: { group: 'Storage & utility', unit: 'energy' },
+  cloakcost: { group: 'Storage & utility', unit: 'energy/s' },
+  cloakcostmoving: { group: 'Storage & utility', unit: 'energy/s' },
+  builddistance: { group: 'Storage & utility', unit: 'elmos' },
+  'customparams.techlevel': { group: 'Classification', unit: 'tier' },
+  'customparams.energyconv_capacity': { group: 'Production', unit: 'energy' },
+  'customparams.energyconv_efficiency': { group: 'Production', unit: 'ratio' },
+  maxvelocity: { featured: true, group: 'Handling', unit: 'elmos/s' },
+  acceleration: { featured: true, group: 'Handling', unit: 'elmos/s²' },
+  brakerate: { featured: true, group: 'Handling', unit: 'elmos/s²' },
+  turnrate: { featured: true, group: 'Handling', unit: 'turn/s' },
+  maxslope: { group: 'Terrain access', unit: 'degrees' },
+  maxwaterdepth: { group: 'Terrain access', unit: 'elmos' },
+  minwaterdepth: { group: 'Terrain access', unit: 'elmos' },
+  transportcapacity: { group: 'Transport' },
+  cantbetransported: { group: 'Transport' },
+  cruisealt: { group: 'Aircraft profile', unit: 'elmos' },
+  airsubalt: { group: 'Aircraft profile', unit: 'elmos' },
+});
+
 export const STAT_KEYS = Object.freeze([
   { key: 'metalcost', label: 'Metal Cost', icon: '[MET]', type: 'number' },
   { key: 'energycost', label: 'Energy Cost', icon: '[ENG]', type: 'number' },
@@ -33,7 +70,14 @@ export const STAT_KEYS = Object.freeze([
   { key: 'cantbetransported', label: 'No Transport', icon: '[NTR]', type: 'boolean', patchKey: 'cantBeTransported' },
   { key: 'cruisealt', label: 'Cruise Altitude', icon: '[ALT]', type: 'number' },
   { key: 'airsubalt', label: 'Sub-Altitude', icon: '[SUB]', type: 'number' },
-]);
+].map((parameter, order) => ({
+  group: 'Additional',
+  order,
+  unit: '',
+  featured: false,
+  ...parameter,
+  ...(STAT_PRESENTATION[parameter.key] || {}),
+})));
 
 export const MOBILITY_STAT_KEYS = new Set([
   'maxvelocity', 'acceleration', 'brakerate', 'turnrate', 'maxslope', 'maxwaterdepth',

@@ -21,6 +21,7 @@ const stylesheetOrder = [
   'src/styles/features/accessibility.css',
   'src/styles/features/preset-gallery.css',
   'src/styles/features/editor-context.css',
+  'src/styles/features/editor-workbench.css',
   'src/components/ui/ui.css',
 ]
 
@@ -33,6 +34,42 @@ const documents = stylesheetOrder.map((relativePath) => {
     removed: 0,
   }
 })
+
+// Feature ownership migrations remove order-sensitive legacy rules once their
+// canonical stylesheet is loaded. Keep this list narrow and feature-scoped.
+const legacyOwnershipMigrations = [
+  {
+    document: 'src/index.css',
+    selectors: [
+      '.editor-unit-header', '.editor-unit-identity', '.unit-dossier-',
+      '.editor-unit-actions', '.unit-state-', '.unit-action-controls',
+      '.unit-disable-control', '.reset-unit-btn', '.unit-context-',
+      '.unit-profile-', '.unit-efficiency-', '.unit-weapon-', '.unit-slot-',
+      '.unit-trajectory-', '.clone-identity-',
+    ],
+  },
+]
+
+for (const migration of legacyOwnershipMigrations) {
+  const document = documents.find((entry) => entry.relativePath === migration.document)
+  if (!document) continue
+  document.root.walkRules((rule) => {
+    const selectors = rule.selectors || [rule.selector]
+    const retainedSelectors = selectors.filter(
+      (selector) => !migration.selectors.some((ownedSelector) => selector.includes(ownedSelector)),
+    )
+    const removedSelectors = selectors.length - retainedSelectors.length
+    if (removedSelectors === 0) return
+
+    document.removed += removedSelectors
+    if (retainedSelectors.length === 0) {
+      rule.remove()
+      return
+    }
+
+    rule.selectors = retainedSelectors
+  })
+}
 
 function atRuleContext(node) {
   const context = []
