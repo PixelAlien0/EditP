@@ -230,6 +230,7 @@ test('parameter tabs keep the selected state inset from the editor section edge'
 
 test('operational overview uses telemetry modules without the legacy trajectory diagram', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 900 });
+  await page.addInitScript(() => localStorage.setItem('bmf_theme', 'dark'));
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
 
@@ -244,6 +245,29 @@ test('operational overview uses telemetry modules without the legacy trajectory 
     scrollWidth: element.scrollWidth,
   }));
   expect(layout.scrollWidth).toBeLessThanOrEqual(Math.ceil(layout.width));
+
+  const surfaces = await overview.evaluate(element => {
+    const resolveColor = token => {
+      const probe = document.createElement('span');
+      probe.style.color = `var(${token})`;
+      document.body.append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    };
+    const card = element.querySelector('.unit-efficiency-card');
+    const metric = card.querySelector('.unit-efficiency-metric');
+    return {
+      overview: getComputedStyle(element).backgroundColor,
+      card: getComputedStyle(card).backgroundColor,
+      metric: getComputedStyle(metric).backgroundColor,
+      surfaceToken: resolveColor('--color-surface'),
+      cardToken: resolveColor('--color-surface-subtle'),
+    };
+  });
+  expect(surfaces.overview).toBe(surfaces.surfaceToken);
+  expect(surfaces.card).toBe(surfaces.cardToken);
+  expect(surfaces.metric).toBe('rgba(0, 0, 0, 0)');
 });
 
 test('borrow weapon dialog exposes the themed donor and comparison workflow', async ({ page }) => {

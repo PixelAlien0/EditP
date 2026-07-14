@@ -363,7 +363,6 @@ html[data-theme="dark"] {
   box-shadow: none !important;
 }
 
-[data-theme="dark"] .unit-efficiency-metric,
 [data-theme="dark"] .unit-profile-copy [data-context-description],
 [data-theme="dark"] .unit-slot-node {
   border-color: var(--color-border) !important;

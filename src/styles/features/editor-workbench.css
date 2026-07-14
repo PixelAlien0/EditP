@@ -471,6 +471,32 @@
   font-size: 8px;
 }
 
+/* Keep dark telemetry on one deliberate surface stack instead of nested black fills. */
+[data-theme="dark"] .editor-workspace .operational-overview {
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .editor-workspace .operational-overview .operational-overview__header {
+  border-color: var(--color-border-subtle);
+}
+
+[data-theme="dark"] .editor-workspace .operational-overview .unit-context-card {
+  border-color: var(--color-border-subtle) !important;
+  background: var(--color-surface-subtle) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .editor-workspace .operational-overview .unit-efficiency-metric,
+[data-theme="dark"] .editor-workspace .operational-overview .unit-trajectory-values > div {
+  border-color: var(--color-border-subtle) !important;
+  background: transparent !important;
+}
+
+[data-theme="dark"] .editor-workspace .operational-overview .unit-slot-node {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+}
+
 @container (max-width: 900px) {
   .editor-workspace .operational-overview {
     grid-template-columns: minmax(0, 1fr);
