@@ -30,6 +30,7 @@ export default function BatchAdjustDialog({
   value,
   onValueChange,
   targetUnits,
+  scopeLabel = 'Current filters',
   onApply,
 }) {
   const titleId = useId();
@@ -67,7 +68,7 @@ export default function BatchAdjustDialog({
       <form onSubmit={event => { event.preventDefault(); onApply(); }}>
         <header className="batch-adjust__header">
           <div className="batch-adjust__heading">
-            <span className="batch-adjust__eyebrow">Bulk editor · current filters</span>
+            <span className="batch-adjust__eyebrow">Bulk editor · {scopeLabel}</span>
             <h2 id={titleId}>Batch Adjust Stats</h2>
             <p id={descriptionId}>Apply one controlled adjustment across every eligible unit in the current sidebar scope.</p>
           </div>
@@ -158,13 +159,13 @@ export default function BatchAdjustDialog({
           <aside className="batch-adjust__scope" aria-labelledby={`${titleId}-scope`}>
             <div className="batch-adjust__scope-header">
               <span className="batch-adjust__scope-kicker">03 · Review scope</span>
-              <Badge tone={targetUnits.length > 0 ? 'success' : 'warning'} size="sm">Live filter scope</Badge>
+              <Badge tone={targetUnits.length > 0 ? 'success' : 'warning'} size="sm">{scopeLabel}</Badge>
             </div>
             <div className="batch-adjust__scope-count">
               <strong>{targetUnits.length.toLocaleString()}</strong>
               <span id={`${titleId}-scope`}>eligible {targetUnits.length === 1 ? 'unit' : 'units'}</span>
             </div>
-            <p>Faction, classification, search, and “modified only” filters from the unit library determine this list.</p>
+            <p>The active collection, including nested folders, combines with faction, classification, search, and modified filters.</p>
 
             <div className="batch-adjust__unit-list">
               {previewUnits.length === 0 ? (

@@ -9321,6 +9321,18 @@ input:checked + .weapon-ceg-track {
   color: var(--color-text-muted) !important;
 }
 
+.review-collection-summary .review-summary-grid {
+  margin-top: var(--space-4);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.review-collection-summary > p {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-body);
+}
+
 .review-card,
 .export-console {
   border: 1px solid var(--color-border) !important;

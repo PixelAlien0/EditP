@@ -8,13 +8,14 @@ import {
 } from './projectDocument.js';
 
 describe('project documents', () => {
-  it('normalizes legacy projects while preserving format 1.4', () => {
+  it('migrates legacy projects to the current format and normalizes collections', () => {
     const project = normalizeProjectDocument({
       version: '1.0',
       tweaks: { ARMDFLY: { health: 1200 } },
       clones: [{ baseId: 'ARMDFLY', newId: 'MY_CLONE', name: 'Clone' }],
       disabledUnitIds: ['ARMDFLY', '../bad'],
       buildMenuSteps: [{ builderId: 'ARMLAB', add: ['MY_CLONE'], remove: [] }],
+      unitCollections: [{ id: 'BALANCE', name: 'Balance pass', unitIds: ['ARMDFLY', 'MY_CLONE'] }],
     });
 
     expect(project.version).toBe(PROJECT_DOCUMENT_VERSION);
@@ -22,6 +23,11 @@ describe('project documents', () => {
     expect(project.clones[0]).toMatchObject({ baseId: 'armdfly', newId: 'my_clone' });
     expect(project.disabledUnitIds).toEqual(['armdfly']);
     expect(project.buildMenuSteps[0].builderId).toBe('armlab');
+    expect(project.unitCollections[0]).toMatchObject({
+      id: 'balance',
+      name: 'Balance pass',
+      unitIds: ['armdfly', 'my_clone'],
+    });
   });
 
   it('rejects oversized projects before changing state', () => {

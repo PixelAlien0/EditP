@@ -15,6 +15,7 @@ export default function ReviewPage({
   setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
   activeOutputTab, setActiveOutputTab, activeCompiledOutput, activeCompiledOutputFallback,
   totalBytesUsed, lobbyByteLimit, limitRisk,
+  collectionScope,
   onBack, onExport, onOpenSummary, onEditUnit, onToast
 }) {
   const openSummary = tab => onOpenSummary(tab);
@@ -45,6 +46,21 @@ export default function ReviewPage({
             <button onClick={() => openSummary('rosters')}><span>Build menus</span><strong>{buildMenuSteps.length}</strong><small>Roster operations</small></button>
             <div><span>Disabled units</span><strong>{disabledUnitIds.length}</strong><small>Removed from play</small></div>
           </section>
+
+          {collectionScope && (
+            <section className="review-card review-collection-summary" aria-labelledby="review-collection-title">
+              <div className="review-card-heading">
+                <div><span className="workflow-eyebrow">Active collection scope</span><h3 id="review-collection-title">{collectionScope.name}</h3></div>
+                <span className="review-status ready">Summary scope</span>
+              </div>
+              <div className="review-summary-grid">
+                <div><span>Available members</span><strong>{collectionScope.unitCount}</strong><small>Includes nested folders</small></div>
+                <div><span>Edited members</span><strong>{collectionScope.modifiedCount}</strong><small>Parameter or description edits</small></div>
+                <div><span>Validation issues</span><strong>{collectionScope.validationCount}</strong><small>Inside this collection</small></div>
+              </div>
+              <p>Collection scope filters this summary and editor tools. Project export still includes every enabled subsystem.</p>
+            </section>
+          )}
 
           <section className="review-card validation-center">
             <div className="review-card-heading">

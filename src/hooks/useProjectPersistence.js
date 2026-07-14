@@ -6,6 +6,7 @@ const LEGACY_KEYS = {
   tweaks: 'bmf_tweaks', clones: 'bmf_clones', disabledUnitIds: 'bmf_disabled',
   unitDescriptions: 'bmf_descriptions', buildMenuSteps: 'bmf_buildmenu_steps',
   buildMenuPacks: 'bmf_buildmenu_packs', presets: 'bmf_presets', weaponLibrary: 'bmf_weapon_library',
+  unitCollections: 'bmf_unit_collections',
   projectName: 'bmf_project_name', projectAuthor: 'bmf_project_author', projectDesc: 'bmf_project_desc',
   includeTweaks: 'bmf_inc_tweaks', includeClones: 'bmf_inc_clones',
   includeRosters: 'bmf_inc_rosters', includeHeader: 'bmf_inc_header',

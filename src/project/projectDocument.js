@@ -1,4 +1,6 @@
-export const PROJECT_DOCUMENT_VERSION = '1.4';
+import { normalizeUnitCollections } from './unitCollections.js';
+
+export const PROJECT_DOCUMENT_VERSION = '1.5';
 export const MAX_PROJECT_BYTES = 5 * 1024 * 1024;
 
 const UNIT_ID_PATTERN = /^[a-z0-9_]+$/i;
@@ -122,6 +124,7 @@ export function normalizeProjectDocument(input) {
     },
     unitDescriptions: normalizeDescriptions(migrated.unitDescriptions),
     weaponLibrary: safeArray(migrated.weaponLibrary, 1000),
+    unitCollections: normalizeUnitCollections(migrated.unitCollections),
     projectName: text(migrated.projectName, 'BAR Editor Mod', 120).trim() || 'BAR Editor Mod',
     projectAuthor: text(migrated.projectAuthor, 'Developer', 120).trim() || 'Developer',
     projectDesc: text(migrated.projectDesc, 'A custom unit configuration mod.', 2000),

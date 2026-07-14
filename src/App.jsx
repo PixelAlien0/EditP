@@ -26,9 +26,15 @@ import { getUnitIconUrl, setUnitArtworkManifest } from './utils/unitArtwork.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
 import EditorShell from './components/editor/EditorShell.jsx';
 import UnitLibraryPane from './components/editor/UnitLibraryPane.jsx';
+import UnitCollectionsPanel from './components/editor/UnitCollectionsPanel.jsx';
 import UnitCommandBar from './components/editor/UnitCommandBar.jsx';
 import ParameterCanvas, { ParameterMatrix } from './components/editor/ParameterCanvas.jsx';
 import EditorInspector from './components/editor/EditorInspector.jsx';
+import {
+  createUnitCollection,
+  deleteCollectionAndPromoteChildren,
+  getCollectionUnitIds,
+} from './project/unitCollections.js';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
 const LazyPresetGalleryPage = lazy(() => import('./components/PresetGalleryPage.jsx'));
@@ -746,6 +752,7 @@ export default function App() {
   const [selectedCats, setSelectedCats] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showModifiedOnly, setShowModifiedOnly] = useState(false);
+  const [activeCollectionId, setActiveCollectionId] = useState(null);
   const [selectedUnitId, setSelectedUnitId] = useState('armdfly');
   const [unitListScrollTop, setUnitListScrollTop] = useState(0);
   const [unitListViewportHeight, setUnitListViewportHeight] = useState(0);
@@ -763,14 +770,14 @@ export default function App() {
   const {
     state: projectStore,
     setTweaks, setClones, setDisabledUnitIds, setUnitDescriptions,
-    setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary,
+    setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setUnitCollections,
     setProjectName, setProjectAuthor, setProjectDesc,
     setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
     hydrateProjectStore,
   } = useProjectStore();
   const {
     tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
-    presets, weaponLibrary, projectName, projectAuthor, projectDesc,
+    presets, weaponLibrary, unitCollections, projectName, projectAuthor, projectDesc,
     includeTweaks, includeClones, includeRosters, includeHeader,
   } = projectStore;
 
@@ -975,8 +982,9 @@ export default function App() {
     disabledUnitIds,
     buildMenuSteps,
     buildMenuPacks,
-    weaponLibrary
-  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary]);
+    weaponLibrary,
+    unitCollections
+  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary, unitCollections]);
   const [historyPast, setHistoryPast] = useState([]);
   const [historyFuture, setHistoryFuture] = useState([]);
   const lastSnapshotRef = useRef(projectSnapshot);
@@ -1017,7 +1025,8 @@ export default function App() {
     setBuildMenuSteps(snapshot.buildMenuSteps || []);
     setBuildMenuPacks(snapshot.buildMenuPacks || { extraUnits: false, scavengerUnits: false });
     setWeaponLibrary(snapshot.weaponLibrary || []);
-  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setTweaks, setWeaponLibrary]);
+    setUnitCollections(snapshot.unitCollections || []);
+  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setTweaks, setUnitCollections, setWeaponLibrary]);
 
   const handleUndo = useCallback(() => {
     if (historyPast.length === 0) return;
@@ -1057,6 +1066,7 @@ export default function App() {
     buildMenuSteps,
     buildMenuPacks,
     weaponLibrary,
+    unitCollections,
     projectName,
     projectAuthor,
     projectDesc,
@@ -1139,6 +1149,71 @@ export default function App() {
     return list.sort((a, b) => a.name.localeCompare(b.name));
   }, [clones, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitsDb.descriptions, unitsDb.names]);
 
+  const availableUnitIds = useMemo(() => allUnitsList.map(unit => unit.id), [allUnitsList]);
+  const activeCollection = useMemo(
+    () => unitCollections.find(collection => collection.id === activeCollectionId) || null,
+    [activeCollectionId, unitCollections]
+  );
+  const activeCollectionUnitIds = useMemo(
+    () => activeCollection ? getCollectionUnitIds(unitCollections, activeCollection.id) : null,
+    [activeCollection, unitCollections]
+  );
+  const activeCollectionUnits = useMemo(
+    () => activeCollectionUnitIds ? allUnitsList.filter(unit => activeCollectionUnitIds.has(unit.id)) : allUnitsList,
+    [activeCollectionUnitIds, allUnitsList]
+  );
+
+  useEffect(() => {
+    if (activeCollectionId && !unitCollections.some(collection => collection.id === activeCollectionId)) {
+      setActiveCollectionId(null);
+    }
+  }, [activeCollectionId, unitCollections]);
+
+  const handleCreateCollection = useCallback((name, parentId = null) => {
+    const siblingCount = unitCollections.filter(collection => collection.parentId === parentId).length;
+    const collection = createUnitCollection(name, parentId, siblingCount);
+    setUnitCollections(previous => [...previous, collection]);
+    setActiveCollectionId(collection.id);
+    showToast(`Created collection: ${name}`);
+  }, [setUnitCollections, showToast, unitCollections]);
+
+  const handleRenameCollection = useCallback((collectionId, name) => {
+    setUnitCollections(previous => previous.map(collection => collection.id === collectionId
+      ? { ...collection, name: name.trim().slice(0, 80) || collection.name }
+      : collection));
+    showToast(`Renamed collection to ${name}`);
+  }, [setUnitCollections, showToast]);
+
+  const handleDeleteCollection = useCallback((collectionId) => {
+    const collection = unitCollections.find(item => item.id === collectionId);
+    setUnitCollections(previous => deleteCollectionAndPromoteChildren(previous, collectionId));
+    if (activeCollectionId === collectionId) setActiveCollectionId(collection?.parentId || null);
+    showToast(`Deleted collection${collection ? `: ${collection.name}` : ''}; units were not changed`);
+  }, [activeCollectionId, setUnitCollections, showToast, unitCollections]);
+
+  const handleToggleCollectionMembership = useCallback((collectionId, unitId) => {
+    if (!unitId) return;
+    setUnitCollections(previous => previous.map(collection => {
+      if (collection.id !== collectionId) return collection;
+      const isMember = collection.unitIds.includes(unitId);
+      return {
+        ...collection,
+        unitIds: isMember
+          ? collection.unitIds.filter(id => id !== unitId)
+          : [...collection.unitIds, unitId],
+      };
+    }));
+  }, [setUnitCollections]);
+
+  const handleCleanupCollection = useCallback((_collectionId, unresolvedIds) => {
+    const unresolved = new Set(unresolvedIds);
+    setUnitCollections(previous => previous.map(collection => ({
+      ...collection,
+      unitIds: collection.unitIds.filter(unitId => !unresolved.has(unitId)),
+    })));
+    showToast(`Removed ${unresolved.size} unresolved collection ${unresolved.size === 1 ? 'reference' : 'references'}`);
+  }, [setUnitCollections, showToast]);
+
   // Parse advanced search query (e.g. hp > 1000)
   const queryFilterFn = useMemo(() => {
     if (!searchQuery.trim()) return () => true;
@@ -1205,6 +1280,7 @@ export default function App() {
   // Filter list
   const filteredUnits = useMemo(() => {
     return allUnitsList.filter(unit => {
+      if (activeCollectionUnitIds && !activeCollectionUnitIds.has(unit.id)) return false;
       if (selectedFaction !== 'all' && unit.faction !== selectedFaction) {
         return false;
       }
@@ -1219,7 +1295,7 @@ export default function App() {
       }
       return queryFilterFn(unit);
     });
-  }, [allUnitsList, selectedFaction, selectedCats, queryFilterFn, showModifiedOnly, tweaks, disabledUnitIds]);
+  }, [activeCollectionUnitIds, allUnitsList, selectedFaction, selectedCats, queryFilterFn, showModifiedOnly, tweaks, disabledUnitIds]);
 
   const bulkTargetUnits = useMemo(() => filteredUnits.filter(unit => {
     const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
@@ -1231,9 +1307,10 @@ export default function App() {
     setSelectedFaction('all');
     setSelectedCats([]);
     setShowModifiedOnly(false);
+    setActiveCollectionId(null);
   };
 
-  const hasActiveUnitFilters = Boolean(searchQuery.trim() || selectedFaction !== 'all' || selectedCats.length > 0 || showModifiedOnly);
+  const hasActiveUnitFilters = Boolean(activeCollection || searchQuery.trim() || selectedFaction !== 'all' || selectedCats.length > 0 || showModifiedOnly);
 
   const unitRowHeight = 58;
   const unitListOverscan = 8;
@@ -1258,7 +1335,7 @@ export default function App() {
   useEffect(() => {
     setUnitListScrollTop(0);
     unitListContainerRef.current?.scrollTo({ top: 0 });
-  }, [searchQuery, selectedFaction, selectedCats, showModifiedOnly]);
+  }, [activeCollectionId, searchQuery, selectedFaction, selectedCats, showModifiedOnly]);
 
   useEffect(() => {
     const container = unitListContainerRef.current;
@@ -2116,8 +2193,16 @@ export default function App() {
       keywords: `${unit.id} ${unit.faction} ${unit.tags.join(' ')}`,
       onSelect: () => { openEditor(); setSelectedUnitId(unit.id); },
     }));
+    unitCollections.forEach(collection => commands.push({
+      id: `collection-${collection.id}`,
+      kind: 'Collection',
+      label: collection.name,
+      description: `${getCollectionUnitIds(unitCollections, collection.id).size} units including nested folders`,
+      keywords: `folder scope ${collection.name}`,
+      onSelect: () => { openEditor(); setActiveCollectionId(collection.id); },
+    }));
     return commands;
-  }, [allUnitsList]);
+  }, [allUnitsList, unitCollections]);
 
   // Keyboard Shortcuts Hook
   useEffect(() => {
@@ -2291,6 +2376,12 @@ export default function App() {
     });
     return issues;
   }, [tweaks, clones, unitsDb.names]);
+  const scopedValidationIssues = useMemo(
+    () => activeCollectionUnitIds
+      ? validationIssues.filter(issue => activeCollectionUnitIds.has(issue.unitId))
+      : validationIssues,
+    [activeCollectionUnitIds, validationIssues]
+  );
 
   const factoryIsModified = (factoryId) => {
     const step = buildMenuSteps.find(s => s.builderId === factoryId);
@@ -2420,6 +2511,16 @@ export default function App() {
     ...Object.keys(tweaks).filter(id => Object.keys(tweaks[id] || {}).length > 0),
     ...Object.keys(unitDescriptions)
   ])];
+  const activeCollectionModifiedCount = activeCollectionUnitIds
+    ? modifiedUnitIds.filter(unitId => activeCollectionUnitIds.has(unitId)).length
+    : modifiedUnitIds.length;
+  const collectionReviewScope = activeCollection ? {
+    id: activeCollection.id,
+    name: activeCollection.name,
+    unitCount: activeCollectionUnits.length,
+    modifiedCount: activeCollectionModifiedCount,
+    validationCount: scopedValidationIssues.length,
+  } : null;
   const activeBuildMenuPackCount = Object.values(buildMenuPacks).filter(Boolean).length;
   const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount;
   const selectedUnitOverrideEntries = Object.entries(tweaks[selectedUnit?.id] || {});
@@ -2764,6 +2865,18 @@ export default function App() {
           filteredCount={filteredUnits.length}
           onToggle={workspaceLayout.setLeftCollapsed}
         >
+          <UnitCollectionsPanel
+            collections={unitCollections}
+            activeCollectionId={activeCollectionId}
+            selectedUnit={selectedUnit}
+            availableUnitIds={availableUnitIds}
+            onSelectCollection={setActiveCollectionId}
+            onCreateCollection={handleCreateCollection}
+            onRenameCollection={handleRenameCollection}
+            onDeleteCollection={handleDeleteCollection}
+            onToggleMembership={handleToggleCollectionMembership}
+            onCleanupCollection={handleCleanupCollection}
+          />
           <div className="search-filter-section">
 
             {/* Search */}
@@ -2858,7 +2971,7 @@ export default function App() {
 
             <div className="results-summary" aria-live="polite">
               <span>{filteredUnits.length.toLocaleString()} units</span>
-              {hasActiveUnitFilters && <span>Filtered</span>}
+              {activeCollection ? <span>{activeCollection.name}</span> : hasActiveUnitFilters && <span>Filtered</span>}
             </div>
 
           </div>
@@ -4034,6 +4147,23 @@ export default function App() {
                     {comparisonMode ? 'Exit comparison' : 'Enable comparison'}
                   </Button>
                 </section>
+                {activeCollection && (
+                  <section className="inspector-section-card">
+                    <div className="inspector-section-heading">
+                      <span>Collection scope</span>
+                      <small>{activeCollectionUnits.length} available members</small>
+                    </div>
+                    <div className="inspector-change-list">
+                      {activeCollectionUnits.slice(0, 8).map(unit => (
+                        <button type="button" key={unit.id} onClick={() => setSelectedUnitId(unit.id)}>
+                          <span>{unit.name}</span>
+                          <code>{Object.keys(tweaks[unit.id] || {}).length} edits</code>
+                        </button>
+                      ))}
+                    </div>
+                    {activeCollectionUnits.length > 8 && <p className="inspector-empty-copy">+{activeCollectionUnits.length - 8} additional collection members</p>}
+                  </section>
+                )}
                 <div className="inspector-change-list">
                   {selectedUnitOverrideEntries.length > 0 ? selectedUnitOverrideEntries.map(([key, value]) => (
                     <button type="button" key={key} onClick={() => selectInspectorParameter(key.replace(/^weapon_slot_\d+_/, ''))}>
@@ -4084,17 +4214,19 @@ export default function App() {
               <div className="editor-inspector-changes">
                 <div className="changes-context-summary">
                   <div>
-                    <span>Project ledger</span>
-                    <strong>{projectChangeCount} tracked change{projectChangeCount === 1 ? '' : 's'}</strong>
+                    <span>{activeCollection ? 'Collection ledger' : 'Project ledger'}</span>
+                    <strong>{activeCollection
+                      ? `${activeCollectionModifiedCount} edited member${activeCollectionModifiedCount === 1 ? '' : 's'}`
+                      : `${projectChangeCount} tracked change${projectChangeCount === 1 ? '' : 's'}`}</strong>
                   </div>
-                  {validationIssues.length > 0 && <small>{validationIssues.length} need review</small>}
+                  {scopedValidationIssues.length > 0 && <small>{scopedValidationIssues.length} need review</small>}
                 </div>
                 <div className="code-scroll-area changes-pane-content">
 
                 {(() => {
-                  const healthState = validationIssues.some(issue => issue.level === 'error')
+                  const healthState = scopedValidationIssues.some(issue => issue.level === 'error')
                     ? 'error'
-                    : validationIssues.length > 0 ? 'warning' : 'ready';
+                    : scopedValidationIssues.length > 0 ? 'warning' : 'ready';
                   const isReady = healthState === 'ready';
                   return (
                     <div className={`change-health-card ${healthState}`} role="status" aria-live="polite">
@@ -4106,12 +4238,12 @@ export default function App() {
                         )}
                       </span>
                       <div className="change-health-copy">
-                        <span className="change-health-eyebrow">{isReady ? 'Validation complete' : healthState === 'error' ? 'Action required' : 'Review suggested'}</span>
-                        <strong>{isReady ? 'Project ready' : 'Review recommended'}</strong>
+                        <span className="change-health-eyebrow">{activeCollection ? activeCollection.name : isReady ? 'Validation complete' : healthState === 'error' ? 'Action required' : 'Review suggested'}</span>
+                        <strong>{isReady ? (activeCollection ? 'Collection clear' : 'Project ready') : 'Review recommended'}</strong>
                         <span>
                           {isReady
-                            ? 'No validation issues detected'
-                            : `${validationIssues.length} validation ${validationIssues.length === 1 ? 'issue needs' : 'issues need'} attention`}
+                            ? `No validation issues detected${activeCollection ? ' in this collection' : ''}`
+                            : `${scopedValidationIssues.length} validation ${scopedValidationIssues.length === 1 ? 'issue needs' : 'issues need'} attention`}
                         </span>
                       </div>
                       <div className="change-health-budget" aria-label={`${totalBytesUsed.toLocaleString()} bytes in generated project output`}>
@@ -4303,13 +4435,13 @@ export default function App() {
 
                 {/* Base64 toggles & Budget limit indicators at bottom */}
                 <div className="changes-pane-footer">
-                  {validationIssues.length > 0 && (
+                  {scopedValidationIssues.length > 0 && (
                     <div className="drawer-validation-card">
                       <span className="drawer-validation-title">
-                        ⚠️ Smart Validation Warning ({validationIssues.length})
+                        ⚠️ Smart Validation Warning ({scopedValidationIssues.length})
                       </span>
                       <div className="drawer-validation-list">
-                        {validationIssues.map((issue, idx) => (
+                        {scopedValidationIssues.map((issue, idx) => (
                           <span key={idx} className="drawer-validation-item">
                             <code>{issue.unitName}</code> ({issue.key.replace('weapon_slot_', 'Slot ')}): <span className={`drawer-validation-message ${issue.level}`}>{issue.message}</span>
                           </span>
@@ -4383,6 +4515,7 @@ export default function App() {
             totalBytesUsed={totalBytesUsed}
             lobbyByteLimit={lobbyByteLimit}
             limitRisk={limitRisk}
+            collectionScope={collectionReviewScope}
             onBack={() => setActiveWorkspace('edit')}
             onExport={handleExportConfig}
             onOpenSummary={tab => { setActiveSummaryTab(tab); setShowSummaryModal(true); }}
@@ -5539,6 +5672,7 @@ export default function App() {
         value={bulkPercent}
         onValueChange={setBulkPercent}
         targetUnits={bulkTargetUnits}
+        scopeLabel={activeCollection ? `Collection · ${activeCollection.name}` : 'Current filters'}
         onApply={handleApplyBulk}
       /></Suspense>}
       {showSummaryModal && <Suspense fallback={null}><LazySummaryExplorerDialog

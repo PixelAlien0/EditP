@@ -310,6 +310,59 @@ test('operational overview uses telemetry modules without the legacy trajectory 
   expect(surfaces.metric).toBe('rgba(0, 0, 0, 0)');
 });
 
+test('nested unit collections persist and scope expert workflows', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1000 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const collections = page.getByRole('region', { name: 'Collections' });
+  await collections.getByRole('button', { name: 'New' }).click();
+  await collections.getByLabel('New collection').fill('Air Ops');
+  await collections.getByRole('button', { name: 'Save' }).click();
+
+  let rootRow = collections.locator('.unit-collection-row').filter({ hasText: 'Air Ops' });
+  await rootRow.locator('.unit-collection-membership').click();
+  await expect(rootRow.locator('.unit-collection-membership')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.results-summary').getByText('1 units')).toBeVisible();
+
+  await rootRow.getByRole('button', { name: 'Manage Air Ops' }).click();
+  await collections.getByRole('button', { name: 'New child' }).click();
+  await collections.getByLabel('New child folder').fill('T2 Strike');
+  await collections.getByRole('button', { name: 'Save' }).click();
+
+  const childRow = collections.locator('.unit-collection-row').filter({ hasText: 'T2 Strike' });
+  await childRow.locator('.unit-collection-membership').click();
+  await expect(childRow.locator('.unit-collection-membership')).toHaveAttribute('aria-pressed', 'true');
+  rootRow = collections.locator('.unit-collection-row').filter({ hasText: 'Air Ops' });
+  await expect(rootRow.locator('.unit-collection-membership')).toHaveAttribute('aria-pressed', 'true');
+
+  await rootRow.locator('.unit-collection-select').click();
+  await page.getByRole('button', { name: /Tools/ }).click();
+  await page.getByRole('menuitem', { name: 'Batch Adjust' }).click();
+  const batchDialog = page.getByRole('dialog', { name: 'Batch Adjust Stats' });
+  await expect(batchDialog.getByText('Collection · Air Ops', { exact: true })).toBeVisible();
+  await batchDialog.getByRole('button', { name: 'Close batch adjustment' }).click();
+
+  await page.getByRole('tab', { name: /Compare/ }).click();
+  await expect(page.getByText('Collection scope', { exact: true })).toBeVisible();
+  await expect(page.getByText('1 available members')).toBeVisible();
+
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+  const collectionSummary = page.locator('.review-collection-summary');
+  await expect(collectionSummary.getByRole('heading', { name: 'Air Ops' })).toBeVisible();
+  await expect(collectionSummary.getByText('Includes nested folders')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Back to editor' }).click();
+  await page.waitForTimeout(1200);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: /Bar EditP/i })).toBeVisible();
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  const restoredCollections = page.getByRole('region', { name: 'Collections' });
+  await expect(restoredCollections.getByText('Air Ops', { exact: true })).toBeVisible();
+  await restoredCollections.getByRole('button', { name: 'Expand Air Ops' }).click();
+  await expect(restoredCollections.getByText('T2 Strike', { exact: true })).toBeVisible();
+});
+
 test('borrow weapon dialog exposes the themed donor and comparison workflow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
