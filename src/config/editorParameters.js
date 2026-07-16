@@ -233,6 +233,18 @@ export const STAT_KEYS = Object.freeze([
   ...(STAT_PRESENTATION[parameter.key] || {}),
 })));
 
+export function getApplicableUnitParameters(parameters, defaults = {}, tweaks = {}, options = {}) {
+  const { showAll = false, activeKey = null } = options;
+  if (showAll) return parameters;
+
+  return parameters.filter(parameter => (
+    parameter.featured
+    || parameter.key === activeKey
+    || Object.prototype.hasOwnProperty.call(defaults, parameter.key)
+    || Object.prototype.hasOwnProperty.call(tweaks, parameter.key)
+  ));
+}
+
 export const MOBILITY_STAT_KEYS = new Set([
   'maxvelocity', 'acceleration', 'brakerate', 'turnrate', 'maxslope', 'maxwaterdepth',
   'minwaterdepth', 'transportcapacity', 'cantbetransported', 'cruisealt',

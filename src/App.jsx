@@ -16,7 +16,7 @@ import { useProjectStore } from './state/useProjectStore.js';
 import { assertProjectSize, normalizeProjectDocument } from './project/projectDocument.js';
 import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
 import {
-  MOBILITY_STAT_KEYS, STAT_KEYS, TARGET_CATEGORY_GROUPS, UNIT_CATEGORIES as CATEGORIES,
+  getApplicableUnitParameters, MOBILITY_STAT_KEYS, STAT_KEYS, TARGET_CATEGORY_GROUPS, UNIT_CATEGORIES as CATEGORIES,
   WEAPON_SLOT_BOOLEAN_PARAMS, WEAPON_SLOT_PATHS, WEAPON_SLOT_STRING_PARAMS,
   WEAPON_SLOT_MOUNT_PARAMS,
   WORKSPACE_TAB_DEFINITIONS,
@@ -30,6 +30,7 @@ import UnitLibraryPane from './components/editor/UnitLibraryPane.jsx';
 import CollectionScopePicker from './components/editor/CollectionScopePicker.jsx';
 import UnitCommandBar from './components/editor/UnitCommandBar.jsx';
 import ParameterCanvas, { ParameterMatrix } from './components/editor/ParameterCanvas.jsx';
+import InheritedBooleanControl from './components/editor/InheritedBooleanControl.jsx';
 import EditorInspector from './components/editor/EditorInspector.jsx';
 import {
   createUnitCollection,
@@ -130,6 +131,32 @@ function getParameterRelationship(section, key) {
     description: matches.map(group => group.title).join(' · '),
     keys: [...new Set(matches.flatMap(group => group.keys))]
   };
+}
+
+function UnitParameterViewControl({ showAll, visibleCount, totalCount, onChange }) {
+  return (
+    <div className="unit-parameter-view" aria-label="Unit parameter view">
+      <span className="section-heading__meta">{visibleCount} of {totalCount}</span>
+      <ButtonGroup className="unit-parameter-view__options" label="Choose visible unit parameters">
+        <Button
+          size="sm"
+          variant={!showAll ? 'primary' : 'quiet'}
+          aria-pressed={!showAll}
+          onClick={() => onChange(false)}
+        >
+          Relevant
+        </Button>
+        <Button
+          size="sm"
+          variant={showAll ? 'primary' : 'quiet'}
+          aria-pressed={showAll}
+          onClick={() => onChange(true)}
+        >
+          All
+        </Button>
+      </ButtonGroup>
+    </div>
+  );
 }
 
 function ParameterRelationshipPanel({ section, activeKey, onSelect, onClear }) {
@@ -893,6 +920,13 @@ export default function App() {
   const [swapUnitFactionFilter, setSwapUnitFactionFilter] = useState('all');
   const [activeParamTab, setActiveParamTab] = useState('structure');
   const [comparisonMode, setComparisonMode] = useState(false);
+  const [showAllUnitParams, setShowAllUnitParams] = useState(() => {
+    try {
+      return localStorage.getItem('editp_unit_parameter_view_v1') === 'all';
+    } catch {
+      return false;
+    }
+  });
   const [showAllWeaponParams, setShowAllWeaponParams] = useState(() => {
     try {
       const savedPreference = localStorage.getItem('editp_weapon_parameter_view_v2');
@@ -906,6 +940,14 @@ export default function App() {
   useEffect(() => {
     setActiveRelationshipKey(null);
   }, [selectedUnitId, activeParamTab, activeWeaponSlotTab]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('editp_unit_parameter_view_v1', showAllUnitParams ? 'all' : 'relevant');
+    } catch {
+      // The preference remains available for this session when storage is blocked.
+    }
+  }, [showAllUnitParams]);
 
   useEffect(() => {
     try {
@@ -3403,11 +3445,25 @@ export default function App() {
                       ? 'Bouncing projectile'
                       : 'Ballistic / direct fire';
 
-            const structureParams = STAT_KEYS.filter(stat => !MOBILITY_STAT_KEYS.has(stat.key));
-            const mobilityParams = STAT_KEYS.filter(stat => {
+            const unitParameterTweaks = tweaks[selectedUnit.id] || {};
+            const allStructureParams = STAT_KEYS.filter(stat => !MOBILITY_STAT_KEYS.has(stat.key));
+            const allMobilityParams = STAT_KEYS.filter(stat => {
               if (!MOBILITY_STAT_KEYS.has(stat.key)) return false;
               return stat.key !== 'cruisealt' || getTagsOfUnit(baseId).includes('aircraft');
             });
+            const relevanceOptions = { showAll: showAllUnitParams, activeKey: activeRelationshipKey };
+            const structureParams = getApplicableUnitParameters(
+              allStructureParams,
+              defaults,
+              unitParameterTweaks,
+              relevanceOptions
+            );
+            const mobilityParams = getApplicableUnitParameters(
+              allMobilityParams,
+              defaults,
+              unitParameterTweaks,
+              relevanceOptions
+            );
             const weaponParameterCount = slot
               ? applicableSlotParams.length + applicableAdvancedWeaponGroups.reduce((total, group) => total + group.params.length, 0) + 2
               : 0;
@@ -3606,7 +3662,14 @@ export default function App() {
                         eyebrow="Unit parameters"
                         title="Structure & Economic Metrics"
                         description="Costs, durability, production, storage, and utility systems."
-                        actions={<span className="section-heading__meta">{structureParams.length} fields</span>}
+                        actions={(
+                          <UnitParameterViewControl
+                            showAll={showAllUnitParams}
+                            visibleCount={structureParams.length}
+                            totalCount={allStructureParams.length}
+                            onChange={setShowAllUnitParams}
+                          />
+                        )}
                       />
                       <ParameterMatrix
                         sectionId="structure"
@@ -3673,10 +3736,12 @@ export default function App() {
 
                               <div className="stat-card-input-wrapper">
                                 {stat.type === 'boolean' ? (
-                                  <Switch
+                                  <InheritedBooleanControl
                                     label={stat.label}
-                                    checked={displayValue === 'true' || displayValue === true}
-                                    onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.checked)}
+                                    inheritedValue={defaultVal}
+                                    modified={isModified}
+                                    value={currentTweakValue}
+                                    onChange={value => handleStatChange(selectedUnit.id, stat.key, value)}
                                   />
                                 ) : (
                                   (() => {
@@ -3726,7 +3791,14 @@ export default function App() {
                         eyebrow="Unit parameters"
                         title="Mobility & Movement Vectors"
                         description="Speed, handling, terrain response, altitude, and detection."
-                        actions={<span className="section-heading__meta">{mobilityParams.length} fields</span>}
+                        actions={(
+                          <UnitParameterViewControl
+                            showAll={showAllUnitParams}
+                            visibleCount={mobilityParams.length}
+                            totalCount={allMobilityParams.length}
+                            onChange={setShowAllUnitParams}
+                          />
+                        )}
                       />
                       <ParameterMatrix
                         sectionId="mobility"
@@ -3780,10 +3852,12 @@ export default function App() {
 
                               <div className="stat-card-input-wrapper">
                                 {stat.type === 'boolean' ? (
-                                  <Switch
+                                  <InheritedBooleanControl
                                     label={stat.label}
-                                    checked={displayValue === 'true' || displayValue === true}
-                                    onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.checked)}
+                                    inheritedValue={defaultVal}
+                                    modified={isModified}
+                                    value={currentTweakValue}
+                                    onChange={value => handleStatChange(selectedUnit.id, stat.key, value)}
                                   />
                                 ) : (
                                   (() => {

@@ -57,6 +57,33 @@ test('main menu, editor, and collections have no serious accessibility violation
   expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
 });
 
+test('unit parameter relevance preserves edits and distinguishes inherited booleans', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await expect(page.locator('#workspace-panel-structure')).toBeVisible();
+
+  const view = page.getByRole('group', { name: 'Choose visible unit parameters' });
+  const relevant = view.getByRole('button', { name: 'Relevant' });
+  const all = view.getByRole('button', { name: 'All' });
+  await expect(relevant).toHaveAttribute('aria-pressed', 'true');
+
+  const cards = page.locator('#workspace-panel-structure .stat-card');
+  const relevantCount = await cards.count();
+  await all.click();
+  await expect(all).toHaveAttribute('aria-pressed', 'true');
+  expect(await cards.count()).toBeGreaterThan(relevantCount);
+
+  const blocking = page.getByRole('combobox', { name: 'Blocks movement override' });
+  await expect(blocking).toHaveValue('');
+  await expect(blocking.locator('option:checked')).toHaveText('Inherited · Disabled');
+
+  const cloak = page.getByRole('combobox', { name: 'Can cloak override' });
+  await cloak.selectOption('true');
+  await relevant.click();
+  await expect(page.getByRole('combobox', { name: 'Can cloak override' })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('editp_unit_parameter_view_v1'))).toBe('relevant');
+});
+
 test('primary actions use restrained accent surfaces instead of solid pink fills', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.addInitScript(() => localStorage.setItem('bmf_theme', 'dark'));
@@ -468,6 +495,7 @@ test('unit and death-explosion parameters compile to their correct lobby outputs
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
   await page.getByPlaceholder(/Search unit name/i).fill('armfus');
   await page.locator('.unit-item').filter({ hasText: 'armfus' }).first().click();
+  await page.getByRole('group', { name: 'Choose visible unit parameters' }).getByRole('button', { name: 'All' }).click();
 
   const deathGroup = page.getByRole('button', { name: /Death explosion profile/i });
   if (await deathGroup.getAttribute('aria-expanded') === 'false') await deathGroup.click();

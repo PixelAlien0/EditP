@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getApplicableUnitParameters,
   MOBILITY_STAT_KEYS,
   STAT_KEYS,
   WEAPON_SLOT_BOOLEAN_PARAMS,
@@ -27,5 +28,22 @@ describe('editor parameter configuration', () => {
     expect(STAT_KEYS.find(parameter => parameter.key === 'acceleration')?.patchKey).toBe('maxAcc');
     expect(STAT_KEYS.find(parameter => parameter.key === 'brakerate')?.patchKey).toBe('maxDec');
     expect(STAT_KEYS.some(parameter => parameter.key === 'airsubalt')).toBe(false);
+  });
+
+  it('keeps declared, featured, active, and edited unit parameters in the relevant view', () => {
+    const parameters = [
+      { key: 'health', featured: true },
+      { key: 'radar', featured: false },
+      { key: 'cloak', featured: false },
+      { key: 'transport', featured: false },
+      { key: 'kamikaze', featured: false },
+    ];
+    const defaults = { radar: 400 };
+    const tweaks = { cloak: false };
+
+    expect(getApplicableUnitParameters(parameters, defaults, tweaks, { activeKey: 'transport' }).map(item => item.key))
+      .toEqual(['health', 'radar', 'cloak', 'transport']);
+    expect(getApplicableUnitParameters(parameters, defaults, tweaks, { showAll: true }))
+      .toBe(parameters);
   });
 });
