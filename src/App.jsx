@@ -21,6 +21,7 @@ import {
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
 import { getUnitIconUrl } from './utils/unitArtwork.js';
+import { createProducerCatalog, PRODUCER_KIND } from './utils/producerCatalog.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
 import EditorShell from './components/editor/EditorShell.jsx';
 import UnitLibraryPane from './components/editor/UnitLibraryPane.jsx';
@@ -843,6 +844,7 @@ export default function App() {
   const [showDesignerPanel, setShowDesignerPanel] = useState(false);
   const [selectedFactoryId, setSelectedFactoryId] = useState('armlab');
   const [designerFaction, setDesignerFaction] = useState('all');
+  const [producerKindFilter, setProducerKindFilter] = useState('all');
   const [availableFactionFilter, setAvailableFactionFilter] = useState('factory');
   const [availableSearchQuery, setAvailableSearchQuery] = useState('');
   const [factorySearchQuery, setFactorySearchQuery] = useState('');
@@ -2295,22 +2297,39 @@ export default function App() {
   }, [showToolsMenu]);
 
   // --- Roster Designer Helpers ---
-  const factoryIdsList = useMemo(() => {
-    return Object.keys(activeFactoryRosters).sort((a, b) => a.localeCompare(b));
-  }, [activeFactoryRosters]);
+  const producerCatalog = useMemo(
+    () => createProducerCatalog(activeFactoryRosters, unitsDb.names, defaultsDb),
+    [activeFactoryRosters, defaultsDb, unitsDb.names]
+  );
 
-  const filteredFactoryIds = useMemo(() => {
-    return factoryIdsList.filter(id => {
-      const faction = getFactionOfUnit(id);
-      if (designerFaction !== 'all' && faction !== designerFaction) return false;
+  const selectedProducer = useMemo(
+    () => producerCatalog.find(producer => producer.id === selectedFactoryId) || null,
+    [producerCatalog, selectedFactoryId]
+  );
+
+  const producerCounts = useMemo(() => ({
+    all: producerCatalog.length,
+    [PRODUCER_KIND.FACTORY]: producerCatalog.filter(producer => producer.kind === PRODUCER_KIND.FACTORY).length,
+    [PRODUCER_KIND.BUILDER]: producerCatalog.filter(producer => producer.kind === PRODUCER_KIND.BUILDER).length,
+  }), [producerCatalog]);
+
+  const filteredProducers = useMemo(() => {
+    return producerCatalog.filter(producer => {
+      if (designerFaction !== 'all' && producer.faction !== designerFaction) return false;
+      if (producerKindFilter !== 'all' && producer.kind !== producerKindFilter) return false;
       if (factorySearchQuery.trim()) {
         const query = factorySearchQuery.toLowerCase();
-        const name = (unitsDb.names[id] || id).toLowerCase();
-        if (!id.toLowerCase().includes(query) && !name.includes(query)) return false;
+        if (!producer.id.toLowerCase().includes(query) && !producer.name.toLowerCase().includes(query)) return false;
       }
       return true;
     });
-  }, [factoryIdsList, designerFaction, factorySearchQuery, unitsDb.names]);
+  }, [producerCatalog, designerFaction, producerKindFilter, factorySearchQuery]);
+
+  useEffect(() => {
+    if (producerCatalog.length > 0 && !selectedProducer) {
+      setSelectedFactoryId(producerCatalog[0].id);
+    }
+  }, [producerCatalog, selectedProducer]);
 
   const activeRosterItems = useMemo(() => {
     const defaults = activeFactoryRosters[selectedFactoryId] || [];
@@ -4858,7 +4877,7 @@ export default function App() {
         <Suspense fallback={<main className="designer-page designer-page-loading"><span>Loading build menu designer…</span></main>}>
           <LazyDesignerPage
             factoryId={selectedFactoryId}
-            factoryName={unitsDb.names[selectedFactoryId] || selectedFactoryId}
+            factoryName={selectedProducer?.name || unitsDb.names[selectedFactoryId] || selectedFactoryId}
             factoryIconUrl={getUnitIconUrl(selectedFactoryId)}
             activeSlotCount={activeRosterItems.filter(item => item.status !== 'removed').length}
             changeCount={buildMenuSteps.filter(step => step.builderId === selectedFactoryId).length}
@@ -4873,14 +4892,18 @@ export default function App() {
               {/* Left Column: Factory Selection */}
               <div className="designer-panel designer-factory-browser">
                 <div className="designer-panel-header">
-                  <span className="designer-panel-kicker">Factory catalog</span>
-                  <span className="designer-panel-title">Choose a producer <small>{filteredFactoryIds.length}</small></span>
+                  <span className="designer-panel-kicker">Producer catalog</span>
+                  <span className="designer-panel-title">Choose a producer <small>{filteredProducers.length}</small></span>
+                  <span className="designer-producer-summary">
+                    {producerCounts.factory} factories <span aria-hidden="true">·</span> {producerCounts.builder} builders
+                  </span>
                   <input
                     type="text"
                     className="search-input"
-                    placeholder="Search factories..."
+                    placeholder="Search producers by name or ID..."
                     value={factorySearchQuery}
                     onChange={e => setFactorySearchQuery(e.target.value)}
+                    aria-label="Search producers"
                   />
                   <div className="faction-tabs designer-faction-tabs designer-faction-tabs--four">
                     <button
@@ -4908,29 +4931,67 @@ export default function App() {
                       LEG
                     </button>
                   </div>
+                  <div className="designer-producer-kind-tabs" role="group" aria-label="Producer type">
+                    {[
+                      ['all', 'All'],
+                      [PRODUCER_KIND.FACTORY, 'Factories'],
+                      [PRODUCER_KIND.BUILDER, 'Builders'],
+                    ].map(([kind, label]) => (
+                      <button
+                        type="button"
+                        key={kind}
+                        className={`designer-producer-kind-tab ${producerKindFilter === kind ? 'active' : ''}`}
+                        onClick={() => setProducerKindFilter(kind)}
+                        aria-pressed={producerKindFilter === kind}
+                      >
+                        <span>{label}</span>
+                        <small>{producerCounts[kind]}</small>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="designer-panel-scroll">
-                  {filteredFactoryIds.map(fid => {
-                    const isActive = selectedFactoryId === fid;
-                    const isMod = factoryIsModified(fid);
+                  {filteredProducers.length === 0 && (
+                    <div className="designer-producer-empty">
+                      <strong>No producers found</strong>
+                      <span>Try another faction, producer type, or search term.</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDesignerFaction('all');
+                          setProducerKindFilter('all');
+                          setFactorySearchQuery('');
+                        }}
+                      >
+                        Clear catalog filters
+                      </button>
+                    </div>
+                  )}
+                  {filteredProducers.map(producer => {
+                    const isActive = selectedFactoryId === producer.id;
+                    const isMod = factoryIsModified(producer.id);
                     return (
                       <button
                         type="button"
-                        key={fid}
+                        key={producer.id}
                         className={`designer-factory-item ${isActive ? 'active' : ''}`}
-                        onClick={() => setSelectedFactoryId(fid)}
+                        onClick={() => setSelectedFactoryId(producer.id)}
                         aria-pressed={isActive}
                       >
                         <div className="designer-unit-pic designer-unit-pic--factory">
-                          <UnitArtwork unitId={fid} alt="" />
+                          <UnitArtwork unitId={producer.id} alt="" />
                         </div>
                         <div className="designer-unit-info">
                           <span className="designer-unit-name">
-                            {unitsDb.names[fid] || fid}
+                            {producer.name}
                           </span>
                           <div className="designer-unit-meta">
-                            <span className="designer-unit-id">{fid}</span>
+                            <span className="designer-unit-id">{producer.id}</span>
+                            <span className={`designer-producer-kind designer-producer-kind--${producer.kind}`}>
+                              {producer.kindLabel}
+                            </span>
+                            <span className="designer-producer-tier">{producer.tier}</span>
                             {isMod && <span className="designer-item-status designer-item-status--modified">Modified</span>}
                           </div>
                         </div>
@@ -4945,17 +5006,17 @@ export default function App() {
                 <div className="designer-panel-header">
                   <span className="designer-panel-kicker">Production sequence</span>
                   <span className="designer-panel-title">
-                    {unitsDb.names[selectedFactoryId] || selectedFactoryId}
+                    {selectedProducer?.name || unitsDb.names[selectedFactoryId] || selectedFactoryId}
                     {factoryIsModified(selectedFactoryId) && (
                       <button
                         type="button"
                         className="designer-reset-factory"
                         onClick={() => {
                           setBuildMenuSteps(prev => prev.filter(s => s.builderId !== selectedFactoryId));
-                          showToast(`Reset build options for ${selectedFactoryId} to the selected game setup`);
+                          showToast(`Reset build options for ${selectedProducer?.name || selectedFactoryId} to the selected game setup`);
                         }}
                       >
-                        Reset Factory
+                        Reset producer
                       </button>
                     )}
                   </span>

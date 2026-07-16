@@ -155,7 +155,10 @@
   background: var(--color-surface-raised) !important;
 }
 
-.designer-page .designer-factory-browser .designer-panel-header,
+.designer-page .designer-factory-browser .designer-panel-header {
+  min-height: 224px;
+}
+
 .designer-page .designer-unit-library .designer-panel-header {
   min-height: 178px;
 }
@@ -199,6 +202,16 @@
   border-radius: 999px;
   background: var(--color-surface) !important;
   color: var(--color-text-muted) !important;
+  font-family: var(--font-mono);
+  font-size: 8px;
+}
+
+.designer-page .designer-producer-summary {
+  margin-top: -5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-text-muted);
   font-family: var(--font-mono);
   font-size: 8px;
 }
@@ -273,6 +286,59 @@
   box-shadow: none !important;
 }
 
+.designer-page .designer-producer-kind-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.designer-page .designer-producer-kind-tab {
+  min-width: 0;
+  min-height: 30px;
+  padding: 5px 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.designer-page .designer-producer-kind-tab small {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 7px;
+}
+
+.designer-page .designer-producer-kind-tab:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.designer-page .designer-producer-kind-tab.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.designer-page .designer-producer-kind-tab.active small {
+  color: currentColor;
+}
+
+.designer-page .designer-producer-kind-tab:focus-visible,
+.designer-page .designer-producer-empty button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: var(--shadow-focus);
+}
+
 .designer-page .designer-panel-scroll {
   min-height: 0;
   padding: 8px !important;
@@ -329,7 +395,8 @@
   margin-top: 3px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  flex-wrap: wrap;
 }
 
 .designer-page .designer-unit-id {
@@ -338,6 +405,73 @@
   font-size: 8px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.designer-page .designer-producer-kind,
+.designer-page .designer-producer-tier {
+  flex-shrink: 0;
+  padding: 2px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  color: var(--color-text-muted);
+  font-size: 7px;
+  font-weight: 720;
+  letter-spacing: 0.035em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.designer-page .designer-producer-kind--builder {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.designer-page .designer-producer-tier {
+  background: var(--color-surface-muted);
+  font-family: var(--font-mono);
+}
+
+.designer-page .designer-producer-empty {
+  min-height: 180px;
+  padding: 28px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  color: var(--color-text-muted);
+}
+
+.designer-page .designer-producer-empty strong {
+  color: var(--color-text-strong);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 560;
+}
+
+.designer-page .designer-producer-empty span {
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.designer-page .designer-producer-empty button {
+  min-height: 30px;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.designer-page .designer-producer-empty button:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-strong);
 }
 
 .designer-page .designer-item-status {

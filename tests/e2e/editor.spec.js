@@ -41,6 +41,25 @@ test('main workflow remains keyboard accessible', async ({ page }) => {
   await page.keyboard.press('Escape');
 });
 
+test('build menu producer catalog separates factories and builders', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Build Menus/i }).click();
+
+  const catalog = page.locator('.designer-factory-browser');
+  await expect(catalog.getByText('Groundhog', { exact: true })).toBeVisible();
+  await expect(catalog.getByText('Bot Lab', { exact: true }).first()).toBeVisible();
+  await expect(catalog.getByText('armsaap', { exact: true })).toHaveCount(0);
+
+  await catalog.getByRole('button', { name: /Builders/ }).click();
+  await expect(catalog.getByText('Groundhog', { exact: true })).toBeVisible();
+  await expect(catalog.getByText('Bot Lab', { exact: true })).toHaveCount(0);
+
+  await catalog.getByRole('button', { name: /Factories/ }).click();
+  await expect(catalog.getByText('Bot Lab', { exact: true }).first()).toBeVisible();
+  await expect(catalog.getByText('Groundhog', { exact: true })).toHaveCount(0);
+});
+
 test('main menu, editor, and collections have no serious accessibility violations', async ({ page }) => {
   await waitForMainMenu(page);
   let results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
