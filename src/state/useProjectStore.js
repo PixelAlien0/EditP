@@ -18,7 +18,6 @@ export const PROJECT_STORE_DEFAULTS = Object.freeze({
   includeClones: true,
   includeRosters: true,
   includeHeader: true,
-  forceAllUnits: false,
 });
 
 export function loadLegacyProjectState() {

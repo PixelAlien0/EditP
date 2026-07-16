@@ -41,26 +41,6 @@ test('main workflow remains keyboard accessible', async ({ page }) => {
   await page.keyboard.press('Escape');
 });
 
-test('review export separates BAR lobby instructions from startscript output', async ({ page }) => {
-  await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
-  await page.getByRole('button', { name: /Review & Export/i }).click();
-
-  const forceLoadSwitch = page.getByRole('switch', { name: /Project requires Force Load All Units/ });
-  await expect(forceLoadSwitch).not.toBeChecked();
-  const settingBounds = await page.locator('.export-force-units-switch').boundingBox();
-  const trackBounds = await page.locator('.export-force-units-switch .ui-switch-track').boundingBox();
-  expect(trackBounds.x + trackBounds.width).toBeLessThanOrEqual(settingBounds.x + settingBounds.width);
-  expect(trackBounds.x).toBeGreaterThanOrEqual(settingBounds.x);
-  await page.locator('.export-force-units-switch').click();
-  await expect(forceLoadSwitch).toBeChecked();
-  await expect(page.getByText('Lobby action required')).toBeVisible();
-  await page.getByRole('tab', { name: 'Startscript fragment' }).click();
-  await expect(page.locator('.export-code-preview')).toContainText('[GAME]');
-  await expect(page.locator('.export-code-preview')).toContainText('forceallunits = 1;');
-  await expect(page.locator('.export-code-preview')).toContainText('tweakdefs =');
-});
-
 test('build menu producer catalog separates factories and builders', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
