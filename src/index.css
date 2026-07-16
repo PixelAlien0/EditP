@@ -9536,6 +9536,31 @@ input:checked + .weapon-ceg-track {
   outline-offset: 2px;
 }
 
+.export-runtime-quick-fix {
+  min-height: 32px;
+  justify-self: start;
+  padding: 6px 10px;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-xs);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.export-runtime-quick-fix:hover {
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.export-runtime-quick-fix:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: var(--shadow-focus);
+}
+
 .export-metadata-grid label,
 .export-flags label {
   color: var(--color-text-muted) !important;

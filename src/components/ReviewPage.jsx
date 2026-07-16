@@ -115,6 +115,17 @@ export default function ReviewPage({
             <p>
               This is BAR's <code>forceallunits</code> lobby option. Enable the same option in the lobby, or copy the generated <button type="button" onClick={() => setActiveOutputTab('lobby_options')}>Lobby setup</button> block into a startscript.
             </p>
+            <button
+              type="button"
+              className="export-runtime-quick-fix"
+              onClick={() => {
+                setForceAllUnits(true);
+                setActiveOutputTab('lobby_options');
+                onToast('Force-load enabled. Lobby setup is ready to copy.');
+              }}
+            >
+              {forceAllUnits ? 'Show lobby setup' : 'Quick fix: enable force-load'}
+            </button>
           </div>
           <div className="export-flags">
             <SwitchField label="Parameter tweaks" checked={includeTweaks} onChange={event => setIncludeTweaks(event.target.checked)} />

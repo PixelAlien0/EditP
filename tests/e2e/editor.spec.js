@@ -48,7 +48,7 @@ test('review export generates the BAR force-load lobby option', async ({ page })
 
   const forceLoadSwitch = page.getByRole('switch', { name: /Force-load all units/ });
   await expect(forceLoadSwitch).not.toBeChecked();
-  await page.locator('.export-force-units-switch').click();
+  await page.getByRole('button', { name: /Quick fix: enable force-load/ }).click();
   await expect(forceLoadSwitch).toBeChecked();
   await page.getByRole('tab', { name: 'Lobby setup' }).click();
   await expect(page.locator('.export-code-preview')).toContainText('forceallunits = true;');
