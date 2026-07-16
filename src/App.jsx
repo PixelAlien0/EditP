@@ -1914,13 +1914,20 @@ export default function App() {
     };
 
     setClones(prev => [...prev, newClone]);
+    if (activeCollection) {
+      setUnitCollections(previous => previous.map(collection => (
+        collection.id === activeCollection.id && !collection.unitIds.includes(cleanNew)
+          ? { ...collection, unitIds: [...collection.unitIds, cleanNew] }
+          : collection
+      )));
+    }
     if (Object.keys(inheritedTweaks).length > 0) {
       setTweaks(prev => ({ ...prev, [cleanNew]: { ...inheritedTweaks } }));
     }
     setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, cleanNew, newClone.builderIds));
     setSelectedUnitId(cleanNew);
     setShowClonePanel(false);
-    showToast(`Created clone: ${cleanNew}`);
+    showToast(`Created clone: ${cleanNew}${activeCollection ? ` in ${activeCollection.name}` : ''}`);
 
     setCloneBaseId('');
     setCloneNewId('');
