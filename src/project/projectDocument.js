@@ -1,6 +1,6 @@
 import { normalizeUnitCollections } from './unitCollections.js';
 
-export const PROJECT_DOCUMENT_VERSION = '1.6';
+export const PROJECT_DOCUMENT_VERSION = '1.5';
 export const MAX_PROJECT_BYTES = 5 * 1024 * 1024;
 
 const UNIT_ID_PATTERN = /^[a-z0-9_]+$/i;
@@ -132,7 +132,6 @@ export function normalizeProjectDocument(input) {
     includeClones: migrated.includeClones !== false,
     includeRosters: migrated.includeRosters !== false,
     includeHeader: migrated.includeHeader !== false,
-    forceAllUnits: migrated.forceAllUnits === true,
   };
 }
 

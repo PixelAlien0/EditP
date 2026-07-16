@@ -4,16 +4,15 @@ const EXPORT_TABS = [
   { id: 'tweakdefs_lua', label: 'Definitions Lua' },
   { id: 'tweakunits_lua', label: 'Units Lua' },
   { id: 'tweakdefs_b64', label: 'Definitions Base64' },
-  { id: 'tweakunits_b64', label: 'Units Base64' },
-  { id: 'startscript', label: 'Startscript fragment' }
+  { id: 'tweakunits_b64', label: 'Units Base64' }
 ];
 
 export default function ReviewPage({
   modifiedUnitIds, tweaks, clones, buildMenuSteps, disabledUnitIds, validationIssues,
   projectChangeCount, unitNames, projectName, projectAuthor, projectDesc,
   setProjectName, setProjectAuthor, setProjectDesc,
-  includeTweaks, includeClones, includeRosters, includeHeader, forceAllUnits,
-  setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setForceAllUnits,
+  includeTweaks, includeClones, includeRosters, includeHeader,
+  setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
   activeOutputTab, setActiveOutputTab, activeCompiledOutput, activeCompiledOutputFallback,
   totalBytesUsed, lobbyByteLimit, limitRisk,
   collectionScope,
@@ -23,16 +22,6 @@ export default function ReviewPage({
   const copyOutput = async () => {
     await navigator.clipboard.writeText(activeCompiledOutput || activeCompiledOutputFallback);
     onToast('Compiled output copied');
-  };
-  const copyLobbySteps = async () => {
-    await navigator.clipboard.writeText([
-      'BAR lobby setup for this project:',
-      '1. Become the lobby boss.',
-      '2. Open Advanced Options > Cheats.',
-      '3. Enable Force Load All Units (Dev/Modding).',
-      '4. Apply the generated Tweak Defs and Tweak Units values.',
-    ].join('\n'));
-    onToast('Lobby steps copied. Apply them as the lobby boss.');
   };
 
   return (
@@ -104,34 +93,6 @@ export default function ReviewPage({
             <TextField label="Mod name" value={projectName} onChange={event => setProjectName(event.target.value)} />
             <TextField label="Author" value={projectAuthor} onChange={event => setProjectAuthor(event.target.value)} />
             <TextAreaField className="full" label="Description" value={projectDesc} onChange={event => setProjectDesc(event.target.value)} />
-          </div>
-          <div className={`export-runtime-option ${forceAllUnits ? 'is-enabled' : ''}`}>
-            <div className="export-runtime-option__heading">
-              <div>
-                <span className="workflow-eyebrow">BAR game setup</span>
-                <h4>Unit definition loading</h4>
-              </div>
-              <span className={`review-status ${forceAllUnits ? 'warning' : 'ok'}`}>
-                {forceAllUnits ? 'Lobby action required' : 'Not required'}
-              </span>
-            </div>
-            <SwitchField
-              className="export-force-units-switch"
-              label="Project requires Force Load All Units"
-              description="Records a lobby requirement for optional Legion, Scavenger, and Raptor definitions. It cannot change an open BAR lobby."
-              checked={forceAllUnits}
-              onChange={event => setForceAllUnits(event.target.checked)}
-            />
-            <p>
-              As lobby boss, open <strong>Advanced Options → Cheats</strong> and enable <strong>Force Load All Units (Dev/Modding)</strong> before applying Tweak Defs and Tweak Units. The <button type="button" onClick={() => setActiveOutputTab('startscript')}>Startscript fragment</button> is only for headless or local development launches.
-            </p>
-            <button
-              type="button"
-              className="export-runtime-quick-fix"
-              onClick={copyLobbySteps}
-            >
-              Copy lobby steps
-            </button>
           </div>
           <div className="export-flags">
             <SwitchField label="Parameter tweaks" checked={includeTweaks} onChange={event => setIncludeTweaks(event.target.checked)} />

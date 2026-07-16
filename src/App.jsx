@@ -22,7 +22,6 @@ import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
 import { getUnitIconUrl } from './utils/unitArtwork.js';
 import { createProducerCatalog, PRODUCER_KIND } from './utils/producerCatalog.js';
-import { generateStartscriptGameOptions } from './utils/lobbyModOptions.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
 import EditorShell from './components/editor/EditorShell.jsx';
 import UnitLibraryPane from './components/editor/UnitLibraryPane.jsx';
@@ -749,13 +748,13 @@ export default function App() {
     setTweaks, setClones, setDisabledUnitIds, setUnitDescriptions,
     setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setUnitCollections,
     setProjectName, setProjectAuthor, setProjectDesc,
-    setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setForceAllUnits,
+    setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
     hydrateProjectStore,
   } = useProjectStore();
   const {
     tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
     presets, weaponLibrary, unitCollections, projectName, projectAuthor, projectDesc,
-    includeTweaks, includeClones, includeRosters, includeHeader, forceAllUnits,
+    includeTweaks, includeClones, includeRosters, includeHeader,
   } = projectStore;
 
   const techTierOverrideSignature = useMemo(() => JSON.stringify(
@@ -964,7 +963,7 @@ export default function App() {
     activityCounts: presenceActivityCounts
   } = useOnlinePresence(presenceActivity);
   // Active Output tab
-  const [activeOutputTab, setActiveOutputTab] = useState('tweakdefs_lua');
+  const [activeOutputTab, setActiveOutputTab] = useState('tweakdefs_lua'); // 'tweakunits_lua' | 'tweakdefs_lua' | 'tweakunits_b64' | 'tweakdefs_b64'
 
   // Clone description input state
   const [cloneDesc, setCloneDesc] = useState('');
@@ -1067,8 +1066,7 @@ export default function App() {
     includeTweaks,
     includeClones,
     includeRosters,
-    includeHeader,
-    forceAllUnits,
+    includeHeader
   });
 
   const handleSavePreset = () => {
@@ -1099,7 +1097,6 @@ export default function App() {
     setIncludeClones(snapshot.includeClones ?? true);
     setIncludeRosters(snapshot.includeRosters ?? true);
     setIncludeHeader(snapshot.includeHeader ?? true);
-    setForceAllUnits(snapshot.forceAllUnits === true);
     setShowPresetGallery(false);
     showToast(`Applied preset: ${preset.name}`);
   };
@@ -1808,12 +1805,6 @@ export default function App() {
     if (!generatedTweakDefsLua.trim()) return '';
     return encodeBase64(generatedTweakDefsLua + ' ', base64Options);
   }, [generatedTweakDefsLua, base64Options]);
-
-  const startscriptGameOptions = useMemo(() => generateStartscriptGameOptions({
-    forceAllUnits,
-    tweakDefsBase64: tweakDefsB64,
-    tweakUnitsBase64: tweakUnitsB64,
-  }), [forceAllUnits, tweakDefsB64, tweakUnitsB64]);
 
   const totalBytesUsed = tweakUnitsB64.length + tweakDefsB64.length;
   const lobbyByteLimit = 12000;
@@ -2620,12 +2611,8 @@ export default function App() {
       ? generatedTweakUnitsLua
       : activeOutputTab === 'tweakdefs_b64'
         ? tweakDefsB64
-        : activeOutputTab === 'tweakunits_b64'
-          ? tweakUnitsB64
-          : startscriptGameOptions;
-  const activeCompiledOutputFallback = activeOutputTab === 'startscript'
-    ? generateStartscriptGameOptions({ forceAllUnits })
-    : activeOutputTab.includes('lua') ? '{\n}' : 'No encoded output generated yet.';
+        : tweakUnitsB64;
+  const activeCompiledOutputFallback = activeOutputTab.includes('lua') ? '{\n}' : 'No encoded output generated yet.';
 
   if (!showMainMenu && coreDataStatus !== 'ready') {
     return (
@@ -4729,12 +4716,10 @@ export default function App() {
             includeClones={includeClones}
             includeRosters={includeRosters}
             includeHeader={includeHeader}
-            forceAllUnits={forceAllUnits}
             setIncludeTweaks={setIncludeTweaks}
             setIncludeClones={setIncludeClones}
             setIncludeRosters={setIncludeRosters}
             setIncludeHeader={setIncludeHeader}
-            setForceAllUnits={setForceAllUnits}
             activeOutputTab={activeOutputTab}
             setActiveOutputTab={setActiveOutputTab}
             activeCompiledOutput={activeCompiledOutput}

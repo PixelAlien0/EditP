@@ -23,17 +23,11 @@ describe('project documents', () => {
     expect(project.clones[0]).toMatchObject({ baseId: 'armdfly', newId: 'my_clone' });
     expect(project.disabledUnitIds).toEqual(['armdfly']);
     expect(project.buildMenuSteps[0].builderId).toBe('armlab');
-    expect(project.forceAllUnits).toBe(false);
     expect(project.unitCollections[0]).toMatchObject({
       id: 'balance',
       name: 'Balance pass',
       unitIds: ['armdfly', 'my_clone'],
     });
-  });
-
-  it('preserves the force-load game setup option without enabling it for older projects', () => {
-    expect(normalizeProjectDocument({ version: '1.5' }).forceAllUnits).toBe(false);
-    expect(normalizeProjectDocument({ version: '1.6', forceAllUnits: true }).forceAllUnits).toBe(true);
   });
 
   it('rejects oversized projects before changing state', () => {
