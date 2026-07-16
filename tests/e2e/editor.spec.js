@@ -41,6 +41,20 @@ test('main workflow remains keyboard accessible', async ({ page }) => {
   await page.keyboard.press('Escape');
 });
 
+test('review export generates the BAR force-load lobby option', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Review & Export/i }).click();
+
+  const forceLoadSwitch = page.getByRole('switch', { name: /Force-load all units/ });
+  await expect(forceLoadSwitch).not.toBeChecked();
+  await page.locator('.export-force-units-switch').click();
+  await expect(forceLoadSwitch).toBeChecked();
+  await page.getByRole('tab', { name: 'Lobby setup' }).click();
+  await expect(page.locator('.export-code-preview')).toContainText('forceallunits = true;');
+  await expect(page.locator('.export-code-preview')).toContainText('tweakdefs =');
+});
+
 test('build menu producer catalog separates factories and builders', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();

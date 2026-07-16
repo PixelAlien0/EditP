@@ -4,15 +4,16 @@ const EXPORT_TABS = [
   { id: 'tweakdefs_lua', label: 'Definitions Lua' },
   { id: 'tweakunits_lua', label: 'Units Lua' },
   { id: 'tweakdefs_b64', label: 'Definitions Base64' },
-  { id: 'tweakunits_b64', label: 'Units Base64' }
+  { id: 'tweakunits_b64', label: 'Units Base64' },
+  { id: 'lobby_options', label: 'Lobby setup' }
 ];
 
 export default function ReviewPage({
   modifiedUnitIds, tweaks, clones, buildMenuSteps, disabledUnitIds, validationIssues,
   projectChangeCount, unitNames, projectName, projectAuthor, projectDesc,
   setProjectName, setProjectAuthor, setProjectDesc,
-  includeTweaks, includeClones, includeRosters, includeHeader,
-  setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
+  includeTweaks, includeClones, includeRosters, includeHeader, forceAllUnits,
+  setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setForceAllUnits,
   activeOutputTab, setActiveOutputTab, activeCompiledOutput, activeCompiledOutputFallback,
   totalBytesUsed, lobbyByteLimit, limitRisk,
   collectionScope,
@@ -93,6 +94,27 @@ export default function ReviewPage({
             <TextField label="Mod name" value={projectName} onChange={event => setProjectName(event.target.value)} />
             <TextField label="Author" value={projectAuthor} onChange={event => setProjectAuthor(event.target.value)} />
             <TextAreaField className="full" label="Description" value={projectDesc} onChange={event => setProjectDesc(event.target.value)} />
+          </div>
+          <div className={`export-runtime-option ${forceAllUnits ? 'is-enabled' : ''}`}>
+            <div className="export-runtime-option__heading">
+              <div>
+                <span className="workflow-eyebrow">BAR game setup</span>
+                <h4>Unit definition loading</h4>
+              </div>
+              <span className={`review-status ${forceAllUnits ? 'ready' : 'warning'}`}>
+                {forceAllUnits ? 'All UnitDefs' : 'Lobby default'}
+              </span>
+            </div>
+            <SwitchField
+              className="export-force-units-switch"
+              label="Force-load all units (dev/modding)"
+              description="Loads optional Legion, Scavenger, and Raptor definitions before generated tweaks are applied."
+              checked={forceAllUnits}
+              onChange={event => setForceAllUnits(event.target.checked)}
+            />
+            <p>
+              This is BAR's <code>forceallunits</code> lobby option. Enable the same option in the lobby, or copy the generated <button type="button" onClick={() => setActiveOutputTab('lobby_options')}>Lobby setup</button> block into a startscript.
+            </p>
           </div>
           <div className="export-flags">
             <SwitchField label="Parameter tweaks" checked={includeTweaks} onChange={event => setIncludeTweaks(event.target.checked)} />
