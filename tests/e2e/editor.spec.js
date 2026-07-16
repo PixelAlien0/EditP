@@ -142,6 +142,28 @@ test('project edits recover after reload', async ({ page }) => {
   await expect(page.locator('.stat-card').filter({ hasText: 'METAL COST' }).first().locator('input').first()).toHaveValue('4321');
 });
 
+test('legacy projects migrate once without duplicate local-storage writes', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('bmf_tweaks', JSON.stringify({ armdfly: { metalcost: '2468' } }));
+    localStorage.setItem('bmf_project_name', 'Migrated project');
+  });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const metalInput = page.locator('.stat-card').filter({ hasText: 'METAL COST' }).first().locator('input').first();
+  await expect(metalInput).toHaveValue('2468');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('bmf_tweaks'))).toBeNull();
+
+  await metalInput.fill('3579');
+  await page.waitForTimeout(1000);
+  expect(await page.evaluate(() => localStorage.getItem('bmf_tweaks'))).toBeNull();
+
+  await page.reload();
+  await expect(page.getByRole('heading', { name: /Bar EditP/i })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await expect(page.locator('.stat-card').filter({ hasText: 'METAL COST' }).first().locator('input').first()).toHaveValue('3579');
+});
+
 test('clone creator stays centered above the workspace', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);

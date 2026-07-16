@@ -1,17 +1,14 @@
 import { lazy, Suspense, useState, useMemo, useEffect, useRef, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
-import unitsDbUrl from './data/units.json?url';
-import unitDefaultsUrl from './data/unit-defaults.json?url';
-import unitpicManifestUrl from './data/unitpic-manifest.json?url';
-import factoryRostersUrl from './data/factory-rosters.json?url';
 import { BUILD_MENU_PACKS, buildEffectiveFactoryRosters, getBuildMenuPackSource } from './data/build-menu-packs.js';
-import { getFactionOfUnit, getTagsOfUnit as getUnitTags, getTechTierFromValue, getTechTierOfUnit as getUnitTechTier } from './utils/categories.js';
+import { getFactionOfUnit, getTechTierFromValue } from './utils/categories.js';
 import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import { useTemporaryChat } from './hooks/useTemporaryChat.js';
 import { useProjectPersistence } from './hooks/useProjectPersistence.js';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout.js';
+import { useCoreGameData } from './hooks/useCoreGameData.js';
 import { useProjectStore } from './state/useProjectStore.js';
 import { assertProjectSize, normalizeProjectDocument } from './project/projectDocument.js';
 import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
@@ -23,7 +20,7 @@ import {
 } from './config/editorParameters.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
-import { getUnitIconUrl, setUnitArtworkManifest } from './utils/unitArtwork.js';
+import { getUnitIconUrl } from './utils/unitArtwork.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
 import EditorShell from './components/editor/EditorShell.jsx';
 import UnitLibraryPane from './components/editor/UnitLibraryPane.jsx';
@@ -31,6 +28,7 @@ import CollectionScopePicker from './components/editor/CollectionScopePicker.jsx
 import UnitCommandBar from './components/editor/UnitCommandBar.jsx';
 import ParameterCanvas, { ParameterMatrix } from './components/editor/ParameterCanvas.jsx';
 import InheritedBooleanControl from './components/editor/InheritedBooleanControl.jsx';
+import UnitParameterViewControl from './components/editor/UnitParameterViewControl.jsx';
 import EditorInspector from './components/editor/EditorInspector.jsx';
 import {
   createUnitCollection,
@@ -131,32 +129,6 @@ function getParameterRelationship(section, key) {
     description: matches.map(group => group.title).join(' · '),
     keys: [...new Set(matches.flatMap(group => group.keys))]
   };
-}
-
-function UnitParameterViewControl({ showAll, visibleCount, totalCount, onChange }) {
-  return (
-    <div className="unit-parameter-view" aria-label="Unit parameter view">
-      <span className="section-heading__meta">{visibleCount} of {totalCount}</span>
-      <ButtonGroup className="unit-parameter-view__options" label="Choose visible unit parameters">
-        <Button
-          size="sm"
-          variant={!showAll ? 'primary' : 'quiet'}
-          aria-pressed={!showAll}
-          onClick={() => onChange(false)}
-        >
-          Relevant
-        </Button>
-        <Button
-          size="sm"
-          variant={showAll ? 'primary' : 'quiet'}
-          aria-pressed={showAll}
-          onClick={() => onChange(true)}
-        >
-          All
-        </Button>
-      </ButtonGroup>
-    </div>
-  );
 }
 
 function ParameterRelationshipPanel({ section, activeKey, onSelect, onClear }) {
@@ -732,48 +704,14 @@ function generateWeaponVfxPackLua(blueprints) {
 }
 
 export default function App() {
-  const [unitsDb, setUnitsDb] = useState({ names: {}, descriptions: {} });
-  const [factoryRosters, setFactoryRosters] = useState({});
-  const [defaultsDb, setDefaultsDb] = useState({});
-  const [coreDataStatus, setCoreDataStatus] = useState('loading');
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchJson = url => fetch(url).then(response => {
-      if (!response.ok) throw new Error(`Bundled data request failed: ${response.status}`);
-      return response.json();
-    });
-    const loadDefaults = () => Promise.all([
-      fetchJson(unitDefaultsUrl),
-      fetchJson(unitsDbUrl),
-      fetchJson(factoryRostersUrl),
-      fetchJson(unitpicManifestUrl),
-    ])
-      .then(([defaults, units, rosters, artworkManifest]) => {
-        if (cancelled) return;
-        setDefaultsDb(defaults || {});
-        setUnitsDb(units || { names: {}, descriptions: {} });
-        setFactoryRosters(rosters || {});
-        setUnitArtworkManifest(artworkManifest);
-        setCoreDataStatus('ready');
-      })
-      .catch(() => {
-        if (!cancelled) setCoreDataStatus('error');
-      });
-
-    const idleHandle = 'requestIdleCallback' in window
-      ? window.requestIdleCallback(loadDefaults, { timeout: 1500 })
-      : window.setTimeout(loadDefaults, 0);
-
-    return () => {
-      cancelled = true;
-      if ('cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle);
-      else window.clearTimeout(idleHandle);
-    };
-  }, []);
-
-  const getTechTierOfUnit = useCallback(unitId => getUnitTechTier(unitId, defaultsDb), [defaultsDb]);
-  const getTagsOfUnit = useCallback(unitId => getUnitTags(unitId, defaultsDb), [defaultsDb]);
+  const {
+    unitsDb,
+    factoryRosters,
+    defaultsDb,
+    status: coreDataStatus,
+    getTechTierOfUnit,
+    getTagsOfUnit,
+  } = useCoreGameData();
 
   const [showMainMenu, setShowMainMenu] = useState(true);
   const [activeWorkspace, setActiveWorkspace] = useState('edit');
