@@ -5,7 +5,7 @@ const EXPORT_TABS = [
   { id: 'tweakunits_lua', label: 'Units Lua' },
   { id: 'tweakdefs_b64', label: 'Definitions Base64' },
   { id: 'tweakunits_b64', label: 'Units Base64' },
-  { id: 'lobby_options', label: 'Lobby setup' }
+  { id: 'startscript', label: 'Startscript fragment' }
 ];
 
 export default function ReviewPage({
@@ -23,6 +23,16 @@ export default function ReviewPage({
   const copyOutput = async () => {
     await navigator.clipboard.writeText(activeCompiledOutput || activeCompiledOutputFallback);
     onToast('Compiled output copied');
+  };
+  const copyLobbySteps = async () => {
+    await navigator.clipboard.writeText([
+      'BAR lobby setup for this project:',
+      '1. Become the lobby boss.',
+      '2. Open Advanced Options > Cheats.',
+      '3. Enable Force Load All Units (Dev/Modding).',
+      '4. Apply the generated Tweak Defs and Tweak Units values.',
+    ].join('\n'));
+    onToast('Lobby steps copied. Apply them as the lobby boss.');
   };
 
   return (
@@ -101,30 +111,26 @@ export default function ReviewPage({
                 <span className="workflow-eyebrow">BAR game setup</span>
                 <h4>Unit definition loading</h4>
               </div>
-              <span className={`review-status ${forceAllUnits ? 'ready' : 'warning'}`}>
-                {forceAllUnits ? 'All UnitDefs' : 'Lobby default'}
+              <span className={`review-status ${forceAllUnits ? 'warning' : 'ok'}`}>
+                {forceAllUnits ? 'Lobby action required' : 'Not required'}
               </span>
             </div>
             <SwitchField
               className="export-force-units-switch"
-              label="Force-load all units (dev/modding)"
-              description="Loads optional Legion, Scavenger, and Raptor definitions before generated tweaks are applied."
+              label="Project requires Force Load All Units"
+              description="Records a lobby requirement for optional Legion, Scavenger, and Raptor definitions. It cannot change an open BAR lobby."
               checked={forceAllUnits}
               onChange={event => setForceAllUnits(event.target.checked)}
             />
             <p>
-              This is BAR's <code>forceallunits</code> lobby option. Enable the same option in the lobby, or copy the generated <button type="button" onClick={() => setActiveOutputTab('lobby_options')}>Lobby setup</button> block into a startscript.
+              As lobby boss, open <strong>Advanced Options → Cheats</strong> and enable <strong>Force Load All Units (Dev/Modding)</strong> before applying Tweak Defs and Tweak Units. The <button type="button" onClick={() => setActiveOutputTab('startscript')}>Startscript fragment</button> is only for headless or local development launches.
             </p>
             <button
               type="button"
               className="export-runtime-quick-fix"
-              onClick={() => {
-                setForceAllUnits(true);
-                setActiveOutputTab('lobby_options');
-                onToast('Force-load enabled. Lobby setup is ready to copy.');
-              }}
+              onClick={copyLobbySteps}
             >
-              {forceAllUnits ? 'Show lobby setup' : 'Quick fix: enable force-load'}
+              Copy lobby steps
             </button>
           </div>
           <div className="export-flags">

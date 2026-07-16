@@ -22,7 +22,7 @@ import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
 import { getUnitIconUrl } from './utils/unitArtwork.js';
 import { createProducerCatalog, PRODUCER_KIND } from './utils/producerCatalog.js';
-import { generateLobbyModOptions } from './utils/lobbyModOptions.js';
+import { generateStartscriptGameOptions } from './utils/lobbyModOptions.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
 import EditorShell from './components/editor/EditorShell.jsx';
 import UnitLibraryPane from './components/editor/UnitLibraryPane.jsx';
@@ -1809,7 +1809,7 @@ export default function App() {
     return encodeBase64(generatedTweakDefsLua + ' ', base64Options);
   }, [generatedTweakDefsLua, base64Options]);
 
-  const lobbyModOptions = useMemo(() => generateLobbyModOptions({
+  const startscriptGameOptions = useMemo(() => generateStartscriptGameOptions({
     forceAllUnits,
     tweakDefsBase64: tweakDefsB64,
     tweakUnitsBase64: tweakUnitsB64,
@@ -2622,9 +2622,9 @@ export default function App() {
         ? tweakDefsB64
         : activeOutputTab === 'tweakunits_b64'
           ? tweakUnitsB64
-          : lobbyModOptions;
-  const activeCompiledOutputFallback = activeOutputTab === 'lobby_options'
-    ? generateLobbyModOptions({ forceAllUnits })
+          : startscriptGameOptions;
+  const activeCompiledOutputFallback = activeOutputTab === 'startscript'
+    ? generateStartscriptGameOptions({ forceAllUnits })
     : activeOutputTab.includes('lua') ? '{\n}' : 'No encoded output generated yet.';
 
   if (!showMainMenu && coreDataStatus !== 'ready') {

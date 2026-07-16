@@ -9482,21 +9482,32 @@ input:checked + .weapon-ceg-track {
 }
 
 .export-runtime-option .export-force-units-switch {
+  width: 100%;
+  max-width: 100%;
   min-height: 54px;
-  padding: 10px 11px;
+  padding: 10px 12px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 40px;
   align-items: center;
-  gap: 10px;
+  column-gap: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface-raised);
 }
 
+.export-runtime-option .export-force-units-switch .ui-switch-track {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+}
+
 .export-runtime-option .ui-switch-field__copy {
+  grid-column: 1;
+  grid-row: 1;
   min-width: 0;
   display: grid;
   gap: 3px;
+  order: 0;
 }
 
 .export-runtime-option .ui-switch-field__copy strong {
@@ -9537,6 +9548,7 @@ input:checked + .weapon-ceg-track {
 }
 
 .export-runtime-quick-fix {
+  max-width: 100%;
   min-height: 32px;
   justify-self: start;
   padding: 6px 10px;
