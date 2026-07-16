@@ -558,6 +558,80 @@ test('unit and death-explosion parameters compile to their correct lobby outputs
   await expect(page.locator('.code-box').first()).toContainText('8');
 });
 
+test('all-parameter view exposes effective Recoil defaults without creating overrides', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByPlaceholder(/Search unit name/i).fill('armfus');
+  await page.locator('.unit-item').filter({ hasText: 'armfus' }).first().click();
+  await page.getByRole('group', { name: 'Choose visible unit parameters' }).getByRole('button', { name: 'All' }).click();
+
+  await expect(page.getByRole('combobox', { name: /Can Self-Destruct override/i }).locator('option:checked'))
+    .toHaveText('Inherited · Enabled');
+  await expect(page.getByRole('combobox', { name: /Blocks Movement override/i }).locator('option:checked'))
+    .toHaveText('Inherited · Enabled');
+  await expect(page.locator('[data-param-key="idleautoheal"] input')).toHaveValue('10');
+  await expect(page.locator('[data-param-key="damagemodifier"] input')).toHaveValue('1');
+  await expect(page.locator('[data-param-key="canrepair"] select').locator('option:checked'))
+    .toHaveText('Inherited · Builder capability');
+  await expect(page.locator('[data-param-key="idleautoheal"] .stat-card-engine-default')).toHaveText('Engine');
+  await expect(page.locator('[data-param-key="idleautoheal"]')).not.toHaveClass(/modified/);
+});
+
+async function openEditorVisualState(page, { theme, width, unitId, tab = 'structure', showAll = false }) {
+  await page.setViewportSize({ width, height: 1080 });
+  await page.addInitScript(selectedTheme => localStorage.setItem('bmf_theme', selectedTheme), theme);
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  if (unitId && unitId !== 'armdfly') {
+    await page.getByPlaceholder(/Search unit name/i).fill(unitId);
+    await page.locator('.unit-item').filter({ hasText: unitId }).first().click();
+  }
+  const tabNames = { mobility: /Movement & Sensors/i, weapons: /Weapons/i };
+  if (tab !== 'structure') await page.getByRole('tab', { name: tabNames[tab] }).click();
+  if (showAll) {
+    await page.getByRole('group', { name: 'Choose visible unit parameters' }).getByRole('button', { name: 'All' }).click();
+  }
+  await expect(page.locator(`#workspace-panel-${tab}`)).toBeVisible();
+}
+
+test('editor visual baseline: engine defaults on wide dark workspace', async ({ page }) => {
+  await openEditorVisualState(page, { theme: 'dark', width: 1920, unitId: 'armfus', showAll: true });
+  await expect(page).toHaveScreenshot('editor-engine-defaults-dark-1920.png');
+});
+
+test('editor visual baseline: aircraft mobility in light workspace', async ({ page }) => {
+  await openEditorVisualState(page, { theme: 'light', width: 1440, unitId: 'armfig', tab: 'mobility' });
+  await expect(page).toHaveScreenshot('editor-aircraft-mobility-light-1440.png');
+});
+
+test('editor visual baseline: factory at constrained desktop width', async ({ page }) => {
+  await openEditorVisualState(page, { theme: 'dark', width: 1180, unitId: 'armlab' });
+  await expect(page).toHaveScreenshot('editor-factory-dark-1180.png');
+});
+
+test('editor visual baseline: active weapon workspace', async ({ page }) => {
+  await openEditorVisualState(page, { theme: 'dark', width: 1920, unitId: 'armdfly', tab: 'weapons' });
+  await expect(page).toHaveScreenshot('editor-weapon-dark-1920.png');
+});
+
+test('editor visual baseline: cloned unit identity', async ({ page }) => {
+  await openEditorVisualState(page, { theme: 'light', width: 1440, unitId: 'armdfly' });
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  const cloneDialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await cloneDialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_visual_clone');
+  await cloneDialog.getByRole('button', { name: 'Create Clone' }).click();
+  await page.getByRole('button', { name: 'Edit identity' }).click();
+  await expect(page.getByRole('tab', { name: /Identity/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.toast')).toHaveCount(0, { timeout: 5000 });
+  await expect(page).toHaveScreenshot('editor-clone-identity-light-1440.png');
+});
+
+test('editor visual baseline: narrow desktop rails', async ({ page }) => {
+  await openEditorVisualState(page, { theme: 'dark', width: 1024, unitId: 'armdfly' });
+  await expect(page).toHaveScreenshot('editor-narrow-dark-1024.png');
+});
+
 for (const width of [1024, 1180, 1440, 1920, 2560]) {
   for (const theme of ['dark', 'light']) {
     test(`visual baseline ${theme} ${width}`, async ({ page }) => {

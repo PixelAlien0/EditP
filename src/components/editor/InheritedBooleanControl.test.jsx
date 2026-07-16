@@ -31,4 +31,11 @@ describe('InheritedBooleanControl', () => {
     fireEvent.change(screen.getByRole('combobox', { name: 'Can cloak override' }), { target: { value: '' } });
     expect(onChange).toHaveBeenCalledWith(undefined);
   });
+
+  it('describes a non-scalar engine fallback', () => {
+    render(
+      <InheritedBooleanControl label="Can repair" inheritedLabel="Builder capability" modified={false} onChange={() => {}} />
+    );
+    expect(screen.getByRole('combobox', { name: 'Can repair override' })).toHaveTextContent('Inherited · Builder capability');
+  });
 });

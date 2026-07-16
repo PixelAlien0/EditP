@@ -67,6 +67,20 @@
   color: var(--color-text-strong);
 }
 
+.stat-card-engine-default {
+  min-height: 18px;
+  padding-inline: 5px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  font: 700 8px/1 var(--font-mono);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
 .inherited-boolean-control:focus-visible {
   outline: 2px solid var(--color-accent-strong);
   outline-offset: 2px;

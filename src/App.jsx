@@ -13,7 +13,7 @@ import { useProjectStore } from './state/useProjectStore.js';
 import { assertProjectSize, normalizeProjectDocument } from './project/projectDocument.js';
 import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
 import {
-  getApplicableUnitParameters, MOBILITY_STAT_KEYS, STAT_KEYS, TARGET_CATEGORY_GROUPS, UNIT_CATEGORIES as CATEGORIES,
+  getApplicableUnitParameters, resolveUnitParameterDefault, MOBILITY_STAT_KEYS, STAT_KEYS, TARGET_CATEGORY_GROUPS, UNIT_CATEGORIES as CATEGORIES,
   WEAPON_SLOT_BOOLEAN_PARAMS, WEAPON_SLOT_PATHS, WEAPON_SLOT_STRING_PARAMS,
   WEAPON_SLOT_MOUNT_PARAMS,
   WORKSPACE_TAB_DEFINITIONS,
@@ -3617,7 +3617,8 @@ export default function App() {
                         renderParameter={stat => {
                           const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                           const defaults = defaultsDb[baseId] || {};
-                          let defaultVal = defaults[stat.key];
+                          const defaultResolution = resolveUnitParameterDefault(stat, defaults);
+                          let defaultVal = defaultResolution.value;
 
                           if (stat.weaponSubPath && defaultVal === undefined && defaults.weaponSlots) {
                             const wDef = defaults.weapon1def;
@@ -3670,6 +3671,9 @@ export default function App() {
                                     {diffPercent >= 0 ? '+' : ''}{diffPercent}%
                                   </span>
                                 )}
+                                {!isModified && defaultResolution.source.startsWith('engine') && (
+                                  <span className="stat-card-engine-default" title={`Inherited Recoil default: ${defaultResolution.label}`}>Engine</span>
+                                )}
                               </div>
 
                               <div className="stat-card-input-wrapper">
@@ -3677,6 +3681,7 @@ export default function App() {
                                   <InheritedBooleanControl
                                     label={stat.label}
                                     inheritedValue={defaultVal}
+                                    inheritedLabel={defaultResolution.label}
                                     modified={isModified}
                                     value={currentTweakValue}
                                     onChange={value => handleStatChange(selectedUnit.id, stat.key, value)}
@@ -3690,7 +3695,7 @@ export default function App() {
                                           type={stat.type === 'string' ? 'text' : 'number'}
                                           className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
                                           value={displayValue}
-                                          placeholder={defaultVal !== undefined ? String(defaultVal) : 'N/A'}
+                                          placeholder={defaultVal !== undefined ? String(defaultVal) : defaultResolution.label}
                                           onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.value)}
                                         />
                                         {warning && (
@@ -3746,7 +3751,8 @@ export default function App() {
                         renderParameter={stat => {
                           const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                           const defaults = defaultsDb[baseId] || {};
-                          const defaultVal = defaults[stat.key];
+                          const defaultResolution = resolveUnitParameterDefault(stat, defaults);
+                          const defaultVal = defaultResolution.value;
 
                           const currentTweakValue = tweaks[selectedUnit.id]?.[stat.key];
                           const isModified = currentTweakValue !== undefined;
@@ -3786,6 +3792,9 @@ export default function App() {
                                     {diffPercent >= 0 ? '+' : ''}{diffPercent}%
                                   </span>
                                 )}
+                                {!isModified && defaultResolution.source.startsWith('engine') && (
+                                  <span className="stat-card-engine-default" title={`Inherited Recoil default: ${defaultResolution.label}`}>Engine</span>
+                                )}
                               </div>
 
                               <div className="stat-card-input-wrapper">
@@ -3793,6 +3802,7 @@ export default function App() {
                                   <InheritedBooleanControl
                                     label={stat.label}
                                     inheritedValue={defaultVal}
+                                    inheritedLabel={defaultResolution.label}
                                     modified={isModified}
                                     value={currentTweakValue}
                                     onChange={value => handleStatChange(selectedUnit.id, stat.key, value)}
@@ -3806,7 +3816,7 @@ export default function App() {
                                           type={stat.type === 'string' ? 'text' : 'number'}
                                           className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
                                           value={displayValue}
-                                          placeholder={defaultVal !== undefined ? String(defaultVal) : 'N/A'}
+                                          placeholder={defaultVal !== undefined ? String(defaultVal) : defaultResolution.label}
                                           onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.value)}
                                         />
                                         {warning && (

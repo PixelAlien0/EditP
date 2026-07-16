@@ -4,14 +4,14 @@ function normalizeBoolean(value) {
   return undefined;
 }
 
-function getInheritedLabel(value) {
+function getInheritedLabel(value, fallbackLabel) {
   const normalized = normalizeBoolean(value);
   if (normalized === true) return 'Inherited · Enabled';
   if (normalized === false) return 'Inherited · Disabled';
-  return 'Inherited · Engine default';
+  return `Inherited · ${fallbackLabel || 'Engine-defined'}`;
 }
 
-export default function InheritedBooleanControl({ label, inheritedValue, modified, value, onChange }) {
+export default function InheritedBooleanControl({ label, inheritedValue, inheritedLabel, modified, value, onChange }) {
   const normalizedValue = normalizeBoolean(value);
   const selectedValue = modified && normalizedValue !== undefined ? String(normalizedValue) : '';
 
@@ -25,7 +25,7 @@ export default function InheritedBooleanControl({ label, inheritedValue, modifie
         else onChange(event.target.value === 'true');
       }}
     >
-      <option value="">{getInheritedLabel(inheritedValue)}</option>
+      <option value="">{getInheritedLabel(inheritedValue, inheritedLabel)}</option>
       <option value="true">Enabled</option>
       <option value="false">Disabled</option>
     </select>

@@ -112,6 +112,90 @@ const STAT_PRESENTATION = Object.freeze({
   selfd_explosion_impulsefactor: { group: 'Self-destruct profile', unit: 'multiplier' },
 });
 
+export const UNIT_ENGINE_DEFAULTS_SOURCE = Object.freeze({
+  repository: 'beyond-all-reason/RecoilEngine',
+  commit: 'c5fa84d7bf0972c86614b4631b8cc93d09f181e8',
+  file: 'rts/Sim/Units/UnitDef.cpp',
+});
+
+// Recoil fills these values after UnitDef Lua tables are loaded. Keep this metadata
+// separate from BAR's explicit values so the editor never exports an inherited value.
+const UNIT_ENGINE_DEFAULTS = Object.freeze({
+  metalcost: 0, energycost: 0, buildtime: 100, health: 100,
+  maxvelocity: 0, acceleration: 0.5, brakerate: { from: 'acceleration' }, turnrate: 0,
+  mass: { from: 'metalcost', minimum: 1, maximum: 1000000 }, sightdistance: 0, radardistance: 0, sonardistance: 0,
+  stealth: false, sonarstealth: false, workertime: 0, metalmake: 0, extractsmetal: 0,
+  energymake: 0, metalstorage: 0, energystorage: 0, cloakcost: 0,
+  cloakcostmoving: { from: 'cloakcost' }, builddistance: 128, autoheal: 0,
+  maxslope: 0, maxwaterdepth: 10000000, minwaterdepth: -10000000,
+  transportcapacity: 0, cantbetransported: { label: 'Movement-definition dependent' },
+  cruisealt: 0, selfdestructcountdown: 5, canselfdestruct: true,
+  damagemodifier: 1, crushresistance: { from: 'mass' }, blocking: true, collide: true,
+  pushresistant: false, upright: false, waterline: 0, seismicsignature: -1,
+  energyupkeep: 0, metalupkeep: 0, idleautoheal: 10, idletime: 600,
+  windgenerator: 0, tidalgenerator: 0,
+  cancloak: { from: 'cloakcost', transform: 'nonzero' }, initcloaked: false,
+  mincloakdistance: 0, decloakonfire: true, decloakspherical: true,
+  airsightdistance: { from: 'sightdistance', multiplier: 1.5 },
+  radardistancejam: 0, sonardistancejam: 0, seismicdistance: 0,
+  repairspeed: { from: 'workertime' }, reclaimspeed: { from: 'workertime' },
+  resurrectspeed: { from: 'workertime' }, capturespeed: { from: 'workertime' },
+  terraformspeed: { from: 'workertime' },
+  canrepair: { label: 'Builder capability' }, canreclaim: { label: 'Builder capability' },
+  canresurrect: false, cancapture: false, canassist: { label: 'Builder capability' },
+  canbeassisted: true, maxreversevelocity: 0, turninplace: true,
+  turninplaceanglelimit: 0, turninplacespeedlimit: { label: 'Computed from speed and turn rate' },
+  separationdistance: 0, maxbank: 0.8, maxpitch: 0.45, turnradius: 500,
+  maxaileron: 0.015, maxelevator: 0.01, maxrudder: 0.004,
+  hoverattack: false, airstrafe: true, transportsize: 0, transportmass: 100000,
+  mintransportsize: 0, mintransportmass: 0, loadingradius: 220, unloadspread: 5,
+  transportunloadmethod: 0, releaseheld: false, holdsteady: false, transportbyenemy: true,
+  canattack: true, noautofire: false, canmanualfire: false,
+  firestate: { label: 'Combat-control dependent' }, movestate: { label: 'Movement dependent' },
+  nochasecategory: '', hightrajectory: 0, kamikaze: false, kamikazedistance: 0,
+});
+
+function formatDefaultLabel(value) {
+  if (value === true) return 'Enabled';
+  if (value === false) return 'Disabled';
+  if (value === '') return 'Empty';
+  return String(value);
+}
+
+export function resolveUnitParameterDefault(parameter, defaults = {}, seen = new Set()) {
+  if (Object.prototype.hasOwnProperty.call(defaults, parameter.key)) {
+    const value = defaults[parameter.key];
+    return { value, label: formatDefaultLabel(value), source: 'unit' };
+  }
+
+  const rule = parameter.engineDefault;
+  if (rule === undefined) return { value: undefined, label: 'Engine-defined', source: 'unknown' };
+  if (rule === null || typeof rule !== 'object') {
+    return { value: rule, label: formatDefaultLabel(rule), source: 'engine' };
+  }
+  if (rule.label && !rule.from) {
+    return { value: undefined, label: rule.label, source: 'engine-derived' };
+  }
+  if (!rule.from || seen.has(parameter.key)) {
+    return { value: undefined, label: 'Engine-defined', source: 'unknown' };
+  }
+
+  const dependency = STAT_KEYS.find(item => item.key === rule.from);
+  if (!dependency) return { value: undefined, label: rule.label || 'Engine-defined', source: 'unknown' };
+  const nextSeen = new Set(seen).add(parameter.key);
+  const resolved = resolveUnitParameterDefault(dependency, defaults, nextSeen);
+  if (resolved.value === undefined) {
+    return { value: undefined, label: rule.label || `Derived from ${dependency.label}`, source: 'engine-derived' };
+  }
+
+  let value = resolved.value;
+  if (rule.transform === 'nonzero') value = Number(value) !== 0;
+  else if (rule.multiplier !== undefined) value = Number(value) * rule.multiplier;
+  if (typeof value === 'number' && rule.minimum !== undefined) value = Math.max(rule.minimum, value);
+  if (typeof value === 'number' && rule.maximum !== undefined) value = Math.min(rule.maximum, value);
+  return { value, label: formatDefaultLabel(value), source: 'engine' };
+}
+
 export const STAT_KEYS = Object.freeze([
   { key: 'metalcost', label: 'Metal Cost', icon: '[MET]', type: 'number' },
   { key: 'energycost', label: 'Energy Cost', icon: '[ENG]', type: 'number' },
@@ -231,6 +315,7 @@ export const STAT_KEYS = Object.freeze([
   featured: false,
   ...parameter,
   ...(STAT_PRESENTATION[parameter.key] || {}),
+  engineDefault: UNIT_ENGINE_DEFAULTS[parameter.key],
 })));
 
 export function getApplicableUnitParameters(parameters, defaults = {}, tweaks = {}, options = {}) {

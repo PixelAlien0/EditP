@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getApplicableUnitParameters,
+  resolveUnitParameterDefault,
   MOBILITY_STAT_KEYS,
   STAT_KEYS,
   WEAPON_SLOT_BOOLEAN_PARAMS,
@@ -45,5 +46,18 @@ describe('editor parameter configuration', () => {
       .toEqual(['health', 'radar', 'cloak', 'transport']);
     expect(getApplicableUnitParameters(parameters, defaults, tweaks, { showAll: true }))
       .toBe(parameters);
+  });
+
+  it('resolves fixed and dependent Recoil defaults without replacing explicit BAR values', () => {
+    const byKey = key => STAT_KEYS.find(parameter => parameter.key === key);
+
+    expect(resolveUnitParameterDefault(byKey('canselfdestruct'), {})).toMatchObject({ value: true, source: 'engine' });
+    expect(resolveUnitParameterDefault(byKey('idleautoheal'), {})).toMatchObject({ value: 10, source: 'engine' });
+    expect(resolveUnitParameterDefault(byKey('brakerate'), { acceleration: 0.2 })).toMatchObject({ value: 0.2, source: 'engine' });
+    expect(resolveUnitParameterDefault(byKey('airsightdistance'), { sightdistance: 400 })).toMatchObject({ value: 600, source: 'engine' });
+    expect(resolveUnitParameterDefault(byKey('mass'), { metalcost: 0 })).toMatchObject({ value: 1, source: 'engine' });
+    expect(resolveUnitParameterDefault(byKey('cancloak'), { cloakcost: 0 })).toMatchObject({ value: false, source: 'engine' });
+    expect(resolveUnitParameterDefault(byKey('blocking'), { blocking: false })).toMatchObject({ value: false, source: 'unit' });
+    expect(resolveUnitParameterDefault(byKey('canrepair'), {})).toMatchObject({ value: undefined, label: 'Builder capability', source: 'engine-derived' });
   });
 });
