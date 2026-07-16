@@ -462,6 +462,31 @@ test('clone identity remains editable and nested clones keep the selected clone 
   await expect(page.getByText('armdfly_editorial_nested_test', { exact: true }).first()).toBeVisible();
 });
 
+test('unit and death-explosion parameters compile to their correct lobby outputs', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByPlaceholder(/Search unit name/i).fill('armfus');
+  await page.locator('.unit-item').filter({ hasText: 'armfus' }).first().click();
+
+  const deathGroup = page.getByRole('button', { name: /Death explosion profile/i });
+  if (await deathGroup.getAttribute('aria-expanded') === 'false') await deathGroup.click();
+  await page.locator('[data-param-key="death_explosion_damage"] input').fill('4000');
+
+  const definitionGroup = page.getByRole('button', { name: /Death & self-destruct/i });
+  if (await definitionGroup.getAttribute('aria-expanded') === 'false') await definitionGroup.click();
+  await page.locator('[data-param-key="selfdestructcountdown"] input').fill('8');
+
+  await page.getByRole('tab', { name: /Changes/i }).click();
+  await page.getByRole('button', { name: 'Defs Lua' }).click();
+  await expect(page.locator('.code-box').first()).toContainText('editp_death_profile("armfus"');
+  await expect(page.locator('.code-box').first()).toContainText('damage =4000');
+
+  await page.getByRole('button', { name: 'Units Lua' }).click();
+  await expect(page.locator('.code-box').first()).toContainText('selfDestructCountdown');
+  await expect(page.locator('.code-box').first()).toContainText('8');
+});
+
 for (const width of [1024, 1180, 1440, 1920, 2560]) {
   for (const theme of ['dark', 'light']) {
     test(`visual baseline ${theme} ${width}`, async ({ page }) => {

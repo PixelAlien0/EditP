@@ -3,10 +3,60 @@ export const CLONE_BEGIN = '-- BMF_CLONE_UNITS_BEGIN';
 export const CLONE_END = '-- BMF_CLONE_UNITS_END';
 export const BUILDMENU_BEGIN = '-- BMF_BUILDMENU_BEGIN';
 export const BUILDMENU_END = '-- BMF_BUILDMENU_END';
+export const DEATH_PROFILE_BEGIN = '-- EDITP_DEATH_PROFILES_BEGIN';
+export const DEATH_PROFILE_END = '-- EDITP_DEATH_PROFILES_END';
 
 
 function escapeLuaString(str) {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+export function generateDeathProfilesBlockLua(profiles = []) {
+  if (!profiles.length) return '';
+  const calls = [];
+  for (const profile of profiles) {
+    const unitId = String(profile.unitId || '').trim().toLowerCase();
+    if (!unitId) continue;
+    for (const kind of ['death', 'selfd']) {
+      const sourceName = String(kind === 'death' ? profile.explodeAs || '' : profile.selfDestructAs || profile.explodeAs || '').trim();
+      const values = profile[kind] || {};
+      const patch = {};
+      for (const key of ['damage', 'aoe', 'camerashake', 'impulsefactor']) {
+        const value = Number(values[key]);
+        if (Number.isFinite(value)) patch[key] = value;
+      }
+      if (!sourceName || Object.keys(patch).length === 0) continue;
+      calls.push(`editp_death_profile(${JSON.stringify(unitId)}, ${JSON.stringify(sourceName.toLowerCase())}, ${JSON.stringify(kind)}, ${JSON.stringify(patch).replace(/"([^"\s]+)":/g, '$1 =')})`);
+    }
+  }
+  if (!calls.length) return '';
+  return `${DEATH_PROFILE_BEGIN}
+local function editp_copy_table(value)
+  if type(value) ~= "table" then return value end
+  local copy = {}
+  for key, child in pairs(value) do copy[key] = editp_copy_table(child) end
+  return copy
+end
+
+local function editp_death_profile(unit_name, source_name, kind, patch)
+  local unit = UnitDefs and UnitDefs[unit_name]
+  local source = WeaponDefs and WeaponDefs[source_name]
+  if not unit or not source then return end
+  local profile_name = "editp_" .. unit_name .. "_" .. kind
+  local profile = editp_copy_table(source)
+  if patch.damage ~= nil then
+    profile.damage = profile.damage or {}
+    profile.damage.default = patch.damage
+  end
+  if patch.aoe ~= nil then profile.areaofeffect = patch.aoe end
+  if patch.camerashake ~= nil then profile.camerashake = patch.camerashake end
+  if patch.impulsefactor ~= nil then profile.impulsefactor = patch.impulsefactor end
+  WeaponDefs[profile_name] = profile
+  unit[kind == "death" and "explodeas" or "selfdestructas"] = profile_name
+end
+
+${calls.join('\n')}
+${DEATH_PROFILE_END}`;
 }
 
 function generateWeaponBlueprintOverridesLua(blueprint, weaponDefKey) {
@@ -483,7 +533,8 @@ export function compileTweakDefsLua({
   unitBuildOptions,
   projectMeta,
   compileFlags,
-  weaponLibrary = []
+  weaponLibrary = [],
+  deathExplosionTweaks = []
 }) {
   // Strip out any existing comments or headers that start with "-- Mod Name:" to avoid piling up duplicate headers
   const strippedText = currentTweakDefsLua
@@ -495,7 +546,11 @@ export function compileTweakDefsLua({
     .replace(/^-- ----------------------------------------------------[\r\n]*/gm, '')
     .trim();
 
-  const cleanBody = stripBlock(stripBlock(strippedText, CLONE_BEGIN, CLONE_END), BUILDMENU_BEGIN, BUILDMENU_END).trim();
+  const cleanBody = stripBlock(
+    stripBlock(stripBlock(strippedText, CLONE_BEGIN, CLONE_END), BUILDMENU_BEGIN, BUILDMENU_END),
+    DEATH_PROFILE_BEGIN,
+    DEATH_PROFILE_END,
+  ).trim();
   
   const clonesBlock = (compileFlags?.includeClones ?? true)
     ? generateClonesBlockLua(customUnitClones, weaponLibrary)
@@ -506,6 +561,7 @@ export function compileTweakDefsLua({
   const buildMenuBlock = (compileFlags?.includeRosters ?? true)
     ? generateBuildMenuBlockLua(updatedSteps)
     : '';
+  const deathProfileBlock = generateDeathProfilesBlockLua(deathExplosionTweaks);
   
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);
@@ -515,6 +571,7 @@ export function compileTweakDefsLua({
   if (buildMenuBlock.length > 0) {
     parts.push(buildMenuBlock);
   }
+  if (deathProfileBlock.length > 0) parts.push(deathProfileBlock);
   
   const headerLines = [];
   if (projectMeta) {

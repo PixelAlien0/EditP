@@ -18,6 +18,7 @@ import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
 import {
   MOBILITY_STAT_KEYS, STAT_KEYS, TARGET_CATEGORY_GROUPS, UNIT_CATEGORIES as CATEGORIES,
   WEAPON_SLOT_BOOLEAN_PARAMS, WEAPON_SLOT_PATHS, WEAPON_SLOT_STRING_PARAMS,
+  WEAPON_SLOT_MOUNT_PARAMS,
   WORKSPACE_TAB_DEFINITIONS,
 } from './config/editorParameters.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
@@ -90,9 +91,9 @@ const PARAMETER_RELATIONSHIPS = [
   { section: 'mobility', title: 'Movement response', description: 'Top speed, acceleration, braking, and turning determine the complete handling profile.', keys: ['maxvelocity', 'acceleration', 'brakerate', 'turnrate'] },
   { section: 'mobility', title: 'Terrain access', description: 'Slope and water-depth limits decide which parts of a map the unit can traverse.', keys: ['maxslope', 'maxwaterdepth', 'minwaterdepth'] },
   { section: 'mobility', title: 'Transport behavior', description: 'Capacity, transport eligibility, and mass interact with carrying roles.', keys: ['transportcapacity', 'cantbetransported'] },
-  { section: 'mobility', title: 'Aircraft altitude', description: 'Cruise and attack altitude should be tuned together with aircraft speed.', keys: ['cruisealt', 'airsubalt', 'maxvelocity'] },
+  { section: 'mobility', title: 'Aircraft altitude', description: 'Cruise altitude should be tuned together with aircraft speed and maneuvering.', keys: ['cruisealt', 'maxvelocity', 'turnradius', 'maxbank', 'maxpitch'] },
   { section: 'weapons', title: 'Damage throughput', description: 'Damage, reload, projectile count, and burst timing combine into sustained DPS.', keys: ['damage', 'reload', 'projectiles', 'burst', 'burstrate'] },
-  { section: 'weapons', title: 'Armor damage profile', description: 'Specific armor values override base damage for matching target classes.', keys: ['damage', 'damage_vs_light', 'damage_vs_medium', 'damage_vs_heavy', 'damage_vs_commander'] },
+  { section: 'weapons', title: 'Armor damage profile', description: 'BAR armor-class values override base damage for matching targets.', keys: ['damage', 'damage_vs_vtol', 'damage_vs_subs', 'damage_vs_commander', 'damage_vs_shields', 'damage_vs_scavboss', 'damage_vs_raptorqueen', 'damage_vs_raptor', 'damage_vs_mines'] },
   { section: 'weapons', title: 'Range and projectile travel', description: 'Range must be reachable within projectile speed, acceleration, and lifetime limits.', keys: ['range', 'velocity', 'flighttime', 'startvelocity', 'weaponacceleration', 'burnblow'] },
   { section: 'weapons', title: 'Accuracy and leading', description: 'Spread, movement error, prediction, and firing tolerance jointly determine practical hit rate.', keys: ['accuracy', 'sprayangle', 'movingaccuracy', 'targetmoveerror', 'predictboost', 'leadlimit', 'leadbonus', 'tolerance', 'firetolerance'] },
   { section: 'weapons', title: 'Splash behavior', description: 'Area, edge damage, impact rules, and self-damage define how explosions apply damage.', keys: ['aoe', 'edgeeffectiveness', 'impactonly', 'noexplode', 'noselfdamage'] },
@@ -184,7 +185,7 @@ const PARAMETER_HELP = {
   workertime: 'Build, repair, reclaim, and terraform power.', metalmake: 'Passive metal production.', extractsmetal: 'Metal extraction amount.', energymake: 'Passive energy production.',
   metalstorage: 'Maximum stored metal.', energystorage: 'Maximum stored energy.', cloakcost: 'Energy used per second while cloaked.', cloakcostmoving: 'Energy used per second while moving while cloaked.',
   builddistance: 'Maximum building and repair range.', maxslope: 'Steepest terrain the unit can use.', maxwaterdepth: 'Deepest water the unit can enter.', minwaterdepth: 'Minimum water depth required.',
-  transportcapacity: 'Number of transport slots provided.', cantbetransported: 'Prevents the unit from being carried.', cruisealt: 'Preferred aircraft altitude.', airsubalt: 'Aircraft altitude when attacking.',
+  transportcapacity: 'Number of transport slots provided.', cantbetransported: 'Prevents the unit from being carried.', cruisealt: 'Preferred aircraft altitude.',
   'customparams.techlevel': 'Technology tier used by BAR content and filters.', 'customparams.energyconv_capacity': 'Energy-converter capacity custom parameter.', 'customparams.energyconv_efficiency': 'Energy-converter efficiency custom parameter.',
   damage: 'Base damage against targets without a specific armor class.', reload: 'Seconds between firing cycles.', range: 'Maximum firing range in elmos.', velocity: 'Projectile speed.',
   flighttime: 'How long a guided projectile retains fuel and guidance.', aoe: 'Explosion diameter that can damage nearby units.', accuracy: 'Base shot spread; lower is more accurate.',
@@ -214,6 +215,14 @@ const PARAMETER_HELP = {
   rgbcolor: 'Primary projectile RGB color, for example “1 0.2 0.2”.', rgbcolor2: 'Secondary/core projectile RGB color.', explosionscar: 'Leaves an explosion scar on terrain.',
   alwaysvisible: 'Renders the projectile even outside line of sight.', soundstart: 'Sound asset played when firing.', soundhit: 'Sound asset played on impact.', soundhitwet: 'Sound asset played on water impact.',
   onlytargetcategory: 'Categories this slot is allowed to target.', badtargetcategory: 'Categories this slot de-prioritizes but can still target.',
+  explodeas: 'WeaponDef used when the unit is destroyed normally.', selfdestructas: 'WeaponDef used when the unit completes a self-destruct.', selfdestructcountdown: 'Seconds between issuing self-destruct and detonation.',
+  death_explosion_damage: 'Default damage for an isolated copy of this unit’s normal death explosion.', death_explosion_aoe: 'Damage diameter for this unit’s isolated normal death explosion.',
+  death_explosion_camerashake: 'Camera-shake strength generated by normal destruction.', death_explosion_impulsefactor: 'Knockback multiplier generated by normal destruction.',
+  selfd_explosion_damage: 'Default damage for an isolated copy of this unit’s self-destruct explosion.', selfd_explosion_aoe: 'Damage diameter for this unit’s isolated self-destruct explosion.',
+  selfd_explosion_camerashake: 'Camera-shake strength generated by self-destruction.', selfd_explosion_impulsefactor: 'Knockback multiplier generated by self-destruction.',
+  damagemodifier: 'Multiplier applied to incoming damage; lower values make the unit tougher.', energyupkeep: 'Energy consumed continuously while the unit is active.', metalupkeep: 'Metal consumed continuously while the unit is active.',
+  avoidfeature: 'Makes aiming avoid terrain features when checking a safe firing line.', cratermult: 'Multiplier controlling terrain deformation strength.', crateraoe: 'Diameter of terrain deformation, separate from damage AoE.',
+  targetable: 'Bitmask describing which interceptor classes can target this projectile.', interceptor: 'Bitmask describing which targetable projectile classes this weapon intercepts.', coverage: 'Radius in which an interceptor searches for projectiles.',
   gravity: 'Global map gravity override.', windmin: 'Minimum map wind strength.', windmax: 'Maximum map wind strength.', tidalmaker: 'Global tidal energy yield.'
 };
 
@@ -1661,9 +1670,15 @@ export default function App() {
               const wDef = slot.defKey.toLowerCase();
               let typedVal = null;
               let subPath = null;
-              if (param === 'onlytargetcategory' || param === 'badtargetcategory') {
+              if (param === 'onlytargetcategory' || param === 'badtargetcategory' || WEAPON_SLOT_MOUNT_PARAMS.has(param)) {
                 // Target categories belong to the UnitDef weapon slot, not the WeaponDef.
-                setNestedVal(unitPatch, `weapons.${slotNum}.${param}`, val ? String(val) : '');
+                let mountValue = val;
+                if (['fastautoretargeting', 'fastquerypointupdate'].includes(param)) mountValue = val === 'true' || val === true;
+                else if (!['onlytargetcategory', 'badtargetcategory', 'maindir'].includes(param)) {
+                  const numericValue = Number(val);
+                  if (Number.isFinite(numericValue)) mountValue = numericValue;
+                } else mountValue = val ? String(val) : '';
+                setNestedVal(unitPatch, `weapons.${slotNum}.${param}`, mountValue);
               } else if (param === 'interceptedbyshields') {
                 // Compatibility for projects saved before the bitmask correction.
                 subPath = 'interceptedbyshieldtype';
@@ -1724,6 +1739,9 @@ export default function App() {
 
         const config = STAT_KEYS.find(s => s.key === key);
         if (!config) return;
+        if (config.output === 'tweakdefs') return;
+        if (key === 'explodeas' && Object.keys(statPatch).some(statKey => statKey.startsWith('death_explosion_'))) return;
+        if (key === 'selfdestructas' && Object.keys(statPatch).some(statKey => statKey.startsWith('selfd_explosion_'))) return;
 
         let typedVal = val;
         if (config.type === 'number') {
@@ -1759,6 +1777,33 @@ export default function App() {
     return encodeBase64(generatedTweakUnitsLua + ' ', base64Options);
   }, [generatedTweakUnitsLua, base64Options]);
 
+  const deathExplosionTweaks = useMemo(() => {
+    if (!includeTweaks) return [];
+    return Object.entries(tweaks).flatMap(([unitId, unitTweaks]) => {
+    const unitInfo = allUnitsList.find(unit => unit.id === unitId);
+    const baseId = unitInfo?.isClone ? resolveCloneRootId(unitId) : unitId;
+    const defaults = defaultsDb[baseId] || {};
+    const readProfile = prefix => {
+      const profile = {};
+      for (const key of ['damage', 'aoe', 'camerashake', 'impulsefactor']) {
+        const tweakKey = `${prefix}_explosion_${key}`;
+        if (unitTweaks[tweakKey] !== undefined) profile[key] = unitTweaks[tweakKey];
+      }
+      return profile;
+    };
+    const death = readProfile('death');
+    const selfd = readProfile('selfd');
+    if (Object.keys(death).length === 0 && Object.keys(selfd).length === 0) return [];
+    return [{
+      unitId,
+      explodeAs: unitTweaks.explodeas ?? defaults.explodeas,
+      selfDestructAs: unitTweaks.selfdestructas ?? defaults.selfdestructas ?? defaults.explodeas,
+      death,
+      selfd,
+    }];
+    });
+  }, [tweaks, allUnitsList, defaultsDb, resolveCloneRootId, includeTweaks]);
+
   // Compile Lua Tweak Defs
   const generatedTweakDefsLua = useMemo(() => {
     return compileTweakDefsLua({
@@ -1769,9 +1814,10 @@ export default function App() {
       unitBuildOptions: activeFactoryRosters,
       projectMeta: includeHeader ? { name: projectName, author: projectAuthor, desc: projectDesc } : null,
       compileFlags: { includeClones, includeRosters },
-      weaponLibrary
+      weaponLibrary,
+      deathExplosionTweaks,
     });
-  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, activeFactoryRosters, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, weaponLibrary]);
+  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, activeFactoryRosters, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, weaponLibrary, deathExplosionTweaks]);
 
   const tweakDefsB64 = useMemo(() => {
     if (!generatedTweakDefsLua.trim()) return '';
@@ -3085,7 +3131,7 @@ export default function App() {
               damage_vs_heavy: 'Damage & cadence', damage_vs_commander: 'Damage & cadence', reload: 'Damage & cadence',
               projectiles: 'Damage & cadence', burst: 'Damage & cadence', burstrate: 'Damage & cadence',
               range: 'Range & accuracy', velocity: 'Range & accuracy', flighttime: 'Range & accuracy', aoe: 'Range & accuracy',
-              accuracy: 'Range & accuracy', sprayangle: 'Range & accuracy', heightmod: 'Range & accuracy', randomdecay: 'Range & accuracy', hightrajectory: 'Range & accuracy',
+              accuracy: 'Range & accuracy', sprayangle: 'Range & accuracy', heightmod: 'Range & accuracy', hightrajectory: 'Range & accuracy',
               canattackground: 'Targeting & safety', toairweapon: 'Targeting & safety', avoidfriendly: 'Targeting & safety', collidefriendly: 'Targeting & safety', interceptedbyshieldtype: 'Targeting & safety',
               stockpile: 'Ammunition', stockpiletime: 'Ammunition', stockpilelimit: 'Ammunition',
               weapontype: 'Presentation', cegTag: 'Presentation', model: 'Presentation', explosiongenerator: 'Presentation',
@@ -3096,10 +3142,14 @@ export default function App() {
             };
             const slotParams = [
               { key: 'damage', label: 'Damage', sub: 'damage.default', type: 'number' },
-              { key: 'damage_vs_light', label: 'Damage vs Light', sub: 'damage.light', type: 'number' },
-              { key: 'damage_vs_medium', label: 'Damage vs Medium', sub: 'damage.medium', type: 'number' },
-              { key: 'damage_vs_heavy', label: 'Damage vs Heavy', sub: 'damage.heavy', type: 'number' },
-              { key: 'damage_vs_commander', label: 'Damage vs Commander', sub: 'damage.commander', type: 'number' },
+              { key: 'damage_vs_commander', label: 'Damage vs Commanders', sub: 'damage.commanders', type: 'number' },
+              { key: 'damage_vs_vtol', label: 'Damage vs VTOL', sub: 'damage.vtol', type: 'number' },
+              { key: 'damage_vs_subs', label: 'Damage vs Submarines', sub: 'damage.subs', type: 'number' },
+              { key: 'damage_vs_shields', label: 'Damage vs Shields', sub: 'damage.shields', type: 'number' },
+              { key: 'damage_vs_scavboss', label: 'Damage vs Scav Bosses', sub: 'damage.scavboss', type: 'number' },
+              { key: 'damage_vs_raptorqueen', label: 'Damage vs Raptor Queen', sub: 'damage.raptorqueen', type: 'number' },
+              { key: 'damage_vs_raptor', label: 'Damage vs Raptors', sub: 'damage.raptor', type: 'number' },
+              { key: 'damage_vs_mines', label: 'Damage vs Mines', sub: 'damage.mines', type: 'number' },
               { key: 'reload', label: 'Reload (s)', sub: 'reloadtime', type: 'number' },
               { key: 'range', label: 'Range', sub: 'range', type: 'number' },
               { key: 'velocity', label: 'Velocity', sub: 'weaponvelocity', type: 'number' },
@@ -3108,13 +3158,11 @@ export default function App() {
               { key: 'accuracy', label: 'Inaccuracy', sub: 'accuracy', type: 'number' },
               { key: 'sprayangle', label: 'Spray Angle', sub: 'sprayangle', type: 'number' },
               { key: 'heightmod', label: 'Height Modifier', sub: 'heightmod', type: 'number' },
-              { key: 'randomdecay', label: 'Random Decay', sub: 'randomdecay', type: 'number' },
               { key: 'hightrajectory', label: 'High Trajectory', sub: 'hightrajectory', type: 'text', options: ['0', '1', '2'] },
               { key: 'projectiles', label: 'Projectiles', sub: 'projectiles', type: 'number' },
               { key: 'burst', label: 'Burst Count', sub: 'burst', type: 'number' },
               { key: 'burstrate', label: 'Burst Rate', sub: 'burstrate', type: 'number' },
               { key: 'canattackground', label: 'Can Target Ground', sub: 'canattackground', type: 'boolean' },
-              { key: 'toairweapon', label: 'Anti-Air Only', sub: 'toairweapon', type: 'boolean' },
               { key: 'stockpile', label: 'Stockpile Required', sub: 'stockpile', type: 'boolean' },
               { key: 'avoidfriendly', label: 'Avoid Friendly', sub: 'avoidfriendly', type: 'boolean' },
               { key: 'collidefriendly', label: 'Collide Friendly', sub: 'collidefriendly', type: 'boolean' },
@@ -3139,12 +3187,19 @@ export default function App() {
                 description: 'Damage falloff, projectile persistence, impulse, and per-shot costs.',
                 params: [
                   { key: 'edgeeffectiveness', label: 'AoE Edge Damage', type: 'number' },
+                  { key: 'explosionspeed', label: 'Explosion Propagation', type: 'number' },
+                  { key: 'camerashake', label: 'Camera Shake', type: 'number' },
                   { key: 'impactonly', label: 'Direct Hit Only', type: 'tri-state' },
                   { key: 'noexplode', label: 'Continue Through Impact', type: 'tri-state', danger: true },
                   { key: 'burnblow', label: 'Explode at Max Range', type: 'tri-state' },
                   { key: 'noselfdamage', label: 'No Self Damage', type: 'tri-state' },
                   { key: 'impulsefactor', label: 'Impulse Multiplier', type: 'number' },
                   { key: 'impulseboost', label: 'Impulse Boost', type: 'number' },
+                  { key: 'cratermult', label: 'Crater Strength', type: 'number' },
+                  { key: 'craterboost', label: 'Crater Boost', type: 'number' },
+                  { key: 'crateraoe', label: 'Crater Diameter', type: 'number' },
+                  { key: 'scarttl', label: 'Scar Lifetime', type: 'number' },
+                  { key: 'firestarter', label: 'Fire-Start Chance', type: 'number' },
                   { key: 'energypershot', label: 'Energy per Shot', type: 'number' },
                   { key: 'metalpershot', label: 'Metal per Shot', type: 'number' },
                   { key: 'paralyzer', label: 'Paralyzer', type: 'tri-state' },
@@ -3165,9 +3220,13 @@ export default function App() {
                   { key: 'wobble', label: 'Wobble', type: 'number' },
                   { key: 'dance', label: 'Dance', type: 'number' },
                   { key: 'fixedlauncher', label: 'Fixed Launcher', type: 'tri-state' },
+                  { key: 'weaponTimer', label: 'Vertical Ascent Time', type: 'number' },
+                  { key: 'windup', label: 'Salvo Windup', type: 'number' },
+                  { key: 'gravityaffected', label: 'Gravity Affected', type: 'tri-state' },
                   { key: 'smoketrail', label: 'Smoke Trail', type: 'tri-state' },
                   { key: 'waterweapon', label: 'Water Weapon', type: 'tri-state' },
-                  { key: 'firesubmersed', label: 'Fire Submerged', type: 'tri-state' }
+                  { key: 'firesubmersed', label: 'Fire Submerged', type: 'tri-state' },
+                  { key: 'submissile', label: 'Torpedo Can Exit Water', type: 'tri-state' }
                 ]
               },
               {
@@ -3184,7 +3243,13 @@ export default function App() {
                   { key: 'tolerance', label: 'Aim Tolerance', type: 'number' },
                   { key: 'firetolerance', label: 'Fire Tolerance', type: 'number' },
                   { key: 'proximitypriority', label: 'Proximity Priority', type: 'number' },
+                  { key: 'avoidfeature', label: 'Avoid Features', type: 'tri-state' },
+                  { key: 'avoidground', label: 'Avoid Ground', type: 'tri-state' },
+                  { key: 'avoidneutral', label: 'Avoid Neutral Units', type: 'tri-state' },
                   { key: 'collidefeature', label: 'Collide Features', type: 'tri-state' },
+                  { key: 'collideenemy', label: 'Collide Enemy Units', type: 'tri-state' },
+                  { key: 'collidenontarget', label: 'Collide Non-Targets', type: 'tri-state' },
+                  { key: 'collidecloaked', label: 'Collide Cloaked Units', type: 'tri-state' },
                   { key: 'collideneutral', label: 'Collide Neutral Units', type: 'tri-state' },
                   { key: 'collideground', label: 'Collide Ground', type: 'tri-state' },
                   { key: 'collisionSize', label: 'Collision Size', type: 'number' },
@@ -3200,7 +3265,10 @@ export default function App() {
                 description: 'Weapon-type-specific beam behavior and presentation overrides.',
                 params: [
                   { key: 'beamtime', label: 'Beam Time', type: 'number' },
+                  { key: 'beamttl', label: 'Beam Linger Frames', type: 'number' },
+                  { key: 'beamdecay', label: 'Beam Decay', type: 'number' },
                   { key: 'beamburst', label: 'Beam Burst', type: 'tri-state' },
+                  { key: 'largebeamlaser', label: 'Large Beam Texturing', type: 'tri-state' },
                   { key: 'sweepfire', label: 'Sweep Fire', type: 'tri-state' },
                   { key: 'minintensity', label: 'Minimum Damage Intensity', type: 'number' },
                   { key: 'duration', label: 'Laser Duration', type: 'number' },
@@ -3216,7 +3284,85 @@ export default function App() {
                   { key: 'alwaysvisible', label: 'Always Visible', type: 'tri-state' },
                   { key: 'soundstart', label: 'Fire Sound', type: 'string' },
                   { key: 'soundhit', label: 'Hit Sound', type: 'string' },
-                  { key: 'soundhitwet', label: 'Water Hit Sound', type: 'string' }
+                  { key: 'soundhitwet', label: 'Water Hit Sound', type: 'string' },
+                  { key: 'soundhitdry', label: 'Dry Hit Sound', type: 'string' },
+                  { key: 'soundstartvolume', label: 'Fire Sound Volume', type: 'number' },
+                  { key: 'soundhitvolume', label: 'Hit Sound Volume', type: 'number' },
+                  { key: 'soundhitwetvolume', label: 'Water Hit Volume', type: 'number' },
+                  { key: 'soundhitdryvolume', label: 'Dry Hit Volume', type: 'number' },
+                  { key: 'texture1', label: 'Primary Texture', type: 'string' },
+                  { key: 'texture2', label: 'Secondary Texture', type: 'string' },
+                  { key: 'texture3', label: 'Tertiary Texture', type: 'string' },
+                  { key: 'colormap', label: 'Projectile Color Map', type: 'string' },
+                  { key: 'smokecolor', label: 'Smoke Color', type: 'number' },
+                  { key: 'smokeperiod', label: 'Smoke Period', type: 'number' },
+                  { key: 'smokesize', label: 'Smoke Size', type: 'number' },
+                  { key: 'smoketime', label: 'Smoke Lifetime', type: 'number' },
+                  { key: 'castshadow', label: 'Projectile Shadow', type: 'tri-state' },
+                  { key: 'smoketrailcastshadow', label: 'Smoke Trail Shadow', type: 'tri-state' },
+                  { key: 'size', label: 'Projectile Size', type: 'number' },
+                  { key: 'sizedecay', label: 'Size Decay', type: 'number' },
+                  { key: 'sizegrowth', label: 'Size Growth', type: 'number' },
+                  { key: 'alphadecay', label: 'Alpha Decay', type: 'number' },
+                  { key: 'stages', label: 'Visual Stages', type: 'number' },
+                  { key: 'tilelength', label: 'Beam Tile Length', type: 'number' },
+                  { key: 'scrollspeed', label: 'Texture Scroll Speed', type: 'number' }
+                ]
+              },
+              {
+                title: 'Manual fire & interception',
+                description: 'Manual-fire behavior and projectile interception masks.',
+                params: [
+                  { key: 'turret', label: 'Turreted Weapon', type: 'tri-state' },
+                  { key: 'commandfire', label: 'Manual Fire Only', type: 'tri-state' },
+                  { key: 'targetable', label: 'Projectile Targetable Mask', type: 'number' },
+                  { key: 'interceptor', label: 'Interceptor Mask', type: 'number' },
+                  { key: 'coverage', label: 'Interceptor Coverage', type: 'number' },
+                  { key: 'interceptsolo', label: 'Exclusive Interception', type: 'tri-state' }
+                ]
+              },
+              {
+                title: 'Weapon mount behavior',
+                description: 'Per-slot firing arc, slaving, retargeting, and leading behavior.',
+                params: [
+                  { key: 'slaveto', label: 'Slave to Weapon Slot', type: 'number' },
+                  { key: 'maindir', label: 'Primary Aim Direction', type: 'string' },
+                  { key: 'maxangledif', label: 'Firing Arc Width', type: 'number' },
+                  { key: 'weaponaimadjustpriority', label: 'Aim Adjustment Priority', type: 'number' },
+                  { key: 'fastautoretargeting', label: 'Fast Auto Retargeting', type: 'tri-state' },
+                  { key: 'fastquerypointupdate', label: 'Fast Query-Piece Update', type: 'tri-state' },
+                  { key: 'burstcontrolwhenoutofarc', label: 'Out-of-Arc Burst Control', type: 'number' },
+                  { key: 'accurateleading', label: 'Accurate Leading Iterations', type: 'number' }
+                ]
+              },
+              {
+                title: 'Dynamic damage',
+                description: 'Optional range-dependent weapon damage curve.',
+                params: [
+                  { key: 'dyndamageinverted', label: 'Invert Damage Curve', type: 'tri-state' },
+                  { key: 'dyndamageexp', label: 'Damage Curve Exponent', type: 'number' },
+                  { key: 'dyndamagemin', label: 'Minimum Dynamic Damage', type: 'number' },
+                  { key: 'dyndamagerange', label: 'Dynamic Damage Range', type: 'number' }
+                ]
+              },
+              {
+                title: 'Shield profile',
+                description: 'Shield capacity, regeneration, interception, and repulsor behavior.',
+                params: [
+                  { key: 'shieldrepulser', label: 'Repulsor Shield', type: 'tri-state' },
+                  { key: 'shieldsmart', label: 'Smart Allied Pass-Through', type: 'tri-state' },
+                  { key: 'shieldexterior', label: 'Exterior Shield', type: 'tri-state' },
+                  { key: 'shieldvisible', label: 'Shield Visible', type: 'tri-state' },
+                  { key: 'shieldmaxspeed', label: 'Maximum Repulse Speed', type: 'number' },
+                  { key: 'shieldforce', label: 'Repulse Force', type: 'number' },
+                  { key: 'shieldradius', label: 'Shield Radius', type: 'number' },
+                  { key: 'shieldpower', label: 'Shield Capacity', type: 'number' },
+                  { key: 'shieldstartingpower', label: 'Starting Capacity', type: 'number' },
+                  { key: 'shieldpowerregen', label: 'Regeneration per Second', type: 'number' },
+                  { key: 'shieldpowerregenenergy', label: 'Regen Energy per HP', type: 'number' },
+                  { key: 'shieldenergyuse', label: 'Interception Energy Use', type: 'number' },
+                  { key: 'shieldrechargedelay', label: 'Recharge Delay', type: 'number' },
+                  { key: 'shieldintercepttype', label: 'Shield Intercept Mask', type: 'number' }
                 ]
               }
             ];
@@ -3260,7 +3406,7 @@ export default function App() {
             const structureParams = STAT_KEYS.filter(stat => !MOBILITY_STAT_KEYS.has(stat.key));
             const mobilityParams = STAT_KEYS.filter(stat => {
               if (!MOBILITY_STAT_KEYS.has(stat.key)) return false;
-              return !['cruisealt', 'airsubalt'].includes(stat.key) || getTagsOfUnit(baseId).includes('aircraft');
+              return stat.key !== 'cruisealt' || getTagsOfUnit(baseId).includes('aircraft');
             });
             const weaponParameterCount = slot
               ? applicableSlotParams.length + applicableAdvancedWeaponGroups.reduce((total, group) => total + group.params.length, 0) + 2
@@ -3538,7 +3684,7 @@ export default function App() {
                                     return (
                                       <div className="stat-card-field">
                                         <input
-                                          type="number"
+                                          type={stat.type === 'string' ? 'text' : 'number'}
                                           className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
                                           value={displayValue}
                                           placeholder={defaultVal !== undefined ? String(defaultVal) : 'N/A'}
@@ -3645,7 +3791,7 @@ export default function App() {
                                     return (
                                       <div className="stat-card-field">
                                         <input
-                                          type="number"
+                                          type={stat.type === 'string' ? 'text' : 'number'}
                                           className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
                                           value={displayValue}
                                           placeholder={defaultVal !== undefined ? String(defaultVal) : 'N/A'}

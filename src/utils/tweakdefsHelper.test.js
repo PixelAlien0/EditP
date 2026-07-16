@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   compileTweakDefsLua,
+  generateDeathProfilesBlockLua,
   generateBuildMenuBlockLua,
   generateClonesBlockLua,
   sortClonesDependency,
@@ -39,5 +40,21 @@ describe('nested clone generation', () => {
     expect(lua).toContain('armlab');
     expect(generateBuildMenuBlockLua([{ builderId: 'armlab', add: ['armflash'], remove: [] }]))
       .toContain('armflash');
+  });
+
+  it('creates isolated death explosion profiles without mutating the shared BAR definition', () => {
+    const profile = generateDeathProfilesBlockLua([{
+      unitId: 'armfus',
+      explodeAs: 'fusionExplosion',
+      selfDestructAs: 'fusionExplosionSelfd',
+      death: { damage: 4000, aoe: 600 },
+      selfd: { damage: 9000, camerashake: 900 },
+    }]);
+    expect(profile).toContain('WeaponDefs[profile_name] = profile');
+    expect(profile).toContain('profile_name = "editp_" .. unit_name .. "_" .. kind');
+    expect(profile).toContain('editp_death_profile("armfus", "fusionexplosion", "death"');
+    expect(profile).toContain('damage =4000');
+    expect(profile).toContain('aoe =600');
+    expect(profile).toContain('fusionexplosionselfd');
   });
 });
