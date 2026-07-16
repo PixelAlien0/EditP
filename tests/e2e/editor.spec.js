@@ -84,6 +84,27 @@ test('unit parameter relevance preserves edits and distinguishes inherited boole
   await expect.poll(() => page.evaluate(() => localStorage.getItem('editp_unit_parameter_view_v1'))).toBe('relevant');
 });
 
+test('wide parameter groups flow independently without paired-row gaps', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await expect(page.locator('#workspace-panel-structure')).toBeVisible();
+
+  const positions = await page.locator('#workspace-panel-structure .parameter-compact-group').evaluateAll(nodes => (
+    nodes.map(node => {
+      const bounds = node.getBoundingClientRect();
+      return { x: Math.round(bounds.x), y: Math.round(bounds.y), bottom: Math.round(bounds.bottom) };
+    })
+  ));
+  const columns = Map.groupBy(positions, position => position.x);
+  expect(columns.size).toBe(2);
+  for (const column of columns.values()) {
+    for (let index = 1; index < column.length; index += 1) {
+      expect(column[index].y - column[index - 1].bottom).toBeLessThanOrEqual(16);
+    }
+  }
+});
+
 test('primary actions use restrained accent surfaces instead of solid pink fills', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.addInitScript(() => localStorage.setItem('bmf_theme', 'dark'));
