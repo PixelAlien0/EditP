@@ -14,14 +14,28 @@ export default function ReviewPage({
   includeTweaks, includeClones, includeRosters, includeHeader,
   setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
   activeOutputTab, setActiveOutputTab, activeCompiledOutput, activeCompiledOutputFallback,
+  tweakDefsB64, tweakUnitsB64,
   totalBytesUsed, lobbyByteLimit, limitRisk,
   collectionScope,
   onBack, onExport, onOpenSummary, onEditUnit, onToast
 }) {
   const openSummary = tab => onOpenSummary(tab);
   const copyOutput = async () => {
-    await navigator.clipboard.writeText(activeCompiledOutput || activeCompiledOutputFallback);
-    onToast('Compiled output copied');
+    try {
+      await navigator.clipboard.writeText(activeCompiledOutput || activeCompiledOutputFallback);
+      onToast('Compiled output copied');
+    } catch {
+      onToast('Could not copy output. Select the text and copy it manually.');
+    }
+  };
+  const copyLobbyValue = async (label, value) => {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      onToast(`${label} value copied`);
+    } catch {
+      onToast(`Could not copy ${label}. Open its Base64 tab and copy it manually.`);
+    }
   };
 
   return (
@@ -100,6 +114,26 @@ export default function ReviewPage({
             <SwitchField label="Build menus" checked={includeRosters} onChange={event => setIncludeRosters(event.target.checked)} />
             <SwitchField label="Header comments" checked={includeHeader} onChange={event => setIncludeHeader(event.target.checked)} />
           </div>
+          <section className="lobby-export-guide" aria-labelledby="lobby-export-guide-title">
+            <div className="lobby-export-guide__heading">
+              <div>
+                <span className="workflow-eyebrow">BAR lobby setup</span>
+                <h4 id="lobby-export-guide-title">Copy both active payloads</h4>
+              </div>
+              <span className="lobby-export-guide__count">2 fields</span>
+            </div>
+            <p>Clones and explosion definitions use <strong>Tweak Defs</strong>. Economy, durability, movement, and weapon values use <strong>Tweak Units</strong>. Paste each value into its matching lobby field.</p>
+            <div className="lobby-export-guide__rows">
+              <div className="lobby-export-row">
+                <div><strong>Tweak Defs</strong><span>Clone definitions, build menus, and explosions</span></div>
+                <Button size="sm" onClick={() => copyLobbyValue('Tweak Defs', tweakDefsB64)} disabled={!tweakDefsB64}>Copy Defs Base64</Button>
+              </div>
+              <div className="lobby-export-row">
+                <div><strong>Tweak Units</strong><span>Economy, durability, movement, and weapon stats</span></div>
+                <Button size="sm" onClick={() => copyLobbyValue('Tweak Units', tweakUnitsB64)} disabled={!tweakUnitsB64}>Copy Units Base64</Button>
+              </div>
+            </div>
+          </section>
           <Tabs className="export-output-tabs" size="sm" label="Generated output format" items={EXPORT_TABS} value={activeOutputTab} onChange={setActiveOutputTab} />
           <pre className="export-code-preview">{activeCompiledOutput || activeCompiledOutputFallback}</pre>
           <div className="export-primary-actions"><Button onClick={copyOutput}>Copy current output</Button><Button variant="primary" onClick={onExport}>Download project JSON</Button></div>

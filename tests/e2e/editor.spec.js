@@ -555,15 +555,18 @@ test('clone identity remains editable and nested clones keep the selected clone 
   await expect(page.getByText('armdfly_editorial_nested_test', { exact: true }).first()).toBeVisible();
 });
 
-test('cloning preserves edited explosion parameters and restores required export flags', async ({ page }) => {
+test('cloning preserves economy, durability, and explosion edits in their required lobby outputs', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
 
   const parameterView = page.getByRole('group', { name: 'Choose visible unit parameters' });
   await parameterView.getByRole('button', { name: 'All' }).click();
+  await page.locator('[data-param-key="metalcost"] input').fill('777');
+  await page.locator('[data-param-key="health"] input').fill('3333');
   const deathDamage = page.locator('[data-param-key="death_explosion_damage"] input');
   await deathDamage.fill('1100');
+  await page.locator('[data-param-key="selfd_explosion_damage"] input').fill('2200');
 
   await page.getByRole('button', { name: /Review & Export/i }).click();
   const customUnitsFlag = page.getByRole('switch', { name: 'Custom units' });
@@ -577,12 +580,23 @@ test('cloning preserves edited explosion parameters and restores required export
   await dialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_explosion_clone');
   await dialog.getByRole('button', { name: 'Create Clone' }).click();
 
+  await expect(page.locator('[data-param-key="metalcost"] input')).toHaveValue('777');
+  await expect(page.locator('[data-param-key="health"] input')).toHaveValue('3333');
   await expect(page.locator('[data-param-key="death_explosion_damage"] input')).toHaveValue('1100');
+  await expect(page.locator('[data-param-key="selfd_explosion_damage"] input')).toHaveValue('2200');
   await page.getByRole('button', { name: /Review & Export/i }).click();
   await expect(page.getByRole('switch', { name: 'Custom units' })).toBeChecked();
+  await expect(page.getByRole('switch', { name: 'Parameter tweaks' })).toBeChecked();
+  await expect(page.getByRole('button', { name: 'Copy Defs Base64' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Copy Units Base64' })).toBeEnabled();
   await page.getByRole('tab', { name: 'Definitions Lua' }).click();
   await expect(page.locator('.export-code-preview')).toContainText('local n = "armdfly_explosion_clone"');
   await expect(page.locator('.export-code-preview')).toContainText('editp_death_profile("armdfly_explosion_clone"');
+  await expect(page.locator('.export-code-preview')).toContainText('"selfd"');
+  await page.getByRole('tab', { name: 'Units Lua' }).click();
+  await expect(page.locator('.export-code-preview')).toContainText('armdfly_explosion_clone');
+  await expect(page.locator('.export-code-preview')).toContainText('metalcost = 777');
+  await expect(page.locator('.export-code-preview')).toContainText('health = 3333');
 });
 
 test('unit and death-explosion parameters compile to their correct lobby outputs', async ({ page }) => {

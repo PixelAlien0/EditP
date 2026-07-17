@@ -4758,6 +4758,8 @@ export default function App() {
             setActiveOutputTab={setActiveOutputTab}
             activeCompiledOutput={activeCompiledOutput}
             activeCompiledOutputFallback={activeCompiledOutputFallback}
+            tweakDefsB64={tweakDefsB64}
+            tweakUnitsB64={tweakUnitsB64}
             totalBytesUsed={totalBytesUsed}
             lobbyByteLimit={lobbyByteLimit}
             limitRisk={limitRisk}
