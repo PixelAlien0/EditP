@@ -13,6 +13,7 @@
     "test:e2e:update": "playwright test --update-snapshots",
     "sync-unitpics": "node scripts/sync-unitpics.mjs",
     "sync-parameters": "node scripts/sync-parameter-defaults.mjs",
+    "sync-explosions": "node scripts/sync-explosion-profiles.mjs",
     "audit-unitpics": "node scripts/audit-unitpics.mjs",
     "audit-unitpics:dist": "node scripts/audit-unitpics.mjs --dist",
     "audit-css": "node scripts/audit-css.mjs",

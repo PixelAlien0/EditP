@@ -25,6 +25,8 @@ describe('nested clone generation', () => {
     ]);
     const lua = generateClonesBlockLua(nestedClones);
     expect(lua.indexOf('local n = "armflash_clone"')).toBeLessThan(lua.indexOf('local n = "armflash_clone_2"'));
+    expect(lua).toContain('UnitDefs[n] = bmf_deepCopy(UnitDefs[s])');
+    expect(lua).not.toContain('UnitDefs[n] = table.copy(UnitDefs[s])');
   });
 
   it('compiles clone and build-menu blocks into generated Lua', () => {
@@ -61,12 +63,34 @@ describe('nested clone generation', () => {
       unitId: 'armfus',
       explodeAs: 'fusionExplosion',
       selfDestructAs: 'fusionExplosionSelfd',
+      sources: {
+        death: {
+          definition: {
+            areaofeffect: 480,
+            camerashake: 480,
+            impulsefactor: 0.123,
+            explosiongenerator: 'custom:fusexpl',
+            damage: { commanders: 1560, default: 2650 },
+          },
+        },
+        selfd: {
+          definition: {
+            areaofeffect: 768,
+            camerashake: 768,
+            impulsefactor: 0.123,
+            explosiongenerator: 'custom:fusexpl',
+            damage: { commanders: 2450, default: 8300 },
+          },
+        },
+      },
       death: { damage: 4000, aoe: 600 },
       selfd: { damage: 9000, camerashake: 900 },
     }]);
-    expect(profile).toContain('WeaponDefs[profile_name] = profile');
-    expect(profile).toContain('profile_name = "editp_" .. unit_name .. "_" .. kind');
-    expect(profile).toContain('editp_death_profile("armfus", "fusionexplosion", "death"');
+    expect(profile).toContain('unit.weapondefs[profile_name] = profile');
+    expect(profile).not.toContain('WeaponDefs');
+    expect(profile).toContain('explosiongenerator = "custom:fusexpl"');
+    expect(profile).toContain('profile_name = "editp_" .. kind');
+    expect(profile).toContain('editp_death_profile("armfus", "death", editp_profiles["fusionexplosion"]');
     expect(profile).toContain('damage =4000');
     expect(profile).toContain('aoe =600');
     expect(profile).toContain('fusionexplosionselfd');
