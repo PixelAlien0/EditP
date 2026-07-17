@@ -709,6 +709,7 @@ export default function App() {
     unitsDb,
     factoryRosters,
     defaultsDb,
+    explosionProfiles,
     status: coreDataStatus,
     getTechTierOfUnit,
     getTagsOfUnit,
@@ -1781,15 +1782,27 @@ export default function App() {
     const death = readProfile('death');
     const selfd = readProfile('selfd');
     if (Object.keys(death).length === 0 && Object.keys(selfd).length === 0) return [];
+    const explodeAs = unitTweaks.explodeas ?? defaults.explodeas;
+    const selfDestructAs = unitTweaks.selfdestructas ?? defaults.selfdestructas ?? defaults.explodeas;
     return [{
       unitId,
-      explodeAs: unitTweaks.explodeas ?? defaults.explodeas,
-      selfDestructAs: unitTweaks.selfdestructas ?? defaults.selfdestructas ?? defaults.explodeas,
+      explodeAs,
+      selfDestructAs,
+      sources: {
+        death: {
+          name: explodeAs,
+          definition: explosionProfiles[String(explodeAs || '').toLowerCase()],
+        },
+        selfd: {
+          name: selfDestructAs,
+          definition: explosionProfiles[String(selfDestructAs || '').toLowerCase()],
+        },
+      },
       death,
       selfd,
     }];
     });
-  }, [tweaks, allUnitsList, defaultsDb, resolveCloneRootId, includeTweaks]);
+  }, [tweaks, allUnitsList, defaultsDb, explosionProfiles, resolveCloneRootId, includeTweaks]);
 
   // Compile Lua Tweak Defs
   const generatedTweakDefsLua = useMemo(() => {

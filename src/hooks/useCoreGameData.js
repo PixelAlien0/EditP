@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import factoryRostersUrl from '../data/factory-rosters.json?url';
+import explosionProfilesUrl from '../data/explosion-profiles.json?url';
 import unitDefaultsUrl from '../data/unit-defaults.json?url';
 import unitpicManifestUrl from '../data/unitpic-manifest.json?url';
 import unitsDbUrl from '../data/units.json?url';
@@ -20,6 +21,7 @@ export function useCoreGameData() {
     unitsDb: EMPTY_UNITS,
     factoryRosters: {},
     defaultsDb: {},
+    explosionProfiles: {},
     status: 'loading',
   });
 
@@ -30,14 +32,16 @@ export function useCoreGameData() {
       fetchJson(unitsDbUrl),
       fetchJson(factoryRostersUrl),
       fetchJson(unitpicManifestUrl),
+      fetchJson(explosionProfilesUrl),
     ])
-      .then(([defaultsDb, unitsDb, factoryRosters, artworkManifest]) => {
+      .then(([defaultsDb, unitsDb, factoryRosters, artworkManifest, explosionProfiles]) => {
         if (cancelled) return;
         setUnitArtworkManifest(artworkManifest);
         setData({
           defaultsDb: defaultsDb || {},
           unitsDb: unitsDb || EMPTY_UNITS,
           factoryRosters: factoryRosters || {},
+          explosionProfiles: explosionProfiles || {},
           status: 'ready',
         });
       })

@@ -1,3 +1,5 @@
+import { serializeLuaTable } from './tweakSerializer.js';
+
 // Markers
 export const CLONE_BEGIN = '-- BMF_CLONE_UNITS_BEGIN';
 export const CLONE_END = '-- BMF_CLONE_UNITS_END';
@@ -14,6 +16,7 @@ function escapeLuaString(str) {
 export function generateDeathProfilesBlockLua(profiles = []) {
   if (!profiles.length) return '';
   const calls = [];
+  const sourceProfiles = {};
   for (const profile of profiles) {
     const unitId = String(profile.unitId || '').trim().toLowerCase();
     if (!unitId) continue;
@@ -26,11 +29,22 @@ export function generateDeathProfilesBlockLua(profiles = []) {
         if (Number.isFinite(value)) patch[key] = value;
       }
       if (!sourceName || Object.keys(patch).length === 0) continue;
-      calls.push(`editp_death_profile(${JSON.stringify(unitId)}, ${JSON.stringify(sourceName.toLowerCase())}, ${JSON.stringify(kind)}, ${JSON.stringify(patch).replace(/"([^"\s]+)":/g, '$1 =')})`);
+      const sourceKey = sourceName.toLowerCase();
+      const bundledSource = profile.sources?.[kind]?.definition;
+      sourceProfiles[sourceKey] = bundledSource || {
+        areaofeffect: patch.aoe ?? 0,
+        camerashake: patch.camerashake ?? 0,
+        impulsefactor: patch.impulsefactor ?? 0,
+        damage: { default: patch.damage ?? 0 },
+        customparams: { unitexplosion: 1 },
+      };
+      calls.push(`editp_death_profile(${JSON.stringify(unitId)}, ${JSON.stringify(kind)}, editp_profiles[${JSON.stringify(sourceKey)}], ${JSON.stringify(patch).replace(/"([^"\s]+)":/g, '$1 =')})`);
     }
   }
   if (!calls.length) return '';
   return `${DEATH_PROFILE_BEGIN}
+local editp_profiles = ${serializeLuaTable(sourceProfiles)}
+
 local function editp_copy_table(value)
   if type(value) ~= "table" then return value end
   local copy = {}
@@ -38,11 +52,10 @@ local function editp_copy_table(value)
   return copy
 end
 
-local function editp_death_profile(unit_name, source_name, kind, patch)
+local function editp_death_profile(unit_name, kind, source, patch)
   local unit = UnitDefs and UnitDefs[unit_name]
-  local source = WeaponDefs and WeaponDefs[source_name]
-  if not unit or not source then return end
-  local profile_name = "editp_" .. unit_name .. "_" .. kind
+  if not unit or type(source) ~= "table" then return end
+  local profile_name = "editp_" .. kind
   local profile = editp_copy_table(source)
   if patch.damage ~= nil then
     profile.damage = profile.damage or {}
@@ -51,7 +64,8 @@ local function editp_death_profile(unit_name, source_name, kind, patch)
   if patch.aoe ~= nil then profile.areaofeffect = patch.aoe end
   if patch.camerashake ~= nil then profile.camerashake = patch.camerashake end
   if patch.impulsefactor ~= nil then profile.impulsefactor = patch.impulsefactor end
-  WeaponDefs[profile_name] = profile
+  unit.weapondefs = unit.weapondefs or {}
+  unit.weapondefs[profile_name] = profile
   unit[kind == "death" and "explodeas" or "selfdestructas"] = profile_name
 end
 
@@ -125,7 +139,7 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
     `  local s = ${r}`,
     `  local n = ${i}`,
     `  if UnitDefs[s] and not UnitDefs[n] then`,
-    `    UnitDefs[n] = table.copy(UnitDefs[s])`,
+    `    UnitDefs[n] = bmf_deepCopy(UnitDefs[s])`,
     `    local u = UnitDefs[n]`,
     `    bmf_cleanClone(u)`,
     `    local srcBo = UnitDefs[s].buildoptions`,
@@ -364,6 +378,15 @@ export function generateClonesBlockLua(clones, weaponLibrary = []) {
   if (sorted.length === 0) return '';
   
   const helpers = [
+    `  local function bmf_deepCopy(value)`,
+    `    if type(value) ~= "table" then return value end`,
+    `    local copy = {}`,
+    `    for key, child in pairs(value) do`,
+    `      copy[bmf_deepCopy(key)] = bmf_deepCopy(child)`,
+    `    end`,
+    `    return copy`,
+    `  end`,
+    ``,
     `  local function bmf_i18n(u, name, tooltip)`,
     `    if not u.customparams then u.customparams = {} end`,
     `    local c = u.customparams`,
@@ -388,7 +411,7 @@ export function generateClonesBlockLua(clones, weaponLibrary = []) {
     `    destWep = destWep or srcWep`,
     `    if UnitDefs[srcUnit] and UnitDefs[srcUnit].weapondefs and UnitDefs[srcUnit].weapondefs[srcWep] then`,
     `      if not u.weapondefs then u.weapondefs = {} end`,
-    `      u.weapondefs[destWep] = table.copy(UnitDefs[srcUnit].weapondefs[srcWep])`,
+    `      u.weapondefs[destWep] = bmf_deepCopy(UnitDefs[srcUnit].weapondefs[srcWep])`,
     `    end`,
     `    if not u.weapons then u.weapons = {} end`,
     `    if not u.weapons[slotNum] then u.weapons[slotNum] = {} end`,
