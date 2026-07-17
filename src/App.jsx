@@ -1536,6 +1536,7 @@ export default function App() {
     }
     const slotNum = activeWeaponSlotTab || selectedUnitDefaults?.weaponSlots?.[0]?.slot;
     if (!slotNum) return;
+    setIncludeClones(true);
     setClones(prev => prev.map(clone => {
       if (clone.newId.toLowerCase() !== selectedUnit.id.toLowerCase()) return clone;
       const weaponSwaps = { ...(clone.weaponSwaps || {}) };
@@ -1570,6 +1571,10 @@ export default function App() {
 
   // Update tweaked stat value
   const handleStatChange = (unitId, statKey, value) => {
+    if (clones.some(clone => clone.newId.toLowerCase() === unitId.toLowerCase())) {
+      setIncludeClones(true);
+      setIncludeTweaks(true);
+    }
     setTweaks(prev => {
       const unitTweaks = { ...prev[unitId] };
       if (value === '' || value === undefined) {
@@ -1848,6 +1853,8 @@ export default function App() {
 
   const handleCloneBuildersChange = (cloneId, builderIds) => {
     const normalized = [...new Set(builderIds.map(id => id.trim().toLowerCase()).filter(Boolean))];
+    setIncludeClones(true);
+    if (normalized.length > 0) setIncludeRosters(true);
     setClones(prev => prev.map(clone => (
       clone.newId.toLowerCase() === cloneId.toLowerCase()
         ? { ...clone, builderIds: normalized }
@@ -1894,7 +1901,11 @@ export default function App() {
       .filter(Boolean);
 
     const parentClone = clones.find(clone => clone.newId.trim().toLowerCase() === cleanBase);
-    const inheritedTweaks = parentClone ? getInheritedCloneTweaks(cleanBase) : {};
+    const { rootId, lineage } = getCloneLineage(cleanBase);
+    const inheritedTweaks = lineage.reduce((merged, clone) => {
+      const cloneId = clone.newId?.trim().toLowerCase();
+      return cloneId ? { ...merged, ...(tweaks[cloneId] || {}) } : merged;
+    }, { ...(tweaks[rootId] || {}) });
     const inheritedWeaponSwaps = parentClone ? getInheritedCloneWeaponSwaps(cleanBase) : {};
 
     const newClone = {
@@ -1913,6 +1924,9 @@ export default function App() {
         : {})
     };
 
+    setIncludeClones(true);
+    if (Object.keys(inheritedTweaks).length > 0) setIncludeTweaks(true);
+    if (newClone.builderIds.length > 0) setIncludeRosters(true);
     setClones(prev => [...prev, newClone]);
     if (activeCollection) {
       setUnitCollections(previous => previous.map(collection => (

@@ -42,6 +42,20 @@ describe('nested clone generation', () => {
       .toContain('armflash');
   });
 
+  it('does not emit orphaned build-menu references when clone definitions are excluded', () => {
+    const lua = compileTweakDefsLua({
+      currentTweakDefsLua: '',
+      customUnitClones: [{ baseId: 'armfig', newId: 'ggggg', displayName: 'Test clone', builderIds: ['armap'] }],
+      buildMenuWizardSteps: [{ builderId: 'armap', add: ['ggggg'], remove: [] }],
+      disabledUnitIds: [],
+      unitBuildOptions: {},
+      compileFlags: { includeClones: false, includeRosters: true },
+    });
+
+    expect(lua).not.toContain('local n = "ggggg"');
+    expect(lua).not.toContain('"ggggg"');
+  });
+
   it('creates isolated death explosion profiles without mutating the shared BAR definition', () => {
     const profile = generateDeathProfilesBlockLua([{
       unitId: 'armfus',
