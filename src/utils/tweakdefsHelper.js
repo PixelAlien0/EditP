@@ -500,6 +500,24 @@ export function generateBuildMenuBlockLua(steps) {
   return stepCodes.join('\n\n');
 }
 
+function removeExcludedCloneReferences(steps, clones) {
+  const cloneIds = new Set(
+    clones
+      .map(clone => clone.newId?.trim().toLowerCase())
+      .filter(Boolean)
+  );
+  if (cloneIds.size === 0) return steps;
+
+  return steps
+    .map(step => ({
+      ...step,
+      add: (step.add || []).filter(id => !cloneIds.has(id.trim().toLowerCase())),
+      remove: (step.remove || []).filter(id => !cloneIds.has(id.trim().toLowerCase())),
+      order: (step.order || []).filter(id => !cloneIds.has(id.trim().toLowerCase())),
+    }))
+    .filter(step => step.add.length > 0 || step.remove.length > 0 || step.order.length > 0);
+}
+
 export function stripBlock(luaScript, beginMarker, endMarker) {
   const trimScript = luaScript.replace(/\s+$/, '');
   const startIdx = trimScript.indexOf(beginMarker);
@@ -552,12 +570,20 @@ export function compileTweakDefsLua({
     DEATH_PROFILE_END,
   ).trim();
   
-  const clonesBlock = (compileFlags?.includeClones ?? true)
+  const includeCloneDefinitions = compileFlags?.includeClones ?? true;
+  const clonesBlock = includeCloneDefinitions
     ? generateClonesBlockLua(customUnitClones, weaponLibrary)
     : '';
   
   const menuConfig = { disabledUnitIds, unitBuildOptions };
-  const updatedSteps = updateBuildMenuSteps(buildMenuWizardSteps, customUnitClones, menuConfig);
+  const safeBuildMenuSteps = includeCloneDefinitions
+    ? buildMenuWizardSteps
+    : removeExcludedCloneReferences(buildMenuWizardSteps, customUnitClones);
+  const updatedSteps = updateBuildMenuSteps(
+    safeBuildMenuSteps,
+    includeCloneDefinitions ? customUnitClones : [],
+    menuConfig
+  );
   const buildMenuBlock = (compileFlags?.includeRosters ?? true)
     ? generateBuildMenuBlockLua(updatedSteps)
     : '';

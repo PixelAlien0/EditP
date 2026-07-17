@@ -466,13 +466,8 @@ test('custom units inherit their base artwork in collections', async ({ page }) 
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
-
-  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
-  const cloneDialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
-  await cloneDialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_collection_icon_test');
-  await cloneDialog.getByRole('button', { name: 'Create Clone' }).click();
-
-  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Collections/ }).click();
+  const workflow = page.getByRole('navigation', { name: 'Editor workflow' });
+  await workflow.getByRole('button', { name: /Collections/ }).click();
   const collections = page.getByRole('region', { name: 'Collections' });
   await collections.getByRole('button', { name: 'New' }).click();
   await collections.getByLabel('New collection').fill('Custom artwork');
@@ -480,10 +475,19 @@ test('custom units inherit their base artwork in collections', async ({ page }) 
   const baseRow = page.locator('.collection-member-row').filter({ has: page.getByText('armdfly', { exact: true }) });
   const baseArtwork = await baseRow.locator('.collection-member-row__art').getAttribute('src');
   expect(baseArtwork).toBeTruthy();
+
+  await workflow.getByRole('button', { name: /Edit Units/ }).click();
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  const cloneDialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await cloneDialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_collection_icon_test');
+  await cloneDialog.getByRole('button', { name: 'Create Clone' }).click();
+
+  await workflow.getByRole('button', { name: /Collections/ }).click();
   await page.getByLabel('Source').selectOption('custom');
 
   const customRow = page.locator('.collection-member-row').filter({ hasText: 'armdfly_collection_icon_test' });
   await expect(customRow).toBeVisible();
+  await expect(customRow).toHaveClass(/is-direct/);
   await expect(customRow.locator('.collection-member-row__art')).toHaveAttribute('src', baseArtwork);
 });
 
@@ -549,6 +553,36 @@ test('clone identity remains editable and nested clones keep the selected clone 
 
   await expect(page.getByRole('button', { name: 'Edit identity' })).toBeVisible();
   await expect(page.getByText('armdfly_editorial_nested_test', { exact: true }).first()).toBeVisible();
+});
+
+test('cloning preserves edited explosion parameters and restores required export flags', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const parameterView = page.getByRole('group', { name: 'Choose visible unit parameters' });
+  await parameterView.getByRole('button', { name: 'All' }).click();
+  const deathDamage = page.locator('[data-param-key="death_explosion_damage"] input');
+  await deathDamage.fill('1100');
+
+  await page.getByRole('button', { name: /Review & Export/i }).click();
+  const customUnitsFlag = page.getByRole('switch', { name: 'Custom units' });
+  await expect(customUnitsFlag).toBeChecked();
+  await page.locator('.export-flags .ui-switch-field').filter({ hasText: 'Custom units' }).click();
+  await expect(customUnitsFlag).not.toBeChecked();
+  await page.getByRole('button', { name: 'Back to editor' }).click();
+
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  const dialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await dialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_explosion_clone');
+  await dialog.getByRole('button', { name: 'Create Clone' }).click();
+
+  await expect(page.locator('[data-param-key="death_explosion_damage"] input')).toHaveValue('1100');
+  await page.getByRole('button', { name: /Review & Export/i }).click();
+  await expect(page.getByRole('switch', { name: 'Custom units' })).toBeChecked();
+  await page.getByRole('tab', { name: 'Definitions Lua' }).click();
+  await expect(page.locator('.export-code-preview')).toContainText('local n = "armdfly_explosion_clone"');
+  await expect(page.locator('.export-code-preview')).toContainText('editp_death_profile("armdfly_explosion_clone"');
 });
 
 test('unit and death-explosion parameters compile to their correct lobby outputs', async ({ page }) => {
