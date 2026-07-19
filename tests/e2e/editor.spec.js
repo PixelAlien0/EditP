@@ -79,6 +79,12 @@ test('Tweak Package Lab imports inert modules and exposes numbered slots', async
   await page.getByRole('textbox', { name: 'Tweak package input' }).fill(source);
   await page.getByRole('button', { name: 'Inspect pasted input' }).click();
   await expect(page.getByText('Definitions module', { exact: true }).first()).toBeVisible();
+  const inspector = page.getByRole('complementary', { name: 'Module inspection' });
+  await inspector.getByRole('button', { name: 'Full screen' }).click();
+  await expect(inspector).toHaveClass(/is-fullscreen/);
+  await expect(inspector.getByRole('button', { name: 'Restore view' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(inspector).not.toHaveClass(/is-fullscreen/);
   const include = page.getByRole('switch', { name: /Include Definitions module in lobby output/i });
   await expect(include).not.toBeChecked();
   await include.check({ force: true });

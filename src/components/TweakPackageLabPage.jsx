@@ -91,6 +91,7 @@ export default function TweakPackageLabPage({
   const [rawKind, setRawKind] = useState('defs');
   const [newSupportOwner, setNewSupportOwner] = useState('');
   const [newSupportKey, setNewSupportKey] = useState('');
+  const [inspectorFullscreen, setInspectorFullscreen] = useState(false);
   const packageAnalysis = useMemo(
     () => analyzeTweakPackage(modules, { knownUnitIds }),
     [knownUnitIds, modules]
@@ -117,6 +118,24 @@ export default function TweakPackageLabPage({
     + packageAnalysis.orderingIssues.length
     + packageAnalysis.cycles.length
     + packageAnalysis.typeIssues.length;
+
+  useEffect(() => {
+    if (!inspectorFullscreen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') setInspectorFullscreen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [inspectorFullscreen]);
+
+  useEffect(() => {
+    if (!selected) setInspectorFullscreen(false);
+  }, [selected]);
 
   const createSupportingWeaponDef = () => {
     const ownerUnitId = newSupportOwner.trim().toLowerCase();
@@ -327,22 +346,36 @@ export default function TweakPackageLabPage({
           ))}
         </section>
 
-        <aside className="tweak-lab-inspector">
+        <aside className={`tweak-lab-inspector ${inspectorFullscreen ? 'is-fullscreen' : ''}`} aria-label="Module inspection">
           {!selected ? (
             <EmptyState compact title="Select a module" description="Module analysis and safe conversions appear here." />
           ) : (
             <>
               <div className="tweak-lab-inspector__heading">
                 <div><span className="workflow-eyebrow">Module inspection</span><h3>{selected.label}</h3></div>
-                <select value={selected.stage} onChange={event => onUpdateModule(selected.id, { stage: event.target.value })}>
-                  <option value="before-editor">Before editor</option>
-                  <option value="after-editor">After editor</option>
-                </select>
+                <div className="tweak-lab-inspector__actions">
+                  <select aria-label="Module loading stage" value={selected.stage} onChange={event => onUpdateModule(selected.id, { stage: event.target.value })}>
+                    <option value="before-editor">Before editor</option>
+                    <option value="after-editor">After editor</option>
+                  </select>
+                  <Button
+                    size="sm"
+                    variant={inspectorFullscreen ? 'primary' : 'secondary'}
+                    className="tweak-lab-inspector__fullscreen"
+                    aria-pressed={inspectorFullscreen}
+                    onClick={() => setInspectorFullscreen(value => !value)}
+                    title={inspectorFullscreen ? 'Restore the three-column workbench (Escape)' : 'Expand module inspection to the full viewport'}
+                  >
+                    <span aria-hidden="true">{inspectorFullscreen ? '↙' : '↗'}</span>
+                    {inspectorFullscreen ? 'Restore view' : 'Full screen'}
+                  </Button>
+                </div>
               </div>
               <label className="tweak-module-attribution">
                 <span>Attribution / source note</span>
                 <input value={selected.attribution || ''} onChange={event => onUpdateModule(selected.id, { attribution: event.target.value })} placeholder="Optional author or source" />
               </label>
+              <div className="tweak-lab-inspector__content">
               <div className="tweak-analysis-metrics">
                 <div><span>Creates</span><strong>{selectedAnalysis.createdUnits.length}</strong></div>
                 <div><span>References</span><strong>{selectedAnalysis.referencedUnits.length}</strong></div>
@@ -434,7 +467,7 @@ export default function TweakPackageLabPage({
                   {selectedReport.dependencies.map(edge => <p key={`dependency-${edge.to}`}><b>Needs</b>{moduleLabel(edge.to)} <code>{edge.unitIds.join(', ')}</code></p>)}
                   {selectedReport.dependents.map(edge => <p key={`dependent-${edge.from}`}><b>Used by</b>{moduleLabel(edge.from)} <code>{edge.unitIds.join(', ')}</code></p>)}
                   {selectedReport.unresolved.slice(0, 8).map(item => <p key={`unresolved-${item.unitId}`} className="is-unresolved"><b>External or missing</b><code>{item.unitId}{item.line ? ` · line ${item.line}` : ''}</code></p>)}
-                  {!selectedReport.dependencies.length && !selectedReport.dependents.length && !selectedReport.unresolved.length && <p>No cross-module unit dependencies detected.</p>}
+                  {!selectedReport.dependencies.length && !selectedReport.dependents.length && !selectedReport.unresolved.length && <p className="is-empty">No cross-module unit dependencies detected.</p>}
                 </section>
               )}
               {selectedReport?.assetReferences.length > 0 && (
@@ -463,6 +496,7 @@ export default function TweakPackageLabPage({
                 <summary>Decoded Lua source</summary>
                 <pre>{selected.rawLua}</pre>
               </details>
+              </div>
             </>
           )}
         </aside>
