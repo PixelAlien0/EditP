@@ -68,6 +68,27 @@ test('build menu producer catalog separates factories and builders', async ({ pa
   await expect(catalog.getByText('Advanced Vehicle Plant', { exact: true })).toBeVisible();
 });
 
+test('Tweak Package Lab imports inert modules and exposes numbered slots', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
+  await expect(page.getByRole('heading', { name: 'Tweak Package Lab' })).toBeVisible();
+
+  const source = 'UnitDefs["editp_lab_test"] = table.copy(UnitDefs["armflea"], true)';
+  await page.getByRole('textbox', { name: 'Tweak package input' }).fill(source);
+  await page.getByRole('button', { name: 'Inspect pasted input' }).click();
+  await expect(page.getByText('Definitions module', { exact: true }).first()).toBeVisible();
+  const include = page.getByRole('switch', { name: /Include Definitions module in lobby output/i });
+  await expect(include).not.toBeChecked();
+  await include.check({ force: true });
+
+  await page.getByRole('button', { name: 'Back to editor' }).click();
+  await page.getByRole('button', { name: /Review & Export/i }).click();
+  await expect(page.locator('.lobby-slot-capacity > div').filter({ hasText: 'Definitions' })).toContainText('/ 9');
+  await expect(page.getByRole('button', { name: 'Copy all !bset commands' })).toBeEnabled();
+});
+
 test('main menu, editor, and collections have no serious accessibility violations', async ({ page }) => {
   await waitForMainMenu(page);
   let results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();

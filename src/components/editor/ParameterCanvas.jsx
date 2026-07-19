@@ -28,7 +28,7 @@ export function ParameterMatrix({ sectionId, parameters, collapsedGroups, onTogg
                 aria-expanded={!collapsed}
               >
                 <span>{group.id}</span>
-                <small>{group.parameters.length} fields</small>
+                <small>{group.parameters.length} fields{group.parameters.some(parameter => parameter.experimental) ? ' · Experimental' : ''}</small>
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
               </button>
               {!collapsed && <div className="parameter-compact-grid">{group.parameters.map(renderParameter)}</div>}

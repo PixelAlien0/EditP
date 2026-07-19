@@ -11,6 +11,7 @@ export const PROJECT_STORE_DEFAULTS = Object.freeze({
   presets: [],
   weaponLibrary: [],
   unitCollections: [],
+  tweakModules: [],
   projectName: 'BAR Editor Mod',
   projectAuthor: 'Developer',
   projectDesc: 'A custom unit configuration mod.',

@@ -615,10 +615,10 @@ export function compileTweakDefsLua({
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);
   if (clonesBlock.length > 0) {
-    parts.push(clonesBlock);
+    parts.push(`${CLONE_BEGIN}\n${clonesBlock}\n${CLONE_END}`);
   }
   if (buildMenuBlock.length > 0) {
-    parts.push(buildMenuBlock);
+    parts.push(`${BUILDMENU_BEGIN}\n${buildMenuBlock}\n${BUILDMENU_END}`);
   }
   if (deathProfileBlock.length > 0) parts.push(deathProfileBlock);
   

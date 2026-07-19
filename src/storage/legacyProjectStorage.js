@@ -18,7 +18,9 @@ export const LEGACY_PROJECT_FIELDS = Object.freeze({
 });
 
 function readValue(field, fallback, storage) {
-  const [key, kind] = LEGACY_PROJECT_FIELDS[field];
+  const legacyField = LEGACY_PROJECT_FIELDS[field];
+  if (!legacyField) return fallback;
+  const [key, kind] = legacyField;
   try {
     const raw = storage.getItem(key);
     if (raw === null) return fallback;

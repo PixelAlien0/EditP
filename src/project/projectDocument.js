@@ -1,6 +1,6 @@
 import { normalizeUnitCollections } from './unitCollections.js';
 
-export const PROJECT_DOCUMENT_VERSION = '1.5';
+export const PROJECT_DOCUMENT_VERSION = '1.6';
 export const MAX_PROJECT_BYTES = 5 * 1024 * 1024;
 
 const UNIT_ID_PATTERN = /^[a-z0-9_]+$/i;
@@ -92,6 +92,35 @@ function safeArray(value, maxItems = 5000) {
   return Array.isArray(value) ? structuredClone(value.slice(0, maxItems)) : [];
 }
 
+function normalizeTweakModules(value) {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set();
+  return value.slice(0, 500).flatMap((rawModule, index) => {
+    if (!isRecord(rawModule)) return [];
+    const kind = rawModule.kind === 'units' ? 'units' : rawModule.kind === 'defs' ? 'defs' : null;
+    const rawLua = text(rawModule.rawLua, '', 1024 * 1024);
+    const contentHash = text(rawModule.contentHash, '', 120).trim();
+    const id = text(rawModule.id, `${kind || 'module'}-${index + 1}`, 160).trim();
+    if (!kind || !rawLua || !id || seen.has(id)) return [];
+    seen.add(id);
+    return [{
+      id,
+      kind,
+      label: text(rawModule.label, `${kind === 'defs' ? 'Definitions' : 'Units'} module ${index + 1}`, 160),
+      sourceName: text(rawModule.sourceName, '', 260),
+      originalFieldName: text(rawModule.originalFieldName, '', 40),
+      rawLua,
+      originalPayload: text(rawModule.originalPayload, '', 2 * 1024 * 1024),
+      contentHash,
+      enabled: Boolean(rawModule.enabled),
+      converted: Boolean(rawModule.converted),
+      stage: rawModule.stage === 'after-editor' ? 'after-editor' : 'before-editor',
+      order: Number.isFinite(Number(rawModule.order)) ? Number(rawModule.order) : index,
+      attribution: text(rawModule.attribution, '', 500),
+    }];
+  });
+}
+
 export function assertProjectSize(value) {
   const bytes = typeof value === 'number'
     ? value
@@ -125,6 +154,7 @@ export function normalizeProjectDocument(input) {
     unitDescriptions: normalizeDescriptions(migrated.unitDescriptions),
     weaponLibrary: safeArray(migrated.weaponLibrary, 1000),
     unitCollections: normalizeUnitCollections(migrated.unitCollections),
+    tweakModules: normalizeTweakModules(migrated.tweakModules),
     projectName: text(migrated.projectName, 'BAR Editor Mod', 120).trim() || 'BAR Editor Mod',
     projectAuthor: text(migrated.projectAuthor, 'Developer', 120).trim() || 'Developer',
     projectDesc: text(migrated.projectDesc, 'A custom unit configuration mod.', 2000),

@@ -4,6 +4,7 @@ import { BUILD_MENU_PACKS, buildEffectiveFactoryRosters, getBuildMenuPackSource 
 import { getFactionOfUnit, getTechTierFromValue } from './utils/categories.js';
 import { serializeLuaTable, encodeLobbyBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
+import { buildLobbyCommands, compileLobbyModules } from './utils/lobbyModules.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import { useTemporaryChat } from './hooks/useTemporaryChat.js';
 import { useProjectPersistence } from './hooks/useProjectPersistence.js';
@@ -46,6 +47,7 @@ const LazyBatchAdjustDialog = lazy(() => import('./components/BatchAdjustDialog.
 const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplorerDialog.jsx'));
 const LazyCommandPalette = lazy(() => import('./components/CommandPalette.jsx'));
 const LazyProjectCheckpointsDialog = lazy(() => import('./components/ProjectCheckpointsDialog.jsx'));
+const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
 
 // Keep the laboratory code available while this experimental workspace is temporarily unpublished.
 const WEAPON_LAB_ENABLED = false;
@@ -88,6 +90,7 @@ const PARAMETER_RELATIONSHIPS = [
   { section: 'structure', title: 'Resource production', description: 'Production, extraction, and storage should be balanced as one economy package.', keys: ['metalmake', 'extractsmetal', 'energymake', 'metalstorage', 'energystorage'] },
   { section: 'structure', title: 'Cloak economy', description: 'Cloak drain is safest to tune alongside energy income and storage.', keys: ['cloakcost', 'cloakcostmoving', 'energymake', 'energystorage'] },
   { section: 'structure', title: 'Converter output', description: 'Conversion capacity and efficiency jointly control the converter’s useful output.', keys: ['customparams.energyconv_capacity', 'customparams.energyconv_efficiency', 'energymake'] },
+  { section: 'structure', title: 'Carrier deployment', description: 'Payload, spawn timing, limits, control range, docking, decay, and replacement costs form one carrier system.', keys: ['customparams.carried_unit', 'customparams.spawnrate', 'customparams.maxunits', 'customparams.controlradius', 'customparams.enabledocking', 'customparams.decayrate', 'customparams.deathdecayrate', 'customparams.carrierdeaththroe', 'customparams.metalcost', 'customparams.energycost'] },
   { section: 'mobility', title: 'Movement response', description: 'Top speed, acceleration, braking, and turning determine the complete handling profile.', keys: ['maxvelocity', 'acceleration', 'brakerate', 'turnrate'] },
   { section: 'mobility', title: 'Terrain access', description: 'Slope and water-depth limits decide which parts of a map the unit can traverse.', keys: ['maxslope', 'maxwaterdepth', 'minwaterdepth'] },
   { section: 'mobility', title: 'Transport behavior', description: 'Capacity, transport eligibility, and mass interact with carrying roles.', keys: ['transportcapacity', 'cantbetransported'] },
@@ -103,7 +106,8 @@ const PARAMETER_RELATIONSHIPS = [
   { section: 'weapons', title: 'Stockpile and shot cost', description: 'Ammunition timing, limits, and per-shot resources determine firing availability.', keys: ['stockpile', 'stockpiletime', 'stockpilelimit', 'energypershot', 'metalpershot'] },
   { section: 'weapons', title: 'Beam behavior', description: 'Beam duration, burst mode, sweep behavior, and falloff shape delivered damage.', keys: ['beamtime', 'beamburst', 'sweepfire', 'minintensity', 'duration', 'hardstop', 'falloffrate'] },
   { section: 'weapons', title: 'Projectile presentation', description: 'Trail, model, impact effect, colors, thickness, and intensity form one visual language.', keys: ['cegTag', 'model', 'explosiongenerator', 'rgbcolor', 'rgbcolor2', 'thickness', 'corethickness', 'laserflaresize', 'intensity'] },
-  { section: 'weapons', title: 'Weapon audio', description: 'Fire, impact, and water-impact sounds should be authored as a coordinated set.', keys: ['soundstart', 'soundhit', 'soundhitwet'] }
+  { section: 'weapons', title: 'Weapon audio', description: 'Fire, impact, and water-impact sounds should be authored as a coordinated set.', keys: ['soundstart', 'soundhit', 'soundhitwet'] },
+  { section: 'weapons', title: 'Spawn and cluster behavior', description: 'Spawned units, resource costs, and cluster submunitions depend on valid unit and weapon-definition IDs.', keys: ['spawns_name', 'spawns_surface', 'spawn_metal_cost', 'spawn_energy_cost', 'cluster_def', 'cluster_number'] }
 ];
 
 const PARAMETER_LABEL_OVERRIDES = {
@@ -187,6 +191,10 @@ const PARAMETER_HELP = {
   builddistance: 'Maximum building and repair range.', maxslope: 'Steepest terrain the unit can use.', maxwaterdepth: 'Deepest water the unit can enter.', minwaterdepth: 'Minimum water depth required.',
   transportcapacity: 'Number of transport slots provided.', cantbetransported: 'Prevents the unit from being carried.', cruisealt: 'Preferred aircraft altitude.',
   'customparams.techlevel': 'Technology tier used by BAR content and filters.', 'customparams.energyconv_capacity': 'Energy-converter capacity custom parameter.', 'customparams.energyconv_efficiency': 'Energy-converter efficiency custom parameter.',
+  'customparams.carried_unit': 'Unit ID deployed by BAR carrier behavior.', 'customparams.spawnrate': 'Seconds between carrier deployment attempts.', 'customparams.maxunits': 'Maximum number of active carried units.',
+  'customparams.controlradius': 'Experimental radius within which deployed units remain under carrier control.', 'customparams.enabledocking': 'Experimental docking behavior for returning carried units.',
+  'customparams.decayrate': 'Health decay applied to deployed units.', 'customparams.deathdecayrate': 'Decay applied after the carrier is destroyed.', 'customparams.carrierdeaththroe': 'Carrier death behavior, such as release.',
+  'customparams.metalcost': 'Metal charged for each carrier-deployed unit.', 'customparams.energycost': 'Energy charged for each carrier-deployed unit.',
   damage: 'Base damage against targets without a specific armor class.', reload: 'Seconds between firing cycles.', range: 'Maximum firing range in elmos.', velocity: 'Projectile speed.',
   flighttime: 'How long a guided projectile retains fuel and guidance.', aoe: 'Explosion diameter that can damage nearby units.', accuracy: 'Base shot spread; lower is more accurate.',
   sprayangle: 'Spread between projectiles in a burst.', heightmod: 'How range changes with target elevation.', randomdecay: 'Legacy projectile spread behavior; use with caution.',
@@ -198,6 +206,8 @@ const PARAMETER_HELP = {
   edgeeffectiveness: 'Fraction of base damage retained at the outer edge of splash range.', impactonly: 'Deals damage only through direct impact, not splash.',
   noexplode: 'Projectile continues after impact. Can multiply damage while inside a collision volume.', burnblow: 'Explodes when it reaches maximum range.', noselfdamage: 'Prevents the firing unit from taking its own explosion damage.',
   impulsefactor: 'Multiplier for knockback impulse.', impulseboost: 'Flat knockback added before the multiplier.', energypershot: 'Energy consumed each time the weapon fires.', metalpershot: 'Metal consumed each time the weapon fires.',
+  spawns_name: 'Unit ID created when this weapon fires.', spawns_surface: 'Surface restriction for the spawned unit, such as LAND.', spawn_metal_cost: 'Metal charged for each spawned unit.', spawn_energy_cost: 'Energy charged for each spawned unit.',
+  cluster_def: 'WeaponDef key released as cluster submunitions.', cluster_number: 'Number of submunitions released by the cluster projectile.',
   paralyzer: 'Turns damage into paralysis rather than hit-point loss.', paralyzetime: 'Maximum paralysis duration.', mygravity: 'Overrides map gravity for ballistic weapons.', heightboostfactor: 'Terrain-height effect on cannon range.',
   startvelocity: 'Projectile speed immediately after launch.', weaponacceleration: 'Speed gained per second until maximum velocity.', tracks: 'Enables homing guidance.', turnrate: 'How quickly a guided projectile can turn.',
   trajectoryheight: 'Guided missile arc height.', wobble: 'Random direction variation during flight.', dance: 'Random positional variation during flight.', fixedlauncher: 'Uses the firing piece orientation at launch.',
@@ -655,6 +665,13 @@ function getValidationWarning(key, value) {
   if (isKey('stockpilelimit')) {
     if (num < 0) return { level: 'error', message: 'Limit cannot be negative' };
   }
+  if (isKey('spawnrate') && num <= 0) return { level: 'error', message: 'Spawn rate must be positive' };
+  if (isKey('maxunits') && (!Number.isInteger(num) || num < 1)) return { level: 'error', message: 'Maximum units must be a positive integer' };
+  if (isKey('cluster_number')) {
+    if (!Number.isInteger(num) || num < 1) return { level: 'error', message: 'Cluster count must be a positive integer' };
+    if (num > 64) return { level: 'warning', message: 'Large cluster counts can be expensive' };
+  }
+  if ((isKey('controlradius') || isKey('decayrate')) && num < 0) return { level: 'error', message: 'Value cannot be negative' };
   return null;
 }
 
@@ -747,14 +764,14 @@ export default function App() {
   const {
     state: projectStore,
     setTweaks, setClones, setDisabledUnitIds, setUnitDescriptions,
-    setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setUnitCollections,
+    setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setUnitCollections, setTweakModules,
     setProjectName, setProjectAuthor, setProjectDesc,
     setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
     hydrateProjectStore,
   } = useProjectStore();
   const {
     tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
-    presets, weaponLibrary, unitCollections, projectName, projectAuthor, projectDesc,
+    presets, weaponLibrary, unitCollections, tweakModules, projectName, projectAuthor, projectDesc,
     includeTweaks, includeClones, includeRosters, includeHeader,
   } = projectStore;
 
@@ -951,6 +968,7 @@ export default function App() {
       || activeWorkspace === 'preset-gallery'
       || activeWorkspace === 'collections'
       || activeWorkspace === 'weapon-lab'
+      || activeWorkspace === 'tweak-lab'
     ) {
       return PRESENCE_ACTIVITY.TOOLS;
     }
@@ -977,8 +995,9 @@ export default function App() {
     buildMenuSteps,
     buildMenuPacks,
     weaponLibrary,
-    unitCollections
-  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary, unitCollections]);
+    unitCollections,
+    tweakModules
+  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary, unitCollections, tweakModules]);
   const [historyPast, setHistoryPast] = useState([]);
   const [historyFuture, setHistoryFuture] = useState([]);
   const lastSnapshotRef = useRef(projectSnapshot);
@@ -1020,7 +1039,8 @@ export default function App() {
     setBuildMenuPacks(snapshot.buildMenuPacks || { extraUnits: false, scavengerUnits: false });
     setWeaponLibrary(snapshot.weaponLibrary || []);
     setUnitCollections(snapshot.unitCollections || []);
-  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setTweaks, setUnitCollections, setWeaponLibrary]);
+    setTweakModules(snapshot.tweakModules || []);
+  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setTweaks, setUnitCollections, setWeaponLibrary, setTweakModules]);
 
   const handleUndo = useCallback(() => {
     if (historyPast.length === 0) return;
@@ -1061,6 +1081,7 @@ export default function App() {
     buildMenuPacks,
     weaponLibrary,
     unitCollections,
+    tweakModules,
     projectName,
     projectAuthor,
     projectDesc,
@@ -1142,6 +1163,121 @@ export default function App() {
 
     return list.sort((a, b) => a.name.localeCompare(b.name));
   }, [clones, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitsDb.descriptions, unitsDb.names]);
+
+  const handleAddTweakModules = useCallback((incomingModules) => {
+    setTweakModules(current => {
+      const hashes = new Set(current.map(module => module.contentHash));
+      const additions = incomingModules.filter(module => !hashes.has(module.contentHash));
+      return [...current, ...additions].map((module, index) => ({ ...module, order: index }));
+    });
+  }, [setTweakModules]);
+
+  const handleUpdateTweakModule = useCallback((moduleId, patch) => {
+    setTweakModules(current => current.map(module => {
+      if (module.id !== moduleId) return module;
+      if (module.converted && patch.enabled) return module;
+      return { ...module, ...patch };
+    }));
+  }, [setTweakModules]);
+
+  const handleRemoveTweakModule = useCallback((moduleId) => {
+    setTweakModules(current => current.filter(module => module.id !== moduleId));
+  }, [setTweakModules]);
+
+  const handleMoveTweakModule = useCallback((moduleId, direction) => {
+    setTweakModules(current => {
+      const target = current.find(module => module.id === moduleId);
+      if (!target) return current;
+      const lane = current
+        .filter(module => module.kind === target.kind && module.stage === target.stage)
+        .sort((left, right) => left.order - right.order);
+      const index = lane.findIndex(module => module.id === moduleId);
+      const swapIndex = index + direction;
+      if (index < 0 || swapIndex < 0 || swapIndex >= lane.length) return current;
+      const leftId = lane[index].id;
+      const rightId = lane[swapIndex].id;
+      const leftOrder = lane[index].order;
+      const rightOrder = lane[swapIndex].order;
+      return current.map(module => module.id === leftId
+        ? { ...module, order: rightOrder }
+        : module.id === rightId ? { ...module, order: leftOrder } : module);
+    });
+  }, [setTweakModules]);
+
+  const handleApplyTweakConversions = useCallback((module, conversions) => {
+    if (!module || module.enabled || module.converted) return;
+    const existingIds = new Set(allUnitsList.map(unit => unit.id.toLowerCase()));
+    const safeClones = [];
+    conversions.filter(item => item.type === 'clone').forEach(item => {
+      if (!existingIds.has(item.baseId) || existingIds.has(item.newId)) return;
+      existingIds.add(item.newId);
+      safeClones.push({
+        baseId: item.baseId,
+        newId: item.newId,
+        displayName: item.newId,
+        builderIds: [],
+        addToOriginalBuilders: false,
+      });
+    });
+    if (safeClones.length) {
+      setIncludeClones(true);
+      setClones(current => [...current, ...safeClones]);
+    }
+
+    const menuConversions = conversions.filter(item => item.type === 'build-add' || item.type === 'build-remove');
+    if (menuConversions.length) {
+      setIncludeRosters(true);
+      setBuildMenuSteps(current => {
+        const next = current.map(step => ({ ...step, add: [...(step.add || [])], remove: [...(step.remove || [])], order: [...(step.order || [])] }));
+        menuConversions.forEach(item => {
+          let step = next.find(entry => entry.builderId.toLowerCase() === item.builderId);
+          if (!step) {
+            step = { builderId: item.builderId, add: [], remove: [], order: [] };
+            next.push(step);
+          }
+          if (item.type === 'build-add') {
+            step.remove = step.remove.filter(id => id.toLowerCase() !== item.unitId);
+            if (!step.add.some(id => id.toLowerCase() === item.unitId)) step.add.push(item.unitId);
+          } else {
+            step.add = step.add.filter(id => id.toLowerCase() !== item.unitId);
+            if (!step.remove.some(id => id.toLowerCase() === item.unitId)) step.remove.push(item.unitId);
+          }
+        });
+        return next.filter(step => step.add.length || step.remove.length || step.order.length);
+      });
+    }
+
+    const parameterConversions = conversions.filter(item => item.type === 'unit-parameter' && existingIds.has(item.unitId));
+    const importedCloneBases = new Map(safeClones.map(clone => [clone.newId, clone.baseId]));
+    const weaponConversions = conversions.flatMap(item => {
+      if (item.type !== 'weapon-parameter' || !existingIds.has(item.unitId)) return [];
+      const unitInfo = allUnitsList.find(unit => unit.id.toLowerCase() === item.unitId);
+      const baseId = importedCloneBases.get(item.unitId) || (unitInfo?.isClone ? resolveCloneRootId(item.unitId) : item.unitId);
+      const slot = defaultsDb[baseId]?.weaponSlots?.find(entry => entry.defKey?.toLowerCase() === item.weaponDefKey);
+      return slot ? [{ ...item, tweakKey: `weapon_slot_${slot.slot}_${item.key}` }] : [];
+    });
+    if (parameterConversions.length || weaponConversions.length) {
+      setIncludeTweaks(true);
+      setTweaks(current => {
+        const next = { ...current };
+        parameterConversions.forEach(item => {
+          next[item.unitId] = { ...(next[item.unitId] || {}), [item.key]: item.value };
+        });
+        weaponConversions.forEach(item => {
+          next[item.unitId] = { ...(next[item.unitId] || {}), [item.tweakKey]: item.value };
+        });
+        return next;
+      });
+    }
+
+    const appliedCount = safeClones.length + menuConversions.length + parameterConversions.length + weaponConversions.length;
+    if (appliedCount === 0) {
+      showToast('No recognized changes could be applied. Resolve ID conflicts or inspect the module warnings.');
+      return;
+    }
+    setTweakModules(current => current.map(item => item.id === module.id ? { ...item, converted: true, enabled: false } : item));
+    showToast(`${appliedCount} recognized change${appliedCount === 1 ? '' : 's'} applied. Source module archived.`);
+  }, [allUnitsList, defaultsDb, resolveCloneRootId, setBuildMenuSteps, setClones, setIncludeClones, setIncludeRosters, setIncludeTweaks, setTweakModules, setTweaks, showToast]);
 
   const activeCollection = useMemo(
     () => unitCollections.find(collection => collection.id === activeCollectionId) || null,
@@ -1743,7 +1879,9 @@ export default function App() {
           unitPatch.energymake = typedVal;
         } else {
           const patchKey = config.patchKey ?? config.key;
-          if (patchKey.includes('.')) {
+          if (config.nestedIn) {
+            setNestedVal(unitPatch, `${config.nestedIn}.${patchKey}`, typedVal);
+          } else if (patchKey.includes('.')) {
             setNestedVal(unitPatch, patchKey, typedVal);
           } else {
             unitPatch[patchKey] = typedVal;
@@ -1824,9 +1962,19 @@ export default function App() {
     return encodeLobbyBase64(generatedTweakDefsLua + ' ', base64Options);
   }, [generatedTweakDefsLua, base64Options]);
 
-  const totalBytesUsed = tweakUnitsB64.length + tweakDefsB64.length;
+  const compiledLobbyModules = useMemo(() => compileLobbyModules({
+    tweakModules,
+    generatedTweakDefsLua,
+    generatedTweakUnitsLua,
+    base64Options,
+  }), [tweakModules, generatedTweakDefsLua, generatedTweakUnitsLua, base64Options]);
+  const lobbyCommands = useMemo(() => buildLobbyCommands(compiledLobbyModules), [compiledLobbyModules]);
+
+  const totalBytesUsed = compiledLobbyModules.aggregateBytes;
   const lobbyByteLimit = 12000;
-  const limitRisk = totalBytesUsed > lobbyByteLimit ? 'error' : totalBytesUsed > lobbyByteLimit * 0.8 ? 'warning' : 'ok';
+  const limitRisk = compiledLobbyModules.overflow
+    ? 'error'
+    : compiledLobbyModules.slots.some(slot => slot.compatibility === 'advisory') ? 'warning' : 'ok';
 
   // Toggle Category selection
   const handleCatClick = (cat) => {
@@ -2224,6 +2372,7 @@ export default function App() {
       { id: 'workspace-review', kind: 'Workspace', label: 'Review & export', description: 'Validate and compile the current project.', priority: 27, onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('review'); } },
       { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Apply one adjustment across matching units.', onSelect: () => { openEditor(); setShowBulkPanel(true); } },
       { id: 'tool-presets', kind: 'Tool', label: 'Preset gallery', description: 'Save or apply reusable project snapshots.', onSelect: () => { setShowMainMenu(false); setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); } },
+      { id: 'tool-tweak-package', kind: 'Tool', label: 'Tweak Package Lab', description: 'Inspect and package modular tweakdefs and tweakunits safely.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); } },
       { id: 'tool-mutation', kind: 'Tool', label: 'Mutation lab', description: 'Generate controlled random adjustments.', onSelect: () => { openEditor(); setShowRandomPanel(true); } },
     ];
 
@@ -2440,6 +2589,10 @@ export default function App() {
 
   const validationIssues = useMemo(() => {
     const issues = [];
+    const knownUnitIds = new Set(allUnitsList.map(unit => unit.id.toLowerCase()));
+    const knownWeaponDefs = new Set(Object.values(defaultsDb).flatMap(unit => (
+      unit?.weaponSlots || []
+    )).map(slot => String(slot.defKey || '').toLowerCase()).filter(Boolean));
     Object.entries(tweaks).forEach(([unitId, patch]) => {
       const unitName = unitsDb.names[unitId] || clones.find(c => c.newId.toLowerCase() === unitId.toLowerCase())?.displayName || unitId;
       Object.entries(patch).forEach(([key, val]) => {
@@ -2453,10 +2606,45 @@ export default function App() {
             ...warning
           });
         }
+        const referenceId = String(val || '').trim().toLowerCase();
+        if ((key === 'customparams.carried_unit' || /^weapon_slot_\d+_spawns_name$/.test(key))
+          && referenceId && !knownUnitIds.has(referenceId)) {
+          issues.push({
+            unitId,
+            unitName,
+            key,
+            value: val,
+            level: 'warning',
+            message: `Referenced unit "${val}" is not present in the current BAR definition catalog or project clones.`,
+          });
+        }
+        if (/^weapon_slot_\d+_cluster_def$/.test(key)
+          && referenceId && !knownWeaponDefs.has(referenceId)) {
+          issues.push({
+            unitId,
+            unitName,
+            key,
+            value: val,
+            level: 'warning',
+            message: `Referenced WeaponDef "${val}" is not present in the loaded BAR definitions. Raw imported modules may define it later.`,
+          });
+        }
       });
     });
+    if (compiledLobbyModules.defs.overflow) {
+      issues.push({
+        unitId: 'project', unitName: 'Lobby package', key: 'tweakdefs_slots', level: 'error',
+        message: `${compiledLobbyModules.defs.required} Definitions slots required; BAR provides 9.`,
+      });
+    }
+    if (compiledLobbyModules.units.overflow) {
+      issues.push({
+        unitId: 'project', unitName: 'Lobby package', key: 'tweakunits_slots', level: 'error',
+        message: `${compiledLobbyModules.units.required} Units slots required; BAR provides 9.`,
+      });
+    }
     return issues;
-  }, [tweaks, clones, unitsDb.names]);
+  }, [tweaks, clones, unitsDb.names, compiledLobbyModules, allUnitsList, defaultsDb]);
   const scopedValidationIssues = useMemo(
     () => activeCollectionUnitIds
       ? validationIssues.filter(issue => activeCollectionUnitIds.has(issue.unitId))
@@ -2603,7 +2791,7 @@ export default function App() {
     validationCount: scopedValidationIssues.length,
   } : null;
   const activeBuildMenuPackCount = Object.values(buildMenuPacks).filter(Boolean).length;
-  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount;
+  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount + tweakModules.length;
   const selectedUnitOverrideEntries = Object.entries(tweaks[selectedUnit?.id] || {});
   const inspectorTabs = [
     { id: 'details', label: 'Details' },
@@ -2885,6 +3073,7 @@ export default function App() {
                 <button type="button" role="menuitem" onClick={() => { setActiveWorkspace('collections'); setShowToolsMenu(false); }}>Collections</button>
                 <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>Batch Adjust</button>
                 <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>Preset Gallery</button>
+                <button type="button" role="menuitem" onClick={() => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); setShowToolsMenu(false); }}>Tweak Package Lab</button>
                 {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}>Weapon Lab</button>}
                 <button type="button" role="menuitem" onClick={() => { setShowRandomPanel(true); setShowToolsMenu(false); }}>Mutation Lab</button>
                 <div className="header-tools-menu-project-actions" role="group" aria-label="Project files">
@@ -3215,6 +3404,18 @@ export default function App() {
             }));
 
             const advancedWeaponGroups = [
+              {
+                title: 'Advanced behavior',
+                description: 'BAR gadget-backed unit spawning and cluster/MIRV behavior. Referenced IDs must exist when the game loads.',
+                params: [
+                  { key: 'spawns_name', label: 'Spawned Unit ID', type: 'string' },
+                  { key: 'spawns_surface', label: 'Spawn Surface', type: 'string' },
+                  { key: 'spawn_metal_cost', label: 'Spawn Metal per Shot', type: 'number' },
+                  { key: 'spawn_energy_cost', label: 'Spawn Energy per Shot', type: 'number' },
+                  { key: 'cluster_def', label: 'Cluster Weapon Def', type: 'string' },
+                  { key: 'cluster_number', label: 'Cluster Projectile Count', type: 'number' },
+                ]
+              },
               {
                 title: 'Impact & resource behavior',
                 description: 'Damage falloff, projectile persistence, impulse, and per-shot costs.',
@@ -4725,6 +4926,20 @@ export default function App() {
             onBack={() => setActiveWorkspace('edit')}
           />
         </Suspense>
+      ) : activeWorkspace === 'tweak-lab' ? (
+        <Suspense fallback={<main className="tweak-package-lab workspace-loading"><span>Preparing Tweak Package Lab…</span></main>}>
+          <LazyTweakPackageLabPage
+            modules={tweakModules}
+            compiledModules={compiledLobbyModules}
+            onAddModules={handleAddTweakModules}
+            onUpdateModule={handleUpdateTweakModule}
+            onRemoveModule={handleRemoveTweakModule}
+            onMoveModule={handleMoveTweakModule}
+            onApplyConversions={handleApplyTweakConversions}
+            onBack={() => setActiveWorkspace('edit')}
+            onToast={showToast}
+          />
+        </Suspense>
       ) : activeWorkspace === 'review' ? (
         <Suspense fallback={<main className="review-workspace workspace-loading"><span>Preparing project review…</span></main>}>
           <LazyReviewPage
@@ -4759,6 +4974,8 @@ export default function App() {
             totalBytesUsed={totalBytesUsed}
             lobbyByteLimit={lobbyByteLimit}
             limitRisk={limitRisk}
+            compiledLobbyModules={compiledLobbyModules}
+            lobbyCommands={lobbyCommands}
             collectionScope={collectionReviewScope}
             onBack={() => setActiveWorkspace('edit')}
             onExport={handleExportConfig}

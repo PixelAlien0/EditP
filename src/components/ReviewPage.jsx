@@ -16,6 +16,7 @@ export default function ReviewPage({
   activeOutputTab, setActiveOutputTab, activeCompiledOutput, activeCompiledOutputFallback,
   tweakDefsB64, tweakUnitsB64,
   totalBytesUsed, lobbyByteLimit, limitRisk,
+  compiledLobbyModules, lobbyCommands,
   collectionScope,
   onBack, onExport, onOpenSummary, onEditUnit, onToast
 }) {
@@ -35,6 +36,15 @@ export default function ReviewPage({
       onToast(`${label} value copied`);
     } catch {
       onToast(`Could not copy ${label}. Open its Base64 tab and copy it manually.`);
+    }
+  };
+  const copyAllLobbyCommands = async () => {
+    if (!lobbyCommands || compiledLobbyModules?.overflow) return;
+    try {
+      await navigator.clipboard.writeText(lobbyCommands);
+      onToast('All numbered !bset commands copied');
+    } catch {
+      onToast('Could not copy lobby commands. Copy each slot separately.');
     }
   };
 
@@ -102,7 +112,7 @@ export default function ReviewPage({
         </div>
 
         <aside className="export-console">
-          <div className="export-console-header"><div><span className="workflow-eyebrow">Export console</span><h3>{projectName}</h3></div><span className={`review-status ${limitRisk}`}>{totalBytesUsed.toLocaleString()} / {lobbyByteLimit.toLocaleString()} bytes</span></div>
+          <div className="export-console-header"><div><span className="workflow-eyebrow">Export console</span><h3>{projectName}</h3></div><span className={`review-status ${limitRisk}`}>{totalBytesUsed.toLocaleString()} encoded bytes</span></div>
           <div className="export-metadata-grid">
             <TextField label="Mod name" value={projectName} onChange={event => setProjectName(event.target.value)} />
             <TextField label="Author" value={projectAuthor} onChange={event => setProjectAuthor(event.target.value)} />
@@ -118,21 +128,51 @@ export default function ReviewPage({
             <div className="lobby-export-guide__heading">
               <div>
                 <span className="workflow-eyebrow">BAR lobby setup</span>
-                <h4 id="lobby-export-guide-title">Copy both active payloads</h4>
+                <h4 id="lobby-export-guide-title">Numbered lobby package</h4>
               </div>
-              <span className="lobby-export-guide__count">2 fields</span>
+              <span className={`lobby-export-guide__count ${compiledLobbyModules?.overflow ? 'is-overflow' : ''}`}>
+                {(compiledLobbyModules?.defs.required || 0) + (compiledLobbyModules?.units.required || 0)} / 18 slots
+              </span>
             </div>
-            <p>Clones and explosion definitions use <strong>Tweak Defs</strong>. Economy, durability, movement, and weapon values use <strong>Tweak Units</strong>. Paste each value into its matching lobby field.</p>
-            <div className="lobby-export-guide__rows">
-              <div className="lobby-export-row">
-                <div><strong>Tweak Defs</strong><span>Clone definitions, build menus, and explosions</span></div>
-                <Button size="sm" onClick={() => copyLobbyValue('Tweak Defs', tweakDefsB64)} disabled={!tweakDefsB64}>Copy Defs Base64</Button>
-              </div>
-              <div className="lobby-export-row">
-                <div><strong>Tweak Units</strong><span>Economy, durability, movement, and weapon stats</span></div>
-                <Button size="sm" onClick={() => copyLobbyValue('Tweak Units', tweakUnitsB64)} disabled={!tweakUnitsB64}>Copy Units Base64</Button>
-              </div>
+            <p>BAR provides nine Definitions slots and nine Units slots. Commands are ordered so Definitions load before Units.</p>
+            <div className="lobby-slot-capacity" aria-label="Lobby slot usage">
+              <div className={compiledLobbyModules?.defs.overflow ? 'is-overflow' : ''}><span>Definitions</span><strong>{compiledLobbyModules?.defs.required || 0} / 9</strong></div>
+              <div className={compiledLobbyModules?.units.overflow ? 'is-overflow' : ''}><span>Units</span><strong>{compiledLobbyModules?.units.required || 0} / 9</strong></div>
             </div>
+            {compiledLobbyModules?.overflow && (
+              <div className="lobby-slot-overflow">
+                <strong>Package exceeds the available slots.</strong>
+                <span>Disable imported modules or reduce the project before copying commands.</span>
+                {[...(compiledLobbyModules.defs.overflow ? compiledLobbyModules.defs.largestModules : []), ...(compiledLobbyModules.units.overflow ? compiledLobbyModules.units.largestModules : [])]
+                  .slice(0, 3)
+                  .map(module => <small key={`${module.id}-${module.label}`}>{module.label} · {module.encodedBytes.toLocaleString()} bytes{module.source === 'imported' ? ' · can be disabled in Tweak Package Lab' : ''}</small>)}
+              </div>
+            )}
+            <div className="lobby-export-guide__rows lobby-module-slots">
+              {(compiledLobbyModules?.slots || []).map(slot => (
+                <div className="lobby-export-row" key={slot.fieldName}>
+                  <div><strong>{slot.fieldName}</strong><span>{slot.label} · {slot.encodedBytes.toLocaleString()} bytes{slot.compatibility === 'advisory' ? ' · legacy size advisory' : ''}</span></div>
+                  <details className="lobby-slot-inspector">
+                    <summary>Inspect</summary>
+                    <div><strong>Lua</strong><pre>{slot.lua}</pre><strong>Base64</strong><pre>{slot.encoded}</pre></div>
+                  </details>
+                  <Button size="sm" onClick={() => copyLobbyValue(slot.fieldName, slot.command)}>Copy !bset</Button>
+                </div>
+              ))}
+            </div>
+            <Button variant="primary" onClick={copyAllLobbyCommands} disabled={!lobbyCommands || compiledLobbyModules?.overflow}>Copy all !bset commands</Button>
+            <div className="legacy-lobby-quick-actions" aria-label="Legacy combined payloads">
+              <Button size="sm" onClick={() => copyLobbyValue('Tweak Defs', tweakDefsB64)} disabled={!tweakDefsB64}>Copy Defs Base64</Button>
+              <Button size="sm" onClick={() => copyLobbyValue('Tweak Units', tweakUnitsB64)} disabled={!tweakUnitsB64}>Copy Units Base64</Button>
+            </div>
+            <details className="legacy-lobby-export">
+              <summary>Legacy combined payloads</summary>
+              <div className="lobby-export-guide__rows">
+                <div className="lobby-export-row"><div><strong>Tweak Defs</strong><span>Combined compatibility output</span></div></div>
+                <div className="lobby-export-row"><div><strong>Tweak Units</strong><span>Combined compatibility output</span></div></div>
+              </div>
+              <small>{lobbyByteLimit.toLocaleString()} bytes is retained only as a legacy advisory.</small>
+            </details>
           </section>
           <Tabs className="export-output-tabs" size="sm" label="Generated output format" items={EXPORT_TABS} value={activeOutputTab} onChange={setActiveOutputTab} />
           <pre className="export-code-preview">{activeCompiledOutput || activeCompiledOutputFallback}</pre>
