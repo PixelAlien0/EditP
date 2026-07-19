@@ -58,6 +58,14 @@ test('build menu producer catalog separates factories and builders', async ({ pa
   await catalog.getByRole('button', { name: /Factories/ }).click();
   await expect(catalog.getByText('Bot Lab', { exact: true }).first()).toBeVisible();
   await expect(catalog.getByText('Groundhog', { exact: true })).toHaveCount(0);
+
+  const producerSearch = catalog.getByRole('textbox', { name: 'Search producers' });
+  await producerSearch.fill('legaap');
+  await expect(catalog.getByText('Legion Advanced Aircraft Plant', { exact: true })).toBeVisible();
+  await producerSearch.fill('legvp');
+  await expect(catalog.getByText('Legion Vehicle Plant', { exact: true })).toBeVisible();
+  await producerSearch.fill('legavp');
+  await expect(catalog.getByText('Advanced Vehicle Plant', { exact: true })).toBeVisible();
 });
 
 test('main menu, editor, and collections have no serious accessibility violations', async ({ page }) => {

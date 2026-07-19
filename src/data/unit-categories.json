@@ -2206,6 +2206,14 @@
     "factories",
     "t1"
   ],
+  "legvp": [
+    "factories",
+    "t1"
+  ],
+  "legavp": [
+    "factories",
+    "t2"
+  ],
   "legfhp": [
     "factories",
     "t1.5"

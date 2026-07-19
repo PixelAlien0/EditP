@@ -1948,6 +1948,35 @@
     "leglts",
     "legatrans"
   ],
+  "legvp": [
+    "legscout",
+    "legcv",
+    "legotter",
+    "leghades",
+    "leghelios",
+    "leggat",
+    "legbar",
+    "legrail",
+    "legmlv",
+    "legamphtank"
+  ],
+  "legavp": [
+    "legacv",
+    "legmrv",
+    "legaskirmtank",
+    "legfloat",
+    "legaheattank",
+    "legmed",
+    "legamcluster",
+    "legvcarry",
+    "legavroc",
+    "leginf",
+    "legvflak",
+    "legavantinuke",
+    "legavjam",
+    "legavrad",
+    "legafcv"
+  ],
   "legfhp": [
     "legch",
     "legsh",

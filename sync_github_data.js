@@ -1,5 +1,6 @@
 import https from 'https';
 import fs from 'fs';
+import { pathToFileURL } from 'url';
 
 function fetchJson(url) {
   return new Promise((resolve, reject) => {
@@ -43,17 +44,34 @@ function fetchRawText(url) {
   });
 }
 
-function parseLua(luaStr) {
-  // Remove comments
-  let clean = luaStr.replace(/--.*$/gm, '');
+export function parseLua(luaStr) {
+  // Protect Lua long-bracket strings while comments and table keys are
+  // normalized. Factory yardmaps commonly use multiline [[...]] values,
+  // which are not valid JavaScript string literals.
+  const longStrings = [];
+  let clean = luaStr.replace(/\[(=*)\[([\s\S]*?)\]\1\]/g, (_match, _equals, value) => {
+    const token = `__BAR_LONG_STRING_${longStrings.length}__`;
+    longStrings.push(value);
+    return token;
+  });
+  // Remove comments after long strings have been protected.
+  clean = clean.replace(/--.*$/gm, '');
   clean = clean.trim();
   if (clean.startsWith('return')) {
     clean = clean.slice(6).trim();
   }
+  // Lua permits array-style tables without numeric keys. BAR uses this form
+  // for some factory buildoptions (notably legavp), while JavaScript object
+  // literals require those values to live in an array.
+  clean = clean.replace(/(\bbuildoptions\s*=\s*)\{([^{}]*)\}/g, (match, prefix, body) => {
+    const hasExplicitKeys = /(?:^|,)\s*(?:\[[^\]]+\]|[A-Za-z_][A-Za-z0-9_]*)\s*=/m.test(body);
+    return hasExplicitKeys ? match : `${prefix}[${body}]`;
+  });
   // Convert key = value to key: value
   clean = clean.replace(/([a-zA-Z0-9_]+)\s*=\s*/g, '"$1": ');
   // Convert [key] = value to key: value
   clean = clean.replace(/\[\s*([a-zA-Z0-9_"'-]+)\s*\]\s*=\s*/g, '"$1": ');
+  clean = clean.replace(/__BAR_LONG_STRING_(\d+)__/g, (_match, index) => JSON.stringify(longStrings[Number(index)]));
   // Evaluate
   const fn = new Function(`return ${clean}`);
   return fn();
@@ -364,4 +382,6 @@ async function run() {
   }
 }
 
-run();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  run();
+}
