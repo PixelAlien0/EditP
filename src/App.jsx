@@ -1199,9 +1199,19 @@ export default function App() {
       const rightId = lane[swapIndex].id;
       const leftOrder = lane[index].order;
       const rightOrder = lane[swapIndex].order;
-      return current.map(module => module.id === leftId
+      const moved = current.map(module => module.id === leftId
         ? { ...module, order: rightOrder }
         : module.id === rightId ? { ...module, order: leftOrder } : module);
+      return moved.sort((left, right) => left.order - right.order);
+    });
+  }, [setTweakModules]);
+
+  const handleReorderTweakModules = useCallback((orderedIds) => {
+    setTweakModules(current => {
+      const orderById = new Map((orderedIds || []).map((moduleId, index) => [moduleId, index]));
+      return current.map(module => orderById.has(module.id)
+        ? { ...module, order: orderById.get(module.id) }
+        : module).sort((left, right) => left.order - right.order);
     });
   }, [setTweakModules]);
 
@@ -4951,6 +4961,7 @@ export default function App() {
             onUpdateModule={handleUpdateTweakModule}
             onRemoveModule={handleRemoveTweakModule}
             onMoveModule={handleMoveTweakModule}
+            onReorderModules={handleReorderTweakModules}
             onApplyConversions={handleApplyTweakConversions}
             knownUnitIds={knownTweakPackageUnitIds}
             onBack={() => setActiveWorkspace('edit')}

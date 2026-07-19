@@ -58,6 +58,48 @@ STAT_KEYS.forEach(parameter => {
   }
 });
 const WEAPON_PATH_TO_EDITOR_KEY = new Map(Object.entries(WEAPON_SLOT_PATHS).map(([editorKey, path]) => [path.toLowerCase(), editorKey]));
+const UNIT_FIELD_EXPECTED_TYPES = new Map();
+const UNIT_CUSTOM_EXPECTED_TYPES = new Map();
+STAT_KEYS.forEach(parameter => {
+  if (parameter.output === 'tweakdefs') return;
+  const target = parameter.nestedIn === 'customparams' ? UNIT_CUSTOM_EXPECTED_TYPES : UNIT_FIELD_EXPECTED_TYPES;
+  [parameter.key, parameter.patchKey].filter(Boolean).forEach(key => {
+    const normalized = String(key).replace(/^customparams\./i, '').toLowerCase();
+    target.set(normalized, parameter.type);
+  });
+});
+const WEAPON_CUSTOM_EXPECTED_TYPES = new Map([
+  ['spawns_name', 'string'], ['spawns_surface', 'string'], ['metalcost', 'number'],
+  ['energycost', 'number'], ['cluster_def', 'string'], ['cluster_number', 'number'],
+]);
+const ASSET_FIELD_KINDS = Object.freeze({
+  objectname: 'model', script: 'script', buildpic: 'artwork', model: 'projectile model',
+  cegtag: 'CEG', explosiongenerator: 'CEG', soundstart: 'sound', soundhit: 'sound',
+  soundhitwet: 'sound', soundhitdry: 'sound', texture1: 'texture', texture2: 'texture', texture3: 'texture',
+});
+const ADDITIONAL_ENGINE_BOOLEAN_FIELDS = new Set([
+  'activatewhenbuilt', 'builder', 'canfly', 'canmove', 'canpatrol', 'canguard', 'canstop',
+  'canrepeat', 'canrestore', 'canload', 'canunload', 'canhover', 'floater', 'reclaimable',
+  'capturable', 'repairable', 'onoffable', 'levelground', 'usebuildinggrounddecal',
+]);
+const GENERIC_FIELD_EXPECTED_TYPES = new Map();
+const addGenericExpectation = (field, type) => {
+  if (!field || !type) return;
+  const normalized = String(field).toLowerCase();
+  const current = GENERIC_FIELD_EXPECTED_TYPES.get(normalized);
+  if (!current) GENERIC_FIELD_EXPECTED_TYPES.set(normalized, type);
+  else if (current !== type) GENERIC_FIELD_EXPECTED_TYPES.set(normalized, null);
+};
+UNIT_FIELD_EXPECTED_TYPES.forEach((type, field) => addGenericExpectation(field, type));
+UNIT_CUSTOM_EXPECTED_TYPES.forEach((type, field) => addGenericExpectation(field, type));
+WEAPON_CUSTOM_EXPECTED_TYPES.forEach((type, field) => addGenericExpectation(field, type));
+WEAPON_SLOT_BOOLEAN_PARAMS.forEach(field => addGenericExpectation(field, 'boolean'));
+WEAPON_SLOT_STRING_PARAMS.forEach(field => addGenericExpectation(field, 'string'));
+ADDITIONAL_ENGINE_BOOLEAN_FIELDS.forEach(field => addGenericExpectation(field, 'boolean'));
+DIRECT_WEAPON_FIELDS.forEach(field => addGenericExpectation(
+  field,
+  ASSET_FIELD_KINDS[field] ? 'string' : 'number'
+));
 const UNSUPPORTED_LITERAL = Symbol('unsupported-lua-literal');
 
 function byteLength(value) {
@@ -374,6 +416,133 @@ function unique(values) {
   return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 }
 
+function lineNumberAt(source, index) {
+  return source.slice(0, Math.max(0, index)).split(/\r?\n/).length;
+}
+
+function actualLiteralType(value) {
+  if (typeof value === 'boolean') return 'boolean';
+  if (typeof value === 'number') return 'number';
+  if (typeof value === 'string') return 'string';
+  return 'dynamic';
+}
+
+function canonicalValueSuggestion(value, expectedType) {
+  if (expectedType === 'boolean') {
+    if (value === 0 || value === '0' || String(value).toLowerCase() === 'false') return 'false';
+    if (value === 1 || value === '1' || String(value).toLowerCase() === 'true') return 'true';
+  }
+  if (expectedType === 'number' && typeof value === 'string' && Number.isFinite(Number(value))) return String(Number(value));
+  return '';
+}
+
+function collectTypeIssues(source) {
+  const issues = [];
+  const addIssue = (match, field, value, expectedType, scope) => {
+    if (!expectedType || value === undefined) return;
+    const actualType = actualLiteralType(value);
+    if (actualType === expectedType) return;
+    const suggestion = canonicalValueSuggestion(value, expectedType);
+    issues.push({
+      code: 'literal-type',
+      level: 'warning',
+      line: lineNumberAt(source, match.index),
+      scope,
+      field: field.toLowerCase(),
+      expectedType,
+      actualType,
+      value,
+      suggestion,
+      message: `${scope} ${field} expects ${expectedType}, but this assignment uses ${actualType}.${suggestion ? ` Prefer ${suggestion}.` : ''}`,
+    });
+  };
+
+  for (const match of source.matchAll(/UnitDefs\s*\[\s*["']([a-z0-9_]+)["']\s*\]\.([a-z0-9_]+)\s*=\s*([^,;\n]+)/gi)) {
+    const field = match[2].toLowerCase();
+    addIssue(match, field, scalarFromLua(match[3]), UNIT_FIELD_EXPECTED_TYPES.get(field), `Unit ${match[1].toLowerCase()}`);
+  }
+  for (const match of source.matchAll(/UnitDefs\s*\[\s*["']([a-z0-9_]+)["']\s*\]\.customparams(?:\.([a-z0-9_]+)|\s*\[\s*["']([a-z0-9_]+)["']\s*\])\s*=\s*([^,;\n]+)/gi)) {
+    const field = (match[2] || match[3]).toLowerCase();
+    addIssue(match, `customparams.${field}`, scalarFromLua(match[4]), UNIT_CUSTOM_EXPECTED_TYPES.get(field), `Unit ${match[1].toLowerCase()}`);
+  }
+  for (const match of source.matchAll(/UnitDefs\s*\[\s*["']([a-z0-9_]+)["']\s*\]\.weapondefs(?:\s*\[\s*["']([a-z0-9_]+)["']\s*\]|\.([a-z0-9_]+))\.customparams(?:\.([a-z0-9_]+)|\s*\[\s*["']([a-z0-9_]+)["']\s*\])\s*=\s*([^,;\n]+)/gi)) {
+    const field = (match[4] || match[5]).toLowerCase();
+    addIssue(match, `customparams.${field}`, scalarFromLua(match[6]), WEAPON_CUSTOM_EXPECTED_TYPES.get(field), `WeaponDef ${(match[2] || match[3]).toLowerCase()}`);
+  }
+  for (const match of source.matchAll(/\.weapondefs(?:\s*\[\s*["']([a-z0-9_]+)["']\s*\]|\.([a-z0-9_]+))\.([a-z0-9_]+)\s*=\s*([^,;\n]+)/gi)) {
+    const field = match[3].toLowerCase();
+    const expectedType = WEAPON_SLOT_BOOLEAN_PARAMS.has(field)
+      ? 'boolean'
+      : WEAPON_SLOT_STRING_PARAMS.has(field) || ASSET_FIELD_KINDS[field] ? 'string'
+        : DIRECT_WEAPON_FIELDS.has(field) ? 'number' : null;
+    addIssue(match, field, scalarFromLua(match[4]), expectedType, `WeaponDef ${(match[1] || match[2]).toLowerCase()}`);
+  }
+  for (const match of source.matchAll(/\b([a-z_][a-z0-9_]*)\s*=\s*([^,;\n}]+)/gi)) {
+    const field = match[1].toLowerCase();
+    const expectedType = GENERIC_FIELD_EXPECTED_TYPES.get(field);
+    if (!expectedType) continue;
+    const linePrefix = source.slice(source.lastIndexOf('\n', match.index) + 1, match.index);
+    if (/\blocal\s*$/i.test(linePrefix)) continue;
+    addIssue(match, field, scalarFromLua(match[2]), expectedType, 'Literal table field');
+  }
+  return [...new Map(issues.map(issue => [`${issue.line}:${issue.field}:${issue.expectedType}:${issue.actualType}`, issue])).values()];
+}
+
+function collectRuntimeRisks(source) {
+  const risks = [];
+  const addRisk = (code, level, message, matches) => {
+    if (!matches.length) return;
+    risks.push({
+      code,
+      level,
+      count: matches.length,
+      lines: unique(matches.map(match => String(lineNumberAt(source, match.index)))).map(Number),
+      message,
+    });
+  };
+  addRisk(
+    'nested-customparams',
+    'warning',
+    'Writes into customparams directly. The target table must exist before these lines run.',
+    [...source.matchAll(/UnitDefs\s*\[[^\]]+\]\.customparams(?:\.|\s*\[)/gi)]
+  );
+  addRisk(
+    'nested-weapondefs',
+    'warning',
+    'Writes into a nested WeaponDef. The unit and named WeaponDef must both exist.',
+    [...source.matchAll(/UnitDefs\s*\[[^\]]+\]\.weapondefs(?:\.|\s*\[)/gi)]
+  );
+  addRisk(
+    'buildoptions-table',
+    'warning',
+    'Mutates buildoptions directly. The producer and its buildoptions table must exist.',
+    [...source.matchAll(/(?:table\.insert\s*\(\s*)?UnitDefs\s*\[[^\]]+\]\.buildoptions/gi)]
+  );
+  addRisk(
+    'dynamic-unit-id',
+    'info',
+    'Uses computed UnitDef IDs. Static dependency and collision results may be incomplete.',
+    [...source.matchAll(/UnitDefs\s*\[(?!\s*["'])[^\]]+\]/gi)]
+  );
+  return risks;
+}
+
+function collectAssetReferences(source) {
+  const references = [];
+  const fields = Object.keys(ASSET_FIELD_KINDS).join('|');
+  const pattern = new RegExp(`\\b(${fields})\\s*=\\s*["']([^"']+)["']`, 'gi');
+  for (const match of source.matchAll(pattern)) {
+    references.push({
+      field: match[1].toLowerCase(),
+      kind: ASSET_FIELD_KINDS[match[1].toLowerCase()],
+      value: match[2],
+      line: lineNumberAt(source, match.index),
+      status: 'unverified',
+    });
+  }
+  return references;
+}
+
 function createModule({ kind, rawLua, payload = '', fieldName = '', sourceName = '', order = 0, label = '', requirements = [] }) {
   const bytes = byteLength(rawLua);
   if (bytes > MAX_TWEAK_MODULE_BYTES) throw new Error('A tweak module cannot exceed 1 MB after decoding.');
@@ -482,6 +651,14 @@ export function analyzeTweakModule(module) {
 
   const unitReferences = [...source.matchAll(/UnitDefs\s*\[\s*["']([a-z0-9_]+)["']\s*\]/gi)].map(match => match[1].toLowerCase());
   const dotReferences = [...source.matchAll(/UnitDefs\.([a-z0-9_]+)/gi)].map(match => match[1].toLowerCase());
+  const unitReferenceDetails = [
+    ...[...source.matchAll(/UnitDefs\s*\[\s*["']([a-z0-9_]+)["']\s*\]/gi)].map(match => ({
+      unitId: match[1].toLowerCase(), line: lineNumberAt(source, match.index), notation: 'index',
+    })),
+    ...[...source.matchAll(/UnitDefs\.([a-z0-9_]+)/gi)].map(match => ({
+      unitId: match[1].toLowerCase(), line: lineNumberAt(source, match.index), notation: 'member',
+    })),
+  ];
   const created = [];
   const cloneConversions = [];
   const clonePattern = /UnitDefs\s*\[\s*["']([a-z0-9_]+)["']\s*\]\s*=\s*(?:[\w.]+\s*\(\s*)?UnitDefs\s*\[\s*["']([a-z0-9_]+)["']\s*\]\s*\)?/gi;
@@ -548,6 +725,9 @@ export function analyzeTweakModule(module) {
   if (/\b(loadstring|loadfile|dofile|require)\s*\(/i.test(source)) warnings.push({ level: 'warning', code: 'runtime-code', message: 'Loads code dynamically at runtime.' });
   if (/\.(objectname|script|buildpic|collisionvolumetype|collisionvolumescales)\s*=/i.test(source)) warnings.push({ level: 'info', code: 'asset-swap', message: 'Changes model, script, artwork, or collision assets.' });
   if (/UnitDefs\s*\[[^"'\]]+\]/i.test(source)) warnings.push({ level: 'info', code: 'dynamic-id', message: 'Uses computed unit IDs that cannot be converted safely.' });
+  const typeIssues = collectTypeIssues(source);
+  const runtimeRisks = collectRuntimeRisks(source);
+  const assetReferences = collectAssetReferences(source);
 
   const supportedWeaponParams = unique(customParameters.filter(key => SUPPORTED_WEAPON_CUSTOM_PARAMS.has(key)));
   const literalTable = module?.kind === 'units'
@@ -571,6 +751,7 @@ export function analyzeTweakModule(module) {
       ...helperAnalysis.recipes.map(recipe => recipe.sourceId),
       ...conversionUnitReferences,
     ]).filter(unitId => !created.includes(unitId)),
+    unitReferenceDetails,
     customParameters: unique(customParameters),
     weaponCustomParameters: supportedWeaponParams,
     weaponChanges: (source.match(/\.weapondefs|\[\s*["'][a-z0-9_]+["']\s*\]\.weapons/gi) || []).length + literalTable.weaponDefCount,
@@ -582,6 +763,9 @@ export function analyzeTweakModule(module) {
     helpers: helperAnalysis.helpers,
     recipes: helperAnalysis.recipes,
     warnings,
+    typeIssues,
+    runtimeRisks,
+    assetReferences,
     conversions: dedupedConversions,
   };
 }
@@ -592,6 +776,79 @@ function compareModuleLoadOrder(left, right) {
   const stageDifference = (left.stage === 'after-editor' ? 1 : 0) - (right.stage === 'after-editor' ? 1 : 0);
   if (stageDifference) return stageDifference;
   return Number(left.order || 0) - Number(right.order || 0);
+}
+
+function moduleLane(module) {
+  return `${module.kind === 'defs' ? '0' : '1'}:${module.stage === 'after-editor' ? '1' : '0'}`;
+}
+
+function compareStableModules(left, right) {
+  return compareModuleLoadOrder(left, right)
+    || String(left.label || left.id).localeCompare(String(right.label || right.id))
+    || String(left.id).localeCompare(String(right.id));
+}
+
+function recommendModuleOrder(moduleList, edges) {
+  const lanes = new Map();
+  moduleList.forEach(module => {
+    const lane = moduleLane(module);
+    lanes.set(lane, [...(lanes.get(lane) || []), module]);
+  });
+  const boundaryIssues = [];
+  edges.forEach(edge => {
+    const consumer = moduleList.find(module => module.id === edge.from);
+    const provider = moduleList.find(module => module.id === edge.to);
+    if (!consumer || !provider) return;
+    if (moduleLane(provider) > moduleLane(consumer)) {
+      boundaryIssues.push({
+        ...edge,
+        providerLane: moduleLane(provider),
+        consumerLane: moduleLane(consumer),
+        message: `${provider.label || provider.id} is locked to a later compiler lane than ${consumer.label || consumer.id}.`,
+      });
+    }
+  });
+
+  let hasLaneCycle = false;
+  const recommended = [...lanes.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .flatMap(([lane, laneModules]) => {
+      const ids = new Set(laneModules.map(module => module.id));
+      const providerToConsumers = new Map(laneModules.map(module => [module.id, []]));
+      const dependencyCount = new Map(laneModules.map(module => [module.id, 0]));
+      edges.forEach(edge => {
+        if (!ids.has(edge.from) || !ids.has(edge.to)) return;
+        providerToConsumers.get(edge.to).push(edge.from);
+        dependencyCount.set(edge.from, dependencyCount.get(edge.from) + 1);
+      });
+      const byId = new Map(laneModules.map(module => [module.id, module]));
+      const ready = laneModules.filter(module => dependencyCount.get(module.id) === 0).sort(compareStableModules);
+      const ordered = [];
+      while (ready.length) {
+        const module = ready.shift();
+        ordered.push(module);
+        (providerToConsumers.get(module.id) || []).forEach(consumerId => {
+          dependencyCount.set(consumerId, dependencyCount.get(consumerId) - 1);
+          if (dependencyCount.get(consumerId) === 0) {
+            ready.push(byId.get(consumerId));
+            ready.sort(compareStableModules);
+          }
+        });
+      }
+      if (ordered.length !== laneModules.length) {
+        hasLaneCycle = true;
+        const orderedIds = new Set(ordered.map(module => module.id));
+        ordered.push(...laneModules.filter(module => !orderedIds.has(module.id)).sort(compareStableModules));
+      }
+      return ordered.map((module, index) => ({ id: module.id, lane, laneOrder: index }));
+    });
+
+  return {
+    recommendedOrder: recommended,
+    recommendedOrderIds: recommended.map(item => item.id),
+    boundaryIssues,
+    canAutoOrder: !hasLaneCycle && boundaryIssues.length === 0,
+  };
 }
 
 export function analyzeTweakPackage(modules, options = {}) {
@@ -609,6 +866,7 @@ export function analyzeTweakPackage(modules, options = {}) {
     .map(([unitId, moduleIds]) => ({ unitId, moduleIds }));
   const edgeMap = new Map();
   const unresolved = [];
+  const hasDynamicDefinitionAccess = moduleList.some(module => analyses.get(module.id).warnings.some(warning => warning.code === 'dynamic-id'));
   moduleList.forEach(module => {
     const analysis = analyses.get(module.id);
     analysis.referencedUnits.forEach(unitId => {
@@ -621,7 +879,14 @@ export function analyzeTweakPackage(modules, options = {}) {
           edgeMap.set(key, edge);
         });
       } else if (!knownUnitIds.has(unitId) && !analysis.createdUnits.includes(unitId)) {
-        unresolved.push({ moduleId: module.id, unitId });
+        const reference = analysis.unitReferenceDetails.find(item => item.unitId === unitId);
+        unresolved.push({
+          moduleId: module.id,
+          unitId,
+          line: reference?.line || null,
+          certainty: hasDynamicDefinitionAccess ? 'probable' : 'high',
+          blocking: false,
+        });
       }
     });
   });
@@ -647,13 +912,30 @@ export function analyzeTweakPackage(modules, options = {}) {
   };
   moduleList.forEach(module => visit(module.id));
   const cycles = [...cycleKeys].map(key => key.split(':'));
+  const orderRecommendation = recommendModuleOrder(moduleList, edges);
+  const typeIssues = moduleList.flatMap(module => analyses.get(module.id).typeIssues.map(issue => ({ ...issue, moduleId: module.id })));
+  const runtimeRisks = moduleList.flatMap(module => analyses.get(module.id).runtimeRisks.map(risk => ({ ...risk, moduleId: module.id })));
+  const runtimeRiskCount = runtimeRisks.reduce((total, risk) => total + risk.count, 0);
+  const assetReferences = moduleList.flatMap(module => analyses.get(module.id).assetReferences.map(reference => ({ ...reference, moduleId: module.id })));
   const moduleReports = moduleList.map(module => ({
     moduleId: module.id,
     dependencies: edges.filter(edge => edge.from === module.id),
     dependents: edges.filter(edge => edge.to === module.id),
     unresolved: unresolved.filter(item => item.moduleId === module.id),
     collisions: collisions.filter(item => item.moduleIds.includes(module.id)),
+    orderingIssues: orderingIssues.filter(edge => edge.from === module.id || edge.to === module.id),
+    boundaryIssues: orderRecommendation.boundaryIssues.filter(edge => edge.from === module.id || edge.to === module.id),
+    typeIssues: typeIssues.filter(issue => issue.moduleId === module.id),
+    runtimeRisks: runtimeRisks.filter(risk => risk.moduleId === module.id),
+    assetReferences: assetReferences.filter(reference => reference.moduleId === module.id),
   }));
+  const blockingIssues = [
+    ...moduleList.filter(module => module.enabled && analyses.get(module.id).parseError).map(module => ({ code: 'syntax', moduleIds: [module.id] })),
+    ...collisions.filter(collision => collision.moduleIds.filter(moduleId => moduleList.find(module => module.id === moduleId)?.enabled).length > 1).map(collision => ({ code: 'duplicate-unit-id', moduleIds: collision.moduleIds, unitId: collision.unitId })),
+    ...orderRecommendation.boundaryIssues.filter(issue => (
+      moduleList.find(module => module.id === issue.from)?.enabled && moduleList.find(module => module.id === issue.to)?.enabled
+    )).map(issue => ({ code: 'compiler-lane', moduleIds: [issue.from, issue.to], unitIds: issue.unitIds })),
+  ];
   return {
     analyses,
     edges,
@@ -661,6 +943,12 @@ export function analyzeTweakPackage(modules, options = {}) {
     collisions,
     orderingIssues,
     cycles,
+    ...orderRecommendation,
+    typeIssues,
+    runtimeRisks,
+    runtimeRiskCount,
+    assetReferences,
+    blockingIssues,
     moduleReports,
     recipes: moduleList.flatMap(module => analyses.get(module.id).recipes.map(recipe => ({ ...recipe, moduleId: module.id }))),
   };

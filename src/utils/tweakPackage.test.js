@@ -151,6 +151,64 @@ describe('tweak package import', () => {
     ]));
     expect(packageAnalysis.collisions).toContainEqual({ unitId: 'editp_child', moduleIds: ['provider-a', 'provider-b'] });
     expect(packageAnalysis.orderingIssues).toHaveLength(2);
-    expect(packageAnalysis.unresolved).toContainEqual({ moduleId: 'consumer', unitId: 'unknown_external' });
+    expect(packageAnalysis.unresolved).toContainEqual(expect.objectContaining({
+      moduleId: 'consumer', unitId: 'unknown_external', certainty: 'high', blocking: false,
+    }));
+  });
+
+  it('recommends a stable provider-first order without crossing compiler lanes', () => {
+    const modules = [
+      { id: 'consumer', label: 'Consumer', kind: 'defs', stage: 'before-editor', order: 0, rawLua: 'UnitDefs["editp_child"].health = 5' },
+      { id: 'provider', label: 'Provider', kind: 'defs', stage: 'before-editor', order: 1, rawLua: 'UnitDefs["editp_child"] = table.copy(UnitDefs["armflea"])' },
+      { id: 'unrelated', label: 'Unrelated', kind: 'defs', stage: 'before-editor', order: 2, rawLua: 'UnitDefs["armrock"].health = 10' },
+    ];
+    const analysis = analyzeTweakPackage(modules, { knownUnitIds: ['armflea', 'armrock'] });
+    expect(analysis.orderingIssues).toHaveLength(1);
+    expect(analysis.canAutoOrder).toBe(true);
+    expect(analysis.recommendedOrderIds.indexOf('provider')).toBeLessThan(analysis.recommendedOrderIds.indexOf('consumer'));
+
+    const lockedProvider = modules.map(module => module.id === 'provider'
+      ? { ...module, kind: 'units' }
+      : module);
+    const lockedAnalysis = analyzeTweakPackage(lockedProvider, { knownUnitIds: ['armflea', 'armrock'] });
+    expect(lockedAnalysis.boundaryIssues).toHaveLength(1);
+    expect(lockedAnalysis.canAutoOrder).toBe(false);
+  });
+
+  it('reports literal type mismatches, nested table risks, and unverified asset references', () => {
+    const module = parseTweakPackageInput(`
+      UnitDefs["editp_test"] = table.copy(UnitDefs["armflea"])
+      UnitDefs["editp_test"].health = "900"
+      UnitDefs["editp_test"].canattack = "true"
+      UnitDefs["editp_test"].customparams.enabledocking = 1
+      UnitDefs["editp_test"].weapondefs.laser.paralyzer = "false"
+      UnitDefs["editp_test"].objectname = "Units/example.s3o"
+      table.insert(UnitDefs["armlab"].buildoptions, "editp_test")
+    `, { kind: 'defs' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+
+    expect(analysis.typeIssues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ field: 'health', expectedType: 'number', actualType: 'string', suggestion: '900' }),
+      expect.objectContaining({ field: 'canattack', expectedType: 'boolean', actualType: 'string', suggestion: 'true' }),
+      expect.objectContaining({ field: 'customparams.enabledocking', expectedType: 'boolean', actualType: 'number', suggestion: 'true' }),
+      expect.objectContaining({ field: 'paralyzer', expectedType: 'boolean', actualType: 'string', suggestion: 'false' }),
+    ]));
+    expect(analysis.runtimeRisks).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'nested-customparams', count: 1 }),
+      expect.objectContaining({ code: 'nested-weapondefs', count: 1 }),
+      expect.objectContaining({ code: 'buildoptions-table', count: 1 }),
+    ]));
+    expect(analysis.assetReferences).toContainEqual(expect.objectContaining({
+      field: 'objectname', kind: 'model', value: 'Units/example.s3o', status: 'unverified',
+    }));
+  });
+
+  it('marks active duplicate destination IDs as blocking preflight issues', () => {
+    const modules = [
+      { id: 'first', kind: 'defs', stage: 'before-editor', order: 0, enabled: true, rawLua: 'UnitDefs["editp_same"] = table.copy(UnitDefs["armflea"])' },
+      { id: 'second', kind: 'defs', stage: 'before-editor', order: 1, enabled: true, rawLua: 'UnitDefs["editp_same"] = table.copy(UnitDefs["corak"])' },
+    ];
+    const analysis = analyzeTweakPackage(modules, { knownUnitIds: ['armflea', 'corak'] });
+    expect(analysis.blockingIssues).toContainEqual(expect.objectContaining({ code: 'duplicate-unit-id', unitId: 'editp_same' }));
   });
 });

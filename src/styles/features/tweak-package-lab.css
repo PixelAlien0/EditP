@@ -35,8 +35,10 @@
 .tweak-package-audit { flex: 0 0 auto; padding: var(--space-3) var(--space-5); display: grid; grid-template-columns: minmax(240px, .72fr) minmax(480px, 1.8fr); gap: var(--space-3) var(--space-5); border-bottom: 1px solid var(--color-border-subtle); background: var(--color-surface-muted); }
 .tweak-package-audit__heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .tweak-package-audit__heading h3 { margin: 2px 0 0; font: 600 var(--font-size-md)/1.15 var(--font-display); }
-.tweak-package-audit__heading > span { padding: 5px 8px; border: 1px solid var(--color-border); border-radius: var(--radius-pill); color: var(--color-text-muted); font: 700 8px/1 var(--font-mono); text-transform: uppercase; }
-.tweak-package-audit__metrics { display: grid; grid-template-columns: repeat(5, minmax(74px, 1fr)); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface); }
+.tweak-package-audit__actions { display: flex; align-items: center; gap: var(--space-2); }
+.tweak-package-audit__actions > span { padding: 5px 8px; border: 1px solid var(--color-border); border-radius: var(--radius-pill); color: var(--color-text-muted); font: 700 8px/1 var(--font-mono); text-transform: uppercase; }
+.tweak-package-audit__actions > span.is-error { border-color: var(--color-danger); color: var(--color-danger); }
+.tweak-package-audit__metrics { display: grid; grid-template-columns: repeat(7, minmax(68px, 1fr)); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface); }
 .tweak-package-audit__metrics div { min-width: 0; padding: 8px 10px; display: grid; gap: 3px; border-right: 1px solid var(--color-border-subtle); }
 .tweak-package-audit__metrics div:last-child { border: 0; }
 .tweak-package-audit__metrics span { overflow: hidden; color: var(--color-text-muted); font-size: 8px; letter-spacing: .05em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
@@ -118,13 +120,23 @@
 .tweak-module-relationships p b { color: var(--color-text-muted); font: 700 8px/1.5 var(--font-mono); text-transform: uppercase; }
 .tweak-module-relationships p code { grid-column: 2; color: var(--color-text-muted); font-size: 8px; }
 .tweak-module-relationships p.is-unresolved b { color: var(--color-warning); }
+.tweak-preflight-list { display: grid; gap: 6px; }
+.tweak-preflight-list > div { padding: 8px 9px; display: grid; grid-template-columns: 112px 1fr; gap: 8px; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); background: var(--color-surface-muted); }
+.tweak-preflight-list > div.is-warning { border-color: color-mix(in srgb, var(--color-warning) 58%, var(--color-border-subtle)); }
+.tweak-preflight-list b { color: var(--color-warning); font: 700 8px/1.4 var(--font-mono); text-transform: uppercase; }
+.tweak-preflight-list span { color: var(--color-text); font-size: 9px; line-height: 1.45; }
+.tweak-asset-list { display: grid; gap: 5px; }
+.tweak-asset-list > div { min-width: 0; padding: 7px 8px; display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 8px; border-radius: var(--radius-xs); background: var(--color-surface-muted); }
+.tweak-asset-list span { color: var(--color-text-muted); font-size: 8px; text-transform: uppercase; }
+.tweak-asset-list code { overflow: hidden; color: var(--color-text-strong); font: 9px/1.3 var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.tweak-asset-list small { color: var(--color-text-muted); font-size: 8px; }
 .tweak-source-preview { margin-top: 8px; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); overflow: hidden; }
 .tweak-source-preview summary { padding: 10px; cursor: pointer; font-size: 11px; font-weight: 700; }
 .tweak-source-preview pre { max-height: 340px; margin: 0; padding: 12px; overflow: auto; border-top: 1px solid var(--color-border-subtle); background: var(--color-code-canvas); color: var(--color-text-on-dark); font: 10px/1.55 var(--font-mono); white-space: pre-wrap; }
 
 @media (max-width: 1180px) {
   .tweak-package-audit { grid-template-columns: 1fr; }
-  .tweak-package-audit__metrics { grid-template-columns: repeat(5, 1fr); }
+  .tweak-package-audit__metrics { grid-template-columns: repeat(7, minmax(74px, 1fr)); overflow-x: auto; }
   .tweak-lab-grid { grid-template-columns: 250px minmax(300px, 1fr); }
   .tweak-lab-inspector { grid-column: 1 / -1; border-top: 1px solid var(--color-border-subtle); }
 }

@@ -116,6 +116,26 @@ test('Tweak Package Lab repairs mixed legacy wrappers and reports manual depende
   await expect(diagnostics).toContainText('2 unnumbered fields');
 });
 
+test('Tweak Package Lab preflights value types and safely reorders dependencies', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
+
+  const consumer = Buffer.from('-- Consumer\nUnitDefs["editp_dependency"].canattack = "true"').toString('base64url');
+  const provider = Buffer.from('-- Provider\nUnitDefs["editp_dependency"] = table.copy(UnitDefs["armflea"])').toString('base64url');
+  await page.getByRole('textbox', { name: 'Tweak package input' }).fill(`!bset tweakdefs1 ${consumer}\n!bset tweakdefs2 ${provider}`);
+  await page.getByRole('button', { name: 'Inspect pasted input' }).click();
+
+  await expect(page.locator('.tweak-package-audit__metrics').getByText('Type mismatches').locator('..')).toContainText('1');
+  await expect(page.getByRole('button', { name: 'Apply safe order' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Apply safe order' }).click();
+  const cards = page.locator('.tweak-module-card__main');
+  await expect(cards.nth(0)).toContainText('Provider');
+  await expect(cards.nth(1)).toContainText('Consumer');
+  await expect(page.locator('.tweak-preflight-list').getByText(/canattack expects boolean/i)).toBeVisible();
+});
+
 test('Tweak Package Lab converts literal unit tables into editable project state', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();

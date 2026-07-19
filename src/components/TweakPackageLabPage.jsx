@@ -3,13 +3,18 @@ import { analyzeTweakPackage, MAX_TWEAK_PACKAGE_BYTES, parseTweakPackageInput } 
 import { Button, EmptyState, PageShell, Switch } from './ui.jsx';
 import '../styles/features/tweak-package-lab.css';
 
-function ModuleCard({ module, selected, analysis, onSelect, onUpdate, onRemove, onMove }) {
+function ModuleCard({ module, selected, analysis, report, onSelect, onUpdate, onRemove, onMove }) {
+  const preflightCount = analysis.warnings.length
+    + analysis.typeIssues.length
+    + analysis.runtimeRisks.length
+    + (report?.unresolved.length || 0)
+    + (report?.collisions.length || 0);
   return (
     <article className={`tweak-module-card ${selected ? 'is-selected' : ''}`}>
       <button type="button" className="tweak-module-card__main" onClick={onSelect}>
         <span className={`tweak-module-kind is-${module.kind}`}>{module.kind === 'defs' ? 'DEFS' : 'UNITS'}</span>
         <span><strong>{module.label}</strong><small>{analysis.decodedBytes.toLocaleString()} decoded bytes</small></span>
-        <em>{analysis.warnings.length ? `${analysis.warnings.length} notices` : 'Parsed'}</em>
+        <em>{preflightCount ? `${preflightCount} notices` : 'Preflight clear'}</em>
       </button>
       <div className="tweak-module-card__actions">
         <Switch
@@ -30,7 +35,7 @@ function ModuleCard({ module, selected, analysis, onSelect, onUpdate, onRemove, 
 
 export default function TweakPackageLabPage({
   modules, compiledModules, onAddModules, onUpdateModule, onRemoveModule,
-  onMoveModule, onApplyConversions, onBack, onToast, knownUnitIds = [],
+  onMoveModule, onReorderModules, onApplyConversions, onBack, onToast, knownUnitIds = [],
 }) {
   const [selectedId, setSelectedId] = useState(modules[0]?.id || null);
   const [pasteValue, setPasteValue] = useState('');
@@ -55,6 +60,17 @@ export default function TweakPackageLabPage({
   const selectedAnalysis = selected ? analyses.get(selected.id) : null;
   const selectedReport = selected ? packageAnalysis.moduleReports.find(report => report.moduleId === selected.id) : null;
   const moduleLabel = moduleId => modules.find(module => module.id === moduleId)?.label || moduleId;
+  const reviewCount = packageAnalysis.unresolved.length
+    + packageAnalysis.collisions.length
+    + packageAnalysis.orderingIssues.length
+    + packageAnalysis.cycles.length
+    + packageAnalysis.typeIssues.length;
+
+  const applyRecommendedOrder = () => {
+    if (!packageAnalysis.canAutoOrder || !packageAnalysis.orderingIssues.length) return;
+    onReorderModules(packageAnalysis.recommendedOrderIds);
+    onToast(`Reordered ${modules.length} modules so detected providers load before their consumers.`);
+  };
 
   const importText = (text, options = {}) => {
     const result = parseTweakPackageInput(text, { kind: rawKind, ...options });
@@ -117,7 +133,21 @@ export default function TweakPackageLabPage({
         <section className="tweak-package-audit" aria-label="Package dependency audit">
           <div className="tweak-package-audit__heading">
             <div><span className="workflow-eyebrow">Package architecture</span><h3>Dependencies and reusable recipes</h3></div>
-            <span>{packageAnalysis.unresolved.length || packageAnalysis.collisions.length || packageAnalysis.orderingIssues.length ? 'Review needed' : 'Load order clear'}</span>
+            <div className="tweak-package-audit__actions">
+              <span className={packageAnalysis.blockingIssues.length ? 'is-error' : ''}>
+                {packageAnalysis.blockingIssues.length
+                  ? `${packageAnalysis.blockingIssues.length} active blocker${packageAnalysis.blockingIssues.length === 1 ? '' : 's'}`
+                  : reviewCount ? `${reviewCount} to review` : 'Preflight clear'}
+              </span>
+              {packageAnalysis.orderingIssues.length > 0 && (
+                <Button
+                  size="sm"
+                  disabled={!packageAnalysis.canAutoOrder}
+                  onClick={applyRecommendedOrder}
+                  title={packageAnalysis.canAutoOrder ? 'Move providers before the modules that reference them' : 'Resolve dependency cycles or compiler-lane conflicts first'}
+                >Apply safe order</Button>
+              )}
+            </div>
           </div>
           <div className="tweak-package-audit__metrics">
             <div><span>Modules</span><strong>{modules.length}</strong></div>
@@ -125,11 +155,16 @@ export default function TweakPackageLabPage({
             <div><span>Module links</span><strong>{packageAnalysis.edges.length}</strong></div>
             <div><span>Unresolved IDs</span><strong>{packageAnalysis.unresolved.length}</strong></div>
             <div><span>Definition conflicts</span><strong>{packageAnalysis.collisions.length}</strong></div>
+            <div><span>Type mismatches</span><strong>{packageAnalysis.typeIssues.length}</strong></div>
+            <div><span>Risk locations</span><strong>{packageAnalysis.runtimeRiskCount}</strong></div>
           </div>
-          {(packageAnalysis.collisions.length > 0 || packageAnalysis.orderingIssues.length > 0 || packageAnalysis.cycles.length > 0) && (
+          {(packageAnalysis.unresolved.length > 0 || packageAnalysis.collisions.length > 0 || packageAnalysis.orderingIssues.length > 0 || packageAnalysis.cycles.length > 0 || packageAnalysis.typeIssues.length > 0) && (
             <div className="tweak-package-audit__issues">
+              {packageAnalysis.unresolved.slice(0, 4).map(item => <p key={`unresolved-${item.moduleId}-${item.unitId}`}><b>External ID</b>{moduleLabel(item.moduleId)} references <code>{item.unitId}</code>{item.line ? ` near line ${item.line}` : ''}. Confirm the required BAR unit pack or provider module.</p>)}
               {packageAnalysis.collisions.slice(0, 4).map(item => <p key={`collision-${item.unitId}`}><b>Collision</b><code>{item.unitId}</code> is created by {item.moduleIds.map(moduleLabel).join(' and ')}.</p>)}
               {packageAnalysis.orderingIssues.slice(0, 4).map(edge => <p key={`order-${edge.from}-${edge.to}`}><b>Load order</b>{moduleLabel(edge.from)} needs {moduleLabel(edge.to)} first for <code>{edge.unitIds.join(', ')}</code>.</p>)}
+              {packageAnalysis.boundaryIssues.slice(0, 2).map(edge => <p key={`boundary-${edge.from}-${edge.to}`}><b>Compiler lane</b>{edge.message}</p>)}
+              {packageAnalysis.typeIssues.slice(0, 3).map(issue => <p key={`type-${issue.moduleId}-${issue.line}-${issue.field}`}><b>Value type</b>{moduleLabel(issue.moduleId)}, line {issue.line}: {issue.field} expects {issue.expectedType}.</p>)}
               {packageAnalysis.cycles.slice(0, 2).map(cycle => <p key={`cycle-${cycle.join('-')}`}><b>Dependency cycle</b>{cycle.map(moduleLabel).join(' → ')}.</p>)}
             </div>
           )}
@@ -178,6 +213,7 @@ export default function TweakPackageLabPage({
               module={module}
               selected={selected?.id === module.id}
               analysis={analyses.get(module.id)}
+              report={packageAnalysis.moduleReports.find(report => report.moduleId === module.id)}
               onSelect={() => setSelectedId(module.id)}
               onUpdate={patch => onUpdateModule(module.id, patch)}
               onMove={direction => onMoveModule(module.id, direction)}
@@ -213,6 +249,26 @@ export default function TweakPackageLabPage({
                 <div className="tweak-analysis-warnings">
                   {selectedAnalysis.warnings.map(warning => <p key={`${warning.code}-${warning.message}`} className={`is-${warning.level}`}><strong>{warning.code}</strong>{warning.message}</p>)}
                 </div>
+              )}
+              {(selectedReport?.typeIssues.length > 0 || selectedReport?.runtimeRisks.length > 0) && (
+                <section className="tweak-analysis-section tweak-preflight-section">
+                  <div className="tweak-analysis-section__heading"><h4>Runtime preflight</h4><span>{selectedReport.typeIssues.length + selectedReport.runtimeRisks.length}</span></div>
+                  <p>Static checks for literal value types and table access patterns that commonly produce BAR console errors.</p>
+                  <div className="tweak-preflight-list">
+                    {selectedReport.typeIssues.map(issue => (
+                      <div key={`type-${issue.line}-${issue.field}`} className="is-warning">
+                        <b>Line {issue.line} · Type</b>
+                        <span>{issue.message}</span>
+                      </div>
+                    ))}
+                    {selectedReport.runtimeRisks.map(risk => (
+                      <div key={risk.code} className={`is-${risk.level}`}>
+                        <b>{risk.count}× · {risk.code}</b>
+                        <span>{risk.message} Lines {risk.lines.slice(0, 6).join(', ')}{risk.lines.length > 6 ? '…' : ''}</span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               )}
               <section className="tweak-analysis-section">
                 <h4>Recognized definitions</h4>
@@ -254,8 +310,22 @@ export default function TweakPackageLabPage({
                   <div className="tweak-analysis-section__heading"><h4>Module relationships</h4><span>{selectedReport.dependencies.length}</span></div>
                   {selectedReport.dependencies.map(edge => <p key={`dependency-${edge.to}`}><b>Needs</b>{moduleLabel(edge.to)} <code>{edge.unitIds.join(', ')}</code></p>)}
                   {selectedReport.dependents.map(edge => <p key={`dependent-${edge.from}`}><b>Used by</b>{moduleLabel(edge.from)} <code>{edge.unitIds.join(', ')}</code></p>)}
-                  {selectedReport.unresolved.slice(0, 8).map(item => <p key={`unresolved-${item.unitId}`} className="is-unresolved"><b>External or missing</b><code>{item.unitId}</code></p>)}
+                  {selectedReport.unresolved.slice(0, 8).map(item => <p key={`unresolved-${item.unitId}`} className="is-unresolved"><b>External or missing</b><code>{item.unitId}{item.line ? ` · line ${item.line}` : ''}</code></p>)}
                   {!selectedReport.dependencies.length && !selectedReport.dependents.length && !selectedReport.unresolved.length && <p>No cross-module unit dependencies detected.</p>}
+                </section>
+              )}
+              {selectedReport?.assetReferences.length > 0 && (
+                <section className="tweak-analysis-section">
+                  <div className="tweak-analysis-section__heading"><h4>External asset references</h4><span>{selectedReport.assetReferences.length}</span></div>
+                  <p>BAR assets may be reused by lobby tweaks, but imported paths remain unverified until checked against the matching game version.</p>
+                  <div className="tweak-asset-list">
+                    {selectedReport.assetReferences.slice(0, 12).map((reference, index) => (
+                      <div key={`${reference.line}-${reference.field}-${reference.value}-${index}`}>
+                        <span>{reference.kind} · line {reference.line}</span><code>{reference.value}</code>
+                      </div>
+                    ))}
+                    {selectedReport.assetReferences.length > 12 && <small>+{selectedReport.assetReferences.length - 12} more references</small>}
+                  </div>
                 </section>
               )}
               <section className="tweak-analysis-section">
