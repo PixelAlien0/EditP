@@ -124,6 +124,53 @@ test('wide parameter groups flow independently without paired-row gaps', async (
   }
 });
 
+test('parameter card hover keeps the entire section geometry stable', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const panel = page.locator('#workspace-panel-structure');
+  const cards = panel.locator('.stat-card');
+  await expect(cards.first()).toBeVisible();
+
+  const readGeometry = async () => ({
+    panelHeight: await panel.evaluate(element => element.getBoundingClientRect().height),
+    firstCardStyle: await cards.first().evaluate(element => {
+      const style = getComputedStyle(element);
+      return {
+        borderTopWidth: style.borderTopWidth,
+        borderBottomWidth: style.borderBottomWidth,
+        paddingTop: style.paddingTop,
+        paddingBottom: style.paddingBottom,
+        minHeight: style.minHeight,
+        boxSizing: style.boxSizing,
+        transform: style.transform,
+      };
+    }),
+    cards: await cards.evaluateAll(elements => elements.map(element => {
+      const bounds = element.getBoundingClientRect();
+      return {
+        x: Math.round(bounds.x * 100) / 100,
+        y: Math.round(bounds.y * 100) / 100,
+        width: Math.round(bounds.width * 100) / 100,
+        height: Math.round(bounds.height * 100) / 100,
+      };
+    })),
+  });
+
+  const before = await readGeometry();
+  await cards.first().hover();
+  await page.waitForTimeout(250);
+  expect(await cards.first().evaluate(element => getComputedStyle(element).transform)).toBe('none');
+  expect(await readGeometry()).toEqual(before);
+
+  const compactCard = panel.locator('.parameter-card--compact').first();
+  await compactCard.hover();
+  await page.waitForTimeout(250);
+  expect(await compactCard.evaluate(element => getComputedStyle(element).transform)).toBe('none');
+  expect(await readGeometry()).toEqual(before);
+});
+
 test('primary actions use restrained accent surfaces instead of solid pink fills', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.addInitScript(() => localStorage.setItem('bmf_theme', 'dark'));

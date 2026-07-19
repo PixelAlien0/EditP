@@ -4496,7 +4496,7 @@ select:focus-visible,
   box-shadow:
     0 8px 22px rgba(0, 0, 0, 0.10),
     inset 0 1px 0 rgba(231, 218, 195, 0.025);
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 }
 
 .stat-card::before {
@@ -8597,8 +8597,7 @@ textarea.form-input {
 }
 
 /* Parameters */
-.stat-card,
-.stat-card:hover {
+.stat-card {
   min-height: 104px;
   padding: 14px !important;
   border: 1px solid #ddd4cb !important;
@@ -8610,7 +8609,7 @@ textarea.form-input {
 .stat-card:hover {
   border-color: #bdb0a6 !important;
   box-shadow: var(--shadow-soft) !important;
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .stat-card::before,
