@@ -2775,14 +2775,6 @@ select:focus-visible,
   gap: 8px;
 }
 
-.review-content-grid {
-  max-width: 1500px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(390px, 0.72fr);
-  align-items: start;
-}
-
 .review-main-column {
   display: flex;
   flex-direction: column;
@@ -2829,16 +2821,14 @@ select:focus-visible,
   line-height: 1;
 }
 
-.review-card,
-.export-console {
+.review-card {
   border: 1px solid var(--b1);
   border-radius: 7px;
   background: rgba(26, 24, 20, 0.94);
   overflow: hidden;
 }
 
-.review-card-heading,
-.export-console-header {
+.review-card-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2846,8 +2836,7 @@ select:focus-visible,
   border-bottom: 1px solid var(--b0);
 }
 
-.review-card-heading h3,
-.export-console-header h3 {
+.review-card-heading h3 {
   color: var(--t0);
   font-size: 15px;
 }
@@ -2962,10 +2951,6 @@ select:focus-visible,
   font-size: 10px;
 }
 
-.export-console {
-  top: 0;
-}
-
 .export-metadata-grid {
   padding: 15px;
   display: grid;
@@ -3067,9 +3052,6 @@ select:focus-visible,
     font-size: 9px;
   }
 
-  .review-content-grid {
-    grid-template-columns: 1fr 390px;
-  }
 }
 
 /* Header and collapsed changes rail — refined Japandi composition */
@@ -3363,13 +3345,6 @@ select:focus-visible,
     display: none;
   }
 
-  .review-content-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .export-console {
-    position: static;
-  }
 }
 
 /* Editor workspace / project changes refresh — Japandi hierarchy */
@@ -8786,7 +8761,6 @@ input:checked + .weapon-ceg-track {
 .bulk-panel,
 .random-panel,
 .weapon-swap-modal,
-.export-console,
 .designer-modal-container,
 .preset-gallery-modal {
   border-color: #d7cdc4 !important;
@@ -9266,8 +9240,7 @@ input:checked + .weapon-ceg-track {
   background: var(--color-canvas) !important;
 }
 
-.review-page-header,
-.review-content-grid {
+.review-page-header {
   max-width: var(--content-max-width);
 }
 
@@ -9291,11 +9264,6 @@ input:checked + .weapon-ceg-track {
 
 .review-header-actions .btn-action {
   min-height: 38px;
-}
-
-.review-content-grid {
-  grid-template-columns: minmax(0, 1fr) 390px;
-  gap: 20px;
 }
 
 .review-main-column {
@@ -9346,23 +9314,20 @@ input:checked + .weapon-ceg-track {
   line-height: var(--line-height-body);
 }
 
-.review-card,
-.export-console {
+.review-card {
   border: 1px solid var(--color-border) !important;
   border-radius: var(--radius-md) !important;
   background: var(--color-surface-raised) !important;
   box-shadow: none !important;
 }
 
-.review-card-heading,
-.export-console-header {
+.review-card-heading {
   padding: 16px 18px;
   border-bottom: 1px solid var(--color-border) !important;
   background: var(--color-surface) !important;
 }
 
-.review-card-heading h3,
-.export-console-header h3 {
+.review-card-heading h3 {
   color: var(--color-text-strong) !important;
   font-family: var(--font-display);
   font-size: 19px;
@@ -9450,12 +9415,6 @@ input:checked + .weapon-ceg-track {
   background: var(--color-surface-raised) !important;
 }
 
-.export-console {
-  position: sticky;
-  top: 20px;
-  overflow: hidden;
-}
-
 .export-metadata-grid,
 .export-flags,
 .export-primary-actions {
@@ -9506,13 +9465,6 @@ input:checked + .weapon-ceg-track {
     padding: 24px 20px;
   }
 
-  .review-content-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .export-console {
-    position: static;
-  }
 }
 
 /* Unit context strip — single-row operational dossier. */

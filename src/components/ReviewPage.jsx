@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Button, EmptyState, PageShell, SwitchField, Tabs, TextAreaField, TextField } from './ui.jsx';
+import '../styles/features/review-export.css';
 
 const EXPORT_TABS = [
   { id: 'tweakdefs_lua', label: 'Definitions Lua' },
@@ -20,6 +22,17 @@ export default function ReviewPage({
   collectionScope,
   onBack, onExport, onOpenSummary, onEditUnit, onToast
 }) {
+  const [selectedSlotField, setSelectedSlotField] = useState('');
+  const [slotPreviewMode, setSlotPreviewMode] = useState('command');
+  const lobbySlots = compiledLobbyModules?.slots || [];
+  const selectedLobbySlot = lobbySlots.find(slot => slot.fieldName === selectedSlotField) || lobbySlots[0] || null;
+  const selectedSlotOutput = selectedLobbySlot
+    ? slotPreviewMode === 'lua'
+      ? selectedLobbySlot.lua
+      : slotPreviewMode === 'base64'
+        ? selectedLobbySlot.encoded
+        : selectedLobbySlot.command
+    : '';
   const openSummary = tab => onOpenSummary(tab);
   const copyOutput = async () => {
     try {
@@ -111,72 +124,140 @@ export default function ReviewPage({
           </section>
         </div>
 
-        <aside className="export-console">
-          <div className="export-console-header"><div><span className="workflow-eyebrow">Export console</span><h3>{projectName}</h3></div><span className={`review-status ${limitRisk}`}>{totalBytesUsed.toLocaleString()} encoded bytes</span></div>
-          <div className="export-metadata-grid">
-            <TextField label="Mod name" value={projectName} onChange={event => setProjectName(event.target.value)} />
-            <TextField label="Author" value={projectAuthor} onChange={event => setProjectAuthor(event.target.value)} />
-            <TextAreaField className="full" label="Description" value={projectDesc} onChange={event => setProjectDesc(event.target.value)} />
-          </div>
-          <div className="export-flags">
-            <SwitchField label="Parameter tweaks" checked={includeTweaks} onChange={event => setIncludeTweaks(event.target.checked)} />
-            <SwitchField label="Custom units" checked={includeClones} onChange={event => setIncludeClones(event.target.checked)} />
-            <SwitchField label="Build menus" checked={includeRosters} onChange={event => setIncludeRosters(event.target.checked)} />
-            <SwitchField label="Header comments" checked={includeHeader} onChange={event => setIncludeHeader(event.target.checked)} />
-          </div>
-          <section className="lobby-export-guide" aria-labelledby="lobby-export-guide-title">
-            <div className="lobby-export-guide__heading">
+        <aside className="modular-export-console" aria-label="Export console">
+          <header className="modular-export-console__header">
+            <div>
+              <span className="workflow-eyebrow">Lobby delivery</span>
+              <h3>Export Console</h3>
+              <p>{projectName || 'Untitled BAR project'}</p>
+            </div>
+            <div className="export-console-health">
+              <span className={`review-status ${compiledLobbyModules?.overflow ? 'error' : limitRisk}`}>{compiledLobbyModules?.overflow ? 'Blocked' : 'Package ready'}</span>
+              <small>{totalBytesUsed.toLocaleString()} encoded bytes</small>
+            </div>
+          </header>
+
+          <details className="export-console-config" open>
+            <summary><span>Package identity</span><small>Name, attribution, and enabled systems</small></summary>
+            <div className="export-metadata-grid">
+              <TextField label="Mod name" value={projectName} onChange={event => setProjectName(event.target.value)} />
+              <TextField label="Author" value={projectAuthor} onChange={event => setProjectAuthor(event.target.value)} />
+              <TextAreaField className="full" label="Description" value={projectDesc} onChange={event => setProjectDesc(event.target.value)} />
+            </div>
+            <div className="export-console-flags">
+              <SwitchField label="Parameter tweaks" checked={includeTweaks} onChange={event => setIncludeTweaks(event.target.checked)} />
+              <SwitchField label="Custom units" checked={includeClones} onChange={event => setIncludeClones(event.target.checked)} />
+              <SwitchField label="Build menus" checked={includeRosters} onChange={event => setIncludeRosters(event.target.checked)} />
+              <SwitchField label="Header comments" checked={includeHeader} onChange={event => setIncludeHeader(event.target.checked)} />
+            </div>
+          </details>
+
+          <section className="modular-lobby-package" aria-labelledby="lobby-export-guide-title">
+            <div className="modular-lobby-package__heading">
               <div>
-                <span className="workflow-eyebrow">BAR lobby setup</span>
+                <span className="workflow-eyebrow">Current BAR setup</span>
                 <h4 id="lobby-export-guide-title">Numbered lobby package</h4>
+                <p>Definitions load first, followed by Units. Each group has exactly nine available fields.</p>
               </div>
-              <span className={`lobby-export-guide__count ${compiledLobbyModules?.overflow ? 'is-overflow' : ''}`}>
-                {(compiledLobbyModules?.defs.required || 0) + (compiledLobbyModules?.units.required || 0)} / 18 slots
-              </span>
+              <Button variant="primary" onClick={copyAllLobbyCommands} disabled={!lobbyCommands || compiledLobbyModules?.overflow}>Copy all !bset commands</Button>
             </div>
-            <p>BAR provides nine Definitions slots and nine Units slots. Commands are ordered so Definitions load before Units.</p>
+
             <div className="lobby-slot-capacity" aria-label="Lobby slot usage">
-              <div className={compiledLobbyModules?.defs.overflow ? 'is-overflow' : ''}><span>Definitions</span><strong>{compiledLobbyModules?.defs.required || 0} / 9</strong></div>
-              <div className={compiledLobbyModules?.units.overflow ? 'is-overflow' : ''}><span>Units</span><strong>{compiledLobbyModules?.units.required || 0} / 9</strong></div>
-            </div>
-            {compiledLobbyModules?.overflow && (
-              <div className="lobby-slot-overflow">
-                <strong>Package exceeds the available slots.</strong>
-                <span>Disable imported modules or reduce the project before copying commands.</span>
-                {[...(compiledLobbyModules.defs.overflow ? compiledLobbyModules.defs.largestModules : []), ...(compiledLobbyModules.units.overflow ? compiledLobbyModules.units.largestModules : [])]
-                  .slice(0, 3)
-                  .map(module => <small key={`${module.id}-${module.label}`}>{module.label} · {module.encodedBytes.toLocaleString()} bytes{module.source === 'imported' ? ' · can be disabled in Tweak Package Lab' : ''}</small>)}
-              </div>
-            )}
-            <div className="lobby-export-guide__rows lobby-module-slots">
-              {(compiledLobbyModules?.slots || []).map(slot => (
-                <div className="lobby-export-row" key={slot.fieldName}>
-                  <div><strong>{slot.fieldName}</strong><span>{slot.label} · {slot.encodedBytes.toLocaleString()} bytes{slot.compatibility === 'advisory' ? ' · legacy size advisory' : ''}</span></div>
-                  <details className="lobby-slot-inspector">
-                    <summary>Inspect</summary>
-                    <div><strong>Lua</strong><pre>{slot.lua}</pre><strong>Base64</strong><pre>{slot.encoded}</pre></div>
-                  </details>
-                  <Button size="sm" onClick={() => copyLobbyValue(slot.fieldName, slot.command)}>Copy !bset</Button>
+              {[
+                { id: 'defs', label: 'Definitions', data: compiledLobbyModules?.defs },
+                { id: 'units', label: 'Units', data: compiledLobbyModules?.units },
+              ].map(group => (
+                <div key={group.id} className={group.data?.overflow ? 'is-overflow' : ''} style={{ '--slot-capacity': `${Math.min(100, ((group.data?.required || 0) / 9) * 100)}%` }}>
+                  <span>{group.label}</span>
+                  <strong>{group.data?.required || 0} / 9</strong>
+                  <i aria-hidden="true"><b /></i>
                 </div>
               ))}
             </div>
-            <Button variant="primary" onClick={copyAllLobbyCommands} disabled={!lobbyCommands || compiledLobbyModules?.overflow}>Copy all !bset commands</Button>
-            <div className="legacy-lobby-quick-actions" aria-label="Legacy combined payloads">
-              <Button size="sm" onClick={() => copyLobbyValue('Tweak Defs', tweakDefsB64)} disabled={!tweakDefsB64}>Copy Defs Base64</Button>
-              <Button size="sm" onClick={() => copyLobbyValue('Tweak Units', tweakUnitsB64)} disabled={!tweakUnitsB64}>Copy Units Base64</Button>
-            </div>
-            <details className="legacy-lobby-export">
-              <summary>Legacy combined payloads</summary>
-              <div className="lobby-export-guide__rows">
-                <div className="lobby-export-row"><div><strong>Tweak Defs</strong><span>Combined compatibility output</span></div></div>
-                <div className="lobby-export-row"><div><strong>Tweak Units</strong><span>Combined compatibility output</span></div></div>
+
+            {compiledLobbyModules?.overflow && (
+              <div className="lobby-slot-overflow" role="alert">
+                <strong>Package exceeds the available BAR fields.</strong>
+                <span>Disable imported modules or reduce generated sections before copying commands.</span>
+                {[...(compiledLobbyModules.defs.overflow ? compiledLobbyModules.defs.largestModules : []), ...(compiledLobbyModules.units.overflow ? compiledLobbyModules.units.largestModules : [])]
+                  .slice(0, 3)
+                  .map(module => <small key={`${module.id}-${module.label}`}>{module.label} · {module.encodedBytes.toLocaleString()} bytes{module.source === 'imported' ? ' · disable from Tweak Package Lab' : ''}</small>)}
               </div>
-              <small>{lobbyByteLimit.toLocaleString()} bytes is retained only as a legacy advisory.</small>
-            </details>
+            )}
+
+            <div className="lobby-slot-workbench">
+              <nav className="lobby-slot-index" aria-label="Generated lobby slots">
+                {['defs', 'units'].map(kind => (
+                  <div className="lobby-slot-index__group" key={kind}>
+                    <span>{kind === 'defs' ? 'Definitions' : 'Units'}</span>
+                    {lobbySlots.filter(slot => slot.kind === kind).map(slot => (
+                      <button
+                        type="button"
+                        key={slot.fieldName}
+                        className={selectedLobbySlot?.fieldName === slot.fieldName ? 'is-active' : ''}
+                        aria-pressed={selectedLobbySlot?.fieldName === slot.fieldName}
+                        onClick={() => setSelectedSlotField(slot.fieldName)}
+                      >
+                        <strong>{slot.fieldName}</strong>
+                        <small>{slot.encodedBytes.toLocaleString()} B</small>
+                      </button>
+                    ))}
+                    {!lobbySlots.some(slot => slot.kind === kind) && <em>No generated slots</em>}
+                  </div>
+                ))}
+              </nav>
+
+              <section className="lobby-slot-viewer" aria-live="polite">
+                {selectedLobbySlot ? (
+                  <>
+                    <div className="lobby-slot-viewer__header">
+                      <div>
+                        <span>{selectedLobbySlot.source === 'imported' ? 'Imported module' : 'Editor generated'}</span>
+                        <h5>{selectedLobbySlot.fieldName}</h5>
+                        <p>{selectedLobbySlot.label}</p>
+                      </div>
+                      <span className={`slot-compatibility is-${selectedLobbySlot.compatibility}`}>{selectedLobbySlot.compatibility === 'advisory' ? 'Size advisory' : 'Compatible'}</span>
+                    </div>
+                    <div className="lobby-slot-viewer__toolbar">
+                      <div role="group" aria-label="Slot preview format">
+                        {[
+                          ['command', '!bset'],
+                          ['lua', 'Lua'],
+                          ['base64', 'Base64'],
+                        ].map(([id, label]) => <button type="button" key={id} className={slotPreviewMode === id ? 'is-active' : ''} aria-pressed={slotPreviewMode === id} onClick={() => setSlotPreviewMode(id)}>{label}</button>)}
+                      </div>
+                      <Button size="sm" onClick={() => copyLobbyValue(selectedLobbySlot.fieldName, selectedLobbySlot.command)}>Copy this !bset</Button>
+                    </div>
+                    <pre className="lobby-slot-code">{selectedSlotOutput}</pre>
+                  </>
+                ) : (
+                  <EmptyState compact title="No lobby output yet" description="Enable a subsystem or import a module to generate numbered BAR fields." />
+                )}
+              </section>
+            </div>
           </section>
-          <Tabs className="export-output-tabs" size="sm" label="Generated output format" items={EXPORT_TABS} value={activeOutputTab} onChange={setActiveOutputTab} />
-          <pre className="export-code-preview">{activeCompiledOutput || activeCompiledOutputFallback}</pre>
-          <div className="export-primary-actions"><Button onClick={copyOutput}>Copy current output</Button><Button variant="primary" onClick={onExport}>Download project JSON</Button></div>
+
+          <details className="legacy-compiler-panel">
+            <summary>
+              <span><strong>Legacy combined compiler</strong><small>Compatibility inspection only</small></span>
+              <em>{lobbyByteLimit.toLocaleString()} byte advisory</em>
+            </summary>
+            <div className="legacy-compiler-panel__body">
+              <p>The numbered package above is the recommended export. Use this view only for older workflows expecting one combined Definitions and Units payload.</p>
+              <Tabs className="export-output-tabs" size="sm" label="Legacy generated output format" items={EXPORT_TABS} value={activeOutputTab} onChange={setActiveOutputTab} />
+              <pre className="export-code-preview">{activeCompiledOutput || activeCompiledOutputFallback}</pre>
+              <div className="legacy-lobby-quick-actions" aria-label="Legacy combined payloads">
+                <Button size="sm" onClick={() => copyLobbyValue('Tweak Defs', tweakDefsB64)} disabled={!tweakDefsB64}>Copy Defs Base64</Button>
+                <Button size="sm" onClick={() => copyLobbyValue('Tweak Units', tweakUnitsB64)} disabled={!tweakUnitsB64}>Copy Units Base64</Button>
+                <Button size="sm" onClick={copyOutput}>Copy current output</Button>
+              </div>
+            </div>
+          </details>
+
+          <footer className="export-console-footer">
+            <div><strong>Project document</strong><span>Save editable clones, modules, presets, and compiler settings.</span></div>
+            <Button onClick={onExport}>Download project JSON</Button>
+          </footer>
         </aside>
       </div>
     </PageShell>

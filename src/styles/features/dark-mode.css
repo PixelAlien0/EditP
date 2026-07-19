@@ -502,7 +502,6 @@ html[data-theme="dark"] {
 /* Review, designer, preset gallery */
 [data-theme="dark"] .review-summary-grid > *,
 [data-theme="dark"] .review-card,
-[data-theme="dark"] .export-console,
 [data-theme="dark"] .validation-row,
 [data-theme="dark"] .change-ledger-list > button,
 [data-theme="dark"] .preset-gallery-page .preset-card,
@@ -516,7 +515,6 @@ html[data-theme="dark"] {
 }
 
 [data-theme="dark"] .review-card-heading,
-[data-theme="dark"] .export-console-header,
 [data-theme="dark"] .preset-gallery-page .preset-gallery-header,
 [data-theme="dark"] .designer-page .designer-modal-header,
 [data-theme="dark"] .designer-page .designer-panel,

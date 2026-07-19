@@ -85,11 +85,15 @@ test('Tweak Package Lab imports inert modules and exposes numbered slots', async
 
   await page.getByRole('button', { name: 'Back to editor' }).click();
   await page.getByRole('button', { name: /Review & Export/i }).click();
+  await expect(page.getByRole('heading', { name: 'Export Console' })).toBeVisible();
   await expect(page.locator('.lobby-slot-capacity > div').filter({ hasText: 'Definitions' })).toContainText('/ 9');
   await expect(page.getByRole('button', { name: 'Copy all !bset commands' })).toBeEnabled();
+  await expect(page.getByRole('navigation', { name: 'Generated lobby slots' }).getByRole('button', { name: /tweakdefs1/i })).toBeVisible();
+  await page.getByRole('button', { name: 'Lua', exact: true }).click();
+  await expect(page.locator('.lobby-slot-code')).toContainText('editp_lab_test');
 });
 
-test('main menu, editor, and collections have no serious accessibility violations', async ({ page }) => {
+test('main menu, editor, collections, and export have no serious accessibility violations', async ({ page }) => {
   await waitForMainMenu(page);
   let results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
   expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
@@ -101,6 +105,11 @@ test('main menu, editor, and collections have no serious accessibility violation
 
   await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Collections/ }).click();
   await expect(page.getByRole('heading', { name: 'Collections', exact: true })).toBeVisible();
+  results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
+  expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
+
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+  await expect(page.getByRole('heading', { name: 'Export Console' })).toBeVisible();
   results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
   expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
 });
@@ -647,7 +656,7 @@ test('cloning preserves economy, durability, and explosion edits in their requir
   await page.getByRole('button', { name: /Review & Export/i }).click();
   const customUnitsFlag = page.getByRole('switch', { name: 'Custom units' });
   await expect(customUnitsFlag).toBeChecked();
-  await page.locator('.export-flags .ui-switch-field').filter({ hasText: 'Custom units' }).click();
+  await page.locator('.export-console-flags .ui-switch-field').filter({ hasText: 'Custom units' }).click();
   await expect(customUnitsFlag).not.toBeChecked();
   await page.getByRole('button', { name: 'Back to editor' }).click();
 
@@ -663,6 +672,7 @@ test('cloning preserves economy, durability, and explosion edits in their requir
   await page.getByRole('button', { name: /Review & Export/i }).click();
   await expect(page.getByRole('switch', { name: 'Custom units' })).toBeChecked();
   await expect(page.getByRole('switch', { name: 'Parameter tweaks' })).toBeChecked();
+  await page.getByText('Legacy combined compiler', { exact: true }).click();
   await expect(page.getByRole('button', { name: 'Copy Defs Base64' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Copy Units Base64' })).toBeEnabled();
   await page.getByRole('tab', { name: 'Definitions Lua' }).click();
