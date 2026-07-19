@@ -300,6 +300,56 @@
   display: none;
 }
 
+/* Full-width collections manage their own density. The smaller analysis cards
+   then share one balanced row without inheriting the collection height. */
+.tweak-lab-inspector.is-fullscreen .tweak-lab-inspector__content.is-view-summary {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+}
+
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-analysis-metrics {
+  grid-column: 1 / -1;
+}
+
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .inspector-summary-panel,
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-literal-summary {
+  width: 100%;
+  height: auto;
+  margin: 0;
+}
+
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-literal-summary,
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-support-candidates,
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-helper-recipes {
+  grid-column: 1 / -1;
+}
+
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-definitions-section,
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-custom-params-section,
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-module-relationships,
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-conversions-section {
+  grid-column: span 3;
+  align-self: start;
+}
+
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-support-candidates > div:last-child {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-helper-recipes .tweak-helper-list {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (max-width: 1180px) {
+  .tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-definitions-section,
+  .tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-custom-params-section,
+  .tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-module-relationships,
+  .tweak-lab-inspector.is-fullscreen .is-view-summary > .tweak-conversions-section {
+    grid-column: span 6;
+  }
+}
+
 .tweak-lab-inspector.is-fullscreen .is-view-diagnostics > .tweak-analysis-warnings { grid-column: span 12; }
 .tweak-lab-inspector.is-fullscreen .is-view-diagnostics > .tweak-preflight-section { grid-column: span 8; }
 .tweak-lab-inspector.is-fullscreen .is-view-diagnostics > .tweak-module-relationships { grid-column: span 4; }
