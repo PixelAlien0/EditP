@@ -276,14 +276,25 @@ async function main() {
   const resolveSource = createSourceResolver(ddsPaths);
   const buildpics = await collectBuildpicMappings(unitLuaPaths);
   const unitSources = new Map();
-  const unresolvedSourceIds = [];
 
   for (const unitId of unitIds) {
     const logicalName = buildpics.get(unitId) || fallbackLogicalName(unitId);
     const sourcePath = resolveSource(logicalName);
     if (sourcePath) unitSources.set(unitId, sourcePath);
-    else unresolvedSourceIds.push(unitId);
   }
+
+  // Some generated Scavenger variants do not have their own unit Lua/buildpic,
+  // even though their base unit already resolved to valid artwork. Reuse that
+  // canonical source instead of emitting a logo placeholder.
+  const inheritedScavengerSourceIds = [];
+  for (const unitId of unitIds) {
+    if (unitSources.has(unitId) || !unitId.startsWith('scav_')) continue;
+    const baseSource = unitSources.get(unitId.slice(5));
+    if (!baseSource) continue;
+    unitSources.set(unitId, baseSource);
+    inheritedScavengerSourceIds.push(unitId);
+  }
+  const unresolvedSourceIds = unitIds.filter(unitId => !unitSources.has(unitId));
 
   const sourcePaths = [...new Set(unitSources.values())].sort();
   const cacheDir = path.join(RAW_CACHE_ROOT, commit.sha.slice(0, 12));
@@ -313,6 +324,9 @@ async function main() {
     manifestUnits[unitId] = assetUrl || PLACEHOLDER_URL;
     if (!assetUrl) placeholders.push(unitId);
   }
+  const scavengerUnitIds = unitIds.filter(unitId => unitId.startsWith('scav_'));
+  const scavengerResolvedIds = scavengerUnitIds.filter(unitId => manifestUnits[unitId] !== PLACEHOLDER_URL);
+  const scavengerUniqueAssets = new Set(scavengerResolvedIds.map(unitId => manifestUnits[unitId]));
 
   const manifest = {
     version: 1,
@@ -333,6 +347,11 @@ async function main() {
       assetBytes: generated.bytes,
       unresolvedSourceCount: unresolvedSourceIds.length,
       failedSourceCount: generated.failures.length,
+      scavengerUnitCount: scavengerUnitIds.length,
+      scavengerResolvedCount: scavengerResolvedIds.length,
+      scavengerInheritedCount: inheritedScavengerSourceIds.length,
+      scavengerUniqueAssetCount: scavengerUniqueAssets.size,
+      scavengerPlaceholderCount: scavengerUnitIds.length - scavengerResolvedIds.length,
     },
     units: manifestUnits,
     placeholders,
@@ -356,6 +375,7 @@ async function main() {
   console.log(`  Unique WebPs: ${generated.files.length}`);
   console.log(`  Library size: ${formatBytes(generated.bytes)}`);
   console.log(`  Placeholders: ${placeholders.length}`);
+  console.log(`  Scavenger pictures: ${scavengerResolvedIds.length}/${scavengerUnitIds.length} (${inheritedScavengerSourceIds.length} inherited)`);
   if (generated.failures.length > 0) {
     console.warn('  Failed sources:');
     generated.failures.slice(0, 20).forEach(item => console.warn(`    ${item.sourcePath}: ${item.error}`));

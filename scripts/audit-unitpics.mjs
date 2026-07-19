@@ -56,6 +56,7 @@ for (const filePath of allUnitpicFiles) {
 
 const referencedAssets = new Set();
 const manifestPlaceholders = new Set(manifest.placeholders || []);
+const scavengerUnitIds = expectedUnitIds.filter(unitId => unitId.startsWith('scav_'));
 for (const unitId of expectedUnitIds) {
   const assetUrl = manifest.units?.[unitId];
   if (!assetUrl) {
@@ -64,6 +65,12 @@ for (const unitId of expectedUnitIds) {
   }
   if (assetUrl === PLACEHOLDER_URL) {
     if (!manifestPlaceholders.has(unitId)) errors.push(`Placeholder list is missing ${unitId}`);
+    if (unitId.startsWith('scav_')) {
+      const baseAssetUrl = manifest.units?.[unitId.slice(5)];
+      if (baseAssetUrl && baseAssetUrl !== PLACEHOLDER_URL) {
+        errors.push(`Scavenger artwork for ${unitId} should inherit ${unitId.slice(5)}`);
+      }
+    }
     continue;
   }
   if (manifestPlaceholders.has(unitId)) errors.push(`Placeholder list incorrectly contains ${unitId}`);
@@ -86,6 +93,10 @@ if (unexpectedManifestUnits.length > 0) errors.push(`${unexpectedManifestUnits.l
 if (totalBytes > MAX_LIBRARY_BYTES) errors.push(`Library exceeds 75 MB: ${formatBytes(totalBytes)}`);
 const p95Bytes = percentile(sizes, 0.95);
 if (p95Bytes > MAX_P95_BYTES) errors.push(`p95 asset exceeds 50 KB: ${formatBytes(p95Bytes)}`);
+const scavengerResolvedCount = scavengerUnitIds.filter(unitId => manifest.units?.[unitId] !== PLACEHOLDER_URL).length;
+const scavengerUniqueAssetCount = new Set(
+  scavengerUnitIds.map(unitId => manifest.units?.[unitId]).filter(assetUrl => assetUrl && assetUrl !== PLACEHOLDER_URL),
+).size;
 
 let distBytes = null;
 if (process.argv.includes('--dist')) {
@@ -101,6 +112,7 @@ console.log('Unit artwork audit');
 console.log(`  Source commit: ${manifest.sourceCommit || 'unknown'}`);
 console.log(`  Units: ${expectedUnitIds.length}`);
 console.log(`  Placeholders: ${manifest.placeholders?.length || 0}`);
+console.log(`  Scavenger pictures: ${scavengerResolvedCount}/${scavengerUnitIds.length} (${scavengerUniqueAssetCount} unique)`);
 console.log(`  Unique assets: ${assetFiles.length}`);
 console.log(`  Library size: ${formatBytes(totalBytes)}`);
 console.log(`  Largest asset: ${formatBytes(Math.max(0, ...sizes))}`);
