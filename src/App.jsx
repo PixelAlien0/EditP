@@ -1214,7 +1214,8 @@ export default function App() {
       safeClones.push({
         baseId: item.baseId,
         newId: item.newId,
-        displayName: item.newId,
+        displayName: item.displayName || item.newId,
+        customTooltip: item.description || item.displayName || item.newId,
         builderIds: [],
         addToOriginalBuilders: false,
       });
@@ -1224,7 +1225,9 @@ export default function App() {
       setClones(current => [...current, ...safeClones]);
     }
 
-    const menuConversions = conversions.filter(item => item.type === 'build-add' || item.type === 'build-remove');
+    const menuConversions = conversions.filter(item => (
+      item.type === 'build-add' || item.type === 'build-remove' || item.type === 'build-roster'
+    ));
     if (menuConversions.length) {
       setIncludeRosters(true);
       setBuildMenuSteps(current => {
@@ -1235,7 +1238,17 @@ export default function App() {
             step = { builderId: item.builderId, add: [], remove: [], order: [] };
             next.push(step);
           }
-          if (item.type === 'build-add') {
+          if (item.type === 'build-roster') {
+            const desired = [...new Set((item.unitIds || []).map(id => id.toLowerCase()))];
+            const rootBuilderId = resolveCloneRootId(item.builderId);
+            const defaults = activeFactoryRosters[item.builderId] || activeFactoryRosters[rootBuilderId] || [];
+            const defaultIds = defaults.map(id => id.toLowerCase());
+            const desiredSet = new Set(desired);
+            const defaultSet = new Set(defaultIds);
+            step.add = desired.filter(id => !defaultSet.has(id));
+            step.remove = defaultIds.filter(id => !desiredSet.has(id));
+            step.order = desired;
+          } else if (item.type === 'build-add') {
             step.remove = step.remove.filter(id => id.toLowerCase() !== item.unitId);
             if (!step.add.some(id => id.toLowerCase() === item.unitId)) step.add.push(item.unitId);
           } else {
@@ -1253,8 +1266,10 @@ export default function App() {
       if (item.type !== 'weapon-parameter' || !existingIds.has(item.unitId)) return [];
       const unitInfo = allUnitsList.find(unit => unit.id.toLowerCase() === item.unitId);
       const baseId = importedCloneBases.get(item.unitId) || (unitInfo?.isClone ? resolveCloneRootId(item.unitId) : item.unitId);
-      const slot = defaultsDb[baseId]?.weaponSlots?.find(entry => entry.defKey?.toLowerCase() === item.weaponDefKey);
-      return slot ? [{ ...item, tweakKey: `weapon_slot_${slot.slot}_${item.key}` }] : [];
+      const resolvedSlot = Number.isInteger(Number(item.slot)) && Number(item.slot) > 0
+        ? Number(item.slot)
+        : defaultsDb[baseId]?.weaponSlots?.find(entry => entry.defKey?.toLowerCase() === item.weaponDefKey)?.slot;
+      return resolvedSlot ? [{ ...item, tweakKey: `weapon_slot_${resolvedSlot}_${item.key}` }] : [];
     });
     if (parameterConversions.length || weaponConversions.length) {
       setIncludeTweaks(true);
@@ -1277,7 +1292,7 @@ export default function App() {
     }
     setTweakModules(current => current.map(item => item.id === module.id ? { ...item, converted: true, enabled: false } : item));
     showToast(`${appliedCount} recognized change${appliedCount === 1 ? '' : 's'} applied. Source module archived.`);
-  }, [allUnitsList, defaultsDb, resolveCloneRootId, setBuildMenuSteps, setClones, setIncludeClones, setIncludeRosters, setIncludeTweaks, setTweakModules, setTweaks, showToast]);
+  }, [activeFactoryRosters, allUnitsList, defaultsDb, resolveCloneRootId, setBuildMenuSteps, setClones, setIncludeClones, setIncludeRosters, setIncludeTweaks, setTweakModules, setTweaks, showToast]);
 
   const activeCollection = useMemo(
     () => unitCollections.find(collection => collection.id === activeCollectionId) || null,

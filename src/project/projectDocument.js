@@ -117,6 +117,9 @@ function normalizeTweakModules(value) {
       stage: rawModule.stage === 'after-editor' ? 'after-editor' : 'before-editor',
       order: Number.isFinite(Number(rawModule.order)) ? Number(rawModule.order) : index,
       attribution: text(rawModule.attribution, '', 500),
+      requirements: Array.isArray(rawModule.requirements)
+        ? [...new Set(rawModule.requirements.map(item => text(item, '', 80).trim()).filter(Boolean))].slice(0, 10)
+        : [],
     }];
   });
 }

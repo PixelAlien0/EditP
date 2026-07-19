@@ -44,5 +44,73 @@ describe('tweak package import', () => {
     expect(result.modules).toHaveLength(1);
     expect(result.errors[0]).toContain('duplicate');
   });
-});
 
+  it('extracts mixed legacy packages, dependencies, and duplicate fields', () => {
+    const first = encodeLobbyBase64('-- First module\nlocal a = true', { padding: false });
+    const second = encodeLobbyBase64('-- Second module\nlocal b = true', { padding: false });
+    const units = encodeLobbyBase64('{ armflea = { health = 100 } }', { padding: false });
+    const result = parseTweakPackageInput(`
+      ALL TWEAKS
+      !bset forceallunits 1
+      !bset tweakdefs ${first}
+      SCAVENGERS
+      !bset tweakdefs ${second}
+      !bset tweakunits1 ${units}
+    `);
+    expect(result.errors).toEqual([]);
+    expect(result.modules).toHaveLength(3);
+    expect(result.modules.map(module => module.label)).toEqual(['First module', 'Second module', 'tweakunits1']);
+    expect(result.modules.every(module => module.requirements.includes('forceallunits'))).toBe(true);
+    expect(result.notices.join(' ')).toContain('tweakdefs appears 2 times');
+    expect(result.notices.join(' ')).toContain('Force-load all units');
+    expect(result.notices.join(' ')).toContain('unnumbered legacy');
+  });
+
+  it('converts literal tweakunits tables into unit and weapon edits', () => {
+    const module = parseTweakPackageInput(`{
+      editp_ship = {
+        health = 900,
+        speed = 2.5,
+        buildoptions = { 'editp_drone', 'armflea' },
+        customparams = { carried_unit = 'editp_drone', spawnrate = 5 },
+        weapondefs = {
+          laser = {
+            range = 600,
+            reloadtime = 0.7,
+            damage = { default = 42 },
+            customparams = { cluster_def = 'laser_sub', cluster_number = 4 },
+          },
+        },
+        weapons = { [1] = { def = 'LASER', onlytargetcategory = 'SURFACE' } },
+      },
+    }`, { kind: 'units' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+    expect(analysis.literalUnitTables).toBe(1);
+    expect(analysis.literalWeaponDefinitions).toBe(1);
+    expect(analysis.conversions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'unit-parameter', unitId: 'editp_ship', key: 'health', value: 900 }),
+      expect.objectContaining({ type: 'unit-parameter', unitId: 'editp_ship', key: 'maxvelocity', value: 2.5 }),
+      expect.objectContaining({ type: 'unit-parameter', unitId: 'editp_ship', key: 'customparams.carried_unit', value: 'editp_drone' }),
+      expect.objectContaining({ type: 'build-roster', builderId: 'editp_ship', unitIds: ['editp_drone', 'armflea'] }),
+      expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'damage', value: 42 }),
+      expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'reload', value: 0.7 }),
+      expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'cluster_number', value: 4 }),
+      expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'onlytargetcategory', value: 'SURFACE' }),
+    ]));
+    expect(analysis.buildMenuOperations).toBe(1);
+  });
+
+  it('recognizes the compact SET and ADD clone pattern without executing it', () => {
+    const module = parseTweakPackageInput(`
+      local a = {}
+      function SET(id) a = table.copy(UnitDefs[id]) end
+      function ADD(id) UnitDefs[id] = a end
+      SET('armflea') NAME('Orbital Flea') DESC('Space scout') ADD('editp_orbital_flea')
+    `, { kind: 'defs' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+    expect(analysis.conversions).toContainEqual(expect.objectContaining({
+      type: 'clone', baseId: 'armflea', newId: 'editp_orbital_flea',
+      displayName: 'Orbital Flea', description: 'Space scout',
+    }));
+  });
+});

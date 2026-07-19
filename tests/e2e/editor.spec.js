@@ -93,6 +93,63 @@ test('Tweak Package Lab imports inert modules and exposes numbered slots', async
   await expect(page.locator('.lobby-slot-code')).toContainText('editp_lab_test');
 });
 
+test('Tweak Package Lab repairs mixed legacy wrappers and reports manual dependencies', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
+
+  await page.getByRole('textbox', { name: 'Tweak package input' }).fill(`
+    ALL TWEAKS
+    !bset forceallunits 1
+    !bset tweakdefs LS0gRmlyc3QgbGVnYWN5IG1vZHVsZQpsb2NhbCBhID0gdHJ1ZQ
+    SPACE PACK
+    !bset tweakdefs LS0gU2Vjb25kIGxlZ2FjeSBtb2R1bGUKbG9jYWwgYiA9IHRydWU
+  `);
+  await page.getByRole('button', { name: 'Inspect pasted input' }).click();
+
+  await expect(page.getByRole('button', { name: /DEFS First legacy module/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /DEFS Second legacy module/ })).toBeVisible();
+  const diagnostics = page.locator('.tweak-lab-package-diagnostics');
+  await expect(diagnostics).toContainText('Force-load all units');
+  await expect(diagnostics).toContainText('tweakdefs appeared 2 times');
+  await expect(diagnostics).toContainText('2 unnumbered fields');
+});
+
+test('Tweak Package Lab converts literal unit tables into editable project state', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
+  await page.getByRole('textbox', { name: 'Tweak package input' }).fill(`
+    !bset tweakdefs1 U0VUKCdhcm1mbGVhJykgTkFNRSgnSW1wb3J0ZWQgRmxlYScpIEFERCgnZWRpdHBfaW1wb3J0X2ZsZWEnKQ
+    !bset tweakunits1 eyBlZGl0cF9pbXBvcnRfZmxlYSA9IHsgaGVhbHRoID0gMzIxLCBidWlsZG9wdGlvbnMgPSB7ICdjb3JhaycsICdhcm1jaycgfSB9IH0
+  `);
+  await page.getByRole('button', { name: 'Inspect pasted input' }).click();
+  await page.getByRole('button', { name: 'Apply recognized changes' }).click();
+  await page.getByRole('button', { name: /UNITS tweakunits1/ }).click();
+  await expect(page.getByText(/Literal table recognized:/)).toContainText('1 unit patches');
+  await page.getByRole('button', { name: 'Apply recognized changes' }).click();
+  await expect(page.getByRole('button', { name: 'Converted' })).toBeDisabled();
+
+  await page.getByRole('button', { name: 'Back to editor' }).click();
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
+  await expect(page.getByRole('button', { name: 'Converted' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Back to editor' }).click();
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+  await page.getByText('Legacy combined compiler', { exact: true }).click();
+  await page.getByRole('tab', { name: 'Units Lua' }).click();
+  await expect(page.locator('.export-code-preview')).toContainText('health = 321');
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Edit Units/ }).click();
+  await page.getByPlaceholder(/Search unit name/i).fill('editp_import_flea');
+  const importedFlea = page.locator('.unit-item').filter({
+    has: page.locator('.unit-item-id').filter({ hasText: /^editp_import_flea$/ }),
+  });
+  await importedFlea.click();
+  await expect(page.locator('[data-param-key="health"] input')).toHaveValue('321');
+});
+
 test('main menu, editor, collections, and export have no serious accessibility violations', async ({ page }) => {
   await waitForMainMenu(page);
   let results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();

@@ -41,11 +41,13 @@ describe('project documents', () => {
       tweakModules: [{
         id: 'defs-a', kind: 'defs', label: 'Imported definitions', rawLua: 'local a = true',
         enabled: true, stage: 'after-editor', order: 4, contentHash: 'abc',
+        requirements: ['forceallunits', 'forceallunits'],
       }],
     });
     expect(project.version).toBe('1.6');
     expect(project.tweakModules).toEqual([expect.objectContaining({
       id: 'defs-a', kind: 'defs', enabled: true, stage: 'after-editor', order: 4,
+      requirements: ['forceallunits'],
     })]);
   });
 

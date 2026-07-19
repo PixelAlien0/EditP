@@ -36,6 +36,17 @@ export default function TweakPackageLabPage({
   const [pasteValue, setPasteValue] = useState('');
   const [rawKind, setRawKind] = useState('defs');
   const analyses = useMemo(() => new Map(modules.map(module => [module.id, analyzeTweakModule(module)])), [modules]);
+  const packageDiagnostics = useMemo(() => {
+    const requirements = [...new Set(modules.flatMap(module => module.requirements || []))];
+    const fields = modules.reduce((groups, module) => {
+      if (!module.originalFieldName) return groups;
+      groups[module.originalFieldName] = (groups[module.originalFieldName] || 0) + 1;
+      return groups;
+    }, {});
+    const duplicateFields = Object.entries(fields).filter(([, count]) => count > 1);
+    const legacyFields = modules.filter(module => module.originalFieldName && !/\d+$/.test(module.originalFieldName));
+    return { requirements, duplicateFields, legacyFields };
+  }, [modules]);
   const selected = modules.find(module => module.id === selectedId) || modules[0] || null;
   const selectedAnalysis = selected ? analyses.get(selected.id) : null;
 
@@ -48,16 +59,19 @@ export default function TweakPackageLabPage({
       onToast(`${result.modules.length} tweak module${result.modules.length === 1 ? '' : 's'} imported disabled.`);
     }
     if (result.errors.length) onToast(result.errors.join(' '));
+    else if (result.notices?.length) onToast(result.notices.join(' '));
   };
 
   const importFiles = async event => {
     const files = [...(event.target.files || [])];
     const imported = [];
     const errors = [];
+    const notices = [];
     for (const file of files) {
       const result = parseTweakPackageInput(await file.text(), { kind: rawKind, sourceName: file.name });
       imported.push(...result.modules);
       errors.push(...result.errors.map(error => `${file.name}: ${error}`));
+      notices.push(...(result.notices || []).map(notice => `${file.name}: ${notice}`));
     }
     const decodedBytes = imported.reduce((total, module) => total + new TextEncoder().encode(module.rawLua).byteLength, 0);
     if (decodedBytes > MAX_TWEAK_PACKAGE_BYTES) {
@@ -71,6 +85,7 @@ export default function TweakPackageLabPage({
       onToast(`${imported.length} tweak module${imported.length === 1 ? '' : 's'} imported disabled.`);
     }
     if (errors.length) onToast(errors.join(' '));
+    else if (notices.length) onToast(notices.join(' '));
     event.target.value = '';
   };
 
@@ -114,6 +129,14 @@ export default function TweakPackageLabPage({
           />
           <Button variant="primary" disabled={!pasteValue.trim()} onClick={() => importText(pasteValue)}>Inspect pasted input</Button>
           <p className="tweak-lab-safety-note">Imports are read-only and disabled by default. Nothing is executed in your browser.</p>
+          {(packageDiagnostics.requirements.length > 0 || packageDiagnostics.duplicateFields.length > 0 || packageDiagnostics.legacyFields.length > 0) && (
+            <section className="tweak-lab-package-diagnostics" aria-label="Imported package compatibility">
+              <strong>Package compatibility</strong>
+              {packageDiagnostics.requirements.includes('forceallunits') && <p><span>Manual dependency</span>Enable <b>Force-load all units</b> in the BAR lobby. The editor will not write this lobby option.</p>}
+              {packageDiagnostics.duplicateFields.map(([field, count]) => <p key={field}><span>Field repaired</span>{field} appeared {count} times. Modules will receive unique numbered slots during export.</p>)}
+              {packageDiagnostics.legacyFields.length > 0 && <p><span>Legacy fields</span>{packageDiagnostics.legacyFields.length} unnumbered field{packageDiagnostics.legacyFields.length === 1 ? '' : 's'} will be normalized into the 1–9 slot system.</p>}
+            </section>
+          )}
         </aside>
 
         <section className="tweak-lab-modules" aria-label="Imported tweak modules">
@@ -156,6 +179,7 @@ export default function TweakPackageLabPage({
                 <div><span>Weapons</span><strong>{selectedAnalysis.weaponChanges}</strong></div>
                 <div><span>Build menu</span><strong>{selectedAnalysis.buildMenuOperations}</strong></div>
               </div>
+              {selectedAnalysis.literalUnitTables > 0 && <p className="tweak-literal-summary">Literal table recognized: <strong>{selectedAnalysis.literalUnitTables}</strong> unit patches and <strong>{selectedAnalysis.literalWeaponDefinitions}</strong> WeaponDefs are available for structured conversion.</p>}
               {selectedAnalysis.warnings.length > 0 && (
                 <div className="tweak-analysis-warnings">
                   {selectedAnalysis.warnings.map(warning => <p key={`${warning.code}-${warning.message}`} className={`is-${warning.level}`}><strong>{warning.code}</strong>{warning.message}</p>)}
@@ -171,7 +195,7 @@ export default function TweakPackageLabPage({
               </section>
               <section className="tweak-analysis-section">
                 <div className="tweak-analysis-section__heading"><h4>Safe conversions</h4><span>{selectedAnalysis.conversions.length}</span></div>
-                <p>Only literal clones, build-menu operations, and supported scalar parameters can be converted.</p>
+                <p>Converts literal clones, complete unit tables, weapon slots, build-menu operations, and supported scalar parameters. Asset and script changes remain raw.</p>
                 <Button
                   disabled={selected.enabled || selected.converted || selectedAnalysis.conversions.length === 0 || Boolean(selectedAnalysis.parseError)}
                   onClick={() => onApplyConversions(selected, selectedAnalysis.conversions)}

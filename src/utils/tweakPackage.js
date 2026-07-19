@@ -1,9 +1,15 @@
 import luaparse from 'luaparse';
+import {
+  STAT_KEYS,
+  WEAPON_SLOT_BOOLEAN_PARAMS,
+  WEAPON_SLOT_MOUNT_PARAMS,
+  WEAPON_SLOT_PATHS,
+  WEAPON_SLOT_STRING_PARAMS,
+} from '../config/editorParameters.js';
 
 export const MAX_TWEAK_MODULE_BYTES = 1024 * 1024;
 export const MAX_TWEAK_PACKAGE_BYTES = 5 * 1024 * 1024;
 
-const BSET_PATTERN = /^\s*!bset\s+(tweak(defs|units)(\d+)?)\s+([^\s]+)\s*$/i;
 const FIELD_PATTERN = /^tweak(defs|units)(\d+)?$/i;
 const SUPPORTED_UNIT_CUSTOM_PARAMS = new Set([
   'carried_unit', 'spawnrate', 'maxunits', 'controlradius', 'enabledocking',
@@ -21,6 +27,38 @@ const WEAPON_CUSTOM_TO_EDITOR_KEY = Object.freeze({
   spawns_name: 'spawns_name', spawns_surface: 'spawns_surface', metalcost: 'spawn_metal_cost',
   energycost: 'spawn_energy_cost', cluster_def: 'cluster_def', cluster_number: 'cluster_number',
 });
+const DIRECT_WEAPON_FIELDS = new Set([
+  'range', 'accuracy', 'sprayangle', 'burst', 'burstrate', 'projectiles', 'stockpile',
+  'stockpiletime', 'flighttime', 'wobble', 'dance', 'tolerance', 'firetolerance',
+  'edgeeffectiveness', 'impulsefactor', 'impulseboost', 'energypershot', 'metalpershot',
+  'paralyzer', 'paralyzetime', 'movingaccuracy', 'predictboost', 'leadlimit', 'leadbonus',
+  'heightmod', 'heightboostfactor', 'hightrajectory', 'trajectoryheight', 'tracks',
+  'turnrate', 'startvelocity', 'weaponacceleration', 'weaponvelocity', 'reloadtime',
+  'areaofeffect', 'weapontype', 'cegtag', 'model', 'explosiongenerator', 'rgbcolor',
+  'rgbcolor2', 'soundstart', 'soundhit', 'soundhitwet', 'soundhitdry', 'texture1',
+  'texture2', 'texture3', 'colormap', 'interceptedbyshieldtype', 'collisionsize',
+  'numbounce', 'bounceslip', 'bouncerebound', 'beamtime', 'minintensity', 'duration',
+  'falloffrate', 'thickness', 'corethickness', 'laserflaresize', 'intensity',
+  'weapontimer', 'windup', 'firestarter', 'explosionspeed', 'camerashake', 'cratermult',
+  'craterboost', 'craterareaofeffect', 'scarttl', 'beamttl', 'beamdecay', 'targetable',
+  'interceptor', 'coverage', 'soundstartvolume', 'soundhitvolume', 'soundhitwetvolume',
+  'soundhitdryvolume', 'smokecolor', 'smokeperiod', 'smokesize', 'smoketime', 'size',
+  'sizedecay', 'sizegrowth', 'alphadecay', 'stages', 'tilelength', 'scrollspeed',
+  'dyndamageexp', 'dyndamagemin', 'dyndamagerange',
+]);
+const UNIT_FIELD_TO_EDITOR_KEY = new Map();
+const UNIT_CUSTOM_TO_EDITOR_KEY = new Map();
+STAT_KEYS.forEach(parameter => {
+  if (parameter.output === 'tweakdefs') return;
+  const sourceKey = String(parameter.patchKey || parameter.key).toLowerCase();
+  if (parameter.nestedIn === 'customparams') UNIT_CUSTOM_TO_EDITOR_KEY.set(sourceKey, parameter.key);
+  else {
+    UNIT_FIELD_TO_EDITOR_KEY.set(String(parameter.key).toLowerCase(), parameter.key);
+    UNIT_FIELD_TO_EDITOR_KEY.set(sourceKey, parameter.key);
+  }
+});
+const WEAPON_PATH_TO_EDITOR_KEY = new Map(Object.entries(WEAPON_SLOT_PATHS).map(([editorKey, path]) => [path.toLowerCase(), editorKey]));
+const UNSUPPORTED_LITERAL = Symbol('unsupported-lua-literal');
 
 function byteLength(value) {
   return new TextEncoder().encode(value).byteLength;
@@ -61,18 +99,158 @@ function scalarFromLua(value) {
   return (quoted[1] ?? quoted[2]).replace(/\\([\\"'])/g, '$1').replace(/\\n/g, '\n');
 }
 
+function labelFromLua(rawLua, fallback) {
+  const comment = String(rawLua || '').match(/^\s*--\s*([^\r\n]+)/);
+  return comment?.[1]?.trim().slice(0, 160) || fallback;
+}
+
+function literalFromAst(node) {
+  if (!node) return UNSUPPORTED_LITERAL;
+  if (node.type === 'StringLiteral') {
+    if (typeof node.value === 'string') return node.value;
+    const decoded = scalarFromLua(node.raw);
+    return typeof decoded === 'string' ? decoded : UNSUPPORTED_LITERAL;
+  }
+  if (node.type === 'NumericLiteral' || node.type === 'BooleanLiteral') return node.value;
+  if (node.type === 'NilLiteral') return UNSUPPORTED_LITERAL;
+  if (node.type === 'UnaryExpression' && node.operator === '-') {
+    const value = literalFromAst(node.argument);
+    return typeof value === 'number' ? -value : UNSUPPORTED_LITERAL;
+  }
+  if (node.type !== 'TableConstructorExpression') return UNSUPPORTED_LITERAL;
+  const result = {};
+  let arrayIndex = 1;
+  node.fields.forEach(field => {
+    let key;
+    if (field.type === 'TableKeyString') key = field.key.name;
+    else if (field.type === 'TableKey') key = literalFromAst(field.key);
+    else if (field.type === 'TableValue') key = arrayIndex++;
+    if ((typeof key !== 'string' && typeof key !== 'number') || key === UNSUPPORTED_LITERAL) return;
+    const value = literalFromAst(field.value);
+    if (value !== UNSUPPORTED_LITERAL) result[String(key).toLowerCase()] = value;
+  });
+  return result;
+}
+
+function getLiteralPath(object, path) {
+  return path.split('.').reduce((value, key) => (
+    value && typeof value === 'object' ? value[key.toLowerCase()] : undefined
+  ), object);
+}
+
+function isLiteralScalar(value) {
+  return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
+}
+
+function literalStringArray(value) {
+  if (!value || typeof value !== 'object') return null;
+  const entries = Object.entries(value)
+    .map(([key, item]) => [Number(key), item])
+    .filter(([key, item]) => Number.isInteger(key) && key > 0 && typeof item === 'string')
+    .sort(([left], [right]) => left - right);
+  if (!entries.length || entries.some(([key], index) => key !== index + 1)) return null;
+  return entries.map(([, item]) => item.toLowerCase());
+}
+
+function parseLiteralUnitTable(source) {
+  try {
+    const wrapped = /^\s*\{/.test(source) ? `return ${source}` : source;
+    const ast = luaparse.parse(wrapped, { luaVersion: '5.1', comments: false });
+    const returnStatement = ast.body.find(statement => statement.type === 'ReturnStatement');
+    const root = literalFromAst(returnStatement?.arguments?.[0]);
+    return root && typeof root === 'object' && root !== UNSUPPORTED_LITERAL ? root : null;
+  } catch {
+    return null;
+  }
+}
+
+function extractLiteralUnitConversions(source) {
+  const table = parseLiteralUnitTable(source);
+  if (!table) return { conversions: [], unitCount: 0, weaponDefCount: 0 };
+  const conversions = [];
+  let weaponDefCount = 0;
+  Object.entries(table).forEach(([unitId, unitPatch]) => {
+    if (!unitPatch || typeof unitPatch !== 'object') return;
+    const buildOptions = literalStringArray(unitPatch.buildoptions);
+    if (buildOptions) conversions.push({ type: 'build-roster', builderId: unitId, unitIds: buildOptions, origin: 'literal-table' });
+    Object.entries(unitPatch).forEach(([sourceKey, value]) => {
+      const editorKey = UNIT_FIELD_TO_EDITOR_KEY.get(sourceKey);
+      if (editorKey && isLiteralScalar(value)) conversions.push({ type: 'unit-parameter', unitId, key: editorKey, value, origin: 'literal-table' });
+    });
+    const customParams = unitPatch.customparams;
+    if (customParams && typeof customParams === 'object') {
+      Object.entries(customParams).forEach(([sourceKey, value]) => {
+        const editorKey = UNIT_CUSTOM_TO_EDITOR_KEY.get(sourceKey);
+        if (editorKey && isLiteralScalar(value)) conversions.push({ type: 'unit-parameter', unitId, key: editorKey, value, origin: 'literal-table' });
+      });
+    }
+
+    const mounts = unitPatch.weapons && typeof unitPatch.weapons === 'object' ? unitPatch.weapons : {};
+    const defSlots = new Map();
+    Object.entries(mounts).forEach(([slotKey, mount]) => {
+      if (!mount || typeof mount !== 'object') return;
+      const slot = Number(slotKey);
+      if (!Number.isInteger(slot) || slot < 1) return;
+      const defKey = typeof mount.def === 'string' ? mount.def.toLowerCase() : '';
+      if (defKey) defSlots.set(defKey, [...(defSlots.get(defKey) || []), slot]);
+      ['onlytargetcategory', 'badtargetcategory', ...WEAPON_SLOT_MOUNT_PARAMS].forEach(key => {
+        const value = mount[key.toLowerCase()];
+        if (isLiteralScalar(value)) conversions.push({ type: 'weapon-parameter', unitId, weaponDefKey: defKey, slot, key, value, origin: 'literal-table' });
+      });
+    });
+
+    const weaponDefs = unitPatch.weapondefs && typeof unitPatch.weapondefs === 'object' ? unitPatch.weapondefs : {};
+    Object.entries(weaponDefs).forEach(([weaponDefKey, weaponDef]) => {
+      if (!weaponDef || typeof weaponDef !== 'object') return;
+      weaponDefCount += 1;
+      const values = new Map();
+      WEAPON_PATH_TO_EDITOR_KEY.forEach((editorKey, path) => {
+        const value = getLiteralPath(weaponDef, path);
+        if (isLiteralScalar(value)) values.set(editorKey, value);
+      });
+      Object.entries(weaponDef).forEach(([sourceKey, value]) => {
+        if (!isLiteralScalar(value)) return;
+        const editorKey = WEAPON_PATH_TO_EDITOR_KEY.get(sourceKey)
+          || (WEAPON_SLOT_BOOLEAN_PARAMS.has(sourceKey) || WEAPON_SLOT_STRING_PARAMS.has(sourceKey) || DIRECT_WEAPON_FIELDS.has(sourceKey) ? sourceKey : null);
+        if (editorKey) values.set(editorKey, value);
+      });
+      const slots = defSlots.get(weaponDefKey.toLowerCase()) || [null];
+      values.forEach((value, key) => slots.forEach(slot => conversions.push({
+        type: 'weapon-parameter', unitId, weaponDefKey: weaponDefKey.toLowerCase(),
+        ...(slot ? { slot } : {}), key, value, origin: 'literal-table',
+      })));
+    });
+  });
+  return { conversions, unitCount: Object.keys(table).length, weaponDefCount };
+}
+
+function extractHelperCloneConversions(source) {
+  const conversions = [];
+  const pattern = /\bSET\s*\(\s*["']([a-z0-9_]+)["']\s*\)([\s\S]*?)\bADD\s*\(\s*["']([a-z0-9_]+)["']\s*\)/gi;
+  for (const match of source.matchAll(pattern)) {
+    const body = match[2];
+    const name = body.match(/\bNAME\s*\(\s*["']([^"']+)["']\s*\)/i)?.[1];
+    const description = body.match(/\bDESC\s*\(\s*["']([^"']+)["']\s*\)/i)?.[1];
+    conversions.push({
+      type: 'clone', baseId: match[1].toLowerCase(), newId: match[3].toLowerCase(),
+      ...(name ? { displayName: name } : {}), ...(description ? { description } : {}), origin: 'helper-clone',
+    });
+  }
+  return conversions;
+}
+
 function unique(values) {
   return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
 }
 
-function createModule({ kind, rawLua, payload = '', fieldName = '', sourceName = '', order = 0, label = '' }) {
+function createModule({ kind, rawLua, payload = '', fieldName = '', sourceName = '', order = 0, label = '', requirements = [] }) {
   const bytes = byteLength(rawLua);
   if (bytes > MAX_TWEAK_MODULE_BYTES) throw new Error('A tweak module cannot exceed 1 MB after decoding.');
   const contentHash = hashText(rawLua);
   return {
     id: `${kind}-${contentHash}`,
     kind,
-    label: label || fieldName || `${kind === 'defs' ? 'Definitions' : 'Units'} module`,
+    label: labelFromLua(rawLua, label || fieldName || `${kind === 'defs' ? 'Definitions' : 'Units'} module`),
     sourceName,
     originalFieldName: fieldName,
     rawLua,
@@ -83,39 +261,52 @@ function createModule({ kind, rawLua, payload = '', fieldName = '', sourceName =
     stage: 'before-editor',
     order,
     attribution: '',
+    requirements,
   };
 }
 
 export function parseTweakPackageInput(input, options = {}) {
   const source = String(input || '').trim();
-  if (!source) return { modules: [], errors: [] };
+  if (!source) return { modules: [], errors: [], notices: [], requirements: [] };
   if (byteLength(source) > MAX_TWEAK_PACKAGE_BYTES * 1.5) {
-    return { modules: [], errors: ['The selected package is larger than the 5 MB import limit.'] };
+    return { modules: [], errors: ['The selected package is larger than the 5 MB import limit.'], notices: [], requirements: [] };
   }
 
   const modules = [];
   const errors = [];
-  const commandLines = source.split(/\r?\n/).filter(line => line.trim());
-  const allCommands = commandLines.every(line => BSET_PATTERN.test(line));
+  const notices = [];
+  const requirements = [];
+  if (/^\s*!bset\s+forceallunits\s+(?:1|true|on)\s*$/im.test(source)) requirements.push('forceallunits');
+  const commandMatches = [...source.matchAll(/^\s*!bset\s+(tweak(defs|units)(\d+)?)\s+([^\s]+)\s*$/gim)];
 
-  if (allCommands) {
-    commandLines.forEach((line, index) => {
-      const match = line.match(BSET_PATTERN);
+  if (commandMatches.length) {
+    commandMatches.forEach((match, index) => {
+      const lineNumber = source.slice(0, match.index).split(/\r?\n/).length;
       try {
         const rawLua = decodeBase64(match[4]);
         modules.push(createModule({
           kind: match[2].toLowerCase(), rawLua, payload: match[4],
-          fieldName: match[1].toLowerCase(), sourceName: options.sourceName || '', order: index,
+          fieldName: match[1].toLowerCase(), sourceName: options.sourceName || '', order: index, requirements,
         }));
       } catch (error) {
-        errors.push(`Line ${index + 1}: ${error.message}`);
+        errors.push(`Line ${lineNumber}: ${error.message}`);
       }
     });
+    const fieldGroups = modules.reduce((groups, module) => {
+      groups[module.originalFieldName] = [...(groups[module.originalFieldName] || []), module];
+      return groups;
+    }, {});
+    Object.entries(fieldGroups).forEach(([fieldName, matches]) => {
+      if (matches.length > 1) notices.push(`${fieldName} appears ${matches.length} times and will be reassigned to unique numbered slots.`);
+    });
+    const legacyFields = modules.filter(module => !/\d+$/.test(module.originalFieldName));
+    if (legacyFields.length) notices.push(`${legacyFields.length} unnumbered legacy field${legacyFields.length === 1 ? '' : 's'} will be normalized to the 1–9 slot format.`);
+    if (requirements.includes('forceallunits')) notices.push('This package requires Force-load all units. Enable it manually in the BAR lobby.');
   } else {
     const fieldMatch = String(options.fieldName || '').match(FIELD_PATTERN);
     const kind = fieldMatch?.[1]?.toLowerCase() || options.kind;
     if (kind !== 'defs' && kind !== 'units') {
-      return { modules: [], errors: ['Choose whether this raw module belongs to Definitions or Units.'] };
+      return { modules: [], errors: ['Choose whether this raw module belongs to Definitions or Units.'], notices, requirements };
     }
     try {
       let rawLua = source;
@@ -135,7 +326,7 @@ export function parseTweakPackageInput(input, options = {}) {
 
   const totalBytes = modules.reduce((sum, module) => sum + byteLength(module.rawLua), 0);
   if (totalBytes > MAX_TWEAK_PACKAGE_BYTES) {
-    return { modules: [], errors: ['Decoded tweak modules exceed the 5 MB package limit.'] };
+    return { modules: [], errors: ['Decoded tweak modules exceed the 5 MB package limit.'], notices, requirements };
   }
   const seen = new Set();
   const deduped = modules.filter(module => {
@@ -144,7 +335,7 @@ export function parseTweakPackageInput(input, options = {}) {
     return true;
   });
   if (deduped.length !== modules.length) errors.push(`${modules.length - deduped.length} duplicate module(s) were skipped.`);
-  return { modules: deduped, errors };
+  return { modules: deduped, errors, notices, requirements };
 }
 
 export function analyzeTweakModule(module) {
@@ -166,6 +357,8 @@ export function analyzeTweakModule(module) {
     created.push(match[1].toLowerCase());
     cloneConversions.push({ type: 'clone', newId: match[1].toLowerCase(), baseId: match[2].toLowerCase() });
   }
+  const helperCloneConversions = module?.kind === 'defs' ? extractHelperCloneConversions(source) : [];
+  helperCloneConversions.forEach(conversion => created.push(conversion.newId));
 
   const buildMenuConversions = [];
   for (const match of source.matchAll(/table\.insert\s*\(\s*UnitDefs\s*\[\s*["']([a-z0-9_]+)["']\s*\]\.buildoptions\s*,\s*["']([a-z0-9_]+)["']\s*\)/gi)) {
@@ -223,6 +416,11 @@ export function analyzeTweakModule(module) {
   if (/UnitDefs\s*\[[^"'\]]+\]/i.test(source)) warnings.push({ level: 'info', code: 'dynamic-id', message: 'Uses computed unit IDs that cannot be converted safely.' });
 
   const supportedWeaponParams = unique(customParameters.filter(key => SUPPORTED_WEAPON_CUSTOM_PARAMS.has(key)));
+  const literalTable = module?.kind === 'units'
+    ? extractLiteralUnitConversions(source)
+    : { conversions: [], unitCount: 0, weaponDefCount: 0 };
+  const conversions = [...cloneConversions, ...helperCloneConversions, ...buildMenuConversions, ...parameterConversions, ...literalTable.conversions];
+  const dedupedConversions = [...new Map(conversions.map(conversion => [JSON.stringify(conversion), conversion])).values()];
   return {
     parseError,
     decodedBytes: byteLength(source),
@@ -230,9 +428,13 @@ export function analyzeTweakModule(module) {
     referencedUnits: unique([...unitReferences, ...dotReferences]),
     customParameters: unique(customParameters),
     weaponCustomParameters: supportedWeaponParams,
-    weaponChanges: (source.match(/\.weapondefs|\[\s*["'][a-z0-9_]+["']\s*\]\.weapons/gi) || []).length,
-    buildMenuOperations: buildMenuConversions.length,
+    weaponChanges: (source.match(/\.weapondefs|\[\s*["'][a-z0-9_]+["']\s*\]\.weapons/gi) || []).length + literalTable.weaponDefCount,
+    buildMenuOperations: dedupedConversions.filter(conversion => (
+      conversion.type === 'build-add' || conversion.type === 'build-remove' || conversion.type === 'build-roster'
+    )).length,
+    literalUnitTables: literalTable.unitCount,
+    literalWeaponDefinitions: literalTable.weaponDefCount,
     warnings,
-    conversions: [...cloneConversions, ...buildMenuConversions, ...parameterConversions],
+    conversions: dedupedConversions,
   };
 }
