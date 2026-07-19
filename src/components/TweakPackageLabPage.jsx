@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { analyzeTweakModule, MAX_TWEAK_PACKAGE_BYTES, parseTweakPackageInput } from '../utils/tweakPackage.js';
+import { analyzeTweakPackage, MAX_TWEAK_PACKAGE_BYTES, parseTweakPackageInput } from '../utils/tweakPackage.js';
 import { Button, EmptyState, PageShell, Switch } from './ui.jsx';
 import '../styles/features/tweak-package-lab.css';
 
@@ -30,12 +30,16 @@ function ModuleCard({ module, selected, analysis, onSelect, onUpdate, onRemove, 
 
 export default function TweakPackageLabPage({
   modules, compiledModules, onAddModules, onUpdateModule, onRemoveModule,
-  onMoveModule, onApplyConversions, onBack, onToast,
+  onMoveModule, onApplyConversions, onBack, onToast, knownUnitIds = [],
 }) {
   const [selectedId, setSelectedId] = useState(modules[0]?.id || null);
   const [pasteValue, setPasteValue] = useState('');
   const [rawKind, setRawKind] = useState('defs');
-  const analyses = useMemo(() => new Map(modules.map(module => [module.id, analyzeTweakModule(module)])), [modules]);
+  const packageAnalysis = useMemo(
+    () => analyzeTweakPackage(modules, { knownUnitIds }),
+    [knownUnitIds, modules]
+  );
+  const analyses = packageAnalysis.analyses;
   const packageDiagnostics = useMemo(() => {
     const requirements = [...new Set(modules.flatMap(module => module.requirements || []))];
     const fields = modules.reduce((groups, module) => {
@@ -49,6 +53,8 @@ export default function TweakPackageLabPage({
   }, [modules]);
   const selected = modules.find(module => module.id === selectedId) || modules[0] || null;
   const selectedAnalysis = selected ? analyses.get(selected.id) : null;
+  const selectedReport = selected ? packageAnalysis.moduleReports.find(report => report.moduleId === selected.id) : null;
+  const moduleLabel = moduleId => modules.find(module => module.id === moduleId)?.label || moduleId;
 
   const importText = (text, options = {}) => {
     const result = parseTweakPackageInput(text, { kind: rawKind, ...options });
@@ -107,6 +113,29 @@ export default function TweakPackageLabPage({
         </div>
       </header>
 
+      {modules.length > 0 && (
+        <section className="tweak-package-audit" aria-label="Package dependency audit">
+          <div className="tweak-package-audit__heading">
+            <div><span className="workflow-eyebrow">Package architecture</span><h3>Dependencies and reusable recipes</h3></div>
+            <span>{packageAnalysis.unresolved.length || packageAnalysis.collisions.length || packageAnalysis.orderingIssues.length ? 'Review needed' : 'Load order clear'}</span>
+          </div>
+          <div className="tweak-package-audit__metrics">
+            <div><span>Modules</span><strong>{modules.length}</strong></div>
+            <div><span>Recipe calls</span><strong>{packageAnalysis.recipes.length}</strong></div>
+            <div><span>Module links</span><strong>{packageAnalysis.edges.length}</strong></div>
+            <div><span>Unresolved IDs</span><strong>{packageAnalysis.unresolved.length}</strong></div>
+            <div><span>Definition conflicts</span><strong>{packageAnalysis.collisions.length}</strong></div>
+          </div>
+          {(packageAnalysis.collisions.length > 0 || packageAnalysis.orderingIssues.length > 0 || packageAnalysis.cycles.length > 0) && (
+            <div className="tweak-package-audit__issues">
+              {packageAnalysis.collisions.slice(0, 4).map(item => <p key={`collision-${item.unitId}`}><b>Collision</b><code>{item.unitId}</code> is created by {item.moduleIds.map(moduleLabel).join(' and ')}.</p>)}
+              {packageAnalysis.orderingIssues.slice(0, 4).map(edge => <p key={`order-${edge.from}-${edge.to}`}><b>Load order</b>{moduleLabel(edge.from)} needs {moduleLabel(edge.to)} first for <code>{edge.unitIds.join(', ')}</code>.</p>)}
+              {packageAnalysis.cycles.slice(0, 2).map(cycle => <p key={`cycle-${cycle.join('-')}`}><b>Dependency cycle</b>{cycle.map(moduleLabel).join(' → ')}.</p>)}
+            </div>
+          )}
+        </section>
+      )}
+
       <div className="tweak-lab-grid">
         <aside className="tweak-lab-import">
           <div className="tweak-lab-section-heading"><span>Package sources</span><strong>{modules.length}</strong></div>
@@ -142,7 +171,7 @@ export default function TweakPackageLabPage({
         <section className="tweak-lab-modules" aria-label="Imported tweak modules">
           <div className="tweak-lab-section-heading"><span>Imported modules</span><strong>{modules.length}</strong></div>
           {modules.length === 0 ? (
-            <EmptyState title="No package loaded" description="Import the nine reference commands or another BAR tweak package to inspect its structure." />
+            <EmptyState title="No package loaded" description="Import BAR lobby commands or raw Lua to inspect how the package is structured." />
           ) : modules.map(module => (
             <ModuleCard
               key={module.id}
@@ -193,6 +222,42 @@ export default function TweakPackageLabPage({
                 <h4>Custom parameters</h4>
                 <p>{selectedAnalysis.customParameters.join(', ') || 'No custom parameters found.'}</p>
               </section>
+              {selectedAnalysis.helpers.length > 0 && (
+                <section className="tweak-analysis-section tweak-helper-recipes">
+                  <div className="tweak-analysis-section__heading"><h4>Reusable helper recipes</h4><span>{selectedAnalysis.recipes.length}</span></div>
+                  <p>Community helper functions are described statically. Computed recipe code remains raw and is never executed by the editor.</p>
+                  <div className="tweak-helper-list">
+                    {selectedAnalysis.helpers.map(helper => (
+                      <div key={helper.name}>
+                        <code>{helper.name}(...)</code>
+                        <span>{helper.mode === 'clone-factory' ? 'Clone factory' : 'Definition factory'} · {helper.callCount} literal call{helper.callCount === 1 ? '' : 's'}</span>
+                        <small>{[helper.computed && 'computed logic', helper.touchesWeapons && 'weapon changes', helper.touchesAssets && 'asset changes'].filter(Boolean).join(' · ') || 'literal structure'}</small>
+                      </div>
+                    ))}
+                  </div>
+                  {selectedAnalysis.recipes.length > 0 && (
+                    <div className="tweak-recipe-calls" aria-label="Recognized helper recipe calls">
+                      {selectedAnalysis.recipes.slice(0, 12).map((recipe, index) => (
+                        <div key={`${recipe.helperName}-${recipe.newId}-${index}`}>
+                          <code>{recipe.newId}</code>
+                          <span>{recipe.sourceId ? `from ${recipe.sourceId}` : recipe.mode}</span>
+                          <small>{recipe.helperName}{recipe.displayName ? ` · ${recipe.displayName}` : ''}</small>
+                        </div>
+                      ))}
+                      {selectedAnalysis.recipes.length > 12 && <p>+{selectedAnalysis.recipes.length - 12} additional recipe calls</p>}
+                    </div>
+                  )}
+                </section>
+              )}
+              {selectedReport && (
+                <section className="tweak-analysis-section tweak-module-relationships">
+                  <div className="tweak-analysis-section__heading"><h4>Module relationships</h4><span>{selectedReport.dependencies.length}</span></div>
+                  {selectedReport.dependencies.map(edge => <p key={`dependency-${edge.to}`}><b>Needs</b>{moduleLabel(edge.to)} <code>{edge.unitIds.join(', ')}</code></p>)}
+                  {selectedReport.dependents.map(edge => <p key={`dependent-${edge.from}`}><b>Used by</b>{moduleLabel(edge.from)} <code>{edge.unitIds.join(', ')}</code></p>)}
+                  {selectedReport.unresolved.slice(0, 8).map(item => <p key={`unresolved-${item.unitId}`} className="is-unresolved"><b>External or missing</b><code>{item.unitId}</code></p>)}
+                  {!selectedReport.dependencies.length && !selectedReport.dependents.length && !selectedReport.unresolved.length && <p>No cross-module unit dependencies detected.</p>}
+                </section>
+              )}
               <section className="tweak-analysis-section">
                 <div className="tweak-analysis-section__heading"><h4>Safe conversions</h4><span>{selectedAnalysis.conversions.length}</span></div>
                 <p>Converts literal clones, complete unit tables, weapon slots, build-menu operations, and supported scalar parameters. Asset and script changes remain raw.</p>

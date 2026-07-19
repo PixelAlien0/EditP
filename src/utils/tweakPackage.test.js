@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { encodeLobbyBase64 } from './tweakSerializer.js';
-import { analyzeTweakModule, parseTweakPackageInput } from './tweakPackage.js';
+import { analyzeTweakModule, analyzeTweakPackage, parseTweakPackageInput } from './tweakPackage.js';
 
 describe('tweak package import', () => {
   it('imports numbered URL-safe lobby commands without enabling them', () => {
@@ -105,12 +105,52 @@ describe('tweak package import', () => {
       local a = {}
       function SET(id) a = table.copy(UnitDefs[id]) end
       function ADD(id) UnitDefs[id] = a end
-      SET('armflea') NAME('Orbital Flea') DESC('Space scout') ADD('editp_orbital_flea')
+      SET('armflea') NAME('Imported Scout') DESC('Community tweak fixture') ADD('editp_imported_scout')
     `, { kind: 'defs' }).modules[0];
     const analysis = analyzeTweakModule(module);
     expect(analysis.conversions).toContainEqual(expect.objectContaining({
-      type: 'clone', baseId: 'armflea', newId: 'editp_orbital_flea',
-      displayName: 'Orbital Flea', description: 'Space scout',
+      type: 'clone', baseId: 'armflea', newId: 'editp_imported_scout',
+      displayName: 'Imported Scout', description: 'Community tweak fixture',
     }));
+  });
+
+  it('describes generic community helper recipes without executing their functions', () => {
+    const module = parseTweakPackageInput(`
+      local copy = table.copy
+      local function makeUnit(donorName, newName, humanName, tooltip)
+        local unit = copy(UnitDefs[donorName])
+        unit.health = math.floor(unit.health * 1.5)
+        setName(unit, humanName, tooltip)
+        UnitDefs[newName] = unit
+      end
+      makeUnit('armflea', 'editp_reference_scout', 'Reference Scout', 'A generic fixture')
+    `, { kind: 'defs' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+    expect(analysis.helpers).toContainEqual(expect.objectContaining({
+      name: 'makeUnit', mode: 'clone-factory', donorParameter: 'donorName', outputParameter: 'newName', callCount: 1,
+    }));
+    expect(analysis.recipes).toContainEqual(expect.objectContaining({
+      helperName: 'makeUnit', sourceId: 'armflea', newId: 'editp_reference_scout',
+      displayName: 'Reference Scout', description: 'A generic fixture',
+    }));
+    expect(analysis.createdUnits).toContain('editp_reference_scout');
+    expect(analysis.referencedUnits).toContain('armflea');
+  });
+
+  it('builds cross-module dependency, conflict, and load-order diagnostics', () => {
+    const makeModule = (id, rawLua, order) => ({ id, kind: 'defs', rawLua, order, stage: 'before-editor' });
+    const modules = [
+      makeModule('consumer', `table.insert(UnitDefs["armlab"].buildoptions, "editp_child")\nUnitDefs["unknown_external"].health = 5`, 0),
+      makeModule('provider-a', 'UnitDefs["editp_child"] = table.copy(UnitDefs["armflea"], true)', 1),
+      makeModule('provider-b', 'UnitDefs["editp_child"] = table.copy(UnitDefs["corak"], true)', 2),
+    ];
+    const packageAnalysis = analyzeTweakPackage(modules, { knownUnitIds: ['armlab', 'armflea', 'corak'] });
+    expect(packageAnalysis.edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({ from: 'consumer', to: 'provider-a', unitIds: ['editp_child'] }),
+      expect.objectContaining({ from: 'consumer', to: 'provider-b', unitIds: ['editp_child'] }),
+    ]));
+    expect(packageAnalysis.collisions).toContainEqual({ unitId: 'editp_child', moduleIds: ['provider-a', 'provider-b'] });
+    expect(packageAnalysis.orderingIssues).toHaveLength(2);
+    expect(packageAnalysis.unresolved).toContainEqual({ moduleId: 'consumer', unitId: 'unknown_external' });
   });
 });

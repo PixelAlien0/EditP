@@ -126,9 +126,11 @@ test('Tweak Package Lab converts literal unit tables into editable project state
     !bset tweakunits1 eyBlZGl0cF9pbXBvcnRfZmxlYSA9IHsgaGVhbHRoID0gMzIxLCBidWlsZG9wdGlvbnMgPSB7ICdjb3JhaycsICdhcm1jaycgfSB9IH0
   `);
   await page.getByRole('button', { name: 'Inspect pasted input' }).click();
+  await expect(page.locator('.tweak-package-audit__metrics').locator('div').filter({ hasText: 'Module links' })).toContainText('1');
   await page.getByRole('button', { name: 'Apply recognized changes' }).click();
   await page.getByRole('button', { name: /UNITS tweakunits1/ }).click();
   await expect(page.getByText(/Literal table recognized:/)).toContainText('1 unit patches');
+  await expect(page.locator('.tweak-module-relationships')).toContainText('Needs');
   await page.getByRole('button', { name: 'Apply recognized changes' }).click();
   await expect(page.getByRole('button', { name: 'Converted' })).toBeDisabled();
 

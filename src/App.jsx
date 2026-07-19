@@ -1163,6 +1163,7 @@ export default function App() {
 
     return list.sort((a, b) => a.name.localeCompare(b.name));
   }, [clones, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitsDb.descriptions, unitsDb.names]);
+  const knownTweakPackageUnitIds = useMemo(() => allUnitsList.map(unit => unit.id), [allUnitsList]);
 
   const handleAddTweakModules = useCallback((incomingModules) => {
     setTweakModules(current => {
@@ -4951,6 +4952,7 @@ export default function App() {
             onRemoveModule={handleRemoveTweakModule}
             onMoveModule={handleMoveTweakModule}
             onApplyConversions={handleApplyTweakConversions}
+            knownUnitIds={knownTweakPackageUnitIds}
             onBack={() => setActiveWorkspace('edit')}
             onToast={showToast}
           />
