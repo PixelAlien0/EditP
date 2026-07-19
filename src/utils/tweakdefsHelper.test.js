@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   compileTweakDefsLua,
   generateDeathProfilesBlockLua,
+  generateSupportingWeaponDefsBlockLua,
   generateBuildMenuBlockLua,
   generateClonesBlockLua,
   sortClonesDependency,
@@ -94,5 +95,25 @@ describe('nested clone generation', () => {
     expect(profile).toContain('damage =4000');
     expect(profile).toContain('aoe =600');
     expect(profile).toContain('fusionexplosionselfd');
+  });
+
+  it('compiles supporting WeaponDefs into their owner after clone creation', () => {
+    const supportingWeaponDefs = [{
+      id: 'support_cluster', ownerUnitId: 'armflash_clone', key: 'cluster_child', enabled: true,
+      mode: 'replace', definition: { range: 360, damage: { default: 44 }, customparams: { cluster_number: 3 } },
+    }];
+    const block = generateSupportingWeaponDefsBlockLua(supportingWeaponDefs);
+    expect(block).toContain('owner = "armflash_clone"');
+    expect(block).toContain('key = "cluster_child"');
+    expect(block).toContain('damage = {');
+    expect(block).toContain('unit.weapondefs[entry.key] = table.copy(entry.definition)');
+
+    const lua = compileTweakDefsLua({
+      currentTweakDefsLua: '',
+      customUnitClones: [{ baseId: 'armflash', newId: 'armflash_clone', displayName: 'Parent', builderIds: [] }],
+      buildMenuWizardSteps: [], disabledUnitIds: [], unitBuildOptions: {},
+      compileFlags: { includeClones: true, includeRosters: true }, supportingWeaponDefs,
+    });
+    expect(lua.indexOf('local n = "armflash_clone"')).toBeLessThan(lua.indexOf('editp_supporting_weapondefs'));
   });
 });

@@ -35,7 +35,7 @@ describe('project documents', () => {
       .toThrow(ProjectDocumentError);
   });
 
-  it('migrates imported tweak modules into version 1.6 projects', () => {
+  it('migrates imported tweak modules into the current project version', () => {
     const project = normalizeProjectDocument({
       version: '1.5',
       tweakModules: [{
@@ -44,10 +44,30 @@ describe('project documents', () => {
         requirements: ['forceallunits', 'forceallunits'],
       }],
     });
-    expect(project.version).toBe('1.6');
+    expect(project.version).toBe(PROJECT_DOCUMENT_VERSION);
     expect(project.tweakModules).toEqual([expect.objectContaining({
       id: 'defs-a', kind: 'defs', enabled: true, stage: 'after-editor', order: 4,
       requirements: ['forceallunits'],
+    })]);
+  });
+
+  it('normalizes supporting WeaponDefs and removes duplicate destinations', () => {
+    const project = normalizeProjectDocument({
+      version: '1.6',
+      supportingWeaponDefs: [
+        {
+          id: 'Support Child', ownerUnitId: 'ARMFLEA', key: 'CLUSTER_CHILD', label: 'Cluster Child',
+          definition: { range: 420, damage: { default: 25 }, customparams: { cluster_def: 'NEXT_CHILD' } },
+          role: 'dependency', mountedSlots: [2, 2], enabled: true, mode: 'replace', referencedBy: ['MAIN_GUN'],
+        },
+        { id: 'duplicate', ownerUnitId: 'armflea', key: 'cluster_child', definition: { range: 1 } },
+      ],
+    });
+    expect(project.version).toBe('1.7');
+    expect(project.supportingWeaponDefs).toEqual([expect.objectContaining({
+      id: 'support_child', ownerUnitId: 'armflea', key: 'cluster_child', role: 'dependency',
+      mountedSlots: [2], dependencies: ['next_child'], referencedBy: ['main_gun'],
+      definition: { range: 420, damage: { default: 25 }, customparams: { cluster_def: 'NEXT_CHILD' } },
     })]);
   });
 

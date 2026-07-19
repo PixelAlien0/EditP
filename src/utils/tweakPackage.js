@@ -194,6 +194,13 @@ function literalStringArray(value) {
   return entries.map(([, item]) => item.toLowerCase());
 }
 
+function weaponDefDependencies(definition) {
+  const clusterDef = definition?.customparams?.cluster_def;
+  return typeof clusterDef === 'string' && clusterDef.trim()
+    ? [clusterDef.trim().toLowerCase()]
+    : [];
+}
+
 function parseLiteralUnitTable(source) {
   try {
     const wrapped = /^\s*\{/.test(source) ? `return ${source}` : source;
@@ -208,8 +215,9 @@ function parseLiteralUnitTable(source) {
 
 function extractLiteralUnitConversions(source) {
   const table = parseLiteralUnitTable(source);
-  if (!table) return { conversions: [], unitCount: 0, unitIds: [], weaponDefCount: 0 };
+  if (!table) return { conversions: [], unitCount: 0, unitIds: [], weaponDefCount: 0, supportingWeaponDefs: [] };
   const conversions = [];
+  const supportingWeaponDefs = [];
   let weaponDefCount = 0;
   Object.entries(table).forEach(([unitId, unitPatch]) => {
     if (!unitPatch || typeof unitPatch !== 'object') return;
@@ -242,6 +250,12 @@ function extractLiteralUnitConversions(source) {
     });
 
     const weaponDefs = unitPatch.weapondefs && typeof unitPatch.weapondefs === 'object' ? unitPatch.weapondefs : {};
+    const dependencyUsers = new Map();
+    Object.entries(weaponDefs).forEach(([weaponDefKey, weaponDef]) => {
+      weaponDefDependencies(weaponDef).forEach(dependency => {
+        dependencyUsers.set(dependency, [...(dependencyUsers.get(dependency) || []), weaponDefKey.toLowerCase()]);
+      });
+    });
     Object.entries(weaponDefs).forEach(([weaponDefKey, weaponDef]) => {
       if (!weaponDef || typeof weaponDef !== 'object') return;
       weaponDefCount += 1;
@@ -261,9 +275,24 @@ function extractLiteralUnitConversions(source) {
         type: 'weapon-parameter', unitId, weaponDefKey: weaponDefKey.toLowerCase(),
         ...(slot ? { slot } : {}), key, value, origin: 'literal-table',
       })));
+      const normalizedKey = weaponDefKey.toLowerCase();
+      const mountedSlots = defSlots.get(normalizedKey) || [];
+      const referencedBy = dependencyUsers.get(normalizedKey) || [];
+      supportingWeaponDefs.push({
+        ownerUnitId: unitId.toLowerCase(),
+        key: normalizedKey,
+        label: normalizedKey.toUpperCase(),
+        definition: weaponDef,
+        role: referencedBy.length ? 'dependency' : mountedSlots.length ? 'mounted' : 'auxiliary',
+        mountedSlots,
+        dependencies: weaponDefDependencies(weaponDef),
+        referencedBy,
+        mode: 'replace',
+        origin: 'literal-table',
+      });
     });
   });
-  return { conversions, unitCount: Object.keys(table).length, unitIds: Object.keys(table), weaponDefCount };
+  return { conversions, unitCount: Object.keys(table).length, unitIds: Object.keys(table), weaponDefCount, supportingWeaponDefs };
 }
 
 function extractHelperCloneConversions(source) {
@@ -293,6 +322,51 @@ function walkAst(node, visitor, ancestors = []) {
     if (key === 'loc' || key === 'range' || key === 'raw') return;
     if (value && typeof value === 'object') walkAst(value, visitor, nextAncestors);
   });
+}
+
+function astMemberPath(node) {
+  if (!node) return null;
+  if (node.type === 'Identifier') return [node.name];
+  if (node.type === 'MemberExpression') {
+    const base = astMemberPath(node.base);
+    return base && node.identifier?.name ? [...base, node.identifier.name] : null;
+  }
+  if (node.type === 'IndexExpression') {
+    const base = astMemberPath(node.base);
+    const key = literalFromAst(node.index);
+    return base && (typeof key === 'string' || typeof key === 'number') ? [...base, String(key)] : null;
+  }
+  return null;
+}
+
+function extractDirectSupportingWeaponDefs(ast) {
+  const definitions = [];
+  if (!ast) return definitions;
+  walkAst(ast, node => {
+    if (node.type !== 'AssignmentStatement') return;
+    node.variables?.forEach((variable, index) => {
+      const path = astMemberPath(variable);
+      if (!path || path.length !== 4 || path[0] !== 'UnitDefs' || String(path[2]).toLowerCase() !== 'weapondefs') return;
+      const definition = literalFromAst(node.init?.[index]);
+      if (!definition || definition === UNSUPPORTED_LITERAL || typeof definition !== 'object') return;
+      const ownerUnitId = String(path[1]).trim().toLowerCase();
+      const key = String(path[3]).trim().toLowerCase();
+      if (!ownerUnitId || !key) return;
+      definitions.push({
+        ownerUnitId,
+        key,
+        label: key.toUpperCase(),
+        definition,
+        role: 'auxiliary',
+        mountedSlots: [],
+        dependencies: weaponDefDependencies(definition),
+        referencedBy: [],
+        mode: 'replace',
+        origin: 'literal-assignment',
+      });
+    });
+  });
+  return definitions;
 }
 
 function unitDefsIndexParameter(node, parameterNames) {
@@ -732,14 +806,38 @@ export function analyzeTweakModule(module) {
   const supportedWeaponParams = unique(customParameters.filter(key => SUPPORTED_WEAPON_CUSTOM_PARAMS.has(key)));
   const literalTable = module?.kind === 'units'
     ? extractLiteralUnitConversions(source)
-    : { conversions: [], unitCount: 0, unitIds: [], weaponDefCount: 0 };
-  const conversions = [...cloneConversions, ...helperCloneConversions, ...buildMenuConversions, ...parameterConversions, ...literalTable.conversions];
+    : { conversions: [], unitCount: 0, unitIds: [], weaponDefCount: 0, supportingWeaponDefs: [] };
+  const directSupportingWeaponDefs = module?.kind === 'defs' ? extractDirectSupportingWeaponDefs(ast) : [];
+  const supportingWeaponDefs = [...new Map([
+    ...literalTable.supportingWeaponDefs,
+    ...directSupportingWeaponDefs,
+  ].map(definition => {
+    const id = `support_${String(module?.contentHash || module?.id || 'module').replace(/[^a-z0-9_]/gi, '_').toLowerCase()}_${definition.ownerUnitId}_${definition.key}`;
+    const record = {
+      ...definition,
+      id,
+      sourceModuleId: module?.id || '',
+      sourceName: module?.sourceName || module?.label || '',
+      enabled: true,
+    };
+    return [`${record.ownerUnitId}:${record.key}`, record];
+  })).values()];
+  const supportingWeaponDefConversions = supportingWeaponDefs.map(weaponDef => ({ type: 'supporting-weapondef', weaponDef }));
+  const conversions = [
+    ...cloneConversions,
+    ...helperCloneConversions,
+    ...buildMenuConversions,
+    ...parameterConversions,
+    ...literalTable.conversions,
+    ...supportingWeaponDefConversions,
+  ];
   const dedupedConversions = [...new Map(conversions.map(conversion => [JSON.stringify(conversion), conversion])).values()];
   const conversionUnitReferences = dedupedConversions.flatMap(conversion => {
     if (conversion.type === 'clone') return [conversion.baseId];
     if (conversion.type === 'build-add' || conversion.type === 'build-remove') return [conversion.builderId, conversion.unitId];
     if (conversion.type === 'build-roster') return [conversion.builderId, ...(conversion.unitIds || [])];
     if (conversion.type === 'unit-parameter' || conversion.type === 'weapon-parameter') return [conversion.unitId];
+    if (conversion.type === 'supporting-weapondef') return [conversion.weaponDef?.ownerUnitId];
     return [];
   });
   return {
@@ -760,6 +858,7 @@ export function analyzeTweakModule(module) {
     )).length,
     literalUnitTables: literalTable.unitCount,
     literalWeaponDefinitions: literalTable.weaponDefCount,
+    supportingWeaponDefs,
     helpers: helperAnalysis.helpers,
     recipes: helperAnalysis.recipes,
     warnings,

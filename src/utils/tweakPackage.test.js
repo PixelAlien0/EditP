@@ -80,13 +80,18 @@ describe('tweak package import', () => {
             damage = { default = 42 },
             customparams = { cluster_def = 'laser_sub', cluster_number = 4 },
           },
+          laser_sub = {
+            range = 280,
+            damage = { default = 12 },
+            areaofeffect = 18,
+          },
         },
         weapons = { [1] = { def = 'LASER', onlytargetcategory = 'SURFACE' } },
       },
     }`, { kind: 'units' }).modules[0];
     const analysis = analyzeTweakModule(module);
     expect(analysis.literalUnitTables).toBe(1);
-    expect(analysis.literalWeaponDefinitions).toBe(1);
+    expect(analysis.literalWeaponDefinitions).toBe(2);
     expect(analysis.conversions).toEqual(expect.arrayContaining([
       expect.objectContaining({ type: 'unit-parameter', unitId: 'editp_ship', key: 'health', value: 900 }),
       expect.objectContaining({ type: 'unit-parameter', unitId: 'editp_ship', key: 'maxvelocity', value: 2.5 }),
@@ -96,7 +101,13 @@ describe('tweak package import', () => {
       expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'reload', value: 0.7 }),
       expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'cluster_number', value: 4 }),
       expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'onlytargetcategory', value: 'SURFACE' }),
+      expect.objectContaining({ type: 'supporting-weapondef', weaponDef: expect.objectContaining({
+        ownerUnitId: 'editp_ship', key: 'laser_sub', role: 'dependency', referencedBy: ['laser'],
+      }) }),
     ]));
+    expect(analysis.supportingWeaponDefs).toContainEqual(expect.objectContaining({
+      ownerUnitId: 'editp_ship', key: 'laser_sub', dependencies: [], referencedBy: ['laser'],
+    }));
     expect(analysis.buildMenuOperations).toBe(1);
   });
 
@@ -111,6 +122,21 @@ describe('tweak package import', () => {
     expect(analysis.conversions).toContainEqual(expect.objectContaining({
       type: 'clone', baseId: 'armflea', newId: 'editp_imported_scout',
       displayName: 'Imported Scout', description: 'Community tweak fixture',
+    }));
+  });
+
+  it('extracts direct literal auxiliary WeaponDef assignments', () => {
+    const module = parseTweakPackageInput(`
+      UnitDefs["armflea"].weapondefs["helper_blast"] = {
+        range = 240,
+        damage = { default = 33 },
+        customparams = { cluster_def = "helper_fragment" },
+      }
+    `, { kind: 'defs' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+    expect(analysis.supportingWeaponDefs).toContainEqual(expect.objectContaining({
+      ownerUnitId: 'armflea', key: 'helper_blast', origin: 'literal-assignment',
+      dependencies: ['helper_fragment'],
     }));
   });
 

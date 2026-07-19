@@ -764,14 +764,14 @@ export default function App() {
   const {
     state: projectStore,
     setTweaks, setClones, setDisabledUnitIds, setUnitDescriptions,
-    setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setUnitCollections, setTweakModules,
+    setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setSupportingWeaponDefs, setUnitCollections, setTweakModules,
     setProjectName, setProjectAuthor, setProjectDesc,
     setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
     hydrateProjectStore,
   } = useProjectStore();
   const {
     tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
-    presets, weaponLibrary, unitCollections, tweakModules, projectName, projectAuthor, projectDesc,
+    presets, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules, projectName, projectAuthor, projectDesc,
     includeTweaks, includeClones, includeRosters, includeHeader,
   } = projectStore;
 
@@ -995,9 +995,10 @@ export default function App() {
     buildMenuSteps,
     buildMenuPacks,
     weaponLibrary,
+    supportingWeaponDefs,
     unitCollections,
     tweakModules
-  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary, unitCollections, tweakModules]);
+  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules]);
   const [historyPast, setHistoryPast] = useState([]);
   const [historyFuture, setHistoryFuture] = useState([]);
   const lastSnapshotRef = useRef(projectSnapshot);
@@ -1038,9 +1039,10 @@ export default function App() {
     setBuildMenuSteps(snapshot.buildMenuSteps || []);
     setBuildMenuPacks(snapshot.buildMenuPacks || { extraUnits: false, scavengerUnits: false });
     setWeaponLibrary(snapshot.weaponLibrary || []);
+    setSupportingWeaponDefs(snapshot.supportingWeaponDefs || []);
     setUnitCollections(snapshot.unitCollections || []);
     setTweakModules(snapshot.tweakModules || []);
-  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setTweaks, setUnitCollections, setWeaponLibrary, setTweakModules]);
+  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setSupportingWeaponDefs, setTweaks, setUnitCollections, setWeaponLibrary, setTweakModules]);
 
   const handleUndo = useCallback(() => {
     if (historyPast.length === 0) return;
@@ -1080,6 +1082,7 @@ export default function App() {
     buildMenuSteps,
     buildMenuPacks,
     weaponLibrary,
+    supportingWeaponDefs,
     unitCollections,
     tweakModules,
     projectName,
@@ -1215,6 +1218,82 @@ export default function App() {
     });
   }, [setTweakModules]);
 
+  const handleAddSupportingWeaponDefs = useCallback((incomingDefinitions) => {
+    const incoming = Array.isArray(incomingDefinitions) ? incomingDefinitions : [incomingDefinitions];
+    setSupportingWeaponDefs(current => {
+      const next = [...current];
+      incoming.filter(Boolean).forEach(definition => {
+        const destination = `${definition.ownerUnitId}:${definition.key}`.toLowerCase();
+        const index = next.findIndex(item => `${item.ownerUnitId}:${item.key}`.toLowerCase() === destination);
+        if (index >= 0) next[index] = { ...next[index], ...definition, enabled: true };
+        else next.push({ ...definition, enabled: true });
+      });
+      return next;
+    });
+  }, [setSupportingWeaponDefs]);
+
+  const handleUpdateSupportingWeaponDef = useCallback((definitionId, patch) => {
+    const target = supportingWeaponDefs.find(definition => definition.id === definitionId);
+    if (!target) return;
+    const nextKey = typeof patch.key === 'string' ? patch.key : target.key;
+    const renaming = nextKey && nextKey !== target.key;
+    setSupportingWeaponDefs(current => {
+      const updated = current.map(definition => {
+        if (definition.id === definitionId) return {
+          ...definition,
+          ...patch,
+          ...(renaming && definition.label === target.key.toUpperCase() ? { label: nextKey.toUpperCase() } : {}),
+        };
+        if (!renaming || definition.ownerUnitId !== target.ownerUnitId) return definition;
+        const referencesTarget = definition.definition?.customparams?.cluster_def?.toLowerCase() === target.key.toLowerCase();
+        const referencedBy = (definition.referencedBy || []).map(key => key.toLowerCase() === target.key.toLowerCase() ? nextKey : key);
+        return {
+          ...definition,
+          ...(referencesTarget ? {
+            definition: {
+              ...definition.definition,
+              customparams: { ...definition.definition.customparams, cluster_def: nextKey },
+            },
+            dependencies: (definition.dependencies || []).map(key => key.toLowerCase() === target.key.toLowerCase() ? nextKey : key),
+          } : {}),
+          referencedBy,
+        };
+      });
+      return updated.map(definition => {
+        const dependency = typeof definition.definition?.customparams?.cluster_def === 'string'
+          ? definition.definition.customparams.cluster_def.trim().toLowerCase()
+          : '';
+        return {
+          ...definition,
+          dependencies: dependency ? [dependency] : [],
+          referencedBy: updated
+            .filter(candidate => candidate.ownerUnitId === definition.ownerUnitId
+              && candidate.definition?.customparams?.cluster_def?.trim().toLowerCase() === definition.key.toLowerCase())
+            .map(candidate => candidate.key),
+        };
+      });
+    });
+    if (renaming) {
+      setTweaks(currentTweaks => {
+        const ownerPatch = currentTweaks[target.ownerUnitId];
+        if (!ownerPatch) return currentTweaks;
+        let changed = false;
+        const updatedOwnerPatch = Object.fromEntries(Object.entries(ownerPatch).map(([key, value]) => {
+          if (/^weapon_slot_\d+_cluster_def$/.test(key) && String(value).toLowerCase() === target.key.toLowerCase()) {
+            changed = true;
+            return [key, nextKey];
+          }
+          return [key, value];
+        }));
+        return changed ? { ...currentTweaks, [target.ownerUnitId]: updatedOwnerPatch } : currentTweaks;
+      });
+    }
+  }, [setSupportingWeaponDefs, setTweaks, supportingWeaponDefs]);
+
+  const handleRemoveSupportingWeaponDef = useCallback((definitionId) => {
+    setSupportingWeaponDefs(current => current.filter(definition => definition.id !== definitionId));
+  }, [setSupportingWeaponDefs]);
+
   const handleApplyTweakConversions = useCallback((module, conversions) => {
     if (!module || module.enabled || module.converted) return;
     const existingIds = new Set(allUnitsList.map(unit => unit.id.toLowerCase()));
@@ -1296,14 +1375,19 @@ export default function App() {
       });
     }
 
-    const appliedCount = safeClones.length + menuConversions.length + parameterConversions.length + weaponConversions.length;
+    const supportingConversions = conversions
+      .filter(item => item.type === 'supporting-weapondef' && existingIds.has(item.weaponDef?.ownerUnitId))
+      .map(item => item.weaponDef);
+    if (supportingConversions.length) handleAddSupportingWeaponDefs(supportingConversions);
+
+    const appliedCount = safeClones.length + menuConversions.length + parameterConversions.length + weaponConversions.length + supportingConversions.length;
     if (appliedCount === 0) {
       showToast('No recognized changes could be applied. Resolve ID conflicts or inspect the module warnings.');
       return;
     }
     setTweakModules(current => current.map(item => item.id === module.id ? { ...item, converted: true, enabled: false } : item));
     showToast(`${appliedCount} recognized change${appliedCount === 1 ? '' : 's'} applied. Source module archived.`);
-  }, [activeFactoryRosters, allUnitsList, defaultsDb, resolveCloneRootId, setBuildMenuSteps, setClones, setIncludeClones, setIncludeRosters, setIncludeTweaks, setTweakModules, setTweaks, showToast]);
+  }, [activeFactoryRosters, allUnitsList, defaultsDb, handleAddSupportingWeaponDefs, resolveCloneRootId, setBuildMenuSteps, setClones, setIncludeClones, setIncludeRosters, setIncludeTweaks, setTweakModules, setTweaks, showToast]);
 
   const activeCollection = useMemo(
     () => unitCollections.find(collection => collection.id === activeCollectionId) || null,
@@ -1980,8 +2064,9 @@ export default function App() {
       compileFlags: { includeClones, includeRosters },
       weaponLibrary,
       deathExplosionTweaks,
+      supportingWeaponDefs,
     });
-  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, activeFactoryRosters, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, weaponLibrary, deathExplosionTweaks]);
+  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, activeFactoryRosters, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, weaponLibrary, deathExplosionTweaks, supportingWeaponDefs]);
 
   const tweakDefsB64 = useMemo(() => {
     if (!generatedTweakDefsLua.trim()) return '';
@@ -2191,6 +2276,7 @@ export default function App() {
   const handleResetAllSummaryRosters = () => {
     setBuildMenuSteps([]);
     setBuildMenuPacks({ extraUnits: false, scavengerUnits: false });
+    setSupportingWeaponDefs([]);
     showToast('Reverted all build-menu changes');
   };
 
@@ -2619,6 +2705,10 @@ export default function App() {
     const knownWeaponDefs = new Set(Object.values(defaultsDb).flatMap(unit => (
       unit?.weaponSlots || []
     )).map(slot => String(slot.defKey || '').toLowerCase()).filter(Boolean));
+    const enabledSupportingWeaponDefs = supportingWeaponDefs.filter(definition => definition.enabled !== false);
+    const supportingDestinations = new Set(enabledSupportingWeaponDefs.map(definition => (
+      `${definition.ownerUnitId}:${definition.key}`.toLowerCase()
+    )));
     Object.entries(tweaks).forEach(([unitId, patch]) => {
       const unitName = unitsDb.names[unitId] || clones.find(c => c.newId.toLowerCase() === unitId.toLowerCase())?.displayName || unitId;
       Object.entries(patch).forEach(([key, val]) => {
@@ -2644,8 +2734,9 @@ export default function App() {
             message: `Referenced unit "${val}" is not present in the current BAR definition catalog or project clones.`,
           });
         }
+        const localSupportingWeaponDef = supportingDestinations.has(`${unitId}:${referenceId}`.toLowerCase());
         if (/^weapon_slot_\d+_cluster_def$/.test(key)
-          && referenceId && !knownWeaponDefs.has(referenceId)) {
+          && referenceId && !knownWeaponDefs.has(referenceId) && !localSupportingWeaponDef) {
           issues.push({
             unitId,
             unitName,
@@ -2653,6 +2744,36 @@ export default function App() {
             value: val,
             level: 'warning',
             message: `Referenced WeaponDef "${val}" is not present in the loaded BAR definitions. Raw imported modules may define it later.`,
+          });
+        }
+      });
+    });
+    const checkedSupportingDestinations = new Set();
+    enabledSupportingWeaponDefs.forEach(definition => {
+      const destination = `${definition.ownerUnitId}:${definition.key}`.toLowerCase();
+      if (checkedSupportingDestinations.has(destination)) {
+        issues.push({
+          unitId: definition.ownerUnitId, unitName: unitsDb.names[definition.ownerUnitId] || definition.ownerUnitId,
+          key: `supporting_weapondef_${definition.key}`, level: 'error',
+          message: `Supporting WeaponDef "${definition.key}" is defined more than once for ${definition.ownerUnitId}.`,
+        });
+      }
+      checkedSupportingDestinations.add(destination);
+      if (!knownUnitIds.has(definition.ownerUnitId)) {
+        issues.push({
+          unitId: definition.ownerUnitId, unitName: definition.ownerUnitId,
+          key: `supporting_weapondef_${definition.key}`, level: 'error',
+          message: `Supporting WeaponDef owner "${definition.ownerUnitId}" is not present in the BAR catalog or project clones.`,
+        });
+      }
+      (definition.dependencies || []).forEach(dependency => {
+        const localDependency = `${definition.ownerUnitId}:${dependency}`.toLowerCase();
+        const baseHasDependency = defaultsDb[resolveCloneRootId(definition.ownerUnitId)]?.weaponSlots?.some(slot => slot.defKey?.toLowerCase() === dependency);
+        if (!supportingDestinations.has(localDependency) && !baseHasDependency) {
+          issues.push({
+            unitId: definition.ownerUnitId, unitName: unitsDb.names[definition.ownerUnitId] || definition.ownerUnitId,
+            key: `supporting_weapondef_${definition.key}`, level: 'warning',
+            message: `Supporting WeaponDef "${definition.key}" references missing dependency "${dependency}".`,
           });
         }
       });
@@ -2670,7 +2791,7 @@ export default function App() {
       });
     }
     return issues;
-  }, [tweaks, clones, unitsDb.names, compiledLobbyModules, allUnitsList, defaultsDb]);
+  }, [tweaks, clones, unitsDb.names, compiledLobbyModules, allUnitsList, defaultsDb, resolveCloneRootId, supportingWeaponDefs]);
   const scopedValidationIssues = useMemo(
     () => activeCollectionUnitIds
       ? validationIssues.filter(issue => activeCollectionUnitIds.has(issue.unitId))
@@ -2817,7 +2938,7 @@ export default function App() {
     validationCount: scopedValidationIssues.length,
   } : null;
   const activeBuildMenuPackCount = Object.values(buildMenuPacks).filter(Boolean).length;
-  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount + tweakModules.length;
+  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount + tweakModules.length + supportingWeaponDefs.length;
   const selectedUnitOverrideEntries = Object.entries(tweaks[selectedUnit?.id] || {});
   const inspectorTabs = [
     { id: 'details', label: 'Details' },
@@ -4956,12 +5077,16 @@ export default function App() {
         <Suspense fallback={<main className="tweak-package-lab workspace-loading"><span>Preparing Tweak Package Lab…</span></main>}>
           <LazyTweakPackageLabPage
             modules={tweakModules}
+            supportingWeaponDefs={supportingWeaponDefs}
             compiledModules={compiledLobbyModules}
             onAddModules={handleAddTweakModules}
             onUpdateModule={handleUpdateTweakModule}
             onRemoveModule={handleRemoveTweakModule}
             onMoveModule={handleMoveTweakModule}
             onReorderModules={handleReorderTweakModules}
+            onAddSupportingWeaponDefs={handleAddSupportingWeaponDefs}
+            onUpdateSupportingWeaponDef={handleUpdateSupportingWeaponDef}
+            onRemoveSupportingWeaponDef={handleRemoveSupportingWeaponDef}
             onApplyConversions={handleApplyTweakConversions}
             knownUnitIds={knownTweakPackageUnitIds}
             onBack={() => setActiveWorkspace('edit')}

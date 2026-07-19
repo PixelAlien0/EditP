@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { analyzeTweakPackage, MAX_TWEAK_PACKAGE_BYTES, parseTweakPackageInput } from '../utils/tweakPackage.js';
 import { Button, EmptyState, PageShell, Switch } from './ui.jsx';
 import '../styles/features/tweak-package-lab.css';
@@ -33,13 +33,64 @@ function ModuleCard({ module, selected, analysis, report, onSelect, onUpdate, on
   );
 }
 
+function SupportingWeaponDefCard({ definition, onUpdate, onRemove }) {
+  const [definitionDraft, setDefinitionDraft] = useState(() => JSON.stringify(definition.definition || {}, null, 2));
+  const [definitionError, setDefinitionError] = useState('');
+  useEffect(() => {
+    setDefinitionDraft(JSON.stringify(definition.definition || {}, null, 2));
+    setDefinitionError('');
+  }, [definition.id, definition.definition]);
+
+  const saveDefinition = () => {
+    try {
+      const parsed = JSON.parse(definitionDraft);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Definition must be a JSON object.');
+      onUpdate(definition.id, { definition: parsed });
+      setDefinitionError('');
+    } catch (error) {
+      setDefinitionError(error.message);
+    }
+  };
+
+  return (
+    <article className="tweak-support-card">
+      <div className="tweak-support-card__heading">
+        <div><span>{definition.role === 'dependency' ? 'Referenced dependency' : definition.role === 'mounted' ? 'Mounted definition' : 'Auxiliary definition'}</span><strong>{definition.label || definition.key.toUpperCase()}</strong></div>
+        <Switch
+          label={`Compile supporting WeaponDef ${definition.key}`}
+          checked={definition.enabled !== false}
+          onChange={event => onUpdate(definition.id, { enabled: event.target.checked })}
+        />
+      </div>
+      <div className="tweak-support-card__fields">
+        <label><span>Owner UnitDef</span><input value={definition.ownerUnitId} onChange={event => onUpdate(definition.id, { ownerUnitId: event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })} /></label>
+        <label><span>WeaponDef key</span><input value={definition.key} onChange={event => onUpdate(definition.id, { key: event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })} /></label>
+        <label><span>Write mode</span><select value={definition.mode || 'replace'} onChange={event => onUpdate(definition.id, { mode: event.target.value })}><option value="replace">Replace existing</option><option value="create-only">Create only</option></select></label>
+      </div>
+      <details className="tweak-support-card__editor">
+        <summary>Edit literal fields</summary>
+        <textarea value={definitionDraft} onChange={event => setDefinitionDraft(event.target.value)} aria-label={`Literal fields for ${definition.key}`} spellCheck="false" />
+        <div><span className={definitionError ? 'is-error' : ''}>{definitionError || 'JSON only. Imported Lua is never executed.'}</span><Button size="sm" onClick={saveDefinition}>Save fields</Button></div>
+      </details>
+      <div className="tweak-support-card__meta">
+        <span>{Object.keys(definition.definition || {}).length} root fields</span>
+        <span>{definition.dependencies?.length ? `Needs ${definition.dependencies.join(', ')}` : 'No WeaponDef dependencies'}</span>
+        <button type="button" onClick={() => onRemove(definition.id)}>Remove</button>
+      </div>
+    </article>
+  );
+}
+
 export default function TweakPackageLabPage({
-  modules, compiledModules, onAddModules, onUpdateModule, onRemoveModule,
+  modules, supportingWeaponDefs = [], compiledModules, onAddModules, onUpdateModule, onRemoveModule,
   onMoveModule, onReorderModules, onApplyConversions, onBack, onToast, knownUnitIds = [],
+  onAddSupportingWeaponDefs, onUpdateSupportingWeaponDef, onRemoveSupportingWeaponDef,
 }) {
   const [selectedId, setSelectedId] = useState(modules[0]?.id || null);
   const [pasteValue, setPasteValue] = useState('');
   const [rawKind, setRawKind] = useState('defs');
+  const [newSupportOwner, setNewSupportOwner] = useState('');
+  const [newSupportKey, setNewSupportKey] = useState('');
   const packageAnalysis = useMemo(
     () => analyzeTweakPackage(modules, { knownUnitIds }),
     [knownUnitIds, modules]
@@ -60,11 +111,36 @@ export default function TweakPackageLabPage({
   const selectedAnalysis = selected ? analyses.get(selected.id) : null;
   const selectedReport = selected ? packageAnalysis.moduleReports.find(report => report.moduleId === selected.id) : null;
   const moduleLabel = moduleId => modules.find(module => module.id === moduleId)?.label || moduleId;
+  const supportingDestinations = new Set(supportingWeaponDefs.map(definition => `${definition.ownerUnitId}:${definition.key}`.toLowerCase()));
   const reviewCount = packageAnalysis.unresolved.length
     + packageAnalysis.collisions.length
     + packageAnalysis.orderingIssues.length
     + packageAnalysis.cycles.length
     + packageAnalysis.typeIssues.length;
+
+  const createSupportingWeaponDef = () => {
+    const ownerUnitId = newSupportOwner.trim().toLowerCase();
+    const key = newSupportKey.trim().toLowerCase();
+    const destination = `${ownerUnitId}:${key}`;
+    if (!ownerUnitId || !key || supportingDestinations.has(destination)) return;
+    onAddSupportingWeaponDefs([{
+      id: `support_manual_${ownerUnitId}_${key}_${Date.now()}`,
+      ownerUnitId,
+      key,
+      label: key.toUpperCase(),
+      definition: { damage: { default: 0 } },
+      enabled: true,
+      mode: 'replace',
+      role: 'auxiliary',
+      mountedSlots: [],
+      dependencies: [],
+      referencedBy: [],
+      sourceName: 'Created in BAR Editor',
+    }]);
+    setNewSupportOwner('');
+    setNewSupportKey('');
+    onToast(`Created ${key.toUpperCase()} for ${ownerUnitId}.`);
+  };
 
   const applyRecommendedOrder = () => {
     if (!packageAnalysis.canAutoOrder || !packageAnalysis.orderingIssues.length) return;
@@ -171,6 +247,35 @@ export default function TweakPackageLabPage({
         </section>
       )}
 
+      <details className="tweak-support-library" open={supportingWeaponDefs.length > 0}>
+        <summary>
+          <span><b>Supporting WeaponDef library</b><small>Auxiliary, cluster-child, and unmounted definitions compiled into their owning UnitDefs.</small></span>
+          <strong>{supportingWeaponDefs.length}</strong>
+        </summary>
+        <div className="tweak-support-library__body">
+          <div className="tweak-support-create">
+            <div><b>Create auxiliary WeaponDef</b><small>Start with a safe literal definition and edit its fields as JSON.</small></div>
+            <label><span>Owner UnitDef</span><input value={newSupportOwner} onChange={event => setNewSupportOwner(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="armflea" /></label>
+            <label><span>WeaponDef key</span><input value={newSupportKey} onChange={event => setNewSupportKey(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="cluster_child" /></label>
+            <Button
+              size="sm"
+              disabled={!newSupportOwner || !newSupportKey || supportingDestinations.has(`${newSupportOwner}:${newSupportKey}`)}
+              onClick={createSupportingWeaponDef}
+            >Create</Button>
+          </div>
+          {supportingWeaponDefs.length === 0 ? (
+            <p>Convert a recognized literal module or add one of its auxiliary WeaponDefs from the module inspector.</p>
+          ) : supportingWeaponDefs.map(definition => (
+            <SupportingWeaponDefCard
+              key={definition.id}
+              definition={definition}
+              onUpdate={onUpdateSupportingWeaponDef}
+              onRemove={onRemoveSupportingWeaponDef}
+            />
+          ))}
+        </div>
+      </details>
+
       <div className="tweak-lab-grid">
         <aside className="tweak-lab-import">
           <div className="tweak-lab-section-heading"><span>Package sources</span><strong>{modules.length}</strong></div>
@@ -245,6 +350,24 @@ export default function TweakPackageLabPage({
                 <div><span>Build menu</span><strong>{selectedAnalysis.buildMenuOperations}</strong></div>
               </div>
               {selectedAnalysis.literalUnitTables > 0 && <p className="tweak-literal-summary">Literal table recognized: <strong>{selectedAnalysis.literalUnitTables}</strong> unit patches and <strong>{selectedAnalysis.literalWeaponDefinitions}</strong> WeaponDefs are available for structured conversion.</p>}
+              {selectedAnalysis.supportingWeaponDefs.length > 0 && (
+                <section className="tweak-analysis-section tweak-support-candidates">
+                  <div className="tweak-analysis-section__heading"><h4>Project WeaponDefs</h4><Button size="sm" onClick={() => onAddSupportingWeaponDefs(selectedAnalysis.supportingWeaponDefs)}>Add all {selectedAnalysis.supportingWeaponDefs.length}</Button></div>
+                  <p>Complete literal definitions, their mount slots, and auxiliary dependencies can be preserved without enabling the source module.</p>
+                  <div>
+                    {selectedAnalysis.supportingWeaponDefs.map(definition => {
+                      const destination = `${definition.ownerUnitId}:${definition.key}`.toLowerCase();
+                      const exists = supportingDestinations.has(destination);
+                      return (
+                        <article key={definition.id}>
+                          <span><strong>{definition.key.toUpperCase()}</strong><small>{definition.ownerUnitId} · {definition.role}</small></span>
+                          <Button size="sm" disabled={exists} onClick={() => onAddSupportingWeaponDefs([definition])}>{exists ? 'In library' : 'Add'}</Button>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
               {selectedAnalysis.warnings.length > 0 && (
                 <div className="tweak-analysis-warnings">
                   {selectedAnalysis.warnings.map(warning => <p key={`${warning.code}-${warning.message}`} className={`is-${warning.level}`}><strong>{warning.code}</strong>{warning.message}</p>)}
@@ -330,7 +453,7 @@ export default function TweakPackageLabPage({
               )}
               <section className="tweak-analysis-section">
                 <div className="tweak-analysis-section__heading"><h4>Safe conversions</h4><span>{selectedAnalysis.conversions.length}</span></div>
-                <p>Converts literal clones, complete unit tables, weapon slots, build-menu operations, and supported scalar parameters. Asset and script changes remain raw.</p>
+                <p>Converts literal clones, complete unit tables, weapon slots, supporting WeaponDefs, build-menu operations, and supported scalar parameters. Asset and script changes remain raw.</p>
                 <Button
                   disabled={selected.enabled || selected.converted || selectedAnalysis.conversions.length === 0 || Boolean(selectedAnalysis.parseError)}
                   onClick={() => onApplyConversions(selected, selectedAnalysis.conversions)}

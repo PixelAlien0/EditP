@@ -1,6 +1,6 @@
 import { normalizeUnitCollections } from './unitCollections.js';
 
-export const PROJECT_DOCUMENT_VERSION = '1.6';
+export const PROJECT_DOCUMENT_VERSION = '1.7';
 export const MAX_PROJECT_BYTES = 5 * 1024 * 1024;
 
 const UNIT_ID_PATTERN = /^[a-z0-9_]+$/i;
@@ -92,6 +92,61 @@ function safeArray(value, maxItems = 5000) {
   return Array.isArray(value) ? structuredClone(value.slice(0, maxItems)) : [];
 }
 
+function normalizeLiteralTree(value, depth = 0) {
+  if (depth > 12) return undefined;
+  if (scalar(value)) return value;
+  if (Array.isArray(value)) {
+    return value.slice(0, 500).map(item => normalizeLiteralTree(item, depth + 1)).filter(item => item !== undefined);
+  }
+  if (!isRecord(value)) return undefined;
+  const result = {};
+  Object.entries(value).slice(0, 1000).forEach(([key, item]) => {
+    const normalizedKey = text(key, '', 160).trim().toLowerCase();
+    const normalizedValue = normalizeLiteralTree(item, depth + 1);
+    if (normalizedKey && normalizedValue !== undefined) result[normalizedKey] = normalizedValue;
+  });
+  return result;
+}
+
+function normalizeSupportingWeaponDefs(value) {
+  if (!Array.isArray(value)) return [];
+  const seenIds = new Set();
+  const seenDestinations = new Set();
+  return value.slice(0, 1000).flatMap((rawDefinition, index) => {
+    if (!isRecord(rawDefinition)) return [];
+    const ownerUnitId = unitId(rawDefinition.ownerUnitId);
+    const key = unitId(rawDefinition.key);
+    const definition = normalizeLiteralTree(rawDefinition.definition);
+    const fallbackId = ownerUnitId && key ? `support_${ownerUnitId}_${key}` : `support_${index + 1}`;
+    const id = text(rawDefinition.id, fallbackId, 240).replace(/[^a-z0-9_:-]/gi, '_').toLowerCase();
+    const destination = `${ownerUnitId}:${key}`;
+    if (!ownerUnitId || !key || !isRecord(definition) || !Object.keys(definition).length || !id || seenIds.has(id) || seenDestinations.has(destination)) return [];
+    seenIds.add(id);
+    seenDestinations.add(destination);
+    const clusterDependency = typeof definition.customparams?.cluster_def === 'string'
+      ? unitId(definition.customparams.cluster_def)
+      : null;
+    return [{
+      id,
+      ownerUnitId,
+      key,
+      label: text(rawDefinition.label, key.toUpperCase(), 160).trim() || key.toUpperCase(),
+      definition,
+      enabled: rawDefinition.enabled !== false,
+      mode: rawDefinition.mode === 'create-only' ? 'create-only' : 'replace',
+      role: rawDefinition.role === 'dependency' ? 'dependency' : rawDefinition.role === 'mounted' ? 'mounted' : 'auxiliary',
+      mountedSlots: Array.isArray(rawDefinition.mountedSlots)
+        ? [...new Set(rawDefinition.mountedSlots.map(Number).filter(slot => Number.isInteger(slot) && slot > 0))].slice(0, 64)
+        : [],
+      dependencies: clusterDependency ? [clusterDependency] : [],
+      referencedBy: idList(rawDefinition.referencedBy),
+      sourceModuleId: text(rawDefinition.sourceModuleId, '', 240),
+      sourceName: text(rawDefinition.sourceName, '', 260),
+      attribution: text(rawDefinition.attribution, '', 500),
+    }];
+  });
+}
+
 function normalizeTweakModules(value) {
   if (!Array.isArray(value)) return [];
   const seen = new Set();
@@ -156,6 +211,7 @@ export function normalizeProjectDocument(input) {
     },
     unitDescriptions: normalizeDescriptions(migrated.unitDescriptions),
     weaponLibrary: safeArray(migrated.weaponLibrary, 1000),
+    supportingWeaponDefs: normalizeSupportingWeaponDefs(migrated.supportingWeaponDefs),
     unitCollections: normalizeUnitCollections(migrated.unitCollections),
     tweakModules: normalizeTweakModules(migrated.tweakModules),
     projectName: text(migrated.projectName, 'BAR Editor Mod', 120).trim() || 'BAR Editor Mod',

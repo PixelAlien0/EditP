@@ -136,6 +136,50 @@ test('Tweak Package Lab preflights value types and safely reorders dependencies'
   await expect(page.locator('.tweak-preflight-list').getByText(/canattack expects boolean/i)).toBeVisible();
 });
 
+test('Tweak Package Lab preserves auxiliary WeaponDefs in the project library and export', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
+
+  await page.getByLabel('Raw input type').selectOption('units');
+  await page.getByRole('textbox', { name: 'Tweak package input' }).fill(`{
+    armflea = {
+      weapondefs = {
+        main = { range = 300, customparams = { cluster_def = 'cluster_child' } },
+        cluster_child = { range = 180, areaofeffect = 22, damage = { default = 17 } },
+      },
+      weapons = { [1] = { def = 'MAIN' } },
+    },
+  }`);
+  await page.getByRole('button', { name: 'Inspect pasted input' }).click();
+  const candidates = page.locator('.tweak-support-candidates');
+  await expect(candidates).toContainText('CLUSTER_CHILD');
+  await candidates.getByRole('button', { name: 'Add all 2' }).click();
+  const library = page.locator('.tweak-support-library');
+  await expect(library).toContainText('cluster_child');
+  const createRow = library.locator('.tweak-support-create');
+  await createRow.getByLabel('Owner UnitDef').fill('armflea');
+  await createRow.getByLabel('WeaponDef key').fill('manual_aux');
+  await createRow.getByRole('button', { name: 'Create' }).click();
+  const manualCard = library.locator('.tweak-support-card').filter({ hasText: 'MANUAL_AUX' });
+  await manualCard.getByText('Edit literal fields').click();
+  await manualCard.getByRole('textbox', { name: 'Literal fields for manual_aux' }).fill(JSON.stringify({
+    areaofeffect: 48,
+    damage: { default: 29 },
+  }, null, 2));
+  await manualCard.getByRole('button', { name: 'Save fields' }).click();
+
+  await page.getByRole('button', { name: 'Back to editor' }).click();
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+  await page.getByText('Legacy combined compiler', { exact: true }).click();
+  await page.getByRole('tab', { name: 'Definitions Lua' }).click();
+  await expect(page.locator('.export-code-preview')).toContainText('editp_supporting_weapondefs');
+  await expect(page.locator('.export-code-preview')).toContainText('cluster_child');
+  await expect(page.locator('.export-code-preview')).toContainText('manual_aux');
+  await expect(page.locator('.export-code-preview')).toContainText('default = 29');
+});
+
 test('Tweak Package Lab converts literal unit tables into editable project state', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();

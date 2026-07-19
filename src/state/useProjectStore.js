@@ -10,6 +10,7 @@ export const PROJECT_STORE_DEFAULTS = Object.freeze({
   buildMenuPacks: { extraUnits: false, scavengerUnits: false },
   presets: [],
   weaponLibrary: [],
+  supportingWeaponDefs: [],
   unitCollections: [],
   tweakModules: [],
   projectName: 'BAR Editor Mod',

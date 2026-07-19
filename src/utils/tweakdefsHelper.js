@@ -7,6 +7,8 @@ export const BUILDMENU_BEGIN = '-- BMF_BUILDMENU_BEGIN';
 export const BUILDMENU_END = '-- BMF_BUILDMENU_END';
 export const DEATH_PROFILE_BEGIN = '-- EDITP_DEATH_PROFILES_BEGIN';
 export const DEATH_PROFILE_END = '-- EDITP_DEATH_PROFILES_END';
+export const SUPPORTING_WEAPONDEFS_BEGIN = '-- EDITP_SUPPORTING_WEAPONDEFS_BEGIN';
+export const SUPPORTING_WEAPONDEFS_END = '-- EDITP_SUPPORTING_WEAPONDEFS_END';
 
 
 function escapeLuaString(str) {
@@ -71,6 +73,44 @@ end
 
 ${calls.join('\n')}
 ${DEATH_PROFILE_END}`;
+}
+
+export function generateSupportingWeaponDefsBlockLua(definitions = []) {
+  const entries = definitions
+    .filter(definition => definition?.enabled !== false && definition?.ownerUnitId && definition?.key && definition?.definition)
+    .map(definition => ({
+      owner: String(definition.ownerUnitId).trim().toLowerCase(),
+      key: String(definition.key).trim().toLowerCase(),
+      mode: definition.mode === 'create-only' ? 'create-only' : 'replace',
+      definition: definition.definition,
+      mountedSlots: Array.isArray(definition.mountedSlots)
+        ? [...new Set(definition.mountedSlots.map(Number).filter(slot => Number.isInteger(slot) && slot > 0))]
+        : [],
+    }))
+    .filter(entry => entry.owner && entry.key && entry.definition && typeof entry.definition === 'object')
+    .sort((left, right) => left.owner.localeCompare(right.owner) || left.key.localeCompare(right.key));
+  if (!entries.length) return '';
+  const payload = serializeLuaTable({ entries });
+  return `${SUPPORTING_WEAPONDEFS_BEGIN}
+local editp_supporting_weapondefs = ${payload}
+
+for _, entry in ipairs(editp_supporting_weapondefs.entries) do
+  local unit = UnitDefs and UnitDefs[entry.owner]
+  if unit then
+    unit.weapondefs = unit.weapondefs or {}
+    if entry.mode == "replace" or unit.weapondefs[entry.key] == nil then
+      unit.weapondefs[entry.key] = table.copy(entry.definition)
+    end
+    if type(entry.mountedSlots) == "table" and #entry.mountedSlots > 0 then
+      unit.weapons = unit.weapons or {}
+      for _, slot in ipairs(entry.mountedSlots) do
+        unit.weapons[slot] = unit.weapons[slot] or {}
+        unit.weapons[slot].def = string.upper(entry.key)
+      end
+    end
+  end
+end
+${SUPPORTING_WEAPONDEFS_END}`;
 }
 
 function generateWeaponBlueprintOverridesLua(blueprint, weaponDefKey) {
@@ -575,7 +615,8 @@ export function compileTweakDefsLua({
   projectMeta,
   compileFlags,
   weaponLibrary = [],
-  deathExplosionTweaks = []
+  deathExplosionTweaks = [],
+  supportingWeaponDefs = [],
 }) {
   // Strip out any existing comments or headers that start with "-- Mod Name:" to avoid piling up duplicate headers
   const strippedText = currentTweakDefsLua
@@ -587,11 +628,11 @@ export function compileTweakDefsLua({
     .replace(/^-- ----------------------------------------------------[\r\n]*/gm, '')
     .trim();
 
-  const cleanBody = stripBlock(
+  const cleanBody = stripBlock(stripBlock(
     stripBlock(stripBlock(strippedText, CLONE_BEGIN, CLONE_END), BUILDMENU_BEGIN, BUILDMENU_END),
     DEATH_PROFILE_BEGIN,
     DEATH_PROFILE_END,
-  ).trim();
+  ), SUPPORTING_WEAPONDEFS_BEGIN, SUPPORTING_WEAPONDEFS_END).trim();
   
   const includeCloneDefinitions = compileFlags?.includeClones ?? true;
   const clonesBlock = includeCloneDefinitions
@@ -611,12 +652,14 @@ export function compileTweakDefsLua({
     ? generateBuildMenuBlockLua(updatedSteps)
     : '';
   const deathProfileBlock = generateDeathProfilesBlockLua(deathExplosionTweaks);
+  const supportingWeaponDefsBlock = generateSupportingWeaponDefsBlockLua(supportingWeaponDefs);
   
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);
   if (clonesBlock.length > 0) {
     parts.push(`${CLONE_BEGIN}\n${clonesBlock}\n${CLONE_END}`);
   }
+  if (supportingWeaponDefsBlock.length > 0) parts.push(supportingWeaponDefsBlock);
   if (buildMenuBlock.length > 0) {
     parts.push(`${BUILDMENU_BEGIN}\n${buildMenuBlock}\n${BUILDMENU_END}`);
   }
