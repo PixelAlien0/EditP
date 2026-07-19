@@ -8612,6 +8612,20 @@ textarea.form-input {
   transform: none;
 }
 
+.expert-setting-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .stat-card::before,
 .stat-card.modified::before {
   display: none !important;

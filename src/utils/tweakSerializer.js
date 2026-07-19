@@ -76,6 +76,16 @@ export function encodeBase64(str, options = { urlSafe: false, padding: true }) {
   return base64;
 }
 
+// BAR start scripts do not preserve `+` reliably inside modoption values.
+// Always use the URL-safe alphabet for lobby exports so decoded Lua operators
+// (notably `~=`) cannot be corrupted before tweakdefs is parsed.
+export function encodeLobbyBase64(str, options = {}) {
+  return encodeBase64(str, {
+    urlSafe: true,
+    padding: options.padding ?? true,
+  });
+}
+
 export function estimateLobbyRisk(luaCode, customUnitClones = []) {
   const cloneCount = customUnitClones.length;
   const tableCopyCount = (luaCode.match(/table\.copy\s*\(\s*UnitDefs/g) || []).length;

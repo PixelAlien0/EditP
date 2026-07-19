@@ -2,7 +2,7 @@ import { lazy, Suspense, useState, useMemo, useEffect, useRef, useCallback, useI
 import { createPortal } from 'react-dom';
 import { BUILD_MENU_PACKS, buildEffectiveFactoryRosters, getBuildMenuPackSource } from './data/build-menu-packs.js';
 import { getFactionOfUnit, getTechTierFromValue } from './utils/categories.js';
-import { serializeLuaTable, encodeBase64 } from './utils/tweakSerializer.js';
+import { serializeLuaTable, encodeLobbyBase64 } from './utils/tweakSerializer.js';
 import { compileTweakDefsLua } from './utils/tweakdefsHelper.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import { useTemporaryChat } from './hooks/useTemporaryChat.js';
@@ -819,7 +819,7 @@ export default function App() {
     [buildMenuPacks, factoryRosters]
   );
 
-  const [base64Options, setBase64Options] = useState({ urlSafe: false, padding: true });
+  const [base64Options, setBase64Options] = useState({ padding: true });
   const tweakDefsLua = '';
   const [toast, setToast] = useState({ show: false, message: '' });
 
@@ -1762,7 +1762,7 @@ export default function App() {
   // Base64 Tweak Units
   const tweakUnitsB64 = useMemo(() => {
     if (generatedTweakUnitsLua === '{\n}') return '';
-    return encodeBase64(generatedTweakUnitsLua + ' ', base64Options);
+    return encodeLobbyBase64(generatedTweakUnitsLua + ' ', base64Options);
   }, [generatedTweakUnitsLua, base64Options]);
 
   const deathExplosionTweaks = useMemo(() => {
@@ -1821,7 +1821,7 @@ export default function App() {
 
   const tweakDefsB64 = useMemo(() => {
     if (!generatedTweakDefsLua.trim()) return '';
-    return encodeBase64(generatedTweakDefsLua + ' ', base64Options);
+    return encodeLobbyBase64(generatedTweakDefsLua + ' ', base64Options);
   }, [generatedTweakDefsLua, base64Options]);
 
   const totalBytesUsed = tweakUnitsB64.length + tweakDefsB64.length;
@@ -4686,12 +4686,8 @@ export default function App() {
 
                   <div className="expert-settings-card base64-options-card">
                     <div className="expert-toggle-row">
-                      <span>URL-Safe</span>
-                      <Switch
-                        label="Use URL-safe Base64 encoding"
-                        checked={base64Options.urlSafe}
-                        onChange={e => setBase64Options(prev => ({ ...prev, urlSafe: e.target.checked }))}
-                      />
+                      <span>Lobby-safe encoding</span>
+                      <span className="expert-setting-status" title="Required so BAR start scripts preserve the generated Lua">Required</span>
                     </div>
                     <div className="expert-toggle-row">
                       <span>Padding</span>
