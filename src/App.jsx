@@ -32,6 +32,9 @@ import ParameterCanvas, { ParameterMatrix } from './components/editor/ParameterC
 import InheritedBooleanControl from './components/editor/InheritedBooleanControl.jsx';
 import UnitParameterViewControl from './components/editor/UnitParameterViewControl.jsx';
 import EditorInspector from './components/editor/EditorInspector.jsx';
+import AssetPicker from './components/editor/AssetPicker.jsx';
+import AdvancedCustomParameters from './components/editor/AdvancedCustomParameters.jsx';
+import { isValidCustomParameterKey } from './config/customParameters.js';
 import {
   createUnitCollection,
   deleteCollectionAndPromoteChildren,
@@ -52,6 +55,12 @@ const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabP
 // Keep the laboratory code available while this experimental workspace is temporarily unpublished.
 const WEAPON_LAB_ENABLED = false;
 const SHOW_LEGACY_REVIEW_REFERENCE = false;
+
+const WEAPON_ASSET_TYPES = Object.freeze({
+  cegTag: 'ceg', explosiongenerator: 'ceg', model: 'projectileModel',
+  soundstart: 'sound', soundhit: 'sound', soundhitwet: 'sound', soundhitdry: 'sound',
+  texture1: 'texture', texture2: 'texture', texture3: 'texture'
+});
 
 const BULK_PARAMETER_GROUPS = [
   {
@@ -195,6 +204,12 @@ const PARAMETER_HELP = {
   'customparams.controlradius': 'Experimental radius within which deployed units remain under carrier control.', 'customparams.enabledocking': 'Experimental docking behavior for returning carried units.',
   'customparams.decayrate': 'Health decay applied to deployed units.', 'customparams.deathdecayrate': 'Decay applied after the carrier is destroyed.', 'customparams.carrierdeaththroe': 'Carrier death behavior, such as release.',
   'customparams.metalcost': 'Metal charged for each carrier-deployed unit.', 'customparams.energycost': 'Energy charged for each carrier-deployed unit.',
+  footprintx: 'Unit footprint width in 16-elmo map squares. Yard-map rows should use this width.', footprintz: 'Unit footprint depth in 16-elmo map squares. Yard-map row count should match this depth.',
+  yardmap: 'Building occupancy map. Separate rows with spaces; each row should match the footprint width.', maxthisunit: 'Maximum number of this UnitDef that one team may own at once.',
+  objectname: '3D model path already present in BAR or the loaded mod.', script: 'Unit animation script path already present in BAR or the loaded mod.',
+  buildpic: 'Build-menu artwork name already present in BAR or the loaded mod.', icontype: 'Strategic icon type registered by BAR or the loaded mod.',
+  collisionvolumetype: 'Collision shape such as Box, CylY, Ell, Footprint, or Sphere.', collisionvolumescales: 'Collision volume dimensions as three space-separated numbers.',
+  collisionvolumeoffsets: 'Collision volume X Y Z offset as three space-separated numbers.',
   damage: 'Base damage against targets without a specific armor class.', reload: 'Seconds between firing cycles.', range: 'Maximum firing range in elmos.', velocity: 'Projectile speed.',
   flighttime: 'How long a guided projectile retains fuel and guidance.', aoe: 'Explosion diameter that can damage nearby units.', accuracy: 'Base shot spread; lower is more accurate.',
   sprayangle: 'Spread between projectiles in a burst.', heightmod: 'How range changes with target elevation.', randomdecay: 'Legacy projectile spread behavior; use with caution.',
@@ -631,6 +646,9 @@ function MainMenu({
 
 function getValidationWarning(key, value) {
   if (value === undefined || value === '') return null;
+  if ((key === 'collisionvolumescales' || key === 'collisionvolumeoffsets') && !/^\s*-?\d*\.?\d+(?:\s+-?\d*\.?\d+){2}\s*$/.test(String(value))) {
+    return { level: 'error', message: 'Enter three numbers: X Y Z' };
+  }
   const num = parseFloat(value);
   if (isNaN(num)) return null;
 
@@ -667,6 +685,8 @@ function getValidationWarning(key, value) {
   }
   if (isKey('spawnrate') && num <= 0) return { level: 'error', message: 'Spawn rate must be positive' };
   if (isKey('maxunits') && (!Number.isInteger(num) || num < 1)) return { level: 'error', message: 'Maximum units must be a positive integer' };
+  if ((key === 'footprintx' || key === 'footprintz') && (!Number.isInteger(num) || num < 1)) return { level: 'error', message: 'Footprint must be a positive whole number' };
+  if (key === 'maxthisunit' && (!Number.isInteger(num) || num < 1)) return { level: 'error', message: 'Team limit must be a positive whole number' };
   if (isKey('cluster_number')) {
     if (!Number.isInteger(num) || num < 1) return { level: 'error', message: 'Cluster count must be a positive integer' };
     if (num > 64) return { level: 'warning', message: 'Large cluster counts can be expensive' };
@@ -1972,6 +1992,15 @@ export default function App() {
         }
 
         const config = STAT_KEYS.find(s => s.key === key);
+        if (!config && key.startsWith('customparams.')) {
+          const customKey = key.slice('customparams.'.length);
+          if (!isValidCustomParameterKey(customKey)) return;
+          let typedValue = val;
+          if (typeof val === 'string' && /^-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(val.trim())) typedValue = Number(val);
+          else if (val === 'true' || val === 'false') typedValue = val === 'true';
+          setNestedVal(unitPatch, `customparams.${customKey}`, typedValue);
+          return;
+        }
         if (!config) return;
         if (config.output === 'tweakdefs') return;
         if (key === 'explodeas' && Object.keys(statPatch).some(statKey => statKey.startsWith('death_explosion_'))) return;
@@ -3539,9 +3568,9 @@ export default function App() {
               { key: 'stockpiletime', label: 'Stockpile Time (s)', sub: 'stockpiletime', type: 'number' },
               { key: 'stockpilelimit', label: 'Stockpile Limit', sub: 'customparams.stockpilelimit', type: 'number' },
               { key: 'weapontype', label: 'Projectile Class', sub: 'weapontype', type: 'text', options: ['LaserCannon', 'Cannon', 'MissileLauncher', 'EmgCannon', 'AircraftBomb', 'Flame', 'BeamLaser'] },
-              { key: 'cegTag', label: 'Visual Effect / Trail', sub: 'cegTag', type: 'text', options: ['redlaser', 'greenlaser', 'bluebeam', 'purpleshield', 'plasma_exp', 'lightning_stream', 'electric_arc', 'flamethrower'] },
-              { key: 'model', label: '3D Projectile Model', sub: 'model', type: 'text', options: ['torpedo.3do', 'missile.3do', 'bomb.3do', 'laserbolt.3do', 'rocket.3do'] },
-              { key: 'explosiongenerator', label: 'Explosion Generator', sub: 'explosiongenerator', type: 'text', options: ['custom:bluelaser_explosion', 'custom:redlaser_explosion', 'custom:plasma_big', 'custom:lightning_spark', 'custom:fire_medium'] }
+              { key: 'cegTag', label: 'Visual Effect / Trail', sub: 'cegTag', type: 'text', assetType: 'ceg' },
+              { key: 'model', label: '3D Projectile Model', sub: 'model', type: 'text', assetType: 'projectileModel' },
+              { key: 'explosiongenerator', label: 'Explosion Generator', sub: 'explosiongenerator', type: 'text', assetType: 'ceg' }
             ].map((parameter, order) => ({
               ...parameter,
               featured: featuredWeaponParameters.has(parameter.key),
@@ -4092,13 +4121,23 @@ export default function App() {
                                     const warning = getValidationWarning(stat.key, displayValue);
                                     return (
                                       <div className="stat-card-field">
-                                        <input
-                                          type={stat.type === 'string' ? 'text' : 'number'}
-                                          className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
-                                          value={displayValue}
-                                          placeholder={defaultVal !== undefined ? String(defaultVal) : defaultResolution.label}
-                                          onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.value)}
-                                        />
+                                        {stat.assetType ? (
+                                          <AssetPicker
+                                            assetType={stat.assetType}
+                                            label={stat.label}
+                                            value={displayValue}
+                                            placeholder={defaultVal !== undefined ? String(defaultVal) : defaultResolution.label}
+                                            onChange={value => handleStatChange(selectedUnit.id, stat.key, value)}
+                                          />
+                                        ) : (
+                                          <input
+                                            type={stat.type === 'string' ? 'text' : 'number'}
+                                            className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
+                                            value={displayValue}
+                                            placeholder={defaultVal !== undefined ? String(defaultVal) : defaultResolution.label}
+                                            onChange={e => handleStatChange(selectedUnit.id, stat.key, e.target.value)}
+                                          />
+                                        )}
                                         {warning && (
                                           <div className={`stat-card-warning is-${warning.level}`}>
                                             {warning.message}
@@ -4123,6 +4162,11 @@ export default function App() {
                             </StatCard>
                           );
                         }}
+                      />
+                      <AdvancedCustomParameters
+                        defaults={defaults}
+                        tweaks={tweaks[selectedUnit.id] || {}}
+                        onChange={(key, value) => handleStatChange(selectedUnit.id, key, value)}
                       />
                     </div>
                   )}
@@ -4423,7 +4467,15 @@ export default function App() {
                                     )}
                                   </div>
                                   <div className="stat-card-input-wrapper">
-                                    {param.type === 'text' ? (
+                                    {param.assetType ? (
+                                      <AssetPicker
+                                        assetType={param.assetType}
+                                        label={param.label}
+                                        value={displayValue}
+                                        placeholder={defaultVal !== undefined ? String(defaultVal) : 'Inherited'}
+                                        onChange={value => handleStatChange(selectedUnit.id, tweakKey, value)}
+                                      />
+                                    ) : param.type === 'text' ? (
                                       <select
                                         className="stat-card-input"
                                         value={displayValue}
@@ -4524,13 +4576,23 @@ export default function App() {
                                               <option value="false">Disabled</option>
                                             </select>
                                           ) : param.type === 'string' ? (
-                                            <input
-                                              type="text"
-                                              className="stat-card-input"
-                                              value={displayValue}
-                                              placeholder="Inherited"
-                                              onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value === '' ? undefined : e.target.value)}
-                                            />
+                                            WEAPON_ASSET_TYPES[param.key] ? (
+                                              <AssetPicker
+                                                assetType={WEAPON_ASSET_TYPES[param.key]}
+                                                label={param.label}
+                                                value={displayValue}
+                                                placeholder="Inherited"
+                                                onChange={value => handleStatChange(selectedUnit.id, tweakKey, value || undefined)}
+                                              />
+                                            ) : (
+                                              <input
+                                                type="text"
+                                                className="stat-card-input"
+                                                value={displayValue}
+                                                placeholder="Inherited"
+                                                onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value === '' ? undefined : e.target.value)}
+                                              />
+                                            )
                                           ) : (
                                             <input
                                               type="number"

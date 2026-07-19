@@ -35,8 +35,17 @@ const UNIT_FIELDS = Object.freeze({
   holdsteady: 'holdsteady', transportbyenemy: 'transportbyenemy', canattack: 'canattack',
   noautofire: 'noautofire', canmanualfire: 'canmanualfire', firestate: 'firestate', movestate: 'movestate',
   nochasecategory: 'nochasecategory', hightrajectory: 'hightrajectory', kamikaze: 'kamikaze',
-  kamikazedistance: 'kamikazedistance',
+  kamikazedistance: 'kamikazedistance', footprintx: 'footprintx', footprintz: 'footprintz',
+  yardmap: 'yardmap', maxthisunit: 'maxthisunit', objectname: 'objectname', script: 'script',
+  buildpic: 'buildpic', icontype: 'icontype', collisionvolumetype: 'collisionvolumetype',
+  collisionvolumescales: 'collisionvolumescales', collisionvolumeoffsets: 'collisionvolumeoffsets',
 })
+
+const CUSTOM_PARAM_FIELDS = new Set([
+  'armordef', 'restrictions_exclusion', 'crashable', 'fall_damage_multiplier',
+  'water_fall_damage_multiplier', 'unitgroup', 'ignore_noair', 'attacksafetydistance',
+  'overrange_distance', 'paralyzemultiplier', 'removestop', 'maxrange',
+])
 
 const WEAPON_FIELDS = Object.freeze({
   avoidfeature: 'avoidfeature', avoidground: 'avoidground', avoidneutral: 'avoidneutral',
@@ -97,7 +106,8 @@ function scalar(source) {
 }
 
 function parseUnitFile(file) {
-  const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/)
+  const source = fs.readFileSync(file, 'utf8')
+  const lines = source.split(/\r?\n/)
   const id = lines.map(line => line.match(/^\t([A-Za-z0-9_]+)\s*=\s*\{/i)?.[1]).find(Boolean)?.toLowerCase()
   if (!id) return null
   const values = {}
@@ -109,8 +119,19 @@ function parseUnitFile(file) {
   let currentMount = null
   let inDamage = false
   let inShield = false
+  let inCustomParams = false
 
   for (const line of lines) {
+    if (/^\t\tcustomparams\s*=\s*\{/i.test(line)) { inCustomParams = true; continue }
+    if (inCustomParams && /^\t\t\},?/.test(line)) { inCustomParams = false; continue }
+    if (inCustomParams) {
+      const match = line.match(/^\t\t\t([A-Za-z][A-Za-z0-9_]*)\s*=\s*(.+)$/)
+      if (!match) continue
+      const key = match[1].toLowerCase()
+      const value = scalar(match[2])
+      if (CUSTOM_PARAM_FIELDS.has(key) && value !== undefined) values[`customparams.${key}`] = value
+      continue
+    }
     if (/^\t\tweapons\s*=\s*\{/i.test(line)) { inWeapons = true; continue }
     if (inWeapons && /^\t\t\},?/.test(line)) { inWeapons = false; currentMount = null; continue }
     if (inWeapons) {
@@ -165,6 +186,8 @@ function parseUnitFile(file) {
     const value = scalar(match[2])
     if (target && value !== undefined) values[target] = value
   }
+  const longYardmap = source.match(/\byardmap\s*=\s*\[(=*)\[([\s\S]*?)\]\1\]/i)
+  if (longYardmap) values.yardmap = longYardmap[2].trim().replace(/\r?\n\s*/g, ' ')
   return { id, values, weaponDefs, weaponMounts }
 }
 
@@ -214,6 +237,7 @@ for (const [id, unit] of Object.entries(defaults)) {
   const source = sources.get(id) || (id.startsWith('scav_') ? sources.get(id.slice(5)) : null)
   if (!source) continue
   for (const key of new Set(Object.values(UNIT_FIELDS))) delete unit[key]
+  for (const key of CUSTOM_PARAM_FIELDS) delete unit[`customparams.${key}`]
   for (const key of Object.keys(unit)) {
     if (key.startsWith('death_explosion_') || key.startsWith('selfd_explosion_')) delete unit[key]
   }

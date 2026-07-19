@@ -285,6 +285,34 @@ test('wide parameter groups flow independently without paired-row gaps', async (
   }
 });
 
+test('advanced unit fields and custom parameters compile into tweakunits', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const view = page.getByRole('group', { name: 'Choose visible unit parameters' });
+  await view.getByRole('button', { name: 'All' }).click();
+  await page.locator('[data-param-key="footprintx"] input').fill('7');
+  await page.locator('[data-param-key="objectname"]').getByRole('button', { name: 'Browse' }).click();
+  const assetDialog = page.getByRole('dialog', { name: 'Unit models' });
+  await assetDialog.getByRole('searchbox').fill('Units/ARMDFLY.s3o');
+  await assetDialog.getByRole('option', { name: /Units\/ARMDFLY\.s3o/ }).click();
+
+  const customPanel = page.locator('.advanced-custom-parameters');
+  await customPanel.getByLabel('Parameter').selectOption('fall_damage_multiplier');
+  await customPanel.getByLabel('Initial value').fill('0.5');
+  await customPanel.getByRole('button', { name: 'Add parameter' }).click();
+  await expect(customPanel).toContainText('Fall Damage Multiplier');
+  await expect(customPanel).toContainText('BAR gadget');
+
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+  await page.getByText('Legacy combined compiler', { exact: true }).click();
+  await page.getByRole('tab', { name: 'Units Lua' }).click();
+  const output = page.locator('.export-code-preview');
+  await expect(output).toContainText('footprintx = 7');
+  await expect(output).toContainText('objectname = "Units/ARMDFLY.s3o"');
+  await expect(output).toContainText('fall_damage_multiplier = 0.5');
+});
+
 test('parameter card hover keeps the entire section geometry stable', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await waitForMainMenu(page);

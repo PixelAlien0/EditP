@@ -156,7 +156,8 @@ async function run() {
           'radardistance', 'sonardistance', 'workertime', 'metalmake',
           'extractsmetal', 'energymake', 'metalstorage', 'energystorage',
           'cloakcost', 'cloakcostmoving', 'builddistance', 'autoheal',
-          'maxslope', 'maxwaterdepth', 'minwaterdepth', 'transportcapacity'
+          'maxslope', 'maxwaterdepth', 'minwaterdepth', 'transportcapacity',
+          'footprintx', 'footprintz', 'maxthisunit'
         ];
         
         numericKeys.forEach(k => {
@@ -175,6 +176,13 @@ async function run() {
 
         if (unit.mass !== undefined) defaults.mass = parseFloat(unit.mass);
 
+        [
+          'yardmap', 'objectname', 'script', 'buildpic', 'icontype',
+          'collisionvolumetype', 'collisionvolumescales', 'collisionvolumeoffsets'
+        ].forEach(key => {
+          if (unit[key] !== undefined) defaults[key] = String(unit[key]).trim().replace(/\s+/g, ' ');
+        });
+
         // Max speed (maxvelocity)
         if (unit.speed !== undefined) {
           defaults.maxvelocity = parseFloat(unit.speed);
@@ -192,6 +200,15 @@ async function run() {
           if (cp.energyconv_efficiency !== undefined) {
             defaults['customparams.energyconv_efficiency'] = parseFloat(cp.energyconv_efficiency);
           }
+          [
+            'armordef', 'restrictions_exclusion', 'crashable', 'fall_damage_multiplier',
+            'water_fall_damage_multiplier', 'unitgroup', 'ignore_noair', 'attacksafetydistance',
+            'overrange_distance', 'paralyzemultiplier', 'removestop', 'maxrange'
+          ].forEach(key => {
+            if (cp[key] === undefined) return;
+            if (typeof cp[key] === 'number' || typeof cp[key] === 'boolean') defaults[`customparams.${key}`] = cp[key];
+            else defaults[`customparams.${key}`] = String(cp[key]);
+          });
         }
 
         // Boolean parameters
@@ -262,9 +279,13 @@ async function run() {
                   }
                 });
 
-                ['rgbcolor', 'rgbcolor2', 'soundstart', 'soundhit', 'soundhitwet'].forEach(field => {
+                ['rgbcolor', 'rgbcolor2', 'cegtag', 'model', 'explosiongenerator', 'soundstart', 'soundhit', 'soundhitwet', 'soundhitdry', 'texture1', 'texture2', 'texture3', 'colormap'].forEach(field => {
                   if (wDef[field] !== undefined) wSlot[field] = String(wDef[field]);
                 });
+                if (wSlot.cegtag !== undefined) {
+                  wSlot.cegTag = wSlot.cegtag;
+                  delete wSlot.cegtag;
+                }
 
                 if (w.onlytargetcategory !== undefined) wSlot.onlytargetcategory = String(w.onlytargetcategory);
                 if (w.badtargetcategory !== undefined) wSlot.badtargetcategory = String(w.badtargetcategory);
