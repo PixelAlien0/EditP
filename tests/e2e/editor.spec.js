@@ -83,6 +83,12 @@ test('Tweak Package Lab imports inert modules and exposes numbered slots', async
   await inspector.getByRole('button', { name: 'Full screen' }).click();
   await expect(inspector).toHaveClass(/is-fullscreen/);
   await expect(inspector.getByRole('button', { name: 'Restore view' })).toBeVisible();
+  await inspector.getByRole('button', { name: /Source/ }).click();
+  await expect(inspector.locator('.tweak-source-preview')).toHaveAttribute('open', '');
+  await expect(inspector.locator('.tweak-source-preview pre')).toContainText('editp_lab_test');
+  await inspector.getByRole('button', { name: /Diagnostics/ }).click();
+  await expect(inspector.locator('.tweak-module-relationships')).toBeVisible();
+  await inspector.getByRole('button', { name: /Summary/ }).click();
   await page.keyboard.press('Escape');
   await expect(inspector).not.toHaveClass(/is-fullscreen/);
   const include = page.getByRole('switch', { name: /Include Definitions module in lobby output/i });

@@ -92,6 +92,7 @@ export default function TweakPackageLabPage({
   const [newSupportOwner, setNewSupportOwner] = useState('');
   const [newSupportKey, setNewSupportKey] = useState('');
   const [inspectorFullscreen, setInspectorFullscreen] = useState(false);
+  const [inspectorView, setInspectorView] = useState('summary');
   const packageAnalysis = useMemo(
     () => analyzeTweakPackage(modules, { knownUnitIds }),
     [knownUnitIds, modules]
@@ -118,6 +119,13 @@ export default function TweakPackageLabPage({
     + packageAnalysis.orderingIssues.length
     + packageAnalysis.cycles.length
     + packageAnalysis.typeIssues.length;
+  const selectedDiagnosticCount = selectedAnalysis
+    ? selectedAnalysis.warnings.length
+      + selectedAnalysis.typeIssues.length
+      + selectedAnalysis.runtimeRisks.length
+      + (selectedReport?.unresolved.length || 0)
+      + (selectedReport?.collisions.length || 0)
+    : 0;
 
   useEffect(() => {
     if (!inspectorFullscreen) return undefined;
@@ -363,7 +371,12 @@ export default function TweakPackageLabPage({
                     variant={inspectorFullscreen ? 'primary' : 'secondary'}
                     className="tweak-lab-inspector__fullscreen"
                     aria-pressed={inspectorFullscreen}
-                    onClick={() => setInspectorFullscreen(value => !value)}
+                    onClick={() => {
+                      setInspectorFullscreen(value => {
+                        if (!value) setInspectorView('summary');
+                        return !value;
+                      });
+                    }}
                     title={inspectorFullscreen ? 'Restore the three-column workbench (Escape)' : 'Expand module inspection to the full viewport'}
                   >
                     <span aria-hidden="true">{inspectorFullscreen ? '↙' : '↗'}</span>
@@ -375,16 +388,33 @@ export default function TweakPackageLabPage({
                 <span>Attribution / source note</span>
                 <input value={selected.attribution || ''} onChange={event => onUpdateModule(selected.id, { attribution: event.target.value })} placeholder="Optional author or source" />
               </label>
-              <div className="tweak-lab-inspector__content">
+              <nav className="tweak-lab-inspector__views" aria-label="Module inspection view">
+                <button type="button" className={inspectorView === 'summary' ? 'is-active' : ''} aria-pressed={inspectorView === 'summary'} onClick={() => setInspectorView('summary')}>
+                  <span>Summary</span><small>Structure and conversion</small>
+                </button>
+                <button type="button" className={inspectorView === 'diagnostics' ? 'is-active' : ''} aria-pressed={inspectorView === 'diagnostics'} onClick={() => setInspectorView('diagnostics')}>
+                  <span>Diagnostics</span><small>{selectedDiagnosticCount} notices</small>
+                </button>
+                <button type="button" className={inspectorView === 'source' ? 'is-active' : ''} aria-pressed={inspectorView === 'source'} onClick={() => setInspectorView('source')}>
+                  <span>Source</span><small>{selectedAnalysis.decodedBytes.toLocaleString()} bytes</small>
+                </button>
+              </nav>
+              <div className={`tweak-lab-inspector__content is-view-${inspectorView}`}>
               <div className="tweak-analysis-metrics">
                 <div><span>Creates</span><strong>{selectedAnalysis.createdUnits.length}</strong></div>
                 <div><span>References</span><strong>{selectedAnalysis.referencedUnits.length}</strong></div>
                 <div><span>Weapons</span><strong>{selectedAnalysis.weaponChanges}</strong></div>
                 <div><span>Build menu</span><strong>{selectedAnalysis.buildMenuOperations}</strong></div>
               </div>
+              {selectedDiagnosticCount === 0 && !selectedReport?.assetReferences.length && (
+                <div className="tweak-inspector-diagnostics-empty inspector-diagnostics-panel">
+                  <span aria-hidden="true">✓</span>
+                  <div><strong>Static preflight clear</strong><small>No type, runtime, dependency, or asset notices were detected for this module.</small></div>
+                </div>
+              )}
               {selectedAnalysis.literalUnitTables > 0 && <p className="tweak-literal-summary">Literal table recognized: <strong>{selectedAnalysis.literalUnitTables}</strong> unit patches and <strong>{selectedAnalysis.literalWeaponDefinitions}</strong> WeaponDefs are available for structured conversion.</p>}
               {selectedAnalysis.supportingWeaponDefs.length > 0 && (
-                <section className="tweak-analysis-section tweak-support-candidates">
+                <section className="tweak-analysis-section tweak-support-candidates inspector-summary-panel">
                   <div className="tweak-analysis-section__heading"><h4>Project WeaponDefs</h4><Button size="sm" onClick={() => onAddSupportingWeaponDefs(selectedAnalysis.supportingWeaponDefs)}>Add all {selectedAnalysis.supportingWeaponDefs.length}</Button></div>
                   <p>Complete literal definitions, their mount slots, and auxiliary dependencies can be preserved without enabling the source module.</p>
                   <div>
@@ -402,12 +432,12 @@ export default function TweakPackageLabPage({
                 </section>
               )}
               {selectedAnalysis.warnings.length > 0 && (
-                <div className="tweak-analysis-warnings">
+                <div className="tweak-analysis-warnings inspector-diagnostics-panel">
                   {selectedAnalysis.warnings.map(warning => <p key={`${warning.code}-${warning.message}`} className={`is-${warning.level}`}><strong>{warning.code}</strong>{warning.message}</p>)}
                 </div>
               )}
               {(selectedReport?.typeIssues.length > 0 || selectedReport?.runtimeRisks.length > 0) && (
-                <section className="tweak-analysis-section tweak-preflight-section">
+                <section className="tweak-analysis-section tweak-preflight-section inspector-diagnostics-panel">
                   <div className="tweak-analysis-section__heading"><h4>Runtime preflight</h4><span>{selectedReport.typeIssues.length + selectedReport.runtimeRisks.length}</span></div>
                   <p>Static checks for literal value types and table access patterns that commonly produce BAR console errors.</p>
                   <div className="tweak-preflight-list">
@@ -426,16 +456,16 @@ export default function TweakPackageLabPage({
                   </div>
                 </section>
               )}
-              <section className="tweak-analysis-section">
+              <section className="tweak-analysis-section tweak-definitions-section inspector-summary-panel">
                 <h4>Recognized definitions</h4>
                 <p>{selectedAnalysis.createdUnits.join(', ') || 'No literal clone definitions found.'}</p>
               </section>
-              <section className="tweak-analysis-section">
+              <section className="tweak-analysis-section tweak-custom-params-section inspector-summary-panel">
                 <h4>Custom parameters</h4>
                 <p>{selectedAnalysis.customParameters.join(', ') || 'No custom parameters found.'}</p>
               </section>
               {selectedAnalysis.helpers.length > 0 && (
-                <section className="tweak-analysis-section tweak-helper-recipes">
+                <section className="tweak-analysis-section tweak-helper-recipes inspector-summary-panel">
                   <div className="tweak-analysis-section__heading"><h4>Reusable helper recipes</h4><span>{selectedAnalysis.recipes.length}</span></div>
                   <p>Community helper functions are described statically. Computed recipe code remains raw and is never executed by the editor.</p>
                   <div className="tweak-helper-list">
@@ -462,7 +492,7 @@ export default function TweakPackageLabPage({
                 </section>
               )}
               {selectedReport && (
-                <section className="tweak-analysis-section tweak-module-relationships">
+                <section className="tweak-analysis-section tweak-module-relationships inspector-summary-panel inspector-diagnostics-panel">
                   <div className="tweak-analysis-section__heading"><h4>Module relationships</h4><span>{selectedReport.dependencies.length}</span></div>
                   {selectedReport.dependencies.map(edge => <p key={`dependency-${edge.to}`}><b>Needs</b>{moduleLabel(edge.to)} <code>{edge.unitIds.join(', ')}</code></p>)}
                   {selectedReport.dependents.map(edge => <p key={`dependent-${edge.from}`}><b>Used by</b>{moduleLabel(edge.from)} <code>{edge.unitIds.join(', ')}</code></p>)}
@@ -471,7 +501,7 @@ export default function TweakPackageLabPage({
                 </section>
               )}
               {selectedReport?.assetReferences.length > 0 && (
-                <section className="tweak-analysis-section">
+                <section className="tweak-analysis-section tweak-assets-section inspector-diagnostics-panel">
                   <div className="tweak-analysis-section__heading"><h4>External asset references</h4><span>{selectedReport.assetReferences.length}</span></div>
                   <p>BAR assets may be reused by lobby tweaks, but imported paths remain unverified until checked against the matching game version.</p>
                   <div className="tweak-asset-list">
@@ -484,7 +514,7 @@ export default function TweakPackageLabPage({
                   </div>
                 </section>
               )}
-              <section className="tweak-analysis-section">
+              <section className="tweak-analysis-section tweak-conversions-section inspector-summary-panel">
                 <div className="tweak-analysis-section__heading"><h4>Safe conversions</h4><span>{selectedAnalysis.conversions.length}</span></div>
                 <p>Converts literal clones, complete unit tables, weapon slots, supporting WeaponDefs, build-menu operations, and supported scalar parameters. Asset and script changes remain raw.</p>
                 <Button
@@ -492,7 +522,7 @@ export default function TweakPackageLabPage({
                   onClick={() => onApplyConversions(selected, selectedAnalysis.conversions)}
                 >{selected.converted ? 'Converted' : 'Apply recognized changes'}</Button>
               </section>
-              <details className="tweak-source-preview">
+              <details className="tweak-source-preview inspector-source-panel" open={inspectorFullscreen && inspectorView === 'source' ? true : undefined}>
                 <summary>Decoded Lua source</summary>
                 <pre>{selected.rawLua}</pre>
               </details>
