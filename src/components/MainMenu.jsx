@@ -118,7 +118,7 @@ export default function MainMenu({
           <section className="main-menu__project-files" aria-labelledby="main-menu-files-title">
             <div>
               <span>Project files</span>
-              <h2 id="main-menu-files-title">Continue elsewhere</h2>
+              <h2 id="main-menu-files-title">Save or continue elsewhere</h2>
             </div>
             <div>
               <label>

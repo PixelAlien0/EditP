@@ -1,4 +1,4 @@
-/* Main menu — project desk and workshop directory. */
+/* Main menu — editorial project desk and workshop directory. */
 .main-menu {
   width: 100%;
   min-width: 1024px;
@@ -18,13 +18,13 @@
 }
 
 .main-menu__topbar-inner {
-  width: min(1880px, calc(100% - clamp(32px, 5vw, 96px)));
+  width: min(1680px, calc(100% - clamp(48px, 8vw, 152px)));
   min-height: var(--header-height);
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-6);
+  gap: var(--space-8);
 }
 
 .main-menu__brand {
@@ -77,10 +77,11 @@
   gap: var(--space-1);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface);
+  background: transparent;
   color: var(--color-text-muted);
   font: 650 9px/1 var(--font-ui);
   cursor: pointer;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
 }
 
 .main-menu__utilities > button:hover {
@@ -97,45 +98,45 @@
 .main-menu button:focus-visible,
 .main-menu label:has(input:focus-visible) {
   outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 .main-menu__frame {
-  width: min(1880px, calc(100% - clamp(32px, 5vw, 96px)));
+  width: min(1680px, calc(100% - clamp(48px, 8vw, 152px)));
   min-height: 0;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(390px, .72fr) minmax(620px, 1.28fr);
+  padding: clamp(52px, 7vh, 84px) 0 clamp(56px, 7vh, 88px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 7vh, 88px);
   overflow: auto;
-  border-inline: 1px solid var(--color-border-subtle);
-  background: var(--color-surface);
-}
-
-.main-menu__project-desk,
-.main-menu__launchpad {
-  min-width: 0;
-  padding: clamp(var(--space-6), 4vh, var(--space-10)) clamp(var(--space-6), 3.5vw, var(--space-10));
+  scrollbar-gutter: stable;
 }
 
 .main-menu__project-desk {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(var(--space-5), 3vh, var(--space-8));
-  border-right: 1px solid var(--color-border);
-  background: var(--color-surface-raised);
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(330px, .76fr) minmax(620px, 1.24fr);
+  grid-template-areas:
+    "identity project"
+    "files project";
+  column-gap: clamp(48px, 6vw, 96px);
+  row-gap: var(--space-7);
+  align-items: end;
 }
 
 .main-menu__identity {
+  grid-area: identity;
   display: grid;
-  gap: var(--space-3);
+  align-content: end;
+  gap: var(--space-4);
 }
 
 .main-menu__identity h1 {
   margin: 0;
   color: var(--color-text-strong);
-  font: 520 clamp(46px, 4vw, 72px)/.95 var(--font-display);
-  letter-spacing: -.045em;
+  font: 500 clamp(64px, 5.2vw, 92px)/.88 var(--font-display);
+  letter-spacing: -.055em;
 }
 
 .main-menu__identity h1 span,
@@ -145,44 +146,49 @@
 
 .main-menu__identity h1 em {
   color: var(--color-accent-strong);
-  font-weight: 500;
+  font-weight: 470;
 }
 
 .main-menu__identity > p {
-  max-width: 46ch;
-  margin: 0;
+  max-width: 43ch;
+  margin: var(--space-1) 0 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .main-menu__active-project {
+  grid-area: project;
+  min-width: 0;
+  align-self: stretch;
   overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--color-surface-raised);
 }
 
 .main-menu__active-project > header {
-  min-height: 66px;
-  padding: var(--space-3) var(--space-4);
+  min-height: 78px;
+  padding: var(--space-4) clamp(var(--space-5), 2.2vw, var(--space-7));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-5);
   border-bottom: 1px solid var(--color-border);
 }
 
 .main-menu__active-project > header > div {
   min-width: 0;
   display: grid;
-  gap: 3px;
+  gap: 5px;
 }
 
 .main-menu__active-project > header span {
   color: var(--color-text-muted);
   font: 700 8px/1 var(--font-mono);
-  letter-spacing: .09em;
+  letter-spacing: .1em;
   text-transform: uppercase;
 }
 
@@ -190,7 +196,7 @@
   margin: 0;
   overflow: hidden;
   color: var(--color-text-strong);
-  font: 600 17px/1.2 var(--font-display);
+  font: 570 22px/1.15 var(--font-display);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -198,10 +204,10 @@
 .main-menu__active-project > header > small {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   color: var(--color-success);
   font: 700 8px/1 var(--font-mono);
-  letter-spacing: .06em;
+  letter-spacing: .07em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -218,6 +224,7 @@
 }
 
 .main-menu__active-project dl {
+  min-height: 98px;
   margin: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -226,12 +233,11 @@
 
 .main-menu__active-project dl > div {
   min-width: 0;
-  min-height: 66px;
-  padding: var(--space-3);
+  padding: var(--space-5) clamp(var(--space-4), 2vw, var(--space-6));
   display: flex;
   flex-direction: column-reverse;
   justify-content: center;
-  gap: 5px;
+  gap: var(--space-2);
   border-right: 1px solid var(--color-border);
   background: var(--color-surface-subtle);
 }
@@ -244,7 +250,7 @@
   overflow: hidden;
   color: var(--color-text-muted);
   font: 650 7px/1 var(--font-mono);
-  letter-spacing: .06em;
+  letter-spacing: .08em;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
@@ -253,22 +259,23 @@
 .main-menu__active-project dd {
   margin: 0;
   color: var(--color-text-strong);
-  font: 600 20px/1 var(--font-display);
+  font: 570 clamp(21px, 1.7vw, 28px)/1 var(--font-display);
 }
 
 .main-menu__enter {
   width: 100%;
-  min-height: 64px;
-  padding: var(--space-3) var(--space-4);
+  min-height: 78px;
+  padding: var(--space-4) clamp(var(--space-5), 2.2vw, var(--space-7));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-5);
+  gap: var(--space-6);
   border: 0;
   background: var(--color-surface-accent-subtle);
   color: var(--color-text-strong);
   text-align: left;
   cursor: pointer;
+  transition: background-color var(--motion-fast), color var(--motion-fast);
 }
 
 .main-menu__enter:hover {
@@ -277,13 +284,13 @@
 
 .main-menu__enter > span {
   display: grid;
-  gap: 4px;
+  gap: 5px;
 }
 
 .main-menu__enter small {
   color: var(--color-accent-strong);
   font: 700 8px/1 var(--font-mono);
-  letter-spacing: .08em;
+  letter-spacing: .09em;
   text-transform: uppercase;
 }
 
@@ -305,50 +312,54 @@
 }
 
 .main-menu__project-files {
+  grid-area: files;
+  min-width: 0;
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
+  align-self: end;
 }
 
 .main-menu__project-files > div:first-child {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-3);
+  display: grid;
+  gap: 4px;
 }
 
 .main-menu__project-files h2 {
-  margin: 3px 0 0;
+  margin: 0;
   color: var(--color-text-strong);
-  font: 580 16px/1.2 var(--font-display);
+  font: 560 18px/1.2 var(--font-display);
 }
 
 .main-menu__project-files > div:last-child {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
+  gap: var(--space-5);
+  border-top: 1px solid var(--color-border);
 }
 
 .main-menu__project-files label,
 .main-menu__project-files button {
   min-width: 0;
-  min-height: 60px;
-  padding: var(--space-2) var(--space-3);
+  min-height: 66px;
+  padding: var(--space-3) 0;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   position: relative;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
+  transition: border-color var(--motion-fast), color var(--motion-fast);
 }
 
 .main-menu__project-files label:hover,
 .main-menu__project-files button:hover {
-  border-color: var(--color-border-strong);
-  background: var(--color-surface-hover);
+  border-bottom-color: var(--color-accent-strong);
+  color: var(--color-text-strong);
 }
 
 .main-menu__project-files svg {
@@ -359,7 +370,7 @@
 .main-menu__project-files button > span {
   min-width: 0;
   display: grid;
-  gap: 3px;
+  gap: 4px;
 }
 
 .main-menu__project-files strong {
@@ -383,37 +394,36 @@
 }
 
 .main-menu__launchpad {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(var(--space-4), 2.4vh, var(--space-6));
-  background: var(--color-surface);
+  min-width: 0;
+  display: grid;
+  gap: var(--space-7);
 }
 
 .main-menu__launchpad-heading {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
 .main-menu__launchpad-heading > div {
   display: grid;
-  gap: 3px;
+  gap: 5px;
 }
 
 .main-menu__launchpad-heading h2 {
   margin: 0;
   color: var(--color-text-strong);
-  font: 580 26px/1.15 var(--font-display);
+  font: 550 clamp(28px, 2.2vw, 36px)/1.08 var(--font-display);
+  letter-spacing: -.02em;
 }
 
 .main-menu__launchpad-heading p {
-  max-width: 62ch;
-  margin: 3px 0 0;
+  max-width: 68ch;
+  margin: var(--space-1) 0 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-xs);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .main-menu__launchpad-heading > small,
@@ -430,44 +440,35 @@
 
 .main-menu__workspaces {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-raised);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
 }
 
 .main-menu__workspaces button {
   min-width: 0;
-  min-height: 138px;
-  padding: var(--space-4);
+  min-height: 188px;
+  padding: clamp(var(--space-5), 2vw, var(--space-7));
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) 18px;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   align-items: start;
-  gap: var(--space-3);
-  border: 0;
-  border-top: 1px solid var(--color-border);
-  border-right: 1px solid var(--color-border);
-  background: transparent;
+  gap: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast);
 }
 
 .main-menu__workspaces button.is-primary {
-  min-height: 150px;
-  grid-column: 1 / -1;
-  border-top: 0;
-  border-right: 0;
+  border-color: var(--color-border-accent-muted);
   background: var(--color-surface-accent-subtle);
 }
 
-.main-menu__workspaces button:last-child {
-  border-right: 0;
-}
-
 .main-menu__workspaces button:hover {
+  border-color: var(--color-border-strong);
   background: var(--color-surface-hover);
 }
 
@@ -483,83 +484,89 @@
 .main-menu__workspace-copy {
   min-width: 0;
   display: grid;
-  gap: 4px;
+  align-content: start;
+  gap: 6px;
 }
 
 .main-menu__workspace-copy > small {
   color: var(--color-text-muted);
   font: 700 8px/1 var(--font-mono);
-  letter-spacing: .08em;
+  letter-spacing: .09em;
   text-transform: uppercase;
 }
 
 .main-menu__workspace-copy strong {
   color: var(--color-text-strong);
-  font: 600 18px/1.2 var(--font-display);
+  font: 570 21px/1.15 var(--font-display);
 }
 
 .main-menu__workspace-copy p {
-  max-width: 56ch;
-  margin: 2px 0 0;
+  max-width: 38ch;
+  margin: var(--space-1) 0 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-xs);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .main-menu__workspace-meta {
   grid-column: 2;
+  align-self: end;
   color: var(--color-accent-strong);
   font: 650 8px/1 var(--font-mono);
   letter-spacing: .04em;
 }
 
 .main-menu__workspaces svg {
+  grid-column: 3;
+  grid-row: 2;
+  align-self: end;
   color: var(--color-accent-strong);
 }
 
 .main-menu__tool-directory {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .main-menu__tool-directory > header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .main-menu__tool-directory > header > div {
   display: grid;
-  gap: 3px;
+  gap: 4px;
 }
 
 .main-menu__tool-directory h3 {
   margin: 0;
   color: var(--color-text-strong);
-  font: 580 17px/1.2 var(--font-display);
+  font: 560 19px/1.2 var(--font-display);
 }
 
 .main-menu__tool-directory > div {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
 }
 
 .main-menu__tool-directory button {
   min-width: 0;
-  min-height: 70px;
-  padding: var(--space-3);
+  min-height: 86px;
+  padding: var(--space-4);
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) auto;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
+  background: transparent;
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast);
 }
 
 .main-menu__tool-directory button:hover {
@@ -568,13 +575,12 @@
 }
 
 .main-menu__tool-directory button > span:first-child {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-subtle);
   color: var(--color-accent-strong);
   font: 700 8px/1 var(--font-mono);
 }
@@ -582,7 +588,7 @@
 .main-menu__tool-directory button > span:nth-child(2) {
   min-width: 0;
   display: grid;
-  gap: 3px;
+  gap: 4px;
 }
 
 .main-menu__tool-directory strong {
@@ -608,12 +614,12 @@
 }
 
 .main-menu__footer {
-  min-height: 36px;
-  padding: 0 clamp(var(--space-6), 4vw, var(--space-12));
+  min-height: 42px;
+  padding: 0 max(clamp(48px, 8vw, 152px), calc((100% - 1680px) / 2));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-5);
+  gap: var(--space-6);
   border-top: 1px solid var(--color-border);
   background: var(--color-surface-raised);
   color: var(--color-text-muted);
@@ -640,57 +646,130 @@
   color: var(--color-accent-strong);
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1440px) {
+  .main-menu__topbar-inner,
   .main-menu__frame {
-    grid-template-columns: minmax(360px, .68fr) minmax(620px, 1.32fr);
+    width: calc(100% - 64px);
   }
 
-  .main-menu__project-desk,
-  .main-menu__launchpad {
-    padding-inline: var(--space-6);
+  .main-menu__project-desk {
+    grid-template-columns: minmax(320px, .72fr) minmax(560px, 1.28fr);
+    column-gap: clamp(36px, 4vw, 64px);
   }
 
   .main-menu__identity h1 {
-    font-size: 50px;
+    font-size: clamp(58px, 5.1vw, 72px);
+  }
+
+  .main-menu__tool-directory > div {
+    gap: var(--space-3);
+  }
+
+  .main-menu__tool-directory button {
+    padding-inline: var(--space-3);
+  }
+}
+
+@media (max-width: 1180px) {
+  .main-menu__topbar-inner,
+  .main-menu__frame {
+    width: calc(100% - 40px);
+  }
+
+  .main-menu__frame {
+    padding-block: 48px 56px;
+    gap: 56px;
+  }
+
+  .main-menu__project-desk {
+    grid-template-columns: 310px minmax(0, 1fr);
+    column-gap: var(--space-7);
+  }
+
+  .main-menu__identity h1 {
+    font-size: 56px;
+  }
+
+  .main-menu__identity > p {
+    font-size: var(--font-size-xs);
   }
 
   .main-menu__project-files small,
   .main-menu__tool-directory button small {
     display: none;
   }
+
+  .main-menu__active-project dl > div {
+    padding-inline: var(--space-3);
+  }
+
+  .main-menu__workspaces button {
+    min-height: 174px;
+    padding: var(--space-5);
+  }
+
+  .main-menu__workspace-copy p {
+    font-size: 9px;
+  }
+
+  .main-menu__tool-directory > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1060px) {
   .main-menu__topbar-inner,
   .main-menu__frame {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
   }
 
-  .main-menu__frame {
-    grid-template-columns: 350px minmax(0, 1fr);
+  .main-menu__project-desk {
+    grid-template-columns: 280px minmax(0, 1fr);
+    column-gap: var(--space-6);
   }
 
-  .main-menu__project-desk,
-  .main-menu__launchpad {
-    padding-inline: var(--space-5);
+  .main-menu__identity h1 {
+    font-size: 50px;
+  }
+
+  .main-menu__active-project > header,
+  .main-menu__enter {
+    padding-inline: var(--space-4);
+  }
+
+  .main-menu__active-project dl {
+    min-height: 88px;
+  }
+
+  .main-menu__workspaces {
+    gap: var(--space-3);
+  }
+
+  .main-menu__workspaces button {
+    min-height: 160px;
+    padding: var(--space-4);
+    grid-template-columns: 22px minmax(0, 1fr) 18px;
+    gap: var(--space-3);
+  }
+
+  .main-menu__workspace-copy strong {
+    font-size: 18px;
   }
 
   .main-menu__workspace-copy p,
   .main-menu__launchpad-heading p {
     display: none;
   }
-
-  .main-menu__workspaces button,
-  .main-menu__workspaces button.is-primary {
-    min-height: 116px;
-  }
 }
 
 @media (max-height: 820px) {
-  .main-menu__project-desk,
-  .main-menu__launchpad {
-    padding-block: var(--space-5);
-    gap: var(--space-4);
+  .main-menu__frame {
+    padding-block: var(--space-7) var(--space-8);
+    gap: var(--space-8);
+  }
+
+  .main-menu__project-desk {
+    row-gap: var(--space-4);
   }
 
   .main-menu__identity {
@@ -698,21 +777,41 @@
   }
 
   .main-menu__identity h1 {
-    font-size: 44px;
+    font-size: 50px;
   }
 
-  .main-menu__active-project dl > div {
-    min-height: 54px;
+  .main-menu__identity > p {
+    line-height: 1.45;
   }
 
   .main-menu__active-project > header,
   .main-menu__enter {
-    min-height: 56px;
+    min-height: 60px;
   }
 
-  .main-menu__workspaces button,
-  .main-menu__workspaces button.is-primary {
-    min-height: 105px;
+  .main-menu__active-project dl {
+    min-height: 74px;
+  }
+
+  .main-menu__project-files {
+    gap: var(--space-2);
+  }
+
+  .main-menu__project-files label,
+  .main-menu__project-files button {
+    min-height: 52px;
+  }
+
+  .main-menu__launchpad {
+    gap: var(--space-4);
+  }
+
+  .main-menu__workspaces button {
+    min-height: 126px;
+  }
+
+  .main-menu__tool-directory {
+    gap: var(--space-2);
   }
 
   .main-menu__tool-directory button {
@@ -723,6 +822,13 @@
   .main-menu__project-files small,
   .main-menu__tool-directory button small {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-menu * {
+    scroll-behavior: auto;
+    transition-duration: 0ms !important;
   }
 }
 
