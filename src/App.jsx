@@ -20,6 +20,7 @@ import {
   WORKSPACE_TAB_DEFINITIONS,
 } from './config/editorParameters.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
+import MainMenu from './components/MainMenu.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
 import { getBuildPicturePreviewUrl, getUnitIconUrl } from './utils/unitArtwork.js';
 import { createProducerCatalog, PRODUCER_KIND } from './utils/producerCatalog.js';
@@ -514,143 +515,6 @@ function CreditsModal({ onClose }) {
           </footer>
         </div>
     </Dialog>
-  );
-}
-
-function MainMenu({
-  themeMode,
-  unitCount,
-  projectName,
-  projectChangeCount,
-  cloneCount,
-  rosterCount,
-  presenceCount,
-  presenceStatus,
-  presenceActivityCounts,
-  currentPresenceActivity,
-  onToggleTheme,
-  onOpenCredits,
-  onEditUnits,
-  onBuildMenus,
-  onReviewExport,
-  onLoadProject
-}) {
-  const menuItems = [
-    {
-      step: '01',
-      title: 'Edit units',
-      description: 'Tune economy, movement, weapons, and targeting definitions.',
-      meta: projectChangeCount > 0 ? `${projectChangeCount} active changes` : 'Primary workspace',
-      primary: true,
-      onSelect: onEditUnits
-    },
-    {
-      step: '02',
-      title: 'Build menus',
-      description: 'Compose factory rosters and decide where custom units enter production.',
-      meta: rosterCount > 0 ? `${rosterCount} roster changes` : 'Factory designer',
-      onSelect: onBuildMenus
-    },
-    {
-      step: '03',
-      title: 'Review & export',
-      description: 'Inspect validation, project metadata, generated Lua, and export readiness.',
-      meta: 'Compile project',
-      onSelect: onReviewExport
-    }
-  ];
-
-  return (
-    <main className="main-menu">
-      <header className="main-menu__topbar">
-        <div className="main-menu__brand">
-          <img src="/logo.svg" alt="" />
-          <div>
-            <span>Mod workspace</span>
-            <strong>Bar EditP</strong>
-          </div>
-        </div>
-        <div className="main-menu__utilities">
-          <OnlinePresenceBadge
-            count={presenceCount}
-            status={presenceStatus}
-            activityCounts={presenceActivityCounts}
-            currentActivity={currentPresenceActivity}
-          />
-          <button type="button" onClick={onToggleTheme} aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}>
-            <span aria-hidden="true">{themeMode === 'dark' ? '☼' : '◐'}</span>
-            {themeMode === 'dark' ? 'Light' : 'Dark'}
-          </button>
-          <button type="button" onClick={onOpenCredits}>Credits</button>
-        </div>
-      </header>
-
-      <div className="main-menu__canvas">
-        <section className="main-menu__hero" aria-labelledby="main-menu-title">
-          <div className="main-menu__edition">
-            <span>編集工房</span>
-            <small>Definition workshop · Session 01</small>
-          </div>
-          <h1 id="main-menu-title">
-            <span>Bar</span>
-            <em>EditP</em>
-          </h1>
-          <p>A focused BAR definition workspace for unit editing, weapon tuning, factory composition, and clean project exports.</p>
-          <button type="button" className="main-menu__enter" onClick={onEditUnits}>
-            <span>{projectChangeCount > 0 ? 'Continue workshop' : 'Enter workshop'}</span>
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10h12" /><path d="m11.5 5.5 4.5 4.5-4.5 4.5" /></svg>
-          </button>
-
-          <dl className="main-menu__session-stats" aria-label="Current project status">
-            <div><dt>Definitions</dt><dd>{unitCount.toLocaleString()}</dd></div>
-            <div><dt>Project changes</dt><dd>{projectChangeCount}</dd></div>
-            <div><dt>Custom units</dt><dd>{cloneCount}</dd></div>
-          </dl>
-        </section>
-
-        <section className="main-menu__directory" aria-labelledby="main-menu-directory-title">
-          <div className="main-menu__directory-heading">
-            <div>
-              <span>Main menu</span>
-              <h2 id="main-menu-directory-title">Choose a workspace</h2>
-            </div>
-            <small>{projectName || 'Untitled project'}</small>
-          </div>
-
-          <nav className="main-menu__nav" aria-label="Main menu destinations">
-            {menuItems.map(item => (
-              <button key={item.step} type="button" className={item.primary ? 'is-primary' : ''} onClick={item.onSelect}>
-                <span className="main-menu__nav-step">{item.step}</span>
-                <span className="main-menu__nav-copy">
-                  <strong>{item.title}</strong>
-                  <small>{item.description}</small>
-                </span>
-                <span className="main-menu__nav-meta">{item.meta}</span>
-                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9" /><path d="m9 4.5 3.5 3.5L9 11.5" /></svg>
-              </button>
-            ))}
-          </nav>
-
-          <div className="main-menu__project-actions">
-            <label>
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7" /><path d="m5.25 7 2.75 2.75L10.75 7" /><path d="M3 12.5h10" /></svg>
-              <span><strong>Load project</strong><small>Open a previously exported JSON workspace</small></span>
-              <input type="file" accept=".json" onChange={onLoadProject} />
-            </label>
-            <button type="button" onClick={onOpenCredits}>
-              <span><strong>About this editor</strong><small>Disclaimer, sources, and asset credits</small></span>
-              <span aria-hidden="true">↗</span>
-            </button>
-          </div>
-
-        </section>
-      </div>
-
-      <footer className="main-menu__footer">
-        <span>Maintained by <strong>[Grump]SunlessK</strong></span>
-        <span>Local project session · BAR definitions loaded</span>
-      </footer>
-    </main>
   );
 }
 
@@ -3092,6 +2956,30 @@ export default function App() {
             setActiveWorkspace('review');
             setShowMainMenu(false);
           }}
+          onCollections={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('collections');
+            setShowMainMenu(false);
+          }}
+          onPresetGallery={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(true);
+            setActiveWorkspace('preset-gallery');
+            setShowMainMenu(false);
+          }}
+          onTweakLab={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('tweak-lab');
+            setShowMainMenu(false);
+          }}
+          onReferenceLibrary={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('reference-library');
+            setShowMainMenu(false);
+          }}
           onLoadProject={(event) => {
             handleImportConfig(event);
             setShowDesignerPanel(false);
@@ -3099,6 +2987,7 @@ export default function App() {
             setActiveWorkspace('edit');
             setShowMainMenu(false);
           }}
+          onSaveProject={handleExportConfig}
         />
         {showCreditsModal && <CreditsModal onClose={() => setShowCreditsModal(false)} />}
         {showCommandPalette && (

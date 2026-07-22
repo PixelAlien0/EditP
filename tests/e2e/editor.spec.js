@@ -41,6 +41,31 @@ test('main workflow remains keyboard accessible', async ({ page }) => {
   await page.keyboard.press('Escape');
 });
 
+test('main menu separates the active project, core workspaces, and specialist workbenches', async ({ page }) => {
+  await waitForMainMenu(page);
+
+  await expect(page.locator('.main-menu__active-project')).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Core workspaces' }).getByRole('button')).toHaveCount(3);
+  const tools = page.getByRole('region', { name: 'Research & package tools' });
+  await expect(tools.getByRole('button')).toHaveCount(4);
+  await expect(page.getByRole('button', { name: 'Save project' })).toBeVisible();
+
+  await tools.getByRole('button', { name: /Collections/ }).click();
+  await expect(page.getByRole('heading', { name: 'Collections', exact: true })).toBeVisible();
+  await page.locator('.app-header .header-brand').click();
+
+  await page.getByRole('region', { name: 'Research & package tools' }).getByRole('button', { name: /Preset Gallery/ }).click();
+  await expect(page.getByRole('heading', { name: 'Preset Gallery' })).toBeVisible();
+  await page.locator('.app-header .header-brand').click();
+
+  await page.getByRole('region', { name: 'Research & package tools' }).getByRole('button', { name: /Tweak Package Lab/ }).click();
+  await expect(page.getByRole('heading', { name: 'Tweak Package Lab' })).toBeVisible();
+  await page.locator('.app-header .header-brand').click();
+
+  await page.getByRole('region', { name: 'Research & package tools' }).getByRole('button', { name: /BAR Reference Library/ }).click();
+  await expect(page.getByRole('heading', { name: 'Unified BAR Reference Library' })).toBeVisible();
+});
+
 test('build-picture browser distinguishes normal and Scavenger artwork namespaces', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
