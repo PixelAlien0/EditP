@@ -44,7 +44,7 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
-        className="asset-picker-dialog"
+        className={`asset-picker-dialog ${assetType === 'buildPicture' ? 'asset-picker-dialog--visual' : ''}`}
         labelledBy={titleId}
         initialFocusRef={searchRef}
       >

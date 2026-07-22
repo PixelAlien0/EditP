@@ -433,13 +433,28 @@
 .asset-picker__status.is-known { color: var(--color-success); }
 .asset-picker__status.is-unverified { color: var(--color-warning); }
 
-.asset-picker-dialog {
+.asset-picker-dialog.ui-dialog {
   width: min(760px, calc(100vw - 40px));
   max-height: min(760px, calc(100vh - 40px));
   display: grid;
   grid-template-rows: auto auto minmax(180px, 1fr) auto auto;
   overflow: hidden;
   background: var(--color-surface-raised);
+}
+
+.asset-picker-dialog--visual.ui-dialog {
+  width: min(1680px, calc(100vw - 48px));
+  height: calc(100vh - 48px);
+  max-height: none;
+}
+
+.asset-picker-dialog--visual .asset-picker-dialog__header {
+  align-items: center;
+  padding-block: var(--space-4);
+}
+
+.asset-picker-dialog--visual .asset-picker-dialog__header h2 {
+  font-size: 24px;
 }
 
 .asset-picker-dialog__header,
@@ -504,6 +519,16 @@
   padding: var(--space-2) var(--space-5) var(--space-4);
 }
 
+.asset-picker-dialog--visual .asset-picker-dialog__results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  grid-auto-rows: minmax(94px, auto);
+  align-content: start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+}
+
 .asset-picker-dialog__results button {
   content-visibility: auto;
   contain-intrinsic-size: auto 54px;
@@ -536,11 +561,43 @@
   min-height: 54px;
 }
 
+.asset-picker-dialog--visual .asset-picker-dialog__results button.has-preview {
+  min-width: 0;
+  min-height: 94px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.asset-picker-dialog--visual .asset-picker-dialog__results button.has-preview:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+}
+
+.asset-picker-dialog--visual .asset-picker-dialog__results button.has-preview.is-selected {
+  border-color: var(--color-accent-strong);
+  background: var(--color-surface-accent-subtle);
+}
+
 .asset-picker-dialog__option-copy {
   min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--space-3);
+}
+
+.asset-picker-dialog--visual .asset-picker-dialog__option-copy {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: center;
 }
 
 .asset-picker-dialog__option-copy > img {
@@ -551,6 +608,13 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface-muted);
+}
+
+.asset-picker-dialog--visual .asset-picker-dialog__option-copy > img {
+  width: 56px;
+  height: 56px;
+  flex-basis: 56px;
+  border-radius: var(--radius-md);
 }
 
 .asset-picker-dialog__option-copy > span {
@@ -565,6 +629,14 @@
   text-overflow: ellipsis;
 }
 
+.asset-picker-dialog--visual .asset-picker-dialog__option-copy code {
+  display: block;
+  font-size: 10px;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .asset-picker-dialog__option-copy small {
   color: var(--color-text-muted);
   font: 600 8px/1.2 var(--font-mono);
@@ -575,6 +647,19 @@
 .asset-picker-dialog__results button .asset-picker-dialog__select-label {
   flex: 0 0 auto;
   color: var(--color-accent-strong);
+}
+
+.asset-picker-dialog--visual .asset-picker-dialog__results button .asset-picker-dialog__select-label {
+  grid-column: 2;
+  justify-self: end;
+  align-self: end;
+  padding: 3px 6px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  font: 700 8px/1 var(--font-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
 }
 
 .asset-picker-dialog__pagination {
@@ -614,6 +699,18 @@
   align-items: center;
   border-top: 1px solid var(--color-border);
   border-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .asset-picker-dialog--visual.ui-dialog {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 24px);
+  }
+
+  .asset-picker-dialog--visual .asset-picker-dialog__results {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    padding-inline: var(--space-3);
+  }
 }
 
 /* Extensible BAR/package custom parameters */
