@@ -345,6 +345,30 @@ test('Tweak Package Lab converts literal unit tables into editable project state
   await expect(page.locator('[data-param-key="health"] input')).toHaveValue('321');
 });
 
+test('compatibility preflight blocks definite Lua failures while preserving repair navigation', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
+
+  await page.getByRole('textbox', { name: 'Tweak package input' }).fill('UnitDefs["editp_broken"] = table.copy(');
+  await page.getByRole('button', { name: 'Inspect pasted input' }).click();
+  const include = page.getByRole('switch', { name: /Include Definitions module in lobby output/i });
+  await include.check({ force: true });
+
+  await page.getByRole('button', { name: 'Back to editor' }).click();
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+
+  const preflight = page.getByRole('region', { name: 'Compatibility issues must be repaired' });
+  await expect(preflight).toBeVisible();
+  await expect(preflight).toContainText('Lua syntax cannot be parsed');
+  await expect(preflight.getByRole('button', { name: 'Blockers' })).toContainText('1');
+  await expect(page.getByRole('button', { name: 'Copy all !bset commands' })).toBeDisabled();
+
+  await preflight.getByRole('button', { name: 'Open Tweak Lab' }).click();
+  await expect(page.getByRole('heading', { name: 'Tweak Package Lab' })).toBeVisible();
+});
+
 test('main menu, editor, collections, and export have no serious accessibility violations', async ({ page }) => {
   await waitForMainMenu(page);
   let results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();

@@ -5236,14 +5236,18 @@ export default function App() {
             tweakUnitsB64={tweakUnitsB64}
             totalBytesUsed={totalBytesUsed}
             lobbyByteLimit={lobbyByteLimit}
-            limitRisk={limitRisk}
             compiledLobbyModules={compiledLobbyModules}
             lobbyCommands={lobbyCommands}
+            tweakModules={tweakModules}
+            lobbySetup={lobbySetup}
+            supportingWeaponDefs={supportingWeaponDefs}
+            knownUnitIds={knownTweakPackageUnitIds}
             collectionScope={collectionReviewScope}
             onBack={() => setActiveWorkspace('edit')}
             onExport={handleExportConfig}
             onOpenSummary={tab => { setActiveSummaryTab(tab); setShowSummaryModal(true); }}
             onEditUnit={id => { setSelectedUnitId(id); setActiveWorkspace('edit'); }}
+            onOpenTweakLab={() => setActiveWorkspace('tweak-lab')}
             onToast={showToast}
           />
         </Suspense>

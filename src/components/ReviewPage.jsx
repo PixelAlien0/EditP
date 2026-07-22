@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, EmptyState, PageShell, SwitchField, Tabs, TextAreaField, TextField } from './ui.jsx';
+import CompatibilityPreflight from './CompatibilityPreflight.jsx';
+import { analyzeTweakPackage } from '../utils/tweakPackage.js';
+import { buildCompatibilityPreflight } from '../utils/compatibilityPreflight.js';
 import '../styles/features/review-export.css';
 
 const EXPORT_TABS = [
@@ -17,10 +20,11 @@ export default function ReviewPage({
   setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
   activeOutputTab, setActiveOutputTab, activeCompiledOutput, activeCompiledOutputFallback,
   tweakDefsB64, tweakUnitsB64,
-  totalBytesUsed, lobbyByteLimit, limitRisk,
+  totalBytesUsed, lobbyByteLimit,
   compiledLobbyModules, lobbyCommands,
+  tweakModules = [], lobbySetup = null, supportingWeaponDefs = [], knownUnitIds = [],
   collectionScope,
-  onBack, onExport, onOpenSummary, onEditUnit, onToast
+  onBack, onExport, onOpenSummary, onEditUnit, onOpenTweakLab, onToast
 }) {
   const [selectedSlotField, setSelectedSlotField] = useState('');
   const [slotPreviewMode, setSlotPreviewMode] = useState('command');
@@ -33,6 +37,19 @@ export default function ReviewPage({
         ? selectedLobbySlot.encoded
         : selectedLobbySlot.command
     : '';
+  const packageAnalysis = useMemo(
+    () => analyzeTweakPackage(tweakModules, { knownUnitIds }),
+    [knownUnitIds, tweakModules]
+  );
+  const compatibilityReport = useMemo(() => buildCompatibilityPreflight({
+    validationIssues,
+    compiledModules: compiledLobbyModules,
+    tweakModules,
+    packageAnalysis,
+    lobbySetup,
+    supportingWeaponDefs,
+    knownUnitIds,
+  }), [compiledLobbyModules, knownUnitIds, lobbySetup, packageAnalysis, supportingWeaponDefs, tweakModules, validationIssues]);
   const openSummary = tab => onOpenSummary(tab);
   const copyOutput = async () => {
     try {
@@ -52,13 +69,17 @@ export default function ReviewPage({
     }
   };
   const copyAllLobbyCommands = async () => {
-    if (!lobbyCommands || compiledLobbyModules?.overflow) return;
+    if (!lobbyCommands || !compatibilityReport.canCopyLobbyCommands) return;
     try {
       await navigator.clipboard.writeText(lobbyCommands);
       onToast('All numbered !bset commands copied');
     } catch {
       onToast('Could not copy lobby commands. Copy each slot separately.');
     }
+  };
+  const handleCompatibilityAction = action => {
+    if (action.type === 'unit' && action.unitId) onEditUnit(action.unitId);
+    if (action.type === 'tweak-lab') onOpenTweakLab();
   };
 
   return (
@@ -99,6 +120,8 @@ export default function ReviewPage({
             </section>
           )}
 
+          <CompatibilityPreflight report={compatibilityReport} onAction={handleCompatibilityAction} />
+
           <section className="review-card validation-center">
             <div className="review-card-heading">
               <div><span className="workflow-eyebrow">Validation center</span><h3>{validationIssues.length === 0 ? 'Ready to export' : `${validationIssues.length} ${validationIssues.length === 1 ? 'issue' : 'issues'} to review`}</h3></div>
@@ -132,7 +155,9 @@ export default function ReviewPage({
               <p>{projectName || 'Untitled BAR project'}</p>
             </div>
             <div className="export-console-health">
-              <span className={`review-status ${compiledLobbyModules?.overflow ? 'error' : limitRisk}`}>{compiledLobbyModules?.overflow ? 'Blocked' : 'Package ready'}</span>
+              <span className={`review-status ${compatibilityReport.status === 'blocked' ? 'error' : compatibilityReport.status === 'review' ? 'warning' : 'ready'}`}>
+                {compatibilityReport.status === 'blocked' ? 'Preflight blocked' : compatibilityReport.status === 'review' ? 'Review advised' : 'Preflight clear'}
+              </span>
               <small>{totalBytesUsed.toLocaleString()} encoded bytes</small>
             </div>
           </header>
@@ -159,7 +184,7 @@ export default function ReviewPage({
                 <h4 id="lobby-export-guide-title">Numbered lobby package</h4>
                 <p>Definitions load first, followed by Units. Each group has exactly nine available fields.</p>
               </div>
-              <Button variant="primary" onClick={copyAllLobbyCommands} disabled={!lobbyCommands || compiledLobbyModules?.overflow}>Copy all !bset commands</Button>
+              <Button variant="primary" onClick={copyAllLobbyCommands} disabled={!lobbyCommands || !compatibilityReport.canCopyLobbyCommands}>Copy all !bset commands</Button>
             </div>
 
             <div className="lobby-slot-capacity" aria-label="Lobby slot usage">
