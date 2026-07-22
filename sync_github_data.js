@@ -86,9 +86,33 @@ export function parseLua(luaStr) {
   // Remove comments after long strings have been protected.
   clean = clean.replace(/--.*$/gm, '');
   clean = clean.trim();
-  if (clean.startsWith('return')) {
-    clean = clean.slice(6).trim();
+  // Some BAR definitions declare descriptive scalar locals before returning
+  // the UnitDef table. Preserve those values for files that reference them,
+  // while leaving helper-heavy files to the existing fallback path.
+  const returnMatch = clean.match(/(^|\n)\s*return\s+/m);
+  if (!returnMatch) throw new Error('No top-level return table found');
+  const preamble = clean.slice(0, returnMatch.index).trim();
+  clean = clean.slice(returnMatch.index + returnMatch[0].length).trim();
+  const localNames = [];
+  const localValues = [];
+  const localPattern = /(?:^|\n)\s*local\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(true|false|-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')\s*$/gim;
+  for (const match of preamble.matchAll(localPattern)) {
+    const rawValue = match[2];
+    let value;
+    if (rawValue === 'true' || rawValue === 'false') value = rawValue === 'true';
+    else if (/^-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(rawValue)) value = Number(rawValue);
+    else value = rawValue.slice(1, -1);
+    localNames.push(match[1]);
+    localValues.push(value);
   }
+  const quotedStrings = [];
+  clean = clean.replace(/(["'])((?:\\.|(?!\1)[^\\\r\n])*)\1/g, (_match, _quote, value) => {
+    const token = `__BAR_QUOTED_STRING_${quotedStrings.length}__`;
+    quotedStrings.push(value.replace(/\\([\\"'])/g, '$1'));
+    return `"${token}"`;
+  });
+  clean = clean.replace(/;\s*$/gm, ',');
+  clean = clean.replace(/\bnil\b/g, 'null');
   // Lua permits array-style tables without numeric keys. BAR uses this form
   // for some factory buildoptions (notably legavp), while JavaScript object
   // literals require those values to live in an array.
@@ -99,11 +123,57 @@ export function parseLua(luaStr) {
   // Convert key = value to key: value
   clean = clean.replace(/([a-zA-Z0-9_]+)\s*=\s*/g, '"$1": ');
   // Convert [key] = value to key: value
-  clean = clean.replace(/\[\s*([a-zA-Z0-9_"'-]+)\s*\]\s*=\s*/g, '"$1": ');
+  clean = clean.replace(/\[\s*"([A-Za-z0-9_]+)"\s*\]\s*=\s*/g, '"$1": ');
+  clean = clean.replace(/\[\s*([a-zA-Z0-9_'-]+)\s*\]\s*=\s*/g, '"$1": ');
   clean = clean.replace(/__BAR_LONG_STRING_(\d+)__/g, (_match, index) => JSON.stringify(longStrings[Number(index)]));
+  clean = clean.replace(/"__BAR_QUOTED_STRING_(\d+)__"/g, (_match, index) => JSON.stringify(quotedStrings[Number(index)]));
   // Evaluate
-  const fn = new Function(`return ${clean}`);
-  return fn();
+  const fn = new Function(...localNames, `return ${clean}`);
+  return fn(...localValues);
+}
+
+const CORE_NUMBER_ALIASES = Object.freeze({
+  metalcost: ['metalcost', 'buildcostmetal'],
+  energycost: ['energycost', 'buildcostenergy'],
+  buildtime: ['buildtime'],
+  health: ['health', 'maxdamage'],
+  sightdistance: ['sightdistance'],
+  radardistance: ['radardistance'],
+  sonardistance: ['sonardistance'],
+  workertime: ['workertime'],
+  metalmake: ['metalmake'],
+  extractsmetal: ['extractsmetal'],
+  energymake: ['energymake'],
+  metalstorage: ['metalstorage'],
+  energystorage: ['energystorage'],
+  cloakcost: ['cloakcost'],
+  cloakcostmoving: ['cloakcostmoving'],
+  builddistance: ['builddistance'],
+  autoheal: ['autoheal'],
+  maxslope: ['maxslope'],
+  maxwaterdepth: ['maxwaterdepth'],
+  minwaterdepth: ['minwaterdepth'],
+  transportcapacity: ['transportcapacity'],
+  footprintx: ['footprintx'],
+  footprintz: ['footprintz'],
+  maxthisunit: ['maxthisunit'],
+  acceleration: ['acceleration', 'maxacc'],
+  brakerate: ['brakerate', 'maxdec', 'brakeRate'],
+  turnrate: ['turnrate', 'turnRate'],
+  mass: ['mass'],
+  cruisealt: ['cruisealt', 'cruisealtitude'],
+  maxvelocity: ['maxvelocity', 'speed'],
+});
+
+export function extractCoreUnitDefaults(unit = {}) {
+  const defaults = {};
+  for (const [target, aliases] of Object.entries(CORE_NUMBER_ALIASES)) {
+    const source = aliases.find(alias => unit[alias] !== undefined);
+    if (!source) continue;
+    const value = Number(unit[source]);
+    if (Number.isFinite(value)) defaults[target] = value;
+  }
+  return defaults;
 }
 
 function delay(ms) {
@@ -182,31 +252,7 @@ async function run() {
         // --- A. Extract default parameters ---
         const defaults = {};
         
-        // Numeric parameters
-        const numericKeys = [
-          'metalcost', 'energycost', 'buildtime', 'health', 'sightdistance',
-          'radardistance', 'sonardistance', 'workertime', 'metalmake',
-          'extractsmetal', 'energymake', 'metalstorage', 'energystorage',
-          'cloakcost', 'cloakcostmoving', 'builddistance', 'autoheal',
-          'maxslope', 'maxwaterdepth', 'minwaterdepth', 'transportcapacity',
-          'footprintx', 'footprintz', 'maxthisunit'
-        ];
-        
-        numericKeys.forEach(k => {
-          if (unit[k] !== undefined) {
-            defaults[k] = parseFloat(unit[k]);
-          }
-        });
-
-        // Movement / Physics
-        if (unit.acceleration !== undefined) defaults.acceleration = parseFloat(unit.acceleration);
-        if (unit.brakerate !== undefined) defaults.brakerate = parseFloat(unit.brakerate);
-        else if (unit.brakeRate !== undefined) defaults.brakerate = parseFloat(unit.brakeRate);
-
-        if (unit.turnrate !== undefined) defaults.turnrate = parseFloat(unit.turnrate);
-        else if (unit.turnRate !== undefined) defaults.turnrate = parseFloat(unit.turnRate);
-
-        if (unit.mass !== undefined) defaults.mass = parseFloat(unit.mass);
+        Object.assign(defaults, extractCoreUnitDefaults(unit));
 
         [
           'yardmap', 'objectname', 'script', 'buildpic', 'icontype',
@@ -214,11 +260,6 @@ async function run() {
         ].forEach(key => {
           if (unit[key] !== undefined) defaults[key] = String(unit[key]).trim().replace(/\s+/g, ' ');
         });
-
-        // Max speed (maxvelocity)
-        if (unit.speed !== undefined) {
-          defaults.maxvelocity = parseFloat(unit.speed);
-        }
 
         // Customparams (techlevel, energy conv keys)
         if (unit.customparams) {

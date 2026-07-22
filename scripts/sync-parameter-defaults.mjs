@@ -12,7 +12,8 @@ if (!fs.existsSync(unitsRoot)) {
 }
 
 const UNIT_FIELDS = Object.freeze({
-  maxacc: 'acceleration', maxdec: 'brakerate', cruisealtitude: 'cruisealt', cruisealt: 'cruisealt',
+  acceleration: 'acceleration', maxacc: 'acceleration', brakerate: 'brakerate', maxdec: 'brakerate',
+  cruisealtitude: 'cruisealt', cruisealt: 'cruisealt',
   explodeas: 'explodeas', selfdestructas: 'selfdestructas', selfdestructcountdown: 'selfdestructcountdown',
   canselfdestruct: 'canselfdestruct', damagemodifier: 'damagemodifier', crushresistance: 'crushresistance',
   blocking: 'blocking', collide: 'collide', pushresistant: 'pushresistant', upright: 'upright',

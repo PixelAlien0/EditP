@@ -625,7 +625,7 @@ export default function App() {
 
   // Compile list of units (vanilla + clones)
   const allUnitsList = useMemo(() => {
-    const list = Object.entries(unitsDb.names).map(([id, name]) => {
+    const list = Object.entries(unitsDb.names).filter(([id]) => Boolean(defaultsDb[id])).map(([id, name]) => {
       const faction = getFactionOfUnit(id);
       const techTier = getEffectiveTechTier(id);
       const tags = [...getTagsOfUnit(id).filter(tag => !/^t[1-4]$/.test(tag)), techTier];
@@ -662,7 +662,7 @@ export default function App() {
     });
 
     return list.sort((a, b) => a.name.localeCompare(b.name));
-  }, [clones, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitsDb.descriptions, unitsDb.names]);
+  }, [clones, defaultsDb, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitsDb.descriptions, unitsDb.names]);
   const knownTweakPackageUnitIds = useMemo(() => allUnitsList.map(unit => unit.id), [allUnitsList]);
 
   const handleAddTweakModules = useCallback((incomingModules) => {
