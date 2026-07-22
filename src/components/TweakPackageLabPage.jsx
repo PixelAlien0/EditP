@@ -223,11 +223,16 @@ export default function TweakPackageLabPage({
     + packageAnalysis.collisions.length
     + packageAnalysis.orderingIssues.length
     + packageAnalysis.cycles.length
-    + packageAnalysis.typeIssues.length;
+    + packageAnalysis.typeIssues.length
+    + packageAnalysis.confidenceCounts.probable
+    + packageAnalysis.confidenceCounts.dynamic
+    + packageAnalysis.unknownCustomParameters.length;
   const selectedDiagnosticCount = selectedAnalysis
     ? selectedAnalysis.warnings.length
       + selectedAnalysis.typeIssues.length
       + selectedAnalysis.runtimeRisks.length
+      + selectedAnalysis.findings.filter(finding => finding.confidence !== 'exact').length
+      + selectedAnalysis.unknownCustomParameters.length
       + (selectedReport?.unresolved.length || 0)
       + (selectedReport?.collisions.length || 0)
     : 0;
@@ -424,12 +429,15 @@ export default function TweakPackageLabPage({
           </div>
           <div className="tweak-package-audit__metrics">
             <div><span>Modules</span><strong>{modules.length}</strong></div>
-            <div><span>Recipe calls</span><strong>{packageAnalysis.recipes.length}</strong></div>
+            <div><span>Exact findings</span><strong>{packageAnalysis.confidenceCounts.exact}</strong></div>
+            <div><span>Probable</span><strong>{packageAnalysis.confidenceCounts.probable}</strong></div>
+            <div><span>Dynamic</span><strong>{packageAnalysis.confidenceCounts.dynamic}</strong></div>
             <div><span>Module links</span><strong>{packageAnalysis.edges.length}</strong></div>
             <div><span>Unresolved IDs</span><strong>{packageAnalysis.unresolved.length}</strong></div>
             <div><span>Definition conflicts</span><strong>{packageAnalysis.collisions.length}</strong></div>
             <div><span>Type mismatches</span><strong>{packageAnalysis.typeIssues.length}</strong></div>
             <div><span>Risk locations</span><strong>{packageAnalysis.runtimeRiskCount}</strong></div>
+            <div><span>Unknown params</span><strong>{packageAnalysis.unknownCustomParameters.length}</strong></div>
           </div>
           {(packageAnalysis.unresolved.length > 0 || packageAnalysis.collisions.length > 0 || packageAnalysis.orderingIssues.length > 0 || packageAnalysis.cycles.length > 0 || packageAnalysis.typeIssues.length > 0) && (
             <div className="tweak-package-audit__issues">
@@ -576,6 +584,29 @@ export default function TweakPackageLabPage({
                 <div><span>Weapons</span><strong>{selectedAnalysis.weaponChanges}</strong></div>
                 <div><span>Build menu</span><strong>{selectedAnalysis.buildMenuOperations}</strong></div>
               </div>
+              <section className="tweak-analyzer-v2 inspector-summary-panel inspector-diagnostics-panel" aria-label="Analyzer V2 findings">
+                <div className="tweak-analysis-section__heading">
+                  <div><span className="workflow-eyebrow">Static structure</span><h4>Analyzer V2 findings</h4></div>
+                  <strong>{selectedAnalysis.findings.length}</strong>
+                </div>
+                <div className="tweak-analyzer-confidence" aria-label="Finding confidence">
+                  <span className="is-exact"><b>{selectedAnalysis.confidenceCounts.exact}</b> Exact</span>
+                  <span className="is-probable"><b>{selectedAnalysis.confidenceCounts.probable}</b> Probable</span>
+                  <span className="is-dynamic"><b>{selectedAnalysis.confidenceCounts.dynamic}</b> Dynamic</span>
+                </div>
+                {selectedAnalysis.findings.length > 0 ? (
+                  <div className="tweak-analyzer-findings">
+                    {selectedAnalysis.findings.slice(0, 12).map(finding => (
+                      <article className={`is-${finding.confidence}`} key={finding.id}>
+                        <span>{finding.confidence}</span>
+                        <div><strong>{finding.title}</strong><small>{finding.detail}</small></div>
+                        {finding.line > 0 && <code>Ln {finding.line}</code>}
+                      </article>
+                    ))}
+                    {selectedAnalysis.findings.length > 12 && <p>+{selectedAnalysis.findings.length - 12} additional structural findings</p>}
+                  </div>
+                ) : <p className="tweak-analyzer-empty">No structural operations were recognized. Review the decoded source as dynamic Lua.</p>}
+              </section>
               {selectedDiagnosticCount === 0 && !selectedReport?.assetReferences.length && (
                 <div className="tweak-inspector-diagnostics-empty inspector-diagnostics-panel">
                   <span aria-hidden="true">✓</span>
@@ -633,6 +664,9 @@ export default function TweakPackageLabPage({
               <section className="tweak-analysis-section tweak-custom-params-section inspector-summary-panel">
                 <h4>Custom parameters</h4>
                 <p>{selectedAnalysis.customParameters.join(', ') || 'No custom parameters found.'}</p>
+                {selectedAnalysis.unknownCustomParameters.length > 0 && (
+                  <small className="tweak-custom-params-unknown">Inspection-only: {selectedAnalysis.unknownCustomParameters.join(', ')}</small>
+                )}
               </section>
               {selectedAnalysis.helpers.length > 0 && (
                 <section className="tweak-analysis-section tweak-helper-recipes inspector-summary-panel">

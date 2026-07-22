@@ -105,6 +105,9 @@ test('Tweak Package Lab imports inert modules and exposes numbered slots', async
   await page.getByRole('button', { name: 'Inspect pasted input' }).click();
   await expect(page.getByText('Definitions module', { exact: true }).first()).toBeVisible();
   const inspector = page.getByRole('complementary', { name: 'Module inspection' });
+  const analyzer = inspector.getByRole('region', { name: 'Analyzer V2 findings' });
+  await expect(analyzer).toContainText('Literal clone operation');
+  await expect(analyzer).toContainText('Exact');
   await inspector.getByRole('button', { name: 'Full screen' }).click();
   await expect(inspector).toHaveClass(/is-fullscreen/);
   await expect(inspector.getByRole('button', { name: 'Restore view' })).toBeVisible();

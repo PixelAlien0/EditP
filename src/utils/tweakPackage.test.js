@@ -124,6 +124,115 @@ describe('tweak package import', () => {
     expect(analysis.buildMenuOperations).toBe(1);
   });
 
+  it('Analyzer V2 resolves comment-prefixed compact Units tables', () => {
+    const module = parseTweakPackageInput(`-- MAIN_UNITS
+      -- generated package
+      {
+        editp_compact = {
+          health = 750,
+          buildoptions = { 'armflea', 'armfav' },
+          customparams = { experimental_behavior = 'enabled' },
+          weapondefs = { pulse = { range = 420, damage = { default = 55 } } },
+          weapons = { [1] = { def = 'PULSE' } },
+        },
+      }
+    `, { kind: 'units' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+    expect(analysis).toMatchObject({
+      analyzerVersion: 2,
+      parseError: null,
+      literalUnitTables: 1,
+      literalWeaponDefinitions: 1,
+    });
+    expect(analysis.conversions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'unit-parameter', unitId: 'editp_compact', key: 'health', value: 750 }),
+      expect.objectContaining({ type: 'build-roster', builderId: 'editp_compact', unitIds: ['armflea', 'armfav'] }),
+    ]));
+    expect(analysis.unknownCustomParameters).toContain('experimental_behavior');
+    expect(analysis.findings).toContainEqual(expect.objectContaining({
+      kind: 'literal-unit-table', confidence: 'exact', convertible: true,
+    }));
+  });
+
+  it('Analyzer V2 resolves local payloads merged into a UnitDefs registry alias', () => {
+    const module = parseTweakPackageInput(`
+      local defs = UnitDefs or {}
+      local merge = table.mergeInPlace or table.merge
+      local payload = {
+        editp_registry_unit = {
+          health = 1800,
+          customparams = { new_runtime_flag = true },
+          weapondefs = { beam = { range = 610, damage = { default = 90 } } },
+          weapons = { [1] = { def = 'BEAM' } },
+        },
+      }
+      merge(defs, payload)
+    `, { kind: 'defs' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+    expect(analysis.createdUnits).toContain('editp_registry_unit');
+    expect(analysis.literalWeaponDefinitions).toBe(1);
+    expect(analysis.conversions).toContainEqual(expect.objectContaining({
+      type: 'unit-parameter', unitId: 'editp_registry_unit', key: 'health', value: 1800,
+    }));
+    expect(analysis.findings).toContainEqual(expect.objectContaining({
+      kind: 'registry-merge', confidence: 'exact', unitIds: ['editp_registry_unit'],
+    }));
+    expect(analysis.unknownCustomParameters).toContain('new_runtime_flag');
+    const packageAnalysis = analyzeTweakPackage([module]);
+    expect(packageAnalysis.confidenceCounts.exact).toBeGreaterThan(0);
+    expect(packageAnalysis.unknownCustomParameters).toContain('new_runtime_flag');
+  });
+
+  it('Analyzer V2 recognizes clone-and-merge definitions with nested weapons', () => {
+    const module = parseTweakPackageInput(`
+      local defs = UnitDefs or {}
+      local merge = table.merge
+      local function deepCopy(value) return table.copy(value, true) end
+      defs.editp_epic = merge(deepCopy(defs.armflea), {
+        health = 9200,
+        weapondefs = {
+          epic_beam = { range = 900, reloadtime = 1.5, damage = { default = 440 } },
+        },
+        weapons = { [1] = { def = 'EPIC_BEAM' } },
+      })
+    `, { kind: 'defs' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+    expect(analysis.createdUnits).toContain('editp_epic');
+    expect(analysis.referencedUnits).toContain('armflea');
+    expect(analysis.conversions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'clone', baseId: 'armflea', newId: 'editp_epic', origin: 'merge-clone' }),
+      expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_epic', key: 'range', value: 900 }),
+    ]));
+    expect(analysis.findings).toContainEqual(expect.objectContaining({
+      kind: 'merge-clone', confidence: 'exact', convertible: true,
+    }));
+  });
+
+  it('Analyzer V2 labels computed helper factories and pattern selectors as non-exact', () => {
+    const module = parseTweakPackageInput(`
+      local defs = UnitDefs or {}
+      local merge = table.merge
+      local function cloneIfMissing(baseName, newName, overrides)
+        if defs[baseName] and not defs[newName] then
+          defs[newName] = merge(defs[baseName], overrides)
+        end
+      end
+      for name, unitDef in pairs(UnitDefs) do
+        if name:match('^raptor_queen_.*') then unitDef.health = unitDef.health * 1.3 end
+      end
+      for _, faction in ipairs({ 'arm', 'cor', 'leg' }) do
+        cloneIfMissing(faction .. 'base', faction .. 'legendary', { health = 5000 })
+      end
+    `, { kind: 'defs' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+    expect(analysis.findings).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: 'helper-factory', confidence: 'dynamic' }),
+      expect.objectContaining({ kind: 'pattern-selector', confidence: 'probable', pattern: '^raptor_queen_.*' }),
+    ]));
+    expect(analysis.confidenceCounts.dynamic).toBeGreaterThan(0);
+    expect(analysis.confidenceCounts.probable).toBeGreaterThan(0);
+  });
+
   it('recognizes the compact SET and ADD clone pattern without executing it', () => {
     const module = parseTweakPackageInput(`
       local a = {}

@@ -102,6 +102,12 @@ DIRECT_WEAPON_FIELDS.forEach(field => addGenericExpectation(
 ));
 const UNSUPPORTED_LITERAL = Symbol('unsupported-lua-literal');
 
+export const ANALYZER_CONFIDENCE = Object.freeze({
+  EXACT: 'exact',
+  PROBABLE: 'probable',
+  DYNAMIC: 'dynamic',
+});
+
 function byteLength(value) {
   return new TextEncoder().encode(value).byteLength;
 }
@@ -128,7 +134,7 @@ function decodeBase64(payload) {
 
 function looksLikeLua(value) {
   const source = String(value || '').trim();
-  return /\b(UnitDefs|WeaponDefs|return|local|function|for|if|do)\b|^\s*\{/.test(source);
+  return /\b(UnitDefs|WeaponDefs|return|local|function|for|if|do)\b|^(?:\s*--[^\r\n]*(?:\r?\n|$))*\s*\{/.test(source);
 }
 
 function scalarFromLua(value) {
@@ -201,9 +207,16 @@ function weaponDefDependencies(definition) {
     : [];
 }
 
+function wrapBareTableSource(source) {
+  const value = String(source || '');
+  const match = value.match(/^(\s*(?:--[^\r\n]*(?:\r?\n|$)\s*)*)\{/);
+  if (!match) return value;
+  return `${match[1]}return ${value.slice(match[1].length)}`;
+}
+
 function parseLiteralUnitTable(source) {
   try {
-    const wrapped = /^\s*\{/.test(source) ? `return ${source}` : source;
+    const wrapped = wrapBareTableSource(source);
     const ast = luaparse.parse(wrapped, { luaVersion: '5.1', comments: false });
     const returnStatement = ast.body.find(statement => statement.type === 'ReturnStatement');
     const root = literalFromAst(returnStatement?.arguments?.[0]);
@@ -213,86 +226,102 @@ function parseLiteralUnitTable(source) {
   }
 }
 
-function extractLiteralUnitConversions(source) {
-  const table = parseLiteralUnitTable(source);
-  if (!table) return { conversions: [], unitCount: 0, unitIds: [], weaponDefCount: 0, supportingWeaponDefs: [] };
+function extractUnitPatchDetails(unitId, unitPatch, origin = 'literal-table') {
+  const conversions = [];
+  const supportingWeaponDefs = [];
+  let weaponDefCount = 0;
+  if (!unitPatch || typeof unitPatch !== 'object') return { conversions, weaponDefCount, supportingWeaponDefs };
+  const normalizedUnitId = String(unitId).toLowerCase();
+  const buildOptions = literalStringArray(unitPatch.buildoptions);
+  if (buildOptions) conversions.push({ type: 'build-roster', builderId: normalizedUnitId, unitIds: buildOptions, origin });
+  Object.entries(unitPatch).forEach(([sourceKey, value]) => {
+    const editorKey = UNIT_FIELD_TO_EDITOR_KEY.get(sourceKey);
+    if (editorKey && isLiteralScalar(value)) conversions.push({ type: 'unit-parameter', unitId: normalizedUnitId, key: editorKey, value, origin });
+  });
+  const customParams = unitPatch.customparams;
+  if (customParams && typeof customParams === 'object') {
+    Object.entries(customParams).forEach(([sourceKey, value]) => {
+      const editorKey = UNIT_CUSTOM_TO_EDITOR_KEY.get(sourceKey);
+      if (editorKey && isLiteralScalar(value)) conversions.push({ type: 'unit-parameter', unitId: normalizedUnitId, key: editorKey, value, origin });
+    });
+  }
+
+  const mounts = unitPatch.weapons && typeof unitPatch.weapons === 'object' ? unitPatch.weapons : {};
+  const defSlots = new Map();
+  Object.entries(mounts).forEach(([slotKey, mount]) => {
+    if (!mount || typeof mount !== 'object') return;
+    const slot = Number(slotKey);
+    if (!Number.isInteger(slot) || slot < 1) return;
+    const defKey = typeof mount.def === 'string' ? mount.def.toLowerCase() : '';
+    if (defKey) defSlots.set(defKey, [...(defSlots.get(defKey) || []), slot]);
+    ['onlytargetcategory', 'badtargetcategory', ...WEAPON_SLOT_MOUNT_PARAMS].forEach(key => {
+      const value = mount[key.toLowerCase()];
+      if (isLiteralScalar(value)) conversions.push({ type: 'weapon-parameter', unitId: normalizedUnitId, weaponDefKey: defKey, slot, key, value, origin });
+    });
+  });
+
+  const weaponDefs = unitPatch.weapondefs && typeof unitPatch.weapondefs === 'object' ? unitPatch.weapondefs : {};
+  const dependencyUsers = new Map();
+  Object.entries(weaponDefs).forEach(([weaponDefKey, weaponDef]) => {
+    weaponDefDependencies(weaponDef).forEach(dependency => {
+      dependencyUsers.set(dependency, [...(dependencyUsers.get(dependency) || []), weaponDefKey.toLowerCase()]);
+    });
+  });
+  Object.entries(weaponDefs).forEach(([weaponDefKey, weaponDef]) => {
+    if (!weaponDef || typeof weaponDef !== 'object') return;
+    weaponDefCount += 1;
+    const values = new Map();
+    WEAPON_PATH_TO_EDITOR_KEY.forEach((editorKey, path) => {
+      const value = getLiteralPath(weaponDef, path);
+      if (isLiteralScalar(value)) values.set(editorKey, value);
+    });
+    Object.entries(weaponDef).forEach(([sourceKey, value]) => {
+      if (!isLiteralScalar(value)) return;
+      const editorKey = WEAPON_PATH_TO_EDITOR_KEY.get(sourceKey)
+        || (WEAPON_SLOT_BOOLEAN_PARAMS.has(sourceKey) || WEAPON_SLOT_STRING_PARAMS.has(sourceKey) || DIRECT_WEAPON_FIELDS.has(sourceKey) ? sourceKey : null);
+      if (editorKey) values.set(editorKey, value);
+    });
+    const slots = defSlots.get(weaponDefKey.toLowerCase()) || [null];
+    values.forEach((value, key) => slots.forEach(slot => conversions.push({
+      type: 'weapon-parameter', unitId: normalizedUnitId, weaponDefKey: weaponDefKey.toLowerCase(),
+      ...(slot ? { slot } : {}), key, value, origin,
+    })));
+    const normalizedKey = weaponDefKey.toLowerCase();
+    const mountedSlots = defSlots.get(normalizedKey) || [];
+    const referencedBy = dependencyUsers.get(normalizedKey) || [];
+    supportingWeaponDefs.push({
+      ownerUnitId: normalizedUnitId,
+      key: normalizedKey,
+      label: normalizedKey.toUpperCase(),
+      definition: weaponDef,
+      role: referencedBy.length ? 'dependency' : mountedSlots.length ? 'mounted' : 'auxiliary',
+      mountedSlots,
+      dependencies: weaponDefDependencies(weaponDef),
+      referencedBy,
+      mode: 'replace',
+      origin,
+    });
+  });
+  return { conversions, weaponDefCount, supportingWeaponDefs };
+}
+
+function extractUnitTableDetails(table, origin = 'literal-table') {
+  if (!table || typeof table !== 'object') return { conversions: [], unitCount: 0, unitIds: [], weaponDefCount: 0, supportingWeaponDefs: [] };
   const conversions = [];
   const supportingWeaponDefs = [];
   let weaponDefCount = 0;
   Object.entries(table).forEach(([unitId, unitPatch]) => {
-    if (!unitPatch || typeof unitPatch !== 'object') return;
-    const buildOptions = literalStringArray(unitPatch.buildoptions);
-    if (buildOptions) conversions.push({ type: 'build-roster', builderId: unitId, unitIds: buildOptions, origin: 'literal-table' });
-    Object.entries(unitPatch).forEach(([sourceKey, value]) => {
-      const editorKey = UNIT_FIELD_TO_EDITOR_KEY.get(sourceKey);
-      if (editorKey && isLiteralScalar(value)) conversions.push({ type: 'unit-parameter', unitId, key: editorKey, value, origin: 'literal-table' });
-    });
-    const customParams = unitPatch.customparams;
-    if (customParams && typeof customParams === 'object') {
-      Object.entries(customParams).forEach(([sourceKey, value]) => {
-        const editorKey = UNIT_CUSTOM_TO_EDITOR_KEY.get(sourceKey);
-        if (editorKey && isLiteralScalar(value)) conversions.push({ type: 'unit-parameter', unitId, key: editorKey, value, origin: 'literal-table' });
-      });
-    }
-
-    const mounts = unitPatch.weapons && typeof unitPatch.weapons === 'object' ? unitPatch.weapons : {};
-    const defSlots = new Map();
-    Object.entries(mounts).forEach(([slotKey, mount]) => {
-      if (!mount || typeof mount !== 'object') return;
-      const slot = Number(slotKey);
-      if (!Number.isInteger(slot) || slot < 1) return;
-      const defKey = typeof mount.def === 'string' ? mount.def.toLowerCase() : '';
-      if (defKey) defSlots.set(defKey, [...(defSlots.get(defKey) || []), slot]);
-      ['onlytargetcategory', 'badtargetcategory', ...WEAPON_SLOT_MOUNT_PARAMS].forEach(key => {
-        const value = mount[key.toLowerCase()];
-        if (isLiteralScalar(value)) conversions.push({ type: 'weapon-parameter', unitId, weaponDefKey: defKey, slot, key, value, origin: 'literal-table' });
-      });
-    });
-
-    const weaponDefs = unitPatch.weapondefs && typeof unitPatch.weapondefs === 'object' ? unitPatch.weapondefs : {};
-    const dependencyUsers = new Map();
-    Object.entries(weaponDefs).forEach(([weaponDefKey, weaponDef]) => {
-      weaponDefDependencies(weaponDef).forEach(dependency => {
-        dependencyUsers.set(dependency, [...(dependencyUsers.get(dependency) || []), weaponDefKey.toLowerCase()]);
-      });
-    });
-    Object.entries(weaponDefs).forEach(([weaponDefKey, weaponDef]) => {
-      if (!weaponDef || typeof weaponDef !== 'object') return;
-      weaponDefCount += 1;
-      const values = new Map();
-      WEAPON_PATH_TO_EDITOR_KEY.forEach((editorKey, path) => {
-        const value = getLiteralPath(weaponDef, path);
-        if (isLiteralScalar(value)) values.set(editorKey, value);
-      });
-      Object.entries(weaponDef).forEach(([sourceKey, value]) => {
-        if (!isLiteralScalar(value)) return;
-        const editorKey = WEAPON_PATH_TO_EDITOR_KEY.get(sourceKey)
-          || (WEAPON_SLOT_BOOLEAN_PARAMS.has(sourceKey) || WEAPON_SLOT_STRING_PARAMS.has(sourceKey) || DIRECT_WEAPON_FIELDS.has(sourceKey) ? sourceKey : null);
-        if (editorKey) values.set(editorKey, value);
-      });
-      const slots = defSlots.get(weaponDefKey.toLowerCase()) || [null];
-      values.forEach((value, key) => slots.forEach(slot => conversions.push({
-        type: 'weapon-parameter', unitId, weaponDefKey: weaponDefKey.toLowerCase(),
-        ...(slot ? { slot } : {}), key, value, origin: 'literal-table',
-      })));
-      const normalizedKey = weaponDefKey.toLowerCase();
-      const mountedSlots = defSlots.get(normalizedKey) || [];
-      const referencedBy = dependencyUsers.get(normalizedKey) || [];
-      supportingWeaponDefs.push({
-        ownerUnitId: unitId.toLowerCase(),
-        key: normalizedKey,
-        label: normalizedKey.toUpperCase(),
-        definition: weaponDef,
-        role: referencedBy.length ? 'dependency' : mountedSlots.length ? 'mounted' : 'auxiliary',
-        mountedSlots,
-        dependencies: weaponDefDependencies(weaponDef),
-        referencedBy,
-        mode: 'replace',
-        origin: 'literal-table',
-      });
-    });
+    const details = extractUnitPatchDetails(unitId, unitPatch, origin);
+    conversions.push(...details.conversions);
+    supportingWeaponDefs.push(...details.supportingWeaponDefs);
+    weaponDefCount += details.weaponDefCount;
   });
   return { conversions, unitCount: Object.keys(table).length, unitIds: Object.keys(table), weaponDefCount, supportingWeaponDefs };
+}
+
+function extractLiteralUnitConversions(source) {
+  const table = parseLiteralUnitTable(source);
+  return extractUnitTableDetails(table, 'literal-table');
 }
 
 function extractHelperCloneConversions(source) {
@@ -369,8 +398,8 @@ function extractDirectSupportingWeaponDefs(ast) {
   return definitions;
 }
 
-function unitDefsIndexParameter(node, parameterNames) {
-  if (node?.type !== 'IndexExpression' || node.base?.type !== 'Identifier' || node.base.name !== 'UnitDefs') return null;
+function unitDefsIndexParameter(node, parameterNames, registryAliases = new Set(['UnitDefs'])) {
+  if (node?.type !== 'IndexExpression' || node.base?.type !== 'Identifier' || !registryAliases.has(node.base.name)) return null;
   return node.index?.type === 'Identifier' && parameterNames.has(node.index.name) ? node.index.name : null;
 }
 
@@ -380,6 +409,7 @@ function helperCallName(node) {
 
 function analyzeHelperRecipes(ast) {
   if (!ast) return { helpers: [], recipes: [] };
+  const registryAliases = createStaticContext(ast).unitRegistryAliases;
   const helperMap = new Map();
   walkAst(ast, node => {
     if (node.type !== 'FunctionDeclaration' || node.identifier?.type !== 'Identifier') return;
@@ -398,18 +428,18 @@ function analyzeHelperRecipes(ast) {
       if (child.type === 'AssignmentStatement') {
         assignments += child.variables?.length || 0;
         child.variables?.forEach(variable => {
-          const output = unitDefsIndexParameter(variable, parameterNames);
+          const output = unitDefsIndexParameter(variable, parameterNames, registryAliases);
           if (output) outputParameters.add(output);
         });
       }
-      const unitParameter = unitDefsIndexParameter(child, parameterNames);
+      const unitParameter = unitDefsIndexParameter(child, parameterNames, registryAliases);
       if (unitParameter) unitReads.add(unitParameter);
       if (child.type === 'CallExpression' && (
         child.base?.type === 'Identifier' && /^(?:copy|deepcopy)$/i.test(child.base.name)
         || child.base?.type === 'MemberExpression' && child.base.indexer === '.' && child.base.identifier?.name === 'copy'
       )) {
         child.arguments?.forEach(argument => {
-          const copied = unitDefsIndexParameter(argument, parameterNames);
+            const copied = unitDefsIndexParameter(argument, parameterNames, registryAliases);
           if (copied) copiedReads.add(copied);
         });
       }
@@ -439,6 +469,7 @@ function analyzeHelperRecipes(ast) {
   });
 
   const recipes = [];
+  const invocationCounts = new Map();
   const visitExecutable = node => {
     if (!node || typeof node !== 'object') return;
     if (Array.isArray(node)) {
@@ -449,6 +480,7 @@ function analyzeHelperRecipes(ast) {
     const name = helperCallName(node);
     const helper = name ? helperMap.get(name) : null;
     if (helper) {
+      invocationCounts.set(helper.name, (invocationCounts.get(helper.name) || 0) + 1);
       const values = helper.parameters.map((parameter, index) => {
         const value = literalFromAst(node.arguments?.[index]);
         return value === UNSUPPORTED_LITERAL ? null : value;
@@ -479,10 +511,375 @@ function analyzeHelperRecipes(ast) {
     });
   };
   visitExecutable(ast.body);
-  const callCounts = recipes.reduce((counts, recipe) => counts.set(recipe.helperName, (counts.get(recipe.helperName) || 0) + 1), new Map());
+  const literalCallCounts = recipes.reduce((counts, recipe) => counts.set(recipe.helperName, (counts.get(recipe.helperName) || 0) + 1), new Map());
   return {
-    helpers: [...helperMap.values()].map(helper => ({ ...helper, callCount: callCounts.get(helper.name) || 0 })),
+    helpers: [...helperMap.values()].map(helper => ({
+      ...helper,
+      callCount: invocationCounts.get(helper.name) || 0,
+      literalCallCount: literalCallCounts.get(helper.name) || 0,
+    })),
     recipes,
+  };
+}
+
+function nodeContainsMergeReference(node) {
+  let found = false;
+  walkAst(node, child => {
+    const path = astMemberPath(child);
+    if (path && /^merge(?:inplace)?$/i.test(String(path.at(-1)))) found = true;
+    if (child.type === 'Identifier' && /^merge(?:inplace)?$/i.test(child.name)) found = true;
+  });
+  return found;
+}
+
+function resolveLiteralNode(node, literals, depth = 0) {
+  if (!node || depth > 8) return UNSUPPORTED_LITERAL;
+  const literal = literalFromAst(node);
+  if (literal !== UNSUPPORTED_LITERAL) return literal;
+  if (node.type === 'Identifier' && literals.has(node.name)) return literals.get(node.name);
+  if (node.type === 'LogicalExpression') {
+    const left = resolveLiteralNode(node.left, literals, depth + 1);
+    if (left !== UNSUPPORTED_LITERAL) return left;
+    return resolveLiteralNode(node.right, literals, depth + 1);
+  }
+  return UNSUPPORTED_LITERAL;
+}
+
+function createStaticContext(ast) {
+  const declarations = [];
+  if (!ast) return { literals: new Map(), mergeAliases: new Set(), unitRegistryAliases: new Set(['UnitDefs']), unitTargetAliases: new Map() };
+  walkAst(ast.body, node => {
+    if (node.type !== 'LocalStatement' && node.type !== 'AssignmentStatement') return;
+    const variables = node.variables || [];
+    const init = node.init || [];
+    variables.forEach((variable, index) => {
+      if (variable?.type === 'Identifier' && init[index]) declarations.push([variable.name, init[index]]);
+    });
+  });
+  const literals = new Map();
+  const mergeAliases = new Set(['merge', 'mergeInPlace']);
+  const unitRegistryAliases = new Set(['UnitDefs']);
+  const isUnitRegistryExpression = node => node?.type === 'Identifier' && node.name === 'UnitDefs'
+    || node?.type === 'LogicalExpression' && (isUnitRegistryExpression(node.left) || isUnitRegistryExpression(node.right));
+  declarations.forEach(([name, init]) => {
+    const literal = literalFromAst(init);
+    if (literal !== UNSUPPORTED_LITERAL) literals.set(name, literal);
+    if (nodeContainsMergeReference(init)) mergeAliases.add(name);
+    if (isUnitRegistryExpression(init)) unitRegistryAliases.add(name);
+  });
+
+  const unitTargetAliases = new Map();
+  const resolveTarget = node => {
+    if (!node) return null;
+    if (node.type === 'Identifier' && unitRegistryAliases.has(node.name)) return { scope: 'registry', alias: node.name };
+    if (node.type === 'LogicalExpression') return resolveTarget(node.left) || resolveTarget(node.right);
+    if (node.type === 'IndexExpression' || node.type === 'MemberExpression') {
+      const base = node.base;
+      if (base?.type !== 'Identifier' || !unitRegistryAliases.has(base.name)) return null;
+      const key = node.type === 'MemberExpression' ? node.identifier?.name : literalFromAst(node.index);
+      if (typeof key === 'string') return { scope: 'unit', unitId: key.toLowerCase(), alias: base.name };
+      return { scope: 'dynamic-unit', selector: node.index?.name || 'computed ID', alias: base.name };
+    }
+    return null;
+  };
+  declarations.forEach(([name, init]) => {
+    const target = resolveTarget(init);
+    if (target && target.scope !== 'registry') unitTargetAliases.set(name, target);
+  });
+  return { literals, mergeAliases, unitRegistryAliases, unitTargetAliases, resolveTarget };
+}
+
+function customParameterKeysFromObject(value) {
+  const keys = [];
+  const visit = node => {
+    if (!node || typeof node !== 'object') return;
+    Object.entries(node).forEach(([key, item]) => {
+      if (key.toLowerCase() === 'customparams' && item && typeof item === 'object') keys.push(...Object.keys(item).map(itemKey => itemKey.toLowerCase()));
+      if (item && typeof item === 'object') visit(item);
+    });
+  };
+  visit(value);
+  return keys;
+}
+
+const UNIT_PATCH_MARKERS = new Set([
+  'health', 'metalcost', 'energycost', 'buildtime', 'buildoptions', 'customparams',
+  'weapondefs', 'weapons', 'objectname', 'script', 'buildpic', 'maxvelocity',
+  'workertime', 'builder', 'canmove', 'canfly', 'explodeas', 'selfdestructas',
+]);
+
+function looksLikeUnitPatch(value) {
+  return value && typeof value === 'object'
+    && Object.keys(value).some(key => UNIT_PATCH_MARKERS.has(key.toLowerCase()));
+}
+
+function looksLikeUnitTable(value) {
+  if (!value || typeof value !== 'object') return false;
+  const entries = Object.entries(value);
+  return entries.length > 0 && entries.some(([, patch]) => looksLikeUnitPatch(patch));
+}
+
+function collectAstCustomParameterKeys(ast) {
+  const keys = [];
+  if (!ast) return keys;
+  walkAst(ast.body, node => {
+    if (node.type !== 'TableKeyString' || String(node.key?.name || '').toLowerCase() !== 'customparams') return;
+    if (node.value?.type !== 'TableConstructorExpression') return;
+    node.value.fields.forEach(field => {
+      if (field.type === 'TableKeyString' && field.key?.name) keys.push(field.key.name.toLowerCase());
+      if (field.type === 'TableKey') {
+        const key = literalFromAst(field.key);
+        if (typeof key === 'string') keys.push(key.toLowerCase());
+      }
+    });
+  });
+  return keys;
+}
+
+function isMergeCall(node, context) {
+  if (node?.type !== 'CallExpression') return false;
+  if (node.base?.type === 'Identifier') return context.mergeAliases.has(node.base.name) || /^merge(?:inplace)?$/i.test(node.base.name);
+  const path = astMemberPath(node.base);
+  return Boolean(path && /^merge(?:inplace)?$/i.test(String(path.at(-1))));
+}
+
+function resolveUnitTarget(node, context) {
+  if (!node) return null;
+  if (node.type === 'Identifier') {
+    if (context.unitRegistryAliases.has(node.name)) return { scope: 'registry', alias: node.name };
+    return context.unitTargetAliases.get(node.name) || null;
+  }
+  if (node.type === 'LogicalExpression') return resolveUnitTarget(node.left, context) || resolveUnitTarget(node.right, context);
+  if (node.type !== 'IndexExpression' && node.type !== 'MemberExpression') return null;
+  if (node.base?.type !== 'Identifier' || !context.unitRegistryAliases.has(node.base.name)) return null;
+  const key = node.type === 'MemberExpression' ? node.identifier?.name : literalFromAst(node.index);
+  if (typeof key === 'string') return { scope: 'unit', unitId: key.toLowerCase(), alias: node.base.name };
+  return { scope: 'dynamic-unit', selector: node.index?.name || 'computed ID', alias: node.base.name };
+}
+
+function findUnitTargetDeep(node, context) {
+  let target = null;
+  walkAst(node, child => {
+    if (target) return;
+    const candidate = resolveUnitTarget(child, context);
+    if (candidate?.scope === 'unit' || candidate?.scope === 'dynamic-unit') target = candidate;
+  });
+  return target;
+}
+
+function findingId(kind, line, detail = '') {
+  return `${kind}-${line || 0}-${hashText(detail).slice(0, 8)}`;
+}
+
+function analyzeMergeStructures(ast) {
+  const empty = {
+    findings: [], conversions: [], supportingWeaponDefs: [], definedUnits: [], referencedUnits: [],
+    customParameters: [], literalUnitTables: 0, literalWeaponDefinitions: 0,
+  };
+  if (!ast) return empty;
+  const context = createStaticContext(ast);
+  const result = { ...empty, findings: [], conversions: [], supportingWeaponDefs: [], definedUnits: [], referencedUnits: [], customParameters: [] };
+  walkAst(ast.body, node => {
+    if (node.type === 'AssignmentStatement') {
+      node.variables?.forEach((variable, index) => {
+        const target = resolveUnitTarget(variable, context);
+        if (target?.scope !== 'unit') return;
+        const initializer = node.init?.[index];
+        if (isMergeCall(initializer, context)) {
+          const payloadNode = initializer.arguments.find(argument => resolveLiteralNode(argument, context.literals) !== UNSUPPORTED_LITERAL);
+          const payload = resolveLiteralNode(payloadNode, context.literals);
+          if (payload === UNSUPPORTED_LITERAL || !payload || typeof payload !== 'object') return;
+          const sourceTarget = initializer.arguments.map(argument => findUnitTargetDeep(argument, context)).find(Boolean);
+          const line = node.loc?.start?.line || 1;
+          const details = extractUnitPatchDetails(target.unitId, payload, 'merge-clone');
+          if (sourceTarget?.scope === 'unit') {
+            result.conversions.push({ type: 'clone', baseId: sourceTarget.unitId, newId: target.unitId, origin: 'merge-clone' });
+            result.referencedUnits.push(sourceTarget.unitId);
+          }
+          result.conversions.push(...details.conversions);
+          result.supportingWeaponDefs.push(...details.supportingWeaponDefs);
+          result.definedUnits.push(target.unitId);
+          result.customParameters.push(...customParameterKeysFromObject(payload));
+          result.literalUnitTables += 1;
+          result.literalWeaponDefinitions += details.weaponDefCount;
+          result.findings.push({
+            id: findingId('merge-clone', line, `${sourceTarget?.unitId || 'computed'}:${target.unitId}`),
+            kind: 'merge-clone',
+            confidence: sourceTarget?.scope === 'unit' ? ANALYZER_CONFIDENCE.EXACT : ANALYZER_CONFIDENCE.PROBABLE,
+            line,
+            title: 'Clone with literal overrides',
+            detail: `${target.unitId} merges ${Object.keys(payload).length} override field${Object.keys(payload).length === 1 ? '' : 's'}${sourceTarget?.unitId ? ` onto ${sourceTarget.unitId}` : ' onto a computed donor'}.`,
+            unitIds: [sourceTarget?.unitId, target.unitId].filter(Boolean),
+            convertible: sourceTarget?.scope === 'unit',
+          });
+          return;
+        }
+        const payload = resolveLiteralNode(initializer, context.literals);
+        if (payload === UNSUPPORTED_LITERAL || !payload || typeof payload !== 'object') return;
+        const line = node.loc?.start?.line || 1;
+        const details = extractUnitPatchDetails(target.unitId, payload, 'literal-unit-assignment');
+        result.conversions.push(...details.conversions);
+        result.supportingWeaponDefs.push(...details.supportingWeaponDefs);
+        result.definedUnits.push(target.unitId);
+        result.customParameters.push(...customParameterKeysFromObject(payload));
+        result.literalUnitTables += 1;
+        result.literalWeaponDefinitions += details.weaponDefCount;
+        result.findings.push({
+          id: findingId('unit-assignment', line, target.unitId),
+          kind: 'unit-assignment', confidence: ANALYZER_CONFIDENCE.EXACT, line,
+          title: 'Literal UnitDef assignment',
+          detail: `${target.unitId} defines ${Object.keys(payload).length} top-level field${Object.keys(payload).length === 1 ? '' : 's'} and ${details.weaponDefCount} WeaponDef${details.weaponDefCount === 1 ? '' : 's'}.`,
+          unitIds: [target.unitId], convertible: details.conversions.length > 0,
+        });
+      });
+    }
+    if (!isMergeCall(node, context)) return;
+    const targetIndex = node.arguments.findIndex(argument => resolveUnitTarget(argument, context));
+    if (targetIndex < 0) return;
+    const target = resolveUnitTarget(node.arguments[targetIndex], context);
+    const payloadNode = node.arguments.find((argument, index) => index !== targetIndex && resolveLiteralNode(argument, context.literals) !== UNSUPPORTED_LITERAL);
+    const payload = resolveLiteralNode(payloadNode, context.literals);
+    const line = node.loc?.start?.line || 1;
+    if (payload === UNSUPPORTED_LITERAL || !payload || typeof payload !== 'object') {
+      result.findings.push({
+        id: findingId('dynamic-merge', line, target?.selector || target?.unitId || 'registry'),
+        kind: 'merge', confidence: ANALYZER_CONFIDENCE.DYNAMIC, line,
+        title: 'Computed merge payload', detail: `Merge target ${target?.unitId || target?.selector || 'UnitDefs'} uses a payload that cannot be resolved statically.`,
+        convertible: false,
+      });
+      return;
+    }
+
+    result.customParameters.push(...customParameterKeysFromObject(payload));
+    if (target.scope === 'registry') {
+      if (!looksLikeUnitTable(payload)) {
+        result.findings.push({
+          id: findingId('registry-payload', line, Object.keys(payload).join(',')),
+          kind: 'registry-merge', confidence: ANALYZER_CONFIDENCE.PROBABLE, line,
+          title: 'Unclassified UnitDefs registry payload',
+          detail: `A literal ${Object.keys(payload).length}-field table is merged into UnitDefs, but its entries do not resemble complete unit patches.`,
+          convertible: false,
+        });
+        return;
+      }
+      const details = extractUnitTableDetails(payload, 'registry-merge');
+      result.conversions.push(...details.conversions);
+      result.supportingWeaponDefs.push(...details.supportingWeaponDefs);
+      result.definedUnits.push(...details.unitIds.map(id => id.toLowerCase()));
+      result.literalUnitTables += details.unitCount;
+      result.literalWeaponDefinitions += details.weaponDefCount;
+      result.findings.push({
+        id: findingId('registry-merge', line, details.unitIds.join(',')),
+        kind: 'registry-merge', confidence: ANALYZER_CONFIDENCE.EXACT, line,
+        title: 'Literal UnitDefs registry merge',
+        detail: `${details.unitCount} named UnitDef${details.unitCount === 1 ? '' : 's'} and ${details.weaponDefCount} nested WeaponDef${details.weaponDefCount === 1 ? '' : 's'} resolved.`,
+        unitIds: details.unitIds.map(id => id.toLowerCase()), convertible: details.conversions.length > 0,
+      });
+      return;
+    }
+    if (target.scope === 'unit') {
+      const details = extractUnitPatchDetails(target.unitId, payload, 'unit-merge');
+      result.conversions.push(...details.conversions);
+      result.supportingWeaponDefs.push(...details.supportingWeaponDefs);
+      result.referencedUnits.push(target.unitId);
+      result.literalUnitTables += 1;
+      result.literalWeaponDefinitions += details.weaponDefCount;
+      result.findings.push({
+        id: findingId('unit-merge', line, target.unitId),
+        kind: 'unit-merge', confidence: ANALYZER_CONFIDENCE.EXACT, line,
+        title: 'Literal UnitDef patch merge',
+        detail: `${target.unitId} receives ${Object.keys(payload).length} top-level field${Object.keys(payload).length === 1 ? '' : 's'} and ${details.weaponDefCount} WeaponDef${details.weaponDefCount === 1 ? '' : 's'}.`,
+        unitIds: [target.unitId], convertible: details.conversions.length > 0,
+      });
+      return;
+    }
+    result.findings.push({
+      id: findingId('selector-merge', line, target.selector),
+      kind: 'pattern-merge', confidence: ANALYZER_CONFIDENCE.DYNAMIC, line,
+      title: 'Computed UnitDef merge',
+      detail: `A literal ${Object.keys(payload).length}-field payload is merged into UnitDefs[${target.selector}]. Target IDs depend on runtime logic.`,
+      customParameters: customParameterKeysFromObject(payload), convertible: false,
+    });
+  });
+  return result;
+}
+
+function collectPatternTargetFindings(source) {
+  const findings = [];
+  const add = (match, kind, confidence, title, detail, pattern) => findings.push({
+    id: findingId(kind, lineNumberAt(source, match.index), pattern || detail),
+    kind, confidence, line: lineNumberAt(source, match.index), title, detail, pattern, convertible: false,
+  });
+  for (const match of source.matchAll(/string\.sub\s*\(\s*([a-z_][a-z0-9_]*)\s*,\s*1\s*,\s*\d+\s*\)\s*==\s*["']([^"']+)["']/gi)) {
+    add(match, 'prefix-selector', ANALYZER_CONFIDENCE.PROBABLE, 'Unit prefix selector', `Targets UnitDef IDs beginning with “${match[2]}”.`, `${match[2]}*`);
+  }
+  for (const match of source.matchAll(/(?:string\.match\s*\(\s*[a-z_][a-z0-9_]*\s*,\s*["']([^"']+)["']|[a-z_][a-z0-9_]*\s*:\s*match\s*\(\s*["']([^"']+)["'])/gi)) {
+    const pattern = match[1] || match[2];
+    add(match, 'pattern-selector', ANALYZER_CONFIDENCE.PROBABLE, 'Unit pattern selector', `Targets UnitDef IDs matching Lua pattern “${pattern}”.`, pattern);
+  }
+  if (/for\s+[^\n]+\s+in\s+pairs\s*\(\s*UnitDefs\s*\)/i.test(source) && !findings.length) {
+    const match = /for\s+[^\n]+\s+in\s+pairs\s*\(\s*UnitDefs\s*\)/i.exec(source);
+    add(match, 'global-selector', ANALYZER_CONFIDENCE.DYNAMIC, 'Global UnitDefs traversal', 'Iterates across the complete UnitDefs registry; affected IDs depend on runtime conditions.', '*');
+  }
+  return [...new Map(findings.map(finding => [`${finding.kind}:${finding.pattern}:${finding.line}`, finding])).values()];
+}
+
+function buildAnalyzerFindings({ source, ast, literalTable, mergeAnalysis, helperAnalysis, cloneConversions, buildMenuConversions, customParameters }) {
+  const findings = [...mergeAnalysis.findings, ...collectPatternTargetFindings(source)];
+  if (literalTable.unitCount > 0) findings.push({
+    id: findingId('literal-unit-table', 1, literalTable.unitIds.join(',')),
+    kind: 'literal-unit-table', confidence: ANALYZER_CONFIDENCE.EXACT, line: 1,
+    title: 'Literal Units table',
+    detail: `${literalTable.unitCount} unit patch${literalTable.unitCount === 1 ? '' : 'es'} and ${literalTable.weaponDefCount} nested WeaponDef${literalTable.weaponDefCount === 1 ? '' : 's'} resolved.`,
+    unitIds: literalTable.unitIds, convertible: literalTable.conversions.length > 0,
+  });
+  cloneConversions.forEach(conversion => findings.push({
+    id: findingId('clone', 0, `${conversion.baseId}:${conversion.newId}`),
+    kind: 'clone', confidence: ANALYZER_CONFIDENCE.EXACT, line: 0,
+    title: 'Literal clone operation', detail: `${conversion.newId} clones ${conversion.baseId}.`,
+    unitIds: [conversion.baseId, conversion.newId], convertible: true,
+  }));
+  helperAnalysis.helpers.forEach(helper => findings.push({
+    id: findingId('helper-factory', 0, helper.name),
+    kind: 'helper-factory',
+    confidence: helper.callCount > helper.literalCallCount ? ANALYZER_CONFIDENCE.DYNAMIC : helper.computed ? ANALYZER_CONFIDENCE.PROBABLE : ANALYZER_CONFIDENCE.EXACT,
+    line: 0,
+    title: helper.mode === 'clone-factory' ? 'UnitDef clone factory' : 'UnitDef definition factory',
+    detail: `${helper.name} is called ${helper.callCount} time${helper.callCount === 1 ? '' : 's'}; ${helper.literalCallCount} call${helper.literalCallCount === 1 ? '' : 's'} have fully literal IDs.${helper.touchesAssets ? ' Asset changes remain inspection-only.' : ''}`,
+    convertible: false,
+  }));
+  helperAnalysis.recipes.forEach(recipe => findings.push({
+    id: findingId('helper-recipe', 0, `${recipe.helperName}:${recipe.newId}`),
+    kind: 'helper-recipe', confidence: recipe.computed ? ANALYZER_CONFIDENCE.PROBABLE : ANALYZER_CONFIDENCE.EXACT, line: 0,
+    title: 'Helper-generated UnitDef',
+    detail: `${recipe.helperName} creates ${recipe.newId}${recipe.sourceId ? ` from ${recipe.sourceId}` : ''}${recipe.computed ? ' with computed helper logic' : ''}.`,
+    unitIds: [recipe.sourceId, recipe.newId].filter(Boolean), convertible: false,
+  }));
+  if (buildMenuConversions.length) findings.push({
+    id: findingId('build-menu', 0, String(buildMenuConversions.length)),
+    kind: 'build-menu', confidence: ANALYZER_CONFIDENCE.EXACT, line: 0,
+    title: 'Literal build-menu operations',
+    detail: `${buildMenuConversions.length} add or remove operation${buildMenuConversions.length === 1 ? '' : 's'} resolved.`,
+    convertible: true,
+  });
+  const astCustomParameters = collectAstCustomParameterKeys(ast);
+  const allCustomParameters = unique([...customParameters, ...mergeAnalysis.customParameters, ...astCustomParameters]);
+  const unknownCustomParameters = allCustomParameters.filter(key => (
+    !SUPPORTED_UNIT_CUSTOM_PARAMS.has(key)
+    && !SUPPORTED_WEAPON_CUSTOM_PARAMS.has(key)
+    && !UNIT_CUSTOM_TO_EDITOR_KEY.has(key)
+  ));
+  if (allCustomParameters.length) findings.push({
+    id: findingId('custom-parameters', 0, allCustomParameters.join(',')),
+    kind: 'custom-parameters', confidence: ANALYZER_CONFIDENCE.EXACT, line: 0,
+    title: 'Custom parameter schema',
+    detail: `${allCustomParameters.length} literal key${allCustomParameters.length === 1 ? '' : 's'} recognized; ${unknownCustomParameters.length} remain inspection-only.`,
+    customParameters: allCustomParameters, unknownCustomParameters, convertible: false,
+  });
+  return {
+    findings: [...new Map(findings.map(finding => [finding.id, finding])).values()],
+    customParameters: allCustomParameters,
+    unknownCustomParameters,
   };
 }
 
@@ -723,7 +1120,7 @@ export function analyzeTweakModule(module) {
   let parseError = null;
   let ast = null;
   try {
-    const parseSource = module?.kind === 'units' && /^\s*\{/.test(source) ? `return ${source}` : source;
+    const parseSource = module?.kind === 'units' ? wrapBareTableSource(source) : source;
     ast = luaparse.parse(parseSource, { luaVersion: '5.1', locations: true, comments: false });
   } catch (error) {
     parseError = error.message;
@@ -813,9 +1210,11 @@ export function analyzeTweakModule(module) {
   const literalTable = module?.kind === 'units'
     ? extractLiteralUnitConversions(source)
     : { conversions: [], unitCount: 0, unitIds: [], weaponDefCount: 0, supportingWeaponDefs: [] };
+  const mergeAnalysis = analyzeMergeStructures(ast);
   const directSupportingWeaponDefs = module?.kind === 'defs' ? extractDirectSupportingWeaponDefs(ast) : [];
   const supportingWeaponDefs = [...new Map([
     ...literalTable.supportingWeaponDefs,
+    ...mergeAnalysis.supportingWeaponDefs,
     ...directSupportingWeaponDefs,
   ].map(definition => {
     const id = `support_${String(module?.contentHash || module?.id || 'module').replace(/[^a-z0-9_]/gi, '_').toLowerCase()}_${definition.ownerUnitId}_${definition.key}`;
@@ -835,6 +1234,7 @@ export function analyzeTweakModule(module) {
     ...buildMenuConversions,
     ...parameterConversions,
     ...literalTable.conversions,
+    ...mergeAnalysis.conversions,
     ...supportingWeaponDefConversions,
   ];
   const dedupedConversions = [...new Map(conversions.map(conversion => [JSON.stringify(conversion), conversion])).values()];
@@ -846,24 +1246,41 @@ export function analyzeTweakModule(module) {
     if (conversion.type === 'supporting-weapondef') return [conversion.weaponDef?.ownerUnitId];
     return [];
   });
+  const v2 = buildAnalyzerFindings({
+    source,
+    ast,
+    literalTable,
+    mergeAnalysis,
+    helperAnalysis,
+    cloneConversions: [...cloneConversions, ...helperCloneConversions],
+    buildMenuConversions,
+    customParameters,
+  });
+  const confidenceCounts = Object.values(ANALYZER_CONFIDENCE).reduce((counts, confidence) => ({
+    ...counts,
+    [confidence]: v2.findings.filter(finding => finding.confidence === confidence).length,
+  }), {});
   return {
+    analyzerVersion: 2,
     parseError,
     decodedBytes: byteLength(source),
-    createdUnits: unique(created),
+    createdUnits: unique([...created, ...mergeAnalysis.definedUnits]),
     referencedUnits: unique([
       ...unitReferences, ...dotReferences, ...literalTable.unitIds,
+      ...mergeAnalysis.referencedUnits,
       ...helperAnalysis.recipes.map(recipe => recipe.sourceId),
       ...conversionUnitReferences,
-    ]).filter(unitId => !created.includes(unitId)),
+    ]).filter(unitId => ![...created, ...mergeAnalysis.definedUnits].includes(unitId)),
     unitReferenceDetails,
-    customParameters: unique(customParameters),
+    customParameters: v2.customParameters,
+    unknownCustomParameters: v2.unknownCustomParameters,
     weaponCustomParameters: supportedWeaponParams,
-    weaponChanges: (source.match(/\.weapondefs|\[\s*["'][a-z0-9_]+["']\s*\]\.weapons/gi) || []).length + literalTable.weaponDefCount,
+    weaponChanges: (source.match(/\.weapondefs|\[\s*["'][a-z0-9_]+["']\s*\]\.weapons/gi) || []).length + literalTable.weaponDefCount + mergeAnalysis.literalWeaponDefinitions,
     buildMenuOperations: dedupedConversions.filter(conversion => (
       conversion.type === 'build-add' || conversion.type === 'build-remove' || conversion.type === 'build-roster'
     )).length,
-    literalUnitTables: literalTable.unitCount,
-    literalWeaponDefinitions: literalTable.weaponDefCount,
+    literalUnitTables: literalTable.unitCount + mergeAnalysis.literalUnitTables,
+    literalWeaponDefinitions: literalTable.weaponDefCount + mergeAnalysis.literalWeaponDefinitions,
     supportingWeaponDefs,
     helpers: helperAnalysis.helpers,
     recipes: helperAnalysis.recipes,
@@ -872,6 +1289,8 @@ export function analyzeTweakModule(module) {
     runtimeRisks,
     assetReferences,
     conversions: dedupedConversions,
+    findings: v2.findings,
+    confidenceCounts,
   };
 }
 
@@ -1022,6 +1441,12 @@ export function analyzeTweakPackage(modules, options = {}) {
   const runtimeRisks = moduleList.flatMap(module => analyses.get(module.id).runtimeRisks.map(risk => ({ ...risk, moduleId: module.id })));
   const runtimeRiskCount = runtimeRisks.reduce((total, risk) => total + risk.count, 0);
   const assetReferences = moduleList.flatMap(module => analyses.get(module.id).assetReferences.map(reference => ({ ...reference, moduleId: module.id })));
+  const findings = moduleList.flatMap(module => analyses.get(module.id).findings.map(finding => ({ ...finding, moduleId: module.id })));
+  const confidenceCounts = Object.values(ANALYZER_CONFIDENCE).reduce((counts, confidence) => ({
+    ...counts,
+    [confidence]: findings.filter(finding => finding.confidence === confidence).length,
+  }), {});
+  const unknownCustomParameters = unique(moduleList.flatMap(module => analyses.get(module.id).unknownCustomParameters));
   const moduleReports = moduleList.map(module => ({
     moduleId: module.id,
     dependencies: edges.filter(edge => edge.from === module.id),
@@ -1033,6 +1458,7 @@ export function analyzeTweakPackage(modules, options = {}) {
     typeIssues: typeIssues.filter(issue => issue.moduleId === module.id),
     runtimeRisks: runtimeRisks.filter(risk => risk.moduleId === module.id),
     assetReferences: assetReferences.filter(reference => reference.moduleId === module.id),
+    findings: findings.filter(finding => finding.moduleId === module.id),
   }));
   const blockingIssues = [
     ...moduleList.filter(module => module.enabled && analyses.get(module.id).parseError).map(module => ({ code: 'syntax', moduleIds: [module.id] })),
@@ -1053,6 +1479,9 @@ export function analyzeTweakPackage(modules, options = {}) {
     runtimeRisks,
     runtimeRiskCount,
     assetReferences,
+    findings,
+    confidenceCounts,
+    unknownCustomParameters,
     blockingIssues,
     moduleReports,
     recipes: moduleList.flatMap(module => analyses.get(module.id).recipes.map(recipe => ({ ...recipe, moduleId: module.id }))),
