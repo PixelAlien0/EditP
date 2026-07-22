@@ -216,6 +216,46 @@ test('BAR Reference Library unifies definitions, assets, reverse usage, and edit
   await expect(page.locator('.editor-unit-header')).toContainText('Abductor');
 });
 
+test('editor header stays grouped and usable across supported desktop widths', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  for (const width of [1920, 1440, 1180, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    const geometry = await page.locator('.app-header').evaluate(header => {
+      const bounds = selector => header.querySelector(selector).getBoundingClientRect();
+      const brand = bounds('.header-brand-group');
+      const workflow = bounds('.workflow-nav');
+      const actions = bounds('.header-utility-actions');
+      return {
+        headerRight: header.getBoundingClientRect().right,
+        brandRight: brand.right,
+        workflowLeft: workflow.left,
+        workflowRight: workflow.right,
+        actionsLeft: actions.left,
+        actionsRight: actions.right,
+      };
+    });
+
+    expect(geometry.brandRight).toBeLessThanOrEqual(geometry.workflowLeft + 1);
+    expect(geometry.workflowRight).toBeLessThanOrEqual(geometry.actionsLeft + 1);
+    expect(geometry.actionsRight).toBeLessThanOrEqual(geometry.headerRight + 1);
+    await expect(page.getByRole('button', { name: /^Tools/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Build Menus/i })).toBeVisible();
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  const menu = page.getByRole('menu', { name: 'Editor tools' });
+  await expect(menu).toBeVisible();
+  await expect(menu.getByText('Quick access', { exact: true })).toBeVisible();
+  await expect(menu.getByText('Editing tools', { exact: true })).toBeVisible();
+  await expect(menu.getByText('Packages & references', { exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
+});
+
 test('Tweak Package Lab imports inert modules and exposes numbered slots', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();

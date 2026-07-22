@@ -222,19 +222,14 @@
 /* Presence remains quiet brand metadata in the editor header. */
 .app-header .header-brand-group {
   min-width: 0;
-  display: grid !important;
-  grid-template-columns: max-content;
-  grid-template-rows: auto auto;
-  align-content: center;
+  display: flex !important;
   align-items: center;
-  gap: 1px !important;
+  gap: var(--space-2) !important;
 }
 
 .app-header .header-brand-group .header-brand {
-  width: max-content;
+  width: auto;
   min-width: 0;
-  grid-column: 1;
-  grid-row: 1;
 }
 
 .app-header .header-brand-group .brand-text {
@@ -246,15 +241,14 @@
 }
 
 .app-header .header-brand-group .online-presence {
-  margin-left: 44px;
-  grid-column: 1;
-  grid-row: 2;
-  justify-self: start;
+  flex: 0 0 auto;
+  padding-left: var(--space-2);
+  border-left: 1px solid var(--color-border);
 }
 
 .app-header .online-presence.is-compact .online-presence__trigger {
   min-height: 22px;
-  padding-inline: 7px;
+  padding-inline: 5px;
   gap: 5px;
   border-color: transparent;
   background: transparent;
@@ -293,7 +287,7 @@
 
 @media (max-width: 1180px) {
   .app-header .header-brand-group .online-presence {
-    display: inline-flex;
+    display: none;
   }
 
   .app-header .online-presence.is-compact .online-presence__wording,

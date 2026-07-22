@@ -41,21 +41,6 @@ body {
   width: 100vw;
   overflow: hidden;
 }
-.app-header {
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-.brand-section {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-md);
-}
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-sm);
-}
 .main-layout {
   display: flex;
   flex: 1;
@@ -140,14 +125,6 @@ body {
   color: inherit;
   font: inherit;
   text-align: left;
-}
-.app-header {
-  position: relative;
-  z-index: var(--z-dropdown);
-  overflow: visible;
-}
-.app-header .header-tools {
-  z-index: var(--z-dropdown);
 }
 .main-layout,
 .changes-drawer {

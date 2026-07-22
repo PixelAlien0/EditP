@@ -72,6 +72,13 @@ const LazyBehaviorInterceptorEditor = lazy(() => import('./components/editor/Beh
 const WEAPON_LAB_ENABLED = false;
 const SHOW_LEGACY_REVIEW_REFERENCE = false;
 
+const HEADER_WORKSPACES = Object.freeze([
+  { id: 'edit', step: '01', label: 'Edit Units' },
+  { id: 'collections', step: '02', label: 'Collections' },
+  { id: 'designer', step: '03', label: 'Build Menus' },
+  { id: 'review', step: '04', label: 'Review & Export' },
+]);
+
 const WEAPON_ASSET_TYPES = Object.freeze({
   cegTag: 'ceg', explosiongenerator: 'ceg', model: 'projectileModel',
   soundstart: 'sound', soundhit: 'sound', soundhitwet: 'sound', soundhitdry: 'sound',
@@ -2624,42 +2631,24 @@ export default function App() {
         </div>
 
         <nav className="workflow-nav" aria-label="Editor workflow">
-          <button
-            className={activeWorkspace === 'edit' ? 'active' : ''}
-            aria-current={activeWorkspace === 'edit' ? 'page' : undefined}
-            onClick={() => setActiveWorkspace('edit')}
-          >
-            <span className="workflow-nav__step">01</span>
-            <span className="workflow-nav__label">Edit Units</span>
-          </button>
-          <button
-            className={activeWorkspace === 'collections' ? 'active' : ''}
-            aria-current={activeWorkspace === 'collections' ? 'page' : undefined}
-            onClick={() => { setShowDesignerPanel(false); setActiveWorkspace('collections'); }}
-          >
-            <span className="workflow-nav__step">02</span>
-            <span className="workflow-nav__label">Collections</span>
-          </button>
-          <button
-            className={activeWorkspace === 'designer' ? 'active' : ''}
-            aria-current={activeWorkspace === 'designer' ? 'page' : undefined}
-            onClick={() => { setShowDesignerPanel(true); setActiveWorkspace('designer'); }}
-          >
-            <span className="workflow-nav__step">03</span>
-            <span className="workflow-nav__label">Build Menus</span>
-          </button>
-          <button
-            className={activeWorkspace === 'review' ? 'active' : ''}
-            aria-current={activeWorkspace === 'review' ? 'page' : undefined}
-            onClick={() => setActiveWorkspace('review')}
-          >
-            <span className="workflow-nav__step">04</span>
-            <span className="workflow-nav__label">Review &amp; Export</span>
-          </button>
+          {HEADER_WORKSPACES.map(workspace => (
+            <button
+              key={workspace.id}
+              className={activeWorkspace === workspace.id ? 'active' : ''}
+              aria-current={activeWorkspace === workspace.id ? 'page' : undefined}
+              onClick={() => {
+                setShowDesignerPanel(workspace.id === 'designer');
+                setActiveWorkspace(workspace.id);
+              }}
+            >
+              <span className="workflow-nav__step">{workspace.step}</span>
+              <span className="workflow-nav__label">{workspace.label}</span>
+            </button>
+          ))}
         </nav>
 
         <div className="header-actions header-utility-actions">
-          <div className="header-control-cluster">
+          <div className="header-control-cluster" role="group" aria-label="Navigation, appearance, and history">
           <Button
             variant="quiet"
             className="btn-action btn-secondary header-menu-action"
@@ -2687,6 +2676,8 @@ export default function App() {
             <IconButton variant="quiet" size="sm" label="Undo" onClick={handleUndo} disabled={historyPast.length === 0} title="Undo (Ctrl+Z)">↶</IconButton>
             <IconButton variant="quiet" size="sm" label="Redo" onClick={handleRedo} disabled={historyFuture.length === 0} title="Redo (Ctrl+Y)">↷</IconButton>
           </ButtonGroup>
+          </div>
+          <div className="header-collaboration-actions" role="group" aria-label="Community and project information">
           <Button
             variant="quiet"
             className="btn-action btn-secondary header-credits-action"
@@ -2748,23 +2739,59 @@ export default function App() {
           <div className="header-tools" ref={toolsMenuRef}>
             <Button
               className="btn-action btn-secondary header-tools-trigger"
+              aria-label="Tools"
+              aria-haspopup="menu"
               aria-expanded={showToolsMenu}
               aria-controls="header-tools-menu"
               onClick={() => setShowToolsMenu(open => !open)}
             >
-              Tools <span aria-hidden="true">⌄</span>
+              <svg className="header-action-icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M3 4.25h10M5.5 8h5M7 11.75h2" />
+              </svg>
+              <span>Tools</span>
+              <span className="header-tools-chevron" aria-hidden="true">⌄</span>
             </Button>
             {showToolsMenu && (
               <div className="header-tools-menu" id="header-tools-menu" role="menu" aria-label="Editor tools">
-                <button type="button" role="menuitem" onClick={() => { setShowCommandPalette(true); setShowToolsMenu(false); }}>Command Palette <span aria-hidden="true">Ctrl K</span></button>
-                <button type="button" role="menuitem" onClick={() => { setShowProjectCheckpoints(true); setShowToolsMenu(false); }}>Project Checkpoints</button>
-                <button type="button" role="menuitem" onClick={() => { setActiveWorkspace('collections'); setShowToolsMenu(false); }}>Collections</button>
-                <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>Batch Adjust</button>
-                <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>Preset Gallery</button>
-                <button type="button" role="menuitem" onClick={() => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); setShowToolsMenu(false); }}>Tweak Package Lab</button>
-                <button type="button" role="menuitem" onClick={() => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('reference-library'); setShowToolsMenu(false); }}>BAR Reference Library</button>
-                {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}>Weapon Lab</button>}
-                <button type="button" role="menuitem" onClick={() => { setShowRandomPanel(true); setShowToolsMenu(false); }}>Mutation Lab</button>
+                <div className="header-tools-menu__intro">
+                  <span className="header-tools-menu__eyebrow">Workbench</span>
+                  <strong>Editor tools</strong>
+                  <small>Utilities, saved states, and BAR references.</small>
+                </div>
+                <div className="header-tools-menu__group" aria-label="Quick access">
+                  <span className="header-tools-menu__group-label">Quick access</span>
+                  <button type="button" role="menuitem" onClick={() => { setShowCommandPalette(true); setShowToolsMenu(false); }}>
+                    <span><strong>Command Palette</strong><small>Search actions and workspaces</small></span><kbd>Ctrl K</kbd>
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => { setShowProjectCheckpoints(true); setShowToolsMenu(false); }}>
+                    <span><strong>Project Checkpoints</strong><small>Save and restore named states</small></span>
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => { setShowDesignerPanel(false); setActiveWorkspace('collections'); setShowToolsMenu(false); }}>
+                    <span><strong>Collections</strong><small>Organize reusable unit scopes</small></span>
+                  </button>
+                </div>
+                <div className="header-tools-menu__group" aria-label="Editing tools">
+                  <span className="header-tools-menu__group-label">Editing tools</span>
+                  <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>
+                    <span><strong>Batch Adjust</strong><small>Apply controlled changes across units</small></span>
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>
+                    <span><strong>Preset Gallery</strong><small>Apply or save project snapshots</small></span>
+                  </button>
+                  {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}><span><strong>Weapon Lab</strong><small>Develop custom weapon blueprints</small></span></button>}
+                  <button type="button" role="menuitem" onClick={() => { setShowRandomPanel(true); setShowToolsMenu(false); }}>
+                    <span><strong>Mutation Lab</strong><small>Generate deliberate random adjustments</small></span>
+                  </button>
+                </div>
+                <div className="header-tools-menu__group" aria-label="Package and reference tools">
+                  <span className="header-tools-menu__group-label">Packages &amp; references</span>
+                  <button type="button" role="menuitem" onClick={() => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); setShowToolsMenu(false); }}>
+                    <span><strong>Tweak Package Lab</strong><small>Inspect community Lua safely</small></span>
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('reference-library'); setShowToolsMenu(false); }}>
+                    <span><strong>BAR Reference Library</strong><small>Search definitions and assets</small></span>
+                  </button>
+                </div>
                 <div className="header-tools-menu-project-actions" role="group" aria-label="Project files">
                   <button type="button" onClick={() => { handleExportConfig(); setShowToolsMenu(false); }}>Save Project</button>
                   <label>
@@ -2782,10 +2809,16 @@ export default function App() {
               onClick={handleExportConfig}
               title="Download your configuration profile locally"
             >
-              Save Project
+              <svg className="header-action-icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M3 2.5h8.25L13.5 4.75v8.75h-11v-11Z" /><path d="M5 2.5v4h5v-4M5 13.5V9h6v4.5" />
+              </svg>
+              <span>Save Project</span>
             </Button>
             <FileButton className="btn-action btn-secondary header-file-action" title="Upload an exported .json config" accept=".json" onChange={handleImportConfig}>
-              Load Project
+              <svg className="header-action-icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 2.25v7.5M5.25 7 8 9.75 10.75 7" /><path d="M2.5 10.5v3h11v-3" />
+              </svg>
+              <span>Load Project</span>
             </FileButton>
           </div>
         </div>

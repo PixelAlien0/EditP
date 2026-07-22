@@ -1,85 +1,104 @@
-/* Header primary action — clear priority without becoming a separate visual system. */
-.app-header .header-utility-actions .header-create-action {
-  min-width: 104px;
-  padding-inline: 11px;
-  display: inline-flex;
+/* Canonical editor header: brand, workflow, collaboration, creation, and project actions. */
+.app-header {
+  position: relative;
+  z-index: var(--z-dropdown);
+  min-height: var(--header-height);
+  height: var(--header-height);
+  padding: 0 clamp(14px, 1.35vw, 26px) !important;
+  display: grid !important;
+  grid-template-columns: minmax(190px, 236px) minmax(370px, 1fr) auto !important;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border-color: var(--color-border-accent-muted) !important;
-  background: var(--color-surface-accent-subtle) !important;
-  color: var(--color-accent-strong) !important;
-  font-weight: 700;
-  letter-spacing: .02em;
+  gap: clamp(10px, 1.15vw, 22px) !important;
+  overflow: visible;
+  border-bottom: 1px solid var(--color-border) !important;
+  background: var(--color-surface) !important;
+  box-shadow: 0 3px 16px color-mix(in srgb, var(--color-text-strong) 5%, transparent) !important;
 }
 
-.app-header .header-create-icon {
-  width: 14px;
-  height: 14px;
-  flex: 0 0 auto;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.25;
-}
-
-.app-header .header-create-action:hover:not(:disabled) {
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-accent-strong) !important;
-}
-
-.app-header .header-create-action:active:not(:disabled) {
-  background: var(--color-surface-hover) !important;
-}
-
-@media (max-width: 1180px) {
-  .app-header .header-utility-actions .header-create-action {
-    min-width: 0;
-    padding-inline: 9px;
-  }
-}
-
-/* Workflow navigation — compact progress cues rather than a second row of buttons. */
-.app-header .workflow-nav {
-  height: auto;
+.app-header .header-brand {
   min-width: 0;
   padding: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
+  gap: 10px;
   border: 0;
-  border-radius: 0;
-  background: transparent !important;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-header .app-logo {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  padding: 5px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle) !important;
+  box-shadow: none;
+}
+
+.app-header .brand-text {
+  min-width: 0;
+}
+
+.app-header .brand-kicker {
+  color: var(--color-accent-strong);
+  font: 700 8px/1.15 var(--font-mono);
+  letter-spacing: .17em;
+}
+
+.app-header .brand-text h1 {
+  color: var(--color-text-strong);
+  font: 600 20px/1.05 var(--font-display);
+  letter-spacing: -.018em;
+}
+
+/* Workflow is a single quiet segmented rail. */
+.app-header .workflow-nav {
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 4px;
+  justify-self: center;
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle) !important;
 }
 
 .app-header .workflow-nav button {
   min-width: 0;
-  min-height: var(--control-height-md);
-  padding: 0 var(--space-3);
+  min-height: 36px;
+  padding: 0 12px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 7px;
   border: 1px solid transparent !important;
   border-radius: var(--radius-sm) !important;
   background: transparent !important;
-  color: var(--color-text-muted) !important;
   box-shadow: none !important;
-  font: 650 var(--font-size-xs)/var(--line-height-ui) var(--font-ui) !important;
+  color: var(--color-text-muted) !important;
+  font: 650 9px/1 var(--font-ui) !important;
   letter-spacing: .01em;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .app-header .workflow-nav__step {
-  min-width: 18px;
-  color: var(--color-text-muted) !important;
-  font: 700 9px/1 var(--font-mono) !important;
-  letter-spacing: .04em;
+  min-width: 17px;
+  color: var(--color-text-faint) !important;
+  font: 700 8px/1 var(--font-mono) !important;
+  letter-spacing: .06em;
 }
 
 .app-header .workflow-nav__label {
   color: inherit !important;
+  font: inherit !important;
 }
 
 .app-header .workflow-nav button:hover {
@@ -89,21 +108,388 @@
 
 .app-header .workflow-nav button.active {
   border-color: var(--color-border-accent-muted) !important;
-  background: var(--color-surface-accent-subtle) !important;
+  background: var(--color-surface) !important;
   color: var(--color-text-strong) !important;
+  box-shadow: 0 1px 5px color-mix(in srgb, var(--color-text-strong) 6%, transparent) !important;
 }
 
 .app-header .workflow-nav button.active .workflow-nav__step {
   color: var(--color-accent-strong) !important;
 }
 
-@media (max-width: 1180px) {
-  .app-header .workflow-nav {
-    justify-self: center;
+/* Utilities use small trays so unrelated actions no longer read as one long button row. */
+.app-header .header-utility-actions {
+  min-width: 0;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.app-header :is(.header-control-cluster, .header-collaboration-actions, .header-project-actions) {
+  min-height: 40px;
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+}
+
+.app-header .header-control-cluster {
+  padding-right: 3px;
+}
+
+.app-header .header-control-cluster .history-controls {
+  padding-left: 3px;
+  display: flex;
+  gap: 1px;
+  border: 0;
+  border-left: 1px solid var(--color-border);
+}
+
+.app-header .header-utility-actions :is(.btn-action, .theme-toggle, .history-controls button) {
+  min-height: 32px;
+  height: 32px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid transparent !important;
+  border-radius: var(--radius-sm) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--color-text-muted) !important;
+  font: 650 9px/1 var(--font-ui) !important;
+  letter-spacing: .01em !important;
+  text-transform: none !important;
+}
+
+.app-header .header-utility-actions .history-controls button {
+  width: 30px;
+  min-width: 30px;
+  padding: 0;
+  font-size: 14px !important;
+}
+
+.app-header .header-utility-actions .history-controls button:disabled {
+  opacity: .34;
+}
+
+.app-header .header-utility-actions :is(.btn-action, .theme-toggle, .history-controls button):hover:not(:disabled) {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-hover) !important;
+  color: var(--color-text-strong) !important;
+}
+
+.app-header .header-utility-actions :is(button, label):focus-visible {
+  position: relative;
+  z-index: 2;
+  outline: 2px solid var(--color-focus-ring) !important;
+  outline-offset: 2px;
+}
+
+.app-header .header-menu-action svg,
+.app-header .header-action-icon,
+.app-header .header-chat-action svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.app-header .theme-toggle-mark {
+  color: var(--color-accent-strong);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.app-header .header-credits-icon {
+  width: 15px;
+  height: 15px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font: 700 9px/1 var(--font-display);
+}
+
+.app-header .header-utility-actions .header-create-action {
+  min-width: 108px;
+  min-height: 40px;
+  height: 40px;
+  padding-inline: 12px;
+  border-color: var(--color-border-accent-muted) !important;
+  background: var(--color-surface-accent-subtle) !important;
+  color: var(--color-accent-strong) !important;
+  font-weight: 720 !important;
+}
+
+.app-header .header-create-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.25;
+}
+
+.app-header .header-utility-actions .header-create-action:hover:not(:disabled) {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+.app-header .header-tools {
+  position: relative;
+}
+
+.app-header .header-utility-actions .header-tools-trigger {
+  min-height: 40px;
+  height: 40px;
+  padding-inline: 10px;
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-subtle) !important;
+  color: var(--color-text) !important;
+}
+
+.app-header .header-tools-trigger[aria-expanded='true'] {
+  border-color: var(--color-border-accent-muted) !important;
+  background: var(--color-surface-accent-subtle) !important;
+  color: var(--color-accent-strong) !important;
+}
+
+.app-header .header-tools-chevron {
+  margin-left: 1px;
+  color: var(--color-text-faint);
+  font-size: 12px;
+  transition: transform var(--motion-fast);
+}
+
+.app-header .header-tools-trigger[aria-expanded='true'] .header-tools-chevron {
+  transform: rotate(180deg);
+}
+
+.app-header .header-project-actions {
+  gap: 0;
+}
+
+.app-header .header-project-actions .header-file-action {
+  cursor: pointer;
+}
+
+.app-header .header-project-actions .header-file-action + .header-file-action {
+  border-left-color: var(--color-border) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.app-header .header-project-actions .header-file-action:first-child {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.app-header .header-project-actions input,
+.app-header .header-tools-menu input {
+  display: none;
+}
+
+/* Grouped tool launcher. */
+.app-header .header-tools-menu {
+  width: min(330px, calc(100vw - 24px));
+  max-height: calc(100dvh - var(--header-height) - 16px);
+  padding: 8px;
+  position: absolute;
+  z-index: 120;
+  inset-block-start: calc(100% + 8px);
+  inset-inline-end: 0;
+  display: grid;
+  gap: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-float);
+}
+
+.app-header .header-tools-menu__intro {
+  padding: 7px 8px 9px;
+  display: grid;
+  gap: 3px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header .header-tools-menu__eyebrow,
+.app-header .header-tools-menu__group-label {
+  color: var(--color-accent-strong);
+  font: 700 8px/1.2 var(--font-mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.app-header .header-tools-menu__intro > strong {
+  color: var(--color-text-strong);
+  font: 600 18px/1.15 var(--font-display);
+}
+
+.app-header .header-tools-menu__intro > small {
+  color: var(--color-text-muted);
+  font: 500 9px/1.45 var(--font-ui);
+}
+
+.app-header .header-tools-menu__group {
+  display: grid;
+  gap: 2px;
+}
+
+.app-header .header-tools-menu__group-label {
+  padding: 4px 8px 3px;
+  color: var(--color-text-faint);
+}
+
+.app-header .header-tools-menu button,
+.app-header .header-tools-menu label {
+  width: 100%;
+  min-height: 44px;
+  padding: 7px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-header .header-tools-menu button > span:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.app-header .header-tools-menu button strong {
+  color: var(--color-text-strong);
+  font: 650 10px/1.25 var(--font-ui);
+}
+
+.app-header .header-tools-menu button small {
+  color: var(--color-text-muted);
+  font: 500 8px/1.35 var(--font-ui);
+}
+
+.app-header .header-tools-menu kbd {
+  padding: 4px 5px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  font: 600 8px/1 var(--font-mono);
+}
+
+.app-header .header-tools-menu :is(button, label):hover,
+.app-header .header-tools-menu :is(button, label):focus-visible,
+.app-header .header-tools-menu label:focus-within {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
+  outline: 0;
+}
+
+.app-header .header-tools-menu-project-actions {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border);
+}
+
+.app-header .header-tools-menu-project-actions :is(button, label) {
+  min-height: 34px;
+  justify-content: center;
+  border-color: var(--color-border);
+  color: var(--color-text-strong);
+  font: 650 9px/1 var(--font-ui);
+}
+
+@media (max-width: 1640px) {
+  .app-header {
+    grid-template-columns: minmax(178px, 212px) minmax(350px, 1fr) auto !important;
+  }
+
+  .app-header .header-utility-actions {
+    gap: 4px;
   }
 
   .app-header .workflow-nav button {
-    padding-inline: var(--space-2);
+    padding-inline: 9px;
+  }
+
+  .app-header .header-menu-label,
+  .app-header .header-credits-label,
+  .app-header .header-chat-label {
+    display: none;
+  }
+
+  .app-header .header-menu-action,
+  .app-header .header-credits-action,
+  .app-header .header-chat-action {
+    width: 32px;
+    padding-inline: 0 !important;
+  }
+}
+
+@media (max-width: 1420px) {
+  .app-header {
+    grid-template-columns: minmax(158px, 188px) minmax(318px, 1fr) auto !important;
+    gap: 8px !important;
+  }
+
+  .app-header .brand-kicker,
+  .app-header .workflow-nav__step,
+  .app-header .header-project-actions .header-file-action span {
+    display: none;
+  }
+
+  .app-header .workflow-nav button {
+    padding-inline: 8px;
+  }
+
+  .app-header .header-project-actions .header-file-action {
+    width: 32px;
+    padding-inline: 0;
+  }
+}
+
+@media (max-width: 1180px) {
+  .app-header {
+    grid-template-columns: 54px minmax(300px, 1fr) auto !important;
+  }
+
+  .app-header .brand-text,
+  .app-header .header-collaboration-actions,
+  .app-header .header-project-actions {
+    display: none;
+  }
+
+  .app-header .header-tools-menu-project-actions {
+    display: grid;
+  }
+
+  .app-header .workflow-nav button {
+    padding-inline: 7px;
   }
 
   .app-header .workflow-nav__step {
@@ -113,14 +499,60 @@
   .app-header .workflow-nav__label {
     display: inline !important;
   }
-}
 
-@media (max-width: 1080px) {
-  .app-header .workflow-nav button {
-    padding-inline: 7px;
+  .app-header .header-utility-actions .header-create-action {
+    min-width: 40px;
+    width: 40px;
+    padding-inline: 0;
   }
 
-  .app-header .workflow-nav__label {
-    display: inline !important;
+  .app-header .header-create-label,
+  .app-header .theme-toggle > span:last-child,
+  .app-header .header-tools-trigger > span:nth-child(2) {
+    display: none;
+  }
+
+  .app-header .header-utility-actions .theme-toggle,
+  .app-header .header-utility-actions .header-tools-trigger {
+    width: 34px;
+    padding-inline: 0;
+  }
+
+  .app-header .header-tools-chevron {
+    display: none;
+  }
+}
+
+@media (max-width: 1060px) {
+  .app-header {
+    padding-inline: 10px !important;
+    grid-template-columns: 44px minmax(292px, 1fr) auto !important;
+    gap: 6px !important;
+  }
+
+  .app-header .app-logo {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .app-header .header-control-cluster .history-controls {
+    display: none;
+  }
+
+  .app-header .header-control-cluster {
+    display: inline-flex;
+  }
+
+  .app-header .header-menu-action,
+  .app-header .theme-toggle {
+    width: 32px;
+    padding-inline: 0 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-header .header-tools-chevron {
+    transition: none;
   }
 }
