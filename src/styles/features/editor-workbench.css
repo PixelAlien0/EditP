@@ -627,7 +627,6 @@
 .parameter-card--compact.modified { background: var(--color-surface-accent-subtle) !important; }
 .parameter-card--compact .stat-card-label { margin: 0 !important; }
 .parameter-card--compact .stat-card-input-wrapper { min-width: 0; }
-.parameter-card--compact .before-after-value { grid-column: 1 / -1; }
 
 .editor-inspector {
   min-width: 0;

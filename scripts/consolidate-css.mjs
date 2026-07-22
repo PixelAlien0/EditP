@@ -13,6 +13,7 @@ const stylesheetOrder = [
   'src/styles/features/clone-creator.css',
   'src/styles/features/build-menu.css',
   'src/styles/features/editor-parameters.css',
+  'src/styles/features/parameter-guidance.css',
   'src/styles/features/credits.css',
   'src/styles/features/header.css',
   'src/styles/features/project-changes.css',
@@ -47,6 +48,10 @@ const legacyOwnershipMigrations = [
       '.unit-profile-', '.unit-efficiency-', '.unit-weapon-', '.unit-slot-',
       '.unit-trajectory-', '.clone-identity-',
     ],
+  },
+  {
+    document: 'src/index.css',
+    selectors: ['.stat-card-default-pill'],
   },
 ]
 

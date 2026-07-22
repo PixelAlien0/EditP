@@ -1056,21 +1056,6 @@ body {
   letter-spacing: 0.025em;
 }
 
-.stat-card.modified .stat-card-default-pill {
-  min-width: 42px;
-  min-height: 28px;
-  border-color: rgba(215, 197, 172, 0.10);
-  background: transparent;
-  color: #8d8071;
-  text-align: center;
-}
-
-.stat-card.modified .stat-card-default-pill:hover {
-  border-color: rgba(168, 125, 82, 0.42);
-  background: rgba(168, 125, 82, 0.08);
-  color: #d6c2a4;
-}
-
 /* Keep the card shell identical before and after editing. */
 .stat-card.modified,
 .stat-card.modified:hover {
@@ -1086,11 +1071,6 @@ body {
 .stat-card.modified::before {
   background: transparent;
   opacity: 0;
-}
-
-.stat-card--compact .stat-card-default-pill {
-  padding: 1px 4px;
-  font-size: 7px;
 }
 
 .stat-card-label {
@@ -1172,19 +1152,6 @@ input[type="checkbox"]::after {
 input[type="checkbox"]:checked::after {
   left: 15px;
   background: #100e0a;
-}
-
-.stat-card-default-pill {
-  text-transform: uppercase;
-  font-weight: 700;
-  cursor: pointer;
-  user-select: none;
-  border: 1px solid var(--b0);
-  border-radius: 2px;
-  padding: 3px 6px;
-  background: transparent;
-  flex-shrink: 0;
-  transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .stat-card-diff {
@@ -3310,9 +3277,6 @@ select:focus-visible,
 }
 
 /* Selected-unit dossier header */
-.editor-workspace {
-  container-type: inline-size;
-}
 
 .unit-source-badge,
 .clone-badge {
@@ -3422,7 +3386,6 @@ select:focus-visible,
 
 .stat-card {
   min-height: 108px;
-  padding: 14px !important;
   gap: 10px;
   border-color: var(--b0);
   border-radius: 5px;
@@ -3456,20 +3419,6 @@ select:focus-visible,
 .stat-card-input:hover,
 .stat-card-input:focus {
   border-color: var(--b-a);
-}
-
-.stat-card-default-pill {
-  min-height: 27px;
-  border-color: var(--b1);
-  color: var(--t2);
-  font-size: 9px;
-  letter-spacing: 0.04em;
-}
-
-.stat-card-default-pill:hover {
-  color: var(--t0);
-  border-color: var(--b-a);
-  background: rgba(168, 125, 82, 0.08);
 }
 
 .stat-card--compact {
@@ -4562,25 +4511,6 @@ select:focus-visible,
   opacity: 0.85;
 }
 
-.stat-card-default-pill {
-  min-height: 28px;
-  padding: 5px 7px;
-  border: 1px solid rgba(215, 197, 172, 0.09);
-  border-radius: 4px;
-  background: rgba(19, 17, 13, 0.36);
-  color: #827367;
-  font-family: var(--font-ui);
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: 0.045em;
-}
-
-.stat-card-default-pill:hover {
-  border-color: rgba(168, 125, 82, 0.44);
-  background: rgba(168, 125, 82, 0.10);
-  color: #d9c6aa;
-}
-
 .stat-card-diff {
   padding: 3px 6px;
   border-radius: 999px;
@@ -4662,11 +4592,6 @@ select:focus-visible,
   border-color: rgba(168, 125, 82, 0.38);
   background: rgba(168, 125, 82, 0.11);
   color: #d1b58d;
-}
-
-.stat-card.modified .stat-card-default-pill {
-  border-color: rgba(168, 125, 82, 0.30);
-  color: #b79c78;
 }
 
 /* Weapon targeting — structured rules instead of a dense chip strip. */
@@ -5369,39 +5294,6 @@ select:focus-visible,
   box-shadow:
     0 0 0 3px rgba(168, 125, 82, 0.12),
     inset 0 1px 3px rgba(0, 0, 0, 0.28);
-}
-
-.stat-card--compact .stat-card-default-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  min-height: 30px;
-  padding: 5px 8px;
-  border-color: rgba(168, 125, 82, 0.24);
-  border-radius: 5px;
-  background: rgba(168, 125, 82, 0.045);
-  color: transparent;
-  font-size: 0;
-  line-height: 1;
-}
-
-.stat-card--compact .stat-card-default-pill::after {
-  content: 'Reset';
-  color: #9b8468;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.stat-card--compact .stat-card-default-pill:hover {
-  border-color: rgba(168, 125, 82, 0.48);
-  background: rgba(168, 125, 82, 0.10);
-}
-
-.stat-card--compact .stat-card-default-pill:hover::after {
-  color: #d0b28d;
 }
 
 /* More transparent smoked glass for the borrow-weapon workspace. */
@@ -7595,7 +7487,6 @@ select:focus-visible,
   inset: 72px 0 0;
   z-index: 9;
   display: flex;
-  overflow: hidden;
   background: #11100d;
 }
 
@@ -8033,7 +7924,6 @@ select:focus-visible,
 
 /* Factory designer header — typographic Japandi / wabi-sabi composition */
 .designer-page .designer-modal-header {
-  min-height: 88px;
   padding: 13px clamp(24px, 2.6vw, 48px) 14px;
   gap: 34px;
   border-bottom: 1px solid var(--b1);
@@ -8653,19 +8543,6 @@ textarea.form-input {
   letter-spacing: 0.08em;
 }
 
-.stat-card-default-pill {
-  border-color: #ddd4cb !important;
-  border-radius: var(--radius-sm) !important;
-  background: transparent !important;
-  color: var(--ink-muted) !important;
-}
-
-.stat-card-default-pill:hover {
-  border-color: var(--sakura) !important;
-  background: var(--sakura-wash) !important;
-  color: var(--sakura-deep) !important;
-}
-
 .stat-card-diff,
 .stat-card-diff.diff-positive,
 .stat-card-diff.diff-negative {
@@ -9017,12 +8894,6 @@ input:checked + .weapon-ceg-track {
   box-shadow: inset 0 0 0 1px rgba(181, 111, 123, 0.08) !important;
 }
 
-.stat-card.modified .stat-card-default-pill {
-  border-color: #ddc2c6 !important;
-  background: var(--color-surface-raised) !important;
-  color: var(--color-accent-strong) !important;
-}
-
 /* Parameter-grid hover performance: avoid repainting/reflowing every card. */
 .editor-grid .stat-card,
 .weapon-parameter-grid .stat-card {
@@ -9081,14 +8952,6 @@ input:checked + .weapon-ceg-track {
   border-color: var(--color-border) !important;
 }
 
-.designer-page .designer-selected-factory span {
-  color: var(--color-text-strong) !important;
-}
-
-.designer-page .designer-selected-factory code {
-  color: var(--color-text-muted) !important;
-}
-
 .designer-page .designer-header-stat {
   border-color: var(--color-border) !important;
 }
@@ -9107,10 +8970,6 @@ input:checked + .weapon-ceg-track {
 .designer-page .designer-roster-canvas,
 .designer-page .designer-panel-scroll {
   background: var(--color-surface) !important;
-}
-
-.designer-page .designer-panel {
-  border: 0 !important;
 }
 
 .designer-page .designer-panel-header {
@@ -9474,98 +9333,45 @@ input:checked + .weapon-ceg-track {
 
 /* BAR game-setup profiles: conditional rosters stay separate from authored edits. */
 .designer-page .designer-roster-profiles {
-  min-height: 72px;
   padding: var(--space-3) var(--space-7);
-  display: grid;
   grid-template-columns: minmax(220px, 0.7fr) minmax(520px, 1.3fr);
-  align-items: center;
   gap: var(--space-6);
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
 }
 
 .designer-page .designer-roster-profiles__intro {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: baseline;
   gap: 2px var(--space-3);
 }
 
-.designer-page .designer-roster-profiles__intro .designer-panel-kicker {
-  grid-row: 1;
-}
-
 .designer-page .designer-roster-profiles__intro > strong {
-  grid-row: 1;
-  color: var(--color-text-strong);
   font-family: var(--font-display);
   font-size: var(--font-size-md);
   font-weight: 600;
 }
 
 .designer-page .designer-roster-profiles__intro > small {
-  grid-column: 1 / -1;
-  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
 }
 
 .designer-page .designer-roster-profiles__options {
-  min-width: 0;
-  display: grid;
   grid-template-columns: repeat(2, minmax(230px, 1fr));
   gap: var(--space-2);
 }
 
 .designer-page .designer-pack-option {
-  min-width: 0;
-  min-height: 48px;
   padding: var(--space-2) var(--space-3);
   justify-content: flex-start;
-  gap: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
   transition: border-color var(--motion-fast), background-color var(--motion-fast);
 }
 
-.designer-page .designer-pack-option:hover {
-  border-color: var(--color-border-strong);
-  background: var(--color-surface-hover);
-}
-
-.designer-page .designer-pack-option:has(input:checked) {
-  border-color: var(--color-border-accent-muted);
-  background: var(--color-surface-accent-subtle);
-}
-
-.designer-page .designer-pack-option .ui-switch-track {
-  flex: 0 0 auto;
-}
-
 .designer-page .designer-pack-option__copy {
-  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .designer-page .designer-pack-option__copy strong {
-  color: var(--color-text-strong);
   font-size: var(--font-size-xs);
   font-weight: 700;
-}
-
-.designer-page .designer-pack-option__copy small {
-  overflow: hidden;
-  color: var(--color-text-muted);
-  font-size: 8px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.designer-page .slot-overlay-actions:has(.slot-pack-source) {
-  grid-template-rows: auto auto auto;
 }
 
 .designer-page .slot-pack-source {
@@ -9587,10 +9393,6 @@ input:checked + .weapon-ceg-track {
   border-color: color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
   background: var(--color-warning-surface);
   color: var(--color-warning);
-}
-
-.designer-page .slot-overlay-actions:has(.slot-pack-source) .slot-btn {
-  grid-row: 1 / 4;
 }
 
 @media (max-width: 1180px) {
@@ -10029,166 +9831,6 @@ input:checked + .weapon-ceg-track {
   color: var(--color-accent-strong) !important;
 }
 
-/* Contextual parameter relationships. */
-.parameter-relationship-panel {
-  min-height: 52px;
-  margin-bottom: var(--space-3) !important;
-  padding: var(--space-2) var(--space-3);
-  display: grid;
-  grid-template-columns: minmax(220px, .72fr) minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-subtle);
-  color: var(--color-text);
-}
-
-.parameter-relationship-panel.is-empty {
-  grid-template-columns: minmax(0, 1fr) auto;
-}
-
-.parameter-relationship-panel.is-empty > div,
-.parameter-relationship-copy {
-  min-width: 0;
-  display: grid;
-  gap: 2px;
-}
-
-.parameter-relationship-panel.is-empty span,
-.parameter-relationship-copy > span {
-  color: var(--color-text-strong);
-  font-size: var(--font-size-xs);
-  font-weight: 650;
-  line-height: var(--line-height-ui);
-}
-
-.parameter-relationship-panel.is-empty small,
-.parameter-relationship-copy > small {
-  overflow: hidden;
-  color: var(--color-text-muted);
-  font-size: 9px;
-  line-height: var(--line-height-ui);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.parameter-relationship-links {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  overflow-x: auto;
-  padding: 2px;
-  scrollbar-width: thin;
-}
-
-.parameter-relationship-links em,
-.parameter-relationship-links button {
-  min-height: 28px;
-  padding: 5px 8px;
-  flex: 0 0 auto;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xs);
-  background: var(--color-surface-raised);
-  color: var(--color-text-muted);
-  font-family: var(--font-ui);
-  font-size: 8px;
-  font-style: normal;
-  font-weight: 650;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.parameter-relationship-links em {
-  border-color: var(--color-border-accent-muted);
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
-}
-
-.parameter-relationship-links button {
-  cursor: pointer;
-}
-
-.parameter-relationship-links button:hover {
-  border-color: var(--color-border-strong);
-  background: var(--color-surface-hover);
-  color: var(--color-text-strong);
-}
-
-.parameter-relationship-links button:focus-visible,
-.parameter-relationship-clear:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
-}
-
-.parameter-relationship-clear {
-  width: var(--control-target-min);
-  height: var(--control-target-min);
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text-muted);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-}
-
-.parameter-relationship-clear:hover {
-  border-color: var(--color-border);
-  background: var(--color-surface-hover);
-  color: var(--color-text-strong);
-}
-
-.editor-grid .stat-card.relationship-related,
-.weapon-parameter-grid .stat-card.relationship-related,
-.target-filter-row.relationship-related {
-  outline: 1px solid var(--color-border-accent-muted) !important;
-  outline-offset: -1px;
-}
-
-.editor-grid .stat-card.relationship-focus,
-.weapon-parameter-grid .stat-card.relationship-focus,
-.target-filter-row.relationship-focus {
-  outline: 2px solid var(--color-accent) !important;
-  outline-offset: -2px;
-}
-
-.comparison-mode .stat-card.relationship-related,
-.comparison-mode .stat-card.relationship-focus {
-  opacity: 1;
-}
-
-[data-theme="dark"] .parameter-relationship-panel {
-  border-color: var(--color-border);
-  background: var(--color-surface-subtle);
-}
-
-[data-theme="dark"] .parameter-relationship-links button {
-  border-color: var(--color-border);
-  background: var(--color-surface-raised);
-  color: var(--color-text-muted);
-}
-
-@container (max-width: 760px) {
-  .parameter-relationship-panel {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .parameter-relationship-links {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  .parameter-relationship-clear {
-    grid-column: 2;
-    grid-row: 1;
-  }
-}
-
 /* Header utility actions — stable hierarchy for every workspace and theme. */
 .app-header .header-utility-actions {
   display: flex;
@@ -10282,12 +9924,6 @@ input:checked + .weapon-ceg-track {
   stroke-width: 1.35;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.app-header .header-utility-actions .header-create-action {
-  border-color: var(--color-border-accent-muted) !important;
-  background: var(--color-surface-accent-subtle) !important;
-  color: var(--color-accent-strong) !important;
 }
 
 .app-header .header-utility-actions .header-tools-trigger {
@@ -10470,8 +10106,7 @@ input:checked + .weapon-ceg-track {
 .mutation-lab-close,
 .weapon-swap-close,
 .copy-output-button,
-.filter-action-btn,
-.stat-card-default-pill {
+.filter-action-btn {
   border-color: var(--color-border) !important;
   background: var(--color-surface-raised) !important;
   color: var(--color-text) !important;
@@ -10483,8 +10118,7 @@ input:checked + .weapon-ceg-track {
 .mutation-lab-close:hover,
 .weapon-swap-close:hover,
 .copy-output-button:hover,
-.filter-action-btn:hover:not(:disabled),
-.stat-card-default-pill:hover {
+.filter-action-btn:hover:not(:disabled) {
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface-hover) !important;
   color: var(--color-text-strong) !important;

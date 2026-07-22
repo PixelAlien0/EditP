@@ -13,15 +13,3 @@
     animation-iteration-count: 1 !important;
   }
 }
-
-.parameter-help:hover .parameter-help-tooltip--legacy,
-.parameter-help:focus-within .parameter-help-tooltip--legacy {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
-
-/* Legacy local help overlays must be able to escape a parameter card. */
-.stat-card:has(.parameter-help-tooltip--legacy) {
-  contain: layout style !important;
-  overflow: visible !important;
-}

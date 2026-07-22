@@ -159,11 +159,9 @@
 /* Canonical editor parameter navigation: a quiet, count-aware single-row rail. */
 .editor-section-tabs {
   display: flex !important;
-  align-items: stretch;
   gap: 0 !important;
   min-height: 64px;
   padding: 0 var(--space-6) !important;
-  overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
   border-block: 1px solid var(--color-border) !important;
@@ -179,10 +177,8 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 3px !important;
   text-align: left;
   white-space: nowrap;
-  color: var(--color-text-muted) !important;
   border: 0 !important;
   border-bottom: 2px solid transparent !important;
   background: transparent !important;
@@ -194,13 +190,11 @@
 }
 
 .editor-section-tabs .workspace-tab-btn.active {
-  color: var(--color-text-strong) !important;
   border-bottom-color: var(--color-accent) !important;
   background: var(--color-surface-accent-subtle) !important;
 }
 
 .editor-section-tabs .workspace-tab-btn:focus-visible {
-  z-index: 1;
   outline: none;
   box-shadow: inset 0 0 0 2px var(--color-focus-ring);
 }
@@ -242,12 +236,9 @@
 }
 
 .editor-section-tabs .workspace-tab-btn > small {
-  display: block !important;
   overflow: hidden;
-  max-width: 100%;
   color: currentColor !important;
   font-size: var(--font-size-xs) !important;
-  font-weight: 500;
   line-height: var(--line-height-ui);
   opacity: 0.72;
   text-overflow: ellipsis;
@@ -315,51 +306,6 @@
   opacity: 0.56;
 }
 
-.before-after-value {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border-subtle);
-}
-
-.before-after-value span {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.before-after-value span:last-child {
-  text-align: right;
-}
-
-.before-after-value small {
-  color: var(--color-text-muted);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
-
-.before-after-value strong {
-  overflow: hidden;
-  color: var(--color-text-strong);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.before-after-value i {
-  color: var(--color-accent-strong);
-  font-size: var(--font-size-sm);
-  font-style: normal;
-}
-
-/* Canonical selected-unit dossier header. */
 /* Canonical selected-unit dossier header. */
 .editor-unit-header {
   min-height: 72px !important;
