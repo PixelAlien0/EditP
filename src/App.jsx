@@ -52,6 +52,7 @@ const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplore
 const LazyCommandPalette = lazy(() => import('./components/CommandPalette.jsx'));
 const LazyProjectCheckpointsDialog = lazy(() => import('./components/ProjectCheckpointsDialog.jsx'));
 const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
+const LazyBarReferenceLibraryPage = lazy(() => import('./components/BarReferenceLibraryPage.jsx'));
 const LazyBehaviorInterceptorEditor = lazy(() => import('./components/editor/BehaviorInterceptorEditor.jsx'));
 
 // Keep the laboratory code available while this experimental workspace is temporarily unpublished.
@@ -1007,6 +1008,7 @@ export default function App() {
       || activeWorkspace === 'collections'
       || activeWorkspace === 'weapon-lab'
       || activeWorkspace === 'tweak-lab'
+      || activeWorkspace === 'reference-library'
     ) {
       return PRESENCE_ACTIVITY.TOOLS;
     }
@@ -2544,6 +2546,7 @@ export default function App() {
       { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Apply one adjustment across matching units.', onSelect: () => { openEditor(); setShowBulkPanel(true); } },
       { id: 'tool-presets', kind: 'Tool', label: 'Preset gallery', description: 'Save or apply reusable project snapshots.', onSelect: () => { setShowMainMenu(false); setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); } },
       { id: 'tool-tweak-package', kind: 'Tool', label: 'Tweak Package Lab', description: 'Inspect and package modular tweakdefs and tweakunits safely.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); } },
+      { id: 'tool-bar-reference-library', kind: 'Tool', label: 'BAR Reference Library', description: 'Search verified units, WeaponDefs, models, scripts, artwork, effects, sounds, and explosion profiles.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('reference-library'); } },
       { id: 'tool-mutation', kind: 'Tool', label: 'Mutation lab', description: 'Generate controlled random adjustments.', onSelect: () => { openEditor(); setShowRandomPanel(true); } },
     ];
 
@@ -3280,6 +3283,7 @@ export default function App() {
                 <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>Batch Adjust</button>
                 <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>Preset Gallery</button>
                 <button type="button" role="menuitem" onClick={() => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); setShowToolsMenu(false); }}>Tweak Package Lab</button>
+                <button type="button" role="menuitem" onClick={() => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('reference-library'); setShowToolsMenu(false); }}>BAR Reference Library</button>
                 {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}>Weapon Lab</button>}
                 <button type="button" role="menuitem" onClick={() => { setShowRandomPanel(true); setShowToolsMenu(false); }}>Mutation Lab</button>
                 <div className="header-tools-menu-project-actions" role="group" aria-label="Project files">
@@ -5184,6 +5188,17 @@ export default function App() {
             onRemoveSupportingWeaponDef={handleRemoveSupportingWeaponDef}
             onApplyConversions={handleApplyTweakConversions}
             knownUnitIds={knownTweakPackageUnitIds}
+            onBack={() => setActiveWorkspace('edit')}
+            onToast={showToast}
+          />
+        </Suspense>
+      ) : activeWorkspace === 'reference-library' ? (
+        <Suspense fallback={<main className="bar-reference-library workspace-loading"><span>Preparing BAR Reference Library…</span></main>}>
+          <LazyBarReferenceLibraryPage
+            units={allUnitsList}
+            defaultsDb={defaultsDb}
+            explosionProfiles={explosionProfiles}
+            onOpenUnit={id => { setSelectedUnitId(id); setActiveWorkspace('edit'); }}
             onBack={() => setActiveWorkspace('edit')}
             onToast={showToast}
           />

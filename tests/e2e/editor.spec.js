@@ -130,6 +130,42 @@ test('behavior and interceptor editor links unit policy, projectile masks, and c
   await expect(generatedLua).toContainText('interceptor = 2');
 });
 
+test('BAR Reference Library unifies definitions, assets, reverse usage, and editor navigation', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  await page.getByRole('menuitem', { name: 'BAR Reference Library' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Unified BAR Reference Library' })).toBeVisible();
+  const library = page.locator('.bar-reference-library');
+  await expect(library.getByText('references', { exact: true }).first()).toBeVisible();
+
+  const search = library.getByRole('searchbox', { name: 'Search the library' });
+  await search.fill('armdfly_paralyzer');
+  const weapon = library.getByRole('option', { name: /^Abductor · Slot 1/ });
+  await expect(weapon).toBeVisible();
+  await weapon.click();
+  const inspector = library.getByRole('complementary', { name: 'Reference details' });
+  await expect(inspector).toContainText('Owner unit');
+  await expect(inspector).toContainText('armdfly');
+
+  await library.getByRole('button', { name: /Models/ }).click();
+  await search.fill('Units/ARMDFLY.s3o');
+  await library.getByRole('option').filter({ hasText: 'Units/ARMDFLY.s3o' }).click();
+  await expect(inspector.getByRole('region', { name: 'Used by definitions' })).toContainText('Abductor');
+
+  await library.getByRole('button', { name: /Pictures/ }).click();
+  await search.fill('legsrail.dds');
+  await expect(library.getByRole('option').first()).toBeVisible();
+  expect(await library.getByRole('option').count()).toBeGreaterThanOrEqual(2);
+
+  await library.getByRole('button', { name: /Weapons/ }).click();
+  await search.fill('armdfly_paralyzer');
+  await library.getByRole('option', { name: /^Abductor · Slot 1/ }).click();
+  await inspector.getByRole('button', { name: 'Open unit editor' }).click();
+  await expect(page.locator('.editor-unit-header')).toContainText('Abductor');
+});
+
 test('Tweak Package Lab imports inert modules and exposes numbered slots', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
