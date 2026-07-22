@@ -1,0 +1,4957 @@
+{
+  "version": 1,
+  "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
+  "sourceCommit": "e34440077024d3b122b89d07a314a2df7b1b181d",
+  "icons": {
+    "armaak": {
+      "bitmap": "icons/bot_amph_t2_aa.png",
+      "size": 1.41999996,
+      "url": "/tactical-icons/assets/a47db0408efe22d5a013.png"
+    },
+    "armaap": {
+      "bitmap": "icons/factory_air_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/d674d1391867a4d1dde3.png"
+    },
+    "armaas": {
+      "bitmap": "icons/ship_t2_aa_flak.png",
+      "size": 1.73249984,
+      "url": "/tactical-icons/assets/92a1d9fb987e2ad20ef5.png"
+    },
+    "armaca": {
+      "bitmap": "icons/air_t2_worker.png",
+      "size": 1.62749982,
+      "url": "/tactical-icons/assets/5ab1e3657e7f9720f481.png"
+    },
+    "armack": {
+      "bitmap": "icons/bot_t2_worker.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/46f7168b734bbd0c67c2.png"
+    },
+    "armacsub": {
+      "bitmap": "icons/sub_t2_worker.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/cddeaa90951c0c6d57f2.png"
+    },
+    "armacv": {
+      "bitmap": "icons/vehicle_t2_worker.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/6623d9e785bf5fad59d1.png"
+    },
+    "armadvsol": {
+      "bitmap": "icons/energy2_1.18.png",
+      "size": 1.23899984,
+      "url": "/tactical-icons/assets/cf2fcb935f64f82b9ad2.png"
+    },
+    "armafus": {
+      "bitmap": "icons/energy5_1.85.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/17d9d12c60c791545815.png"
+    },
+    "armafust3": {
+      "bitmap": "icons/energy5_1.85.png",
+      "size": 3.9,
+      "url": "/tactical-icons/assets/17d9d12c60c791545815.png"
+    },
+    "armageo": {
+      "bitmap": "icons/hazardous.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/9e9d8439e8f6d87b9b8c.png"
+    },
+    "armah": {
+      "bitmap": "icons/hover_aa.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/09697fe443edd5bf320b.png"
+    },
+    "armalab": {
+      "bitmap": "icons/factory_bot_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/be9be309ca5a4353b2c5.png"
+    },
+    "armamb": {
+      "bitmap": "icons/def_t2_arty.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0e27aa6f379ba712ee0e.png"
+    },
+    "armamd": {
+      "bitmap": "icons/antinuke.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/ef84432d4609a6912c0c.png"
+    },
+    "armamex": {
+      "bitmap": "icons/mex_t1_emp.png",
+      "size": 1.02999997,
+      "url": "/tactical-icons/assets/f4a3189d2ba22350029b.png"
+    },
+    "armamph": {
+      "bitmap": "icons/amph_t2_aa.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/a4ef62a190a493f078f9.png"
+    },
+    "armamsub": {
+      "bitmap": "icons/factory_amph.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/0f647437a7e14e88ae8e.png"
+    },
+    "armanac": {
+      "bitmap": "icons/hover_gun.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/30e84d4e3c7438b2bba7.png"
+    },
+    "armanavaldefturret": {
+      "bitmap": "icons/armanni.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/6a945c22d253ce23b6a5.png"
+    },
+    "armanni": {
+      "bitmap": "icons/armanni.png",
+      "size": 2.0474999,
+      "url": "/tactical-icons/assets/6a945c22d253ce23b6a5.png"
+    },
+    "armannit3": {
+      "bitmap": "icons/laserdefenset3.png",
+      "size": 2.5474999,
+      "url": "/tactical-icons/assets/5cae7552c097f7b5033a.png"
+    },
+    "armantiship": {
+      "bitmap": "icons/ship_t2_carrier.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/6e7a773e6c70e5c65f8a.png"
+    },
+    "armap": {
+      "bitmap": "icons/factory_air.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/b46aa66bb06ce14b0507.png"
+    },
+    "armapt3": {
+      "bitmap": "icons/factory_air_t3.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/6da40b8ff0940786fb25.png"
+    },
+    "armarad": {
+      "bitmap": "icons/radar_t2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/a965f3dc2960a12add6f.png"
+    },
+    "armart": {
+      "bitmap": "icons/vehicle_arty.png",
+      "size": 1.10000002,
+      "url": "/tactical-icons/assets/7f6f83ff11c158011e80.png"
+    },
+    "armaser": {
+      "bitmap": "icons/bot_t2_jammer.png",
+      "size": 1.34399986,
+      "url": "/tactical-icons/assets/e2ea13d7fb22e8a8d5c2.png"
+    },
+    "armason": {
+      "bitmap": "icons/radar_t2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/a965f3dc2960a12add6f.png"
+    },
+    "armassimilator": {
+      "bitmap": "icons/bot_t3.png",
+      "size": 1.99499989,
+      "url": "/tactical-icons/assets/93a1675545af11c972a0.png"
+    },
+    "armassistdrone": {
+      "bitmap": "icons/air_assistdrone.png",
+      "size": 0.85000002,
+      "url": "/tactical-icons/assets/42faa0f32feaf8cb6020.png"
+    },
+    "armassistdrone_land": {
+      "bitmap": "icons/land_assistdrone.png",
+      "size": 0.85000002,
+      "url": "/tactical-icons/assets/064f1eed39f0ca121839.png"
+    },
+    "armasy": {
+      "bitmap": "icons/factory_ship_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/c4697d766ff337fc1470.png"
+    },
+    "armatl": {
+      "bitmap": "icons/defence_2_naval.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/5f8bba7feeed9f00022d.png"
+    },
+    "armatlas": {
+      "bitmap": "icons/air_trans.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/ad446a86a90b012598cd.png"
+    },
+    "armavp": {
+      "bitmap": "icons/factory_vehicle_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/4627d1c8cea957f6746a.png"
+    },
+    "armawac": {
+      "bitmap": "icons/air_t2_radar.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/961c31bda388f17c7d2d.png"
+    },
+    "armbanth": {
+      "bitmap": "icons/bantha.png",
+      "size": 2.83500004,
+      "url": "/tactical-icons/assets/6f050ea8cb225f4aa95c.png"
+    },
+    "armbats": {
+      "bitmap": "icons/ship_t2_battleship.png",
+      "size": 2.67749977,
+      "url": "/tactical-icons/assets/28bcec27a428efac4a28.png"
+    },
+    "armbeamer": {
+      "bitmap": "icons/def_beamer.png",
+      "size": 1.10699987,
+      "url": "/tactical-icons/assets/54a582b10ccd6dd6d700.png"
+    },
+    "armbeaver": {
+      "bitmap": "icons/amphib_worker.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/2c327b87ca547f50675b.png"
+    },
+    "armblade": {
+      "bitmap": "icons/air_t2_hover_missile.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/5cca3763e5afc97f4405.png"
+    },
+    "armbotrail": {
+      "bitmap": "icons/botrail.png",
+      "size": 3.97000003,
+      "url": "/tactical-icons/assets/0d26567c96c80caeb335.png"
+    },
+    "armbrawl": {
+      "bitmap": "icons/air_t2_hover.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/e013a63a87da737888ad.png"
+    },
+    "armbrtha": {
+      "bitmap": "icons/armbrtha.png",
+      "size": 2.625,
+      "url": "/tactical-icons/assets/9f5ace21b70b6cfbb111.png"
+    },
+    "armbull": {
+      "bitmap": "icons/vehicle_t2_tank.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/3f978c002f55c3890a6e.png"
+    },
+    "armca": {
+      "bitmap": "icons/air_worker.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/13f497606e8309d1cd14.png"
+    },
+    "armcarry": {
+      "bitmap": "icons/ship_t2_carrier.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/6e7a773e6c70e5c65f8a.png"
+    },
+    "armch": {
+      "bitmap": "icons/hover_worker.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/021511946e95f1a79cae.png"
+    },
+    "armcir": {
+      "bitmap": "icons/aa_t1_long.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/c3cc8cf92fcaac4b432e.png"
+    },
+    "armck": {
+      "bitmap": "icons/bot_worker.png",
+      "size": 0.99749994,
+      "url": "/tactical-icons/assets/a97c619c2e639bf806c4.png"
+    },
+    "armckfus": {
+      "bitmap": "icons/fusion.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/badc2a3543cf8c80a933.png"
+    },
+    "armclaw": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "armcom": {
+      "bitmap": "icons/armcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/e5637d6519d5cb4fe478.png"
+    },
+    "armcomboss": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "armcomcon": {
+      "bitmap": "icons/armcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/e5637d6519d5cb4fe478.png"
+    },
+    "armconsul": {
+      "bitmap": "icons/armconsul_1.35.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/a26ab6af1dcb1780a0f8.png"
+    },
+    "armcroc": {
+      "bitmap": "icons/armcroc.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/a8dbbd9815862f493321.png"
+    },
+    "armcrus": {
+      "bitmap": "icons/ship_t2_cruiser_plasma.png",
+      "size": 2.25749993,
+      "url": "/tactical-icons/assets/e1ff64ea665a4eea7f97.png"
+    },
+    "armcs": {
+      "bitmap": "icons/ship_worker.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/3724721dbe2ba6156d88.png"
+    },
+    "armcsa": {
+      "bitmap": "icons/air_worker_sea.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/2254062fffd3a8123404.png"
+    },
+    "armcv": {
+      "bitmap": "icons/vehicle_worker.png",
+      "size": 0.99749994,
+      "url": "/tactical-icons/assets/4cee14c4f40047da54a2.png"
+    },
+    "armdecade": {
+      "bitmap": "icons/ship_raid.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/ffef98b78018700afab2.png"
+    },
+    "armdecadet3": {
+      "bitmap": "icons/ship_t4_decade.png",
+      "size": 2.70000005,
+      "url": "/tactical-icons/assets/dbfd67560ced295ccfa3.png"
+    },
+    "armdecom": {
+      "bitmap": "icons/armcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/e5637d6519d5cb4fe478.png"
+    },
+    "armdf": {
+      "bitmap": "icons/fusion.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/badc2a3543cf8c80a933.png"
+    },
+    "armdfly": {
+      "bitmap": "icons/air_trans.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/ad446a86a90b012598cd.png"
+    },
+    "armdl": {
+      "bitmap": "icons/defence_1_naval.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/a375ad34bcada306d793.png"
+    },
+    "armdrag": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "armdrone": {
+      "bitmap": "icons/air_hover.png",
+      "size": 0.34999999,
+      "url": "/tactical-icons/assets/820008fa71e4ccb96065.png"
+    },
+    "armdronecarry": {
+      "bitmap": "icons/ship_t2_dronecarry.png",
+      "size": 2.45000005,
+      "url": "/tactical-icons/assets/92ba22f047f0c4afff2c.png"
+    },
+    "armdronecarryland": {
+      "bitmap": "icons/vehicle_t3_dronecarryland.png",
+      "size": 2.45000005,
+      "url": "/tactical-icons/assets/9f6900c33482d6a16574.png"
+    },
+    "armdroneold": {
+      "bitmap": "icons/air_hover.png",
+      "size": 0.5,
+      "url": "/tactical-icons/assets/820008fa71e4ccb96065.png"
+    },
+    "armemp": {
+      "bitmap": "icons/emp.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/e833cba3a19428f5707e.png"
+    },
+    "armepoch": {
+      "bitmap": "icons/ship_t2_flagship.png",
+      "size": 3.46499968,
+      "url": "/tactical-icons/assets/fefc37198a42ff04d266.png"
+    },
+    "armestor": {
+      "bitmap": "icons/energystorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/4f5c393aff8cd34109d1.png"
+    },
+    "armexcalibur": {
+      "bitmap": "icons/sub_t2_coastal.png",
+      "size": 2.2,
+      "url": "/tactical-icons/assets/309b9fd69072ee4497a4.png"
+    },
+    "armeyes": {
+      "bitmap": "icons/eye.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/1e23a8b4a9152457ca4f.png"
+    },
+    "armfark": {
+      "bitmap": "icons/engineer_small.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/629bf41d7a6981710ba8.png"
+    },
+    "armfast": {
+      "bitmap": "icons/bot_t2_raid.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/caf042c2e26f53e5e94a.png"
+    },
+    "armfatf": {
+      "bitmap": "icons/targetting.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/90fc205f3097c0ca4e79.png"
+    },
+    "armfav": {
+      "bitmap": "icons/vehicle.png",
+      "size": 0.57749999,
+      "url": "/tactical-icons/assets/66435c539e91bca1b873.png"
+    },
+    "armfboy": {
+      "bitmap": "icons/bot_t2_plasma_aoe.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/110b7c789ba5dc850c95.png"
+    },
+    "armfdrag": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "armfepocht4": {
+      "bitmap": "icons/air_t4_flagship.png",
+      "size": 3.3599999,
+      "url": "/tactical-icons/assets/f15e5d6d08537ef6d894.png"
+    },
+    "armferret": {
+      "bitmap": "icons/aa_t15.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/72083b18f26335a18f80.png"
+    },
+    "armfflak": {
+      "bitmap": "icons/aa_flak_t2.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/b9bc3dd03c3ba0f6a99c.png"
+    },
+    "armfgate": {
+      "bitmap": "icons/shield.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/e3c718b7cbdd992bfb98.png"
+    },
+    "armfhlt": {
+      "bitmap": "icons/defence_1_laser.png",
+      "size": 1.3,
+      "url": "/tactical-icons/assets/3671a7e95e7664ac7726.png"
+    },
+    "armfhp": {
+      "bitmap": "icons/factory_hover.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/4ec01fd67f32c7a06987.png"
+    },
+    "armfido": {
+      "bitmap": "icons/bot_arty_t2.png",
+      "size": 1.34399986,
+      "url": "/tactical-icons/assets/034e9c990457411df639.png"
+    },
+    "armfify": {
+      "bitmap": "icons/air_t1_rez.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/9d178ddae0b2c534e4ab.png"
+    },
+    "armfig": {
+      "bitmap": "icons/air.png",
+      "size": 0.86099994,
+      "url": "/tactical-icons/assets/91682c80e7f1d5f5d3cb.png"
+    },
+    "armflak": {
+      "bitmap": "icons/aa_flak_t2.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/b9bc3dd03c3ba0f6a99c.png"
+    },
+    "armflash": {
+      "bitmap": "icons/vehicle_t1_raid.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/41bb3e405841f13e333c.png"
+    },
+    "armflea": {
+      "bitmap": "icons/bot_t1_flea.png",
+      "size": 0.53549999,
+      "url": "/tactical-icons/assets/8794a6dd6677e51d97f2.png"
+    },
+    "armfmine3": {
+      "bitmap": "icons/mine.png",
+      "size": 0.55649996,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "armfmkr": {
+      "bitmap": "icons/metalmaker_t1.png",
+      "size": 0.78749996,
+      "url": "/tactical-icons/assets/f0949d8dcb32d6492ea3.png"
+    },
+    "armfort": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "armfrad": {
+      "bitmap": "icons/radar_t1.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/f25dbe02220bee32ea7b.png"
+    },
+    "armfrock": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "armfrt": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "armfus": {
+      "bitmap": "icons/fusion.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/badc2a3543cf8c80a933.png"
+    },
+    "armgate": {
+      "bitmap": "icons/shield.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/e3c718b7cbdd992bfb98.png"
+    },
+    "armgatet3": {
+      "bitmap": "icons/shield.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/e3c718b7cbdd992bfb98.png"
+    },
+    "armgeo": {
+      "bitmap": "icons/energy6_1.3.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/a50dc42bb22a113e9606.png"
+    },
+    "armgmm": {
+      "bitmap": "icons/energy_geo_safe.png",
+      "size": 1.56999993,
+      "url": "/tactical-icons/assets/42ce85cb75e7f7fbd327.png"
+    },
+    "armgplat": {
+      "bitmap": "icons/defence_0_0.8.png",
+      "size": 0.83999997,
+      "url": "/tactical-icons/assets/e4da2ac34fbb18d3561c.png"
+    },
+    "armgremlin": {
+      "bitmap": "icons/armst_1.25.png",
+      "size": 1.2889998,
+      "url": "/tactical-icons/assets/aac146cb5c4c2cd2f669.png"
+    },
+    "armguard": {
+      "bitmap": "icons/def_t1_arty.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/9f4934b426a0d0f77a0e.png"
+    },
+    "armhaap": {
+      "bitmap": "icons/factory_air_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/d674d1391867a4d1dde3.png"
+    },
+    "armhaapuw": {
+      "bitmap": "icons/factory_air_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/d674d1391867a4d1dde3.png"
+    },
+    "armhaca": {
+      "bitmap": "icons/shipengineer.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/bb0f67e1605763a4cffa.png"
+    },
+    "armhack": {
+      "bitmap": "icons/bot_t2_worker.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/46f7168b734bbd0c67c2.png"
+    },
+    "armhacs": {
+      "bitmap": "icons/vehicle_t2_worker.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/6623d9e785bf5fad59d1.png"
+    },
+    "armhacv": {
+      "bitmap": "icons/vehicle_t2_worker.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/6623d9e785bf5fad59d1.png"
+    },
+    "armhalab": {
+      "bitmap": "icons/factory_bot_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/be9be309ca5a4353b2c5.png"
+    },
+    "armham": {
+      "bitmap": "icons/bot_plasma_t1.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/f14ba547d3709ca0098d.png"
+    },
+    "armhasy": {
+      "bitmap": "icons/factory_ship_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/c4697d766ff337fc1470.png"
+    },
+    "armhavp": {
+      "bitmap": "icons/factory_vehicle_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/4627d1c8cea957f6746a.png"
+    },
+    "armhawk": {
+      "bitmap": "icons/air_t2.png",
+      "size": 1.02899992,
+      "url": "/tactical-icons/assets/dd8137ba08cebe609654.png"
+    },
+    "armhlt": {
+      "bitmap": "icons/defence_1.5_laser.png",
+      "size": 1.30249989,
+      "url": "/tactical-icons/assets/0c0c187327a52b8478e0.png"
+    },
+    "armhp": {
+      "bitmap": "icons/factory_hover.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/4ec01fd67f32c7a06987.png"
+    },
+    "armhvytrans": {
+      "bitmap": "icons/air_trans.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/ad446a86a90b012598cd.png"
+    },
+    "armjam": {
+      "bitmap": "icons/vehicle_t2_jammer.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/ddfc3a88527010d54f82.png"
+    },
+    "armjamt": {
+      "bitmap": "icons/jammer.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/7c21d6c34024a5dac7f1.png"
+    },
+    "armjanus": {
+      "bitmap": "icons/armjanus_1.2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/c845d1dc92ab1a12e5de.png"
+    },
+    "armjeth": {
+      "bitmap": "icons/bot_amph_aa.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/e7ecaa0a56a893f8eb4c.png"
+    },
+    "armjuno": {
+      "bitmap": "icons/juno.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/d26406e403a3baf85c6e.png"
+    },
+    "armkam": {
+      "bitmap": "icons/air_hover.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/820008fa71e4ccb96065.png"
+    },
+    "armkraken": {
+      "bitmap": "icons/def_t2_cannon.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/bf6a680e838c96d5e647.png"
+    },
+    "armlab": {
+      "bitmap": "icons/factory_bot.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/2bf92b8c323127a3fcd3.png"
+    },
+    "armlance": {
+      "bitmap": "icons/air_t2_torpbomber.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/2babe7b97537f7a64ca9.png"
+    },
+    "armlatnk": {
+      "bitmap": "icons/armlatnk_1.3.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/ea4a12fe1cb698addaa6.png"
+    },
+    "armliche": {
+      "bitmap": "icons/air_liche.png",
+      "size": 2.0999999,
+      "url": "/tactical-icons/assets/9d712ee887d373495800.png"
+    },
+    "armlichet4": {
+      "bitmap": "icons/air_liche.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/9d712ee887d373495800.png"
+    },
+    "armllt": {
+      "bitmap": "icons/defence_0_laser.png",
+      "size": 0.83999997,
+      "url": "/tactical-icons/assets/1241de511d771bdd3082.png"
+    },
+    "armlship": {
+      "bitmap": "icons/ship_t2_lightning.png",
+      "size": 1.79999995,
+      "url": "/tactical-icons/assets/1c0e0d892ad154a97d9e.png"
+    },
+    "armlun": {
+      "bitmap": "icons/armlun_1.8.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/e8c97fc3923216b719a1.png"
+    },
+    "armlunchbox": {
+      "bitmap": "icons/allterrain.png",
+      "size": 2.0474999,
+      "url": "/tactical-icons/assets/c4c1af4162bd2849e1e2.png"
+    },
+    "armlwall": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "armmakr": {
+      "bitmap": "icons/metalmaker_t1.png",
+      "size": 0.78749996,
+      "url": "/tactical-icons/assets/f0949d8dcb32d6492ea3.png"
+    },
+    "armmanni": {
+      "bitmap": "icons/armmanni_1.55.png",
+      "size": 1.62749982,
+      "url": "/tactical-icons/assets/4de79d8cab71dc9b5348.png"
+    },
+    "armmar": {
+      "bitmap": "icons/armmar_t3.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/c26dc6335c385e0fea2e.png"
+    },
+    "armmark": {
+      "bitmap": "icons/bot_t2_radar.png",
+      "size": 1.34399986,
+      "url": "/tactical-icons/assets/a55d40b69831d8e18a8a.png"
+    },
+    "armmart": {
+      "bitmap": "icons/vehicle_arty_t2.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/7657da14891e564c82dc.png"
+    },
+    "armmav": {
+      "bitmap": "icons/bot_t2_impulse2x.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/93bf1d1803320a1d7bf0.png"
+    },
+    "armmeatball": {
+      "bitmap": "icons/amphib_t3.png",
+      "size": 2.20499969,
+      "url": "/tactical-icons/assets/ce4ff3f6af05e144e7ed.png"
+    },
+    "armmercury": {
+      "bitmap": "icons/aa_longrange_t2.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/d1ef70a3ef093a093df5.png"
+    },
+    "armmerl": {
+      "bitmap": "icons/vehicle_t2_vroc.png",
+      "size": 1.62749982,
+      "url": "/tactical-icons/assets/ca7891d4d06272caeb99.png"
+    },
+    "armmex": {
+      "bitmap": "icons/mex_t1.png",
+      "size": 0.80849993,
+      "url": "/tactical-icons/assets/d9cc6c3e4b939fac0da9.png"
+    },
+    "armmh": {
+      "bitmap": "icons/hover_t1_missile.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/edf20f83584201375413.png"
+    },
+    "armmine1": {
+      "bitmap": "icons/mine.png",
+      "size": 0.37799999,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "armmine2": {
+      "bitmap": "icons/mine.png",
+      "size": 0.46199998,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "armmine3": {
+      "bitmap": "icons/mine.png",
+      "size": 0.55649996,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "armminivulc": {
+      "bitmap": "icons/armvulc.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/2cdd320a78b4d9c0b940.png"
+    },
+    "armmls": {
+      "bitmap": "icons/shipengineer.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/bb0f67e1605763a4cffa.png"
+    },
+    "armmlv": {
+      "bitmap": "icons/armmlv_1.0.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/55b000228a4a4ca06388.png"
+    },
+    "armmmkr": {
+      "bitmap": "icons/metalmaker_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/af51689988b17b3663f7.png"
+    },
+    "armmmkrt3": {
+      "bitmap": "icons/metalmaker_t2.png",
+      "size": 2.40749986,
+      "url": "/tactical-icons/assets/af51689988b17b3663f7.png"
+    },
+    "armmoho": {
+      "bitmap": "icons/mex_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/dd5c5bfa9bd4e123fd6b.png"
+    },
+    "armmship": {
+      "bitmap": "icons/ship_t2_missile.png",
+      "size": 2.0999999,
+      "url": "/tactical-icons/assets/1213844f550e78305e95.png"
+    },
+    "armmstor": {
+      "bitmap": "icons/metalstorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/1fff0e8331ff7b97897c.png"
+    },
+    "armnanotc": {
+      "bitmap": "icons/nanot1.png",
+      "size": 0.96599996,
+      "url": "/tactical-icons/assets/74d473027fe58d0f1ea2.png"
+    },
+    "armnanotc2plat": {
+      "bitmap": "icons/nanot2.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/10ce4e52ed235e9adc03.png"
+    },
+    "armnanotcplat": {
+      "bitmap": "icons/nanot1.png",
+      "size": 0.96599996,
+      "url": "/tactical-icons/assets/74d473027fe58d0f1ea2.png"
+    },
+    "armnanotct2": {
+      "bitmap": "icons/nanot2.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/10ce4e52ed235e9adc03.png"
+    },
+    "armnavaldefturret": {
+      "bitmap": "icons/defence_t15_gauss_impulse.png",
+      "size": 1.6,
+      "url": "/tactical-icons/assets/9f6365f2dcdb2b6829e8.png"
+    },
+    "armpb": {
+      "bitmap": "icons/def_t2_impulse.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/f3a042ed5610f75c7af1.png"
+    },
+    "armpeep": {
+      "bitmap": "icons/air_los.png",
+      "size": 0.78749996,
+      "url": "/tactical-icons/assets/372d6a23da9897b75432.png"
+    },
+    "armpincer": {
+      "bitmap": "icons/amphib_tank.png",
+      "size": 1.35000002,
+      "url": "/tactical-icons/assets/0a32368316b1b88a6c66.png"
+    },
+    "armplat": {
+      "bitmap": "icons/factory_air_sea.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/b6546d66ccaeb07ae9d5.png"
+    },
+    "armpnix": {
+      "bitmap": "icons/air_t2_bomber.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/1b9991e8e97efb5f863d.png"
+    },
+    "armprowl": {
+      "bitmap": "icons/amphib_t3.png",
+      "size": 2.20499969,
+      "url": "/tactical-icons/assets/ce4ff3f6af05e144e7ed.png"
+    },
+    "armpship": {
+      "bitmap": "icons/ship_pship.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/025e58cafb5a32c48970.png"
+    },
+    "armpshipt3": {
+      "bitmap": "icons/ship_t4_pship.png",
+      "size": 2.70000005,
+      "url": "/tactical-icons/assets/232eac28fcab7c20ad87.png"
+    },
+    "armpt": {
+      "bitmap": "icons/ship.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/e4f217351c155d96be08.png"
+    },
+    "armptt2": {
+      "bitmap": "icons/ship_t3_pt.png",
+      "size": 2.29999995,
+      "url": "/tactical-icons/assets/45cb7cf4adbe5303010f.png"
+    },
+    "armpw": {
+      "bitmap": "icons/bot_t1_raid_0.7.png",
+      "size": 0.73499995,
+      "url": "/tactical-icons/assets/002d98ddcde48d3db7cb.png"
+    },
+    "armpwt4": {
+      "bitmap": "icons/armpwt4.png",
+      "size": 2.30999994,
+      "url": "/tactical-icons/assets/1892a06c01d575a47e8d.png"
+    },
+    "armrad": {
+      "bitmap": "icons/radar_t1.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/f25dbe02220bee32ea7b.png"
+    },
+    "armrattet4": {
+      "bitmap": "icons/armrattet4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/df9b5ae492fd257c1421.png"
+    },
+    "armraz": {
+      "bitmap": "icons/armraz_1.75.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/ca2063a915633db25de9.png"
+    },
+    "armrecl": {
+      "bitmap": "icons/sub_rez.png",
+      "size": 1.64299989,
+      "url": "/tactical-icons/assets/9e9fe1a29b8dc99df908.png"
+    },
+    "armrectr": {
+      "bitmap": "icons/bot_t1_rez.png",
+      "size": 0.74000001,
+      "url": "/tactical-icons/assets/3e4110e2088af549823d.png"
+    },
+    "armrespawn": {
+      "bitmap": "icons/nanot2.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/10ce4e52ed235e9adc03.png"
+    },
+    "armrl": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "armrock": {
+      "bitmap": "icons/bot_rocket.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/10234803066aa2b6fc19.png"
+    },
+    "armroy": {
+      "bitmap": "icons/ship_destroyer.png",
+      "size": 1.51199996,
+      "url": "/tactical-icons/assets/6ddaa1140c9835b8c027.png"
+    },
+    "armsaber": {
+      "bitmap": "icons/air_t1_hover_sea.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/97d518db3b22aa0f0d30.png"
+    },
+    "armsam": {
+      "bitmap": "icons/vehicle_t1_missile.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/45896ab6937af3324520.png"
+    },
+    "armsb": {
+      "bitmap": "icons/air_bomber_sea.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/7c2a25780f110f62c6e1.png"
+    },
+    "armscab": {
+      "bitmap": "icons/antinukemobile.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/09ada7deb595e5661e93.png"
+    },
+    "armscavengerbossv2_easy": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "armscavengerbossv2_epic": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "armscavengerbossv2_hard": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "armscavengerbossv2_normal": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "armscavengerbossv2_veryeasy": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "armscavengerbossv2_veryhard": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "armsd": {
+      "bitmap": "icons/seismic.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/a02ccdf8f95df48e95d3.png"
+    },
+    "armseadragon": {
+      "bitmap": "icons/sub_t3_nuke.png",
+      "size": 2.8,
+      "url": "/tactical-icons/assets/0ae155fb28b53723e5fe.png"
+    },
+    "armseap": {
+      "bitmap": "icons/air_torp_sea.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/7dc920464a717c776bfc.png"
+    },
+    "armseer": {
+      "bitmap": "icons/vehicle_t2_radar.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/456a59a9466d34239f40.png"
+    },
+    "armsehak": {
+      "bitmap": "icons/air_los_sea.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/7bbe57d9566191cf05fa.png"
+    },
+    "armserp": {
+      "bitmap": "icons/battlesub_t2.png",
+      "size": 2.20000005,
+      "url": "/tactical-icons/assets/5245b8cdc9017b74c900.png"
+    },
+    "armserpt3": {
+      "bitmap": "icons/sub_t3x.png",
+      "size": 2.79999995,
+      "url": "/tactical-icons/assets/bf33fa3d2192285625a3.png"
+    },
+    "armsfig": {
+      "bitmap": "icons/air_sea.png",
+      "size": 0.86099994,
+      "url": "/tactical-icons/assets/18558bc341919b08e7c3.png"
+    },
+    "armsfig2": {
+      "bitmap": "icons/air_sea.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/18558bc341919b08e7c3.png"
+    },
+    "armsh": {
+      "bitmap": "icons/hover_raid.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/f154d983d59d52b7085f.png"
+    },
+    "armshltx": {
+      "bitmap": "icons/factory_gantry.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/9b88126331038d85a0c8.png"
+    },
+    "armshltxuw": {
+      "bitmap": "icons/factory_gantry_uw.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/15fcbfa407d0e569e906.png"
+    },
+    "armshockwave": {
+      "bitmap": "icons/mex_t2_emp.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/4ebed373a01ba84276bc.png"
+    },
+    "armsilo": {
+      "bitmap": "icons/nuke.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/43202e02be18d40b35a8.png"
+    },
+    "armsjam": {
+      "bitmap": "icons/ship_t2_jammer.png",
+      "size": 1.73249984,
+      "url": "/tactical-icons/assets/979760f3a3cb8a2f17dd.png"
+    },
+    "armsnipe": {
+      "bitmap": "icons/armsnipe_1.3.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/98dd16fb0f8f556dc8f3.png"
+    },
+    "armsolar": {
+      "bitmap": "icons/energy1_1.0.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/8c3a9f184e0970d8e454.png"
+    },
+    "armsonar": {
+      "bitmap": "icons/radar_t1.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/f25dbe02220bee32ea7b.png"
+    },
+    "armspid": {
+      "bitmap": "icons/allterrain_emp.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/f94f7bc1e567008071f2.png"
+    },
+    "armsptk": {
+      "bitmap": "icons/armsptk_1.44.png",
+      "size": 1.65199995,
+      "url": "/tactical-icons/assets/bba41bf6c0254b507a21.png"
+    },
+    "armsptkt4": {
+      "bitmap": "icons/armsptkt4.png",
+      "size": 2.30999994,
+      "url": "/tactical-icons/assets/43e3ef1a43f3162a4ed6.png"
+    },
+    "armspy": {
+      "bitmap": "icons/spy.png",
+      "size": 1.17999995,
+      "url": "/tactical-icons/assets/6d068b6b836a26326ce7.png"
+    },
+    "armstil": {
+      "bitmap": "icons/armstil_1.66.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/b5be0d809da96d818bf8.png"
+    },
+    "armstump": {
+      "bitmap": "icons/vehicle_t1_tank.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/b5cbc5cb71e2d42835bb.png"
+    },
+    "armsub": {
+      "bitmap": "icons/sub.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/bc53eaccf93a47551822.png"
+    },
+    "armsubk": {
+      "bitmap": "icons/sub_t2.png",
+      "size": 1.78499997,
+      "url": "/tactical-icons/assets/d45a31f1af35224bdd31.png"
+    },
+    "armsy": {
+      "bitmap": "icons/factory_ship.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/785b6a16911abe03b205.png"
+    },
+    "armtarg": {
+      "bitmap": "icons/targetting.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/90fc205f3097c0ca4e79.png"
+    },
+    "armtdrone": {
+      "bitmap": "icons/air_bladew.png",
+      "size": 0.5,
+      "url": "/tactical-icons/assets/20b96a41beef4c01c71a.png"
+    },
+    "armthor": {
+      "bitmap": "icons/armthor.png",
+      "size": 2.4000001,
+      "url": "/tactical-icons/assets/a28158cead1513f62a86.png"
+    },
+    "armthund": {
+      "bitmap": "icons/air_bomber.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/21028175e84e55042169.png"
+    },
+    "armthundt4": {
+      "bitmap": "icons/armthundt4.png",
+      "size": 3.3599999,
+      "url": "/tactical-icons/assets/a6d5f6dd4cde108e0532.png"
+    },
+    "armtide": {
+      "bitmap": "icons/energy1_1.0.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/8c3a9f184e0970d8e454.png"
+    },
+    "armtl": {
+      "bitmap": "icons/defence_1_naval.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/a375ad34bcada306d793.png"
+    },
+    "armtorps": {
+      "bitmap": "icons/ship.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/e4f217351c155d96be08.png"
+    },
+    "armtrident": {
+      "bitmap": "icons/ship_t2_dronecarry.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/92ba22f047f0c4afff2c.png"
+    },
+    "armuwadves": {
+      "bitmap": "icons/energystorage_t2.png",
+      "size": 1.3125,
+      "url": "/tactical-icons/assets/862c55a379e890889be0.png"
+    },
+    "armuwadvms": {
+      "bitmap": "icons/metalstorage_t2.png",
+      "size": 1.3125,
+      "url": "/tactical-icons/assets/6ac04bebae340971ee0a.png"
+    },
+    "armuwageo": {
+      "bitmap": "icons/hazardous.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/9e9d8439e8f6d87b9b8c.png"
+    },
+    "armuwes": {
+      "bitmap": "icons/energystorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/4f5c393aff8cd34109d1.png"
+    },
+    "armuwfus": {
+      "bitmap": "icons/fusion.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/badc2a3543cf8c80a933.png"
+    },
+    "armuwgeo": {
+      "bitmap": "icons/energy6_1.3.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/a50dc42bb22a113e9606.png"
+    },
+    "armuwmme": {
+      "bitmap": "icons/mex_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/dd5c5bfa9bd4e123fd6b.png"
+    },
+    "armuwmmm": {
+      "bitmap": "icons/metalmaker_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/af51689988b17b3663f7.png"
+    },
+    "armuwms": {
+      "bitmap": "icons/metalstorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/1fff0e8331ff7b97897c.png"
+    },
+    "armvader": {
+      "bitmap": "icons/armvader_0.9.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/5a91c974e9f804b18916.png"
+    },
+    "armvadert4": {
+      "bitmap": "icons/armvadert4.png",
+      "size": 2.625,
+      "url": "/tactical-icons/assets/9a90e2766bf81f6e2095.png"
+    },
+    "armvang": {
+      "bitmap": "icons/allterrain_t3_arty.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/ef441714cef303e9d9a1.png"
+    },
+    "armveil": {
+      "bitmap": "icons/jammer_t2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/9c43e0b5e5dd104db38a.png"
+    },
+    "armvp": {
+      "bitmap": "icons/factory_vehicle.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/f94f2999894d06c114f9.png"
+    },
+    "armvulc": {
+      "bitmap": "icons/armvulc.png",
+      "size": 3.25499964,
+      "url": "/tactical-icons/assets/2cdd320a78b4d9c0b940.png"
+    },
+    "armwar": {
+      "bitmap": "icons/armwar_1.15.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/34f0ba00555bad3676ea.png"
+    },
+    "armwin": {
+      "bitmap": "icons/wind.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/81b7d6a05ce0d0f258a2.png"
+    },
+    "armwint2": {
+      "bitmap": "icons/wind.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/81b7d6a05ce0d0f258a2.png"
+    },
+    "armyork": {
+      "bitmap": "icons/vehicle_t2_aa_flak.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/79052411c25a01eca28e.png"
+    },
+    "armzapper": {
+      "bitmap": "icons/vehicle.png",
+      "size": 0.57749999,
+      "url": "/tactical-icons/assets/66435c539e91bca1b873.png"
+    },
+    "armzeus": {
+      "bitmap": "icons/armzeus_1.28.png",
+      "size": 1.34399986,
+      "url": "/tactical-icons/assets/4d5658ac34d468c959a7.png"
+    },
+    "babyleggob": {
+      "bitmap": "icons/bot_t1_raid_0.7.png",
+      "size": 0.60000002,
+      "url": "/tactical-icons/assets/002d98ddcde48d3db7cb.png"
+    },
+    "babyleglob": {
+      "bitmap": "icons/bot_plasma_t1.png",
+      "size": 0.80000001,
+      "url": "/tactical-icons/assets/f14ba547d3709ca0098d.png"
+    },
+    "babylegshot": {
+      "bitmap": "icons/kbot_t2_shotgun.png",
+      "size": 1.60000002,
+      "url": "/tactical-icons/assets/00984cbcd6bdd2981557.png"
+    },
+    "blank": {
+      "bitmap": "icons/blank.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "chip": {
+      "bitmap": "icons/blank.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "cor_hat_fightnight": {
+      "bitmap": "icons/blank.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "cor_hat_hornet": {
+      "bitmap": "icons/blank.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "cor_hat_hw": {
+      "bitmap": "icons/blank.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "cor_hat_legfn": {
+      "bitmap": "icons/blank.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "cor_hat_ptaq": {
+      "bitmap": "icons/blank.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "cor_hat_viking": {
+      "bitmap": "icons/blank.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "coraak": {
+      "bitmap": "icons/bot_amph_t2_aa.png",
+      "size": 1.41999996,
+      "url": "/tactical-icons/assets/a47db0408efe22d5a013.png"
+    },
+    "coraap": {
+      "bitmap": "icons/factory_air_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/d674d1391867a4d1dde3.png"
+    },
+    "coraca": {
+      "bitmap": "icons/air_t2_worker.png",
+      "size": 1.62749982,
+      "url": "/tactical-icons/assets/5ab1e3657e7f9720f481.png"
+    },
+    "corack": {
+      "bitmap": "icons/bot_t2_worker.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/46f7168b734bbd0c67c2.png"
+    },
+    "coracsub": {
+      "bitmap": "icons/sub_t2_worker.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/cddeaa90951c0c6d57f2.png"
+    },
+    "coracv": {
+      "bitmap": "icons/vehicle_t2_worker.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/6623d9e785bf5fad59d1.png"
+    },
+    "coradvsol": {
+      "bitmap": "icons/energy2_1.18.png",
+      "size": 1.23899984,
+      "url": "/tactical-icons/assets/cf2fcb935f64f82b9ad2.png"
+    },
+    "corafus": {
+      "bitmap": "icons/energy5_1.85.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/17d9d12c60c791545815.png"
+    },
+    "corafust3": {
+      "bitmap": "icons/energy5_1.85.png",
+      "size": 3.9,
+      "url": "/tactical-icons/assets/17d9d12c60c791545815.png"
+    },
+    "corageo": {
+      "bitmap": "icons/hazardous.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/9e9d8439e8f6d87b9b8c.png"
+    },
+    "corah": {
+      "bitmap": "icons/hover_aa.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/09697fe443edd5bf320b.png"
+    },
+    "corak": {
+      "bitmap": "icons/bot_t1_raid_0.7.png",
+      "size": 0.73499995,
+      "url": "/tactical-icons/assets/002d98ddcde48d3db7cb.png"
+    },
+    "corakt4": {
+      "bitmap": "icons/corakt4.png",
+      "size": 1.7,
+      "url": "/tactical-icons/assets/8dc78935f78875d828ed.png"
+    },
+    "coralab": {
+      "bitmap": "icons/factory_bot_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/be9be309ca5a4353b2c5.png"
+    },
+    "coramph": {
+      "bitmap": "icons/amph_torp.png",
+      "size": 1.65999997,
+      "url": "/tactical-icons/assets/4bd1121385e92030eca4.png"
+    },
+    "coramsub": {
+      "bitmap": "icons/factory_amph.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/0f647437a7e14e88ae8e.png"
+    },
+    "coranavaldefturret": {
+      "bitmap": "icons/defence_t2_aoe_plasma_laser.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/ec0549acafa92de587ea.png"
+    },
+    "corantiship": {
+      "bitmap": "icons/ship_t2_carrier.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/6e7a773e6c70e5c65f8a.png"
+    },
+    "corap": {
+      "bitmap": "icons/factory_air.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/b46aa66bb06ce14b0507.png"
+    },
+    "corape": {
+      "bitmap": "icons/air_t2_hover_missile.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/5cca3763e5afc97f4405.png"
+    },
+    "corapt3": {
+      "bitmap": "icons/factory_air_t3.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/6da40b8ff0940786fb25.png"
+    },
+    "corarad": {
+      "bitmap": "icons/radar_t2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/a965f3dc2960a12add6f.png"
+    },
+    "corarch": {
+      "bitmap": "icons/ship_t2_aa_flak.png",
+      "size": 1.73249984,
+      "url": "/tactical-icons/assets/92a1d9fb987e2ad20ef5.png"
+    },
+    "corason": {
+      "bitmap": "icons/radar_t2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/a965f3dc2960a12add6f.png"
+    },
+    "corassistdrone": {
+      "bitmap": "icons/air_assistdrone.png",
+      "size": 0.85000002,
+      "url": "/tactical-icons/assets/42faa0f32feaf8cb6020.png"
+    },
+    "corassistdrone_land": {
+      "bitmap": "icons/land_assistdrone.png",
+      "size": 0.85000002,
+      "url": "/tactical-icons/assets/064f1eed39f0ca121839.png"
+    },
+    "corasy": {
+      "bitmap": "icons/factory_ship_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/c4697d766ff337fc1470.png"
+    },
+    "coratl": {
+      "bitmap": "icons/defence_2_naval.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/5f8bba7feeed9f00022d.png"
+    },
+    "coravp": {
+      "bitmap": "icons/factory_vehicle_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/4627d1c8cea957f6746a.png"
+    },
+    "corawac": {
+      "bitmap": "icons/air_t2_radar.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/961c31bda388f17c7d2d.png"
+    },
+    "corban": {
+      "bitmap": "icons/corban_1.6.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/882c9d673fdaf7f97cde.png"
+    },
+    "corbats": {
+      "bitmap": "icons/ship_t2_battleship.png",
+      "size": 2.67749977,
+      "url": "/tactical-icons/assets/28bcec27a428efac4a28.png"
+    },
+    "corbhmth": {
+      "bitmap": "icons/corbhmth.png",
+      "size": 1.82749987,
+      "url": "/tactical-icons/assets/f090cf54af9b7b3e7775.png"
+    },
+    "corblackhy": {
+      "bitmap": "icons/ship_t2_flagship.png",
+      "size": 3.46499968,
+      "url": "/tactical-icons/assets/fefc37198a42ff04d266.png"
+    },
+    "corbuzz": {
+      "bitmap": "icons/corbuzz.png",
+      "size": 4.04249954,
+      "url": "/tactical-icons/assets/82d5ca51feef14f63b82.png"
+    },
+    "corbw": {
+      "bitmap": "icons/air_bladew.png",
+      "size": 0.78749996,
+      "url": "/tactical-icons/assets/20b96a41beef4c01c71a.png"
+    },
+    "corca": {
+      "bitmap": "icons/air_worker.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/13f497606e8309d1cd14.png"
+    },
+    "corcan": {
+      "bitmap": "icons/corcan.png",
+      "size": 1.34399986,
+      "url": "/tactical-icons/assets/7bd51b96a6e2434363fb.png"
+    },
+    "corcarry": {
+      "bitmap": "icons/ship_t2_carrier.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/6e7a773e6c70e5c65f8a.png"
+    },
+    "corcat": {
+      "bitmap": "icons/corcat_1.9.png",
+      "size": 1.99499989,
+      "url": "/tactical-icons/assets/12cdf85965cf13f32390.png"
+    },
+    "corch": {
+      "bitmap": "icons/hover_worker.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/021511946e95f1a79cae.png"
+    },
+    "corck": {
+      "bitmap": "icons/bot_worker.png",
+      "size": 0.99749994,
+      "url": "/tactical-icons/assets/a97c619c2e639bf806c4.png"
+    },
+    "corcom": {
+      "bitmap": "icons/corcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/f752e375d0ff54aa925d.png"
+    },
+    "corcomboss": {
+      "bitmap": "icons/corcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/87463850fa314a658716.png"
+    },
+    "corcomcon": {
+      "bitmap": "icons/corcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/f752e375d0ff54aa925d.png"
+    },
+    "corcrash": {
+      "bitmap": "icons/bot_amph_aa.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/e7ecaa0a56a893f8eb4c.png"
+    },
+    "corcrus": {
+      "bitmap": "icons/ship_t2_cruiser.png",
+      "size": 2.25749993,
+      "url": "/tactical-icons/assets/9e55f0afc356295f26d8.png"
+    },
+    "corcrw": {
+      "bitmap": "icons/air_krow.png",
+      "size": 2.0999999,
+      "url": "/tactical-icons/assets/39abb28c1d1b18d6ba4a.png"
+    },
+    "corcrwh": {
+      "bitmap": "icons/air_krow.png",
+      "size": 2.0999999,
+      "url": "/tactical-icons/assets/39abb28c1d1b18d6ba4a.png"
+    },
+    "corcrwt4": {
+      "bitmap": "icons/corcrwt4.png",
+      "size": 3.3599999,
+      "url": "/tactical-icons/assets/64bd7ecf8386be2556ae.png"
+    },
+    "corcs": {
+      "bitmap": "icons/ship_worker.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/3724721dbe2ba6156d88.png"
+    },
+    "corcsa": {
+      "bitmap": "icons/air_worker_sea.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/2254062fffd3a8123404.png"
+    },
+    "corcut": {
+      "bitmap": "icons/air_t1_hover_sea_cannon.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/4d372574339e98d7925d.png"
+    },
+    "corcv": {
+      "bitmap": "icons/vehicle_worker.png",
+      "size": 0.99749994,
+      "url": "/tactical-icons/assets/4cee14c4f40047da54a2.png"
+    },
+    "cordeadeye": {
+      "bitmap": "icons/armsnipe_1.3.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/98dd16fb0f8f556dc8f3.png"
+    },
+    "cordecom": {
+      "bitmap": "icons/corcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/f752e375d0ff54aa925d.png"
+    },
+    "cordemon": {
+      "bitmap": "icons/cordemon.png",
+      "size": 2.625,
+      "url": "/tactical-icons/assets/d6247bf5adb59e83c0a8.png"
+    },
+    "cordesolator": {
+      "bitmap": "icons/sub_t3_nuke.png",
+      "size": 2.8,
+      "url": "/tactical-icons/assets/0ae155fb28b53723e5fe.png"
+    },
+    "cordl": {
+      "bitmap": "icons/defence_1_naval.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/a375ad34bcada306d793.png"
+    },
+    "cordoom": {
+      "bitmap": "icons/cordoom.png",
+      "size": 2.0474999,
+      "url": "/tactical-icons/assets/bb6b8f4908ac867c52ac.png"
+    },
+    "cordoomt3": {
+      "bitmap": "icons/laserdefenset3.png",
+      "size": 2.5474999,
+      "url": "/tactical-icons/assets/5cae7552c097f7b5033a.png"
+    },
+    "cordrag": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "cordrone": {
+      "bitmap": "icons/air_bladew.png",
+      "size": 0.5,
+      "url": "/tactical-icons/assets/20b96a41beef4c01c71a.png"
+    },
+    "cordronecarry": {
+      "bitmap": "icons/ship_t2_dronecarry.png",
+      "size": 2.45000005,
+      "url": "/tactical-icons/assets/92ba22f047f0c4afff2c.png"
+    },
+    "cordronecarryair": {
+      "bitmap": "icons/air_t3_dronecarryair.png",
+      "size": 2.45000005,
+      "url": "/tactical-icons/assets/fac8ae55049b362dfef8.png"
+    },
+    "cordroneold": {
+      "bitmap": "icons/air_hover.png",
+      "size": 0.34999999,
+      "url": "/tactical-icons/assets/820008fa71e4ccb96065.png"
+    },
+    "corenaa": {
+      "bitmap": "icons/aa_flak_t2.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/b9bc3dd03c3ba0f6a99c.png"
+    },
+    "corerad": {
+      "bitmap": "icons/aa_t1_long.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/c3cc8cf92fcaac4b432e.png"
+    },
+    "corestor": {
+      "bitmap": "icons/energystorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/4f5c393aff8cd34109d1.png"
+    },
+    "coresupp": {
+      "bitmap": "icons/ship_raid.png",
+      "size": 0.89999998,
+      "url": "/tactical-icons/assets/ffef98b78018700afab2.png"
+    },
+    "coresuppt3": {
+      "bitmap": "icons/ship_t4_esuppt3.png",
+      "size": 3.5,
+      "url": "/tactical-icons/assets/43187390e4c01af97d13.png"
+    },
+    "coreter": {
+      "bitmap": "icons/vehicle_t2_jammer.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/ddfc3a88527010d54f82.png"
+    },
+    "corexp": {
+      "bitmap": "icons/mex_t1_laser.png",
+      "size": 0.97000003,
+      "url": "/tactical-icons/assets/4522860ac93585275c90.png"
+    },
+    "coreyes": {
+      "bitmap": "icons/eye.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/1e23a8b4a9152457ca4f.png"
+    },
+    "corfast": {
+      "bitmap": "icons/corfast_1.3.png",
+      "size": 1.16999996,
+      "url": "/tactical-icons/assets/c4a8343e1cd5c568fc06.png"
+    },
+    "corfatf": {
+      "bitmap": "icons/targetting.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/90fc205f3097c0ca4e79.png"
+    },
+    "corfav": {
+      "bitmap": "icons/vehicle.png",
+      "size": 0.57749999,
+      "url": "/tactical-icons/assets/66435c539e91bca1b873.png"
+    },
+    "corfblackhyt4": {
+      "bitmap": "icons/air_t4_flagship.png",
+      "size": 3.3599999,
+      "url": "/tactical-icons/assets/f15e5d6d08537ef6d894.png"
+    },
+    "corfdoom": {
+      "bitmap": "icons/cordoom.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/bb6b8f4908ac867c52ac.png"
+    },
+    "corfdrag": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "corfgate": {
+      "bitmap": "icons/shield.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/e3c718b7cbdd992bfb98.png"
+    },
+    "corfhlt": {
+      "bitmap": "icons/defence_1_laser.png",
+      "size": 1.3,
+      "url": "/tactical-icons/assets/3671a7e95e7664ac7726.png"
+    },
+    "corfhp": {
+      "bitmap": "icons/factory_hover.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/4ec01fd67f32c7a06987.png"
+    },
+    "corfink": {
+      "bitmap": "icons/air_los.png",
+      "size": 0.78749996,
+      "url": "/tactical-icons/assets/372d6a23da9897b75432.png"
+    },
+    "corflak": {
+      "bitmap": "icons/aa_flak_t2.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/b9bc3dd03c3ba0f6a99c.png"
+    },
+    "corfmd": {
+      "bitmap": "icons/antinuke.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/ef84432d4609a6912c0c.png"
+    },
+    "corfmine3": {
+      "bitmap": "icons/mine.png",
+      "size": 0.55649996,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "corfmkr": {
+      "bitmap": "icons/metalmaker_t1.png",
+      "size": 0.78749996,
+      "url": "/tactical-icons/assets/f0949d8dcb32d6492ea3.png"
+    },
+    "corforge": {
+      "bitmap": "icons/cor_t2_flameworker.png",
+      "size": 1.45000005,
+      "url": "/tactical-icons/assets/a6e6e24de88d7c8ea386.png"
+    },
+    "corfort": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "corfrad": {
+      "bitmap": "icons/radar_t1.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/f25dbe02220bee32ea7b.png"
+    },
+    "corfrock": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "corfrt": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "corfship": {
+      "bitmap": "icons/ship_t2_flame.png",
+      "size": 1.89999998,
+      "url": "/tactical-icons/assets/cf002b9c778d08e7cf80.png"
+    },
+    "corftiger": {
+      "bitmap": "icons/vehicle_t2_tank.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/3f978c002f55c3890a6e.png"
+    },
+    "corfus": {
+      "bitmap": "icons/fusion.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/badc2a3543cf8c80a933.png"
+    },
+    "corgant": {
+      "bitmap": "icons/factory_gantry.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/9b88126331038d85a0c8.png"
+    },
+    "corgantuw": {
+      "bitmap": "icons/factory_gantry_uw.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/15fcbfa407d0e569e906.png"
+    },
+    "corgarp": {
+      "bitmap": "icons/amphib_tank.png",
+      "size": 1.35000002,
+      "url": "/tactical-icons/assets/0a32368316b1b88a6c66.png"
+    },
+    "corgate": {
+      "bitmap": "icons/shield.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/e3c718b7cbdd992bfb98.png"
+    },
+    "corgatet3": {
+      "bitmap": "icons/shield.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/e3c718b7cbdd992bfb98.png"
+    },
+    "corgator": {
+      "bitmap": "icons/vehicle_t1_raid.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/41bb3e405841f13e333c.png"
+    },
+    "corgatreap": {
+      "bitmap": "icons/corgatreap.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/cd6e3d15c15a19f1f52f.png"
+    },
+    "corgeo": {
+      "bitmap": "icons/energy6_1.3.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/a50dc42bb22a113e9606.png"
+    },
+    "corgol": {
+      "bitmap": "icons/vehicle_t2_plasma_aoe.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/bfc5d602e7f3e77b9004.png"
+    },
+    "corgolt4": {
+      "bitmap": "icons/armrattet4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/df9b5ae492fd257c1421.png"
+    },
+    "corgplat": {
+      "bitmap": "icons/defence_0_0.8.png",
+      "size": 0.83999997,
+      "url": "/tactical-icons/assets/e4da2ac34fbb18d3561c.png"
+    },
+    "corhaap": {
+      "bitmap": "icons/factory_air_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/d674d1391867a4d1dde3.png"
+    },
+    "corhaapuw": {
+      "bitmap": "icons/factory_air_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/d674d1391867a4d1dde3.png"
+    },
+    "corhaca": {
+      "bitmap": "icons/air_t2_worker.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/5ab1e3657e7f9720f481.png"
+    },
+    "corhack": {
+      "bitmap": "icons/bot_t2_worker.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/46f7168b734bbd0c67c2.png"
+    },
+    "corhacs": {
+      "bitmap": "icons/shipengineer.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/bb0f67e1605763a4cffa.png"
+    },
+    "corhacv": {
+      "bitmap": "icons/vehicle_t2_worker.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/6623d9e785bf5fad59d1.png"
+    },
+    "corhal": {
+      "bitmap": "icons/corhal.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/efa9a9dd0883a2c54523.png"
+    },
+    "corhalab": {
+      "bitmap": "icons/factory_bot_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/be9be309ca5a4353b2c5.png"
+    },
+    "corhasy": {
+      "bitmap": "icons/factory_ship_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/c4697d766ff337fc1470.png"
+    },
+    "corhavp": {
+      "bitmap": "icons/factory_vehicle_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/4627d1c8cea957f6746a.png"
+    },
+    "corhllllt": {
+      "bitmap": "icons/defence_hllllt.png",
+      "size": 1.68699992,
+      "url": "/tactical-icons/assets/2be75de1c95c15916a6a.png"
+    },
+    "corhllt": {
+      "bitmap": "icons/defence_hllt.png",
+      "size": 1.10870004,
+      "url": "/tactical-icons/assets/7b2569c7dddcd17b6294.png"
+    },
+    "corhlt": {
+      "bitmap": "icons/defence_1.5_laser.png",
+      "size": 1.30249989,
+      "url": "/tactical-icons/assets/0c0c187327a52b8478e0.png"
+    },
+    "corhp": {
+      "bitmap": "icons/factory_hover.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/4ec01fd67f32c7a06987.png"
+    },
+    "corhrk": {
+      "bitmap": "icons/bot_t2_vroc.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/595a9325065a6df2f352.png"
+    },
+    "corhunt": {
+      "bitmap": "icons/air_los_sea.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/7bbe57d9566191cf05fa.png"
+    },
+    "corhurc": {
+      "bitmap": "icons/air_t2_bomber.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/1b9991e8e97efb5f863d.png"
+    },
+    "corhvytrans": {
+      "bitmap": "icons/air_trans.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/ad446a86a90b012598cd.png"
+    },
+    "corint": {
+      "bitmap": "icons/corint.png",
+      "size": 2.41499972,
+      "url": "/tactical-icons/assets/b8c38b5bee53a73f5f72.png"
+    },
+    "corjamt": {
+      "bitmap": "icons/jammer.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/7c21d6c34024a5dac7f1.png"
+    },
+    "corjugg": {
+      "bitmap": "icons/juggernaut.png",
+      "size": 3.14999986,
+      "url": "/tactical-icons/assets/58c09d98c5c9a0c6c460.png"
+    },
+    "corjuno": {
+      "bitmap": "icons/juno.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/d26406e403a3baf85c6e.png"
+    },
+    "corkarg": {
+      "bitmap": "icons/corkarg_2.05.png",
+      "size": 2.424999,
+      "url": "/tactical-icons/assets/e274a71a2f47d48a624d.png"
+    },
+    "corkarganetht4": {
+      "bitmap": "icons/corkarganetht4.png",
+      "size": 3.14999986,
+      "url": "/tactical-icons/assets/fdfa2dab410a50bc3d51.png"
+    },
+    "corkark": {
+      "bitmap": "icons/legkark.png",
+      "size": 1.3,
+      "url": "/tactical-icons/assets/41973183af6d635dec91.png"
+    },
+    "corkorg": {
+      "bitmap": "icons/mech.png",
+      "size": 3.46499968,
+      "url": "/tactical-icons/assets/21241c62abe7d0a09d85.png"
+    },
+    "corlab": {
+      "bitmap": "icons/factory_bot.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/2bf92b8c323127a3fcd3.png"
+    },
+    "corlevlr": {
+      "bitmap": "icons/vehicle_t1_impulse.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/e686d177722ec68e9559.png"
+    },
+    "corllt": {
+      "bitmap": "icons/defence_0_laser.png",
+      "size": 0.83999997,
+      "url": "/tactical-icons/assets/1241de511d771bdd3082.png"
+    },
+    "cormabm": {
+      "bitmap": "icons/antinukevehicle.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/6ede4eaed6d757436875.png"
+    },
+    "cormadsam": {
+      "bitmap": "icons/aa_t15.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/72083b18f26335a18f80.png"
+    },
+    "cormakr": {
+      "bitmap": "icons/metalmaker_t1.png",
+      "size": 0.78749996,
+      "url": "/tactical-icons/assets/f0949d8dcb32d6492ea3.png"
+    },
+    "cormando": {
+      "bitmap": "icons/cormando.png",
+      "size": 1.65999997,
+      "url": "/tactical-icons/assets/2bcc431de44a653ff51b.png"
+    },
+    "cormart": {
+      "bitmap": "icons/vehicle_arty_t2.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/7657da14891e564c82dc.png"
+    },
+    "cormaw": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "cormex": {
+      "bitmap": "icons/mex_t1.png",
+      "size": 0.80849993,
+      "url": "/tactical-icons/assets/d9cc6c3e4b939fac0da9.png"
+    },
+    "cormexp": {
+      "bitmap": "icons/mex_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/dd5c5bfa9bd4e123fd6b.png"
+    },
+    "cormh": {
+      "bitmap": "icons/hover_t1_missile.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/edf20f83584201375413.png"
+    },
+    "cormine1": {
+      "bitmap": "icons/mine.png",
+      "size": 0.37799999,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "cormine2": {
+      "bitmap": "icons/mine.png",
+      "size": 0.46199998,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "cormine3": {
+      "bitmap": "icons/mine.png",
+      "size": 0.55649996,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "cormine4": {
+      "bitmap": "icons/mine.png",
+      "size": 0.46199998,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "corminibuzz": {
+      "bitmap": "icons/corbuzz.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/82d5ca51feef14f63b82.png"
+    },
+    "cormist": {
+      "bitmap": "icons/vehicle_t1_missile.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/45896ab6937af3324520.png"
+    },
+    "cormls": {
+      "bitmap": "icons/shipengineer.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/bb0f67e1605763a4cffa.png"
+    },
+    "cormlv": {
+      "bitmap": "icons/cormlv_1.0.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/90edf96432619f0031b2.png"
+    },
+    "cormmkr": {
+      "bitmap": "icons/metalmaker_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/af51689988b17b3663f7.png"
+    },
+    "cormmkrt3": {
+      "bitmap": "icons/metalmaker_t2.png",
+      "size": 2.40749986,
+      "url": "/tactical-icons/assets/af51689988b17b3663f7.png"
+    },
+    "cormoho": {
+      "bitmap": "icons/mex_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/dd5c5bfa9bd4e123fd6b.png"
+    },
+    "cormort": {
+      "bitmap": "icons/bot_arty_t2.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/034e9c990457411df639.png"
+    },
+    "cormship": {
+      "bitmap": "icons/ship_t2_missile.png",
+      "size": 2.0999999,
+      "url": "/tactical-icons/assets/1213844f550e78305e95.png"
+    },
+    "cormstor": {
+      "bitmap": "icons/metalstorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/1fff0e8331ff7b97897c.png"
+    },
+    "cormuskrat": {
+      "bitmap": "icons/amphib_worker.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/2c327b87ca547f50675b.png"
+    },
+    "cormwall": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "cornanotc": {
+      "bitmap": "icons/nanot1.png",
+      "size": 0.96599996,
+      "url": "/tactical-icons/assets/74d473027fe58d0f1ea2.png"
+    },
+    "cornanotc2plat": {
+      "bitmap": "icons/nanot2.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/10ce4e52ed235e9adc03.png"
+    },
+    "cornanotcplat": {
+      "bitmap": "icons/nanot1.png",
+      "size": 0.96599996,
+      "url": "/tactical-icons/assets/74d473027fe58d0f1ea2.png"
+    },
+    "cornanotct2": {
+      "bitmap": "icons/nanot2.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/10ce4e52ed235e9adc03.png"
+    },
+    "cornavaldefturret": {
+      "bitmap": "icons/defence_t15_plasma_aoe.png",
+      "size": 1.6,
+      "url": "/tactical-icons/assets/ee7813f5b2ce723e63e8.png"
+    },
+    "cornecro": {
+      "bitmap": "icons/bot_t1_rez.png",
+      "size": 0.74000001,
+      "url": "/tactical-icons/assets/3e4110e2088af549823d.png"
+    },
+    "coronager": {
+      "bitmap": "icons/sub_t2_coastal.png",
+      "size": 2.2,
+      "url": "/tactical-icons/assets/309b9fd69072ee4497a4.png"
+    },
+    "corparrow": {
+      "bitmap": "icons/corparrow.png",
+      "size": 1.62749982,
+      "url": "/tactical-icons/assets/c69c3dc1dee00711f135.png"
+    },
+    "corphantom": {
+      "bitmap": "icons/spy.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/6d068b6b836a26326ce7.png"
+    },
+    "corplat": {
+      "bitmap": "icons/factory_air_sea.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/b6546d66ccaeb07ae9d5.png"
+    },
+    "corprince": {
+      "bitmap": "icons/t2_quad_artillery_ship.png",
+      "size": 3.46499968,
+      "url": "/tactical-icons/assets/5a908b1be1cbc4f1e6af.png"
+    },
+    "corprinter": {
+      "bitmap": "icons/corprinter.png",
+      "size": 1.20000005,
+      "url": "/tactical-icons/assets/c3c2fceb49802cd283a5.png"
+    },
+    "corpship": {
+      "bitmap": "icons/ship_pship.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/025e58cafb5a32c48970.png"
+    },
+    "corpt": {
+      "bitmap": "icons/ship.png",
+      "size": 1.14999998,
+      "url": "/tactical-icons/assets/e4f217351c155d96be08.png"
+    },
+    "corpun": {
+      "bitmap": "icons/def_t1_arty.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/9f4934b426a0d0f77a0e.png"
+    },
+    "corpyro": {
+      "bitmap": "icons/corpyro_1.15.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/c1e5cdd658c9b57c4978.png"
+    },
+    "corrad": {
+      "bitmap": "icons/radar_t1.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/f25dbe02220bee32ea7b.png"
+    },
+    "corraid": {
+      "bitmap": "icons/vehicle_t1_tank.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/b5cbc5cb71e2d42835bb.png"
+    },
+    "correap": {
+      "bitmap": "icons/vehicle_t2_tank.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/3f978c002f55c3890a6e.png"
+    },
+    "correcl": {
+      "bitmap": "icons/sub_rez.png",
+      "size": 1.64299989,
+      "url": "/tactical-icons/assets/9e9fe1a29b8dc99df908.png"
+    },
+    "correspawn": {
+      "bitmap": "icons/nanot2.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/10ce4e52ed235e9adc03.png"
+    },
+    "corrl": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "corroach": {
+      "bitmap": "icons/corroach_0.9.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/302cab6d52b12957f4de.png"
+    },
+    "corroy": {
+      "bitmap": "icons/ship_destroyer.png",
+      "size": 1.51199996,
+      "url": "/tactical-icons/assets/6ddaa1140c9835b8c027.png"
+    },
+    "corsala": {
+      "bitmap": "icons/corseal.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/db66033ff3bd4ab957cb.png"
+    },
+    "corsb": {
+      "bitmap": "icons/air_bomber_sea.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/7c2a25780f110f62c6e1.png"
+    },
+    "corscavdrag": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "corscavdtf": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "corscavdtl": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "corscavdtm": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "corscavfort": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "corscreamer": {
+      "bitmap": "icons/aa_longrange_t2.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/d1ef70a3ef093a093df5.png"
+    },
+    "corsd": {
+      "bitmap": "icons/seismic.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/a02ccdf8f95df48e95d3.png"
+    },
+    "corseah": {
+      "bitmap": "icons/air_trans.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/ad446a86a90b012598cd.png"
+    },
+    "corseal": {
+      "bitmap": "icons/corseal.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/db66033ff3bd4ab957cb.png"
+    },
+    "corseap": {
+      "bitmap": "icons/air_torp_sea.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/7dc920464a717c776bfc.png"
+    },
+    "corsent": {
+      "bitmap": "icons/vehicle_t2_aa_flak.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/79052411c25a01eca28e.png"
+    },
+    "corsentinel": {
+      "bitmap": "icons/ship_t2_dronecarry.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/92ba22f047f0c4afff2c.png"
+    },
+    "corsfig": {
+      "bitmap": "icons/air_sea.png",
+      "size": 0.86099994,
+      "url": "/tactical-icons/assets/18558bc341919b08e7c3.png"
+    },
+    "corsfig2": {
+      "bitmap": "icons/air_sea.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/18558bc341919b08e7c3.png"
+    },
+    "corsh": {
+      "bitmap": "icons/hover_raid.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/f154d983d59d52b7085f.png"
+    },
+    "corshad": {
+      "bitmap": "icons/air_bomber.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/21028175e84e55042169.png"
+    },
+    "corshark": {
+      "bitmap": "icons/sub_t2.png",
+      "size": 1.78499997,
+      "url": "/tactical-icons/assets/d45a31f1af35224bdd31.png"
+    },
+    "corshiva": {
+      "bitmap": "icons/corshiva_2.1.png",
+      "size": 2.20499969,
+      "url": "/tactical-icons/assets/3f945ef902df46cdbb14.png"
+    },
+    "corshroud": {
+      "bitmap": "icons/jammer_t2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/9c43e0b5e5dd104db38a.png"
+    },
+    "corsiegebreaker": {
+      "bitmap": "icons/vehicle_t2_tank_laser.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/236bd76eb4b82475ea33.png"
+    },
+    "corsilo": {
+      "bitmap": "icons/nuke.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/43202e02be18d40b35a8.png"
+    },
+    "corsjam": {
+      "bitmap": "icons/ship_t2_jammer.png",
+      "size": 1.73249984,
+      "url": "/tactical-icons/assets/979760f3a3cb8a2f17dd.png"
+    },
+    "corsktl": {
+      "bitmap": "icons/corsktl.png",
+      "size": 1.14999998,
+      "url": "/tactical-icons/assets/da92d9e81742e37c4bdd.png"
+    },
+    "corslrpc": {
+      "bitmap": "icons/ship_t4_slrpc.png",
+      "size": 3.20000005,
+      "url": "/tactical-icons/assets/b9784cc437cddd76cc54.png"
+    },
+    "corsnap": {
+      "bitmap": "icons/hover_gun.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/30e84d4e3c7438b2bba7.png"
+    },
+    "corsok": {
+      "bitmap": "icons/corsok_1.8.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/f58881e68d082f3037ce.png"
+    },
+    "corsolar": {
+      "bitmap": "icons/energy1_1.0.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/8c3a9f184e0970d8e454.png"
+    },
+    "corsonar": {
+      "bitmap": "icons/radar_t1.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/f25dbe02220bee32ea7b.png"
+    },
+    "corspec": {
+      "bitmap": "icons/bot_t2_jammer.png",
+      "size": 1.34399986,
+      "url": "/tactical-icons/assets/e2ea13d7fb22e8a8d5c2.png"
+    },
+    "corspy": {
+      "bitmap": "icons/spy.png",
+      "size": 1.17999995,
+      "url": "/tactical-icons/assets/6d068b6b836a26326ce7.png"
+    },
+    "corssub": {
+      "bitmap": "icons/battlesub_t2.png",
+      "size": 2.20000005,
+      "url": "/tactical-icons/assets/5245b8cdc9017b74c900.png"
+    },
+    "corstorm": {
+      "bitmap": "icons/bot_rocket.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/10234803066aa2b6fc19.png"
+    },
+    "corsub": {
+      "bitmap": "icons/sub.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/bc53eaccf93a47551822.png"
+    },
+    "corsumo": {
+      "bitmap": "icons/corsumo.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/2468b4d8b9015ecbcb40.png"
+    },
+    "corsy": {
+      "bitmap": "icons/factory_ship.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/785b6a16911abe03b205.png"
+    },
+    "cortarg": {
+      "bitmap": "icons/targetting.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/90fc205f3097c0ca4e79.png"
+    },
+    "cortdrone": {
+      "bitmap": "icons/air_bladew.png",
+      "size": 0.5,
+      "url": "/tactical-icons/assets/20b96a41beef4c01c71a.png"
+    },
+    "cortermite": {
+      "bitmap": "icons/cortermite_1.5.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/f57aeb88a54db0595c8c.png"
+    },
+    "corthermite": {
+      "bitmap": "icons/corthermite.png",
+      "size": 2.42499924,
+      "url": "/tactical-icons/assets/272ecee74e0e91d1d6a3.png"
+    },
+    "corthud": {
+      "bitmap": "icons/bot_plasma_t1.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/f14ba547d3709ca0098d.png"
+    },
+    "cortide": {
+      "bitmap": "icons/energy1_1.0.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/8c3a9f184e0970d8e454.png"
+    },
+    "cortitan": {
+      "bitmap": "icons/air_t2_torpbomber.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/2babe7b97537f7a64ca9.png"
+    },
+    "cortl": {
+      "bitmap": "icons/defence_1_naval.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/a375ad34bcada306d793.png"
+    },
+    "cortoast": {
+      "bitmap": "icons/def_t2_arty.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0e27aa6f379ba712ee0e.png"
+    },
+    "cortorch": {
+      "bitmap": "icons/cortorch.png",
+      "size": 1.20000005,
+      "url": "/tactical-icons/assets/4b5c28d190187c7ee168.png"
+    },
+    "cortrem": {
+      "bitmap": "icons/cortrem_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/78b5e10a7346db4c52a9.png"
+    },
+    "cortron": {
+      "bitmap": "icons/tacnuke.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/418057fed56a250bb6fc.png"
+    },
+    "coruwadves": {
+      "bitmap": "icons/energystorage_t2.png",
+      "size": 1.3125,
+      "url": "/tactical-icons/assets/862c55a379e890889be0.png"
+    },
+    "coruwadvms": {
+      "bitmap": "icons/metalstorage_t2.png",
+      "size": 1.3125,
+      "url": "/tactical-icons/assets/6ac04bebae340971ee0a.png"
+    },
+    "coruwageo": {
+      "bitmap": "icons/hazardous.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/9e9d8439e8f6d87b9b8c.png"
+    },
+    "coruwes": {
+      "bitmap": "icons/energystorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/4f5c393aff8cd34109d1.png"
+    },
+    "coruwfus": {
+      "bitmap": "icons/fusion.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/badc2a3543cf8c80a933.png"
+    },
+    "coruwgeo": {
+      "bitmap": "icons/energy6_1.3.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/a50dc42bb22a113e9606.png"
+    },
+    "coruwmme": {
+      "bitmap": "icons/mex_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/dd5c5bfa9bd4e123fd6b.png"
+    },
+    "coruwmmm": {
+      "bitmap": "icons/metalmaker_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/af51689988b17b3663f7.png"
+    },
+    "coruwms": {
+      "bitmap": "icons/metalstorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/1fff0e8331ff7b97897c.png"
+    },
+    "corvac": {
+      "bitmap": "icons/corprinter.png",
+      "size": 1.20000005,
+      "url": "/tactical-icons/assets/c3c2fceb49802cd283a5.png"
+    },
+    "corvacct": {
+      "bitmap": "icons/blank.png",
+      "size": 1.20000005,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "corvalk": {
+      "bitmap": "icons/air_trans.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/ad446a86a90b012598cd.png"
+    },
+    "corvamp": {
+      "bitmap": "icons/air_t2.png",
+      "size": 1.02899992,
+      "url": "/tactical-icons/assets/dd8137ba08cebe609654.png"
+    },
+    "corveng": {
+      "bitmap": "icons/air.png",
+      "size": 0.86099994,
+      "url": "/tactical-icons/assets/91682c80e7f1d5f5d3cb.png"
+    },
+    "corves": {
+      "bitmap": "icons/armrattet4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/df9b5ae492fd257c1421.png"
+    },
+    "corvipe": {
+      "bitmap": "icons/def_t2_missile.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/fb3a00d1f8aa07583f5b.png"
+    },
+    "corvoyr": {
+      "bitmap": "icons/bot_t2_radar.png",
+      "size": 1.34399986,
+      "url": "/tactical-icons/assets/a55d40b69831d8e18a8a.png"
+    },
+    "corvp": {
+      "bitmap": "icons/factory_vehicle.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/f94f2999894d06c114f9.png"
+    },
+    "corvrad": {
+      "bitmap": "icons/vehicle_t2_radar.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/456a59a9466d34239f40.png"
+    },
+    "corvroc": {
+      "bitmap": "icons/vehicle_t2_vroc.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/ca7891d4d06272caeb99.png"
+    },
+    "corwin": {
+      "bitmap": "icons/wind.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/81b7d6a05ce0d0f258a2.png"
+    },
+    "corwint2": {
+      "bitmap": "icons/wind.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/81b7d6a05ce0d0f258a2.png"
+    },
+    "corwolv": {
+      "bitmap": "icons/vehicle_arty.png",
+      "size": 1.10000002,
+      "url": "/tactical-icons/assets/7f6f83ff11c158011e80.png"
+    },
+    "critter_ant": {
+      "bitmap": "icons/blank.png",
+      "size": 0.01,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "critter_crab": {
+      "bitmap": "icons/blank.png",
+      "size": 0.01,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "critter_duck": {
+      "bitmap": "icons/blank.png",
+      "size": 0.01,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "critter_goldfish": {
+      "bitmap": "icons/blank.png",
+      "size": 0.01,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "critter_gull": {
+      "bitmap": "icons/blank.png",
+      "size": 0.01,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "critter_penguin": {
+      "bitmap": "icons/blank.png",
+      "size": 0.01,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "critter_penguinbro": {
+      "bitmap": "icons/blank.png",
+      "size": 0.01,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "critter_penguinking": {
+      "bitmap": "icons/blank.png",
+      "size": 0.01,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "dbg_sphere": {
+      "bitmap": "icons/allterrain.png",
+      "size": 0.5,
+      "url": "/tactical-icons/assets/c4c1af4162bd2849e1e2.png"
+    },
+    "dice": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "freefusion": {
+      "bitmap": "icons/fusion.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/badc2a3543cf8c80a933.png"
+    },
+    "leegmech": {
+      "bitmap": "icons/bantha.png",
+      "size": 2.29999995,
+      "url": "/tactical-icons/assets/6f050ea8cb225f4aa95c.png"
+    },
+    "legaabot": {
+      "bitmap": "icons/bot_amph_aa.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/e7ecaa0a56a893f8eb4c.png"
+    },
+    "legaap": {
+      "bitmap": "icons/factory_air_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/d674d1391867a4d1dde3.png"
+    },
+    "legabm": {
+      "bitmap": "icons/antinuke.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/ef84432d4609a6912c0c.png"
+    },
+    "legaca": {
+      "bitmap": "icons/air_t2_worker.png",
+      "size": 1.62749982,
+      "url": "/tactical-icons/assets/5ab1e3657e7f9720f481.png"
+    },
+    "legaceb": {
+      "bitmap": "icons/legceb.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/8eecd8fb082328e74bbe.png"
+    },
+    "legack": {
+      "bitmap": "icons/bot_t2_worker.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/46f7168b734bbd0c67c2.png"
+    },
+    "legacluster": {
+      "bitmap": "icons/def_t2_arty.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0e27aa6f379ba712ee0e.png"
+    },
+    "legacv": {
+      "bitmap": "icons/vehicle_t2_worker.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/6623d9e785bf5fad59d1.png"
+    },
+    "legadvaabot": {
+      "bitmap": "icons/bot_amph_t2_aa.png",
+      "size": 1.41999996,
+      "url": "/tactical-icons/assets/a47db0408efe22d5a013.png"
+    },
+    "legadveconv": {
+      "bitmap": "icons/metalmaker_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/af51689988b17b3663f7.png"
+    },
+    "legadveconvt3": {
+      "bitmap": "icons/metalmaker_t2.png",
+      "size": 2.40749986,
+      "url": "/tactical-icons/assets/af51689988b17b3663f7.png"
+    },
+    "legadvestore": {
+      "bitmap": "icons/energystorage_t2.png",
+      "size": 1.3125,
+      "url": "/tactical-icons/assets/862c55a379e890889be0.png"
+    },
+    "legadvshipyard": {
+      "bitmap": "icons/factory_ship_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/c4697d766ff337fc1470.png"
+    },
+    "legadvsol": {
+      "bitmap": "icons/energy2_1.18.png",
+      "size": 1.23899984,
+      "url": "/tactical-icons/assets/cf2fcb935f64f82b9ad2.png"
+    },
+    "legafcv": {
+      "bitmap": "icons/armconsul_1.35.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/a26ab6af1dcb1780a0f8.png"
+    },
+    "legafigdef": {
+      "bitmap": "icons/air_t2.png",
+      "size": 1.02899992,
+      "url": "/tactical-icons/assets/dd8137ba08cebe609654.png"
+    },
+    "legafus": {
+      "bitmap": "icons/energy5_1.85.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/17d9d12c60c791545815.png"
+    },
+    "legafust3": {
+      "bitmap": "icons/energy5_1.85.png",
+      "size": 3.9,
+      "url": "/tactical-icons/assets/17d9d12c60c791545815.png"
+    },
+    "legageo": {
+      "bitmap": "icons/hazardous.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/9e9d8439e8f6d87b9b8c.png"
+    },
+    "legah": {
+      "bitmap": "icons/hover_aa.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/09697fe443edd5bf320b.png"
+    },
+    "legaheattank": {
+      "bitmap": "icons/vehicle_t2_tank_heavylaser.png",
+      "size": 1.73749986,
+      "url": "/tactical-icons/assets/33ff574a662bb617dc67.png"
+    },
+    "legajam": {
+      "bitmap": "icons/jammer_t2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/9c43e0b5e5dd104db38a.png"
+    },
+    "legajamk": {
+      "bitmap": "icons/bot_t2_jammer.png",
+      "size": 1.34399986,
+      "url": "/tactical-icons/assets/e2ea13d7fb22e8a8d5c2.png"
+    },
+    "legalab": {
+      "bitmap": "icons/factory_bot_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/be9be309ca5a4353b2c5.png"
+    },
+    "legamcluster": {
+      "bitmap": "icons/vehicle_arty_t2.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/7657da14891e564c82dc.png"
+    },
+    "legamph": {
+      "bitmap": "icons/amph_torp.png",
+      "size": 1.65999997,
+      "url": "/tactical-icons/assets/4bd1121385e92030eca4.png"
+    },
+    "legamphlab": {
+      "bitmap": "icons/factory_amph.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/0f647437a7e14e88ae8e.png"
+    },
+    "legamphtank": {
+      "bitmap": "icons/amphib_tank.png",
+      "size": 1.35000002,
+      "url": "/tactical-icons/assets/0a32368316b1b88a6c66.png"
+    },
+    "legamstor": {
+      "bitmap": "icons/metalstorage_t2.png",
+      "size": 1.3125,
+      "url": "/tactical-icons/assets/6ac04bebae340971ee0a.png"
+    },
+    "leganavalaaturret": {
+      "bitmap": "icons/aa_flak_t2.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/b9bc3dd03c3ba0f6a99c.png"
+    },
+    "leganavaladvgeo": {
+      "bitmap": "icons/hazardous.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/9e9d8439e8f6d87b9b8c.png"
+    },
+    "leganavaldefturret": {
+      "bitmap": "icons/defence_t2_shotgun_mg.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/532fed137407320e6751.png"
+    },
+    "leganavaleconv": {
+      "bitmap": "icons/metalmaker_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/af51689988b17b3663f7.png"
+    },
+    "leganavalfusion": {
+      "bitmap": "icons/fusion.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/badc2a3543cf8c80a933.png"
+    },
+    "leganavalmex": {
+      "bitmap": "icons/mex_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/dd5c5bfa9bd4e123fd6b.png"
+    },
+    "leganavalpinpointer": {
+      "bitmap": "icons/targetting.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/90fc205f3097c0ca4e79.png"
+    },
+    "leganavalsonarstation": {
+      "bitmap": "icons/radar_t2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/a965f3dc2960a12add6f.png"
+    },
+    "leganavaltorpturret": {
+      "bitmap": "icons/defence_2_naval.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/5f8bba7feeed9f00022d.png"
+    },
+    "leganavyaaship": {
+      "bitmap": "icons/ship_t2_aa_flak.png",
+      "size": 1.73249984,
+      "url": "/tactical-icons/assets/92a1d9fb987e2ad20ef5.png"
+    },
+    "leganavyantinukecarrier": {
+      "bitmap": "icons/ship_t2_antidrone.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/4613b255b54bad7d031c.png"
+    },
+    "leganavyantiswarm": {
+      "bitmap": "icons/ship_t2_impulse.png",
+      "size": 1.79999995,
+      "url": "/tactical-icons/assets/28e521d722e0a3d69d7d.png"
+    },
+    "leganavyartyship": {
+      "bitmap": "icons/ship_t2_multi_cluster_arty.png",
+      "size": 3.16499968,
+      "url": "/tactical-icons/assets/1cec9943ef30c72cf7e3.png"
+    },
+    "leganavybattleship": {
+      "bitmap": "icons/ship_t2_plasma_shotgun_walker.png",
+      "size": 2.67749977,
+      "url": "/tactical-icons/assets/480e27931db9b5d5c6ce.png"
+    },
+    "leganavybattlesub": {
+      "bitmap": "icons/sub_t2.png",
+      "size": 1.78499997,
+      "url": "/tactical-icons/assets/d45a31f1af35224bdd31.png"
+    },
+    "leganavyconsub": {
+      "bitmap": "icons/sub_t2_worker.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/cddeaa90951c0c6d57f2.png"
+    },
+    "leganavycruiser": {
+      "bitmap": "icons/ship_t2_gatling.png",
+      "size": 2.25749993,
+      "url": "/tactical-icons/assets/bda7200b6bd69a04672b.png"
+    },
+    "leganavyengineer": {
+      "bitmap": "icons/shipengineer.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/bb0f67e1605763a4cffa.png"
+    },
+    "leganavyflagship": {
+      "bitmap": "icons/ship_t2_flagship.png",
+      "size": 3.46499968,
+      "url": "/tactical-icons/assets/fefc37198a42ff04d266.png"
+    },
+    "leganavyheavysub": {
+      "bitmap": "icons/battlesub_t2.png",
+      "size": 2.20000005,
+      "url": "/tactical-icons/assets/5245b8cdc9017b74c900.png"
+    },
+    "leganavymissileship": {
+      "bitmap": "icons/ship_t2_missile.png",
+      "size": 2.0999999,
+      "url": "/tactical-icons/assets/1213844f550e78305e95.png"
+    },
+    "leganavyradjamship": {
+      "bitmap": "icons/ship_t2_hybridradjam.png",
+      "size": 1.73249984,
+      "url": "/tactical-icons/assets/d9f6151b499c76b42bab.png"
+    },
+    "legap": {
+      "bitmap": "icons/factory_air.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/b46aa66bb06ce14b0507.png"
+    },
+    "legapollyon": {
+      "bitmap": "icons/vehicle_t3_tank_mgun.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/580c430ce5ff58364939.png"
+    },
+    "legapopupdef": {
+      "bitmap": "icons/def_t2_impulse.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/f3a042ed5610f75c7af1.png"
+    },
+    "legapt3": {
+      "bitmap": "icons/factory_air_t3.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/6da40b8ff0940786fb25.png"
+    },
+    "legarad": {
+      "bitmap": "icons/radar_t2.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/a965f3dc2960a12add6f.png"
+    },
+    "legaradk": {
+      "bitmap": "icons/bot_t2_radar.png",
+      "size": 1.34399986,
+      "url": "/tactical-icons/assets/a55d40b69831d8e18a8a.png"
+    },
+    "legaskirmtank": {
+      "bitmap": "icons/vehicle_t2_tank_triplasma.png",
+      "size": 1.36999991,
+      "url": "/tactical-icons/assets/42eb4969039142796fcb.png"
+    },
+    "legaspy": {
+      "bitmap": "icons/spy.png",
+      "size": 1.17999995,
+      "url": "/tactical-icons/assets/6d068b6b836a26326ce7.png"
+    },
+    "legassistdrone": {
+      "bitmap": "icons/air_assistdrone.png",
+      "size": 0.85000002,
+      "url": "/tactical-icons/assets/42faa0f32feaf8cb6020.png"
+    },
+    "legassistdrone_land": {
+      "bitmap": "icons/land_assistdrone.png",
+      "size": 0.85000002,
+      "url": "/tactical-icons/assets/064f1eed39f0ca121839.png"
+    },
+    "legatorpbomber": {
+      "bitmap": "icons/air_t2_torpbomber.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/2babe7b97537f7a64ca9.png"
+    },
+    "legatrans": {
+      "bitmap": "icons/air_trans.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/ad446a86a90b012598cd.png"
+    },
+    "legavantinuke": {
+      "bitmap": "icons/antinukevehicle.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/6ede4eaed6d757436875.png"
+    },
+    "legavjam": {
+      "bitmap": "icons/vehicle_t2_jammer.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/ddfc3a88527010d54f82.png"
+    },
+    "legavp": {
+      "bitmap": "icons/factory_vehicle_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/4627d1c8cea957f6746a.png"
+    },
+    "legavrad": {
+      "bitmap": "icons/vehicle_t2_radar.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/456a59a9466d34239f40.png"
+    },
+    "legavroc": {
+      "bitmap": "icons/vehicle_t2_vroc.png",
+      "size": 1.62749982,
+      "url": "/tactical-icons/assets/ca7891d4d06272caeb99.png"
+    },
+    "legbal": {
+      "bitmap": "icons/bot_t15_rocket.png",
+      "size": 1.20000005,
+      "url": "/tactical-icons/assets/38139e7e9709128b91b1.png"
+    },
+    "legbar": {
+      "bitmap": "icons/vehicle_t1_arty_napalm.png",
+      "size": 1.35,
+      "url": "/tactical-icons/assets/a4fbd09283ee9359b126.png"
+    },
+    "legbart": {
+      "bitmap": "icons/bot_t2_arty_napalm.png",
+      "size": 1.60000002,
+      "url": "/tactical-icons/assets/1051433b7a5f3ede317c.png"
+    },
+    "legbastion": {
+      "bitmap": "icons/def_t2_tachyon.png",
+      "size": 2.0474999,
+      "url": "/tactical-icons/assets/7198f38a48d69698eebb.png"
+    },
+    "legbombard": {
+      "bitmap": "icons/def_t2_impulse.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/f3a042ed5610f75c7af1.png"
+    },
+    "legbunk": {
+      "bitmap": "icons/legbunk.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/9609c7b03e36ff7bd981.png"
+    },
+    "legca": {
+      "bitmap": "icons/air_worker.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/13f497606e8309d1cd14.png"
+    },
+    "legcar": {
+      "bitmap": "icons/hover_t15_shotgun.png",
+      "size": 1.35,
+      "url": "/tactical-icons/assets/d610ed5d4dcb318686e2.png"
+    },
+    "legcen": {
+      "bitmap": "icons/bot_t15_raid.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/15201b889ef1c3cd5d77.png"
+    },
+    "legch": {
+      "bitmap": "icons/hover_worker.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/021511946e95f1a79cae.png"
+    },
+    "legcib": {
+      "bitmap": "icons/air_bomber_juno.png",
+      "size": 1.20000005,
+      "url": "/tactical-icons/assets/a32ab3d700dc08cc5679.png"
+    },
+    "legck": {
+      "bitmap": "icons/bot_worker.png",
+      "size": 0.99749994,
+      "url": "/tactical-icons/assets/a97c619c2e639bf806c4.png"
+    },
+    "legcluster": {
+      "bitmap": "icons/def_t1_arty.png",
+      "size": 1.15,
+      "url": "/tactical-icons/assets/9f4934b426a0d0f77a0e.png"
+    },
+    "legcom": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legcomecon": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legcomlvl2": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legcomlvl3": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legcomlvl4": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legcomoff": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legcomt2com": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legcomt2def": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legcomt2off": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legctl": {
+      "bitmap": "icons/defence_1_naval.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/a375ad34bcada306d793.png"
+    },
+    "legcv": {
+      "bitmap": "icons/vehicle_worker.png",
+      "size": 0.99749994,
+      "url": "/tactical-icons/assets/4cee14c4f40047da54a2.png"
+    },
+    "legdecom": {
+      "bitmap": "icons/legcom.png",
+      "size": 1.60000002,
+      "url": "/tactical-icons/assets/6428103314939efb0c8a.png"
+    },
+    "legdeflector": {
+      "bitmap": "icons/shield.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/e3c718b7cbdd992bfb98.png"
+    },
+    "legdrag": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "legdrone": {
+      "bitmap": "icons/air_hover.png",
+      "size": 0.66,
+      "url": "/tactical-icons/assets/820008fa71e4ccb96065.png"
+    },
+    "legdtf": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "legdtl": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "legdtm": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "legdtr": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "legeallterrainmech": {
+      "bitmap": "icons/t3_allterrain_drone_cluster_bot.png",
+      "size": 2.61999998,
+      "url": "/tactical-icons/assets/ef6a265f4b3d41e26b3e.png"
+    },
+    "legeconv": {
+      "bitmap": "icons/metalmaker_t1.png",
+      "size": 0.78749996,
+      "url": "/tactical-icons/assets/f0949d8dcb32d6492ea3.png"
+    },
+    "legeheatraymech": {
+      "bitmap": "icons/t3_solinvictus.png",
+      "size": 3.46499968,
+      "url": "/tactical-icons/assets/f247ef15dde89ee48224.png"
+    },
+    "legeheatraymech_old": {
+      "bitmap": "icons/t3_solinvictus.png",
+      "size": 3.46499968,
+      "url": "/tactical-icons/assets/f247ef15dde89ee48224.png"
+    },
+    "legehovertank": {
+      "bitmap": "icons/corsok_1.8.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/f58881e68d082f3037ce.png"
+    },
+    "legelrpcmech": {
+      "bitmap": "icons/t3_bot_clusterarty.png",
+      "size": 2.75,
+      "url": "/tactical-icons/assets/3d9b10bcada7cae0eed2.png"
+    },
+    "legerailtank": {
+      "bitmap": "icons/vehicle_t3_tank_rail_mgun.png",
+      "size": 2.4000001,
+      "url": "/tactical-icons/assets/23e9a9fe958db3f45027.png"
+    },
+    "legeshotgunmech": {
+      "bitmap": "icons/t3_bot_shotgun.png",
+      "size": 1.93749986,
+      "url": "/tactical-icons/assets/acd95f4478b5edd4565a.png"
+    },
+    "legestor": {
+      "bitmap": "icons/energystorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/4f5c393aff8cd34109d1.png"
+    },
+    "legeyes": {
+      "bitmap": "icons/eye.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/1e23a8b4a9152457ca4f.png"
+    },
+    "legfdrag": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "legfeconv": {
+      "bitmap": "icons/metalmaker_t1.png",
+      "size": 0.78749996,
+      "url": "/tactical-icons/assets/f0949d8dcb32d6492ea3.png"
+    },
+    "legfhive": {
+      "bitmap": "icons/defence_t15_dronecarry.png",
+      "size": 1.65999997,
+      "url": "/tactical-icons/assets/9d3e5d1859d467b95768.png"
+    },
+    "legfhp": {
+      "bitmap": "icons/factory_hover.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/4ec01fd67f32c7a06987.png"
+    },
+    "legfig": {
+      "bitmap": "icons/air.png",
+      "size": 0.64999998,
+      "url": "/tactical-icons/assets/91682c80e7f1d5f5d3cb.png"
+    },
+    "legflak": {
+      "bitmap": "icons/aa_flak_t2.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/b9bc3dd03c3ba0f6a99c.png"
+    },
+    "legfloat": {
+      "bitmap": "icons/corparrow.png",
+      "size": 1.4,
+      "url": "/tactical-icons/assets/c69c3dc1dee00711f135.png"
+    },
+    "legfmg": {
+      "bitmap": "icons/defence_2_mg.png",
+      "size": 1.3,
+      "url": "/tactical-icons/assets/a2e91614240e4f528f15.png"
+    },
+    "legfort": {
+      "bitmap": "icons/air_battleship.png",
+      "size": 2.29999995,
+      "url": "/tactical-icons/assets/9956261d66a487fa6235.png"
+    },
+    "legforti": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "legfortt4": {
+      "bitmap": "icons/air_battleship.png",
+      "size": 4,
+      "url": "/tactical-icons/assets/9956261d66a487fa6235.png"
+    },
+    "legfrad": {
+      "bitmap": "icons/radar_t1.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/f25dbe02220bee32ea7b.png"
+    },
+    "legfrl": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "legfus": {
+      "bitmap": "icons/fusion.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/badc2a3543cf8c80a933.png"
+    },
+    "leggant": {
+      "bitmap": "icons/factory_gantry.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/9b88126331038d85a0c8.png"
+    },
+    "leggantuw": {
+      "bitmap": "icons/factory_gantry_uw.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/15fcbfa407d0e569e906.png"
+    },
+    "leggat": {
+      "bitmap": "icons/vehicle_t1_tank_mgun.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/b44c2b1115b5ace7a2dc.png"
+    },
+    "leggatet3": {
+      "bitmap": "icons/shield.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/e3c718b7cbdd992bfb98.png"
+    },
+    "leggeo": {
+      "bitmap": "icons/energy6_1.3.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/a50dc42bb22a113e9606.png"
+    },
+    "leggob": {
+      "bitmap": "icons/bot_t1_skirmish.png",
+      "size": 0.60000002,
+      "url": "/tactical-icons/assets/4c4f3a8ba922a10ce35e.png"
+    },
+    "leggobt3": {
+      "bitmap": "icons/leggobt3.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/944da3a5250e6947d851.png"
+    },
+    "leghaap": {
+      "bitmap": "icons/factory_air_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/d674d1391867a4d1dde3.png"
+    },
+    "leghaca": {
+      "bitmap": "icons/air_t2_worker.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/5ab1e3657e7f9720f481.png"
+    },
+    "leghack": {
+      "bitmap": "icons/bot_t2_worker.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/46f7168b734bbd0c67c2.png"
+    },
+    "leghacv": {
+      "bitmap": "icons/vehicle_t2_worker.png",
+      "size": 2.31,
+      "url": "/tactical-icons/assets/6623d9e785bf5fad59d1.png"
+    },
+    "leghades": {
+      "bitmap": "icons/vehicle_t1_raid.png",
+      "size": 0.75,
+      "url": "/tactical-icons/assets/41bb3e405841f13e333c.png"
+    },
+    "leghalab": {
+      "bitmap": "icons/factory_bot_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/be9be309ca5a4353b2c5.png"
+    },
+    "leghastatus": {
+      "bitmap": "icons/ship_pship.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/025e58cafb5a32c48970.png"
+    },
+    "leghastatusalt": {
+      "bitmap": "icons/ship_pship.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/025e58cafb5a32c48970.png"
+    },
+    "leghavp": {
+      "bitmap": "icons/factory_vehicle_t2.png",
+      "size": 2.6,
+      "url": "/tactical-icons/assets/4627d1c8cea957f6746a.png"
+    },
+    "legheavydrone": {
+      "bitmap": "icons/heavyheatraydrone.png",
+      "size": 0.9,
+      "url": "/tactical-icons/assets/15b3ac57678a7f3d3dea.png"
+    },
+    "legheavydronesmall": {
+      "bitmap": "icons/heavyheatraydrone.png",
+      "size": 0.9,
+      "url": "/tactical-icons/assets/15b3ac57678a7f3d3dea.png"
+    },
+    "leghelios": {
+      "bitmap": "icons/vehicle_t1_tank.png",
+      "size": 0.94999999,
+      "url": "/tactical-icons/assets/b5cbc5cb71e2d42835bb.png"
+    },
+    "leghive": {
+      "bitmap": "icons/defence_t15_dronecarry.png",
+      "size": 1.65999997,
+      "url": "/tactical-icons/assets/9d3e5d1859d467b95768.png"
+    },
+    "leghp": {
+      "bitmap": "icons/factory_hover.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/4ec01fd67f32c7a06987.png"
+    },
+    "leghrk": {
+      "bitmap": "icons/kbot_t2_barrage.png",
+      "size": 1.6,
+      "url": "/tactical-icons/assets/7c995537628c25500210.png"
+    },
+    "leginc": {
+      "bitmap": "icons/corsumo.png",
+      "size": 1.85000002,
+      "url": "/tactical-icons/assets/2468b4d8b9015ecbcb40.png"
+    },
+    "leginf": {
+      "bitmap": "icons/cortrem_t2.png",
+      "size": 1.9425,
+      "url": "/tactical-icons/assets/78b5e10a7346db4c52a9.png"
+    },
+    "leginfestor": {
+      "bitmap": "icons/leginfestor.png",
+      "size": 1.6,
+      "url": "/tactical-icons/assets/ce434ac8f5ca94c272a6.png"
+    },
+    "legionnaire": {
+      "bitmap": "icons/air_t2.png",
+      "size": 1.02899992,
+      "url": "/tactical-icons/assets/dd8137ba08cebe609654.png"
+    },
+    "legjam": {
+      "bitmap": "icons/jammer.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/7c21d6c34024a5dac7f1.png"
+    },
+    "legjav": {
+      "bitmap": "icons/legjav.png",
+      "size": 2.1,
+      "url": "/tactical-icons/assets/a5473cb86e7ba132fb3d.png"
+    },
+    "legjim": {
+      "bitmap": "icons/factory_ship.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/785b6a16911abe03b205.png"
+    },
+    "legjuno": {
+      "bitmap": "icons/juno.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/d26406e403a3baf85c6e.png"
+    },
+    "legkam": {
+      "bitmap": "icons/air_kamikaze.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/a2b700051e7c94f611a6.png"
+    },
+    "legkark": {
+      "bitmap": "icons/bot_t15_heat_shot.png",
+      "size": 1.3,
+      "url": "/tactical-icons/assets/88bc9bff8a61f21a5bb2.png"
+    },
+    "legkeres": {
+      "bitmap": "icons/vehicle_t3_tank_mgun.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/580c430ce5ff58364939.png"
+    },
+    "leglab": {
+      "bitmap": "icons/factory_bot.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/2bf92b8c323127a3fcd3.png"
+    },
+    "leglht": {
+      "bitmap": "icons/defence_0_laser.png",
+      "size": 0.80000001,
+      "url": "/tactical-icons/assets/1241de511d771bdd3082.png"
+    },
+    "leglob": {
+      "bitmap": "icons/bot_plasma_t1.png",
+      "size": 0.80000001,
+      "url": "/tactical-icons/assets/f14ba547d3709ca0098d.png"
+    },
+    "leglraa": {
+      "bitmap": "icons/aa_longrange_railgun_t2.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/ec4d99c2da89837bbf82.png"
+    },
+    "leglrpc": {
+      "bitmap": "icons/leglrpc.png",
+      "size": 2.41499972,
+      "url": "/tactical-icons/assets/0ce26184a7fe7bd2ebbd.png"
+    },
+    "leglts": {
+      "bitmap": "icons/air_trans.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/ad446a86a90b012598cd.png"
+    },
+    "leglupara": {
+      "bitmap": "icons/aa_flak_t15.png",
+      "size": 1.3,
+      "url": "/tactical-icons/assets/f8ab28643e1b6ba25417.png"
+    },
+    "legmed": {
+      "bitmap": "icons/corban_1.6.png",
+      "size": 1.85,
+      "url": "/tactical-icons/assets/882c9d673fdaf7f97cde.png"
+    },
+    "legmex": {
+      "bitmap": "icons/mex_t1.png",
+      "size": 0.80849993,
+      "url": "/tactical-icons/assets/d9cc6c3e4b939fac0da9.png"
+    },
+    "legmext15": {
+      "bitmap": "icons/mex_t1.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/d9cc6c3e4b939fac0da9.png"
+    },
+    "legmg": {
+      "bitmap": "icons/defence_2_mg.png",
+      "size": 1.3,
+      "url": "/tactical-icons/assets/a2e91614240e4f528f15.png"
+    },
+    "legmh": {
+      "bitmap": "icons/hover_t1_missile.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/edf20f83584201375413.png"
+    },
+    "legmine1": {
+      "bitmap": "icons/mine.png",
+      "size": 0.37799999,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "legmine2": {
+      "bitmap": "icons/mine.png",
+      "size": 0.46199998,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "legmine3": {
+      "bitmap": "icons/mine.png",
+      "size": 0.55649996,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "legmineb": {
+      "bitmap": "icons/air_bomber_minelayer.png",
+      "size": 1.39999998,
+      "url": "/tactical-icons/assets/b739e1cadf091d1dc51b.png"
+    },
+    "legministarfall": {
+      "bitmap": "icons/armvulc.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/2cdd320a78b4d9c0b940.png"
+    },
+    "legmlv": {
+      "bitmap": "icons/cormlv_1.0.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/90edf96432619f0031b2.png"
+    },
+    "legmoho": {
+      "bitmap": "icons/mex_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/dd5c5bfa9bd4e123fd6b.png"
+    },
+    "legmohobp": {
+      "bitmap": "icons/mex_t2.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/dd5c5bfa9bd4e123fd6b.png"
+    },
+    "legmohobpct": {
+      "bitmap": "icons/blank.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "legmohocon": {
+      "bitmap": "icons/mex_t2_con.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/caf3734c512f1b9fd4d6.png"
+    },
+    "legmos": {
+      "bitmap": "icons/air_hover_rocket.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/6e35fda9d4c8f12eefab.png"
+    },
+    "legmost3": {
+      "bitmap": "icons/air_hover_rocket.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/6e35fda9d4c8f12eefab.png"
+    },
+    "legmrv": {
+      "bitmap": "icons/vehicle_t2_raid.png",
+      "size": 1.3000005,
+      "url": "/tactical-icons/assets/d0b99522146a269cdbbd.png"
+    },
+    "legmstor": {
+      "bitmap": "icons/metalstorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/1fff0e8331ff7b97897c.png"
+    },
+    "legnanotc": {
+      "bitmap": "icons/nanot1.png",
+      "size": 0.96599996,
+      "url": "/tactical-icons/assets/74d473027fe58d0f1ea2.png"
+    },
+    "legnanotcbase": {
+      "bitmap": "icons/nanot2.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/10ce4e52ed235e9adc03.png"
+    },
+    "legnanotcplat": {
+      "bitmap": "icons/nanot1.png",
+      "size": 0.96599996,
+      "url": "/tactical-icons/assets/74d473027fe58d0f1ea2.png"
+    },
+    "legnanotct2": {
+      "bitmap": "icons/nanot2.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/10ce4e52ed235e9adc03.png"
+    },
+    "legnanotct2plat": {
+      "bitmap": "icons/nanot2.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/10ce4e52ed235e9adc03.png"
+    },
+    "legnap": {
+      "bitmap": "icons/air_t2_bomber_napalm.png",
+      "size": 1.85000002,
+      "url": "/tactical-icons/assets/0a53471efc463ec58837.png"
+    },
+    "legnavaldefturret": {
+      "bitmap": "icons/defence_t15_rocket.png",
+      "size": 1.6,
+      "url": "/tactical-icons/assets/d2c39f4572a71f74f40b.png"
+    },
+    "legnavyaaship": {
+      "bitmap": "icons/ship_aa.png",
+      "size": 1.14999998,
+      "url": "/tactical-icons/assets/656335116793f736d501.png"
+    },
+    "legnavyartyship": {
+      "bitmap": "icons/ship_t15_artillery_mediumtraj.png",
+      "size": 1.6,
+      "url": "/tactical-icons/assets/e64eb87e3b4455a4c0cc.png"
+    },
+    "legnavyconship": {
+      "bitmap": "icons/ship_worker.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/3724721dbe2ba6156d88.png"
+    },
+    "legnavydestro": {
+      "bitmap": "icons/ship_laser_drones.png",
+      "size": 1.51199996,
+      "url": "/tactical-icons/assets/6b7384d075ef28150ce6.png"
+    },
+    "legnavyfrigate": {
+      "bitmap": "icons/ship_torpedo.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/c4a4ae5e0d58cd5e1034.png"
+    },
+    "legnavyrezsub": {
+      "bitmap": "icons/sub_rez.png",
+      "size": 1.64299989,
+      "url": "/tactical-icons/assets/9e9fe1a29b8dc99df908.png"
+    },
+    "legnavyscout": {
+      "bitmap": "icons/ship_raid.png",
+      "size": 1.05,
+      "url": "/tactical-icons/assets/ffef98b78018700afab2.png"
+    },
+    "legnavysub": {
+      "bitmap": "icons/sub.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/bc53eaccf93a47551822.png"
+    },
+    "legner": {
+      "bitmap": "icons/hover_gun.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/30e84d4e3c7438b2bba7.png"
+    },
+    "legoptio": {
+      "bitmap": "icons/ship_t2_aa_flak.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/92a1d9fb987e2ad20ef5.png"
+    },
+    "legotter": {
+      "bitmap": "icons/amphib_worker.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/2c327b87ca547f50675b.png"
+    },
+    "legpede": {
+      "bitmap": "icons/corkarg_2.05.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/e274a71a2f47d48a624d.png"
+    },
+    "legperdition": {
+      "bitmap": "icons/tacnuke.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/418057fed56a250bb6fc.png"
+    },
+    "legphoenix": {
+      "bitmap": "icons/air_t2_laser.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/ed7e7f0e2f642920cc3b.png"
+    },
+    "legpontus": {
+      "bitmap": "icons/ship.png",
+      "size": 1.14999998,
+      "url": "/tactical-icons/assets/e4f217351c155d96be08.png"
+    },
+    "legrad": {
+      "bitmap": "icons/radar_t1.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/f25dbe02220bee32ea7b.png"
+    },
+    "legrail": {
+      "bitmap": "icons/vehicle_t1_tank_rail.png",
+      "size": 1.35000002,
+      "url": "/tactical-icons/assets/c7dde127f063751714f7.png"
+    },
+    "legrampart": {
+      "bitmap": "icons/legion_rampart.png",
+      "size": 1.88999987,
+      "url": "/tactical-icons/assets/59d8269f2f92a8aeb5ca.png"
+    },
+    "legrezbot": {
+      "bitmap": "icons/bot_t1_rez.png",
+      "size": 0.74000001,
+      "url": "/tactical-icons/assets/3e4110e2088af549823d.png"
+    },
+    "legrhapsis": {
+      "bitmap": "icons/aa_t15.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/72083b18f26335a18f80.png"
+    },
+    "legrl": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "legrwall": {
+      "bitmap": "icons/wall_0.4.png",
+      "size": 0.41999999,
+      "url": "/tactical-icons/assets/2592877af4570768bbef.png"
+    },
+    "legsco": {
+      "bitmap": "icons/vehicle_t2_sco.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/02d39a4fbe0e82a7aaf7.png"
+    },
+    "legscout": {
+      "bitmap": "icons/vehicle.png",
+      "size": 0.57749999,
+      "url": "/tactical-icons/assets/66435c539e91bca1b873.png"
+    },
+    "legsd": {
+      "bitmap": "icons/seismic.png",
+      "size": 1.46999991,
+      "url": "/tactical-icons/assets/a02ccdf8f95df48e95d3.png"
+    },
+    "legsh": {
+      "bitmap": "icons/hover_raid.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/f154d983d59d52b7085f.png"
+    },
+    "legshot": {
+      "bitmap": "icons/bot_t2_impulse2x.png",
+      "size": 1.60000002,
+      "url": "/tactical-icons/assets/93bf1d1803320a1d7bf0.png"
+    },
+    "legsilo": {
+      "bitmap": "icons/nuke.png",
+      "size": 2.51999998,
+      "url": "/tactical-icons/assets/43202e02be18d40b35a8.png"
+    },
+    "legsnapper": {
+      "bitmap": "icons/corroach_0.9.png",
+      "size": 0.94499993,
+      "url": "/tactical-icons/assets/302cab6d52b12957f4de.png"
+    },
+    "legsolar": {
+      "bitmap": "icons/energy1_1.0.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/8c3a9f184e0970d8e454.png"
+    },
+    "legspbomber": {
+      "bitmap": "icons/air_bomber_sea.png",
+      "size": 1.41750002,
+      "url": "/tactical-icons/assets/7c2a25780f110f62c6e1.png"
+    },
+    "legspcarrier": {
+      "bitmap": "icons/air_t15_carrier.png",
+      "size": 1.65,
+      "url": "/tactical-icons/assets/62079444bedb0a33921d.png"
+    },
+    "legspcon": {
+      "bitmap": "icons/air_worker_sea.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/2254062fffd3a8123404.png"
+    },
+    "legspfighter": {
+      "bitmap": "icons/air_sea.png",
+      "size": 0.86099994,
+      "url": "/tactical-icons/assets/18558bc341919b08e7c3.png"
+    },
+    "legsplab": {
+      "bitmap": "icons/factory_air_sea.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/b6546d66ccaeb07ae9d5.png"
+    },
+    "legspradarsonarplane": {
+      "bitmap": "icons/air_los_sea.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/7bbe57d9566191cf05fa.png"
+    },
+    "legspsurfacegunship": {
+      "bitmap": "icons/air_t15_impulse.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/cda6fc1e2c8c62b06b73.png"
+    },
+    "legsptorpgunship": {
+      "bitmap": "icons/air_torp_sea.png",
+      "size": 1.47499993,
+      "url": "/tactical-icons/assets/7dc920464a717c776bfc.png"
+    },
+    "legsrail": {
+      "bitmap": "icons/allterrain_t2_rail.png",
+      "size": 1.85000002,
+      "url": "/tactical-icons/assets/0b42ebf6d88a84546a6e.png"
+    },
+    "legsrailt4": {
+      "bitmap": "icons/allterrain_t2_rail.png",
+      "size": 4,
+      "url": "/tactical-icons/assets/0b42ebf6d88a84546a6e.png"
+    },
+    "legstarfall": {
+      "bitmap": "icons/armvulc.png",
+      "size": 3.25499964,
+      "url": "/tactical-icons/assets/2cdd320a78b4d9c0b940.png"
+    },
+    "legstingray": {
+      "bitmap": "icons/sub.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/bc53eaccf93a47551822.png"
+    },
+    "legstr": {
+      "bitmap": "icons/bot_t2_raid.png",
+      "size": 1.29999995,
+      "url": "/tactical-icons/assets/caf042c2e26f53e5e94a.png"
+    },
+    "legstronghold": {
+      "bitmap": "icons/air_t2_transport_shotgun.png",
+      "size": 1.83749986,
+      "url": "/tactical-icons/assets/5660a46ea9ad2d7a6c03.png"
+    },
+    "legsy": {
+      "bitmap": "icons/factory_ship.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/785b6a16911abe03b205.png"
+    },
+    "legtarg": {
+      "bitmap": "icons/targetting.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/90fc205f3097c0ca4e79.png"
+    },
+    "legtide": {
+      "bitmap": "icons/energy1_1.0.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/8c3a9f184e0970d8e454.png"
+    },
+    "legtl": {
+      "bitmap": "icons/defence_1_naval.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/a375ad34bcada306d793.png"
+    },
+    "legtriarius": {
+      "bitmap": "icons/ship_destroyer.png",
+      "size": 1.51199996,
+      "url": "/tactical-icons/assets/6ddaa1140c9835b8c027.png"
+    },
+    "legtriariusalt": {
+      "bitmap": "icons/ship_destroyer.png",
+      "size": 1.51199996,
+      "url": "/tactical-icons/assets/6ddaa1140c9835b8c027.png"
+    },
+    "leguwestore": {
+      "bitmap": "icons/energystorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/4f5c393aff8cd34109d1.png"
+    },
+    "leguwgeo": {
+      "bitmap": "icons/energy6_1.3.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/a50dc42bb22a113e9606.png"
+    },
+    "leguwmstore": {
+      "bitmap": "icons/metalstorage.png",
+      "size": 1.10249984,
+      "url": "/tactical-icons/assets/1fff0e8331ff7b97897c.png"
+    },
+    "legvcarry": {
+      "bitmap": "icons/vehicle_t2_dronecarryland.png",
+      "size": 1.64999998,
+      "url": "/tactical-icons/assets/67700f9e3b00121c2af6.png"
+    },
+    "legvelite": {
+      "bitmap": "icons/ship_raid.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/ffef98b78018700afab2.png"
+    },
+    "legvenator": {
+      "bitmap": "icons/air_t2.png",
+      "size": 1.02899992,
+      "url": "/tactical-icons/assets/dd8137ba08cebe609654.png"
+    },
+    "legvflak": {
+      "bitmap": "icons/vehicle_t2_aa_flak.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/79052411c25a01eca28e.png"
+    },
+    "legvp": {
+      "bitmap": "icons/factory_vehicle.png",
+      "size": 1.52250004,
+      "url": "/tactical-icons/assets/f94f2999894d06c114f9.png"
+    },
+    "legwhisper": {
+      "bitmap": "icons/air_t2_radar.png",
+      "size": 1.39649999,
+      "url": "/tactical-icons/assets/961c31bda388f17c7d2d.png"
+    },
+    "legwin": {
+      "bitmap": "icons/wind.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/81b7d6a05ce0d0f258a2.png"
+    },
+    "legwint2": {
+      "bitmap": "icons/wind.png",
+      "size": 1.67999995,
+      "url": "/tactical-icons/assets/81b7d6a05ce0d0f258a2.png"
+    },
+    "lootboxbronze": {
+      "bitmap": "icons/lootbox.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/814cb084f22aa3785bbe.png"
+    },
+    "lootboxgold": {
+      "bitmap": "icons/lootboxt3.png",
+      "size": 1.20749986,
+      "url": "/tactical-icons/assets/eba89c2f107a7c85e15d.png"
+    },
+    "lootboxnano_t1_var1": {
+      "bitmap": "icons/scavnanotc_t1.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0a547fd9d81e46d716c8.png"
+    },
+    "lootboxnano_t1_var2": {
+      "bitmap": "icons/scavnanotc_t1.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0a547fd9d81e46d716c8.png"
+    },
+    "lootboxnano_t1_var3": {
+      "bitmap": "icons/scavnanotc_t1.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0a547fd9d81e46d716c8.png"
+    },
+    "lootboxnano_t1_var4": {
+      "bitmap": "icons/scavnanotc_t1.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0a547fd9d81e46d716c8.png"
+    },
+    "lootboxnano_t1_var5": {
+      "bitmap": "icons/scavnanotc_t1.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0a547fd9d81e46d716c8.png"
+    },
+    "lootboxnano_t1_var6": {
+      "bitmap": "icons/scavnanotc_t1.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0a547fd9d81e46d716c8.png"
+    },
+    "lootboxnano_t1_var7": {
+      "bitmap": "icons/scavnanotc_t1.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0a547fd9d81e46d716c8.png"
+    },
+    "lootboxnano_t1_var8": {
+      "bitmap": "icons/scavnanotc_t1.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0a547fd9d81e46d716c8.png"
+    },
+    "lootboxnano_t1_var9": {
+      "bitmap": "icons/scavnanotc_t1.png",
+      "size": 1.57499993,
+      "url": "/tactical-icons/assets/0a547fd9d81e46d716c8.png"
+    },
+    "lootboxnano_t2_var1": {
+      "bitmap": "icons/scavnanotc_t2.png",
+      "size": 1.96874988,
+      "url": "/tactical-icons/assets/c113354f77a0445e77d2.png"
+    },
+    "lootboxnano_t2_var2": {
+      "bitmap": "icons/scavnanotc_t2.png",
+      "size": 1.96874988,
+      "url": "/tactical-icons/assets/c113354f77a0445e77d2.png"
+    },
+    "lootboxnano_t2_var3": {
+      "bitmap": "icons/scavnanotc_t2.png",
+      "size": 1.96874988,
+      "url": "/tactical-icons/assets/c113354f77a0445e77d2.png"
+    },
+    "lootboxnano_t2_var4": {
+      "bitmap": "icons/scavnanotc_t2.png",
+      "size": 1.96874988,
+      "url": "/tactical-icons/assets/c113354f77a0445e77d2.png"
+    },
+    "lootboxnano_t2_var5": {
+      "bitmap": "icons/scavnanotc_t2.png",
+      "size": 1.96874988,
+      "url": "/tactical-icons/assets/c113354f77a0445e77d2.png"
+    },
+    "lootboxnano_t2_var6": {
+      "bitmap": "icons/scavnanotc_t2.png",
+      "size": 1.96874988,
+      "url": "/tactical-icons/assets/c113354f77a0445e77d2.png"
+    },
+    "lootboxnano_t2_var7": {
+      "bitmap": "icons/scavnanotc_t2.png",
+      "size": 1.96874988,
+      "url": "/tactical-icons/assets/c113354f77a0445e77d2.png"
+    },
+    "lootboxnano_t2_var8": {
+      "bitmap": "icons/scavnanotc_t2.png",
+      "size": 1.96874988,
+      "url": "/tactical-icons/assets/c113354f77a0445e77d2.png"
+    },
+    "lootboxnano_t2_var9": {
+      "bitmap": "icons/scavnanotc_t2.png",
+      "size": 1.96874988,
+      "url": "/tactical-icons/assets/c113354f77a0445e77d2.png"
+    },
+    "lootboxnano_t3_var1": {
+      "bitmap": "icons/scavnanotc_t3.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/5e22c9432f022ab43cd1.png"
+    },
+    "lootboxnano_t3_var2": {
+      "bitmap": "icons/scavnanotc_t3.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/5e22c9432f022ab43cd1.png"
+    },
+    "lootboxnano_t3_var3": {
+      "bitmap": "icons/scavnanotc_t3.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/5e22c9432f022ab43cd1.png"
+    },
+    "lootboxnano_t3_var4": {
+      "bitmap": "icons/scavnanotc_t3.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/5e22c9432f022ab43cd1.png"
+    },
+    "lootboxnano_t3_var5": {
+      "bitmap": "icons/scavnanotc_t3.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/5e22c9432f022ab43cd1.png"
+    },
+    "lootboxnano_t3_var6": {
+      "bitmap": "icons/scavnanotc_t3.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/5e22c9432f022ab43cd1.png"
+    },
+    "lootboxnano_t3_var7": {
+      "bitmap": "icons/scavnanotc_t3.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/5e22c9432f022ab43cd1.png"
+    },
+    "lootboxnano_t3_var8": {
+      "bitmap": "icons/scavnanotc_t3.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/5e22c9432f022ab43cd1.png"
+    },
+    "lootboxnano_t3_var9": {
+      "bitmap": "icons/scavnanotc_t3.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/5e22c9432f022ab43cd1.png"
+    },
+    "lootboxnano_t4_var1": {
+      "bitmap": "icons/scavnanotc_t4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/8869a3b839f2cbbb4be3.png"
+    },
+    "lootboxnano_t4_var2": {
+      "bitmap": "icons/scavnanotc_t4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/8869a3b839f2cbbb4be3.png"
+    },
+    "lootboxnano_t4_var3": {
+      "bitmap": "icons/scavnanotc_t4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/8869a3b839f2cbbb4be3.png"
+    },
+    "lootboxnano_t4_var4": {
+      "bitmap": "icons/scavnanotc_t4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/8869a3b839f2cbbb4be3.png"
+    },
+    "lootboxnano_t4_var5": {
+      "bitmap": "icons/scavnanotc_t4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/8869a3b839f2cbbb4be3.png"
+    },
+    "lootboxnano_t4_var6": {
+      "bitmap": "icons/scavnanotc_t4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/8869a3b839f2cbbb4be3.png"
+    },
+    "lootboxnano_t4_var7": {
+      "bitmap": "icons/scavnanotc_t4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/8869a3b839f2cbbb4be3.png"
+    },
+    "lootboxnano_t4_var8": {
+      "bitmap": "icons/scavnanotc_t4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/8869a3b839f2cbbb4be3.png"
+    },
+    "lootboxnano_t4_var9": {
+      "bitmap": "icons/scavnanotc_t4.png",
+      "size": 3.09749985,
+      "url": "/tactical-icons/assets/8869a3b839f2cbbb4be3.png"
+    },
+    "lootboxplatinum": {
+      "bitmap": "icons/lootboxt4.png",
+      "size": 1.25999999,
+      "url": "/tactical-icons/assets/aec7a7618397add0efab.png"
+    },
+    "lootboxsilver": {
+      "bitmap": "icons/lootboxt2.png",
+      "size": 1.15499997,
+      "url": "/tactical-icons/assets/db60afdbf6dc563b9fb0.png"
+    },
+    "lootdroppod_gold": {
+      "bitmap": "icons/mine.png",
+      "size": 0.55649996,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "lootdroppod_printer": {
+      "bitmap": "icons/mine.png",
+      "size": 0.55649996,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "meteor": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "mission_command_tower": {
+      "bitmap": "icons/mission_command_tower.png",
+      "size": 2.46749973,
+      "url": "/tactical-icons/assets/d965a82e9c476b3db1b4.png"
+    },
+    "nuketest": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "nuketestcor": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "nuketestorg": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "raptor_air_bomber_acid_t2_v1": {
+      "bitmap": "icons/raptor_air_acid.png",
+      "size": 2.5,
+      "url": "/tactical-icons/assets/b0090eeeb1693aa56a19.png"
+    },
+    "raptor_air_bomber_basic_t1_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_bomber_basic_t2_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_bomber_basic_t2_v2": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_bomber_basic_t4_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_bomber_basic_t4_v2": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_bomber_brood_t4_v2": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_bomber_brood_t4_v3": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_bomber_brood_t4_v4": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_bomber_emp_t2_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 2.5,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_fighter_basic_t1_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_fighter_basic_t2_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_fighter_basic_t2_v2": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_fighter_basic_t2_v3": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_fighter_basic_t2_v4": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_fighter_basic_t4_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_kamikaze_basic_t2_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_scout_basic_t2_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_scout_basic_t3_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 1.75,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_air_scout_basic_t4_v1": {
+      "bitmap": "icons/raptor_air.png",
+      "size": 2.25,
+      "url": "/tactical-icons/assets/018ca565dc68ea5af545.png"
+    },
+    "raptor_allterrain_arty_acid_t2_v1": {
+      "bitmap": "icons/raptor_acid_arty.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/2c0af40cc0e3cc3bfda2.png"
+    },
+    "raptor_allterrain_arty_acid_t4_v1": {
+      "bitmap": "icons/raptor_arty.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/ca1044bab4ada8514097.png"
+    },
+    "raptor_allterrain_arty_basic_t2_v1": {
+      "bitmap": "icons/raptor_arty.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/ca1044bab4ada8514097.png"
+    },
+    "raptor_allterrain_arty_basic_t4_v1": {
+      "bitmap": "icons/raptor_arty.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/ca1044bab4ada8514097.png"
+    },
+    "raptor_allterrain_arty_brood_t2_v1": {
+      "bitmap": "icons/raptor_earty.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/246d787261ef81557411.png"
+    },
+    "raptor_allterrain_arty_brood_t4_v1": {
+      "bitmap": "icons/raptor_arty.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/ca1044bab4ada8514097.png"
+    },
+    "raptor_allterrain_arty_emp_t2_v1": {
+      "bitmap": "icons/raptor_earty.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/246d787261ef81557411.png"
+    },
+    "raptor_allterrain_arty_emp_t4_v1": {
+      "bitmap": "icons/raptor_arty.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/ca1044bab4ada8514097.png"
+    },
+    "raptor_allterrain_assault_acid_t2_v1": {
+      "bitmap": "icons/raptor_acid.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/6f99a5e24a75dd0f7816.png"
+    },
+    "raptor_allterrain_assault_basic_t2_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_allterrain_assault_basic_t2_v2": {
+      "bitmap": "icons/raptor.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_allterrain_assault_basic_t2_v3": {
+      "bitmap": "icons/raptor.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_allterrain_assault_basic_t4_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_allterrain_assault_basic_t4_v2": {
+      "bitmap": "icons/raptor.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_allterrain_assault_emp_t2_v1": {
+      "bitmap": "icons/raptor_paralyze.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/73c1c6a23d9e6586d6f8.png"
+    },
+    "raptor_allterrain_swarmer_acid_t2_v1": {
+      "bitmap": "icons/raptor_acid.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/6f99a5e24a75dd0f7816.png"
+    },
+    "raptor_allterrain_swarmer_basic_t2_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_allterrain_swarmer_basic_t3_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_allterrain_swarmer_basic_t4_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_allterrain_swarmer_emp_t2_v1": {
+      "bitmap": "icons/raptor_paralyze.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/73c1c6a23d9e6586d6f8.png"
+    },
+    "raptor_allterrain_swarmer_fire_t2_v1": {
+      "bitmap": "icons/raptor_flame.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/a68e2829d266bc235731.png"
+    },
+    "raptor_antinuke": {
+      "bitmap": "icons/raptor_roost.png",
+      "size": 0,
+      "url": "/tactical-icons/assets/74a9b439bcadb3cb3b1f.png"
+    },
+    "raptor_hive": {
+      "bitmap": "icons/raptor_roost.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/74a9b439bcadb3cb3b1f.png"
+    },
+    "raptor_land_assault_acid_t2_v1": {
+      "bitmap": "icons/raptor_acid.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/6f99a5e24a75dd0f7816.png"
+    },
+    "raptor_land_assault_basic_t2_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_assault_basic_t2_v2": {
+      "bitmap": "icons/raptor.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_assault_basic_t2_v3": {
+      "bitmap": "icons/raptor.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_assault_basic_t4_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_assault_basic_t4_v2": {
+      "bitmap": "icons/raptor.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_assault_emp_t2_v1": {
+      "bitmap": "icons/raptor_paralyze.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/73c1c6a23d9e6586d6f8.png"
+    },
+    "raptor_land_assault_spectre_t2_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_assault_spectre_t4_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_kamikaze_basic_t2_v1": {
+      "bitmap": "icons/raptor_bomb.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/a89897b72efacf52788a.png"
+    },
+    "raptor_land_kamikaze_basic_t4_v1": {
+      "bitmap": "icons/raptor_bomb.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/a89897b72efacf52788a.png"
+    },
+    "raptor_land_kamikaze_emp_t2_v1": {
+      "bitmap": "icons/raptor_bomb.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/a89897b72efacf52788a.png"
+    },
+    "raptor_land_kamikaze_emp_t4_v1": {
+      "bitmap": "icons/raptor_bomb.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/a89897b72efacf52788a.png"
+    },
+    "raptor_land_spiker_basic_t2_v1": {
+      "bitmap": "icons/raptor_spike.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/15cee626564fc50a9533.png"
+    },
+    "raptor_land_spiker_basic_t4_v1": {
+      "bitmap": "icons/raptor_spike.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/15cee626564fc50a9533.png"
+    },
+    "raptor_land_spiker_spectre_t4_v1": {
+      "bitmap": "icons/raptor_spike.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/15cee626564fc50a9533.png"
+    },
+    "raptor_land_swarmer_acids_t2_v1": {
+      "bitmap": "icons/raptor_acid.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/6f99a5e24a75dd0f7816.png"
+    },
+    "raptor_land_swarmer_basic_t1_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 0.75,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_basic_t2_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_basic_t2_v2": {
+      "bitmap": "icons/raptor.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_basic_t2_v3": {
+      "bitmap": "icons/raptor.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_basic_t2_v4": {
+      "bitmap": "icons/raptor.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_basic_t3_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_basic_t3_v2": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_basic_t3_v3": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_basic_t4_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_basic_t4_v2": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_brood_t2_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_brood_t3_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_brood_t4_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_emp_t2_v1": {
+      "bitmap": "icons/raptor_paralyze.png",
+      "size": 1,
+      "url": "/tactical-icons/assets/73c1c6a23d9e6586d6f8.png"
+    },
+    "raptor_land_swarmer_fire_t2_v1": {
+      "bitmap": "icons/raptor_flame.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/a68e2829d266bc235731.png"
+    },
+    "raptor_land_swarmer_fire_t4_v1": {
+      "bitmap": "icons/raptor_flame.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/a68e2829d266bc235731.png"
+    },
+    "raptor_land_swarmer_heal_t1_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 0.75,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_heal_t2_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.125,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_heal_t3_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_heal_t4_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.875,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_spectre_t3_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_land_swarmer_spectre_t4_v1": {
+      "bitmap": "icons/raptor.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "raptor_matriarch_acid": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_matriarch_basic": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_matriarch_electric": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_matriarch_fire": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_matriarch_healer": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_matriarch_spectre": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_queen_easy": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_queen_epic": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_queen_hard": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_queen_normal": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_queen_veryeasy": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_queen_veryhard": {
+      "bitmap": "icons/raptor_queen.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/0fb9b4e26183eb8ab8b0.png"
+    },
+    "raptor_turret_acid_t2_v1": {
+      "bitmap": "icons/raptor_tentacle.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/7d75eeaf373270401253.png"
+    },
+    "raptor_turret_acid_t3_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_acid_t4_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_acid_t4_v2": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_antiair_t2_v1": {
+      "bitmap": "icons/raptor_tentacle.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/7d75eeaf373270401253.png"
+    },
+    "raptor_turret_antiair_t3_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_antiair_t4_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_antinuke_t2_v1": {
+      "bitmap": "icons/raptor_tentacle.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/7d75eeaf373270401253.png"
+    },
+    "raptor_turret_antinuke_t3_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_basic_t2_v1": {
+      "bitmap": "icons/raptor_tentacle.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/7d75eeaf373270401253.png"
+    },
+    "raptor_turret_basic_t3_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_basic_t4_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_basic_t4_v2": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_brood_t2_v1": {
+      "bitmap": "icons/raptor_tentacle.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/7d75eeaf373270401253.png"
+    },
+    "raptor_turret_brood_t3_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_brood_t4_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_brood_t4_v2": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_emp_t2_v1": {
+      "bitmap": "icons/raptor_tentacle.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/7d75eeaf373270401253.png"
+    },
+    "raptor_turret_emp_t3_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 3,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_emp_t4_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_emp_t4_v2": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptor_turret_meteor_t4_v1": {
+      "bitmap": "icons/raptor_tentacle2.png",
+      "size": 5,
+      "url": "/tactical-icons/assets/7ab6f3669a2a810f2bd1.png"
+    },
+    "raptorh1b": {
+      "bitmap": "icons/raptor.png",
+      "size": 0.75,
+      "url": "/tactical-icons/assets/d15c1eedc15c336acbf7.png"
+    },
+    "resourcecheat": {
+      "bitmap": "icons/building.png",
+      "size": 1.36499989,
+      "url": "/tactical-icons/assets/8acac2eda42a7d307a61.png"
+    },
+    "scavbeacon_t1": {
+      "bitmap": "icons/beacon.png",
+      "size": 1.25,
+      "url": "/tactical-icons/assets/97d50fdce8d40b33b4bf.png"
+    },
+    "scavbeacon_t2": {
+      "bitmap": "icons/beacon.png",
+      "size": 1.5,
+      "url": "/tactical-icons/assets/97d50fdce8d40b33b4bf.png"
+    },
+    "scavbeacon_t3": {
+      "bitmap": "icons/beacon.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/97d50fdce8d40b33b4bf.png"
+    },
+    "scavbeacon_t4": {
+      "bitmap": "icons/beacon.png",
+      "size": 2,
+      "url": "/tactical-icons/assets/97d50fdce8d40b33b4bf.png"
+    },
+    "scavempspawner": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "scavengerbossv4_easy": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "scavengerbossv4_epic": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "scavengerbossv4_hard": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "scavengerbossv4_normal": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "scavengerbossv4_veryeasy": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "scavengerbossv4_veryhard": {
+      "bitmap": "icons/armcomboss.png",
+      "size": 4.19999981,
+      "url": "/tactical-icons/assets/1639c278998b3571a668.png"
+    },
+    "scavengerdroppod": {
+      "bitmap": "icons/mine.png",
+      "size": 0.55649996,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "scavengerdroppodfriendly": {
+      "bitmap": "icons/mine.png",
+      "size": 0.55649996,
+      "url": "/tactical-icons/assets/4520d1d63ab09030eca4.png"
+    },
+    "scavmist": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "scavmistxl": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "scavmistxxl": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "scavsafeareabeacon": {
+      "bitmap": "icons/beacon.png",
+      "size": 1.74299991,
+      "url": "/tactical-icons/assets/97d50fdce8d40b33b4bf.png"
+    },
+    "scavtacnukespawner": {
+      "bitmap": "icons/aa.png",
+      "size": 0.89249998,
+      "url": "/tactical-icons/assets/42d5d1ef30d0f46bb8da.png"
+    },
+    "squadarmpw": {
+      "bitmap": "icons/bot_t1_raid_0.7.png",
+      "size": 0.73499995,
+      "url": "/tactical-icons/assets/002d98ddcde48d3db7cb.png"
+    },
+    "squadarmpwt4": {
+      "bitmap": "icons/armpwt4.png",
+      "size": 2.30999994,
+      "url": "/tactical-icons/assets/1892a06c01d575a47e8d.png"
+    },
+    "squadarmsptk": {
+      "bitmap": "icons/armsptk_1.44.png",
+      "size": 1.65199995,
+      "url": "/tactical-icons/assets/bba41bf6c0254b507a21.png"
+    },
+    "squadarmsptkt4": {
+      "bitmap": "icons/armsptkt4.png",
+      "size": 2.30999994,
+      "url": "/tactical-icons/assets/43e3ef1a43f3162a4ed6.png"
+    },
+    "squadcorak": {
+      "bitmap": "icons/bot_t1_raid_0.7.png",
+      "size": 0.73499995,
+      "url": "/tactical-icons/assets/002d98ddcde48d3db7cb.png"
+    },
+    "squadcorakt4": {
+      "bitmap": "icons/corakt4.png",
+      "size": 1.7,
+      "url": "/tactical-icons/assets/8dc78935f78875d828ed.png"
+    },
+    "squadcorkarg": {
+      "bitmap": "icons/corkarg_2.05.png",
+      "size": 2.424999,
+      "url": "/tactical-icons/assets/e274a71a2f47d48a624d.png"
+    },
+    "squadcorkarganetht4": {
+      "bitmap": "icons/corkarganetht4.png",
+      "size": 3.14999986,
+      "url": "/tactical-icons/assets/fdfa2dab410a50bc3d51.png"
+    },
+    "xmasball1_1": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball1_2": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball1_3": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball1_4": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball1_5": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball1_6": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball2_1": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball2_2": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball2_3": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball2_4": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball2_5": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "xmasball2_6": {
+      "bitmap": "icons/blank.png",
+      "size": 1.04999995,
+      "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    }
+  }
+}

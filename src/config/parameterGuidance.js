@@ -54,7 +54,7 @@ const PARAMETER_HELP = {
   footprintx: 'Unit footprint width in 16-elmo map squares. Yard-map rows should use this width.', footprintz: 'Unit footprint depth in 16-elmo map squares. Yard-map row count should match this depth.',
   yardmap: 'Building occupancy map. Separate rows with spaces; each row should match the footprint width.', maxthisunit: 'Maximum number of this UnitDef that one team may own at once.',
   objectname: '3D model path already present in BAR or the loaded mod.', script: 'Unit animation script path already present in BAR or the loaded mod.',
-  buildpic: 'Build-menu artwork name already present in BAR or the loaded mod.', icontype: 'Strategic icon type registered by BAR or the loaded mod.',
+  buildpic: 'Build-menu artwork name already present in BAR or the loaded mod.', icontype: 'Strategic map icon type registered by BAR or the loaded mod. Choose a bundled tactical icon or enter a custom type.',
   collisionvolumetype: 'Collision shape such as Box, CylY, Ell, Footprint, or Sphere.', collisionvolumescales: 'Collision volume dimensions as three space-separated numbers.',
   collisionvolumeoffsets: 'Collision volume X Y Z offset as three space-separated numbers.',
   canattack: 'Allows the unit to receive and execute ordinary attack orders.', noautofire: 'Stops the unit from automatically firing while preserving explicit weapon control.',
@@ -133,4 +133,3 @@ export function getParameterHelp(key, label) {
   if (key.startsWith('damage_vs_')) return `Damage against the ${key.replace('damage_vs_', '')} armor class.`;
   return `${label}. Enter a value to create an override; clear or reset it to return to the inherited game value.`;
 }
-

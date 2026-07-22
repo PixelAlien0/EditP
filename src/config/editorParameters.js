@@ -339,7 +339,7 @@ export const STAT_KEYS = Object.freeze([
   { key: 'objectname', label: 'Unit Model', icon: '[OBJ]', type: 'string', patchKey: 'objectname', assetType: 'unitModel' },
   { key: 'script', label: 'Unit Script', icon: '[SCR]', type: 'string', patchKey: 'script', assetType: 'unitScript' },
   { key: 'buildpic', label: 'Build Picture', icon: '[PIC]', type: 'string', patchKey: 'buildpic', assetType: 'buildPicture' },
-  { key: 'icontype', label: 'Icon Type', icon: '[ICO]', type: 'string', patchKey: 'icontype', assetType: 'iconType' },
+  { key: 'icontype', label: 'Tactical Icon', icon: '[ICO]', type: 'string', patchKey: 'icontype', assetType: 'iconType', alwaysRelevant: true },
   { key: 'collisionvolumetype', label: 'Collision Volume Type', icon: '[CVT]', type: 'string', patchKey: 'collisionvolumetype', assetType: 'collisionVolumeType' },
   { key: 'collisionvolumescales', label: 'Collision Volume Scales', icon: '[CVS]', type: 'string', patchKey: 'collisionvolumescales' },
   { key: 'collisionvolumeoffsets', label: 'Collision Volume Offsets', icon: '[CVO]', type: 'string', patchKey: 'collisionvolumeoffsets' },
@@ -367,6 +367,7 @@ export function getApplicableUnitParameters(parameters, defaults = {}, tweaks = 
 
   return parameters.filter(parameter => (
     parameter.featured
+    || parameter.alwaysRelevant
     || parameter.key === activeKey
     || Object.prototype.hasOwnProperty.call(defaults, parameter.key)
     || Object.prototype.hasOwnProperty.call(tweaks, parameter.key)

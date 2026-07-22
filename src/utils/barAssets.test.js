@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { getAssetManifestMetadata, getAssetOptions, isKnownBarAsset } from './barAssets.js';
+import {
+  getAssetManifestMetadata,
+  getAssetOptionMetadata,
+  getAssetOptions,
+  getAssetPreviewUrl,
+  isKnownBarAsset,
+  loadAssetPreviewCatalog
+} from './barAssets.js';
 
 describe('BAR asset manifest', () => {
   it('contains deterministic source metadata and the required asset categories', () => {
@@ -20,5 +27,17 @@ describe('BAR asset manifest', () => {
       const values = getAssetOptions(category);
       expect(new Set(values.map(value => value.toLowerCase())).size).toBe(values.length);
     }
+  });
+
+  it('provides the complete visual BAR tactical icon catalog', async () => {
+    const icons = getAssetOptions('iconType');
+    expect(icons.length).toBeGreaterThan(900);
+    expect(icons).toContain('armap');
+    expect(isKnownBarAsset('iconType', 'ARMAP')).toBe(true);
+    await loadAssetPreviewCatalog('iconType');
+    expect(getAssetPreviewUrl('iconType', 'armap')).toMatch(/^\/tactical-icons\/assets\/[a-f0-9]{20}\.png$/);
+    expect(getAssetOptionMetadata('iconType', 'armap')).toMatchObject({
+      bitmap: 'icons/factory_air.png'
+    });
   });
 });

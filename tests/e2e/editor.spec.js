@@ -91,6 +91,31 @@ test('build-picture browser distinguishes normal and Scavenger artwork namespace
   await expect(page.locator('.editor-unit-header .unit-dossier-mark img')).toHaveAttribute('src', scavengerPreview);
 });
 
+test('tactical icon browser previews and applies official BAR icon types', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await expect(page.locator('.unit-item').first()).toBeVisible();
+  await page.getByPlaceholder(/Search unit name/i).fill('Abductor');
+  await page.locator('.unit-item').filter({ has: page.getByText('Abductor', { exact: true }) }).click();
+
+  const iconTypeInput = page.getByRole('textbox', { name: 'Tactical Icon' });
+  await iconTypeInput.scrollIntoViewIfNeeded();
+  await iconTypeInput.locator('xpath=..').getByRole('button', { name: 'Browse' }).click();
+  await page.getByPlaceholder(/Search tactical icons/i).fill('armap');
+
+  const option = page.getByRole('listbox', { name: 'Tactical icons' }).getByRole('option', { name: /armap/i }).first();
+  await expect(option.locator('img')).toBeVisible();
+  await expect(option).toContainText('factory_air.png');
+  await option.click();
+  await expect(iconTypeInput).toHaveValue('armap');
+  await expect(iconTypeInput.locator('xpath=../..').getByText('BAR asset')).toBeVisible();
+
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+  await page.getByText('Legacy combined compiler', { exact: true }).click();
+  await page.getByRole('tab', { name: 'Units Lua' }).click();
+  await expect(page.locator('.export-code-preview')).toContainText('icontype = "armap"');
+});
+
 test('build menu producer catalog separates factories and builders', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();

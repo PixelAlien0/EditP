@@ -1,6 +1,13 @@
-import { useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Button, Dialog, IconButton } from '../ui.jsx';
-import { ASSET_TYPE_LABELS, getAssetOptions, getAssetPreviewUrl, isKnownBarAsset } from '../../utils/barAssets.js';
+import {
+  ASSET_TYPE_LABELS,
+  getAssetOptionMetadata,
+  getAssetOptions,
+  getAssetPreviewUrl,
+  isKnownBarAsset,
+  loadAssetPreviewCatalog
+} from '../../utils/barAssets.js';
 
 const PAGE_SIZE = 100;
 
@@ -8,15 +15,31 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
+  const [, setCatalogRevision] = useState(0);
   const searchRef = useRef(null);
   const resultsRef = useRef(null);
   const titleId = `${useId()}-title`;
   const options = useMemo(() => getAssetOptions(assetType), [assetType]);
   const known = isKnownBarAsset(assetType, value);
+  const currentPreviewUrl = getAssetPreviewUrl(assetType, value);
+  const isVisualBrowser = assetType === 'buildPicture' || assetType === 'iconType';
+  useEffect(() => {
+    if (assetType !== 'iconType' || (!open && !value)) return undefined;
+    let active = true;
+    loadAssetPreviewCatalog(assetType).then(() => {
+      if (active) setCatalogRevision(revision => revision + 1);
+    });
+    return () => { active = false; };
+  }, [assetType, open, value]);
   const results = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return needle ? options.filter(option => option.toLowerCase().includes(needle)) : options;
-  }, [options, query]);
+    return needle
+      ? options.filter(option => {
+          const metadata = getAssetOptionMetadata(assetType, option);
+          return `${option} ${metadata?.bitmap || ''}`.toLowerCase().includes(needle);
+        })
+      : options;
+  }, [assetType, options, query]);
   const pageCount = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
   const visibleResults = results.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
@@ -29,7 +52,12 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
 
   return (
     <div className="asset-picker">
-      <div className="asset-picker__field">
+      <div className={`asset-picker__field ${currentPreviewUrl ? 'has-preview' : ''}`}>
+        {currentPreviewUrl && (
+          <span className={`asset-picker__current-preview ${assetType === 'iconType' ? 'is-tactical-icon' : ''}`} aria-hidden="true">
+            <img src={currentPreviewUrl} alt="" decoding="async" />
+          </span>
+        )}
         <input
           type="text"
           className={`stat-card-input ${value && !known ? 'is-unverified' : ''}`}
@@ -44,7 +72,7 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
-        className={`asset-picker-dialog ${assetType === 'buildPicture' ? 'asset-picker-dialog--visual' : ''}`}
+        className={`asset-picker-dialog ${isVisualBrowser ? 'asset-picker-dialog--visual' : ''} ${assetType === 'iconType' ? 'asset-picker-dialog--tactical' : ''}`}
         labelledBy={titleId}
         initialFocusRef={searchRef}
       >
@@ -69,6 +97,7 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
         <div ref={resultsRef} className="asset-picker-dialog__results" role="listbox" aria-label={ASSET_TYPE_LABELS[assetType] || 'BAR assets'}>
           {visibleResults.map((option, index) => {
             const previewUrl = getAssetPreviewUrl(assetType, option);
+            const metadata = getAssetOptionMetadata(assetType, option);
             const scopedPicture = assetType === 'buildPicture' && option.includes('/');
             return (
               <button
@@ -86,6 +115,7 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
                   <span>
                     <code>{option}</code>
                     {scopedPicture && <small>{option.split('/')[0]} variant</small>}
+                    {metadata && <small>{metadata.bitmap.replace(/^icons\//i, '')} · scale {metadata.size.toFixed(2)}</small>}
                   </span>
                 </span>
                 <span className="asset-picker-dialog__select-label">Select</span>
@@ -110,7 +140,11 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
           </nav>
         )}
         <footer className="asset-picker-dialog__footer">
-          <p>Names are validated against BAR definitions, not copied into your export. Custom paths require the matching asset in the loaded game or mod.</p>
+          <p>
+            {assetType === 'iconType'
+              ? 'Tactical icon types control the strategic map symbol. Custom types require a matching icontypes.lua entry and bitmap in the loaded game or mod.'
+              : 'Names are validated against BAR definitions, not copied into your export. Custom paths require the matching asset in the loaded game or mod.'}
+          </p>
           <Button variant="secondary" onClick={() => setOpen(false)}>Keep manual value</Button>
         </footer>
       </Dialog>

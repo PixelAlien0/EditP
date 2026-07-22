@@ -16,6 +16,7 @@
     "sync-parameters": "node scripts/sync-parameter-defaults.mjs",
     "sync-explosions": "node scripts/sync-explosion-profiles.mjs",
     "sync-assets": "node scripts/sync-asset-manifest.mjs",
+    "sync-tactical-icons": "node scripts/sync-tactical-icons.mjs",
     "audit-unitpics": "node scripts/audit-unitpics.mjs",
     "audit-unitpics:dist": "node scripts/audit-unitpics.mjs --dist",
     "audit-css": "node scripts/audit-css.mjs",

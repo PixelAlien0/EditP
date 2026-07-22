@@ -38,12 +38,13 @@ describe('editor parameter configuration', () => {
       { key: 'cloak', featured: false },
       { key: 'transport', featured: false },
       { key: 'kamikaze', featured: false },
+      { key: 'icontype', featured: false, alwaysRelevant: true },
     ];
     const defaults = { radar: 400 };
     const tweaks = { cloak: false };
 
     expect(getApplicableUnitParameters(parameters, defaults, tweaks, { activeKey: 'transport' }).map(item => item.key))
-      .toEqual(['health', 'radar', 'cloak', 'transport']);
+      .toEqual(['health', 'radar', 'cloak', 'transport', 'icontype']);
     expect(getApplicableUnitParameters(parameters, defaults, tweaks, { showAll: true }))
       .toBe(parameters);
   });

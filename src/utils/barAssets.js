@@ -1,11 +1,14 @@
 import assetManifest from '../data/bar-asset-manifest.json';
 import { getBuildPictureOptions, getBuildPicturePreviewUrl } from './unitArtwork.js';
 
+let tacticalIcons = null;
+let tacticalIconLoad = null;
+
 export const ASSET_TYPE_LABELS = Object.freeze({
   unitModel: 'Unit models',
   unitScript: 'Unit scripts',
   buildPicture: 'Build pictures',
-  iconType: 'Icon types',
+  iconType: 'Tactical icons',
   collisionVolumeType: 'Collision volume types',
   projectileModel: 'Projectile models',
   sound: 'Sounds',
@@ -21,7 +24,15 @@ export function getAssetOptions(assetType) {
 }
 
 export function getAssetPreviewUrl(assetType, value) {
-  return assetType === 'buildPicture' ? getBuildPicturePreviewUrl(value) : '';
+  if (assetType === 'buildPicture') return getBuildPicturePreviewUrl(value);
+  if (assetType === 'iconType') return getTacticalIcon(value)?.url || '';
+  return '';
+}
+
+export function getAssetOptionMetadata(assetType, value) {
+  if (assetType !== 'iconType') return null;
+  const icon = getTacticalIcon(value);
+  return icon ? { bitmap: icon.bitmap, size: icon.size } : null;
 }
 
 export function isKnownBarAsset(assetType, value) {
@@ -36,4 +47,22 @@ export function getAssetManifestMetadata() {
     sourceRepository: assetManifest.sourceRepository,
     sourceCommit: assetManifest.sourceCommit
   };
+}
+
+function getTacticalIcon(value) {
+  if (!value) return null;
+  const normalized = String(value).trim().toLowerCase();
+  const exact = tacticalIcons?.[normalized];
+  if (exact) return exact;
+  const key = Object.keys(tacticalIcons || {}).find(name => name.toLowerCase() === normalized);
+  return key ? tacticalIcons[key] : null;
+}
+
+export async function loadAssetPreviewCatalog(assetType) {
+  if (assetType !== 'iconType' || tacticalIcons) return;
+  tacticalIconLoad ||= import('../data/tactical-icon-manifest.json')
+    .then(module => {
+      tacticalIcons = module.default.icons || {};
+    });
+  await tacticalIconLoad;
 }
