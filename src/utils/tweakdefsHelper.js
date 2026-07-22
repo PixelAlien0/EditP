@@ -1,10 +1,9 @@
 import { serializeLuaTable } from './tweakSerializer.js';
 
-// Markers
-export const CLONE_BEGIN = '-- BMF_CLONE_UNITS_BEGIN';
-export const CLONE_END = '-- BMF_CLONE_UNITS_END';
-export const BUILDMENU_BEGIN = '-- BMF_BUILDMENU_BEGIN';
-export const BUILDMENU_END = '-- BMF_BUILDMENU_END';
+export const BUILDMENU_BEGIN = '-- EDITP_BUILDMENU_BEGIN';
+export const BUILDMENU_END = '-- EDITP_BUILDMENU_END';
+const LEGACY_BUILDMENU_BEGIN = '-- BMF_BUILDMENU_BEGIN';
+const LEGACY_BUILDMENU_END = '-- BMF_BUILDMENU_END';
 export const DEATH_PROFILE_BEGIN = '-- EDITP_DEATH_PROFILES_BEGIN';
 export const DEATH_PROFILE_END = '-- EDITP_DEATH_PROFILES_END';
 export const SUPPORTING_WEAPONDEFS_BEGIN = '-- EDITP_SUPPORTING_WEAPONDEFS_BEGIN';
@@ -179,9 +178,9 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
     `  local s = ${r}`,
     `  local n = ${i}`,
     `  if UnitDefs[s] and not UnitDefs[n] then`,
-    `    UnitDefs[n] = bmf_deepCopy(UnitDefs[s])`,
+    `    UnitDefs[n] = clone_copy(UnitDefs[s])`,
     `    local u = UnitDefs[n]`,
-    `    bmf_cleanClone(u)`,
+    `    clone_clean(u)`,
     `    local srcBo = UnitDefs[s].buildoptions`,
     `    if type(srcBo) == "table" then`,
     `      local bo = {}`,
@@ -197,7 +196,7 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
   const displayName = clone.displayName?.trim();
   const customTooltip = clone.customTooltip?.trim() || clone.description?.trim() || displayName;
   if (displayName) {
-    lines.push(`    bmf_i18n(u, ${JSON.stringify(displayName)}, ${JSON.stringify(customTooltip)})`);
+    lines.push(`    clone_set_name(u, ${JSON.stringify(displayName)}, ${JSON.stringify(customTooltip)})`);
   }
   
   if (clone.iconType) {
@@ -214,8 +213,8 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
         const blueprint = swap.libraryWeaponId
           ? weaponLibrary.find(item => item.id === swap.libraryWeaponId)
           : null;
-        const targetWep = blueprint ? `bmf_${blueprint.id.replace(/[^a-z0-9_]/gi, '_').toLowerCase()}` : srcWep;
-        lines.push(`    bmf_swap(u, ${slotNum}, ${JSON.stringify(srcUnit)}, ${JSON.stringify(srcWep)}, ${JSON.stringify(targetWep)})`);
+        const targetWep = blueprint ? `editp_${blueprint.id.replace(/[^a-z0-9_]/gi, '_').toLowerCase()}` : srcWep;
+        lines.push(`    clone_swap_weapon(u, ${slotNum}, ${JSON.stringify(srcUnit)}, ${JSON.stringify(srcWep)}, ${JSON.stringify(targetWep)})`);
         if (blueprint) {
           lines.push(...generateWeaponBlueprintOverridesLua(blueprint, targetWep));
         }
@@ -418,16 +417,16 @@ export function generateClonesBlockLua(clones, weaponLibrary = []) {
   if (sorted.length === 0) return '';
   
   const helpers = [
-    `  local function bmf_deepCopy(value)`,
+    `  local function clone_copy(value)`,
     `    if type(value) ~= "table" then return value end`,
     `    local copy = {}`,
     `    for key, child in pairs(value) do`,
-    `      copy[bmf_deepCopy(key)] = bmf_deepCopy(child)`,
+    `      copy[clone_copy(key)] = clone_copy(child)`,
     `    end`,
     `    return copy`,
     `  end`,
     ``,
-    `  local function bmf_i18n(u, name, tooltip)`,
+    `  local function clone_set_name(u, name, tooltip)`,
     `    if not u.customparams then u.customparams = {} end`,
     `    local c = u.customparams`,
     `    local l = {"en", "de", "fr", "es", "it", "ru", "zh", "cs", "hr", "lt"}`,
@@ -438,7 +437,7 @@ export function generateClonesBlockLua(clones, weaponLibrary = []) {
     `  end`,
     ``,
 
-    `  local function bmf_cleanClone(u)`,
+    `  local function clone_clean(u)`,
     `    if u.maxthisunit then u.maxthisunit = nil end`,
     `    if u.customparams then`,
     `      u.customparams.raptorbuildmeta = nil`,
@@ -447,11 +446,11 @@ export function generateClonesBlockLua(clones, weaponLibrary = []) {
     `    end`,
     `  end`,
     ``,
-    `  local function bmf_swap(u, slotNum, srcUnit, srcWep, destWep)`,
+    `  local function clone_swap_weapon(u, slotNum, srcUnit, srcWep, destWep)`,
     `    destWep = destWep or srcWep`,
     `    if UnitDefs[srcUnit] and UnitDefs[srcUnit].weapondefs and UnitDefs[srcUnit].weapondefs[srcWep] then`,
     `      if not u.weapondefs then u.weapondefs = {} end`,
-    `      u.weapondefs[destWep] = bmf_deepCopy(UnitDefs[srcUnit].weapondefs[srcWep])`,
+    `      u.weapondefs[destWep] = clone_copy(UnitDefs[srcUnit].weapondefs[srcWep])`,
     `    end`,
     `    if not u.weapons then u.weapons = {} end`,
     `    if not u.weapons[slotNum] then u.weapons[slotNum] = {} end`,
@@ -629,7 +628,11 @@ export function compileTweakDefsLua({
     .trim();
 
   const cleanBody = stripBlock(stripBlock(
-    stripBlock(stripBlock(strippedText, CLONE_BEGIN, CLONE_END), BUILDMENU_BEGIN, BUILDMENU_END),
+    stripBlock(stripBlock(
+      strippedText,
+      LEGACY_BUILDMENU_BEGIN,
+      LEGACY_BUILDMENU_END,
+    ), BUILDMENU_BEGIN, BUILDMENU_END),
     DEATH_PROFILE_BEGIN,
     DEATH_PROFILE_END,
   ), SUPPORTING_WEAPONDEFS_BEGIN, SUPPORTING_WEAPONDEFS_END).trim();
@@ -657,7 +660,7 @@ export function compileTweakDefsLua({
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);
   if (clonesBlock.length > 0) {
-    parts.push(`${CLONE_BEGIN}\n${clonesBlock}\n${CLONE_END}`);
+    parts.push(`do\n${clonesBlock}\nend`);
   }
   if (supportingWeaponDefsBlock.length > 0) parts.push(supportingWeaponDefsBlock);
   if (buildMenuBlock.length > 0) {

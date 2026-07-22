@@ -51,12 +51,16 @@ function splitSerializedUnitTable(lua) {
 function splitGeneratedDefinitions(lua) {
   const source = String(lua || '').trim();
   const markers = [
-    ['-- BMF_CLONE_UNITS_BEGIN', '-- BMF_CLONE_UNITS_END'],
-    ['-- BMF_BUILDMENU_BEGIN', '-- BMF_BUILDMENU_END'],
+    ['-- EDITP_BUILDMENU_BEGIN', '-- EDITP_BUILDMENU_END'],
     ['-- EDITP_DEATH_PROFILES_BEGIN', '-- EDITP_DEATH_PROFILES_END'],
   ];
   const blocks = [];
   let remainder = source;
+  const cloneBlock = remainder.match(/^do\r?\n(?=[\s\S]*?local function clone_copy\b)[\s\S]*?^end\r?\n^end(?=\r?\n\r?\n|$)/m);
+  if (cloneBlock) {
+    blocks.push(cloneBlock[0].trim());
+    remainder = `${remainder.slice(0, cloneBlock.index)}\n${remainder.slice(cloneBlock.index + cloneBlock[0].length)}`.trim();
+  }
   markers.forEach(([begin, end]) => {
     const start = remainder.indexOf(begin);
     const finish = remainder.indexOf(end, start + begin.length);

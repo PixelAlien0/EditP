@@ -26,7 +26,7 @@ describe('nested clone generation', () => {
     ]);
     const lua = generateClonesBlockLua(nestedClones);
     expect(lua.indexOf('local n = "armflash_clone"')).toBeLessThan(lua.indexOf('local n = "armflash_clone_2"'));
-    expect(lua).toContain('UnitDefs[n] = bmf_deepCopy(UnitDefs[s])');
+    expect(lua).toContain('UnitDefs[n] = clone_copy(UnitDefs[s])');
     expect(lua).not.toContain('UnitDefs[n] = table.copy(UnitDefs[s])');
   });
 
@@ -41,6 +41,8 @@ describe('nested clone generation', () => {
     });
     expect(lua).toContain('armflash_clone_2');
     expect(lua).toContain('armlab');
+    expect(lua).not.toContain('BMF');
+    expect(lua).not.toContain('CLONE_UNITS_BEGIN');
     expect(generateBuildMenuBlockLua([{ builderId: 'armlab', add: ['armflash'], remove: [] }]))
       .toContain('armflash');
   });

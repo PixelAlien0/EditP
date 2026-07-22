@@ -57,8 +57,8 @@ describe('numbered lobby module compilation', () => {
   });
 
   it('separates large generated definition feature blocks at canonical markers', () => {
-    const cloneBlock = `-- BMF_CLONE_UNITS_BEGIN\n${'local clone_value = true -- padding\n'.repeat(180)}-- BMF_CLONE_UNITS_END`;
-    const menuBlock = `-- BMF_BUILDMENU_BEGIN\n${'local menu_value = true -- padding\n'.repeat(180)}-- BMF_BUILDMENU_END`;
+    const cloneBlock = `do\n  local function clone_copy(value) return value end\n${'  local clone_value = true -- padding\n'.repeat(180)}  do\n    local nested = true\n  end\nend`;
+    const menuBlock = `-- EDITP_BUILDMENU_BEGIN\n${'local menu_value = true -- padding\n'.repeat(180)}-- EDITP_BUILDMENU_END`;
     const compiled = compileLobbyModules({
       tweakModules: [], generatedTweakDefsLua: `${cloneBlock}\n${menuBlock}`, generatedTweakUnitsLua: '',
       base64Options: { padding: false },
