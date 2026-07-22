@@ -654,7 +654,18 @@ export function parseTweakPackageInput(input, options = {}) {
   const commandMatches = [...source.matchAll(/^\s*!bset\s+(tweak(defs|units)(\d+)?)\s+([^\s]+)\s*$/gim)];
 
   if (commandMatches.length) {
-    commandMatches.forEach((match, index) => {
+    const effectiveByField = new Map();
+    let overwrittenCount = 0;
+    commandMatches.forEach(match => {
+      const fieldName = match[1].toLowerCase();
+      if (effectiveByField.has(fieldName)) overwrittenCount += 1;
+      effectiveByField.set(fieldName, match);
+    });
+    const effectiveMatches = [...effectiveByField.values()]
+      .filter(match => match[4] !== '0')
+      .sort((left, right) => left.index - right.index);
+    const clearedCount = [...effectiveByField.values()].filter(match => match[4] === '0').length;
+    effectiveMatches.forEach((match, index) => {
       const lineNumber = source.slice(0, match.index).split(/\r?\n/).length;
       try {
         const rawLua = decodeBase64(match[4]);
@@ -666,13 +677,8 @@ export function parseTweakPackageInput(input, options = {}) {
         errors.push(`Line ${lineNumber}: ${error.message}`);
       }
     });
-    const fieldGroups = modules.reduce((groups, module) => {
-      groups[module.originalFieldName] = [...(groups[module.originalFieldName] || []), module];
-      return groups;
-    }, {});
-    Object.entries(fieldGroups).forEach(([fieldName, matches]) => {
-      if (matches.length > 1) notices.push(`${fieldName} appears ${matches.length} times and will be reassigned to unique numbered slots.`);
-    });
+    if (overwrittenCount) notices.push(`${overwrittenCount} earlier tweak-slot assignment${overwrittenCount === 1 ? ' was' : 's were'} replaced using last-command-wins order.`);
+    if (clearedCount) notices.push(`${clearedCount} tweak slot${clearedCount === 1 ? ' was' : 's were'} explicitly cleared.`);
     const legacyFields = modules.filter(module => !/\d+$/.test(module.originalFieldName));
     if (legacyFields.length) notices.push(`${legacyFields.length} unnumbered legacy field${legacyFields.length === 1 ? '' : 's'} will be normalized to the 1–9 slot format.`);
     if (requirements.includes('forceallunits')) notices.push('This package requires Force-load all units. Enable it manually in the BAR lobby.');

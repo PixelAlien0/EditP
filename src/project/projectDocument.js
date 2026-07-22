@@ -1,6 +1,6 @@
 import { normalizeUnitCollections } from './unitCollections.js';
 
-export const PROJECT_DOCUMENT_VERSION = '1.7';
+export const PROJECT_DOCUMENT_VERSION = '1.8';
 export const MAX_PROJECT_BYTES = 5 * 1024 * 1024;
 
 const UNIT_ID_PATTERN = /^[a-z0-9_]+$/i;
@@ -179,6 +179,63 @@ function normalizeTweakModules(value) {
   });
 }
 
+const LOBBY_COMMAND_CATEGORIES = new Set([
+  'game-settings', 'lobby-control', 'map-setup', 'lobby-identity', 'unknown',
+]);
+const LOBBY_COMMAND_SAFETY = new Set(['review', 'manual', 'unknown']);
+const TWEAK_FIELD_PATTERN = /^tweak(?:defs|units)(?:[1-9])?$/i;
+
+function normalizeLobbySetup(value) {
+  const empty = {
+    version: 1,
+    sourceName: '',
+    importedAt: '',
+    commands: [],
+    slotClears: [],
+    slotResetFields: [],
+    requirements: [],
+    ignoredLineCount: 0,
+    overwrittenCount: 0,
+  };
+  if (!isRecord(value)) return empty;
+  const commands = Array.isArray(value.commands) ? value.commands.slice(0, 500).flatMap((rawCommand, index) => {
+    if (!isRecord(rawCommand)) return [];
+    const prefix = rawCommand.prefix === '$' ? '$' : rawCommand.prefix === '!' ? '!' : null;
+    const name = text(rawCommand.name, '', 80).trim().toLowerCase();
+    const category = LOBBY_COMMAND_CATEGORIES.has(rawCommand.category) ? rawCommand.category : 'unknown';
+    const safety = LOBBY_COMMAND_SAFETY.has(rawCommand.safety) ? rawCommand.safety : 'unknown';
+    if (!prefix || !name) return [];
+    return [{
+      id: text(rawCommand.id, `lobby-${index + 1}`, 160).trim() || `lobby-${index + 1}`,
+      prefix,
+      name,
+      key: text(rawCommand.key, '', 120).trim().toLowerCase(),
+      value: text(rawCommand.value, '', 2000).trim(),
+      raw: text(rawCommand.raw, '', 2400).trim(),
+      line: Number.isInteger(Number(rawCommand.line)) && Number(rawCommand.line) > 0 ? Number(rawCommand.line) : index + 1,
+      category,
+      safety,
+      enabled: rawCommand.enabled !== false,
+    }];
+  }) : [];
+  const normalizeFields = fields => Array.isArray(fields)
+    ? [...new Set(fields.map(field => text(field, '', 40).trim().toLowerCase()).filter(field => TWEAK_FIELD_PATTERN.test(field)))].slice(0, 20)
+    : [];
+  return {
+    version: 1,
+    sourceName: text(value.sourceName, '', 260).trim(),
+    importedAt: text(value.importedAt, '', 80).trim(),
+    commands,
+    slotClears: normalizeFields(value.slotClears),
+    slotResetFields: normalizeFields(value.slotResetFields),
+    requirements: Array.isArray(value.requirements)
+      ? [...new Set(value.requirements.map(item => text(item, '', 80).trim()).filter(Boolean))].slice(0, 20)
+      : [],
+    ignoredLineCount: Math.max(0, Number(value.ignoredLineCount) || 0),
+    overwrittenCount: Math.max(0, Number(value.overwrittenCount) || 0),
+  };
+}
+
 export function assertProjectSize(value) {
   const bytes = typeof value === 'number'
     ? value
@@ -214,6 +271,7 @@ export function normalizeProjectDocument(input) {
     supportingWeaponDefs: normalizeSupportingWeaponDefs(migrated.supportingWeaponDefs),
     unitCollections: normalizeUnitCollections(migrated.unitCollections),
     tweakModules: normalizeTweakModules(migrated.tweakModules),
+    lobbySetup: normalizeLobbySetup(migrated.lobbySetup),
     projectName: text(migrated.projectName, 'BAR Editor Mod', 120).trim() || 'BAR Editor Mod',
     projectAuthor: text(migrated.projectAuthor, 'Developer', 120).trim() || 'Developer',
     projectDesc: text(migrated.projectDesc, 'A custom unit configuration mod.', 2000),

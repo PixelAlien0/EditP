@@ -1,7 +1,110 @@
 import { useEffect, useMemo, useState } from 'react';
 import { analyzeTweakPackage, MAX_TWEAK_PACKAGE_BYTES, parseTweakPackageInput } from '../utils/tweakPackage.js';
+import {
+  filterLobbySetupCategories,
+  LOBBY_SETUP_CATEGORIES,
+  LOBBY_SETUP_CATEGORY_META,
+  parseLobbySetupBundle,
+} from '../utils/lobbySetupBundle.js';
 import { Button, EmptyState, PageShell, Switch } from './ui.jsx';
 import '../styles/features/tweak-package-lab.css';
+
+const LOBBY_CATEGORY_ORDER = [
+  LOBBY_SETUP_CATEGORIES.GAME,
+  LOBBY_SETUP_CATEGORIES.LOBBY,
+  LOBBY_SETUP_CATEGORIES.MAP,
+  LOBBY_SETUP_CATEGORIES.IDENTITY,
+  LOBBY_SETUP_CATEGORIES.UNKNOWN,
+];
+
+function createBundleSelection(bundle) {
+  return {
+    modules: bundle.modules.length > 0,
+    ...Object.fromEntries(LOBBY_CATEGORY_ORDER.map(category => [
+      category,
+      (bundle.summary?.categoryCounts?.[category] || 0) > 0,
+    ])),
+  };
+}
+
+function LobbyBundlePreview({ bundle, selection, onToggle, onCancel, onImport }) {
+  const categories = LOBBY_CATEGORY_ORDER
+    .map(category => ({
+      id: category,
+      ...LOBBY_SETUP_CATEGORY_META[category],
+      commands: bundle.lobbySetup.commands.filter(command => command.category === category),
+    }))
+    .filter(category => category.commands.length > 0);
+  const selectedCommandCount = categories.reduce((total, category) => (
+    total + (selection[category.id] ? category.commands.length : 0)
+  ), 0);
+  const selectedModuleCount = selection.modules ? bundle.modules.length : 0;
+
+  return (
+    <section className="lobby-bundle-preview" aria-labelledby="lobby-bundle-preview-title">
+      <header className="lobby-bundle-preview__header">
+        <div>
+          <span className="workflow-eyebrow">Full lobby bundle detected</span>
+          <h3 id="lobby-bundle-preview-title">Review before importing</h3>
+          <p>Lua remains disabled. Lobby and host commands are stored for inspection and are never run by the editor.</p>
+        </div>
+        <div className="lobby-bundle-preview__actions">
+          <Button onClick={onCancel}>Cancel</Button>
+          <Button variant="primary" disabled={!selectedCommandCount && !selectedModuleCount} onClick={onImport}>
+            Import selected
+          </Button>
+        </div>
+      </header>
+
+      <div className="lobby-bundle-preview__metrics" aria-label="Bundle summary">
+        <div><span>Modules</span><strong>{bundle.summary.moduleCount}</strong><small>disabled on import</small></div>
+        <div><span>Commands</span><strong>{bundle.summary.commandCount}</strong><small>effective values</small></div>
+        <div><span>Slot resets</span><strong>{bundle.summary.slotResetCount}</strong><small>{bundle.summary.slotClearCount} remain empty</small></div>
+        <div><span>Overrides</span><strong>{bundle.summary.overwrittenCount}</strong><small>last command kept</small></div>
+        <div><span>Manual</span><strong>{bundle.summary.manualCommandCount}</strong><small>host review</small></div>
+      </div>
+
+      <div className="lobby-bundle-preview__groups">
+        {bundle.modules.length > 0 && (
+          <article className={`lobby-bundle-group is-modules ${selection.modules ? 'is-selected' : ''}`}>
+            <div className="lobby-bundle-group__heading">
+              <span><strong>Tweak modules</strong><small>Definitions and Units payloads</small></span>
+              <Switch label="Import tweak modules" checked={selection.modules} onChange={() => onToggle('modules')} />
+            </div>
+            <div className="lobby-bundle-group__items">
+              {bundle.modules.slice(0, 5).map(module => <code key={module.id}>{module.originalFieldName || module.kind} · {module.label}</code>)}
+              {bundle.modules.length > 5 && <small>+{bundle.modules.length - 5} additional modules</small>}
+            </div>
+          </article>
+        )}
+        {categories.map(category => (
+          <article className={`lobby-bundle-group ${selection[category.id] ? 'is-selected' : ''}`} key={category.id}>
+            <div className="lobby-bundle-group__heading">
+              <span><strong>{category.label}</strong><small>{category.description}</small></span>
+              <Switch
+                label={`Import ${category.label}`}
+                checked={Boolean(selection[category.id])}
+                onChange={() => onToggle(category.id)}
+              />
+            </div>
+            <div className="lobby-bundle-group__items">
+              {category.commands.slice(0, 4).map(command => <code key={command.id}>{command.raw}</code>)}
+              {category.commands.length > 4 && <small>+{category.commands.length - 4} additional commands</small>}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {(bundle.errors.length > 0 || bundle.notices.length > 0 || bundle.summary.ignoredLineCount > 0) && (
+        <div className="lobby-bundle-preview__diagnostics" aria-live="polite">
+          {bundle.errors.map(error => <p className="is-error" key={error}><strong>Decode issue</strong>{error}</p>)}
+          {bundle.notices.slice(0, 5).map(notice => <p key={notice}><strong>Import note</strong>{notice}</p>)}
+          {bundle.summary.ignoredLineCount > 0 && <p><strong>Ignored text</strong>{bundle.summary.ignoredLineCount} non-command line{bundle.summary.ignoredLineCount === 1 ? '' : 's'} will not be stored.</p>}
+        </div>
+      )}
+    </section>
+  );
+}
 
 function ModuleCard({ module, selected, analysis, report, onSelect, onUpdate, onRemove, onMove }) {
   const preflightCount = analysis.warnings.length
@@ -82,7 +185,7 @@ function SupportingWeaponDefCard({ definition, onUpdate, onRemove }) {
 }
 
 export default function TweakPackageLabPage({
-  modules, supportingWeaponDefs = [], compiledModules, onAddModules, onUpdateModule, onRemoveModule,
+  modules, lobbySetup, supportingWeaponDefs = [], compiledModules, onAddModules, onImportLobbyBundle, onClearLobbySetup, onUpdateModule, onRemoveModule,
   onMoveModule, onReorderModules, onApplyConversions, onBack, onToast, knownUnitIds = [],
   onAddSupportingWeaponDefs, onUpdateSupportingWeaponDef, onRemoveSupportingWeaponDef,
 }) {
@@ -93,6 +196,8 @@ export default function TweakPackageLabPage({
   const [newSupportKey, setNewSupportKey] = useState('');
   const [inspectorFullscreen, setInspectorFullscreen] = useState(false);
   const [inspectorView, setInspectorView] = useState('summary');
+  const [bundlePreview, setBundlePreview] = useState(null);
+  const [bundleSelection, setBundleSelection] = useState({});
   const packageAnalysis = useMemo(
     () => analyzeTweakPackage(modules, { knownUnitIds }),
     [knownUnitIds, modules]
@@ -176,6 +281,13 @@ export default function TweakPackageLabPage({
   };
 
   const importText = (text, options = {}) => {
+    const bundle = parseLobbySetupBundle(text, { sourceName: options.sourceName || 'Pasted lobby setup' });
+    if (bundle.isBundle) {
+      setBundlePreview(bundle);
+      setBundleSelection(createBundleSelection(bundle));
+      if (bundle.errors.length) onToast(`${bundle.errors.length} tweak payload${bundle.errors.length === 1 ? '' : 's'} need review before import.`);
+      return;
+    }
     const result = parseTweakPackageInput(text, { kind: rawKind, ...options });
     if (result.modules.length) {
       onAddModules(result.modules);
@@ -193,7 +305,16 @@ export default function TweakPackageLabPage({
     const errors = [];
     const notices = [];
     for (const file of files) {
-      const result = parseTweakPackageInput(await file.text(), { kind: rawKind, sourceName: file.name });
+      const fileText = await file.text();
+      const bundle = parseLobbySetupBundle(fileText, { sourceName: file.name });
+      if (bundle.isBundle) {
+        setBundlePreview(bundle);
+        setBundleSelection(createBundleSelection(bundle));
+        if (files.length > 1) onToast(`Showing ${file.name}. Import full lobby bundles one at a time so their settings cannot overwrite each other silently.`);
+        event.target.value = '';
+        return;
+      }
+      const result = parseTweakPackageInput(fileText, { kind: rawKind, sourceName: file.name });
       imported.push(...result.modules);
       errors.push(...result.errors.map(error => `${file.name}: ${error}`));
       notices.push(...(result.notices || []).map(notice => `${file.name}: ${notice}`));
@@ -214,6 +335,28 @@ export default function TweakPackageLabPage({
     event.target.value = '';
   };
 
+  const toggleBundleSelection = key => {
+    setBundleSelection(current => ({ ...current, [key]: !current[key] }));
+  };
+
+  const importBundlePreview = () => {
+    if (!bundlePreview) return;
+    const categories = LOBBY_CATEGORY_ORDER.filter(category => bundleSelection[category]);
+    const filteredSetup = filterLobbySetupCategories(bundlePreview.lobbySetup, categories);
+    const importedModules = bundleSelection.modules ? bundlePreview.modules : [];
+    const nextSetup = {
+      ...filteredSetup,
+      slotClears: bundleSelection.modules ? filteredSetup.slotClears : [],
+      slotResetFields: bundleSelection.modules ? filteredSetup.slotResetFields : [],
+    };
+    onImportLobbyBundle({ modules: importedModules, lobbySetup: nextSetup });
+    if (importedModules.length) setSelectedId(importedModules[0].id);
+    setPasteValue('');
+    setBundlePreview(null);
+    setBundleSelection({});
+    onToast(`Imported ${importedModules.length} disabled module${importedModules.length === 1 ? '' : 's'} and ${nextSetup.commands.length} lobby command${nextSetup.commands.length === 1 ? '' : 's'}.`);
+  };
+
   const slotSummary = compiledModules
     ? `${compiledModules.defs.required}/9 Definitions · ${compiledModules.units.required}/9 Units`
     : '0/9 Definitions · 0/9 Units';
@@ -231,6 +374,33 @@ export default function TweakPackageLabPage({
           <Button onClick={onBack}>Back to editor</Button>
         </div>
       </header>
+
+      {bundlePreview && (
+        <LobbyBundlePreview
+          bundle={bundlePreview}
+          selection={bundleSelection}
+          onToggle={toggleBundleSelection}
+          onCancel={() => { setBundlePreview(null); setBundleSelection({}); }}
+          onImport={importBundlePreview}
+        />
+      )}
+
+      {!bundlePreview && lobbySetup?.commands?.length > 0 && (
+        <section className="tweak-lobby-setup-summary" aria-label="Imported lobby setup">
+          <div>
+            <span className="workflow-eyebrow">Imported lobby setup</span>
+            <strong>{lobbySetup.sourceName || 'Lobby command bundle'}</strong>
+            <small>{lobbySetup.commands.length} effective commands · {lobbySetup.slotResetFields?.length || 0} slot resets · stored for inspection</small>
+          </div>
+          <div className="tweak-lobby-setup-summary__categories">
+            {LOBBY_CATEGORY_ORDER.map(category => {
+              const count = lobbySetup.commands.filter(command => command.category === category).length;
+              return count > 0 ? <span key={category}>{LOBBY_SETUP_CATEGORY_META[category].label} <b>{count}</b></span> : null;
+            })}
+          </div>
+          <Button size="sm" onClick={onClearLobbySetup}>Remove setup</Button>
+        </section>
+      )}
 
       {modules.length > 0 && (
         <section className="tweak-package-audit" aria-label="Package dependency audit">

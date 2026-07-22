@@ -130,7 +130,7 @@ test('Tweak Package Lab imports inert modules and exposes numbered slots', async
   await expect(page.locator('.lobby-slot-code')).toContainText('editp_lab_test');
 });
 
-test('Tweak Package Lab repairs mixed legacy wrappers and reports manual dependencies', async ({ page }) => {
+test('Tweak Package Lab previews and imports a full lobby setup bundle', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
   await page.getByRole('button', { name: /^Tools/ }).click();
@@ -139,18 +139,34 @@ test('Tweak Package Lab repairs mixed legacy wrappers and reports manual depende
   await page.getByRole('textbox', { name: 'Tweak package input' }).fill(`
     ALL TWEAKS
     !bset forceallunits 1
+    !preset coop
+    !unit_restrictions_nonukes 0
+    !bSet unit_restrictions_nonukes 1
+    !map Full Metal Plate
+    !addbox 82 82 117 117 2
+    $rename PvE Reference Lobby
     !bset tweakdefs LS0gRmlyc3QgbGVnYWN5IG1vZHVsZQpsb2NhbCBhID0gdHJ1ZQ
     SPACE PACK
     !bset tweakdefs LS0gU2Vjb25kIGxlZ2FjeSBtb2R1bGUKbG9jYWwgYiA9IHRydWU
+    !bset tweakunits4 0
   `);
   await page.getByRole('button', { name: 'Inspect pasted input' }).click();
 
-  await expect(page.getByRole('button', { name: /DEFS First legacy module/ })).toBeVisible();
+  const preview = page.locator('.lobby-bundle-preview');
+  await expect(preview.getByRole('heading', { name: 'Review before importing' })).toBeVisible();
+  await expect(preview).toContainText('Game settings');
+  await expect(preview).toContainText('Map & start boxes');
+  await expect(preview).toContainText('Lobby identity');
+  await expect(preview).toContainText('last-command-wins');
+  await preview.getByRole('button', { name: 'Import selected' }).click();
+
   await expect(page.getByRole('button', { name: /DEFS Second legacy module/ })).toBeVisible();
-  const diagnostics = page.locator('.tweak-lab-package-diagnostics');
-  await expect(diagnostics).toContainText('Force-load all units');
-  await expect(diagnostics).toContainText('tweakdefs appeared 2 times');
-  await expect(diagnostics).toContainText('2 unnumbered fields');
+  await expect(page.getByRole('button', { name: /DEFS First legacy module/ })).toHaveCount(0);
+  const setup = page.getByRole('region', { name: 'Imported lobby setup' });
+  await expect(setup).toContainText('6 effective commands');
+  await expect(setup).toContainText('Game settings');
+  await expect(setup).toContainText('Map & start boxes');
+  await expect(setup).toContainText('Lobby identity');
 });
 
 test('Tweak Package Lab preflights value types and safely reorders dependencies', async ({ page }) => {

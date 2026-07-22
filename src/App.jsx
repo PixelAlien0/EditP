@@ -10,7 +10,7 @@ import { useTemporaryChat } from './hooks/useTemporaryChat.js';
 import { useProjectPersistence } from './hooks/useProjectPersistence.js';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout.js';
 import { useCoreGameData } from './hooks/useCoreGameData.js';
-import { useProjectStore } from './state/useProjectStore.js';
+import { PROJECT_STORE_DEFAULTS, useProjectStore } from './state/useProjectStore.js';
 import { assertProjectSize, normalizeProjectDocument } from './project/projectDocument.js';
 import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
 import {
@@ -784,14 +784,14 @@ export default function App() {
   const {
     state: projectStore,
     setTweaks, setClones, setDisabledUnitIds, setUnitDescriptions,
-    setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setSupportingWeaponDefs, setUnitCollections, setTweakModules,
+    setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setSupportingWeaponDefs, setUnitCollections, setTweakModules, setLobbySetup,
     setProjectName, setProjectAuthor, setProjectDesc,
     setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
     hydrateProjectStore,
   } = useProjectStore();
   const {
     tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
-    presets, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules, projectName, projectAuthor, projectDesc,
+    presets, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules, lobbySetup, projectName, projectAuthor, projectDesc,
     includeTweaks, includeClones, includeRosters, includeHeader,
   } = projectStore;
 
@@ -1020,8 +1020,9 @@ export default function App() {
     weaponLibrary,
     supportingWeaponDefs,
     unitCollections,
-    tweakModules
-  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules]);
+    tweakModules,
+    lobbySetup
+  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules, lobbySetup]);
   const [historyPast, setHistoryPast] = useState([]);
   const [historyFuture, setHistoryFuture] = useState([]);
   const lastSnapshotRef = useRef(projectSnapshot);
@@ -1065,7 +1066,8 @@ export default function App() {
     setSupportingWeaponDefs(snapshot.supportingWeaponDefs || []);
     setUnitCollections(snapshot.unitCollections || []);
     setTweakModules(snapshot.tweakModules || []);
-  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setSupportingWeaponDefs, setTweaks, setUnitCollections, setWeaponLibrary, setTweakModules]);
+    setLobbySetup(snapshot.lobbySetup || PROJECT_STORE_DEFAULTS.lobbySetup);
+  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setLobbySetup, setSupportingWeaponDefs, setTweaks, setUnitCollections, setWeaponLibrary, setTweakModules]);
 
   const handleUndo = useCallback(() => {
     if (historyPast.length === 0) return;
@@ -1108,6 +1110,7 @@ export default function App() {
     supportingWeaponDefs,
     unitCollections,
     tweakModules,
+    lobbySetup,
     projectName,
     projectAuthor,
     projectDesc,
@@ -1198,6 +1201,15 @@ export default function App() {
       return [...current, ...additions].map((module, index) => ({ ...module, order: index }));
     });
   }, [setTweakModules]);
+
+  const handleImportLobbyBundle = useCallback(({ modules: incomingModules = [], lobbySetup: importedSetup }) => {
+    if (incomingModules.length) handleAddTweakModules(incomingModules);
+    if (importedSetup) setLobbySetup(importedSetup);
+  }, [handleAddTweakModules, setLobbySetup]);
+
+  const handleClearLobbySetup = useCallback(() => {
+    setLobbySetup(PROJECT_STORE_DEFAULTS.lobbySetup);
+  }, [setLobbySetup]);
 
   const handleUpdateTweakModule = useCallback((moduleId, patch) => {
     setTweakModules(current => current.map(module => {
@@ -2970,7 +2982,7 @@ export default function App() {
     validationCount: scopedValidationIssues.length,
   } : null;
   const activeBuildMenuPackCount = Object.values(buildMenuPacks).filter(Boolean).length;
-  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount + tweakModules.length + supportingWeaponDefs.length;
+  const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount + tweakModules.length + supportingWeaponDefs.length + (lobbySetup.commands?.length || 0);
   const selectedUnitOverrideEntries = Object.entries(tweaks[selectedUnit?.id] || {});
   const inspectorTabs = [
     { id: 'details', label: 'Details' },
@@ -5141,9 +5153,12 @@ export default function App() {
         <Suspense fallback={<main className="tweak-package-lab workspace-loading"><span>Preparing Tweak Package Lab…</span></main>}>
           <LazyTweakPackageLabPage
             modules={tweakModules}
+            lobbySetup={lobbySetup}
             supportingWeaponDefs={supportingWeaponDefs}
             compiledModules={compiledLobbyModules}
             onAddModules={handleAddTweakModules}
+            onImportLobbyBundle={handleImportLobbyBundle}
+            onClearLobbySetup={handleClearLobbySetup}
             onUpdateModule={handleUpdateTweakModule}
             onRemoveModule={handleRemoveTweakModule}
             onMoveModule={handleMoveTweakModule}

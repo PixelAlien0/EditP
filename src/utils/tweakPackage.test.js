@@ -45,7 +45,7 @@ describe('tweak package import', () => {
     expect(result.errors[0]).toContain('duplicate');
   });
 
-  it('extracts mixed legacy packages, dependencies, and duplicate fields', () => {
+  it('uses the final assignment for repeated legacy fields', () => {
     const first = encodeLobbyBase64('-- First module\nlocal a = true', { padding: false });
     const second = encodeLobbyBase64('-- Second module\nlocal b = true', { padding: false });
     const units = encodeLobbyBase64('{ armflea = { health = 100 } }', { padding: false });
@@ -58,12 +58,25 @@ describe('tweak package import', () => {
       !bset tweakunits1 ${units}
     `);
     expect(result.errors).toEqual([]);
-    expect(result.modules).toHaveLength(3);
-    expect(result.modules.map(module => module.label)).toEqual(['First module', 'Second module', 'tweakunits1']);
+    expect(result.modules).toHaveLength(2);
+    expect(result.modules.map(module => module.label)).toEqual(['Second module', 'tweakunits1']);
     expect(result.modules.every(module => module.requirements.includes('forceallunits'))).toBe(true);
-    expect(result.notices.join(' ')).toContain('tweakdefs appears 2 times');
+    expect(result.notices.join(' ')).toContain('last-command-wins');
     expect(result.notices.join(' ')).toContain('Force-load all units');
     expect(result.notices.join(' ')).toContain('unnumbered legacy');
+  });
+
+  it('treats zero payloads as explicit slot clears instead of Base64', () => {
+    const payload = encodeLobbyBase64('-- Effective module\nlocal enabled = true', { padding: false });
+    const result = parseTweakPackageInput(`
+      !bset tweakdefs1 0
+      !bset tweakdefs1 ${payload}
+      !bset tweakunits2 0
+    `);
+    expect(result.errors).toEqual([]);
+    expect(result.modules).toHaveLength(1);
+    expect(result.modules[0].originalFieldName).toBe('tweakdefs1');
+    expect(result.notices.join(' ')).toContain('explicitly cleared');
   });
 
   it('converts literal tweakunits tables into unit and weapon edits', () => {

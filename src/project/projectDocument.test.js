@@ -63,7 +63,7 @@ describe('project documents', () => {
         { id: 'duplicate', ownerUnitId: 'armflea', key: 'cluster_child', definition: { range: 1 } },
       ],
     });
-    expect(project.version).toBe('1.7');
+    expect(project.version).toBe('1.8');
     expect(project.supportingWeaponDefs).toEqual([expect.objectContaining({
       id: 'support_child', ownerUnitId: 'armflea', key: 'cluster_child', role: 'dependency',
       mountedSlots: [2], dependencies: ['next_child'], referencedBy: ['main_gun'],
@@ -84,5 +84,33 @@ describe('project documents', () => {
     }));
     const project = normalizeProjectDocument({ version: '1.6', tweakModules });
     expect(project.tweakModules).toHaveLength(19);
+  });
+
+  it('persists a normalized full lobby setup bundle without retaining invalid commands', () => {
+    const project = normalizeProjectDocument({
+      version: '1.7',
+      lobbySetup: {
+        sourceName: 'Community setup.txt',
+        importedAt: '2026-07-22T00:00:00.000Z',
+        commands: [
+          { id: 'map', prefix: '!', name: 'MAP', value: 'Full Metal Plate', raw: '!map Full Metal Plate', line: 5, category: 'map-setup', safety: 'manual' },
+          { prefix: '?', name: 'bad', category: 'unsafe' },
+        ],
+        slotClears: ['TWEAKDEFS9', 'tweakdefs10'],
+        slotResetFields: ['tweakunits', 'tweakunits4'],
+        requirements: ['forceallunits', 'forceallunits'],
+        overwrittenCount: 2,
+      },
+    });
+    expect(project.lobbySetup).toMatchObject({
+      sourceName: 'Community setup.txt',
+      slotClears: ['tweakdefs9'],
+      slotResetFields: ['tweakunits', 'tweakunits4'],
+      requirements: ['forceallunits'],
+      overwrittenCount: 2,
+    });
+    expect(project.lobbySetup.commands).toEqual([expect.objectContaining({
+      prefix: '!', name: 'map', category: 'map-setup', safety: 'manual',
+    })]);
   });
 });
