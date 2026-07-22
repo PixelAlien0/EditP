@@ -16,6 +16,7 @@ dist-ssr
 test-results/
 playwright-report/
 playwright/.cache/
+Reference/private-originals/
 
 # Editor directories and files
 .vscode/*
