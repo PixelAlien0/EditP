@@ -35,6 +35,7 @@ import EditorInspector from './components/editor/EditorInspector.jsx';
 import AssetPicker from './components/editor/AssetPicker.jsx';
 import AdvancedCustomParameters from './components/editor/AdvancedCustomParameters.jsx';
 import { isValidCustomParameterKey } from './config/customParameters.js';
+import { collectKnownTargetableMask } from './config/behaviorInterceptor.js';
 import {
   createUnitCollection,
   deleteCollectionAndPromoteChildren,
@@ -51,6 +52,7 @@ const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplore
 const LazyCommandPalette = lazy(() => import('./components/CommandPalette.jsx'));
 const LazyProjectCheckpointsDialog = lazy(() => import('./components/ProjectCheckpointsDialog.jsx'));
 const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
+const LazyBehaviorInterceptorEditor = lazy(() => import('./components/editor/BehaviorInterceptorEditor.jsx'));
 
 // Keep the laboratory code available while this experimental workspace is temporarily unpublished.
 const WEAPON_LAB_ENABLED = false;
@@ -100,6 +102,7 @@ const PARAMETER_RELATIONSHIPS = [
   { section: 'structure', title: 'Cloak economy', description: 'Cloak drain is safest to tune alongside energy income and storage.', keys: ['cloakcost', 'cloakcostmoving', 'energymake', 'energystorage'] },
   { section: 'structure', title: 'Converter output', description: 'Conversion capacity and efficiency jointly control the converter’s useful output.', keys: ['customparams.energyconv_capacity', 'customparams.energyconv_efficiency', 'energymake'] },
   { section: 'structure', title: 'Carrier deployment', description: 'Payload, spawn timing, limits, control range, docking, decay, and replacement costs form one carrier system.', keys: ['customparams.carried_unit', 'customparams.spawnrate', 'customparams.maxunits', 'customparams.controlradius', 'customparams.enabledocking', 'customparams.decayrate', 'customparams.deathdecayrate', 'customparams.carrierdeaththroe', 'customparams.metalcost', 'customparams.energycost'] },
+  { section: 'structure', title: 'Engagement behaviour', description: 'Attack permission, automatic fire, manual fire, default states, and chase exclusions form the unit engagement policy.', keys: ['canattack', 'noautofire', 'canmanualfire', 'firestate', 'movestate', 'nochasecategory'] },
   { section: 'mobility', title: 'Movement response', description: 'Top speed, acceleration, braking, and turning determine the complete handling profile.', keys: ['maxvelocity', 'acceleration', 'brakerate', 'turnrate'] },
   { section: 'mobility', title: 'Terrain access', description: 'Slope and water-depth limits decide which parts of a map the unit can traverse.', keys: ['maxslope', 'maxwaterdepth', 'minwaterdepth'] },
   { section: 'mobility', title: 'Transport behavior', description: 'Capacity, transport eligibility, and mass interact with carrying roles.', keys: ['transportcapacity', 'cantbetransported'] },
@@ -111,12 +114,14 @@ const PARAMETER_RELATIONSHIPS = [
   { section: 'weapons', title: 'Splash behavior', description: 'Area, edge damage, impact rules, and self-damage define how explosions apply damage.', keys: ['aoe', 'edgeeffectiveness', 'impactonly', 'noexplode', 'noselfdamage'] },
   { section: 'weapons', title: 'Guidance and trajectory', description: 'Tracking, turn rate, arc, and flight motion determine whether guided shots can connect.', keys: ['tracks', 'turnrate', 'trajectoryheight', 'wobble', 'dance', 'flighttime'] },
   { section: 'weapons', title: 'Collision and bounce', description: 'Collision masks and bounce retention control how a projectile interacts with the world.', keys: ['collidefriendly', 'collidefeature', 'collideneutral', 'collideground', 'collisionSize', 'groundbounce', 'waterbounce', 'numbounce', 'bounceslip', 'bouncerebound'] },
+  { section: 'weapons', title: 'Unit engagement behaviour', description: 'Attack permission, automatic fire, manual fire, default states, and chase exclusions determine how the active weapon is used.', keys: ['canattack', 'noautofire', 'canmanualfire', 'firestate', 'movestate', 'nochasecategory', 'commandfire'] },
   { section: 'weapons', title: 'Target eligibility', description: 'Ground, air, water, and category masks jointly decide which targets are valid or preferred.', keys: ['canattackground', 'toairweapon', 'waterweapon', 'firesubmersed', 'onlytargetcategory', 'badtargetcategory'] },
   { section: 'weapons', title: 'Stockpile and shot cost', description: 'Ammunition timing, limits, and per-shot resources determine firing availability.', keys: ['stockpile', 'stockpiletime', 'stockpilelimit', 'energypershot', 'metalpershot'] },
   { section: 'weapons', title: 'Beam behavior', description: 'Beam duration, burst mode, sweep behavior, and falloff shape delivered damage.', keys: ['beamtime', 'beamburst', 'sweepfire', 'minintensity', 'duration', 'hardstop', 'falloffrate'] },
   { section: 'weapons', title: 'Projectile presentation', description: 'Trail, model, impact effect, colors, thickness, and intensity form one visual language.', keys: ['cegTag', 'model', 'explosiongenerator', 'rgbcolor', 'rgbcolor2', 'thickness', 'corethickness', 'laserflaresize', 'intensity'] },
   { section: 'weapons', title: 'Weapon audio', description: 'Fire, impact, and water-impact sounds should be authored as a coordinated set.', keys: ['soundstart', 'soundhit', 'soundhitwet'] },
-  { section: 'weapons', title: 'Spawn and cluster behavior', description: 'Spawned units, resource costs, and cluster submunitions depend on valid unit and weapon-definition IDs.', keys: ['spawns_name', 'spawns_surface', 'spawn_metal_cost', 'spawn_energy_cost', 'cluster_def', 'cluster_number'] }
+  { section: 'weapons', title: 'Spawn and cluster behavior', description: 'Spawned units, resource costs, and cluster submunitions depend on valid unit and weapon-definition IDs.', keys: ['spawns_name', 'spawns_surface', 'spawn_metal_cost', 'spawn_energy_cost', 'cluster_def', 'cluster_number'] },
+  { section: 'weapons', title: 'Projectile interception', description: 'Targetable and interceptor bitmasks must share a channel; coverage controls the acquisition radius and exclusive interception prevents duplicate commitments.', keys: ['targetable', 'interceptor', 'coverage', 'interceptsolo', 'commandfire'] }
 ];
 
 const PARAMETER_LABEL_OVERRIDES = {
@@ -210,6 +215,9 @@ const PARAMETER_HELP = {
   buildpic: 'Build-menu artwork name already present in BAR or the loaded mod.', icontype: 'Strategic icon type registered by BAR or the loaded mod.',
   collisionvolumetype: 'Collision shape such as Box, CylY, Ell, Footprint, or Sphere.', collisionvolumescales: 'Collision volume dimensions as three space-separated numbers.',
   collisionvolumeoffsets: 'Collision volume X Y Z offset as three space-separated numbers.',
+  canattack: 'Allows the unit to receive and execute ordinary attack orders.', noautofire: 'Stops the unit from automatically firing while preserving explicit weapon control.',
+  canmanualfire: 'Makes the unit eligible for the manual-fire command when a weapon supports it.', firestate: 'Initial fire posture: hold fire, return fire, or fire at will.',
+  movestate: 'Initial pursuit posture: hold position, maneuver, or roam.', nochasecategory: 'Space-separated categories the unit should not automatically pursue.',
   damage: 'Base damage against targets without a specific armor class.', reload: 'Seconds between firing cycles.', range: 'Maximum firing range in elmos.', velocity: 'Projectile speed.',
   flighttime: 'How long a guided projectile retains fuel and guidance.', aoe: 'Explosion diameter that can damage nearby units.', accuracy: 'Base shot spread; lower is more accurate.',
   sprayangle: 'Spread between projectiles in a burst.', heightmod: 'How range changes with target elevation.', randomdecay: 'Legacy projectile spread behavior; use with caution.',
@@ -247,7 +255,8 @@ const PARAMETER_HELP = {
   selfd_explosion_camerashake: 'Camera-shake strength generated by self-destruction.', selfd_explosion_impulsefactor: 'Knockback multiplier generated by self-destruction.',
   damagemodifier: 'Multiplier applied to incoming damage; lower values make the unit tougher.', energyupkeep: 'Energy consumed continuously while the unit is active.', metalupkeep: 'Metal consumed continuously while the unit is active.',
   avoidfeature: 'Makes aiming avoid terrain features when checking a safe firing line.', cratermult: 'Multiplier controlling terrain deformation strength.', crateraoe: 'Diameter of terrain deformation, separate from damage AoE.',
-  targetable: 'Bitmask describing which interceptor classes can target this projectile.', interceptor: 'Bitmask describing which targetable projectile classes this weapon intercepts.', coverage: 'Radius in which an interceptor searches for projectiles.',
+  targetable: 'Bitmask describing which interceptor channels can target this projectile.', interceptor: 'Bitmask describing which targetable projectile channels this weapon intercepts.', coverage: 'Radius in which an interceptor searches for projectiles.',
+  interceptsolo: 'When enabled, other interceptors will not target a projectile after this interceptor commits to it.', commandfire: 'Makes the weapon respond to manual-fire orders instead of automatic attack.',
   gravity: 'Global map gravity override.', windmin: 'Minimum map wind strength.', windmax: 'Maximum map wind strength.', tidalmaker: 'Global tidal energy yield.'
 };
 
@@ -683,6 +692,10 @@ function getValidationWarning(key, value) {
   if (isKey('stockpilelimit')) {
     if (num < 0) return { level: 'error', message: 'Limit cannot be negative' };
   }
+  if (key === 'targetable' || key === 'interceptor' || key === 'interceptedbyshieldtype') {
+    if (!Number.isInteger(num) || num < 0) return { level: 'error', message: 'Bitmask must be a non-negative whole number' };
+  }
+  if (key === 'coverage' && num < 0) return { level: 'error', message: 'Coverage cannot be negative' };
   if (isKey('spawnrate') && num <= 0) return { level: 'error', message: 'Spawn rate must be positive' };
   if (isKey('maxunits') && (!Number.isInteger(num) || num < 1)) return { level: 'error', message: 'Maximum units must be a positive integer' };
   if ((key === 'footprintx' || key === 'footprintz') && (!Number.isInteger(num) || num < 1)) return { level: 'error', message: 'Footprint must be a positive whole number' };
@@ -751,6 +764,8 @@ export default function App() {
     getTechTierOfUnit,
     getTagsOfUnit,
   } = useCoreGameData();
+
+  const knownTargetableMask = useMemo(() => collectKnownTargetableMask(defaultsDb), [defaultsDb]);
 
   const [showMainMenu, setShowMainMenu] = useState(true);
   const [activeWorkspace, setActiveWorkspace] = useState('edit');
@@ -3733,21 +3748,10 @@ export default function App() {
                 ]
               },
               {
-                title: 'Manual fire & interception',
-                description: 'Manual-fire behavior and projectile interception masks.',
-                params: [
-                  { key: 'turret', label: 'Turreted Weapon', type: 'tri-state' },
-                  { key: 'commandfire', label: 'Manual Fire Only', type: 'tri-state' },
-                  { key: 'targetable', label: 'Projectile Targetable Mask', type: 'number' },
-                  { key: 'interceptor', label: 'Interceptor Mask', type: 'number' },
-                  { key: 'coverage', label: 'Interceptor Coverage', type: 'number' },
-                  { key: 'interceptsolo', label: 'Exclusive Interception', type: 'tri-state' }
-                ]
-              },
-              {
                 title: 'Weapon mount behavior',
                 description: 'Per-slot firing arc, slaving, retargeting, and leading behavior.',
                 params: [
+                  { key: 'turret', label: 'Turreted Weapon', type: 'tri-state' },
                   { key: 'slaveto', label: 'Slave to Weapon Slot', type: 'number' },
                   { key: 'maindir', label: 'Primary Aim Direction', type: 'string' },
                   { key: 'maxangledif', label: 'Firing Arc Width', type: 'number' },
@@ -4545,6 +4549,18 @@ export default function App() {
                               );
                             }}
                           />
+
+                          <Suspense fallback={<div className="feature-loading">Loading behaviour controls…</div>}>
+                            <LazyBehaviorInterceptorEditor
+                              slot={slot}
+                              unitDefaults={defaults}
+                              unitTweaks={tweaks[selectedUnit.id] || {}}
+                              knownTargetableMask={knownTargetableMask}
+                              onWeaponChange={(key, value) => handleStatChange(selectedUnit.id, key, value)}
+                              onUnitChange={(key, value) => handleStatChange(selectedUnit.id, key, value)}
+                              onParameterFocus={key => setActiveRelationshipKey(key)}
+                            />
+                          </Suspense>
 
                           <div className="weapon-advanced-groups">
                             {applicableAdvancedWeaponGroups.map(group => (

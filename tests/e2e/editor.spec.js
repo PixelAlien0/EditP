@@ -93,6 +93,43 @@ test('build menu producer catalog separates factories and builders', async ({ pa
   await expect(catalog.getByText('Advanced Vehicle Plant', { exact: true })).toBeVisible();
 });
 
+test('behavior and interceptor editor links unit policy, projectile masks, and coverage', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('tab', { name: /Weapons/ }).click();
+
+  const editor = page.getByRole('region', { name: 'Behaviour & Interception' });
+  await expect(editor).toBeVisible();
+  await expect(editor).toContainText('INTERCEPTOR & TARGETABLE ≠ 0');
+
+  await editor.getByRole('button', { name: /Interceptor Weapon searches/i }).click();
+  await expect(editor.getByText('Interceptor', { exact: true }).first()).toBeVisible();
+  await expect(editor.getByLabel('Interceptor weapon mask decimal mask')).toHaveValue('1');
+  await expect(editor.getByLabel('Interceptor acquisition coverage')).not.toHaveValue('');
+
+  await editor.getByLabel('Can attack').selectOption('false');
+  await expect(editor.getByLabel('Can attack')).toHaveValue('false');
+
+  const interceptorChannels = editor.getByLabel('Interceptor weapon mask channels');
+  await interceptorChannels.getByRole('button', { name: /01 1/ }).click();
+  await interceptorChannels.getByRole('button', { name: /02 2/ }).click();
+  await expect(editor.getByLabel('Interceptor weapon mask decimal mask')).toHaveValue('2');
+  await expect(editor).toContainText('does not match a targetable projectile channel');
+
+  await page.getByRole('tab', { name: /Economy & Durability/ }).click();
+  await page.getByRole('tab', { name: /Weapons/ }).click();
+  await expect(editor.getByLabel('Can attack')).toHaveValue('false');
+  await expect(editor.getByLabel('Interceptor weapon mask decimal mask')).toHaveValue('2');
+
+  await page.getByRole('button', { name: /Review & Export/i }).click();
+  await expect(page.getByRole('heading', { name: 'Export Console' })).toBeVisible();
+  await page.getByRole('navigation', { name: 'Generated lobby slots' }).getByRole('button', { name: /tweakunits1/i }).click();
+  await page.getByRole('button', { name: 'Lua', exact: true }).click();
+  const generatedLua = page.locator('.lobby-slot-code');
+  await expect(generatedLua).toContainText('canAttack = false');
+  await expect(generatedLua).toContainText('interceptor = 2');
+});
+
 test('Tweak Package Lab imports inert modules and exposes numbered slots', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
