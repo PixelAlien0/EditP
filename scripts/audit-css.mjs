@@ -11,6 +11,7 @@ const files = [
 ];
 
 const selectorOwners = new Map();
+const selectorLabels = new Map();
 let totalBytes = 0;
 let totalImportant = 0;
 
@@ -25,9 +26,18 @@ for (const file of files) {
   tree.walkRules(rule => {
     rules += 1;
     rule.selectors?.forEach(selector => {
-      const owners = selectorOwners.get(selector) || new Set();
+      const context = [];
+      let parent = rule.parent;
+      while (parent && parent.type !== 'root') {
+        if (parent.type === 'atrule') context.push(`${parent.name}:${parent.params}`);
+        parent = parent.parent;
+      }
+      const contextLabel = context.reverse().join(' > ');
+      const selectorKey = `${contextLabel}\u0000${selector}`;
+      const owners = selectorOwners.get(selectorKey) || new Set();
       owners.add(relative);
-      selectorOwners.set(selector, owners);
+      selectorOwners.set(selectorKey, owners);
+      selectorLabels.set(selectorKey, contextLabel ? `${selector} [${contextLabel}]` : selector);
     });
   });
   tree.walkDecls(declaration => {
@@ -42,7 +52,7 @@ for (const file of files) {
 const crossOwned = [...selectorOwners.entries()].filter(([, owners]) => owners.size > 1);
 console.log(`\nTotal: ${files.length} files, ${totalBytes} bytes, ${totalImportant} !important declarations`);
 console.log(`Selectors owned by more than one file: ${crossOwned.length}`);
-crossOwned.slice(0, 20).forEach(([selector, owners]) => console.log(`- ${selector}: ${[...owners].join(', ')}`));
+crossOwned.slice(0, 20).forEach(([selectorKey, owners]) => console.log(`- ${selectorLabels.get(selectorKey)}: ${[...owners].join(', ')}`));
 
 const budgets = { bytes: 455000, important: 2175, crossOwned: 138 };
 const failures = [

@@ -1,6 +1,10 @@
 /* Preset Gallery — uses the shared workspace palette in both themes. */
 .preset-gallery-page {
+  position: fixed;
   inset: var(--header-height) 0 0 !important;
+  z-index: 9;
+  display: flex;
+  overflow: hidden;
   background: var(--color-canvas) !important;
   color: var(--color-text) !important;
 }

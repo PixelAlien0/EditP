@@ -105,7 +105,6 @@
 [data-theme="dark"] .faction-tab.active,
 [data-theme="dark"] .category-chip.active,
 [data-theme="dark"] .filter-action-btn.active {
-  color: var(--color-accent-strong) !important;
   box-shadow: none !important;
 }
 

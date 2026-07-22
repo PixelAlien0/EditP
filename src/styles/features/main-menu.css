@@ -2,7 +2,6 @@
 .main-menu {
   width: 100%;
   min-width: 1024px;
-  min-height: 100vh;
   min-height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;

@@ -13,11 +13,18 @@ CSS is loaded in deliberate cascade order from `main.jsx`.
 - Put reusable controls, fields, feedback, tabs, cards, and dialogs in `components/ui/ui.css`.
 - Put feature layout in its named file under `features/`.
 - Consume semantic tokens; do not add literal theme colors to feature files.
-- Do not add new “final override” sections to `index.css`.
+- Do not add new "final override" sections to `index.css`.
 - Avoid `!important`. Existing declarations remain only where the legacy cascade still requires them.
 - A selector should have one canonical owner. Run `npm run audit-css` to find cross-file ownership before merging a UI change.
 - Preserve the import order in `main.jsx` until the legacy layer has been fully migrated.
 
-After a larger migration, run `npm run consolidate-css`. It removes only exact
-duplicate declarations under the same selector and at-rule context, preserving
-intentional fallbacks and state-specific overrides.
+After a larger migration, run `npm run consolidate-css`. The consolidator:
+
+- removes explicitly migrated legacy feature rules from `index.css`;
+- removes exact duplicates and declarations superseded in the same selector and at-rule context;
+- removes grouped declarations only when every selector is superseded; and
+- strips historical phase commentary from the legacy compatibility layer.
+
+It does not infer shorthand/longhand equivalence or merge state selectors. Run
+`npm run audit-css` afterward; the audit is at-rule-aware and enforces both
+single-file ownership and the project CSS size budget.

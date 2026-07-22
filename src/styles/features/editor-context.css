@@ -157,47 +157,6 @@
 }
 
 /* Canonical editor parameter navigation: a quiet, count-aware single-row rail. */
-.editor-section-tabs {
-  display: flex !important;
-  gap: 0 !important;
-  min-height: 64px;
-  padding: 0 var(--space-6) !important;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  border-block: 1px solid var(--color-border) !important;
-  border-inline: 0 !important;
-}
-
-.editor-section-tabs .workspace-tab-btn {
-  flex: 1 0 176px;
-  min-width: 176px;
-  min-height: 62px;
-  padding: var(--space-3) var(--space-4) 10px !important;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  text-align: left;
-  white-space: nowrap;
-  border: 0 !important;
-  border-bottom: 2px solid transparent !important;
-  background: transparent !important;
-}
-
-.editor-section-tabs .workspace-tab-btn:hover {
-  background: var(--color-surface-hover) !important;
-  color: var(--color-text-strong) !important;
-}
-
-.editor-section-tabs .workspace-tab-btn.active {
-  border-bottom-color: var(--color-accent) !important;
-  background: var(--color-surface-accent-subtle) !important;
-}
-
-.editor-section-tabs .workspace-tab-btn:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--color-focus-ring);
-}
 
 .workspace-tab-heading {
   display: inline-flex;
@@ -227,25 +186,6 @@
   font-weight: 600;
   line-height: 1.2;
   text-align: center;
-}
-
-.editor-section-tabs .workspace-tab-btn.active .workspace-tab-count {
-  border-color: var(--color-border-accent-muted);
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
-}
-
-.editor-section-tabs .workspace-tab-btn > small {
-  overflow: hidden;
-  color: currentColor !important;
-  font-size: var(--font-size-xs) !important;
-  line-height: var(--line-height-ui);
-  opacity: 0.72;
-  text-overflow: ellipsis;
-}
-
-[data-theme="dark"] .editor-section-tabs .workspace-tab-btn.active {
-  background: var(--color-accent-soft) !important;
 }
 
 /* Before / after comparison keeps editing in place while making overrides legible. */

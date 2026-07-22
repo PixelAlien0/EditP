@@ -778,17 +778,3 @@
   background: var(--color-surface-hover) !important;
   color: var(--color-text-strong) !important;
 }
-
-.category-chip,
-.unit-item,
-.unit-slot-node,
-.changes-drawer-toggle {
-  appearance: none;
-  font: inherit;
-}
-
-.unit-item {
-  width: 100%;
-  color: inherit;
-  text-align: left;
-}

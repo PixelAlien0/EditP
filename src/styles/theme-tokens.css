@@ -103,6 +103,62 @@
   --shadow-focus: 0 0 0 3px var(--color-focus-ring);
   --motion-fast: 150ms ease;
   --motion-pane: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Temporary semantic aliases for legacy surfaces still being migrated. */
+  --bg-0: var(--color-canvas);
+  --bg-1: var(--color-surface);
+  --bg-2: var(--color-surface-raised);
+  --bg-3: var(--color-surface-hover);
+  --b0: var(--color-border-subtle);
+  --b1: var(--color-border);
+  --b2: var(--color-border-strong);
+  --b-a: var(--color-accent);
+  --t0: var(--color-text-strong);
+  --t1: var(--color-text);
+  --t2: var(--color-text-muted);
+  --c-arm: var(--color-faction-arm);
+  --c-cor: var(--color-faction-cor);
+  --c-leg: var(--color-faction-leg);
+  --c-rap: var(--color-faction-rap);
+  --c-scav: var(--color-faction-scav);
+  --bg-primary: var(--bg-0);
+  --bg-secondary: var(--bg-1);
+  --bg-tertiary: var(--bg-2);
+  --bg-accent: var(--bg-3);
+  --border-color: var(--b0);
+  --border-accent: var(--b-a);
+  --text-bright: var(--t0);
+  --text-normal: var(--t1);
+  --text-muted: var(--t2);
+  --sp-xs: var(--space-1);
+  --sp-sm: var(--space-2);
+  --sp-md: var(--space-3);
+  --sp-lg: var(--space-5);
+  --sp-xl: var(--space-7);
+  --paper-canvas: var(--color-canvas);
+  --paper-warm: var(--color-surface);
+  --paper-clean: var(--color-surface-raised);
+  --paper-muted: var(--color-surface-muted);
+  --ink-strong: var(--color-text-strong);
+  --ink: var(--color-text);
+  --ink-muted: var(--color-text-muted);
+  --sakura: var(--color-accent);
+  --sakura-deep: var(--color-accent-strong);
+  --sakura-wash: var(--color-accent-soft);
+  --moss: var(--color-success);
+  --danger: var(--color-danger);
+  --focus-ring: var(--color-focus-ring);
+
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text);
+  background-color: var(--color-canvas);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Optional night palette: same Sakura Atelier materials, deeper ink and plum. */
