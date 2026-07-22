@@ -1114,6 +1114,26 @@ test('editor visual baseline: narrow desktop rails', async ({ page }) => {
   await expect(page).toHaveScreenshot('editor-narrow-dark-1024.png');
 });
 
+async function openBuildMenuVisualState(page, { theme, width }) {
+  await page.setViewportSize({ width, height: 1080 });
+  await page.addInitScript(selectedTheme => localStorage.setItem('bmf_theme', selectedTheme), theme);
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Build Menus/i }).click();
+  await expect(page.getByText('Factory Roster Designer', { exact: true }).first()).toBeVisible();
+  await expect(page.locator('.designer-roster-canvas')).toBeVisible();
+}
+
+test('build menu visual baseline: wide dark production board', async ({ page }) => {
+  await openBuildMenuVisualState(page, { theme: 'dark', width: 1920 });
+  await expect(page).toHaveScreenshot('build-menu-dark-1920.png');
+});
+
+test('build menu visual baseline: constrained light production board', async ({ page }) => {
+  await openBuildMenuVisualState(page, { theme: 'light', width: 1180 });
+  await expect(page).toHaveScreenshot('build-menu-light-1180.png');
+});
+
 for (const width of [1024, 1180, 1440, 1920, 2560]) {
   for (const theme of ['dark', 'light']) {
     test(`visual baseline ${theme} ${width}`, async ({ page }) => {

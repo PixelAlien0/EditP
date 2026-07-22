@@ -25,11 +25,13 @@ export default function DesignerPage({
           <div className="designer-header-context">
             <div className="designer-selected-factory">
               <div className="designer-unit-pic"><img src={factoryIconUrl} alt="" /></div>
-              <div><span>{factoryName}</span><code>{factoryId}</code></div>
+              <div><small>Current producer</small><span>{factoryName}</span><code>{factoryId}</code></div>
             </div>
-            <div className="designer-header-stat"><span>Active slots</span><strong>{activeSlotCount}</strong></div>
-            <div className="designer-header-stat"><span>Changes</span><strong>{changeCount}</strong></div>
-            <Button className="designer-close-button" onClick={onClose}>Back to editor</Button>
+            <div className="designer-header-stats" aria-label="Selected producer status">
+              <div className="designer-header-stat"><span>Active slots</span><strong>{activeSlotCount}</strong></div>
+              <div className="designer-header-stat"><span>Changes</span><strong>{changeCount}</strong></div>
+            </div>
+            <Button className="designer-close-button" onClick={onClose}>← Back to editor</Button>
           </div>
         </div>
         <section className="designer-roster-profiles" aria-labelledby="designer-roster-profiles-title">

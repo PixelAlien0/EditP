@@ -5549,7 +5549,7 @@ export default function App() {
                       className={`faction-tab ${availableFactionFilter === 'factory' ? 'active' : ''}`}
                       onClick={() => setAvailableFactionFilter('factory')}
                     >
-                      FAC FACTION
+                      PRODUCER FACTION
                     </button>
                     <button
                       className={`faction-tab ${availableFactionFilter === 'all' ? 'active' : ''}`}
