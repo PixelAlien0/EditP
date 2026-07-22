@@ -692,6 +692,58 @@ test('editor workbench panes resize, collapse, and persist', async ({ page }) =>
   expect(saved.leftCollapsed).toBe(true);
 });
 
+test('Edit Units keeps one stable viewport-height parameter scroller', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 720 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('group', { name: 'Choose visible unit parameters' }).getByRole('button', { name: 'All' }).click();
+
+  const shell = page.locator('.editor-shell');
+  const workspace = page.locator('.editor-workspace');
+  const canvas = page.locator('.parameter-canvas');
+  const commandBar = page.locator('.editor-unit-header');
+  await expect(canvas).toBeVisible();
+
+  const before = await page.evaluate(() => {
+    const read = selector => document.querySelector(selector).getBoundingClientRect();
+    const shellRect = read('.editor-shell');
+    const workspaceRect = read('.editor-workspace');
+    const canvasElement = document.querySelector('.parameter-canvas');
+    return {
+      documentHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+      shellBottom: shellRect.bottom,
+      shellHeight: shellRect.height,
+      workspaceHeight: workspaceRect.height,
+      canvasClientHeight: canvasElement.clientHeight,
+      canvasScrollHeight: canvasElement.scrollHeight,
+      canvasOverflowY: getComputedStyle(canvasElement).overflowY,
+      commandTop: read('.editor-unit-header').top,
+      sectionTop: read('.section-heading').top,
+    };
+  });
+
+  expect(before.documentHeight).toBeLessThanOrEqual(before.viewportHeight);
+  expect(before.shellBottom).toBeLessThanOrEqual(before.viewportHeight + 1);
+  expect(Math.abs(before.shellHeight - before.workspaceHeight)).toBeLessThan(2);
+  expect(before.canvasClientHeight).toBeGreaterThan(180);
+  expect(before.canvasScrollHeight).toBeGreaterThan(before.canvasClientHeight);
+  expect(before.canvasOverflowY).toBe('auto');
+
+  await canvas.evaluate(element => { element.scrollTop = 500; });
+  await expect.poll(() => canvas.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
+  const after = await page.evaluate(() => ({
+    commandTop: document.querySelector('.editor-unit-header').getBoundingClientRect().top,
+    sectionTop: document.querySelector('.section-heading').getBoundingClientRect().top,
+  }));
+  expect(after.commandTop).toBeCloseTo(before.commandTop, 0);
+  expect(after.sectionTop).toBeLessThan(before.sectionTop - 100);
+
+  await expect(shell).toBeVisible();
+  await expect(workspace).toBeVisible();
+  await expect(commandBar).toBeVisible();
+});
+
 test('narrow workbench uses temporary overlay panes without overwriting desktop preferences', async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 900 });
   await page.addInitScript(() => localStorage.setItem('editp_workspace_layout_v1', JSON.stringify({

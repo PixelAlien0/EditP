@@ -10,6 +10,7 @@
     var(--workspace-right-width);
   min-width: 0;
   min-height: 0;
+  height: 100%;
   overflow: hidden;
   background: var(--color-canvas);
 }
@@ -80,6 +81,8 @@
 .editor-inspector {
   width: auto !important;
   min-width: 0;
+  min-height: 0;
+  height: 100%;
   max-width: none !important;
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
@@ -174,9 +177,29 @@
 .editor-workspace {
   width: auto !important;
   min-width: 0 !important;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   container-type: inline-size;
   border: 0 !important;
   background: var(--color-canvas) !important;
+}
+
+.editor-content {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--color-canvas);
+}
+
+.editor-content > .editor-unit-header,
+.editor-content > .editor-section-tabs,
+.editor-content > .operational-overview {
+  min-width: 0;
+  flex: none;
 }
 
 
@@ -525,7 +548,14 @@
 
 .parameter-canvas {
   min-width: 0;
+  min-height: 0;
+  height: 100%;
   padding: var(--space-4) clamp(var(--space-4), 1.35vw, var(--space-6)) var(--space-8) !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-padding-block: var(--space-4);
   background: var(--color-canvas) !important;
 }
 
