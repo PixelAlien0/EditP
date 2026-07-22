@@ -7270,5 +7270,405 @@
   "scav_xmasball2_6": [
     "t1",
     "scavenger"
+  ],
+  "legaca": [
+    "factories",
+    "t2"
+  ],
+  "legaceb": [
+    "factories",
+    "t2"
+  ],
+  "legack": [
+    "factories",
+    "t2"
+  ],
+  "legacv": [
+    "factories",
+    "t2"
+  ],
+  "legafcv": [
+    "factories",
+    "t2"
+  ],
+  "leganavyconsub": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "leganavyengineer": [
+    "factories",
+    "t2"
+  ],
+  "legca": [
+    "factories",
+    "t1"
+  ],
+  "legck": [
+    "factories",
+    "t1"
+  ],
+  "legcv": [
+    "factories",
+    "t1"
+  ],
+  "legnavyconship": [
+    "ships",
+    "factories",
+    "t1"
+  ],
+  "legotter": [
+    "factories",
+    "t1"
+  ],
+  "legspcon": [
+    "factories",
+    "t1"
+  ],
+  "legadvshipyard": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "legalab": [
+    "factories",
+    "t2"
+  ],
+  "leggant": [
+    "factories",
+    "t3"
+  ],
+  "leggantuw": [
+    "factories",
+    "t3"
+  ],
+  "legsplab": [
+    "factories",
+    "t1.5"
+  ],
+  "armapt3": [
+    "factories",
+    "t3"
+  ],
+  "corapt3": [
+    "factories",
+    "t3"
+  ],
+  "legapt3": [
+    "factories",
+    "t3"
+  ],
+  "legapollyon": [
+    "vehicles",
+    "t3"
+  ],
+  "armcomlvl10": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl3": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl4": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl5": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl6": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl7": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl8": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl9": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl10": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl5": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl6": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl7": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl8": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl9": [
+    "factories",
+    "t1"
+  ],
+  "raptor_land_swarmer_heal_t1_v1": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_land_swarmer_heal_t2_v1": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_land_swarmer_heal_t3_v1": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_land_swarmer_heal_t4_v1": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_matriarch_healer": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_turret_acid_t4_v2": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_basic_t4_v2": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_brood_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_brood_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_brood_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_brood_t4_v2": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_emp_t4_v2": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "scav_legaca": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legaceb": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legack": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legacv": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legafcv": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavyconsub": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavyengineer": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legca": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legck": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legcv": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavyconship": [
+    "ships",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legotter": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legspcon": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legadvshipyard": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legalab": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_legavp": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leggant": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_leggantuw": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_legsplab": [
+    "factories",
+    "t1.5",
+    "scavenger"
+  ],
+  "scav_legvp": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armapt3": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_corapt3": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_legapt3": [
+    "factories",
+    "t3",
+    "scavenger"
+  ],
+  "scav_legapollyon": [
+    "vehicles",
+    "t3",
+    "scavenger"
+  ],
+  "scav_armcomlvl10": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl3": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl4": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl5": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl6": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl7": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl8": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl9": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl10": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl5": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl6": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl7": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl8": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl9": [
+    "factories",
+    "t1",
+    "scavenger"
   ]
 }

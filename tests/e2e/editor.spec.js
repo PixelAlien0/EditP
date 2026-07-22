@@ -41,6 +41,31 @@ test('main workflow remains keyboard accessible', async ({ page }) => {
   await page.keyboard.press('Escape');
 });
 
+test('build-picture browser distinguishes normal and Scavenger artwork namespaces', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await expect(page.locator('.unit-item').first()).toBeVisible();
+  await page.getByPlaceholder(/Search unit name/i).fill('Arquebus');
+  await page.locator('.unit-item').filter({ has: page.getByText('Arquebus', { exact: true }) }).click();
+
+  const buildPictureInput = page.getByRole('textbox', { name: 'Build Picture' });
+  await buildPictureInput.scrollIntoViewIfNeeded();
+  await buildPictureInput.locator('xpath=..').getByRole('button', { name: 'Browse' }).click();
+  await page.getByPlaceholder(/Search build pictures/i).fill('legsrail.dds');
+
+  const options = page.getByRole('listbox', { name: 'Build pictures' }).getByRole('option');
+  await expect(options).toHaveCount(2);
+  const normalOption = options.filter({ hasText: /^legsrail\.dds/i });
+  const scavengerOption = options.filter({ hasText: /scavengers\/legsrail\.dds/i });
+  const normalPreview = await normalOption.locator('img').getAttribute('src');
+  const scavengerPreview = await scavengerOption.locator('img').getAttribute('src');
+  expect(scavengerPreview).not.toBe(normalPreview);
+
+  await scavengerOption.click();
+  await expect(buildPictureInput).toHaveValue('scavengers/legsrail.dds');
+  await expect(page.locator('.editor-unit-header .unit-dossier-mark img')).toHaveAttribute('src', scavengerPreview);
+});
+
 test('build menu producer catalog separates factories and builders', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();

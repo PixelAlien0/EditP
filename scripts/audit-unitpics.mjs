@@ -57,6 +57,21 @@ for (const filePath of allUnitpicFiles) {
 const referencedAssets = new Set();
 const manifestPlaceholders = new Set(manifest.placeholders || []);
 const scavengerUnitIds = expectedUnitIds.filter(unitId => unitId.startsWith('scav_'));
+
+for (const [picturePath, assetUrl] of Object.entries(manifest.pictures || {})) {
+  if (!picturePath || picturePath.startsWith('/') || picturePath.includes('..') || !/\.dds$/i.test(picturePath)) {
+    errors.push(`Unsafe or invalid build-picture path: ${picturePath}`);
+    continue;
+  }
+  const match = assetUrl.match(/^\/unitpics\/assets\/([a-f0-9]{20}\.webp)$/);
+  if (!match) {
+    errors.push(`Unsafe or invalid preview URL for ${picturePath}: ${assetUrl}`);
+    continue;
+  }
+  referencedAssets.add(match[1]);
+  if (!fs.existsSync(path.join(ASSET_DIR, match[1]))) errors.push(`Missing preview asset for ${picturePath}: ${match[1]}`);
+}
+
 for (const unitId of expectedUnitIds) {
   const assetUrl = manifest.units?.[unitId];
   if (!assetUrl) {
@@ -113,6 +128,7 @@ console.log(`  Source commit: ${manifest.sourceCommit || 'unknown'}`);
 console.log(`  Units: ${expectedUnitIds.length}`);
 console.log(`  Placeholders: ${manifest.placeholders?.length || 0}`);
 console.log(`  Scavenger pictures: ${scavengerResolvedCount}/${scavengerUnitIds.length} (${scavengerUniqueAssetCount} unique)`);
+console.log(`  Browsable build pictures: ${Object.keys(manifest.pictures || {}).length}`);
 console.log(`  Unique assets: ${assetFiles.length}`);
 console.log(`  Library size: ${formatBytes(totalBytes)}`);
 console.log(`  Largest asset: ${formatBytes(Math.max(0, ...sizes))}`);

@@ -14,7 +14,7 @@ import {
 } from './unitpics-shared.mjs';
 
 const REPOSITORY = 'beyond-all-reason/Beyond-All-Reason';
-const BRANCH = 'master';
+const BRANCH = process.env.BAR_REF || 'master';
 const PRIMARY_QUALITY = 80;
 const FALLBACK_QUALITY = 76;
 const SIZE = 192;
@@ -45,6 +45,21 @@ function sha256(buffer) {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function replaceTextFile(sourcePath, destinationPath) {
+  const contents = fs.readFileSync(sourcePath);
+  let lastError;
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    try {
+      fs.writeFileSync(destinationPath, contents);
+      return;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 4) await sleep(attempt * 150);
+    }
+  }
+  throw lastError;
 }
 
 async function fetchBuffer(url, attempts = 3) {
@@ -327,6 +342,12 @@ async function main() {
   const scavengerUnitIds = unitIds.filter(unitId => unitId.startsWith('scav_'));
   const scavengerResolvedIds = scavengerUnitIds.filter(unitId => manifestUnits[unitId] !== PLACEHOLDER_URL);
   const scavengerUniqueAssets = new Set(scavengerResolvedIds.map(unitId => manifestUnits[unitId]));
+  const manifestPictures = Object.fromEntries(sourcePaths.flatMap(sourcePath => {
+    if (failedSources.has(sourcePath)) return [];
+    const assetUrl = generated.sourceToAsset.get(sourcePath);
+    const picturePath = sourcePath.replace(/^unitpics\//i, '');
+    return assetUrl && picturePath ? [[picturePath, assetUrl]] : [];
+  }));
 
   const manifest = {
     version: 1,
@@ -354,6 +375,7 @@ async function main() {
       scavengerPlaceholderCount: scavengerUnitIds.length - scavengerResolvedIds.length,
     },
     units: manifestUnits,
+    pictures: manifestPictures,
     placeholders,
   };
   const stagedManifest = path.join(STAGING_ROOT, 'unitpic-manifest.json');
@@ -366,7 +388,10 @@ async function main() {
   if (copiedAssetCount !== generated.files.length) {
     throw new Error(`Asset copy verification failed (${copiedAssetCount}/${generated.files.length})`);
   }
-  fs.copyFileSync(stagedManifest, MANIFEST_PATH);
+  // copyFileSync can intermittently fail on Windows when a scanner briefly
+  // opens the existing JSON. Rewriting it with bounded retries is reliable and
+  // keeps the staged artwork replacement deterministic.
+  await replaceTextFile(stagedManifest, MANIFEST_PATH);
   fs.rmSync(STAGING_ROOT, { recursive: true, force: true });
 
   console.log(`\nUnit artwork synchronized from ${commit.sha.slice(0, 12)}.`);

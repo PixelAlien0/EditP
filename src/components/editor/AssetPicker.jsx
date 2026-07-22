@@ -1,6 +1,6 @@
 import { useId, useMemo, useRef, useState } from 'react';
 import { Button, Dialog, IconButton } from '../ui.jsx';
-import { ASSET_TYPE_LABELS, getAssetOptions, isKnownBarAsset } from '../../utils/barAssets.js';
+import { ASSET_TYPE_LABELS, getAssetOptions, getAssetPreviewUrl, isKnownBarAsset } from '../../utils/barAssets.js';
 
 export default function AssetPicker({ assetType, label, value = '', placeholder = 'Inherited', onChange }) {
   const [open, setOpen] = useState(false);
@@ -55,19 +55,29 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
           <span>{results.length}{results.length === 160 ? '+' : ''} shown</span>
         </div>
         <div className="asset-picker-dialog__results" role="listbox" aria-label={ASSET_TYPE_LABELS[assetType] || 'BAR assets'}>
-          {results.map(option => (
-            <button
-              type="button"
-              role="option"
-              aria-selected={option.toLowerCase() === String(value).toLowerCase()}
-              className={option.toLowerCase() === String(value).toLowerCase() ? 'is-selected' : ''}
-              key={option}
-              onClick={() => { onChange(option); setOpen(false); setQuery(''); }}
-            >
-              <code>{option}</code>
-              <span>Select</span>
-            </button>
-          ))}
+          {results.map(option => {
+            const previewUrl = getAssetPreviewUrl(assetType, option);
+            const scopedPicture = assetType === 'buildPicture' && option.includes('/');
+            return (
+              <button
+                type="button"
+                role="option"
+                aria-selected={option.toLowerCase() === String(value).toLowerCase()}
+                className={`${option.toLowerCase() === String(value).toLowerCase() ? 'is-selected' : ''} ${previewUrl ? 'has-preview' : ''}`}
+                key={option}
+                onClick={() => { onChange(option); setOpen(false); setQuery(''); }}
+              >
+                <span className="asset-picker-dialog__option-copy">
+                  {previewUrl && <img src={previewUrl} alt="" loading="lazy" decoding="async" />}
+                  <span>
+                    <code>{option}</code>
+                    {scopedPicture && <small>{option.split('/')[0]} variant</small>}
+                  </span>
+                </span>
+                <span className="asset-picker-dialog__select-label">Select</span>
+              </button>
+            );
+          })}
           {results.length === 0 && <p>No matching BAR reference. You can close this browser and enter a custom path manually.</p>}
         </div>
         <footer className="asset-picker-dialog__footer">

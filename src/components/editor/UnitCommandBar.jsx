@@ -2,14 +2,14 @@ import UnitArtwork from '../UnitArtwork.jsx';
 import { Button, Switch } from '../ui.jsx';
 
 export default function UnitCommandBar({
-  baseId, unitId, name, faction, tier, unitClass, weaponCount, overrideCount,
+  baseId, artworkUrl, unitId, name, faction, tier, unitClass, weaponCount, overrideCount,
   isClone, disabled, onDisabledChange, onReset, onOpenIdentity,
 }) {
   return (
     <header className="editor-unit-header">
       <div className="editor-unit-identity">
         <div className="unit-dossier-mark">
-          <UnitArtwork unitId={baseId} alt="" eager />
+          <UnitArtwork unitId={baseId} src={artworkUrl} alt="" eager />
           <span>{tier.toUpperCase()}</span>
         </div>
         <div className="unit-dossier-copy">

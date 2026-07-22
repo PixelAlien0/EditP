@@ -2,6 +2,35 @@ import https from 'https';
 import fs from 'fs';
 import { pathToFileURL } from 'url';
 
+const DATA_PATHS = Object.freeze({
+  defaults: 'src/data/unit-defaults.json',
+  categories: 'src/data/unit-categories.json',
+  rosters: 'src/data/factory-rosters.json',
+});
+
+function readExistingJson(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+function mergeWeaponSlots(existingSlots, freshSlots) {
+  if (!Array.isArray(freshSlots)) return existingSlots;
+  if (!Array.isArray(existingSlots)) return freshSlots;
+  const existingBySlot = new Map(existingSlots.map(slot => [Number(slot.slot), slot]));
+  return freshSlots.map(slot => ({ ...existingBySlot.get(Number(slot.slot)), ...slot }));
+}
+
+function mergeUnitDefaults(existing, fresh) {
+  const merged = { ...existing, ...fresh };
+  if (fresh.weaponSlots || existing.weaponSlots) {
+    merged.weaponSlots = mergeWeaponSlots(existing.weaponSlots, fresh.weaponSlots);
+  }
+  return merged;
+}
+
 function fetchJson(url) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -83,6 +112,9 @@ function delay(ms) {
 
 async function run() {
   try {
+    const existingDefaults = readExistingJson(DATA_PATHS.defaults);
+    const existingCategories = readExistingJson(DATA_PATHS.categories);
+    const existingRosters = readExistingJson(DATA_PATHS.rosters);
     let unwrappedUnits;
     try {
       console.log('1. Downloading latest language/en/units.json (Names/Descriptions)...');
@@ -319,7 +351,10 @@ async function run() {
           }
         }
 
-        defaultsDb[id] = defaults;
+        // The fast JavaScript parser intentionally covers only literal BAR fields.
+        // Preserve richer defaults produced by the parameter audit, while allowing
+        // freshly parsed values and newly released units to update the catalog.
+        defaultsDb[id] = mergeUnitDefaults(existingDefaults[id] || {}, defaults);
 
         // --- B. Extract categories/tags ---
         const tags = [];
@@ -388,11 +423,23 @@ async function run() {
     });
     console.log(`Generated ${generatedScavsCount} scavenger unit variants!`);
 
+    // Files that use runtime Lua helpers cannot be parsed by this synchronizer.
+    // Retain their last known editor data instead of silently dropping them.
+    Object.entries(existingDefaults).forEach(([id, defaults]) => {
+      if (!defaultsDb[id]) defaultsDb[id] = defaults;
+    });
+    Object.entries(existingCategories).forEach(([id, categories]) => {
+      if (!categoriesDb[id]) categoriesDb[id] = categories;
+    });
+    Object.entries(existingRosters).forEach(([id, roster]) => {
+      if (!rostersDb[id]) rostersDb[id] = roster;
+    });
+
     console.log('4. Writing databases...');
     fs.writeFileSync('src/data/units.json', JSON.stringify(unwrappedUnits, null, 2), 'utf8');
-    fs.writeFileSync('src/data/unit-defaults.json', JSON.stringify(defaultsDb, null, 2), 'utf8');
-    fs.writeFileSync('src/data/unit-categories.json', JSON.stringify(categoriesDb, null, 2), 'utf8');
-    fs.writeFileSync('src/data/factory-rosters.json', JSON.stringify(rostersDb, null, 2), 'utf8');
+    fs.writeFileSync(DATA_PATHS.defaults, JSON.stringify(defaultsDb, null, 2), 'utf8');
+    fs.writeFileSync(DATA_PATHS.categories, JSON.stringify(categoriesDb, null, 2), 'utf8');
+    fs.writeFileSync(DATA_PATHS.rosters, JSON.stringify(rostersDb, null, 2), 'utf8');
 
     console.log('Synchronization complete!');
     console.log(`  Units in Defaults: ${Object.keys(defaultsDb).length}`);

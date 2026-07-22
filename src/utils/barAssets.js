@@ -1,4 +1,5 @@
 import assetManifest from '../data/bar-asset-manifest.json';
+import { getBuildPictureOptions, getBuildPicturePreviewUrl } from './unitArtwork.js';
 
 export const ASSET_TYPE_LABELS = Object.freeze({
   unitModel: 'Unit models',
@@ -13,7 +14,14 @@ export const ASSET_TYPE_LABELS = Object.freeze({
 });
 
 export function getAssetOptions(assetType) {
-  return assetManifest.categories?.[assetType] || [];
+  const bundled = assetManifest.categories?.[assetType] || [];
+  if (assetType !== 'buildPicture') return bundled;
+  return [...new Map([...bundled, ...getBuildPictureOptions()].map(value => [value.toLowerCase(), value])).values()]
+    .sort((left, right) => left.localeCompare(right, 'en', { sensitivity: 'base' }));
+}
+
+export function getAssetPreviewUrl(assetType, value) {
+  return assetType === 'buildPicture' ? getBuildPicturePreviewUrl(value) : '';
 }
 
 export function isKnownBarAsset(assetType, value) {

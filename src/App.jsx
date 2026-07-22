@@ -21,7 +21,7 @@ import {
 } from './config/editorParameters.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
-import { getUnitIconUrl } from './utils/unitArtwork.js';
+import { getBuildPicturePreviewUrl, getUnitIconUrl } from './utils/unitArtwork.js';
 import { createProducerCatalog, PRODUCER_KIND } from './utils/producerCatalog.js';
 import { Button, ButtonGroup, Dialog, FileButton, IconButton, SectionHeader, Switch, StatCard } from './components/ui.jsx';
 import EditorShell from './components/editor/EditorShell.jsx';
@@ -847,6 +847,9 @@ export default function App() {
   }, [getCloneLineage]);
 
   const getProjectUnitIconUrl = (unitId) => {
+    const editedBuildPicture = tweaks[unitId]?.buildpic;
+    const editedPreview = getBuildPicturePreviewUrl(editedBuildPicture);
+    if (editedPreview) return editedPreview;
     return getUnitIconUrl(resolveCloneRootId(unitId));
   };
 
@@ -3445,8 +3448,6 @@ export default function App() {
               {virtualUnitRange.units.map(unit => {
                 const isModified = tweaks[unit.id] && Object.keys(tweaks[unit.id]).length > 0;
                 const isDisabled = disabledUnitIds.includes(unit.id);
-                const iconSourceId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
-
                 return (
                   <button
                     type="button"
@@ -3457,7 +3458,7 @@ export default function App() {
                     style={{ height: `${unitRowHeight}px` }}
                   >
                     <div className="unit-item-icon">
-                      <UnitArtwork unitId={iconSourceId} alt="" />
+                      <UnitArtwork src={getProjectUnitIconUrl(unit.id)} alt="" />
                     </div>
                     <div className="unit-item-info">
                       <div className="unit-item-header">
@@ -3858,6 +3859,7 @@ export default function App() {
                 {/* Unit info header */}
                 <UnitCommandBar
                   baseId={baseId}
+                  artworkUrl={getProjectUnitIconUrl(selectedUnit.id)}
                   unitId={selectedUnit.id}
                   name={selectedUnit.name}
                   faction={getFactionOfUnit(baseId)}

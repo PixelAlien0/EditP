@@ -1,6 +1,6 @@
 // Build-option additions mirrored from BAR's unitbasedefs pack rules.
-// Source: Beyond-All-Reason @ fccd427dac837100f56b8e97937653182f97e235
-export const BUILD_MENU_PACK_SOURCE_COMMIT = 'fccd427dac837100f56b8e97937653182f97e235';
+// Source: Beyond-All-Reason @ 32197852b08b20a5b2b2e439d4d4e7c6b7897445
+export const BUILD_MENU_PACK_SOURCE_COMMIT = '32197852b08b20a5b2b2e439d4d4e7c6b7897445';
 
 export const BUILD_MENU_PACKS = {
   extraUnits: {
@@ -34,7 +34,7 @@ export const BUILD_MENU_PACKS = {
       legack: ['legwint2', 'legnanotct2', 'legrwall', 'leggatet3'],
       legacv: ['legwint2', 'legnanotct2', 'legrwall', 'leggatet3'],
       leganavyconsub: ['corfgate', 'legnanotct2plat'],
-      leggant: ['legbunk']
+      leggant: ['legbunk', 'legapollyon']
     }
   },
   scavengerUnits: {

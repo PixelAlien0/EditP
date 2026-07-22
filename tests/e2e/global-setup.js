@@ -2,6 +2,7 @@ import { createServer } from 'vite';
 
 export default async function startTestServer() {
   const server = await createServer({
+    configLoader: 'native',
     logLevel: 'error',
     server: {
       host: '127.0.0.1',

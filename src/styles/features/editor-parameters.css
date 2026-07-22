@@ -530,6 +530,51 @@
   font-size: 10px;
 }
 
+.asset-picker-dialog__results button.has-preview {
+  min-height: 54px;
+}
+
+.asset-picker-dialog__option-copy {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.asset-picker-dialog__option-copy > img {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  object-fit: contain;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.asset-picker-dialog__option-copy > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.asset-picker-dialog__option-copy code {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  text-overflow: ellipsis;
+}
+
+.asset-picker-dialog__option-copy small {
+  color: var(--color-text-muted);
+  font: 600 8px/1.2 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.asset-picker-dialog__results button .asset-picker-dialog__select-label {
+  flex: 0 0 auto;
+  color: var(--color-accent-strong);
+}
+
 .asset-picker-dialog__footer {
   align-items: center;
   border-top: 1px solid var(--color-border);
