@@ -8,12 +8,8 @@
 .app-header .header-credits-icon {
   width: 16px;
   height: 16px;
-  display: inline-grid;
-  place-items: center;
   border: 1px solid var(--color-border-strong);
-  border-radius: 50%;
   color: var(--color-accent-strong);
-  font: 700 9px/1 var(--font-display);
   text-transform: lowercase;
 }
 

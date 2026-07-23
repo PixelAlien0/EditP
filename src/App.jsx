@@ -2710,7 +2710,8 @@ export default function App() {
           </Button>
           </div>
           <Button
-            className="btn-action btn-secondary header-create-action"
+            variant="primary"
+            className="btn-action header-create-action"
             aria-label="Create a clone of the selected unit"
             title="Create a clone of the selected unit"
             onClick={() => {

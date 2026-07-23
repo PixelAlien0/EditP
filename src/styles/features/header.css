@@ -17,13 +17,7 @@
 
 .app-header .header-brand {
   min-width: 0;
-  padding: 0;
   gap: 10px;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
 }
 
 .app-header .app-logo {
@@ -211,17 +205,7 @@
   line-height: 1;
 }
 
-.app-header .header-credits-icon {
-  width: 15px;
-  height: 15px;
-  display: inline-grid;
-  place-items: center;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  font: 700 9px/1 var(--font-display);
-}
-
-.app-header .header-utility-actions .header-create-action {
+:is(.app-header, [data-theme="dark"]) .header-create-action {
   min-width: 108px;
   min-height: 40px;
   height: 40px;
@@ -243,7 +227,7 @@
   stroke-width: 1.25;
 }
 
-.app-header .header-utility-actions .header-create-action:hover:not(:disabled) {
+.header-create-action:hover:not(:disabled) {
   border-color: var(--color-accent) !important;
   background: var(--color-accent-soft) !important;
   color: var(--color-accent-strong) !important;

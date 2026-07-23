@@ -632,19 +632,6 @@
   font-weight: 700;
 }
 
-.app-header .header-brand {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.app-header .header-brand:hover .brand-text h1 {
-  color: var(--color-accent-strong);
-}
-
 @media (max-width: 1440px) {
   .main-menu__topbar-inner,
   .main-menu__frame {

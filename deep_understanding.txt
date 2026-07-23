@@ -1,0 +1,160 @@
+================================================================================
+BAR EDITOR (`bar-editor`) - DEEP CODEBASE ARCHITECTURE & UNDERSTANDING SPECIFICATION
+================================================================================
+Generated Date: 2026-07-23
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY & DOMAIN OVERVIEW
+--------------------------------------------------------------------------------
+BAR Editor (package name: `bar-editor`) is a specialized React 19 + Vite web application built to serve as an authoring, modding, static analysis, and packaging toolkit for "Beyond All Reason" (BAR) — a modern open-source Real-Time Strategy (RTS) game powered by the Recoil/Spring engine.
+
+The core purpose of BAR Editor is to enable users to:
+1. Parameterize & Modify Units: Introspect, override, and re-balance unit stats (HP, speed, metal/energy costs, build time, vision, radar, turn rates, weapon damages, ranges, accuracy, weapon swaps, custom parameters, etc.).
+2. Clone & Create Unit Variants: Clone existing base units (including handling unit specific quirks like scavenger `scav_` and raptor `raptor_` prefixes), alter their weapon mounted slots, names, tooltips, build options, and visual icons.
+3. Manage Build Menus & Rosters: Customise factory build menus, modify constructor build options, disable specific unit rosters, or apply preset roster packs (`BUILD_MENU_PACKS`).
+4. Weapon Blueprints & Supporting Defs: Inject auxiliary weapon definitions, swap weapons across unit slots, and override weapon parameters directly inside unit weapon tables (`weapondefs`).
+5. Death & Explosion Profiles: Customize explosion effects on death and self-destruct (`explodeas`, `selfdestructas`), adjusting damage, AOE, camera shake, and impulse factors.
+6. Behavior Interceptors: Define custom Lua event hooks, targetable masks, state overrides, and tactical behaviors attached to units.
+7. Package & Export Mod Options: Compile changes into clean, production-ready Lua tweak files (`custom_units.lua`, `tweakdefs`) and encoded Base64 lobby commands (`buildLobbyCommands`) for instant use in BAR multiplayer lobby setups without requiring game binary modifications.
+8. Real-time Static Analysis & Compatibility Verification: Preflight-check tweak packages for Lua syntax errors, circular dependencies, parameter type mismatches, and lobby modoption buffer size limits before exporting.
+
+--------------------------------------------------------------------------------
+2. SYSTEM ARCHITECTURE & TECH STACK
+--------------------------------------------------------------------------------
+• Core UI Framework: React 19, Vite 8 (ES Module mode), Vanilla CSS with an extensive CSS variable-based design system (`src/index.css`, `src/App.css`, `src/styles/`).
+• Lua Parsing & AST Engine: `luaparse` (v0.3.1) for parsing Lua 5.1 ASTs from raw imported `tweakdefs`/`tweakunits` files.
+• Image & Asset Pipeline: `sharp` (v0.34.5) for converting DDS textures/buildpics from upstream BAR repos into hash-deduplicated 192px WebP files.
+• 3D & Graphics Visualizer: `three` (v0.185.1) for potential 3D asset inspection.
+• Real-time Backend: Supabase (`@supabase/supabase-js` v2.110.2) supplying real-time workshop chat (`useTemporaryChat.js`) and online presence status (`useOnlinePresence.js`).
+• Testing & Quality Assurance: Vitest (`vitest` v4.1.10) for unit/integration tests, Playwright (`@playwright/test` v1.61.1) for E2E tests, and Oxlint (`oxlint` v1.71.0) for high-performance JavaScript/JSX linting.
+
+--------------------------------------------------------------------------------
+3. DIRECTORY LAYOUT & CORE RESPONSIBILITIES
+--------------------------------------------------------------------------------
+Bar editor/
+├── docs/                           # Setup and UI regression documentation
+│   ├── temporary-chat-setup.md
+│   └── ui-regression-checklist.md
+├── public/                         # Static assets and converted unit pictures
+│   └── unitpics/assets/            # Content-addressed, hash-named WebP unit images
+├── scripts/                        # Build, audit, and data-sync node scripts
+│   ├── audit-bundle.mjs            # Production JS bundle size budget analyzer
+│   ├── audit-css.mjs               # Unused & duplicate CSS rule audit
+│   ├── audit-unitpics.mjs          # Unitpic integrity, hash, and budget inspector
+│   ├── consolidate-css.mjs         # Utility script for CSS cleanup
+│   ├── sync-asset-manifest.mjs     # BAR game assets scanner
+│   ├── sync-explosion-profiles.mjs # Synchronizes explosion profile JSONs
+│   ├── sync-parameter-defaults.mjs # Updates unit-defaults.json baseline
+│   ├── sync-tactical-icons.mjs     # Refreshes tactical icon manifest
+│   └── sync-unitpics.mjs           # Downloads DDS files & builds WebP assets + manifests
+├── src/
+│   ├── App.jsx                     # Core application orchestrator, workspace router, state assembly
+│   ├── App.css / index.css         # Design tokens, themes, global CSS styles
+│   ├── components/                 # Presentation and container components
+│   │   ├── editor/                 # Unit parameter canvas, inspector, custom params, interceptors
+│   │   ├── BarReferenceLibraryPage.jsx # Unit database explorer
+│   │   ├── BatchAdjustDialog.jsx   # Bulk stat adjustment modal
+│   │   ├── CollectionsPage.jsx     # Unit collection organization UI
+│   │   ├── CommandPalette.jsx      # Keyboard-driven quick command palette
+│   │   ├── CompatibilityPreflight.jsx # Real-time preflight audit view
+│   │   ├── DesignerPage.jsx        # Build menu roster designer UI
+│   │   ├── MainMenu.jsx            # Header navbar & project actions menu
+│   │   ├── PresetGalleryPage.jsx   # Custom presets gallery
+│   │   ├── ReviewPage.jsx          # Final diffing, code inspection, and export modal
+│   │   └── TweakPackageLabPage.jsx # Module manager, pass-through Lua lab & preflight check
+│   ├── config/                     # Static parameter schemas & guidance metadata
+│   │   ├── behaviorInterceptor.js  # Interceptor specs & target masks
+│   │   ├── customParameters.js     # Recognized customparams validation
+│   │   ├── editorParameters.js     # STAT_KEYS, category mappings, unit field definitions
+│   │   └── parameterGuidance.js   # Parameter tooltips, limits, and relationship advice
+│   ├── data/                       # Base game metadata & pre-processed JSONs
+│   │   ├── build-menu-packs.js     # Preset build menu configurations
+│   │   ├── explosion-profiles.json # Death/self-d explosion weapon stats
+│   │   ├── factory-rosters.json    # Factory build option trees
+│   │   ├── tactical-icon-manifest.json # Icon mapping
+│   │   ├── unit-categories.json    # Category taxonomy
+│   │   ├── unit-defaults.json      # Complete BAR default unit parameter reference (4.5 MB)
+│   │   ├── unitpic-manifest.json   # Asset paths & WebP hash map
+│   │   └── units.json              # Primary unit list (ID, name, faction, tier)
+│   ├── hooks/                      # Custom React state hooks
+│   │   ├── useCoreGameData.js      # Loads unit defaults and reference mappings
+│   │   ├── useOnlinePresence.js    # Supabase presence state hook
+│   │   ├── useProjectPersistence.js # Debounced local autosave & project file handle management
+│   │   ├── useTemporaryChat.js     # Supabase real-time workshop chat channel hook
+│   │   └── useWorkspaceLayout.js   # Layout state (panes, split sizes, active tab)
+│   ├── project/                    # Project document models & collection operations
+│   │   ├── projectDocument.js      # Document validation, size assertion, normalization
+│   │   └── unitCollections.js      # Unit grouping & hierarchical tag structures
+│   ├── state/                      # Zustand/Custom React store state
+│   │   └── useProjectStore.js      # Main project state store (units, tweaks, clones, modules)
+│   ├── storage/                    # LocalStorage & IndexedDB storage adapters
+│   ├── styles/                     # CSS module / token breakdowns
+│   ├── utils/                      # Pure helper utilities
+│   │   ├── barAssets.js            # Path resolution for game assets
+│   │   ├── barLuaParser.test.js    # Lua parsing test suit
+│   │   ├── barReferenceLibrary.js  # Searching & filtering base BAR units
+│   │   ├── categories.js           # Faction & tech tier resolving logic
+│   │   ├── compatibilityPreflight.js # Package compatibility static analyzer
+│   │   ├── lobbyModules.js         # Base64 lobby command generator & chunker
+│   │   ├── lobbySetupBundle.js     # Full setup import/export handler
+│   │   ├── producerCatalog.js      # Factory/builder dependency graph analyzer
+│   │   ├── tweakPackage.js         # Core Lua package AST parser, module analyzer & bundler
+│   │   ├── tweakSerializer.js     # Clean, deterministic Lua table serializer
+│   │   ├── tweakdefsHelper.js      # Lua code block generator for clones, rosters, death profiles
+│   │   └── unitArtwork.js          # Resolves buildpic / unit icon URLs
+│   └── main.jsx                    # React DOM root entry point
+├── supabase/                       # Supabase migration scripts (`temporary-chat.sql`)
+└── sync_github_data.js             # Automation script to pull raw unit defs from upstream GitHub
+
+--------------------------------------------------------------------------------
+4. KEY DOMAIN CONCEPTS & DATA FLOWS
+--------------------------------------------------------------------------------
+
+A. PROJECT DOCUMENT STRUCTURE (`projectDocument.js`, `useProjectStore.js`)
+   The entire state of a project is serialized into a normalized JSON document containing:
+   - `meta`: Name, author, description, version, created/updated timestamps.
+   - `unitOverrides`: Map of Unit ID -> modified parameter object (e.g. `{ health: 5000, metalcost: 300 }`).
+   - `customUnitClones`: Array of clone specs:
+     `{ id, baseId, newId, displayName, description, iconType, builderIds, weaponSwaps, addToOriginalBuilders }`
+   - `buildMenuWizardSteps`: Array of step objects detailing additions/removals/orders to builder options.
+   - `disabledUnitIds`: Array of unit IDs disabled from build rosters.
+   - `tweakModules`: Raw pass-through Lua code modules provided by the user.
+   - `deathExplosionTweaks`: Custom overrides for death/self-destruct explosion profiles.
+   - `supportingWeaponDefs`: Auxiliary weapon definitions injected into units.
+   - `unitCollections`: Hierarchical grouping trees for organizing unit batches.
+
+B. LUA SERIALIZATION & COMPILATION PIPELINE (`tweakdefsHelper.js`, `tweakSerializer.js`)
+   When building the final `tweakdefs` Lua script:
+   1. `stripBlock()` removes old markers (`-- EDITP_BUILDMENU_BEGIN`, `-- EDITP_DEATH_PROFILES_BEGIN`, etc.) to prevent comment pollution.
+   2. `generateClonesBlockLua()` generates helper Lua functions (`clone_copy`, `clone_set_name`, `clone_clean`, `clone_swap_weapon`) and dependency-sorts clones via topological sort (`sortClonesDependency`) to ensure base units exist before child clones are created.
+   3. `generateBuildMenuBlockLua()` outputs Lua conditionals updating builder `buildoptions` arrays.
+   4. `generateDeathProfilesBlockLua()` injects customized explosion weapon tables.
+   5. `generateSupportingWeaponDefsBlockLua()` injects auxiliary weapon blueprints into `unit.weapondefs`.
+   6. `serializeLuaTable()` formats JavaScript objects into valid, properly indented Lua syntax, handling numbers, strings, booleans, arrays, and sub-tables.
+
+C. LOBBY COMMAND GENERATION (`lobbyModules.js`, `tweakSerializer.js`)
+   - BAR start scripts receive custom tweaks via Base64-encoded lobby modoptions (`tweakdefs`, `tweakdefs1`..`tweakdefs9`, `tweakunits`..`tweakunits9`).
+   - `encodeLobbyBase64()` converts Lua scripts to URL-safe Base64 without standard `+` characters (preventing start-script corruption of Lua operators like `~=`).
+   - Split into chunks matching BAR lobby field size constraints, returning structured command strings ready to paste into BAR multiplayer lobby rooms.
+
+D. COMPATIBILITY PREFLIGHT ANALYZER (`compatibilityPreflight.js`)
+   Before export, the preflight engine inspects:
+   - Project level validations (out-of-bound numbers, missing unit references).
+   - Delivery limits (checking if encoded strings overflow the max available 9 numbered lobby slots).
+   - Module parsing: Uses `luaparse` to check raw Lua syntax.
+   - Dependency validation: Identifies circular dependencies, unresolved unit references, or lane crossing (e.g. `tweakdefs` referencing units created in `tweakunits`).
+   - Asset paths: Flags unverified sound, model, or texture paths.
+
+E. DATA PIPELINE & BUILD SCRIPTS
+   - `sync_github_data.js`: Connects to Beyond All Reason upstream GitHub repos (`Beyond-All-Reason/Beyond-All-Reason`) to pull fresh unit definition files and update local metadata.
+   - `sync-unitpics.mjs`: Downloads source DDS artwork, runs `sharp` to resize and convert to WebP, hashes output content for deduplication, and generates `unitpic-manifest.json`.
+
+--------------------------------------------------------------------------------
+5. VERIFICATION & QUALITY STANDARD
+--------------------------------------------------------------------------------
+The project adheres to high quality standards enforced via `npm run verify`:
+- Static Analysis: `oxlint` rule checks.
+- Unit Testing: `vitest` suite covering serializers, parser helpers, preflight logic, and state management.
+- Production Audits: `audit:bundle` (monitors JS bundle size), `audit-css` (verifies CSS utility consistency), `audit-unitpics:dist` (verifies visual asset budget <= 80MB).
+
+This deep architecture specification serves as the complete baseline understanding of the BAR Editor workspace.
