@@ -2614,7 +2614,7 @@ export default function App() {
       {/* Header */}
       <header className="app-header">
         <div className="header-brand-group">
-          <button type="button" className="brand-section header-brand" onClick={() => setShowMainMenu(true)} title="Return to main menu">
+          <button type="button" className="header-brand" onClick={() => setShowMainMenu(true)} title="Return to main menu">
             <img src="/logo.svg" alt="BAR Editor" className="app-logo" />
             <div className="brand-text">
               <span className="brand-kicker">Mod workspace</span>

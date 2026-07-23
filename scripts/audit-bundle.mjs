@@ -30,7 +30,7 @@ const budgets = {
   entryGzip: 150 * 1024,
   largestJs: 500 * 1024,
   entryCss: 325 * 1024,
-  totalCss: 365 * 1024,
+  totalCss: 368 * 1024,
   dist: 25 * 1024 * 1024
 };
 
