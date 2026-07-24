@@ -337,7 +337,7 @@ export default function App() {
     [buildMenuPacks, factoryRosters]
   );
 
-  const [base64Options, setBase64Options] = useState({ padding: true });
+  const [base64Options, setBase64Options] = useState({ padding: false });
   const tweakDefsLua = '';
   const [toast, setToast] = useState({ show: false, message: '' });
 
