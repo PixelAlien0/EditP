@@ -669,40 +669,13 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     local energyNum = tonumber(entry.spawnEnergy) or 1000
 
     u.customparams.editp_auto_spawner = entry.isGround and "1" or "0"
-    u.customparams.droneammo = countStr
-    u.customparams.spawn_count = countStr
     u.customparams.maxunits = countStr
-    u.customparams.maxdrones = countStr
-    u.customparams.max_units = countStr
-    u.customparams.max_drones = countStr
-    u.customparams.spawns_count = countStr
-    u.customparams.spawns_max = countStr
-    u.customparams.stockpilelimit = countStr
-    u.customparams.stockpilemax = countStr
-    u.customparams.maxstockpile = countStr
-    u.customparams.stockpile_max = countStr
-    u.customparams.stockpile_limit = countStr
-    u.customparams.spawn_metal_cost = metalStr
-    u.customparams.stockpilemetal = metalStr
     u.customparams.metalcost = metalStr
-    u.customparams.spawn_energy_cost = energyStr
-    u.customparams.stockpileenergy = energyStr
     u.customparams.energycost = energyStr
-    u.customparams.spawn_interval = intervalStr
-    u.customparams.spawn_rate = intervalStr
     u.customparams.spawnrate = intervalStr
-    u.customparams.stockpiletime = intervalStr
-    u.customparams.controlradius = (entry.isControllable == false) and "1200" or "10000"
-    u.customparams.engagementrange = (entry.isControllable == false) and "1300" or "10000"
     u.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
-    u.customparams.dronesusestockpile = "true"
     u.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
-    u.customparams.autodock = (entry.isControllable == false) and "true" or "false"
     u.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
-    u.customparams.drone_controllable = (entry.isControllable == false) and "0" or "1"
-    u.customparams.tetherdrones = (entry.isControllable == false) and "1" or "0"
-    u.customparams.tether_drones = (entry.isControllable == false) and "1" or "0"
-    u.customparams.no_tether = (entry.isControllable == false) and "0" or "1"
 
     u.buildoptions = entry.allChildren
 
@@ -717,7 +690,6 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
         if type(wSlot) == "table" then
           wSlot.maxdrones = countNum
           wSlot.maxunits = countNum
-          wSlot.maxdronesammo = countNum
           wSlot.coverage = countNum
           wSlot.stockpile = true
         end
@@ -735,32 +707,11 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
           wDef.energypershot = energyNum
           wDef.customparams = wDef.customparams or {}
           wDef.customparams.carried_unit = entry.primaryChild
-          wDef.customparams.spawns_name = commaChildren
-          wDef.customparams.spawn_name = commaChildren
-          wDef.customparams.spawn_unit = commaChildren
-          wDef.customparams.spawns = commaChildren
-          wDef.customparams.spawn = commaChildren
           wDef.customparams.maxunits = countStr
-          wDef.customparams.maxdrones = countStr
-          wDef.customparams.max_units = countStr
-          wDef.customparams.max_drones = countStr
-          wDef.customparams.droneammo = countStr
-          wDef.customparams.spawn_count = countStr
-          wDef.customparams.spawns_max = countStr
-          wDef.customparams.stockpilelimit = countStr
-          wDef.customparams.stockpilemax = countStr
-          wDef.customparams.maxstockpile = countStr
-          wDef.customparams.stockpile_max = countStr
-          wDef.customparams.stockpile_limit = countStr
-          wDef.customparams.stockpilemetal = metalStr
           wDef.customparams.metalcost = metalStr
-          wDef.customparams.stockpileenergy = energyStr
           wDef.customparams.energycost = energyStr
-          wDef.customparams.stockpiletime = intervalStr
-          wDef.customparams.controlradius = (entry.isControllable == false) and "1200" or "5000"
-          wDef.customparams.engagementrange = (entry.isControllable == false) and "1300" or "5000"
+          wDef.customparams.spawnrate = intervalStr
           wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
-          wDef.customparams.dronesusestockpile = "true"
           wDef.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
         end
       end
@@ -772,9 +723,9 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
         if childDef then
           childDef.canselect = true
           childDef.customparams = childDef.customparams or {}
-          childDef.customparams.is_drone = nil
-          childDef.customparams.drone = nil
-          childDef.customparams.dronetype = nil
+          childDef.customparams.is_drone = "0"
+          childDef.customparams.drone = "0"
+          childDef.customparams.dronetype = "0"
           childDef.customparams.no_tether = "1"
           childDef.customparams.no_select = "0"
           childDef.customparams.noselect = "0"
@@ -801,6 +752,25 @@ if gadgetHandler then
     layer = 100,
     enabled = true
   }
+
+  function editp_auto_spawner_gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
+    if builderID and Spring then
+      local bDefID = Spring.GetUnitDefID(builderID)
+      local bDef = bDefID and UnitDefs and UnitDefs[bDefID]
+      if bDef and bDef.customparams and bDef.customparams.editp_auto_spawner == "1" then
+        local bx, by, bz = Spring.GetUnitPosition(builderID)
+        if bx then
+          local angle = (math.random() * math.pi * 2)
+          local ox = bx + math.cos(angle) * 110
+          local oz = bz + math.sin(angle) * 110
+          Spring.SetUnitPosition(unitID, ox, by, oz)
+          if CMD and CMD.MOVE then
+            Spring.GiveOrderToUnit(unitID, CMD.MOVE, {ox + 20, by, oz + 20}, {})
+          end
+        end
+      end
+    end
+  end
 
   function editp_auto_spawner_gadget:GameFrame(n)
     if n % 30 == 0 and Spring and Spring.GetFullBuildQueue then
