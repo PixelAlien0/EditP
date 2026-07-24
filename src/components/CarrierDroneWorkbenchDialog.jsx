@@ -9,6 +9,20 @@ import {
 import UnitArtwork from './UnitArtwork.jsx';
 import { Button, Dialog, IconButton } from './ui.jsx';
 
+function getFormattedUnitName(u) {
+  if (!u) return '';
+  if (u.name && u.name !== u.id) return u.name;
+  const id = String(u.id || '').toLowerCase();
+  if (id === 'armantiodrone') return 'Armada Anti-Air Drone';
+  if (id === 'corantiodrone') return 'Cortex Heavy Drone';
+  if (id === 'armcarrier') return 'Armada Aircraft Carrier';
+  if (id === 'corcarrier') return 'Cortex Aircraft Carrier';
+  if (id === 'legvcarry') return 'Legion Kaiser Dreadnought';
+  if (id === 'armodrone') return 'Armada Orbital Fighter Drone';
+  if (id === 'corodrone') return 'Cortex Orbital Bomber Drone';
+  return u.name || u.id;
+}
+
 export default function CarrierDroneWorkbenchDialog({
   open,
   onClose,
@@ -45,10 +59,19 @@ export default function CarrierDroneWorkbenchDialog({
     return [...cloneList, ...baseList];
   }, [units, clones]);
 
-  // Initial unit selection
-  const defaultParent = selectedUnit && allAvailableUnits.some(u => u.id.toLowerCase() === selectedUnit.id.toLowerCase())
-    ? selectedUnit.id.toLowerCase()
-    : (allAvailableUnits.find(u => u.id.toLowerCase() === 'armcarrier')?.id || allAvailableUnits[0]?.id || 'armcarrier');
+  // Smart Carrier Unit Selection (defaults to real aircraft carrier if selected unit is not a carrier)
+  const defaultParent = useMemo(() => {
+    if (selectedUnit) {
+      const sId = selectedUnit.id.toLowerCase();
+      const sName = (selectedUnit.name || '').toLowerCase();
+      const isCarrier = sId.includes('carrier') || sName.includes('carrier') || Boolean(tweaks[sId]?.['customparams.carried_unit']);
+      if (isCarrier && allAvailableUnits.some(u => u.id === sId)) {
+        return sId;
+      }
+    }
+    const carrierMatch = allAvailableUnits.find(u => u.id.includes('carrier') || u.name.toLowerCase().includes('carrier'));
+    return carrierMatch ? carrierMatch.id : (allAvailableUnits.find(u => u.id === 'armcarrier')?.id || allAvailableUnits[0]?.id || 'armcarrier');
+  }, [selectedUnit, allAvailableUnits, tweaks]);
 
   const initialConfig = useMemo(
     () => getCarrierLinkageConfig(defaultParent, tweaks, defaultsDb),
@@ -68,15 +91,15 @@ export default function CarrierDroneWorkbenchDialog({
   const [pickerQuery, setPickerQuery] = useState('');
   const [pickerFaction, setPickerFaction] = useState('all');
 
-  const parentUnitInfo = useMemo(
-    () => allAvailableUnits.find(u => u.id.toLowerCase() === parentUnitId.toLowerCase()) || { id: parentUnitId, name: parentUnitId },
-    [allAvailableUnits, parentUnitId]
-  );
+  const parentUnitInfo = useMemo(() => {
+    const raw = allAvailableUnits.find(u => u.id.toLowerCase() === parentUnitId.toLowerCase()) || { id: parentUnitId, name: parentUnitId };
+    return { ...raw, displayName: getFormattedUnitName(raw) };
+  }, [allAvailableUnits, parentUnitId]);
 
-  const childUnitInfo = useMemo(
-    () => allAvailableUnits.find(u => u.id.toLowerCase() === carriedUnit.toLowerCase()) || { id: carriedUnit, name: carriedUnit },
-    [allAvailableUnits, carriedUnit]
-  );
+  const childUnitInfo = useMemo(() => {
+    const raw = allAvailableUnits.find(u => u.id.toLowerCase() === carriedUnit.toLowerCase()) || { id: carriedUnit, name: carriedUnit };
+    return { ...raw, displayName: getFormattedUnitName(raw) };
+  }, [allAvailableUnits, carriedUnit]);
 
   // Filtered unit list for the selection modal
   const filteredPickerUnits = useMemo(() => {
@@ -180,7 +203,7 @@ export default function CarrierDroneWorkbenchDialog({
               <UnitArtwork unitId={parentUnitInfo.artworkUnitId || parentUnitInfo.id} className="carrier-workbench__card-art" alt="" />
               <div className="carrier-workbench__card-info">
                 <span className="carrier-workbench__card-role">Parent Carrier Chassis</span>
-                <span className="carrier-workbench__card-title">{parentUnitInfo.name}</span>
+                <span className="carrier-workbench__card-title">{parentUnitInfo.displayName}</span>
                 <code className="carrier-workbench__card-code">{parentUnitInfo.id}</code>
               </div>
               <span className="carrier-workbench__card-change">Change</span>
@@ -200,7 +223,7 @@ export default function CarrierDroneWorkbenchDialog({
               <UnitArtwork unitId={childUnitInfo.artworkUnitId || childUnitInfo.id} className="carrier-workbench__card-art" alt="" />
               <div className="carrier-workbench__card-info">
                 <span className="carrier-workbench__card-role">Deployed Child Drone</span>
-                <span className="carrier-workbench__card-title">{childUnitInfo.name}</span>
+                <span className="carrier-workbench__card-title">{childUnitInfo.displayName}</span>
                 <code className="carrier-workbench__card-code">{childUnitInfo.id}</code>
               </div>
               <span className="carrier-workbench__card-change">Change</span>
@@ -215,7 +238,7 @@ export default function CarrierDroneWorkbenchDialog({
 
             <div className="carrier-workbench__typebox-grid">
               <div className="form-group">
-                <label htmlFor="input-payload-capacity">Hangar Payload Capacity (`droneammo`)</label>
+                <label htmlFor="input-payload-capacity">Hangar Payload Capacity (droneammo)</label>
                 <input
                   id="input-payload-capacity"
                   type="number"
@@ -279,7 +302,7 @@ export default function CarrierDroneWorkbenchDialog({
 
               <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                 <Button type="button" variant="secondary" size="sm" onClick={handleQuickCreateDroneClone}>
-                  + Create Custom Clone of "{childUnitInfo.name}"
+                  + Create Custom Clone of "{childUnitInfo.displayName}"
                 </Button>
               </div>
             </div>
@@ -288,7 +311,7 @@ export default function CarrierDroneWorkbenchDialog({
 
         <footer className="carrier-workbench__footer">
           <span className="carrier-workbench__summary">
-            Carrier <strong>{parentUnitInfo.name}</strong> will launch up to <strong>{droneAmmo}</strong> active <strong>{childUnitInfo.name}</strong> drones every {spawnInterval}s.
+            Carrier <strong>{parentUnitInfo.displayName}</strong> will launch up to <strong>{droneAmmo}</strong> active <strong>{childUnitInfo.displayName}</strong> drones every {spawnInterval}s.
           </span>
           <div className="carrier-workbench__actions">
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
