@@ -3,6 +3,8 @@ import { getBuildPictureOptions, getBuildPicturePreviewUrl } from './unitArtwork
 
 let tacticalIcons = null;
 let tacticalIconLoad = null;
+let soundManifest = null;
+let soundManifestLoad = null;
 
 export const ASSET_TYPE_LABELS = Object.freeze({
   unitModel: 'Unit models',
@@ -31,12 +33,26 @@ export function getAssetPreviewUrl(assetType, value) {
 
 export function getSoundAudioUrls(soundName) {
   if (!soundName) return [];
-  const clean = String(soundName).trim().replace(/\.(wav|ogg|mp3)$/i, '');
+  const clean = String(soundName).trim().replace(/\.(wav|ogg|mp3)$/i, '').toLowerCase();
   if (!clean) return [];
-  const repo = 'https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/main/sounds/';
+
+  const rawBase = 'https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/master/';
+  const mappedPath = soundManifest?.[clean];
+  if (mappedPath) {
+    return [`${rawBase}${mappedPath}`];
+  }
+
   return [
-    `${repo}${clean}.wav`,
-    `${repo}${clean}.ogg`,
+    `${rawBase}sounds/weapons-mult/${clean}.wav`,
+    `${rawBase}sounds/weapons-mult/${clean}.ogg`,
+    `${rawBase}sounds/weapons/${clean}.wav`,
+    `${rawBase}sounds/weapons/${clean}.ogg`,
+    `${rawBase}sounds/unit/${clean}.wav`,
+    `${rawBase}sounds/unit/${clean}.ogg`,
+    `${rawBase}sounds/bombs/${clean}.wav`,
+    `${rawBase}sounds/bombs/${clean}.ogg`,
+    `${rawBase}sounds/${clean}.wav`,
+    `${rawBase}sounds/${clean}.ogg`
   ];
 }
 
@@ -70,10 +86,18 @@ function getTacticalIcon(value) {
 }
 
 export async function loadAssetPreviewCatalog(assetType) {
-  if (assetType !== 'iconType' || tacticalIcons) return;
-  tacticalIconLoad ||= import('../data/tactical-icon-manifest.json')
-    .then(module => {
-      tacticalIcons = module.default.icons || {};
-    });
-  await tacticalIconLoad;
+  if (assetType === 'iconType' && !tacticalIcons) {
+    tacticalIconLoad ||= import('../data/tactical-icon-manifest.json')
+      .then(module => {
+        tacticalIcons = module.default.icons || {};
+      });
+    await tacticalIconLoad;
+  }
+  if (assetType === 'sound' && !soundManifest) {
+    soundManifestLoad ||= import('../data/bar-sound-manifest.json')
+      .then(module => {
+        soundManifest = module.default || {};
+      });
+    await soundManifestLoad;
+  }
 }

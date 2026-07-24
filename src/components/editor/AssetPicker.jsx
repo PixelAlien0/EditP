@@ -25,7 +25,7 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
   const currentPreviewUrl = getAssetPreviewUrl(assetType, value);
   const isVisualBrowser = assetType === 'buildPicture' || assetType === 'iconType';
   useEffect(() => {
-    if (assetType !== 'iconType' || (!open && !value)) return undefined;
+    if ((assetType !== 'iconType' && assetType !== 'sound') || (!open && !value)) return undefined;
     let active = true;
     loadAssetPreviewCatalog(assetType).then(() => {
       if (active) setCatalogRevision(revision => revision + 1);

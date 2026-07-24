@@ -42,10 +42,10 @@ describe('BAR asset manifest', () => {
     });
   });
 
-  it('resolves sound preview candidate URLs from the BAR repository CDN', () => {
-    expect(getSoundAudioUrls('lasrhvy2')).toEqual([
-      'https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/main/sounds/lasrhvy2.wav',
-      'https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/main/sounds/lasrhvy2.ogg'
+  it('resolves sound preview candidate URLs from the BAR repository CDN', async () => {
+    await loadAssetPreviewCatalog('sound');
+    expect(getSoundAudioUrls('alien_electric_xl')).toEqual([
+      'https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/master/sounds/weapons-mult/alien_electric_xl.wav'
     ]);
     expect(getSoundAudioUrls('')).toEqual([]);
   });
