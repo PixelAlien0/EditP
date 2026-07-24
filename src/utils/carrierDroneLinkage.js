@@ -104,12 +104,18 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
   const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] ?? unitTweaks['customparams.spawn_rate'] ?? defaults.customparams?.spawn_interval ?? 5);
   const returnHp = Number(unitTweaks['customparams.drone_return_hp'] ?? defaults.customparams?.drone_return_hp ?? 25);
 
+  const isControllable = unitTweaks['customparams.carrierdeaththroe'] === 'release' ||
+    unitTweaks['customparams.is_controllable'] === '1' ||
+    unitTweaks['customparams.drone_controllable'] === '1' ||
+    (unitTweaks['customparams.carrierdeaththroe'] === undefined);
+
   return {
     parentUnitId: unitId,
     carriedUnit: primaryUnit,
     spawnsName: primaryUnit,
     secondaryUnits,
     deployMode: isGroundSpawner ? 'ground' : 'air',
+    isControllable,
     droneAmmo: Number.isFinite(droneAmmo) && droneAmmo > 0 ? droneAmmo : 4,
     spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
     spawnEnergy: Number.isFinite(spawnEnergy) ? spawnEnergy : 1000,
@@ -135,8 +141,12 @@ export function buildCarrierLinkageTweaks(config) {
   const commaRoster = uniqueRoster.join(',');
 
   const isGroundMode = config.deployMode === 'ground';
+  const isControllable = config.isControllable ?? true;
 
   const countStr = String(Math.max(1, Math.min(100, Math.round(config.droneAmmo || 4))));
+  const intervalStr = String(Math.max(1, Math.round(config.spawnInterval || 5)));
+  const metalStr = String(Math.max(0, Math.round(config.spawnMetal || 0)));
+  const energyStr = String(Math.max(0, Math.round(config.spawnEnergy || 0)));
 
   return {
     'customparams.carried_unit': primaryId,
@@ -156,10 +166,28 @@ export function buildCarrierLinkageTweaks(config) {
     'customparams.max_drones': countStr,
     'customparams.spawns_count': countStr,
     'customparams.spawns_max': countStr,
-    'customparams.spawn_metal_cost': String(Math.max(0, Math.round(config.spawnMetal || 0))),
-    'customparams.spawn_energy_cost': String(Math.max(0, Math.round(config.spawnEnergy || 0))),
-    'customparams.spawn_interval': String(Math.max(1, Math.round(config.spawnInterval || 5))),
-    'customparams.spawn_rate': String(Math.max(1, Math.round(config.spawnInterval || 5))),
+    'customparams.stockpilelimit': countStr,
+    'customparams.stockpilemax': countStr,
+    'customparams.maxstockpile': countStr,
+    'customparams.stockpile_max': countStr,
+    'customparams.stockpile_limit': countStr,
+    'customparams.spawn_metal_cost': metalStr,
+    'customparams.stockpilemetal': metalStr,
+    'customparams.metalcost': metalStr,
+    'customparams.spawn_energy_cost': energyStr,
+    'customparams.stockpileenergy': energyStr,
+    'customparams.energycost': energyStr,
+    'customparams.spawn_interval': intervalStr,
+    'customparams.spawn_rate': intervalStr,
+    'customparams.spawnrate': intervalStr,
+    'customparams.stockpiletime': intervalStr,
     'customparams.drone_return_hp': String(Math.max(0, Math.min(100, Math.round(config.returnHp || 25)))),
+    'customparams.controlradius': isControllable ? '5000' : '1200',
+    'customparams.engagementrange': isControllable ? '5000' : '1300',
+    'customparams.carrierdeaththroe': isControllable ? 'release' : 'destroy',
+    'customparams.dronesusestockpile': 'true',
+    'customparams.enabledocking': 'true',
+    'customparams.is_controllable': isControllable ? '1' : '0',
+    'customparams.drone_controllable': isControllable ? '1' : '0',
   };
 }

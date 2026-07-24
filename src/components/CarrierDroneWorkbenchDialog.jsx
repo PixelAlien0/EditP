@@ -81,6 +81,7 @@ export default function CarrierDroneWorkbenchDialog({
   const [parentUnitId, setParentUnitId] = useState(defaultParent);
   const [carriedUnit, setCarriedUnit] = useState(initialConfig.carriedUnit || 'armantiodrone');
   const [deployMode, setDeployMode] = useState(initialConfig.deployMode || 'air');
+  const [isControllable, setIsControllable] = useState(initialConfig.isControllable ?? true);
   const [droneAmmo, setDroneAmmo] = useState(initialConfig.droneAmmo || 6);
   const [spawnMetal, setSpawnMetal] = useState(initialConfig.spawnMetal || 120);
   const [spawnEnergy, setSpawnEnergy] = useState(initialConfig.spawnEnergy || 1200);
@@ -152,6 +153,7 @@ export default function CarrierDroneWorkbenchDialog({
       carriedUnit,
       spawnsName: carriedUnit,
       deployMode,
+      isControllable,
       droneAmmo,
       spawnMetal,
       spawnEnergy,
@@ -258,6 +260,28 @@ export default function CarrierDroneWorkbenchDialog({
                     style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
                     Ground / Assault Unit Spawner (Hive / Building)
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Spawned Unit Command Policy</label>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                  <button
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${isControllable ? 'is-active' : ''}`}
+                    onClick={() => setIsControllable(true)}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                  >
+                    Player Controllable (Release to Player Control)
+                  </button>
+                  <button
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${!isControllable ? 'is-active' : ''}`}
+                    onClick={() => setIsControllable(false)}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                  >
+                    Autonomous Squadron (Hangar Tethered)
                   </button>
                 </div>
               </div>

@@ -1498,7 +1498,7 @@ export default function App() {
           setNestedVal(unitPatch, `customparams.${customKey}`, typedValue);
 
           // Apply carrier & spawner parameters to all unit weapon definitions so BAR carrier gadgets update their weapondefs
-          if (['carried_unit', 'spawns_name', 'spawn_name', 'spawn_unit', 'spawns', 'spawntype', 'spawns_types', 'droneammo', 'spawn_count', 'maxunits', 'maxdrones', 'max_units', 'max_drones', 'spawns_count', 'spawns_max', 'spawn_metal_cost', 'spawn_energy_cost', 'spawn_interval', 'spawn_rate', 'drone_return_hp'].includes(customKey)) {
+          if (['carried_unit', 'spawns_name', 'spawn_name', 'spawn_unit', 'spawns', 'spawntype', 'spawns_types', 'droneammo', 'spawn_count', 'maxunits', 'maxdrones', 'max_units', 'max_drones', 'spawns_count', 'spawns_max', 'stockpilelimit', 'stockpilemax', 'maxstockpile', 'stockpile_max', 'stockpile_limit', 'spawn_metal_cost', 'stockpilemetal', 'metalcost', 'spawn_energy_cost', 'stockpileenergy', 'energycost', 'spawn_interval', 'spawn_rate', 'spawnrate', 'stockpiletime', 'drone_return_hp', 'controlradius', 'engagementrange', 'carrierdeaththroe', 'dronesusestockpile', 'enabledocking', 'is_controllable', 'drone_controllable'].includes(customKey)) {
             const activeSlots = getActiveWeaponSlotsForUnit(unitId);
             activeSlots.forEach(slot => {
               if (slot && slot.defKey) {

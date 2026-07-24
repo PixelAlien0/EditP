@@ -660,6 +660,10 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.spawns_units = commaChildren
     u.customparams.spawns_types = entry.isGround and "ground" or "air"
     local countStr = tostring(entry.droneAmmo)
+    local intervalStr = tostring(entry.spawnInterval)
+    local metalStr = tostring(entry.spawnMetal)
+    local energyStr = tostring(entry.spawnEnergy)
+
     u.customparams.droneammo = countStr
     u.customparams.spawn_count = countStr
     u.customparams.maxunits = countStr
@@ -668,10 +672,28 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.max_drones = countStr
     u.customparams.spawns_count = countStr
     u.customparams.spawns_max = countStr
-    u.customparams.spawn_metal_cost = tostring(entry.spawnMetal)
-    u.customparams.spawn_energy_cost = tostring(entry.spawnEnergy)
-    u.customparams.spawn_interval = tostring(entry.spawnInterval)
-    u.customparams.spawn_rate = tostring(entry.spawnInterval)
+    u.customparams.stockpilelimit = countStr
+    u.customparams.stockpilemax = countStr
+    u.customparams.maxstockpile = countStr
+    u.customparams.stockpile_max = countStr
+    u.customparams.stockpile_limit = countStr
+    u.customparams.spawn_metal_cost = metalStr
+    u.customparams.stockpilemetal = metalStr
+    u.customparams.metalcost = metalStr
+    u.customparams.spawn_energy_cost = energyStr
+    u.customparams.stockpileenergy = energyStr
+    u.customparams.energycost = energyStr
+    u.customparams.spawn_interval = intervalStr
+    u.customparams.spawn_rate = intervalStr
+    u.customparams.spawnrate = intervalStr
+    u.customparams.stockpiletime = intervalStr
+    u.customparams.controlradius = (entry.isControllable == false) and "1200" or "5000"
+    u.customparams.engagementrange = (entry.isControllable == false) and "1300" or "5000"
+    u.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
+    u.customparams.dronesusestockpile = "true"
+    u.customparams.enabledocking = "true"
+    u.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
+    u.customparams.drone_controllable = (entry.isControllable == false) and "0" or "1"
 
     u.buildoptions = entry.allChildren
 
@@ -679,7 +701,7 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       for _, wDef in pairs(u.weapondefs) do
         if type(wDef) == "table" then
           wDef.customparams = wDef.customparams or {}
-          if wDef.customparams.carried_unit or wDef.customparams.spawns_name or wDef.customparams.maxunits or wDef.customparams.droneammo then
+          if wDef.customparams.carried_unit or wDef.customparams.spawns_name or wDef.customparams.maxunits or wDef.customparams.droneammo or wDef.customparams.stockpilemax or wDef.customparams.stockpilelimit then
             wDef.customparams.carried_unit = entry.primaryChild
             wDef.customparams.spawns_name = commaChildren
             wDef.customparams.spawn_name = commaChildren
@@ -693,6 +715,21 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
             wDef.customparams.droneammo = countStr
             wDef.customparams.spawn_count = countStr
             wDef.customparams.spawns_max = countStr
+            wDef.customparams.stockpilelimit = countStr
+            wDef.customparams.stockpilemax = countStr
+            wDef.customparams.maxstockpile = countStr
+            wDef.customparams.stockpile_max = countStr
+            wDef.customparams.stockpile_limit = countStr
+            wDef.customparams.stockpilemetal = metalStr
+            wDef.customparams.metalcost = metalStr
+            wDef.customparams.stockpileenergy = energyStr
+            wDef.customparams.energycost = energyStr
+            wDef.customparams.stockpiletime = intervalStr
+            wDef.customparams.controlradius = (entry.isControllable == false) and "1200" or "5000"
+            wDef.customparams.engagementrange = (entry.isControllable == false) and "1300" or "5000"
+            wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
+            wDef.customparams.dronesusestockpile = "true"
+            wDef.customparams.enabledocking = "true"
           end
         end
       end
