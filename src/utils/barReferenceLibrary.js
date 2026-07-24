@@ -75,24 +75,46 @@ function normalizeCegValue(value) {
   return normalized;
 }
 
+export function getFactionKey(id = '', explicitFaction = '') {
+  const normFaction = String(explicitFaction).trim().toLowerCase();
+  if (normFaction.includes('arm')) return 'arm';
+  if (normFaction.includes('cor') || normFaction.includes('core')) return 'core';
+  if (normFaction.includes('scav')) return 'scavenger';
+  if (normFaction.includes('rap')) return 'raptor';
+
+  const normId = String(id).trim().toLowerCase();
+  if (normId.startsWith('arm')) return 'arm';
+  if (normId.startsWith('cor')) return 'core';
+  if (normId.startsWith('scav')) return 'scavenger';
+  if (normId.startsWith('rap')) return 'raptor';
+
+  return 'other';
+}
+
 function createUnitItems(units, defaultsDb, usageMap) {
-  return units.filter(unit => !unit.isClone).map(unit => {
-    const defaults = defaultsDb[unit.id] || {};
-    const source = { id: `unit:${unit.id}`, title: unit.name, subtitle: unit.id, category: 'unit' };
+  return units.filter(unit => unit && !unit.isClone).map(unit => {
+    const id = typeof unit === 'string' ? unit : unit.id || '';
+    if (!id) return null;
+    const name = typeof unit === 'string' ? unit : unit.name || id;
+    const description = typeof unit === 'object' ? unit.description || unit.desc || '' : '';
+    const defaults = defaultsDb[id] || {};
+    const source = { id: `unit:${id}`, title: name, subtitle: id, category: 'unit' };
     Object.entries(UNIT_ASSET_FIELDS).forEach(([field, category]) => addUsage(usageMap, category, defaults[field], source));
     addUsage(usageMap, 'explosionProfile', defaults.explodeas, source);
     addUsage(usageMap, 'explosionProfile', defaults.selfdestructas, source);
 
+    const faction = getFactionKey(id, typeof unit === 'object' ? unit.faction : '');
+
     return {
       ...source,
-      value: unit.id,
-      description: unit.description || unit.desc || '',
-      previewUrl: getUnitIconUrl(unit.id),
-      faction: unit.faction || '',
-      tags: unit.tags || [],
+      value: id,
+      description,
+      previewUrl: getUnitIconUrl(id),
+      faction,
+      tags: typeof unit === 'object' ? unit.tags || [] : [],
       details: compactDetails([
-        detail('Faction', unit.faction?.toUpperCase()),
-        detail('Technology tier', unit.techTier),
+        detail('Faction', faction.toUpperCase()),
+        detail('Technology tier', typeof unit === 'object' ? unit.techTier : undefined),
         detail('Health', defaults.health, 'HP'),
         detail('Metal cost', defaults.metalcost, 'metal'),
         detail('Energy cost', defaults.energycost, 'energy'),
@@ -101,21 +123,25 @@ function createUnitItems(units, defaultsDb, usageMap) {
         detail('Script', defaults.script),
         detail('Build picture', defaults.buildpic),
       ]),
-      searchText: `${unit.id} ${unit.name} ${unit.description || unit.desc || ''} ${unit.faction || ''} ${(unit.tags || []).join(' ')}`.toLowerCase(),
+      searchText: `${id} ${name} ${description} ${faction}`.toLowerCase(),
     };
-  });
+  }).filter(Boolean);
 }
 
 function createWeaponItems(units, defaultsDb, usageMap) {
   const items = [];
-  units.filter(unit => !unit.isClone).forEach(unit => {
-    const slots = defaultsDb[unit.id]?.weaponSlots || [];
+  units.filter(unit => unit && !unit.isClone).forEach(unit => {
+    const id = typeof unit === 'string' ? unit : unit.id || '';
+    if (!id) return;
+    const name = typeof unit === 'string' ? unit : unit.name || id;
+    const slots = defaultsDb[id]?.weaponSlots || [];
+    const faction = getFactionKey(id, typeof unit === 'object' ? unit.faction : '');
     slots.forEach(slot => {
       const defKey = slot.defKey || `slot_${slot.slot}`;
       const source = {
-        id: `weapon:${unit.id}:${slot.slot}:${defKey}`,
+        id: `weapon:${id}:${slot.slot}:${defKey}`,
         title: String(defKey).toUpperCase(),
-        subtitle: `${unit.name} · Slot ${slot.slot}`,
+        subtitle: `${name} · Slot ${slot.slot}`,
         category: 'weapon',
       };
       Object.entries(WEAPON_ASSET_FIELDS).forEach(([field, category]) => {
@@ -125,11 +151,13 @@ function createWeaponItems(units, defaultsDb, usageMap) {
       items.push({
         ...source,
         value: defKey,
-        description: `${slot.weapontype || 'WeaponDef'} mounted by ${unit.id}`,
-        previewUrl: getUnitIconUrl(unit.id),
-        ownerUnitId: unit.id,
+        description: `${slot.weapontype || 'WeaponDef'} mounted by ${id}`,
+        previewUrl: getUnitIconUrl(id),
+        ownerUnitId: id,
+        faction,
         details: compactDetails([
-          detail('Owner unit', unit.id),
+          detail('Owner unit', id),
+          detail('Faction', faction.toUpperCase()),
           detail('Weapon slot', slot.slot),
           detail('Weapon type', slot.weapontype),
           detail('Damage', slot.damage),
@@ -143,7 +171,7 @@ function createWeaponItems(units, defaultsDb, usageMap) {
           detail('Trail CEG', slot.cegTag || slot.cegtag),
           detail('Explosion CEG', slot.explosiongenerator),
         ]),
-        searchText: `${defKey} ${unit.id} ${unit.name} ${slot.weapontype || ''} ${slot.onlytargetcategory || ''} ${slot.badtargetcategory || ''}`.toLowerCase(),
+        searchText: `${defKey} ${id} ${name} ${slot.weapontype || ''} ${slot.onlytargetcategory || ''} ${slot.badtargetcategory || ''}`.toLowerCase(),
       });
     });
   });
@@ -217,11 +245,50 @@ export function buildBarReferenceCatalog({ units = [], defaultsDb = {}, explosio
   };
 }
 
-export function filterBarReferences(items, { category = 'all', query = '', usedOnly = false } = {}) {
+export function filterBarReferences(items, {
+  category = 'all',
+  query = '',
+  usedOnly = false,
+  faction = 'all',
+  usageStatus = 'all',
+  sortBy = 'relevance'
+} = {}) {
   const needle = query.trim().toLowerCase();
-  return items.filter(item => (
-    (category === 'all' || item.category === category)
-    && (!usedOnly || item.category === 'unit' || item.category === 'weapon' || item.category === 'explosionProfile' || item.usedBy?.length > 0)
-    && (!needle || item.searchText.includes(needle) || item.title.toLowerCase().includes(needle))
-  ));
+
+  const filtered = items.filter(item => {
+    if (category !== 'all' && item.category !== category) return false;
+
+    if (usedOnly && item.category !== 'unit' && item.category !== 'weapon' && item.category !== 'explosionProfile' && !(item.usedBy?.length > 0)) {
+      return false;
+    }
+
+    if (usageStatus === 'used' && item.category !== 'unit' && item.category !== 'weapon' && item.category !== 'explosionProfile' && !(item.usedBy?.length > 0)) {
+      return false;
+    }
+    if (usageStatus === 'unused' && (item.category === 'unit' || item.category === 'weapon' || item.category === 'explosionProfile' || item.usedBy?.length > 0)) {
+      return false;
+    }
+
+    if (faction !== 'all' && (!item.faction || item.faction !== faction)) {
+      return false;
+    }
+
+    if (needle && !item.searchText.includes(needle) && !item.title.toLowerCase().includes(needle)) {
+      return false;
+    }
+
+    return true;
+  });
+
+  if (sortBy === 'usage-desc') {
+    return [...filtered].sort((a, b) => (b.usedBy?.length || 0) - (a.usedBy?.length || 0) || a.title.localeCompare(b.title));
+  }
+  if (sortBy === 'name-asc') {
+    return [...filtered].sort((a, b) => a.title.localeCompare(b.title));
+  }
+  if (sortBy === 'name-desc') {
+    return [...filtered].sort((a, b) => b.title.localeCompare(a.title));
+  }
+
+  return filtered;
 }

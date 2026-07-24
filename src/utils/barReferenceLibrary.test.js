@@ -50,5 +50,8 @@ describe('BAR reference library', () => {
     expect(filterBarReferences(items, { category: 'unitModel', query: 'Alpha' })).toHaveLength(1);
     expect(filterBarReferences(items, { category: 'sound', usedOnly: true })).toHaveLength(1);
     expect(filterBarReferences(items, { category: 'texture', usedOnly: true })).toHaveLength(0);
+    expect(filterBarReferences(items, { faction: 'arm' })).toHaveLength(2);
+    expect(filterBarReferences(items, { faction: 'core' })).toHaveLength(0);
+    expect(filterBarReferences(items, { sortBy: 'usage-desc' })[0].id).toBe('asset:ceg:custom:impact');
   });
 });

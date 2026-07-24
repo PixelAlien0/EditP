@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, EmptyState, Switch } from './ui.jsx';
+import { Button, EmptyState } from './ui.jsx';
 import UnitArtwork from './UnitArtwork.jsx';
 import {
   BAR_REFERENCE_CATEGORIES,
@@ -60,62 +60,73 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
   return (
     <aside className="bar-reference-inspector" aria-label="Reference details">
       <header>
-        <ReferenceGlyph item={item} />
-        <div><span>{item.subtitle}</span><h3>{item.title}</h3><code>{item.value}</code></div>
+        <span>{item.subtitle}</span>
+        <h3>{item.title}</h3>
+        <p>{item.description}</p>
+        <div className="bar-reference-inspector__actions">
+          <Button size="sm" variant="secondary" onClick={() => onCopy(item.value)}>Copy reference</Button>
+          {canOpenUnit && <Button size="sm" onClick={() => onOpenUnit(unitId)}>View in editor</Button>}
+        </div>
       </header>
-
-      <p className="bar-reference-inspector__description">{item.description}</p>
-      <div className="bar-reference-inspector__actions">
-        <Button variant="primary" size="sm" onClick={() => onCopy(item.value)}>Copy exact value</Button>
-        {canOpenUnit && <Button size="sm" onClick={() => onOpenUnit(unitId)}>Open unit editor</Button>}
-      </div>
-
-      <section className="bar-reference-inspector__facts" aria-label="Reference properties">
-        <span>Definition facts</span>
-        <dl>
-          {item.details.map(entry => (
-            <div key={`${entry.label}-${entry.value}`}><dt>{entry.label}</dt><dd>{entry.value}{entry.unit ? ` ${entry.unit}` : ''}</dd></div>
-          ))}
-        </dl>
-      </section>
-
-      <section className="bar-reference-inspector__usage" aria-label="Used by definitions">
-        <div><span>Used by</span><small>{item.usedBy?.length || 0} bundled references</small></div>
-        {item.usedBy?.length > 0 ? (
+      {item.details?.length > 0 && (
+        <section className="bar-reference-inspector__facts" aria-label="Reference facts">
+          <h4>Reference properties</h4>
+          <dl>
+            {item.details.map((detail, index) => (
+              <div key={index}>
+                <dt>{detail.label}</dt>
+                <dd>{detail.value} {detail.unit}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+      {item.usedBy?.length > 0 && (
+        <section className="bar-reference-inspector__usage" aria-label="Usage list">
+          <h4>Referenced by ({item.usedBy.length.toLocaleString()})</h4>
           <div className="bar-reference-inspector__usage-list">
-            {item.usedBy.slice(0, 24).map(reference => (
-              <button type="button" key={reference.id} onClick={() => catalogById.has(reference.id) && onSelect(reference.id)}>
-                <strong>{reference.title}</strong><small>{reference.subtitle}</small>
+            {item.usedBy.map(usage => (
+              <button key={usage.id} type="button" onClick={() => onSelect(usage.id)}>
+                <strong>{usage.title}</strong>
+                <span>{usage.subtitle}</span>
               </button>
             ))}
-            {item.usedBy.length > 24 && <p>+{item.usedBy.length - 24} additional references</p>}
           </div>
-        ) : <p>No bundled UnitDef, mounted WeaponDef, or explosion profile currently references this exact value.</p>}
-      </section>
-
-      <footer>
-        <strong>Reference only</strong>
-        <span>Copying a value does not add its underlying asset to generated tweaks.</span>
-      </footer>
+        </section>
+      )}
     </aside>
   );
 }
 
-export default function BarReferenceLibraryPage({ units, defaultsDb, explosionProfiles, onOpenUnit, onBack, onToast }) {
+export default function BarReferenceLibraryPage({
+  units = [],
+  defaultsDb = {},
+  explosionProfiles = {},
+  onBack,
+  onOpenUnit,
+  onToast,
+}) {
   const [category, setCategory] = useState('all');
   const [query, setQuery] = useState('');
-  const [usedOnly, setUsedOnly] = useState(false);
+  const [faction, setFaction] = useState('all');
+  const [usageStatus, setUsageStatus] = useState('all');
+  const [sortBy, setSortBy] = useState('relevance');
   const [page, setPage] = useState(0);
   const [selectedId, setSelectedId] = useState('');
   const resultsRef = useRef(null);
+
   const catalog = useMemo(
     () => buildBarReferenceCatalog({ units, defaultsDb, explosionProfiles }),
-    [defaultsDb, explosionProfiles, units]
+    [units, defaultsDb, explosionProfiles]
   );
-  const catalogById = useMemo(() => new Map(catalog.items.map(item => [item.id, item])), [catalog.items]);
+  const catalogById = useMemo(
+    () => new Map(catalog.items.map(item => [item.id, item])),
+    [catalog.items]
+  );
+
   const filtered = useMemo(
-    () => filterBarReferences(catalog.items, { category, query, usedOnly }),
-    [catalog.items, category, query, usedOnly]
+    () => filterBarReferences(catalog.items, { category, query, usedOnly, faction, usageStatus, sortBy }),
+    [catalog.items, category, query, usedOnly, faction, usageStatus, sortBy]
   );
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
@@ -177,7 +188,7 @@ export default function BarReferenceLibraryPage({ units, defaultsDb, explosionPr
         ))}
       </nav>
 
-      <section className="bar-reference-library__toolbar" aria-label="Reference search">
+      <section className="bar-reference-library__toolbar" aria-label="Reference search and filters">
         <label className="bar-reference-library__search">
           <span>Search the library</span>
           <input
@@ -187,14 +198,48 @@ export default function BarReferenceLibraryPage({ units, defaultsDb, explosionPr
             onChange={event => { setQuery(event.target.value); setPage(0); setSelectedId(''); }}
           />
         </label>
-        <Switch
-          className="bar-reference-library__used-toggle"
-          label="Show references used by bundled definitions only"
-          checked={usedOnly}
-          onChange={event => { setUsedOnly(event.target.checked); setPage(0); setSelectedId(''); }}
-        >
-          <span><strong>Used references only</strong><small>Hide validated but currently unreferenced assets</small></span>
-        </Switch>
+        <div className="bar-reference-library__filter-group">
+          <label className="bar-reference-library__select-label">
+            <span>Faction</span>
+            <select
+              aria-label="Filter by faction"
+              value={faction}
+              onChange={event => { setFaction(event.target.value); setPage(0); setSelectedId(''); }}
+            >
+              <option value="all">All Factions</option>
+              <option value="arm">ARM Armada</option>
+              <option value="core">CORE Cortex</option>
+              <option value="scavenger">Scavengers</option>
+              <option value="raptor">Raptors</option>
+              <option value="other">Other / Common</option>
+            </select>
+          </label>
+          <label className="bar-reference-library__select-label">
+            <span>Usage</span>
+            <select
+              aria-label="Filter by usage status"
+              value={usageStatus}
+              onChange={event => { setUsageStatus(event.target.value); setPage(0); setSelectedId(''); }}
+            >
+              <option value="all">All Statuses</option>
+              <option value="used">Used in Definitions</option>
+              <option value="unused">Unused Standalone</option>
+            </select>
+          </label>
+          <label className="bar-reference-library__select-label">
+            <span>Sort by</span>
+            <select
+              aria-label="Sort references"
+              value={sortBy}
+              onChange={event => { setSortBy(event.target.value); setPage(0); setSelectedId(''); }}
+            >
+              <option value="relevance">Catalog Order</option>
+              <option value="usage-desc">Most Used First</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+            </select>
+          </label>
+        </div>
         <div className="bar-reference-library__result-count"><strong>{filtered.length.toLocaleString()}</strong><span>matches</span></div>
       </section>
 
