@@ -81,6 +81,14 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
     ?? defaults.customparams?.carried_unit
     ?? '';
 
+  const unitsList = String(targetChild)
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  const primaryUnit = unitsList[0] || '';
+  const secondaryUnits = unitsList.slice(1);
+
   const hasCarriedUnit = Boolean(unitTweaks['customparams.carried_unit'] && unitTweaks['customparams.carried_unit'] !== '');
   const isGroundSpawner = Boolean(
     unitTweaks['customparams.spawns_name'] ||
@@ -90,16 +98,17 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
     !hasCarriedUnit
   );
 
-  const droneAmmo = Number(unitTweaks['customparams.droneammo'] ?? defaults.customparams?.droneammo ?? 4);
+  const droneAmmo = Number(unitTweaks['customparams.droneammo'] ?? unitTweaks['customparams.spawn_count'] ?? defaults.customparams?.droneammo ?? 4);
   const spawnMetal = Number(unitTweaks['customparams.spawn_metal_cost'] ?? defaults.customparams?.spawn_metal_cost ?? 100);
   const spawnEnergy = Number(unitTweaks['customparams.spawn_energy_cost'] ?? defaults.customparams?.spawn_energy_cost ?? 1000);
-  const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] ?? defaults.customparams?.spawn_interval ?? 5);
+  const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] ?? unitTweaks['customparams.spawn_rate'] ?? defaults.customparams?.spawn_interval ?? 5);
   const returnHp = Number(unitTweaks['customparams.drone_return_hp'] ?? defaults.customparams?.drone_return_hp ?? 25);
 
   return {
     parentUnitId: unitId,
-    carriedUnit: String(targetChild).trim(),
-    spawnsName: String(targetChild).trim(),
+    carriedUnit: primaryUnit,
+    spawnsName: primaryUnit,
+    secondaryUnits,
     deployMode: isGroundSpawner ? 'ground' : 'air',
     droneAmmo: Number.isFinite(droneAmmo) && droneAmmo > 0 ? droneAmmo : 4,
     spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
@@ -117,40 +126,32 @@ export function buildCarrierLinkageTweaks(config) {
     return {};
   }
 
-  const childId = String(config.carriedUnit || config.spawnsName).trim().toLowerCase();
+  const primaryId = String(config.carriedUnit || config.spawnsName).trim().toLowerCase();
+  const secondaryList = Array.isArray(config.secondaryUnits)
+    ? config.secondaryUnits.map(u => String(u).trim().toLowerCase()).filter(Boolean)
+    : [];
+
+  const uniqueRoster = [primaryId, ...secondaryList].filter((v, idx, arr) => arr.indexOf(v) === idx);
+  const commaRoster = uniqueRoster.join(',');
+
   const isGroundMode = config.deployMode === 'ground';
 
-  if (isGroundMode) {
-    return {
-      'customparams.carried_unit': '', // Clear carried_unit so air carrier gadget does not hijack ground spawner
-      'customparams.spawns_name': childId,
-      'customparams.spawn_name': childId,
-      'customparams.spawn_unit': childId,
-      'customparams.spawns': childId,
-      'customparams.spawn': childId,
-      'customparams.spawntype': childId,
-      'customparams.spawns_units': childId,
-      'customparams.droneammo': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
-      'customparams.spawn_metal_cost': String(Math.max(0, Math.round(config.spawnMetal || 0))),
-      'customparams.spawn_energy_cost': String(Math.max(0, Math.round(config.spawnEnergy || 0))),
-      'customparams.spawn_interval': String(Math.max(1, Math.round(config.spawnInterval || 5))),
-      'customparams.drone_return_hp': String(Math.max(0, Math.min(100, Math.round(config.returnHp || 25)))),
-    };
-  }
-
   return {
-    'customparams.carried_unit': childId,
-    'customparams.spawns_name': childId,
-    'customparams.spawn_name': childId,
-    'customparams.spawn_unit': childId,
-    'customparams.spawns': childId,
-    'customparams.spawn': childId,
-    'customparams.spawntype': childId,
-    'customparams.spawns_units': childId,
+    'customparams.carried_unit': isGroundMode ? '' : primaryId,
+    'customparams.spawns_name': commaRoster,
+    'customparams.spawn_name': commaRoster,
+    'customparams.spawn_unit': commaRoster,
+    'customparams.spawns': commaRoster,
+    'customparams.spawn': commaRoster,
+    'customparams.spawntype': isGroundMode ? 'ground,air' : 'air',
+    'customparams.spawns_units': commaRoster,
+    'customparams.spawns_types': isGroundMode ? 'ground,air' : 'air',
     'customparams.droneammo': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
+    'customparams.spawn_count': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
     'customparams.spawn_metal_cost': String(Math.max(0, Math.round(config.spawnMetal || 0))),
     'customparams.spawn_energy_cost': String(Math.max(0, Math.round(config.spawnEnergy || 0))),
     'customparams.spawn_interval': String(Math.max(1, Math.round(config.spawnInterval || 5))),
+    'customparams.spawn_rate': String(Math.max(1, Math.round(config.spawnInterval || 5))),
     'customparams.drone_return_hp': String(Math.max(0, Math.min(100, Math.round(config.returnHp || 25)))),
   };
 }

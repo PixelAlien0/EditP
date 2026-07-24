@@ -51,27 +51,31 @@ describe('carrierDroneLinkage', () => {
       'customparams.spawn_unit': 'armodrone',
       'customparams.spawns': 'armodrone',
       'customparams.spawn': 'armodrone',
-      'customparams.spawntype': 'armodrone',
+      'customparams.spawntype': 'air',
       'customparams.spawns_units': 'armodrone',
+      'customparams.spawns_types': 'air',
       'customparams.droneammo': '8',
+      'customparams.spawn_count': '8',
       'customparams.spawn_metal_cost': '200',
       'customparams.spawn_energy_cost': '1500',
       'customparams.spawn_interval': '4',
+      'customparams.spawn_rate': '4',
       'customparams.drone_return_hp': '30',
     });
   });
 
-  it('clears carried_unit in ground mode so air carrier gadget does not hijack ground spawner', () => {
+  it('clears carried_unit in ground mode and builds comma-separated multi-unit roster', () => {
     const result = buildCarrierLinkageTweaks({
       parentUnitId: 'behehive',
       carriedUnit: 'corjugg_custom',
+      secondaryUnits: ['armantiodrone', 'corvamp'],
       deployMode: 'ground',
       droneAmmo: 4,
       spawnMetal: 100,
     });
 
     expect(result['customparams.carried_unit']).toBe('');
-    expect(result['customparams.spawns_name']).toBe('corjugg_custom');
-    expect(result['customparams.spawn_name']).toBe('corjugg_custom');
+    expect(result['customparams.spawns_name']).toBe('corjugg_custom,armantiodrone,corvamp');
+    expect(result['customparams.spawns_types']).toBe('ground,air');
   });
 });
