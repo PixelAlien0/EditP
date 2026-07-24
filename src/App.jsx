@@ -1613,8 +1613,9 @@ export default function App() {
       weaponLibrary,
       deathExplosionTweaks,
       supportingWeaponDefs,
+      tweaks,
     });
-  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, activeFactoryRosters, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, weaponLibrary, deathExplosionTweaks, supportingWeaponDefs]);
+  }, [tweakDefsLua, clones, buildMenuSteps, disabledUnitIds, activeFactoryRosters, projectName, projectAuthor, projectDesc, includeClones, includeRosters, includeHeader, weaponLibrary, deathExplosionTweaks, supportingWeaponDefs, tweaks]);
 
   const tweakDefsB64 = useMemo(() => {
     if (!generatedTweakDefsLua.trim()) return '';

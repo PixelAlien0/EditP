@@ -8,6 +8,8 @@ export const DEATH_PROFILE_BEGIN = '-- EDITP_DEATH_PROFILES_BEGIN';
 export const DEATH_PROFILE_END = '-- EDITP_DEATH_PROFILES_END';
 export const SUPPORTING_WEAPONDEFS_BEGIN = '-- EDITP_SUPPORTING_WEAPONDEFS_BEGIN';
 export const SUPPORTING_WEAPONDEFS_END = '-- EDITP_SUPPORTING_WEAPONDEFS_END';
+export const CARRIER_LINKAGE_BEGIN = '-- EDITP_CARRIER_LINKAGE_BEGIN';
+export const CARRIER_LINKAGE_END = '-- EDITP_CARRIER_LINKAGE_END';
 
 
 function escapeLuaString(str) {
@@ -496,6 +498,10 @@ function generateAddListLua(addArr) {
   return lines.join('\n');
 }
 
+
+
+
+
 export function generateSingleBuilderDeltaLua(step) {
   const builderId = step.builderId.trim();
   if (!builderId) return '';
@@ -599,6 +605,97 @@ export function extractBlock(luaScript, beginMarker, endMarker) {
   return trimScript.slice(startIdx, endIdx + endMarker.length);
 }
 
+export function generateCarrierLinkagesBlockLua(tweaks = {}) {
+  const entries = [];
+  Object.entries(tweaks).forEach(([unitId, unitTweaks]) => {
+    if (!unitTweaks) return;
+    const targetChild = unitTweaks['customparams.spawns_name']
+      ?? unitTweaks['customparams.spawns']
+      ?? unitTweaks['customparams.carried_unit']
+      ?? unitTweaks['customparams.spawn_name']
+      ?? unitTweaks['customparams.spawn_unit'];
+
+    if (!targetChild) return;
+
+    const childUnits = String(targetChild)
+      .split(',')
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (childUnits.length === 0) return;
+
+    const primaryChild = childUnits[0];
+    const isGround = unitTweaks['customparams.carried_unit'] === '';
+
+    entries.push({
+      unitId: unitId.toLowerCase(),
+      primaryChild,
+      allChildren: childUnits,
+      isGround,
+      droneAmmo: String(unitTweaks['customparams.droneammo'] || unitTweaks['customparams.spawn_count'] || '4'),
+      spawnMetal: String(unitTweaks['customparams.spawn_metal_cost'] || '100'),
+      spawnEnergy: String(unitTweaks['customparams.spawn_energy_cost'] || '1000'),
+      spawnInterval: String(unitTweaks['customparams.spawn_interval'] || unitTweaks['customparams.spawn_rate'] || '5'),
+      returnHp: String(unitTweaks['customparams.drone_return_hp'] || '25'),
+    });
+  });
+
+  if (entries.length === 0) return '';
+
+  return `${CARRIER_LINKAGE_BEGIN}
+local editp_carrier_linkages = ${serializeLuaTable({ entries })}
+
+for _, entry in ipairs(editp_carrier_linkages.entries) do
+  local u = UnitDefs and UnitDefs[entry.unitId]
+  if u then
+    u.customparams = u.customparams or {}
+    if entry.isGround then
+      u.customparams.carried_unit = ""
+    else
+      u.customparams.carried_unit = entry.primaryChild
+    end
+    local commaChildren = table.concat(entry.allChildren, ",")
+    u.customparams.spawns_name = commaChildren
+    u.customparams.spawn_name = commaChildren
+    u.customparams.spawn_unit = commaChildren
+    u.customparams.spawns = commaChildren
+    u.customparams.spawn = commaChildren
+    u.customparams.spawntype = entry.isGround and "ground,air" or "air"
+    u.customparams.spawns_units = commaChildren
+    u.customparams.spawns_types = entry.isGround and "ground,air" or "air"
+    u.customparams.droneammo = tostring(entry.droneAmmo)
+    u.customparams.spawn_count = tostring(entry.droneAmmo)
+    u.customparams.spawn_metal_cost = tostring(entry.spawnMetal)
+    u.customparams.spawn_energy_cost = tostring(entry.spawnEnergy)
+    u.customparams.spawn_interval = tostring(entry.spawnInterval)
+    u.customparams.spawn_rate = tostring(entry.spawnInterval)
+
+    u.buildoptions = entry.allChildren
+
+    if type(u.weapondefs) == "table" then
+      for _, wDef in pairs(u.weapondefs) do
+        if type(wDef) == "table" then
+          wDef.customparams = wDef.customparams or {}
+          if wDef.customparams.carried_unit or wDef.customparams.spawns_name or wDef.customparams.maxunits then
+            if entry.isGround then
+              wDef.customparams.carried_unit = ""
+            else
+              wDef.customparams.carried_unit = entry.primaryChild
+            end
+            wDef.customparams.spawns_name = commaChildren
+            wDef.customparams.spawn_name = commaChildren
+            wDef.customparams.spawn_unit = commaChildren
+            wDef.customparams.spawns = commaChildren
+            wDef.customparams.spawn = commaChildren
+          end
+        end
+      end
+    end
+  end
+end
+${CARRIER_LINKAGE_END}`;
+}
+
 export function compileTweakDefsLua({ 
   currentTweakDefsLua, 
   customUnitClones, 
@@ -610,6 +707,7 @@ export function compileTweakDefsLua({
   weaponLibrary = [],
   deathExplosionTweaks = [],
   supportingWeaponDefs = [],
+  tweaks = {},
 }) {
   // Strip out any existing comments or headers that start with "-- Mod Name:" to avoid piling up duplicate headers
   const strippedText = currentTweakDefsLua
@@ -623,13 +721,16 @@ export function compileTweakDefsLua({
 
   const cleanBody = stripBlock(stripBlock(
     stripBlock(stripBlock(
-      strippedText,
-      LEGACY_BUILDMENU_BEGIN,
-      LEGACY_BUILDMENU_END,
-    ), BUILDMENU_BEGIN, BUILDMENU_END),
-    DEATH_PROFILE_BEGIN,
-    DEATH_PROFILE_END,
-  ), SUPPORTING_WEAPONDEFS_BEGIN, SUPPORTING_WEAPONDEFS_END).trim();
+      stripBlock(
+        strippedText,
+        LEGACY_BUILDMENU_BEGIN,
+        LEGACY_BUILDMENU_END,
+      ), BUILDMENU_BEGIN, BUILDMENU_END),
+      DEATH_PROFILE_BEGIN,
+      DEATH_PROFILE_END,
+    ), SUPPORTING_WEAPONDEFS_BEGIN, SUPPORTING_WEAPONDEFS_END),
+    CARRIER_LINKAGE_BEGIN, CARRIER_LINKAGE_END
+  ).trim();
   
   const includeCloneDefinitions = compileFlags?.includeClones ?? true;
   const clonesBlock = includeCloneDefinitions
@@ -650,18 +751,19 @@ export function compileTweakDefsLua({
     : '';
   const deathProfileBlock = generateDeathProfilesBlockLua(deathExplosionTweaks);
   const supportingWeaponDefsBlock = generateSupportingWeaponDefsBlockLua(supportingWeaponDefs);
+  const carrierLinkagesBlock = generateCarrierLinkagesBlockLua(tweaks);
   
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);
   if (clonesBlock.length > 0) {
     parts.push(`do\n${clonesBlock}\nend`);
   }
+  if (carrierLinkagesBlock.length > 0) parts.push(carrierLinkagesBlock);
   if (supportingWeaponDefsBlock.length > 0) parts.push(supportingWeaponDefsBlock);
   if (buildMenuBlock.length > 0) {
     parts.push(`${BUILDMENU_BEGIN}\n${buildMenuBlock}\n${BUILDMENU_END}`);
   }
   if (deathProfileBlock.length > 0) parts.push(deathProfileBlock);
-  
   const headerLines = [];
   if (projectMeta) {
     headerLines.push(
