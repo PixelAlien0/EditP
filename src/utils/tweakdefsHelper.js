@@ -788,6 +788,41 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     end
   end
 end
+
+if gadgetHandler then
+  local editp_selectable_gadget = {
+    name = "EditP_Selectable_Units_Fix",
+    desc = "Ensures spawned custom units are selectable and controllable by player",
+    author = "BAR Editor",
+    date = "2026",
+    license = "GNU GPL, v2 or later",
+    layer = 1000,
+    enabled = true
+  }
+
+  function editp_selectable_gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
+    local uDef = UnitDefs and UnitDefs[unitDefID]
+    if uDef then
+      local cp = uDef.customparams or {}
+      if cp.is_controllable == "1" or cp.canselect == "1" or uDef.canselect == true then
+        if Spring and Spring.SetUnitNoSelect then
+          Spring.SetUnitNoSelect(unitID, false)
+        end
+        if Spring and Spring.SetUnitStealth then
+          Spring.SetUnitStealth(unitID, false)
+        end
+        if Spring and Spring.SetUnitNoMinimap then
+          Spring.SetUnitNoMinimap(unitID, false)
+        end
+        if Spring and Spring.SetUnitNeutral then
+          Spring.SetUnitNeutral(unitID, false)
+        end
+      end
+    end
+  end
+
+  gadgetHandler:AddGadget(editp_selectable_gadget)
+end
 ${CARRIER_LINKAGE_END}`;
 }
 
