@@ -201,7 +201,8 @@
   line-height: 1;
 }
 
-:is(.app-header, [data-theme="dark"]) .header-create-action {
+.app-header .header-utility-actions .header-create-action,
+[data-theme="dark"] .app-header .header-utility-actions .header-create-action {
   min-width: 108px;
   min-height: 40px;
   height: 40px;
