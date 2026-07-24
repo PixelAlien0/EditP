@@ -80,6 +80,7 @@ export default function CarrierDroneWorkbenchDialog({
 
   const [parentUnitId, setParentUnitId] = useState(defaultParent);
   const [carriedUnit, setCarriedUnit] = useState(initialConfig.carriedUnit || 'armantiodrone');
+  const [deployMode, setDeployMode] = useState(initialConfig.deployMode || 'air');
   const [droneAmmo, setDroneAmmo] = useState(initialConfig.droneAmmo || 6);
   const [spawnMetal, setSpawnMetal] = useState(initialConfig.spawnMetal || 120);
   const [spawnEnergy, setSpawnEnergy] = useState(initialConfig.spawnEnergy || 1200);
@@ -134,6 +135,7 @@ export default function CarrierDroneWorkbenchDialog({
     if (cfg.carriedUnit && allAvailableUnits.some(u => u.id.toLowerCase() === cfg.carriedUnit.toLowerCase())) {
       setCarriedUnit(cfg.carriedUnit);
     }
+    if (cfg.deployMode) setDeployMode(cfg.deployMode);
     if (cfg.droneAmmo) setDroneAmmo(cfg.droneAmmo);
     if (cfg.spawnMetal) setSpawnMetal(cfg.spawnMetal);
     if (cfg.spawnEnergy) setSpawnEnergy(cfg.spawnEnergy);
@@ -149,6 +151,7 @@ export default function CarrierDroneWorkbenchDialog({
       parentUnitId,
       carriedUnit,
       spawnsName: carriedUnit,
+      deployMode,
       droneAmmo,
       spawnMetal,
       spawnEnergy,
@@ -237,6 +240,28 @@ export default function CarrierDroneWorkbenchDialog({
             </div>
 
             <div className="carrier-workbench__typebox-grid">
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Deployment System Mode</label>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                  <button
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${deployMode === 'air' ? 'is-active' : ''}`}
+                    onClick={() => setDeployMode('air')}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                  >
+                    Air Fighter Drone (Aircraft Carrier / Hangar)
+                  </button>
+                  <button
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${deployMode === 'ground' ? 'is-active' : ''}`}
+                    onClick={() => setDeployMode('ground')}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                  >
+                    Ground / Assault Unit Spawner (Hive / Building)
+                  </button>
+                </div>
+              </div>
+
               <div className="form-group">
                 <label htmlFor="input-payload-capacity">Hangar Payload Capacity (droneammo)</label>
                 <input

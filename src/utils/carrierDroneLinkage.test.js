@@ -60,4 +60,18 @@ describe('carrierDroneLinkage', () => {
       'customparams.drone_return_hp': '30',
     });
   });
+
+  it('clears carried_unit in ground mode so air carrier gadget does not hijack ground spawner', () => {
+    const result = buildCarrierLinkageTweaks({
+      parentUnitId: 'behehive',
+      carriedUnit: 'corjugg_custom',
+      deployMode: 'ground',
+      droneAmmo: 4,
+      spawnMetal: 100,
+    });
+
+    expect(result['customparams.carried_unit']).toBe('');
+    expect(result['customparams.spawns_name']).toBe('corjugg_custom');
+    expect(result['customparams.spawn_name']).toBe('corjugg_custom');
+  });
 });

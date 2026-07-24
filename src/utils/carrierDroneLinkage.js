@@ -71,16 +71,24 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
   const unitTweaks = tweaks[unitId] || {};
   const defaults = defaultsDb[unitId] || {};
 
-  const targetChild = unitTweaks['customparams.spawns']
-    ?? unitTweaks['customparams.spawns_name']
+  const targetChild = unitTweaks['customparams.spawns_name']
+    ?? unitTweaks['customparams.spawns']
     ?? unitTweaks['customparams.carried_unit']
     ?? unitTweaks['customparams.spawn_name']
     ?? unitTweaks['customparams.spawn_unit']
     ?? unitTweaks['customparams.spawn']
-    ?? defaults.customparams?.spawns
     ?? defaults.customparams?.spawns_name
     ?? defaults.customparams?.carried_unit
     ?? '';
+
+  const hasCarriedUnit = Boolean(unitTweaks['customparams.carried_unit'] && unitTweaks['customparams.carried_unit'] !== '');
+  const isGroundSpawner = Boolean(
+    unitTweaks['customparams.spawns_name'] ||
+    unitTweaks['customparams.spawns'] ||
+    unitId.includes('hive') ||
+    unitId.includes('spawner') ||
+    !hasCarriedUnit
+  );
 
   const droneAmmo = Number(unitTweaks['customparams.droneammo'] ?? defaults.customparams?.droneammo ?? 4);
   const spawnMetal = Number(unitTweaks['customparams.spawn_metal_cost'] ?? defaults.customparams?.spawn_metal_cost ?? 100);
@@ -92,6 +100,7 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
     parentUnitId: unitId,
     carriedUnit: String(targetChild).trim(),
     spawnsName: String(targetChild).trim(),
+    deployMode: isGroundSpawner ? 'ground' : 'air',
     droneAmmo: Number.isFinite(droneAmmo) && droneAmmo > 0 ? droneAmmo : 4,
     spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
     spawnEnergy: Number.isFinite(spawnEnergy) ? spawnEnergy : 1000,
@@ -109,6 +118,25 @@ export function buildCarrierLinkageTweaks(config) {
   }
 
   const childId = String(config.carriedUnit || config.spawnsName).trim().toLowerCase();
+  const isGroundMode = config.deployMode === 'ground';
+
+  if (isGroundMode) {
+    return {
+      'customparams.carried_unit': '', // Clear carried_unit so air carrier gadget does not hijack ground spawner
+      'customparams.spawns_name': childId,
+      'customparams.spawn_name': childId,
+      'customparams.spawn_unit': childId,
+      'customparams.spawns': childId,
+      'customparams.spawn': childId,
+      'customparams.spawntype': childId,
+      'customparams.spawns_units': childId,
+      'customparams.droneammo': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
+      'customparams.spawn_metal_cost': String(Math.max(0, Math.round(config.spawnMetal || 0))),
+      'customparams.spawn_energy_cost': String(Math.max(0, Math.round(config.spawnEnergy || 0))),
+      'customparams.spawn_interval': String(Math.max(1, Math.round(config.spawnInterval || 5))),
+      'customparams.drone_return_hp': String(Math.max(0, Math.min(100, Math.round(config.returnHp || 25)))),
+    };
+  }
 
   return {
     'customparams.carried_unit': childId,
