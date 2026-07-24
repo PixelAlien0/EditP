@@ -649,20 +649,16 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
   local u = UnitDefs and UnitDefs[entry.unitId]
   if u then
     u.customparams = u.customparams or {}
-    if entry.isGround then
-      u.customparams.carried_unit = ""
-    else
-      u.customparams.carried_unit = entry.primaryChild
-    end
+    u.customparams.carried_unit = entry.primaryChild
     local commaChildren = table.concat(entry.allChildren, ",")
     u.customparams.spawns_name = commaChildren
     u.customparams.spawn_name = commaChildren
     u.customparams.spawn_unit = commaChildren
     u.customparams.spawns = commaChildren
     u.customparams.spawn = commaChildren
-    u.customparams.spawntype = entry.isGround and "ground,air" or "air"
+    u.customparams.spawntype = entry.isGround and "ground" or "air"
     u.customparams.spawns_units = commaChildren
-    u.customparams.spawns_types = entry.isGround and "ground,air" or "air"
+    u.customparams.spawns_types = entry.isGround and "ground" or "air"
     u.customparams.droneammo = tostring(entry.droneAmmo)
     u.customparams.spawn_count = tostring(entry.droneAmmo)
     u.customparams.spawn_metal_cost = tostring(entry.spawnMetal)
@@ -677,11 +673,7 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
         if type(wDef) == "table" then
           wDef.customparams = wDef.customparams or {}
           if wDef.customparams.carried_unit or wDef.customparams.spawns_name or wDef.customparams.maxunits then
-            if entry.isGround then
-              wDef.customparams.carried_unit = ""
-            else
-              wDef.customparams.carried_unit = entry.primaryChild
-            end
+            wDef.customparams.carried_unit = entry.primaryChild
             wDef.customparams.spawns_name = commaChildren
             wDef.customparams.spawn_name = commaChildren
             wDef.customparams.spawn_unit = commaChildren

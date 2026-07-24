@@ -137,15 +137,15 @@ export function buildCarrierLinkageTweaks(config) {
   const isGroundMode = config.deployMode === 'ground';
 
   return {
-    'customparams.carried_unit': isGroundMode ? '' : primaryId,
+    'customparams.carried_unit': primaryId,
     'customparams.spawns_name': commaRoster,
     'customparams.spawn_name': commaRoster,
     'customparams.spawn_unit': commaRoster,
     'customparams.spawns': commaRoster,
     'customparams.spawn': commaRoster,
-    'customparams.spawntype': isGroundMode ? 'ground,air' : 'air',
+    'customparams.spawntype': isGroundMode ? 'ground' : 'air',
     'customparams.spawns_units': commaRoster,
-    'customparams.spawns_types': isGroundMode ? 'ground,air' : 'air',
+    'customparams.spawns_types': isGroundMode ? 'ground' : 'air',
     'customparams.droneammo': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
     'customparams.spawn_count': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
     'customparams.spawn_metal_cost': String(Math.max(0, Math.round(config.spawnMetal || 0))),
