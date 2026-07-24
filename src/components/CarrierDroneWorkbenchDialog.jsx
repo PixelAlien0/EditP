@@ -6,7 +6,7 @@ import {
   getCarrierLinkageConfig,
 } from '../utils/carrierDroneLinkage.js';
 import UnitArtwork from './UnitArtwork.jsx';
-import { Button, Dialog, IconButton, SelectField, Switch } from './ui.jsx';
+import { Button, Dialog, IconButton } from './ui.jsx';
 
 export default function CarrierDroneWorkbenchDialog({
   open,
@@ -22,7 +22,7 @@ export default function CarrierDroneWorkbenchDialog({
   const titleId = useId();
   const descriptionId = useId();
 
-  // Combine real units + custom clones for carrier & drone pickers
+  // Validate and combine all existing real units + project clones
   const allAvailableUnits = useMemo(() => {
     const cloneList = clones.map(c => ({
       id: c.newId.toLowerCase(),
@@ -31,24 +31,32 @@ export default function CarrierDroneWorkbenchDialog({
       isClone: true,
     }));
     const existingIds = new Set(cloneList.map(c => c.id));
-    const baseList = units.filter(u => !existingIds.has(u.id.toLowerCase()));
+    const baseList = units.filter(u => Boolean(u?.id) && !existingIds.has(u.id.toLowerCase()));
     return [...cloneList, ...baseList];
   }, [units, clones]);
 
-  // Initial state derived from selected unit or first preset
-  const initialParentId = selectedUnit ? selectedUnit.id.toLowerCase() : 'armcarrier';
+  // Initial unit selection
+  const defaultParent = selectedUnit && allAvailableUnits.some(u => u.id.toLowerCase() === selectedUnit.id.toLowerCase())
+    ? selectedUnit.id.toLowerCase()
+    : (allAvailableUnits.find(u => u.id.toLowerCase() === 'armcarrier')?.id || allAvailableUnits[0]?.id || 'armcarrier');
+
   const initialConfig = useMemo(
-    () => getCarrierLinkageConfig(initialParentId, tweaks, defaultsDb),
-    [initialParentId, tweaks, defaultsDb]
+    () => getCarrierLinkageConfig(defaultParent, tweaks, defaultsDb),
+    [defaultParent, tweaks, defaultsDb]
   );
 
-  const [parentUnitId, setParentUnitId] = useState(initialParentId);
+  const [parentUnitId, setParentUnitId] = useState(defaultParent);
   const [carriedUnit, setCarriedUnit] = useState(initialConfig.carriedUnit || 'armantiodrone');
   const [droneAmmo, setDroneAmmo] = useState(initialConfig.droneAmmo || 6);
   const [spawnMetal, setSpawnMetal] = useState(initialConfig.spawnMetal || 120);
   const [spawnEnergy, setSpawnEnergy] = useState(initialConfig.spawnEnergy || 1200);
   const [spawnInterval, setSpawnInterval] = useState(initialConfig.spawnInterval || 5);
   const [returnHp, setReturnHp] = useState(initialConfig.returnHp || 25);
+
+  // Unit Selector Modal State (Parent or Child)
+  const [pickerTarget, setPickerTarget] = useState(null); // 'parent' | 'child' | null
+  const [pickerQuery, setPickerQuery] = useState('');
+  const [pickerFaction, setPickerFaction] = useState('all');
 
   const parentUnitInfo = useMemo(
     () => allAvailableUnits.find(u => u.id.toLowerCase() === parentUnitId.toLowerCase()) || { id: parentUnitId, name: parentUnitId },
@@ -60,9 +68,26 @@ export default function CarrierDroneWorkbenchDialog({
     [allAvailableUnits, carriedUnit]
   );
 
+  // Filtered unit list for the selection modal
+  const filteredPickerUnits = useMemo(() => {
+    const q = pickerQuery.trim().toLowerCase();
+    return allAvailableUnits.filter(u => {
+      if (pickerFaction !== 'all' && u.faction !== pickerFaction) return false;
+      if (!q) return true;
+      return u.name.toLowerCase().includes(q) || u.id.toLowerCase().includes(q);
+    });
+  }, [allAvailableUnits, pickerQuery, pickerFaction]);
+
   const handleApplyPreset = preset => {
-    setParentUnitId(preset.parentUnitId);
-    setCarriedUnit(preset.childUnitId);
+    const validParent = allAvailableUnits.some(u => u.id.toLowerCase() === preset.parentUnitId.toLowerCase())
+      ? preset.parentUnitId
+      : parentUnitId;
+    const validChild = allAvailableUnits.some(u => u.id.toLowerCase() === preset.childUnitId.toLowerCase())
+      ? preset.childUnitId
+      : carriedUnit;
+
+    setParentUnitId(validParent);
+    setCarriedUnit(validChild);
     setDroneAmmo(preset.capacity);
     setSpawnInterval(preset.spawnInterval);
     setSpawnMetal(preset.metalCost);
@@ -70,10 +95,12 @@ export default function CarrierDroneWorkbenchDialog({
     setReturnHp(preset.returnHpPercent);
   };
 
-  const handleParentChange = newParentId => {
+  const handleParentSelect = newParentId => {
     setParentUnitId(newParentId);
     const cfg = getCarrierLinkageConfig(newParentId, tweaks, defaultsDb);
-    if (cfg.carriedUnit) setCarriedUnit(cfg.carriedUnit);
+    if (cfg.carriedUnit && allAvailableUnits.some(u => u.id.toLowerCase() === cfg.carriedUnit.toLowerCase())) {
+      setCarriedUnit(cfg.carriedUnit);
+    }
     if (cfg.droneAmmo) setDroneAmmo(cfg.droneAmmo);
     if (cfg.spawnMetal) setSpawnMetal(cfg.spawnMetal);
     if (cfg.spawnEnergy) setSpawnEnergy(cfg.spawnEnergy);
@@ -124,159 +151,129 @@ export default function CarrierDroneWorkbenchDialog({
       <form onSubmit={handleSave}>
         <header className="carrier-workbench__header">
           <div className="carrier-workbench__heading">
-            <span className="carrier-workbench__eyebrow">Visual Hangar Studio</span>
+            <span className="carrier-workbench__eyebrow">Flight Deck Engineering</span>
             <h2 id={titleId}>Carrier &amp; Deployed Drone Linkage Workbench</h2>
-            <p id={descriptionId}>Connect parent warship chassis with child fighter drones, hangar capacities, and spawn mechanics.</p>
+            <p id={descriptionId}>Connect parent warship chassis with child fighter drones, hangar capacities, and deployment metrics.</p>
           </div>
           <IconButton label="Close carrier workbench" variant="quiet" size="sm" onClick={onClose}>×</IconButton>
         </header>
 
         <div className="carrier-workbench__body">
-          {/* Visual Flight-Deck Link Diagram */}
+          {/* Visual Flight-Deck Diagram with Rich Interactive Picker Cards */}
           <section className="carrier-workbench__deck-diagram">
-            <div className="carrier-workbench__card">
+            <button
+              type="button"
+              className="carrier-workbench__picker-card"
+              onClick={() => { setPickerTarget('parent'); setPickerQuery(''); setPickerFaction('all'); }}
+              title="Click to select Parent Carrier Chassis"
+            >
               <UnitArtwork unitId={parentUnitInfo.id} className="carrier-workbench__card-art" alt="" />
               <div className="carrier-workbench__card-info">
                 <span className="carrier-workbench__card-role">Parent Carrier Chassis</span>
                 <span className="carrier-workbench__card-title">{parentUnitInfo.name}</span>
                 <code className="carrier-workbench__card-code">{parentUnitInfo.id}</code>
               </div>
-            </div>
+              <span className="carrier-workbench__card-change">Change ▾</span>
+            </button>
 
             <div className="carrier-workbench__link-bus" aria-hidden="true">
               <span className="carrier-workbench__link-arrow">➔</span>
-              <small style={{ fontSize: '9px', fontWeight: 'bold' }}>{droneAmmo} Drones</small>
+              <span className="carrier-workbench__link-badge">{droneAmmo} Drones</span>
             </div>
 
-            <div className="carrier-workbench__card">
+            <button
+              type="button"
+              className="carrier-workbench__picker-card"
+              onClick={() => { setPickerTarget('child'); setPickerQuery(''); setPickerFaction('all'); }}
+              title="Click to select Deployed Child Drone"
+            >
               <UnitArtwork unitId={childUnitInfo.id} className="carrier-workbench__card-art" alt="" />
               <div className="carrier-workbench__card-info">
                 <span className="carrier-workbench__card-role">Deployed Child Drone</span>
                 <span className="carrier-workbench__card-title">{childUnitInfo.name}</span>
                 <code className="carrier-workbench__card-code">{childUnitInfo.id}</code>
               </div>
-            </div>
+              <span className="carrier-workbench__card-change">Change ▾</span>
+            </button>
           </section>
 
-          {/* Quick Presets */}
+          {/* Numeric Typeboxes for Parameters */}
           <section className="carrier-workbench__section">
             <div className="carrier-workbench__section-title">
-              <span>01. Archetype Presets</span>
+              <span>01. Hangar &amp; Deployment Parameters</span>
             </div>
-            <div className="carrier-workbench__presets">
-              {CARRIER_ARCHETYPES.map(preset => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  className="carrier-workbench__preset-card"
-                  onClick={() => handleApplyPreset(preset)}
-                >
-                  <strong>⚡ {preset.name}</strong>
-                  <span>{preset.description}</span>
-                </button>
-              ))}
-            </div>
-          </section>
 
-          {/* Unit Pickers & Controls Grid */}
-          <div className="carrier-workbench__grid">
-            {/* Column 1: Parent & Child Selection */}
-            <section className="carrier-workbench__section">
-              <div className="carrier-workbench__section-title">
-                <span>02. Unit Roster Configuration</span>
+            <div className="carrier-workbench__typebox-grid">
+              <div className="form-group">
+                <label htmlFor="input-payload-capacity">Hangar Payload Capacity (`droneammo`)</label>
+                <input
+                  id="input-payload-capacity"
+                  type="number"
+                  className="form-input"
+                  min="1"
+                  max="50"
+                  value={droneAmmo}
+                  onChange={e => setDroneAmmo(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                />
               </div>
 
-              <SelectField
-                label="Parent Carrier Chassis"
-                value={parentUnitId}
-                onChange={e => handleParentChange(e.target.value)}
-              >
-                {allAvailableUnits.map(u => (
-                  <option key={u.id} value={u.id}>
-                    {u.isClone ? `[Clone] ${u.name}` : u.name} ({u.id})
-                  </option>
-                ))}
-              </SelectField>
+              <div className="form-group">
+                <label htmlFor="input-spawn-interval">Deployment Delay (seconds)</label>
+                <input
+                  id="input-spawn-interval"
+                  type="number"
+                  className="form-input"
+                  min="1"
+                  max="120"
+                  value={spawnInterval}
+                  onChange={e => setSpawnInterval(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                />
+              </div>
 
-              <SelectField
-                label="Deployed Child Drone Unit"
-                value={carriedUnit}
-                onChange={e => setCarriedUnit(e.target.value)}
-              >
-                {allAvailableUnits.map(u => (
-                  <option key={u.id} value={u.id}>
-                    {u.isClone ? `[Clone] ${u.name}` : u.name} ({u.id})
-                  </option>
-                ))}
-              </SelectField>
+              <div className="form-group">
+                <label htmlFor="input-return-hp">Auto-Return HP Threshold (%)</label>
+                <input
+                  id="input-return-hp"
+                  type="number"
+                  className="form-input"
+                  min="0"
+                  max="100"
+                  value={returnHp}
+                  onChange={e => setReturnHp(Math.max(0, Math.min(100, parseInt(e.target.value, 10) || 0)))}
+                />
+              </div>
 
-              <div style={{ marginTop: '4px' }}>
+              <div className="form-group">
+                <label htmlFor="input-spawn-metal">Spawn Metal Cost</label>
+                <input
+                  id="input-spawn-metal"
+                  type="number"
+                  className="form-input"
+                  min="0"
+                  value={spawnMetal}
+                  onChange={e => setSpawnMetal(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-spawn-energy">Spawn Energy Cost</label>
+                <input
+                  id="input-spawn-energy"
+                  type="number"
+                  className="form-input"
+                  min="0"
+                  value={spawnEnergy}
+                  onChange={e => setSpawnEnergy(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                 <Button type="button" variant="secondary" size="sm" onClick={handleQuickCreateDroneClone}>
                   ➕ Create Custom Clone of "{childUnitInfo.name}"
                 </Button>
               </div>
-            </section>
-
-            {/* Column 2: Hangar & Launch Parameters */}
-            <section className="carrier-workbench__section">
-              <div className="carrier-workbench__section-title">
-                <span>03. Hangar &amp; Deployment Parameters</span>
-              </div>
-
-              <div className="carrier-workbench__slider-group">
-                <div className="carrier-workbench__slider-header">
-                  <label htmlFor="drone-ammo-range">Active Payload Capacity (`droneammo`)</label>
-                  <span>{droneAmmo} units</span>
-                </div>
-                <input
-                  id="drone-ammo-range"
-                  type="range"
-                  min="1"
-                  max="25"
-                  value={droneAmmo}
-                  onChange={e => setDroneAmmo(Number(e.target.value))}
-                />
-              </div>
-
-              <div className="carrier-workbench__slider-group">
-                <div className="carrier-workbench__slider-header">
-                  <label htmlFor="spawn-interval-range">Spawn Delay / Interval (`spawn_interval`)</label>
-                  <span>{spawnInterval}s</span>
-                </div>
-                <input
-                  id="spawn-interval-range"
-                  type="range"
-                  min="1"
-                  max="30"
-                  value={spawnInterval}
-                  onChange={e => setSpawnInterval(Number(e.target.value))}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label htmlFor="spawn-metal">Spawn Metal Cost</label>
-                  <input
-                    id="spawn-metal"
-                    type="number"
-                    className="form-input"
-                    value={spawnMetal}
-                    onChange={e => setSpawnMetal(Number(e.target.value))}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="spawn-energy">Spawn Energy Cost</label>
-                  <input
-                    id="spawn-energy"
-                    type="number"
-                    className="form-input"
-                    value={spawnEnergy}
-                    onChange={e => setSpawnEnergy(Number(e.target.value))}
-                  />
-                </div>
-              </div>
-            </section>
-          </div>
+            </div>
+          </section>
         </div>
 
         <footer className="carrier-workbench__footer">
@@ -289,6 +286,78 @@ export default function CarrierDroneWorkbenchDialog({
           </div>
         </footer>
       </form>
+
+      {/* Rich Searchable Unit Selection Modal */}
+      {pickerTarget && (
+        <Dialog
+          open={Boolean(pickerTarget)}
+          onClose={() => setPickerTarget(null)}
+          className="carrier-workbench__picker-dialog"
+          overlayClassName="carrier-workbench-overlay"
+        >
+          <header className="carrier-workbench__picker-header">
+            <h3>Select {pickerTarget === 'parent' ? 'Parent Carrier Chassis' : 'Deployed Child Drone'}</h3>
+            <IconButton label="Close unit picker" variant="quiet" size="sm" onClick={() => setPickerTarget(null)}>×</IconButton>
+          </header>
+
+          <div className="carrier-workbench__picker-body">
+            <div className="carrier-workbench__picker-filters">
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search unit by name or ID..."
+                value={pickerQuery}
+                onChange={e => setPickerQuery(e.target.value)}
+                autoFocus
+              />
+
+              <div className="carrier-workbench__faction-chips">
+                {['all', 'arm', 'cor', 'leg', 'rap', 'scav'].map(f => (
+                  <button
+                    key={f}
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${pickerFaction === f ? 'is-active' : ''}`}
+                    onClick={() => setPickerFaction(f)}
+                  >
+                    {f.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="carrier-workbench__picker-results">
+              {filteredPickerUnits.map(unit => (
+                <button
+                  key={unit.id}
+                  type="button"
+                  className={`carrier-workbench__unit-option ${(pickerTarget === 'parent' ? parentUnitId : carriedUnit) === unit.id ? 'is-selected' : ''}`}
+                  onClick={() => {
+                    if (pickerTarget === 'parent') {
+                      handleParentSelect(unit.id);
+                    } else {
+                      setCarriedUnit(unit.id);
+                    }
+                    setPickerTarget(null);
+                  }}
+                >
+                  <UnitArtwork unitId={unit.id} className="carrier-workbench__unit-option-art" alt="" />
+                  <div className="carrier-workbench__unit-option-info">
+                    <strong>{unit.name} {unit.isClone ? '(Clone)' : ''}</strong>
+                    <code>{unit.id}</code>
+                  </div>
+                  <span className="carrier-workbench__unit-option-faction">{unit.faction?.toUpperCase() || 'ALL'}</span>
+                </button>
+              ))}
+
+              {filteredPickerUnits.length === 0 && (
+                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                  No units found matching "{pickerQuery}".
+                </div>
+              )}
+            </div>
+          </div>
+        </Dialog>
+      )}
     </Dialog>
   );
 }
