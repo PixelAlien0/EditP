@@ -1,6 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Button, Dialog, IconButton } from '../ui.jsx';
-import CegParticleCanvas from '../ui/CegParticleCanvas.jsx';
 import SoundPreviewButton from '../ui/SoundPreviewButton.jsx';
 import {
   ASSET_TYPE_LABELS,
@@ -25,7 +24,6 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
   const known = isKnownBarAsset(assetType, value);
   const currentPreviewUrl = getAssetPreviewUrl(assetType, value);
   const isVisualBrowser = assetType === 'buildPicture' || assetType === 'iconType';
-  const isCegBrowser = assetType === 'ceg' || assetType === 'explosiongenerator';
   useEffect(() => {
     if ((assetType !== 'iconType' && assetType !== 'sound') || (!open && !value)) return undefined;
     let active = true;
@@ -90,11 +88,6 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
           </div>
           <IconButton variant="quiet" label="Close asset browser" onClick={() => setOpen(false)}>×</IconButton>
         </header>
-        {isCegBrowser && (
-          <div className="asset-picker-dialog__ceg-preview">
-            <CegParticleCanvas cegTag={query || value || 'custom:genericshellexplosion-huge'} />
-          </div>
-        )}
         <div className="asset-picker-dialog__search">
           <input
             ref={searchRef}

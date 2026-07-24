@@ -12,14 +12,14 @@ describe('lobby-safe Base64', () => {
     // helper, where standard Base64 emits a literal `+` for the `~` byte.
     const lua = '  if type(value) ~= "table" then return value end';
 
-    expect(encodeBase64(lua)).toContain('+');
+    expect(encodeBase64(lua, { padding: true })).toContain('+');
     const encoded = encodeLobbyBase64(lua);
-    expect(encoded).not.toMatch(/[+/]/);
+    expect(encoded).not.toMatch(/[+/=]/);
     expect(decodeUrlSafeBase64(encoded)).toBe(lua);
   });
 
   it('keeps padding configurable without disabling the safe alphabet', () => {
-    const encoded = encodeLobbyBase64('return true', { padding: false });
+    const encoded = encodeLobbyBase64('return true');
 
     expect(encoded).not.toMatch(/[+/=]/);
     expect(decodeUrlSafeBase64(encoded)).toBe('return true');

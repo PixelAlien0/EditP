@@ -145,8 +145,8 @@ export function compileLobbyModules(projectState, options = {}) {
     ...makeGenerated('units', projectState.generatedTweakUnitsLua),
     ...normalizeImported(imported, 'units', 'after-editor'),
   ];
-  const defs = finalizeSlots(defsBlocks, 'defs', maxDefsSlots, projectState.base64Options?.padding ?? true);
-  const units = finalizeSlots(unitsBlocks, 'units', maxUnitsSlots, projectState.base64Options?.padding ?? true);
+  const defs = finalizeSlots(defsBlocks, 'defs', maxDefsSlots, projectState.base64Options?.padding ?? false);
+  const units = finalizeSlots(unitsBlocks, 'units', maxUnitsSlots, projectState.base64Options?.padding ?? false);
   const overflow = defs.overflow || units.overflow;
   const allSlots = [...defs.slots, ...units.slots];
   return {

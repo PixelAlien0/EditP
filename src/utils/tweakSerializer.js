@@ -60,18 +60,24 @@ export function serializeLuaTable(obj) {
     .join('\n')}\n}`;
 }
 
-export function encodeBase64(str, options = { urlSafe: false, padding: true }) {
+export function encodeBase64(str, options = { urlSafe: false, padding: false }) {
+  if (typeof str !== 'string') {
+    throw new TypeError('Expected string for base64 encoding');
+  }
+
   const bytes = new TextEncoder().encode(str);
   let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
+  for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
   let base64 = btoa(binary);
-  if (options.urlSafe) {
-    base64 = base64.replace(/\+/g, '-').replace(/\//g, '_');
-  }
+
   if (!options.padding) {
     base64 = base64.replace(/=+$/, '');
+  }
+
+  if (options.urlSafe) {
+    base64 = base64.replace(/\+/g, '-').replace(/\//g, '_');
   }
   return base64;
 }
@@ -82,7 +88,7 @@ export function encodeBase64(str, options = { urlSafe: false, padding: true }) {
 export function encodeLobbyBase64(str, options = {}) {
   return encodeBase64(str, {
     urlSafe: true,
-    padding: options.padding ?? true,
+    padding: options.padding ?? false,
   });
 }
 
