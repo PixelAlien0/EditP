@@ -659,8 +659,15 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.spawntype = entry.isGround and "ground" or "air"
     u.customparams.spawns_units = commaChildren
     u.customparams.spawns_types = entry.isGround and "ground" or "air"
-    u.customparams.droneammo = tostring(entry.droneAmmo)
-    u.customparams.spawn_count = tostring(entry.droneAmmo)
+    local countStr = tostring(entry.droneAmmo)
+    u.customparams.droneammo = countStr
+    u.customparams.spawn_count = countStr
+    u.customparams.maxunits = countStr
+    u.customparams.maxdrones = countStr
+    u.customparams.max_units = countStr
+    u.customparams.max_drones = countStr
+    u.customparams.spawns_count = countStr
+    u.customparams.spawns_max = countStr
     u.customparams.spawn_metal_cost = tostring(entry.spawnMetal)
     u.customparams.spawn_energy_cost = tostring(entry.spawnEnergy)
     u.customparams.spawn_interval = tostring(entry.spawnInterval)
@@ -672,13 +679,20 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       for _, wDef in pairs(u.weapondefs) do
         if type(wDef) == "table" then
           wDef.customparams = wDef.customparams or {}
-          if wDef.customparams.carried_unit or wDef.customparams.spawns_name or wDef.customparams.maxunits then
+          if wDef.customparams.carried_unit or wDef.customparams.spawns_name or wDef.customparams.maxunits or wDef.customparams.droneammo then
             wDef.customparams.carried_unit = entry.primaryChild
             wDef.customparams.spawns_name = commaChildren
             wDef.customparams.spawn_name = commaChildren
             wDef.customparams.spawn_unit = commaChildren
             wDef.customparams.spawns = commaChildren
             wDef.customparams.spawn = commaChildren
+            wDef.customparams.maxunits = countStr
+            wDef.customparams.maxdrones = countStr
+            wDef.customparams.max_units = countStr
+            wDef.customparams.max_drones = countStr
+            wDef.customparams.droneammo = countStr
+            wDef.customparams.spawn_count = countStr
+            wDef.customparams.spawns_max = countStr
           end
         end
       end

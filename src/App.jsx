@@ -1498,7 +1498,7 @@ export default function App() {
           setNestedVal(unitPatch, `customparams.${customKey}`, typedValue);
 
           // Apply carrier & spawner parameters to all unit weapon definitions so BAR carrier gadgets update their weapondefs
-          if (['carried_unit', 'spawns_name', 'spawn_name', 'spawn_unit', 'spawns', 'spawntype', 'spawns_types', 'droneammo', 'spawn_count', 'spawn_metal_cost', 'spawn_energy_cost', 'spawn_interval', 'spawn_rate', 'drone_return_hp'].includes(customKey)) {
+          if (['carried_unit', 'spawns_name', 'spawn_name', 'spawn_unit', 'spawns', 'spawntype', 'spawns_types', 'droneammo', 'spawn_count', 'maxunits', 'maxdrones', 'max_units', 'max_drones', 'spawns_count', 'spawns_max', 'spawn_metal_cost', 'spawn_energy_cost', 'spawn_interval', 'spawn_rate', 'drone_return_hp'].includes(customKey)) {
             const activeSlots = getActiveWeaponSlotsForUnit(unitId);
             activeSlots.forEach(slot => {
               if (slot && slot.defKey) {

@@ -136,6 +136,8 @@ export function buildCarrierLinkageTweaks(config) {
 
   const isGroundMode = config.deployMode === 'ground';
 
+  const countStr = String(Math.max(1, Math.min(100, Math.round(config.droneAmmo || 4))));
+
   return {
     'customparams.carried_unit': primaryId,
     'customparams.spawns_name': commaRoster,
@@ -146,8 +148,14 @@ export function buildCarrierLinkageTweaks(config) {
     'customparams.spawntype': isGroundMode ? 'ground' : 'air',
     'customparams.spawns_units': commaRoster,
     'customparams.spawns_types': isGroundMode ? 'ground' : 'air',
-    'customparams.droneammo': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
-    'customparams.spawn_count': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
+    'customparams.droneammo': countStr,
+    'customparams.spawn_count': countStr,
+    'customparams.maxunits': countStr,
+    'customparams.maxdrones': countStr,
+    'customparams.max_units': countStr,
+    'customparams.max_drones': countStr,
+    'customparams.spawns_count': countStr,
+    'customparams.spawns_max': countStr,
     'customparams.spawn_metal_cost': String(Math.max(0, Math.round(config.spawnMetal || 0))),
     'customparams.spawn_energy_cost': String(Math.max(0, Math.round(config.spawnEnergy || 0))),
     'customparams.spawn_interval': String(Math.max(1, Math.round(config.spawnInterval || 5))),
