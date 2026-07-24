@@ -1507,6 +1507,17 @@ export default function App() {
               }
             });
           }
+
+          // Update buildoptions so Hive buildings construct the target spawned units
+          if (customKey === 'spawns_name' || (customKey === 'carried_unit' && typedValue)) {
+            const childUnits = String(typedValue)
+              .split(',')
+              .map(s => s.trim().toLowerCase())
+              .filter(Boolean);
+            if (childUnits.length > 0) {
+              setNestedVal(unitPatch, 'buildoptions', childUnits);
+            }
+          }
           return;
         }
         if (!config) return;
