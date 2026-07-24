@@ -649,18 +649,7 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
   local u = UnitDefs and UnitDefs[entry.unitId]
   if u then
     u.customparams = u.customparams or {}
-    if entry.isControllable ~= false then
-      u.customparams.carried_unit = nil
-      u.customparams.drone = nil
-      u.customparams.is_drone = nil
-      u.customparams.dronetype = nil
-      u.customparams.is_carrier = nil
-    else
-      u.customparams.carried_unit = entry.primaryChild
-    end
-
-    u.buildoptions = entry.allChildren
-
+    u.customparams.carried_unit = entry.primaryChild
     local commaChildren = table.concat(entry.allChildren, ",")
     u.customparams.spawns_name = commaChildren
     u.customparams.spawn_name = commaChildren
@@ -714,6 +703,8 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.tether_drones = (entry.isControllable == false) and "1" or "0"
     u.customparams.no_tether = (entry.isControllable == false) and "0" or "1"
 
+    u.buildoptions = entry.allChildren
+
     if entry.isGround or u.builder or u.workertime then
       u.workertime = math.max(u.workertime or 0, 1000)
     end
@@ -740,11 +731,7 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
           wDef.metalpershot = metalNum
           wDef.energypershot = energyNum
           wDef.customparams = wDef.customparams or {}
-          if entry.isControllable ~= false then
-            wDef.customparams.carried_unit = nil
-          else
-            wDef.customparams.carried_unit = entry.primaryChild
-          end
+          wDef.customparams.carried_unit = entry.primaryChild
           wDef.customparams.spawns_name = commaChildren
           wDef.customparams.spawn_name = commaChildren
           wDef.customparams.spawn_unit = commaChildren
@@ -813,16 +800,18 @@ if gadgetHandler then
     enabled = true
   }
 
-  function editp_selectable_gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
-    local uDef = UnitDefs and UnitDefs[unitDefID]
-    if uDef then
-      local cp = uDef.customparams or {}
-      if cp.is_controllable == "1" or cp.canselect == "1" or uDef.canselect == true then
-        if Spring then
-          if Spring.SetUnitNoSelect then Spring.SetUnitNoSelect(unitID, false) end
-          if Spring.SetUnitStealth then Spring.SetUnitStealth(unitID, false) end
-          if Spring.SetUnitNoMinimap then Spring.SetUnitNoMinimap(unitID, false) end
-          if Spring.SetUnitNeutral then Spring.SetUnitNeutral(unitID, false) end
+  function editp_selectable_gadget:GameFrame(n)
+    if n % 15 == 0 and Spring and Spring.GetAllUnits then
+      for _, unitID in ipairs(Spring.GetAllUnits()) do
+        local unitDefID = Spring.GetUnitDefID(unitID)
+        local uDef = unitDefID and UnitDefs and UnitDefs[unitDefID]
+        if uDef then
+          local cp = uDef.customparams or {}
+          if cp.is_controllable == "1" or cp.canselect == "1" or uDef.canselect == true then
+            if Spring.SetUnitNoSelect then Spring.SetUnitNoSelect(unitID, false) end
+            if Spring.SetUnitStealth then Spring.SetUnitStealth(unitID, false) end
+            if Spring.SetUnitNeutral then Spring.SetUnitNeutral(unitID, false) end
+          end
         end
       end
     end
