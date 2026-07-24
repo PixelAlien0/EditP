@@ -1,12 +1,6 @@
 /**
  * Carrier & Deployed Drone Linkage Utility
- * Maps parent-child unit relationships into Recoil/BAR gadget customparams:
- * - carried_unit (child drone unit ID)
- * - droneammo (max active payload capacity)
- * - spawns_name (spawn unit ID)
- * - spawn_metal_cost / spawn_energy_cost
- * - spawn_interval (seconds)
- * - drone_return_hp (% health threshold)
+ * Maps parent-child unit relationships into Recoil/BAR gadget customparams.
  */
 
 export const CARRIER_ARCHETYPES = [
@@ -91,22 +85,20 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
 
   const hasCarriedUnit = Boolean(unitTweaks['customparams.carried_unit'] && unitTweaks['customparams.carried_unit'] !== '');
   const isGroundSpawner = Boolean(
-    unitTweaks['customparams.spawns_name'] ||
-    unitTweaks['customparams.spawns'] ||
+    unitTweaks['customparams.spawntype'] === 'ground' ||
     unitId.includes('hive') ||
     unitId.includes('spawner') ||
     !hasCarriedUnit
   );
 
-  const droneAmmo = Number(unitTweaks['customparams.droneammo'] ?? unitTweaks['customparams.spawn_count'] ?? defaults.customparams?.droneammo ?? 4);
-  const spawnMetal = Number(unitTweaks['customparams.spawn_metal_cost'] ?? defaults.customparams?.spawn_metal_cost ?? 100);
-  const spawnEnergy = Number(unitTweaks['customparams.spawn_energy_cost'] ?? defaults.customparams?.spawn_energy_cost ?? 1000);
-  const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] ?? unitTweaks['customparams.spawn_rate'] ?? defaults.customparams?.spawn_interval ?? 5);
+  const droneAmmo = Number(unitTweaks['customparams.droneammo'] ?? unitTweaks['customparams.maxunits'] ?? defaults.customparams?.droneammo ?? 4);
+  const spawnMetal = Number(unitTweaks['customparams.spawn_metal_cost'] ?? unitTweaks['customparams.metalcost'] ?? defaults.customparams?.spawn_metal_cost ?? 100);
+  const spawnEnergy = Number(unitTweaks['customparams.spawn_energy_cost'] ?? unitTweaks['customparams.energycost'] ?? defaults.customparams?.spawn_energy_cost ?? 1000);
+  const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] ?? unitTweaks['customparams.spawnrate'] ?? defaults.customparams?.spawn_interval ?? 5);
   const returnHp = Number(unitTweaks['customparams.drone_return_hp'] ?? defaults.customparams?.drone_return_hp ?? 25);
 
   const isControllable = unitTweaks['customparams.carrierdeaththroe'] === 'release' ||
     unitTweaks['customparams.is_controllable'] === '1' ||
-    unitTweaks['customparams.drone_controllable'] === '1' ||
     (unitTweaks['customparams.carrierdeaththroe'] === undefined);
 
   return {
@@ -124,6 +116,18 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
   };
 }
 
+function getCommaSeparatedRoster(config) {
+  const primaryId = String(config.carriedUnit || config.spawnsName || '').trim().toLowerCase();
+  const secondaryList = Array.isArray(config.secondaryUnits)
+    ? config.secondaryUnits.map(u => String(u).trim().toLowerCase()).filter(Boolean)
+    : [];
+
+  return [primaryId, ...secondaryList]
+    .filter(Boolean)
+    .filter((v, idx, arr) => arr.indexOf(v) === idx)
+    .join(',');
+}
+
 /**
  * Formats carrier linkage state into unit tweaks key-value pairs
  */
@@ -133,13 +137,7 @@ export function buildCarrierLinkageTweaks(config) {
   }
 
   const primaryId = String(config.carriedUnit || config.spawnsName).trim().toLowerCase();
-  const secondaryList = Array.isArray(config.secondaryUnits)
-    ? config.secondaryUnits.map(u => String(u).trim().toLowerCase()).filter(Boolean)
-    : [];
-
-  const uniqueRoster = [primaryId, ...secondaryList].filter((v, idx, arr) => arr.indexOf(v) === idx);
-  const commaRoster = uniqueRoster.join(',');
-
+  const commaRoster = getCommaSeparatedRoster(config);
   const isGroundMode = config.deployMode === 'ground';
   const isControllable = config.isControllable ?? true;
 
@@ -153,9 +151,13 @@ export function buildCarrierLinkageTweaks(config) {
     'customparams.spawns_name': commaRoster,
     'customparams.spawntype': isGroundMode ? 'ground' : 'air',
     'customparams.spawns_types': isGroundMode ? 'ground' : 'air',
+    'customparams.droneammo': countStr,
     'customparams.maxunits': countStr,
+    'customparams.spawn_metal_cost': metalStr,
     'customparams.metalcost': metalStr,
+    'customparams.spawn_energy_cost': energyStr,
     'customparams.energycost': energyStr,
+    'customparams.spawn_interval': intervalStr,
     'customparams.spawnrate': intervalStr,
     'customparams.carrierdeaththroe': isControllable ? 'release' : 'destroy',
     'customparams.enabledocking': isControllable ? 'false' : 'true',
