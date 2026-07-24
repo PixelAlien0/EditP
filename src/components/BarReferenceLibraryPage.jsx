@@ -60,40 +60,43 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
   return (
     <aside className="bar-reference-inspector" aria-label="Reference details">
       <header>
-        <span>{item.subtitle}</span>
-        <h3>{item.title}</h3>
-        <p>{item.description}</p>
-        <div className="bar-reference-inspector__actions">
-          <Button size="sm" variant="secondary" onClick={() => onCopy(item.value)}>Copy reference</Button>
-          {canOpenUnit && <Button size="sm" onClick={() => onOpenUnit(unitId)}>View in editor</Button>}
-        </div>
+        <ReferenceGlyph item={item} />
+        <div><span>{item.subtitle}</span><h3>{item.title}</h3><code>{item.value}</code></div>
       </header>
-      {item.details?.length > 0 && (
-        <section className="bar-reference-inspector__facts" aria-label="Reference facts">
-          <h4>Reference properties</h4>
-          <dl>
-            {item.details.map((detail, index) => (
-              <div key={index}>
-                <dt>{detail.label}</dt>
-                <dd>{detail.value} {detail.unit}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
-      {item.usedBy?.length > 0 && (
-        <section className="bar-reference-inspector__usage" aria-label="Usage list">
-          <h4>Referenced by ({item.usedBy.length.toLocaleString()})</h4>
+
+      <p className="bar-reference-inspector__description">{item.description}</p>
+      <div className="bar-reference-inspector__actions">
+        <Button variant="primary" size="sm" onClick={() => onCopy(item.value)}>Copy exact value</Button>
+        {canOpenUnit && <Button size="sm" onClick={() => onOpenUnit(unitId)}>Open unit editor</Button>}
+      </div>
+
+      <section className="bar-reference-inspector__facts" aria-label="Reference properties">
+        <span>Definition facts</span>
+        <dl>
+          {item.details.map(entry => (
+            <div key={`${entry.label}-${entry.value}`}><dt>{entry.label}</dt><dd>{entry.value}{entry.unit ? ` ${entry.unit}` : ''}</dd></div>
+          ))}
+        </dl>
+      </section>
+
+      <section className="bar-reference-inspector__usage" aria-label="Used by definitions">
+        <div><span>Used by</span><small>{item.usedBy?.length || 0} bundled references</small></div>
+        {item.usedBy?.length > 0 ? (
           <div className="bar-reference-inspector__usage-list">
-            {item.usedBy.map(usage => (
-              <button key={usage.id} type="button" onClick={() => onSelect(usage.id)}>
-                <strong>{usage.title}</strong>
-                <span>{usage.subtitle}</span>
+            {item.usedBy.slice(0, 24).map(reference => (
+              <button type="button" key={reference.id} onClick={() => catalogById.has(reference.id) && onSelect(reference.id)}>
+                <strong>{reference.title}</strong><small>{reference.subtitle}</small>
               </button>
             ))}
+            {item.usedBy.length > 24 && <p>+{item.usedBy.length - 24} additional references</p>}
           </div>
-        </section>
-      )}
+        ) : <p>No bundled UnitDef, mounted WeaponDef, or explosion profile currently references this exact value.</p>}
+      </section>
+
+      <footer>
+        <strong>Reference only</strong>
+        <span>Copying a value does not add its underlying asset to generated tweaks.</span>
+      </footer>
     </aside>
   );
 }
@@ -193,6 +196,7 @@ export default function BarReferenceLibraryPage({
           <span>Search the library</span>
           <input
             type="search"
+            aria-label="Search the library"
             value={query}
             placeholder="Name, ID, asset path, owner, effect, or category…"
             onChange={event => { setQuery(event.target.value); setPage(0); setSelectedId(''); }}
