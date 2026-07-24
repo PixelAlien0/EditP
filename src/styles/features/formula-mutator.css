@@ -1,0 +1,248 @@
+.formula-mutator-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.formula-mutator {
+  width: 100%;
+  max-width: 840px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.formula-mutator__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.formula-mutator__eyebrow {
+  color: var(--color-accent);
+  font: 650 10px/1.2 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.formula-mutator__heading h2 {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-strong);
+  font: 700 20px/1.2 var(--font-display);
+}
+
+.formula-mutator__heading p {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.formula-mutator__body {
+  flex: 1;
+  padding: var(--space-6);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.formula-mutator__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.formula-mutator__section-title {
+  color: var(--color-text-strong);
+  font: 600 var(--font-size-sm)/1.2 var(--font-ui);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.formula-mutator__scope-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+
+.formula-mutator__scope-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.formula-mutator__scope-btn:hover {
+  border-color: var(--color-border-accent);
+}
+
+.formula-mutator__scope-btn.is-active {
+  border-color: var(--color-accent);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-text-strong);
+}
+
+.formula-mutator__scope-btn strong {
+  font-size: var(--font-size-sm);
+}
+
+.formula-mutator__scope-btn span {
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.formula-mutator__form-row {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.formula-mutator__tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.formula-mutator__token-chip {
+  padding: 3px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font: 600 11px/1.2 var(--font-mono);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.formula-mutator__token-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text-strong);
+}
+
+.formula-mutator__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.formula-mutator__preset-btn {
+  padding: var(--space-2) var(--space-3);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.formula-mutator__preset-btn:hover {
+  border-style: solid;
+  border-color: var(--color-accent);
+  background: var(--color-surface-accent-subtle);
+}
+
+.formula-mutator__error {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: var(--radius-md);
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  font-size: var(--font-size-xs);
+}
+
+.formula-mutator__preview {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.formula-mutator__preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-xs);
+}
+
+.formula-mutator__preview-table th {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  font-weight: 650;
+  text-align: left;
+}
+
+.formula-mutator__preview-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.formula-mutator__preview-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.formula-mutator__unit-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.formula-mutator__unit-cell img {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  object-fit: contain;
+}
+
+.formula-mutator__val-before {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+}
+
+.formula-mutator__val-after {
+  color: var(--color-accent);
+  font: 700 var(--font-size-xs)/1 var(--font-mono);
+}
+
+.formula-mutator__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.formula-mutator__summary {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.formula-mutator__actions {
+  display: flex;
+  gap: var(--space-3);
+}

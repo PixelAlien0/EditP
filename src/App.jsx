@@ -67,6 +67,7 @@ const LazyProjectCheckpointsDialog = lazy(() => import('./components/ProjectChec
 const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
 const LazyBarReferenceLibraryPage = lazy(() => import('./components/BarReferenceLibraryPage.jsx'));
 const LazyBehaviorInterceptorEditor = lazy(() => import('./components/editor/BehaviorInterceptorEditor.jsx'));
+const LazyFormulaMutatorDialog = lazy(() => import('./components/FormulaMutatorDialog.jsx'));
 
 // Keep the laboratory code available while this experimental workspace is temporarily unpublished.
 const WEAPON_LAB_ENABLED = false;
@@ -350,6 +351,7 @@ export default function App() {
 
   // Bulk Edit states
   const [showBulkPanel, setShowBulkPanel] = useState(false);
+  const [showFormulaMutator, setShowFormulaMutator] = useState(false);
   const [showRandomPanel, setShowRandomPanel] = useState(false);
   const [randomScope, setRandomScope] = useState('selected');
   const [randomIntensity, setRandomIntensity] = useState('balanced');
@@ -2428,6 +2430,20 @@ export default function App() {
     });
   };
 
+  const handleApplyFormula = useCallback((updates) => {
+    if (!updates || updates.length === 0) return;
+    setTweaks(prevTweaks => {
+      const next = { ...prevTweaks };
+      updates.forEach(({ unitId, property, value }) => {
+        const existing = { ...(next[unitId] || {}) };
+        existing[property] = value;
+        next[unitId] = existing;
+      });
+      return next;
+    });
+    showToast(`Applied formula override to ${updates.length.toLocaleString()} ${updates.length === 1 ? 'unit' : 'units'}.`);
+  }, [showToast]);
+
   const activeFaction = useMemo(() => {
     if (selectedUnit) {
       return selectedUnit.faction || 'all';
@@ -2775,6 +2791,9 @@ export default function App() {
                   <span className="header-tools-menu__group-label">Editing tools</span>
                   <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>
                     <span><strong>Batch Adjust</strong><small>Apply controlled changes across units</small></span>
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => { setShowFormulaMutator(true); setShowToolsMenu(false); }}>
+                    <span><strong>Formula Mutator</strong><small>Evaluate math scaling equations</small></span>
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>
                     <span><strong>Preset Gallery</strong><small>Apply or save project snapshots</small></span>
@@ -5957,6 +5976,17 @@ export default function App() {
         targetUnits={bulkTargetUnits}
         scopeLabel={activeCollection ? `Collection · ${activeCollection.name}` : 'Current filters'}
         onApply={handleApplyBulk}
+      /></Suspense>}
+      {showFormulaMutator && <Suspense fallback={null}><LazyFormulaMutatorDialog
+        open={showFormulaMutator}
+        onClose={() => setShowFormulaMutator(false)}
+        units={allUnitsList}
+        selectedUnit={selectedUnit}
+        activeCollection={activeCollection}
+        filteredUnits={filteredUnits}
+        defaultsDb={defaultsDb}
+        tweaks={tweaks}
+        onApplyFormula={handleApplyFormula}
       /></Suspense>}
       {showSummaryModal && <Suspense fallback={null}><LazySummaryExplorerDialog
         open={showSummaryModal}
