@@ -71,10 +71,13 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
   const unitTweaks = tweaks[unitId] || {};
   const defaults = defaultsDb[unitId] || {};
 
-  const targetChild = unitTweaks['customparams.spawns_name']
+  const targetChild = unitTweaks['customparams.spawns']
+    ?? unitTweaks['customparams.spawns_name']
     ?? unitTweaks['customparams.carried_unit']
     ?? unitTweaks['customparams.spawn_name']
     ?? unitTweaks['customparams.spawn_unit']
+    ?? unitTweaks['customparams.spawn']
+    ?? defaults.customparams?.spawns
     ?? defaults.customparams?.spawns_name
     ?? defaults.customparams?.carried_unit
     ?? '';
@@ -112,6 +115,10 @@ export function buildCarrierLinkageTweaks(config) {
     'customparams.spawns_name': childId,
     'customparams.spawn_name': childId,
     'customparams.spawn_unit': childId,
+    'customparams.spawns': childId,
+    'customparams.spawn': childId,
+    'customparams.spawntype': childId,
+    'customparams.spawns_units': childId,
     'customparams.droneammo': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
     'customparams.spawn_metal_cost': String(Math.max(0, Math.round(config.spawnMetal || 0))),
     'customparams.spawn_energy_cost': String(Math.max(0, Math.round(config.spawnEnergy || 0))),
