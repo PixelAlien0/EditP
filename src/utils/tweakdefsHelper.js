@@ -765,10 +765,16 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       for _, childId in ipairs(entry.allChildren) do
         local childDef = UnitDefs and UnitDefs[childId]
         if childDef then
+          childDef.canselect = true
           childDef.customparams = childDef.customparams or {}
-          childDef.customparams.is_drone = "0"
-          childDef.customparams.drone = 0
+          childDef.customparams.is_drone = nil
+          childDef.customparams.drone = nil
+          childDef.customparams.dronetype = nil
           childDef.customparams.no_tether = "1"
+          childDef.customparams.no_select = "0"
+          childDef.customparams.noselect = "0"
+          childDef.customparams.canselect = "1"
+          childDef.customparams.is_controllable = "1"
           childDef.canmove = true
           childDef.canattack = true
           childDef.canfight = true
