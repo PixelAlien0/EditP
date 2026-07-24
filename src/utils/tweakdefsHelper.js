@@ -160,13 +160,6 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
   const newId = clone.newId.trim().toLowerCase();
   if (!baseId || !newId) return '';
 
-  // Scavenger (scav_*) units don't exist in UnitDefs at tweakdefs time — they
-  // are generated at runtime by their respective gadgets. Strip the prefix to
-  // get the real base unit as clone source.
-  // Raptor (raptor_*) units DO exist in UnitDefs at tweakdefs time (modular
-  // bot defs are loaded into UnitDefs).  The clone helper will additionally
-  // strip raptor-specific properties (maxthisunit, customparams) that would
-  // otherwise prevent the clone from appearing in player build menus.
   if (baseId.startsWith('scav_')) {
     baseId = baseId.slice(5);
   }
@@ -180,6 +173,7 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
     `  if UnitDefs[s] and not UnitDefs[n] then`,
     `    UnitDefs[n] = clone_copy(UnitDefs[s])`,
     `    local u = UnitDefs[n]`,
+    `    if UnitDefNames then UnitDefNames[n] = u end`,
     `    clone_clean(u)`,
     `    local srcBo = UnitDefs[s].buildoptions`,
     `    if type(srcBo) == "table" then`,

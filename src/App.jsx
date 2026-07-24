@@ -1496,6 +1496,17 @@ export default function App() {
           if (typeof val === 'string' && /^-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(val.trim())) typedValue = Number(val);
           else if (val === 'true' || val === 'false') typedValue = val === 'true';
           setNestedVal(unitPatch, `customparams.${customKey}`, typedValue);
+
+          // Apply carrier & spawner parameters to all unit weapon definitions so BAR carrier gadgets update their weapondefs
+          if (['carried_unit', 'spawns_name', 'spawn_name', 'spawn_unit', 'spawns', 'spawntype', 'spawns_types', 'droneammo', 'spawn_count', 'spawn_metal_cost', 'spawn_energy_cost', 'spawn_interval', 'spawn_rate', 'drone_return_hp'].includes(customKey)) {
+            const activeSlots = getActiveWeaponSlotsForUnit(unitId);
+            activeSlots.forEach(slot => {
+              if (slot && slot.defKey) {
+                const wDef = slot.defKey.toLowerCase();
+                setNestedVal(unitPatch, `weapondefs.${wDef}.customparams.${customKey}`, typedValue);
+              }
+            });
+          }
           return;
         }
         if (!config) return;
