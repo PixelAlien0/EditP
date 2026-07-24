@@ -649,211 +649,26 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
   local u = UnitDefs and UnitDefs[entry.unitId]
   if u then
     u.customparams = u.customparams or {}
-    if entry.isControllable ~= false then
-      u.customparams.carried_unit = nil
-      u.customparams.drone = nil
-      u.customparams.is_drone = nil
-    else
-      u.customparams.carried_unit = entry.primaryChild
-    end
+    u.customparams.carried_unit = entry.primaryChild
     u.customparams.spawns_name = table.concat(entry.allChildren, ",")
-    u.customparams.spawntype = entry.isGround and "ground" or "air"
-    u.customparams.spawns_types = entry.isGround and "ground" or "air"
-    local countStr = tostring(entry.droneAmmo)
-    local countNum = tonumber(entry.droneAmmo) or 4
-    local intervalStr = tostring(entry.spawnInterval)
-    local intervalNum = tonumber(entry.spawnInterval) or 5
-    local metalStr = tostring(entry.spawnMetal)
-    local metalNum = tonumber(entry.spawnMetal) or 100
-    local energyStr = tostring(entry.spawnEnergy)
-    local energyNum = tonumber(entry.spawnEnergy) or 1000
-
-    u.customparams.editp_auto_spawner = entry.isGround and "1" or "0"
-    u.customparams.maxunits = countStr
-    u.customparams.metalcost = metalStr
-    u.customparams.energycost = energyStr
-    u.customparams.spawnrate = intervalStr
+    u.customparams.droneammo = tostring(entry.droneAmmo)
+    u.customparams.spawn_metal_cost = tostring(entry.spawnMetal)
+    u.customparams.spawn_energy_cost = tostring(entry.spawnEnergy)
+    u.customparams.spawn_interval = tostring(entry.spawnInterval)
     u.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
     u.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
-    u.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
 
     u.buildoptions = entry.allChildren
 
-    if entry.isGround or u.builder or u.workertime then
-      u.builder = true
-      u.canbuilder = true
-      u.workertime = math.max(u.workertime or 0, 1000)
-    end
-
-    if type(u.weapons) == "table" then
-      for _, wSlot in pairs(u.weapons) do
-        if type(wSlot) == "table" then
-          wSlot.maxdrones = countNum
-          wSlot.maxunits = countNum
-          wSlot.coverage = countNum
-          wSlot.stockpile = true
-        end
-      end
-    end
-
-    if type(u.weapondefs) == "table" then
-      for _, wDef in pairs(u.weapondefs) do
-        if type(wDef) == "table" then
-          wDef.stockpile = true
-          wDef.coverage = countNum
-          wDef.stockpiletime = intervalNum
-          wDef.reloadtime = intervalNum
-          wDef.metalpershot = metalNum
-          wDef.energypershot = energyNum
-          wDef.customparams = wDef.customparams or {}
-          wDef.customparams.carried_unit = entry.primaryChild
-          wDef.customparams.maxunits = countStr
-          wDef.customparams.metalcost = metalStr
-          wDef.customparams.energycost = energyStr
-          wDef.customparams.spawnrate = intervalStr
-          wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
-          wDef.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
-        end
-      end
-    end
-
-    if entry.isControllable ~= false then
-      for _, childId in ipairs(entry.allChildren) do
-        local childDef = UnitDefs and UnitDefs[childId]
-        if childDef then
-          childDef.canselect = true
-          childDef.customparams = childDef.customparams or {}
-          childDef.customparams.is_drone = "0"
-          childDef.customparams.drone = "0"
-          childDef.customparams.dronetype = "0"
-          childDef.customparams.no_tether = "1"
-          childDef.customparams.no_select = "0"
-          childDef.customparams.noselect = "0"
-          childDef.customparams.canselect = "1"
-          childDef.customparams.is_controllable = "1"
-          childDef.canmove = true
-          childDef.canattack = true
-          childDef.canfight = true
-          childDef.canpatrol = true
-          childDef.canstop = true
-          childDef.cantbetransported = nil
-        end
+    for _, childId in ipairs(entry.allChildren) do
+      local childDef = UnitDefs and UnitDefs[childId]
+      if childDef then
+        childDef.canselect = true
+        childDef.canmove = true
+        childDef.canattack = true
       end
     end
   end
-end
-
-if gadgetHandler then
-  local editp_auto_spawner_gadget = {
-    name = "EditP_Ground_Spawner_Gadget",
-    desc = "Triggers ground unit spawners to continuously construct buildoptions up to payload limit",
-    author = "BAR Editor",
-    date = "2026",
-    layer = 100,
-    enabled = true
-  }
-
-  function editp_auto_spawner_gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
-    if builderID and Spring then
-      local bDefID = Spring.GetUnitDefID(builderID)
-      local bDef = bDefID and UnitDefs and UnitDefs[bDefID]
-      if bDef and bDef.customparams and bDef.customparams.editp_auto_spawner == "1" then
-        local bx, by, bz = Spring.GetUnitPosition(builderID)
-        if bx then
-          local angle = (math.random() * math.pi * 2)
-          local ox = bx + math.cos(angle) * 110
-          local oz = bz + math.sin(angle) * 110
-          Spring.SetUnitPosition(unitID, ox, by, oz)
-          if CMD and CMD.MOVE then
-            Spring.GiveOrderToUnit(unitID, CMD.MOVE, {ox + 20, by, oz + 20}, {})
-          end
-        end
-      end
-    end
-  end
-
-  function editp_auto_spawner_gadget:GameFrame(n)
-    if n % 30 == 0 and Spring and Spring.GetFullBuildQueue then
-      for _, parentID in ipairs(Spring.GetAllUnits()) do
-        local uDefID = Spring.GetUnitDefID(parentID)
-        local uDef = uDefID and UnitDefs and UnitDefs[uDefID]
-        if uDef then
-          local cp = uDef.customparams or {}
-          if cp.editp_auto_spawner == "1" then
-            local queue = Spring.GetFullBuildQueue(parentID)
-            if not queue or #queue == 0 then
-              local bOptions = uDef.buildoptions
-              if bOptions and #bOptions > 0 then
-                local targetName = bOptions[1]
-                local childDefID = UnitDefNames and UnitDefNames[targetName] and UnitDefNames[targetName].id
-                if childDefID then
-                  Spring.GiveOrderToUnit(parentID, -childDefID, {}, {})
-                end
-              end
-            end
-          end
-        end
-      end
-    end
-  end
-
-  gadgetHandler:AddGadget(editp_auto_spawner_gadget)
-
-  local editp_selectable_gadget = {
-    name = "EditP_Selectable_Units_Fix",
-    desc = "Ensures spawned custom units are selectable and controllable by player",
-    author = "BAR Editor",
-    date = "2026",
-    license = "GNU GPL, v2 or later",
-    layer = 1000,
-    enabled = true
-  }
-
-  function editp_selectable_gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
-    local uDef = UnitDefs and UnitDefs[unitDefID]
-    if uDef then
-      local cp = uDef.customparams or {}
-      if cp.is_controllable == "1" or cp.canselect == "1" or uDef.canselect == true then
-        if Spring then
-          if unitTeam and Spring.TransferUnit then Spring.TransferUnit(unitID, unitTeam, false) end
-          if Spring.UnitDetach then Spring.UnitDetach(unitID) end
-          if Spring.SetUnitNoSelect then Spring.SetUnitNoSelect(unitID, false) end
-          if Spring.SetUnitStealth then Spring.SetUnitStealth(unitID, false) end
-          if Spring.SetUnitNoMinimap then Spring.SetUnitNoMinimap(unitID, false) end
-          if Spring.SetUnitNeutral then Spring.SetUnitNeutral(unitID, false) end
-        end
-      end
-    end
-  end
-
-  function editp_selectable_gadget:GameFrame(n)
-    if n % 15 == 0 and Spring and Spring.GetAllUnits then
-      for _, unitID in ipairs(Spring.GetAllUnits()) do
-        local unitDefID = Spring.GetUnitDefID(unitID)
-        local uDef = unitDefID and UnitDefs and UnitDefs[unitDefID]
-        if uDef then
-          local cp = uDef.customparams or {}
-          if cp.is_controllable == "1" or cp.canselect == "1" or uDef.canselect == true then
-            if Spring.SetUnitNoSelect then Spring.SetUnitNoSelect(unitID, false) end
-            if Spring.SetUnitStealth then Spring.SetUnitStealth(unitID, false) end
-            if Spring.SetUnitNeutral then Spring.SetUnitNeutral(unitID, false) end
-          end
-        end
-      end
-    end
-  end
-
-  function editp_selectable_gadget:AllowCommand(unitID, unitDefID, teamID, cmdID, cmdParams, cmdOptions)
-    local uDef = UnitDefs and UnitDefs[unitDefID]
-    if uDef then
-      local cp = uDef.customparams or {}
-      if cp.is_controllable == "1" or cp.canselect == "1" or uDef.canselect == true then
-        return true
-      end
-    end
-  end
-
-  gadgetHandler:AddGadget(editp_selectable_gadget)
 end
 ${CARRIER_LINKAGE_END}`;
 }

@@ -147,20 +147,13 @@ export function buildCarrierLinkageTweaks(config) {
   const energyStr = String(Math.max(0, Math.round(config.spawnEnergy || 0)));
 
   return {
-    'customparams.carried_unit': isControllable ? undefined : primaryId,
+    'customparams.carried_unit': primaryId,
     'customparams.spawns_name': commaRoster,
-    'customparams.spawntype': isGroundMode ? 'ground' : 'air',
-    'customparams.spawns_types': isGroundMode ? 'ground' : 'air',
     'customparams.droneammo': countStr,
-    'customparams.maxunits': countStr,
     'customparams.spawn_metal_cost': metalStr,
-    'customparams.metalcost': metalStr,
     'customparams.spawn_energy_cost': energyStr,
-    'customparams.energycost': energyStr,
     'customparams.spawn_interval': intervalStr,
-    'customparams.spawnrate': intervalStr,
     'customparams.carrierdeaththroe': isControllable ? 'release' : 'destroy',
     'customparams.enabledocking': isControllable ? 'false' : 'true',
-    'customparams.is_controllable': isControllable ? '1' : '0',
   };
 }

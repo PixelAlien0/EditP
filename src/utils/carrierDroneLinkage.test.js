@@ -45,20 +45,14 @@ describe('carrierDroneLinkage', () => {
     });
 
     expect(result).toEqual({
+      'customparams.carried_unit': 'armodrone',
       'customparams.spawns_name': 'armodrone',
-      'customparams.spawntype': 'air',
-      'customparams.spawns_types': 'air',
       'customparams.droneammo': '8',
-      'customparams.maxunits': '8',
       'customparams.spawn_metal_cost': '200',
-      'customparams.metalcost': '200',
       'customparams.spawn_energy_cost': '1500',
-      'customparams.energycost': '1500',
       'customparams.spawn_interval': '4',
-      'customparams.spawnrate': '4',
       'customparams.carrierdeaththroe': 'release',
       'customparams.enabledocking': 'false',
-      'customparams.is_controllable': '1',
     });
   });
 
@@ -72,7 +66,7 @@ describe('carrierDroneLinkage', () => {
       spawnMetal: 100,
     });
 
+    expect(result['customparams.carried_unit']).toBe('corjugg_custom');
     expect(result['customparams.spawns_name']).toBe('corjugg_custom,armantiodrone,corvamp');
-    expect(result['customparams.spawns_types']).toBe('ground');
   });
 });
