@@ -29,6 +29,17 @@ export function getAssetPreviewUrl(assetType, value) {
   return '';
 }
 
+export function getSoundAudioUrls(soundName) {
+  if (!soundName) return [];
+  const clean = String(soundName).trim().replace(/\.(wav|ogg|mp3)$/i, '');
+  if (!clean) return [];
+  const repo = 'https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/main/sounds/';
+  return [
+    `${repo}${clean}.wav`,
+    `${repo}${clean}.ogg`,
+  ];
+}
+
 export function getAssetOptionMetadata(assetType, value) {
   if (assetType !== 'iconType') return null;
   const icon = getTacticalIcon(value);

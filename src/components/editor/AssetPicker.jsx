@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Button, Dialog, IconButton } from '../ui.jsx';
+import SoundPreviewButton from '../ui/SoundPreviewButton.jsx';
 import {
   ASSET_TYPE_LABELS,
   getAssetOptionMetadata,
@@ -66,6 +67,9 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
           onChange={event => onChange(event.target.value)}
           aria-label={label}
         />
+        {assetType === 'sound' && value && (
+          <SoundPreviewButton soundName={value} compact />
+        )}
         <Button variant="secondary" className="asset-picker__browse" onClick={() => { setPage(0); setOpen(true); }}>Browse</Button>
       </div>
       {value && <span className={`asset-picker__status ${known ? 'is-known' : 'is-unverified'}`}>{known ? 'BAR asset' : 'Custom / unverified'}</span>}
@@ -112,6 +116,7 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
               >
                 <span className="asset-picker-dialog__option-copy">
                   {previewUrl && <img src={previewUrl} alt="" loading="lazy" decoding="async" />}
+                  {assetType === 'sound' && <SoundPreviewButton soundName={option} compact />}
                   <span>
                     <code>{option}</code>
                     {scopedPicture && <small>{option.split('/')[0]} variant</small>}

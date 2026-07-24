@@ -298,3 +298,47 @@
   .ui-button, .ui-switch-track, .ui-switch-thumb, .ui-control { transition: none; }
   .ui-spinner { animation-duration: 1.4s; }
 }
+
+.sound-preview-btn {
+  min-height: 28px;
+  height: 28px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid var(--color-border-accent-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
+  font: 600 10px/1 var(--font-ui);
+  cursor: pointer;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast);
+}
+.sound-preview-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.sound-preview-btn.is-playing {
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+.sound-preview-btn.is-compact {
+  width: 28px;
+  min-width: 28px;
+  padding: 0;
+}
+.sound-preview-icon {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+}
+.sound-preview-spinner {
+  width: 10px;
+  height: 10px;
+  border: 2px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: ui-spin 0.6s linear infinite;
+}

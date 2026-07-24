@@ -4,6 +4,7 @@ import {
   getAssetOptionMetadata,
   getAssetOptions,
   getAssetPreviewUrl,
+  getSoundAudioUrls,
   isKnownBarAsset,
   loadAssetPreviewCatalog
 } from './barAssets.js';
@@ -39,5 +40,13 @@ describe('BAR asset manifest', () => {
     expect(getAssetOptionMetadata('iconType', 'armap')).toMatchObject({
       bitmap: 'icons/factory_air.png'
     });
+  });
+
+  it('resolves sound preview candidate URLs from the BAR repository CDN', () => {
+    expect(getSoundAudioUrls('lasrhvy2')).toEqual([
+      'https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/main/sounds/lasrhvy2.wav',
+      'https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/main/sounds/lasrhvy2.ogg'
+    ]);
+    expect(getSoundAudioUrls('')).toEqual([]);
   });
 });
