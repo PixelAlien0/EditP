@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from 'react';
 import '../styles/features/carrier-drone-workbench.css';
+import { getFactionOfUnit } from '../utils/categories.js';
 import {
   buildCarrierLinkageTweaks,
   CARRIER_ARCHETYPES,
@@ -24,14 +25,23 @@ export default function CarrierDroneWorkbenchDialog({
 
   // Validate and combine all existing real units + project clones
   const allAvailableUnits = useMemo(() => {
-    const cloneList = clones.map(c => ({
-      id: c.newId.toLowerCase(),
-      name: c.displayName || c.newId,
-      faction: c.faction || 'all',
-      isClone: true,
-    }));
+    const cloneList = clones.map(c => {
+      const baseId = (c.baseId || c.newId).toLowerCase();
+      const faction = getFactionOfUnit(c.faction && c.faction !== 'all' ? c.faction : baseId);
+      return {
+        id: c.newId.toLowerCase(),
+        name: c.displayName || c.newId,
+        faction: faction || 'all',
+        isClone: true,
+        artworkUnitId: baseId,
+      };
+    });
     const existingIds = new Set(cloneList.map(c => c.id));
-    const baseList = units.filter(u => Boolean(u?.id) && !existingIds.has(u.id.toLowerCase()));
+    const baseList = units.filter(u => Boolean(u?.id) && !existingIds.has(u.id.toLowerCase())).map(u => ({
+      ...u,
+      faction: getFactionOfUnit(u.id),
+      artworkUnitId: u.id,
+    }));
     return [...cloneList, ...baseList];
   }, [units, clones]);
 
@@ -167,17 +177,17 @@ export default function CarrierDroneWorkbenchDialog({
               onClick={() => { setPickerTarget('parent'); setPickerQuery(''); setPickerFaction('all'); }}
               title="Click to select Parent Carrier Chassis"
             >
-              <UnitArtwork unitId={parentUnitInfo.id} className="carrier-workbench__card-art" alt="" />
+              <UnitArtwork unitId={parentUnitInfo.artworkUnitId || parentUnitInfo.id} className="carrier-workbench__card-art" alt="" />
               <div className="carrier-workbench__card-info">
                 <span className="carrier-workbench__card-role">Parent Carrier Chassis</span>
                 <span className="carrier-workbench__card-title">{parentUnitInfo.name}</span>
                 <code className="carrier-workbench__card-code">{parentUnitInfo.id}</code>
               </div>
-              <span className="carrier-workbench__card-change">Change ▾</span>
+              <span className="carrier-workbench__card-change">Change</span>
             </button>
 
             <div className="carrier-workbench__link-bus" aria-hidden="true">
-              <span className="carrier-workbench__link-arrow">➔</span>
+              <span className="carrier-workbench__link-arrow">→</span>
               <span className="carrier-workbench__link-badge">{droneAmmo} Drones</span>
             </div>
 
@@ -187,13 +197,13 @@ export default function CarrierDroneWorkbenchDialog({
               onClick={() => { setPickerTarget('child'); setPickerQuery(''); setPickerFaction('all'); }}
               title="Click to select Deployed Child Drone"
             >
-              <UnitArtwork unitId={childUnitInfo.id} className="carrier-workbench__card-art" alt="" />
+              <UnitArtwork unitId={childUnitInfo.artworkUnitId || childUnitInfo.id} className="carrier-workbench__card-art" alt="" />
               <div className="carrier-workbench__card-info">
                 <span className="carrier-workbench__card-role">Deployed Child Drone</span>
                 <span className="carrier-workbench__card-title">{childUnitInfo.name}</span>
                 <code className="carrier-workbench__card-code">{childUnitInfo.id}</code>
               </div>
-              <span className="carrier-workbench__card-change">Change ▾</span>
+              <span className="carrier-workbench__card-change">Change</span>
             </button>
           </section>
 
@@ -269,7 +279,7 @@ export default function CarrierDroneWorkbenchDialog({
 
               <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                 <Button type="button" variant="secondary" size="sm" onClick={handleQuickCreateDroneClone}>
-                  ➕ Create Custom Clone of "{childUnitInfo.name}"
+                  + Create Custom Clone of "{childUnitInfo.name}"
                 </Button>
               </div>
             </div>
@@ -340,7 +350,7 @@ export default function CarrierDroneWorkbenchDialog({
                     setPickerTarget(null);
                   }}
                 >
-                  <UnitArtwork unitId={unit.id} className="carrier-workbench__unit-option-art" alt="" />
+                  <UnitArtwork unitId={unit.artworkUnitId || unit.id} className="carrier-workbench__unit-option-art" alt="" />
                   <div className="carrier-workbench__unit-option-info">
                     <strong>{unit.name} {unit.isClone ? '(Clone)' : ''}</strong>
                     <code>{unit.id}</code>

@@ -196,7 +196,7 @@ export default function FormulaMutatorDialog({
                   }}
                   title={p.description}
                 >
-                  ⚡ {p.name}
+                  {p.name}
                 </button>
               ))}
             </div>
