@@ -668,6 +668,7 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     local energyStr = tostring(entry.spawnEnergy)
     local energyNum = tonumber(entry.spawnEnergy) or 1000
 
+    u.customparams.editp_auto_spawner = entry.isGround and "1" or "0"
     u.customparams.droneammo = countStr
     u.customparams.spawn_count = countStr
     u.customparams.maxunits = countStr
@@ -706,6 +707,8 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.buildoptions = entry.allChildren
 
     if entry.isGround or u.builder or u.workertime then
+      u.builder = true
+      u.canbuilder = true
       u.workertime = math.max(u.workertime or 0, 1000)
     end
 
@@ -758,7 +761,7 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
           wDef.customparams.engagementrange = (entry.isControllable == false) and "1300" or "5000"
           wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
           wDef.customparams.dronesusestockpile = "true"
-          wDef.customparams.enabledocking = "true"
+          wDef.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
         end
       end
     end
@@ -790,6 +793,42 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
 end
 
 if gadgetHandler then
+  local editp_auto_spawner_gadget = {
+    name = "EditP_Ground_Spawner_Gadget",
+    desc = "Triggers ground unit spawners to continuously construct buildoptions up to payload limit",
+    author = "BAR Editor",
+    date = "2026",
+    layer = 100,
+    enabled = true
+  }
+
+  function editp_auto_spawner_gadget:GameFrame(n)
+    if n % 30 == 0 and Spring and Spring.GetFullBuildQueue then
+      for _, parentID in ipairs(Spring.GetAllUnits()) do
+        local uDefID = Spring.GetUnitDefID(parentID)
+        local uDef = uDefID and UnitDefs and UnitDefs[uDefID]
+        if uDef then
+          local cp = uDef.customparams or {}
+          if cp.editp_auto_spawner == "1" then
+            local queue = Spring.GetFullBuildQueue(parentID)
+            if not queue or #queue == 0 then
+              local bOptions = uDef.buildoptions
+              if bOptions and #bOptions > 0 then
+                local targetName = bOptions[1]
+                local childDefID = UnitDefNames and UnitDefNames[targetName] and UnitDefNames[targetName].id
+                if childDefID then
+                  Spring.GiveOrderToUnit(parentID, -childDefID, {}, {})
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  gadgetHandler:AddGadget(editp_auto_spawner_gadget)
+
   local editp_selectable_gadget = {
     name = "EditP_Selectable_Units_Fix",
     desc = "Ensures spawned custom units are selectable and controllable by player",
@@ -799,6 +838,21 @@ if gadgetHandler then
     layer = 1000,
     enabled = true
   }
+
+  function editp_selectable_gadget:UnitCreated(unitID, unitDefID, unitTeam, builderID)
+    local uDef = UnitDefs and UnitDefs[unitDefID]
+    if uDef then
+      local cp = uDef.customparams or {}
+      if cp.is_controllable == "1" or cp.canselect == "1" or uDef.canselect == true then
+        if Spring then
+          if Spring.SetUnitNoSelect then Spring.SetUnitNoSelect(unitID, false) end
+          if Spring.SetUnitStealth then Spring.SetUnitStealth(unitID, false) end
+          if Spring.SetUnitNoMinimap then Spring.SetUnitNoMinimap(unitID, false) end
+          if Spring.SetUnitNeutral then Spring.SetUnitNeutral(unitID, false) end
+        end
+      end
+    end
+  end
 
   function editp_selectable_gadget:GameFrame(n)
     if n % 15 == 0 and Spring and Spring.GetAllUnits then
