@@ -660,9 +660,13 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.spawns_units = commaChildren
     u.customparams.spawns_types = entry.isGround and "ground" or "air"
     local countStr = tostring(entry.droneAmmo)
+    local countNum = tonumber(entry.droneAmmo) or 4
     local intervalStr = tostring(entry.spawnInterval)
+    local intervalNum = tonumber(entry.spawnInterval) or 5
     local metalStr = tostring(entry.spawnMetal)
+    local metalNum = tonumber(entry.spawnMetal) or 100
     local energyStr = tostring(entry.spawnEnergy)
+    local energyNum = tonumber(entry.spawnEnergy) or 1000
 
     u.customparams.droneammo = countStr
     u.customparams.spawn_count = countStr
@@ -694,43 +698,83 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.enabledocking = "true"
     u.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
     u.customparams.drone_controllable = (entry.isControllable == false) and "0" or "1"
+    u.customparams.tetherdrones = (entry.isControllable == false) and "1" or "0"
+    u.customparams.tether_drones = (entry.isControllable == false) and "1" or "0"
 
     u.buildoptions = entry.allChildren
+
+    if entry.isGround or u.builder or u.workertime then
+      u.workertime = math.max(u.workertime or 0, 1000)
+    end
+
+    if type(u.weapons) == "table" then
+      for _, wSlot in pairs(u.weapons) do
+        if type(wSlot) == "table" then
+          wSlot.maxdrones = countNum
+          wSlot.maxunits = countNum
+          wSlot.maxdronesammo = countNum
+          wSlot.coverage = countNum
+          wSlot.stockpile = true
+        end
+      end
+    end
 
     if type(u.weapondefs) == "table" then
       for _, wDef in pairs(u.weapondefs) do
         if type(wDef) == "table" then
+          wDef.stockpile = true
+          wDef.coverage = countNum
+          wDef.stockpiletime = intervalNum
+          wDef.reloadtime = intervalNum
+          wDef.metalpershot = metalNum
+          wDef.energypershot = energyNum
           wDef.customparams = wDef.customparams or {}
-          if wDef.customparams.carried_unit or wDef.customparams.spawns_name or wDef.customparams.maxunits or wDef.customparams.droneammo or wDef.customparams.stockpilemax or wDef.customparams.stockpilelimit then
-            wDef.customparams.carried_unit = entry.primaryChild
-            wDef.customparams.spawns_name = commaChildren
-            wDef.customparams.spawn_name = commaChildren
-            wDef.customparams.spawn_unit = commaChildren
-            wDef.customparams.spawns = commaChildren
-            wDef.customparams.spawn = commaChildren
-            wDef.customparams.maxunits = countStr
-            wDef.customparams.maxdrones = countStr
-            wDef.customparams.max_units = countStr
-            wDef.customparams.max_drones = countStr
-            wDef.customparams.droneammo = countStr
-            wDef.customparams.spawn_count = countStr
-            wDef.customparams.spawns_max = countStr
-            wDef.customparams.stockpilelimit = countStr
-            wDef.customparams.stockpilemax = countStr
-            wDef.customparams.maxstockpile = countStr
-            wDef.customparams.stockpile_max = countStr
-            wDef.customparams.stockpile_limit = countStr
-            wDef.customparams.stockpilemetal = metalStr
-            wDef.customparams.metalcost = metalStr
-            wDef.customparams.stockpileenergy = energyStr
-            wDef.customparams.energycost = energyStr
-            wDef.customparams.stockpiletime = intervalStr
-            wDef.customparams.controlradius = (entry.isControllable == false) and "1200" or "5000"
-            wDef.customparams.engagementrange = (entry.isControllable == false) and "1300" or "5000"
-            wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
-            wDef.customparams.dronesusestockpile = "true"
-            wDef.customparams.enabledocking = "true"
-          end
+          wDef.customparams.carried_unit = entry.primaryChild
+          wDef.customparams.spawns_name = commaChildren
+          wDef.customparams.spawn_name = commaChildren
+          wDef.customparams.spawn_unit = commaChildren
+          wDef.customparams.spawns = commaChildren
+          wDef.customparams.spawn = commaChildren
+          wDef.customparams.maxunits = countStr
+          wDef.customparams.maxdrones = countStr
+          wDef.customparams.max_units = countStr
+          wDef.customparams.max_drones = countStr
+          wDef.customparams.droneammo = countStr
+          wDef.customparams.spawn_count = countStr
+          wDef.customparams.spawns_max = countStr
+          wDef.customparams.stockpilelimit = countStr
+          wDef.customparams.stockpilemax = countStr
+          wDef.customparams.maxstockpile = countStr
+          wDef.customparams.stockpile_max = countStr
+          wDef.customparams.stockpile_limit = countStr
+          wDef.customparams.stockpilemetal = metalStr
+          wDef.customparams.metalcost = metalStr
+          wDef.customparams.stockpileenergy = energyStr
+          wDef.customparams.energycost = energyStr
+          wDef.customparams.stockpiletime = intervalStr
+          wDef.customparams.controlradius = (entry.isControllable == false) and "1200" or "5000"
+          wDef.customparams.engagementrange = (entry.isControllable == false) and "1300" or "5000"
+          wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
+          wDef.customparams.dronesusestockpile = "true"
+          wDef.customparams.enabledocking = "true"
+        end
+      end
+    end
+
+    if entry.isControllable ~= false then
+      for _, childId in ipairs(entry.allChildren) do
+        local childDef = UnitDefs and UnitDefs[childId]
+        if childDef then
+          childDef.customparams = childDef.customparams or {}
+          childDef.customparams.is_drone = "0"
+          childDef.customparams.drone = 0
+          childDef.customparams.no_tether = "1"
+          childDef.canmove = true
+          childDef.canattack = true
+          childDef.canfight = true
+          childDef.canpatrol = true
+          childDef.canstop = true
+          childDef.cantbetransported = nil
         end
       end
     end
