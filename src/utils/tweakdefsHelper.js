@@ -691,15 +691,17 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.spawn_rate = intervalStr
     u.customparams.spawnrate = intervalStr
     u.customparams.stockpiletime = intervalStr
-    u.customparams.controlradius = (entry.isControllable == false) and "1200" or "5000"
-    u.customparams.engagementrange = (entry.isControllable == false) and "1300" or "5000"
+    u.customparams.controlradius = (entry.isControllable == false) and "1200" or "10000"
+    u.customparams.engagementrange = (entry.isControllable == false) and "1300" or "10000"
     u.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
     u.customparams.dronesusestockpile = "true"
-    u.customparams.enabledocking = "true"
+    u.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
+    u.customparams.autodock = (entry.isControllable == false) and "true" or "false"
     u.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
     u.customparams.drone_controllable = (entry.isControllable == false) and "0" or "1"
     u.customparams.tetherdrones = (entry.isControllable == false) and "1" or "0"
     u.customparams.tether_drones = (entry.isControllable == false) and "1" or "0"
+    u.customparams.no_tether = (entry.isControllable == false) and "0" or "1"
 
     u.buildoptions = entry.allChildren
 
