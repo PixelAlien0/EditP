@@ -815,6 +815,8 @@ if gadgetHandler then
       local cp = uDef.customparams or {}
       if cp.is_controllable == "1" or cp.canselect == "1" or uDef.canselect == true then
         if Spring then
+          if unitTeam and Spring.TransferUnit then Spring.TransferUnit(unitID, unitTeam, false) end
+          if Spring.UnitDetach then Spring.UnitDetach(unitID) end
           if Spring.SetUnitNoSelect then Spring.SetUnitNoSelect(unitID, false) end
           if Spring.SetUnitStealth then Spring.SetUnitStealth(unitID, false) end
           if Spring.SetUnitNoMinimap then Spring.SetUnitNoMinimap(unitID, false) end
