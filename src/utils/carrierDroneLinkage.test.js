@@ -45,7 +45,6 @@ describe('carrierDroneLinkage', () => {
     });
 
     expect(result).toEqual({
-      'customparams.carried_unit': 'armodrone',
       'customparams.spawns_name': 'armodrone',
       'customparams.spawntype': 'air',
       'customparams.spawns_types': 'air',
@@ -73,7 +72,6 @@ describe('carrierDroneLinkage', () => {
       spawnMetal: 100,
     });
 
-    expect(result['customparams.carried_unit']).toBe('corjugg_custom');
     expect(result['customparams.spawns_name']).toBe('corjugg_custom,armantiodrone,corvamp');
     expect(result['customparams.spawns_types']).toBe('ground');
   });

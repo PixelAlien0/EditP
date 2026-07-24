@@ -649,15 +649,15 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
   local u = UnitDefs and UnitDefs[entry.unitId]
   if u then
     u.customparams = u.customparams or {}
-    u.customparams.carried_unit = entry.primaryChild
-    local commaChildren = table.concat(entry.allChildren, ",")
-    u.customparams.spawns_name = commaChildren
-    u.customparams.spawn_name = commaChildren
-    u.customparams.spawn_unit = commaChildren
-    u.customparams.spawns = commaChildren
-    u.customparams.spawn = commaChildren
+    if entry.isControllable ~= false then
+      u.customparams.carried_unit = nil
+      u.customparams.drone = nil
+      u.customparams.is_drone = nil
+    else
+      u.customparams.carried_unit = entry.primaryChild
+    end
+    u.customparams.spawns_name = table.concat(entry.allChildren, ",")
     u.customparams.spawntype = entry.isGround and "ground" or "air"
-    u.customparams.spawns_units = commaChildren
     u.customparams.spawns_types = entry.isGround and "ground" or "air"
     local countStr = tostring(entry.droneAmmo)
     local countNum = tonumber(entry.droneAmmo) or 4

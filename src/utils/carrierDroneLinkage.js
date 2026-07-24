@@ -147,7 +147,7 @@ export function buildCarrierLinkageTweaks(config) {
   const energyStr = String(Math.max(0, Math.round(config.spawnEnergy || 0)));
 
   return {
-    'customparams.carried_unit': primaryId,
+    'customparams.carried_unit': isControllable ? undefined : primaryId,
     'customparams.spawns_name': commaRoster,
     'customparams.spawntype': isGroundMode ? 'ground' : 'air',
     'customparams.spawns_types': isGroundMode ? 'ground' : 'air',
