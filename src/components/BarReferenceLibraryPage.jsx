@@ -101,6 +101,77 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
   );
 }
 
+function FilterSelect({ label, value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(o => o.value === value) || options[0];
+
+  return (
+    <div className="bar-reference-library__select-label" ref={ref}>
+      <span>{label}</span>
+      <button
+        type="button"
+        className="bar-reference-library__select-btn"
+        aria-expanded={open}
+        aria-label={`Filter by ${label.toLowerCase()}`}
+        onClick={() => setOpen(!open)}
+      >
+        <span>{selectedOption?.label}</span>
+        <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" fill="currentColor"><path d="M4 6l4 4 4-4H4z"/></svg>
+      </button>
+      {open && (
+        <div className="bar-reference-library__select-menu" role="menu">
+          {options.map(option => (
+            <button
+              type="button"
+              key={option.value}
+              role="menuitem"
+              className={`bar-reference-library__select-option ${option.value === value ? 'is-selected' : ''}`}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const FACTION_OPTIONS = [
+  { value: 'all', label: 'All Factions' },
+  { value: 'arm', label: 'ARM Armada' },
+  { value: 'core', label: 'CORE Cortex' },
+  { value: 'scavenger', label: 'Scavengers' },
+  { value: 'raptor', label: 'Raptors' },
+  { value: 'other', label: 'Other / Common' },
+];
+
+const USAGE_STATUS_OPTIONS = [
+  { value: 'all', label: 'All Statuses' },
+  { value: 'used', label: 'Used in Definitions' },
+  { value: 'unused', label: 'Unused Standalone' },
+];
+
+const SORT_OPTIONS = [
+  { value: 'relevance', label: 'Catalog Order' },
+  { value: 'usage-desc', label: 'Most Used First' },
+  { value: 'name-asc', label: 'Name (A-Z)' },
+  { value: 'name-desc', label: 'Name (Z-A)' },
+];
+
 export default function BarReferenceLibraryPage({
   units = [],
   defaultsDb = {},
@@ -128,8 +199,8 @@ export default function BarReferenceLibraryPage({
   );
 
   const filtered = useMemo(
-    () => filterBarReferences(catalog.items, { category, query, usedOnly, faction, usageStatus, sortBy }),
-    [catalog.items, category, query, usedOnly, faction, usageStatus, sortBy]
+    () => filterBarReferences(catalog.items, { category, query, faction, usageStatus, sortBy }),
+    [catalog.items, category, query, faction, usageStatus, sortBy]
   );
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
@@ -203,46 +274,24 @@ export default function BarReferenceLibraryPage({
           />
         </label>
         <div className="bar-reference-library__filter-group">
-          <label className="bar-reference-library__select-label">
-            <span>Faction</span>
-            <select
-              aria-label="Filter by faction"
-              value={faction}
-              onChange={event => { setFaction(event.target.value); setPage(0); setSelectedId(''); }}
-            >
-              <option value="all">All Factions</option>
-              <option value="arm">ARM Armada</option>
-              <option value="core">CORE Cortex</option>
-              <option value="scavenger">Scavengers</option>
-              <option value="raptor">Raptors</option>
-              <option value="other">Other / Common</option>
-            </select>
-          </label>
-          <label className="bar-reference-library__select-label">
-            <span>Usage</span>
-            <select
-              aria-label="Filter by usage status"
-              value={usageStatus}
-              onChange={event => { setUsageStatus(event.target.value); setPage(0); setSelectedId(''); }}
-            >
-              <option value="all">All Statuses</option>
-              <option value="used">Used in Definitions</option>
-              <option value="unused">Unused Standalone</option>
-            </select>
-          </label>
-          <label className="bar-reference-library__select-label">
-            <span>Sort by</span>
-            <select
-              aria-label="Sort references"
-              value={sortBy}
-              onChange={event => { setSortBy(event.target.value); setPage(0); setSelectedId(''); }}
-            >
-              <option value="relevance">Catalog Order</option>
-              <option value="usage-desc">Most Used First</option>
-              <option value="name-asc">Name (A-Z)</option>
-              <option value="name-desc">Name (Z-A)</option>
-            </select>
-          </label>
+          <FilterSelect
+            label="Faction"
+            value={faction}
+            options={FACTION_OPTIONS}
+            onChange={val => { setFaction(val); setPage(0); setSelectedId(''); }}
+          />
+          <FilterSelect
+            label="Usage"
+            value={usageStatus}
+            options={USAGE_STATUS_OPTIONS}
+            onChange={val => { setUsageStatus(val); setPage(0); setSelectedId(''); }}
+          />
+          <FilterSelect
+            label="Sort by"
+            value={sortBy}
+            options={SORT_OPTIONS}
+            onChange={val => { setSortBy(val); setPage(0); setSelectedId(''); }}
+          />
         </div>
         <div className="bar-reference-library__result-count"><strong>{filtered.length.toLocaleString()}</strong><span>matches</span></div>
       </section>
