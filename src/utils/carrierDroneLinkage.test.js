@@ -47,6 +47,8 @@ describe('carrierDroneLinkage', () => {
     expect(result).toEqual({
       'customparams.carried_unit': 'armodrone',
       'customparams.spawns_name': 'armodrone',
+      'customparams.spawn_name': 'armodrone',
+      'customparams.spawn_unit': 'armodrone',
       'customparams.droneammo': '8',
       'customparams.spawn_metal_cost': '200',
       'customparams.spawn_energy_cost': '1500',

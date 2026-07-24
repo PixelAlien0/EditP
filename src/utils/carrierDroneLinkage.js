@@ -71,9 +71,15 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
   const unitTweaks = tweaks[unitId] || {};
   const defaults = defaultsDb[unitId] || {};
 
-  const carriedUnit = unitTweaks['customparams.carried_unit'] ?? defaults.customparams?.carried_unit ?? '';
+  const targetChild = unitTweaks['customparams.spawns_name']
+    ?? unitTweaks['customparams.carried_unit']
+    ?? unitTweaks['customparams.spawn_name']
+    ?? unitTweaks['customparams.spawn_unit']
+    ?? defaults.customparams?.spawns_name
+    ?? defaults.customparams?.carried_unit
+    ?? '';
+
   const droneAmmo = Number(unitTweaks['customparams.droneammo'] ?? defaults.customparams?.droneammo ?? 4);
-  const spawnsName = unitTweaks['customparams.spawns_name'] ?? defaults.customparams?.spawns_name ?? carriedUnit;
   const spawnMetal = Number(unitTweaks['customparams.spawn_metal_cost'] ?? defaults.customparams?.spawn_metal_cost ?? 100);
   const spawnEnergy = Number(unitTweaks['customparams.spawn_energy_cost'] ?? defaults.customparams?.spawn_energy_cost ?? 1000);
   const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] ?? defaults.customparams?.spawn_interval ?? 5);
@@ -81,9 +87,9 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
 
   return {
     parentUnitId: unitId,
-    carriedUnit: String(carriedUnit).trim(),
+    carriedUnit: String(targetChild).trim(),
+    spawnsName: String(targetChild).trim(),
     droneAmmo: Number.isFinite(droneAmmo) && droneAmmo > 0 ? droneAmmo : 4,
-    spawnsName: String(spawnsName).trim(),
     spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
     spawnEnergy: Number.isFinite(spawnEnergy) ? spawnEnergy : 1000,
     spawnInterval: Number.isFinite(spawnInterval) && spawnInterval > 0 ? spawnInterval : 5,
@@ -95,15 +101,17 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
  * Formats carrier linkage state into unit tweaks key-value pairs
  */
 export function buildCarrierLinkageTweaks(config) {
-  if (!config || !config.parentUnitId || !config.carriedUnit) {
+  if (!config || !config.parentUnitId || (!config.carriedUnit && !config.spawnsName)) {
     return {};
   }
 
-  const childId = String(config.carriedUnit).trim().toLowerCase();
+  const childId = String(config.carriedUnit || config.spawnsName).trim().toLowerCase();
 
   return {
     'customparams.carried_unit': childId,
-    'customparams.spawns_name': config.spawnsName ? String(config.spawnsName).trim().toLowerCase() : childId,
+    'customparams.spawns_name': childId,
+    'customparams.spawn_name': childId,
+    'customparams.spawn_unit': childId,
     'customparams.droneammo': String(Math.max(1, Math.min(30, Math.round(config.droneAmmo || 4)))),
     'customparams.spawn_metal_cost': String(Math.max(0, Math.round(config.spawnMetal || 0))),
     'customparams.spawn_energy_cost': String(Math.max(0, Math.round(config.spawnEnergy || 0))),
