@@ -68,6 +68,7 @@ const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabP
 const LazyBarReferenceLibraryPage = lazy(() => import('./components/BarReferenceLibraryPage.jsx'));
 const LazyBehaviorInterceptorEditor = lazy(() => import('./components/editor/BehaviorInterceptorEditor.jsx'));
 const LazyFormulaMutatorDialog = lazy(() => import('./components/FormulaMutatorDialog.jsx'));
+const LazyCarrierDroneWorkbenchDialog = lazy(() => import('./components/CarrierDroneWorkbenchDialog.jsx'));
 
 // Keep the laboratory code available while this experimental workspace is temporarily unpublished.
 const WEAPON_LAB_ENABLED = false;
@@ -352,6 +353,7 @@ export default function App() {
   // Bulk Edit states
   const [showBulkPanel, setShowBulkPanel] = useState(false);
   const [showFormulaMutator, setShowFormulaMutator] = useState(false);
+  const [showCarrierWorkbench, setShowCarrierWorkbench] = useState(false);
   const [showRandomPanel, setShowRandomPanel] = useState(false);
   const [randomScope, setRandomScope] = useState('selected');
   const [randomIntensity, setRandomIntensity] = useState('balanced');
@@ -1747,6 +1749,29 @@ export default function App() {
     setCloneDesc('');
   };
 
+  const handleQuickCreateCloneFromWorkbench = ({ baseId, newId, name }) => {
+    const cleanBase = baseId.trim().toLowerCase();
+    const cleanNew = newId.trim().toLowerCase();
+    const cleanName = name.trim();
+
+    if (!cleanBase || !cleanNew) return;
+    if (allUnitsList.some(u => u.id === cleanNew)) return;
+
+    const baseUnit = allUnitsList.find(u => u.id === cleanBase);
+    const newClone = {
+      baseId: cleanBase,
+      newId: cleanNew,
+      displayName: cleanName || cleanNew,
+      faction: baseUnit?.faction || 'all',
+      builderIds: [],
+    };
+
+    setIncludeClones(true);
+    setClones(prev => [...prev, newClone]);
+    setSelectedUnitId(cleanNew);
+    showToast(`Created custom drone clone "${cleanName || cleanNew}".`);
+  };
+
   // Reset tweaks
   const handleResetUnit = (unitId) => {
     setTweaks(prev => {
@@ -2444,6 +2469,18 @@ export default function App() {
     showToast(`Applied formula override to ${updates.length.toLocaleString()} ${updates.length === 1 ? 'unit' : 'units'}.`);
   }, [showToast]);
 
+  const handleApplyCarrierLinkage = useCallback((parentUnitId, compiledTweaks) => {
+    if (!parentUnitId || !compiledTweaks) return;
+    setTweaks(prevTweaks => {
+      const next = { ...prevTweaks };
+      const existing = { ...(next[parentUnitId] || {}) };
+      Object.assign(existing, compiledTweaks);
+      next[parentUnitId] = existing;
+      return next;
+    });
+    showToast(`Linked carrier "${parentUnitId}" to deployed drone "${compiledTweaks['customparams.carried_unit']}".`);
+  }, [showToast]);
+
   const activeFaction = useMemo(() => {
     if (selectedUnit) {
       return selectedUnit.faction || 'all';
@@ -2794,6 +2831,9 @@ export default function App() {
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowFormulaMutator(true); setShowToolsMenu(false); }}>
                     <span><strong>Formula Mutator</strong><small>Evaluate math scaling equations</small></span>
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => { setShowCarrierWorkbench(true); setShowToolsMenu(false); }}>
+                    <span><strong>Carrier &amp; Drone Studio</strong><small>Forge parent-child carrier hangars</small></span>
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>
                     <span><strong>Preset Gallery</strong><small>Apply or save project snapshots</small></span>
@@ -5987,6 +6027,17 @@ export default function App() {
         defaultsDb={defaultsDb}
         tweaks={tweaks}
         onApplyFormula={handleApplyFormula}
+      /></Suspense>}
+      {showCarrierWorkbench && <Suspense fallback={null}><LazyCarrierDroneWorkbenchDialog
+        open={showCarrierWorkbench}
+        onClose={() => setShowCarrierWorkbench(false)}
+        units={allUnitsList}
+        clones={clones}
+        selectedUnit={selectedUnit}
+        defaultsDb={defaultsDb}
+        tweaks={tweaks}
+        onApplyLinkage={handleApplyCarrierLinkage}
+        onCreateClone={handleQuickCreateCloneFromWorkbench}
       /></Suspense>}
       {showSummaryModal && <Suspense fallback={null}><LazySummaryExplorerDialog
         open={showSummaryModal}
