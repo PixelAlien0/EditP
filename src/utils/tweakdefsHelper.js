@@ -605,40 +605,49 @@ export function extractBlock(luaScript, beginMarker, endMarker) {
   return trimScript.slice(startIdx, endIdx + endMarker.length);
 }
 
-export function generateCarrierLinkagesBlockLua(tweaks = {}) {
-  const entries = [];
-  Object.entries(tweaks).forEach(([unitId, unitTweaks]) => {
-    if (!unitTweaks) return;
-    const targetChild = unitTweaks['customparams.spawns_name']
-      ?? unitTweaks['customparams.spawns']
-      ?? unitTweaks['customparams.carried_unit']
-      ?? unitTweaks['customparams.spawn_name']
-      ?? unitTweaks['customparams.spawn_unit'];
+export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
+  let entries = [];
+  if (Array.isArray(tweaksOrEntries)) {
+    entries = tweaksOrEntries;
+  } else if (tweaksOrEntries && typeof tweaksOrEntries === 'object') {
+    entries = Object.entries(tweaksOrEntries)
+      .map(([unitId, unitTweaks]) => {
+        if (!unitTweaks || typeof unitTweaks !== 'object') return null;
+        const primaryChild = unitTweaks['customparams.carried_unit']
+          || unitTweaks['customparams.spawns_name']
+          || unitTweaks['customparams.spawns']
+          || '';
+        if (!primaryChild) return null;
 
-    if (!targetChild) return;
+        const allChildren = String(unitTweaks['customparams.spawns_name'] || primaryChild)
+          .split(',')
+          .map(s => s.trim().toLowerCase())
+          .filter(Boolean);
 
-    const childUnits = String(targetChild)
-      .split(',')
-      .map(s => s.trim().toLowerCase())
+        const isGround = unitTweaks['customparams.spawntype'] === 'ground';
+        const isControllable = unitTweaks['customparams.carrierdeaththroe'] === 'release' ||
+          unitTweaks['customparams.is_controllable'] === '1' ||
+          unitTweaks['customparams.carrierdeaththroe'] === undefined;
+
+        const droneAmmo = Number(unitTweaks['customparams.droneammo'] || unitTweaks['customparams.maxunits'] || 4);
+        const spawnMetal = Number(unitTweaks['customparams.spawn_metal_cost'] || unitTweaks['customparams.metalcost'] || 100);
+        const spawnEnergy = Number(unitTweaks['customparams.spawn_energy_cost'] || unitTweaks['customparams.energycost'] || 1000);
+        const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] || unitTweaks['customparams.spawnrate'] || 5);
+
+        return {
+          unitId,
+          primaryChild,
+          allChildren,
+          isGround,
+          isControllable,
+          droneAmmo: Number.isFinite(droneAmmo) ? droneAmmo : 4,
+          spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
+          spawnEnergy: Number.isFinite(spawnEnergy) ? spawnEnergy : 1000,
+          spawnInterval: Number.isFinite(spawnInterval) ? spawnInterval : 5,
+        };
+      })
       .filter(Boolean);
-
-    if (childUnits.length === 0) return;
-
-    const primaryChild = childUnits[0];
-    const isGround = unitTweaks['customparams.carried_unit'] === '';
-
-    entries.push({
-      unitId: unitId.toLowerCase(),
-      primaryChild,
-      allChildren: childUnits,
-      isGround,
-      droneAmmo: String(unitTweaks['customparams.droneammo'] || unitTweaks['customparams.spawn_count'] || '4'),
-      spawnMetal: String(unitTweaks['customparams.spawn_metal_cost'] || '100'),
-      spawnEnergy: String(unitTweaks['customparams.spawn_energy_cost'] || '1000'),
-      spawnInterval: String(unitTweaks['customparams.spawn_interval'] || unitTweaks['customparams.spawn_rate'] || '5'),
-      returnHp: String(unitTweaks['customparams.drone_return_hp'] || '25'),
-    });
-  });
+  }
 
   if (entries.length === 0) return '';
 
