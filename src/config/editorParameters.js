@@ -418,7 +418,7 @@ export const WEAPON_SLOT_BOOLEAN_PARAMS = new Set([
 export const WEAPON_SLOT_STRING_PARAMS = new Set([
   'weapontype', 'cegTag', 'model', 'explosiongenerator', 'rgbcolor', 'rgbcolor2',
   'soundstart', 'soundhit', 'soundhitwet', 'soundhitdry', 'texture1', 'texture2', 'texture3', 'colormap',
-  'spawns_name', 'spawns_surface', 'cluster_def',
+  'spawns_name', 'spawns_surface', 'cluster_def', 'carried_unit', 'carrierdeaththroe', 'enabledocking',
 ]);
 
 export const WEAPON_SLOT_MOUNT_PARAMS = new Set([

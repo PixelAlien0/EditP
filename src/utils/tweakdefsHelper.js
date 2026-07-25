@@ -616,10 +616,15 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
         const primaryChild = unitTweaks['customparams.carried_unit']
           || unitTweaks['customparams.spawns_name']
           || unitTweaks['customparams.spawns']
+          || Object.entries(unitTweaks).find(([k]) => (k.includes('carried_unit') || k.includes('spawns_name')) && typeof unitTweaks[k] === 'string')?.[1]
           || '';
         if (!primaryChild) return null;
 
-        const allChildren = String(unitTweaks['customparams.spawns_name'] || primaryChild)
+        const spawnsNameVal = unitTweaks['customparams.spawns_name']
+          || Object.entries(unitTweaks).find(([k]) => k.includes('spawns_name') && typeof unitTweaks[k] === 'string')?.[1]
+          || primaryChild;
+
+        const allChildren = String(spawnsNameVal)
           .split(',')
           .map(s => s.trim().toLowerCase())
           .filter(Boolean);
