@@ -648,14 +648,24 @@ local editp_carrier_linkages = ${serializeLuaTable({ entries })}
 for _, entry in ipairs(editp_carrier_linkages.entries) do
   local u = UnitDefs and UnitDefs[entry.unitId]
   if u then
+    local countStr = tostring(entry.droneAmmo)
+    local countNum = tonumber(entry.droneAmmo) or 4
+    local intervalStr = tostring(entry.spawnInterval)
+    local intervalNum = tonumber(entry.spawnInterval) or 5
+    local metalStr = tostring(entry.spawnMetal)
+    local energyStr = tostring(entry.spawnEnergy)
+
     u.customparams = u.customparams or {}
     u.customparams.carried_unit = entry.primaryChild
     u.customparams.spawns_name = table.concat(entry.allChildren, ",")
-    u.customparams.droneammo = tostring(entry.droneAmmo)
-    u.customparams.maxunits = tostring(entry.droneAmmo)
-    u.customparams.spawn_metal_cost = tostring(entry.spawnMetal)
-    u.customparams.spawn_energy_cost = tostring(entry.spawnEnergy)
-    u.customparams.spawn_interval = tostring(entry.spawnInterval)
+    u.customparams.droneammo = countStr
+    u.customparams.maxunits = countStr
+    u.customparams.stockpilelimit = countStr
+    u.customparams.maxdrones = countStr
+    u.customparams.startingdronecount = countStr
+    u.customparams.spawn_metal_cost = metalStr
+    u.customparams.spawn_energy_cost = energyStr
+    u.customparams.spawn_interval = intervalStr
     u.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
     u.customparams.enabledocking = (entry.isControllable == false) and true or false
     u.customparams.docktohealthreshold = (entry.isControllable == false) and 33 or 0
@@ -667,17 +677,20 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       for _, wDef in pairs(u.weapondefs) do
         if type(wDef) == "table" then
           wDef.stockpile = true
-          wDef.coverage = tonumber(entry.droneAmmo) or 4
-          wDef.stockpiletime = tonumber(entry.spawnInterval) or 5
-          wDef.reloadtime = tonumber(entry.spawnInterval) or 5
+          wDef.coverage = countNum
+          wDef.stockpiletime = intervalNum
+          wDef.reloadtime = intervalNum
           wDef.customparams = wDef.customparams or {}
           wDef.customparams.carried_unit = entry.primaryChild
           wDef.customparams.spawns_name = table.concat(entry.allChildren, ",")
-          wDef.customparams.maxunits = tostring(entry.droneAmmo)
-          wDef.customparams.droneammo = tostring(entry.droneAmmo)
-          wDef.customparams.spawnrate = tostring(entry.spawnInterval)
-          wDef.customparams.metalcost = tostring(entry.spawnMetal)
-          wDef.customparams.energycost = tostring(entry.spawnEnergy)
+          wDef.customparams.maxunits = countStr
+          wDef.customparams.droneammo = countStr
+          wDef.customparams.stockpilelimit = countStr
+          wDef.customparams.maxdrones = countStr
+          wDef.customparams.startingdronecount = countStr
+          wDef.customparams.spawnrate = intervalStr
+          wDef.customparams.metalcost = metalStr
+          wDef.customparams.energycost = energyStr
           wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
           wDef.customparams.enabledocking = (entry.isControllable == false) and true or false
           wDef.customparams.docktohealthreshold = (entry.isControllable == false) and 33 or 0
@@ -697,6 +710,12 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
           childDef.canpatrol = true
           childDef.canstop = true
           childDef.customparams = childDef.customparams or {}
+          childDef.customparams.is_drone = nil
+          childDef.customparams.drone = nil
+          childDef.customparams.dronetype = nil
+          childDef.customparams.no_tether = "1"
+          childDef.customparams.no_select = "0"
+          childDef.customparams.noselect = "0"
           childDef.customparams.canselect = "1"
           childDef.customparams.is_controllable = "1"
           childDef.customparams.drone_controllable = "1"
