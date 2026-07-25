@@ -652,20 +652,53 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.carried_unit = entry.primaryChild
     u.customparams.spawns_name = table.concat(entry.allChildren, ",")
     u.customparams.droneammo = tostring(entry.droneAmmo)
+    u.customparams.maxunits = tostring(entry.droneAmmo)
     u.customparams.spawn_metal_cost = tostring(entry.spawnMetal)
     u.customparams.spawn_energy_cost = tostring(entry.spawnEnergy)
     u.customparams.spawn_interval = tostring(entry.spawnInterval)
     u.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
     u.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
+    u.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
 
     u.buildoptions = entry.allChildren
 
-    for _, childId in ipairs(entry.allChildren) do
-      local childDef = UnitDefs and UnitDefs[childId]
-      if childDef then
-        childDef.canselect = true
-        childDef.canmove = true
-        childDef.canattack = true
+    if type(u.weapondefs) == "table" then
+      for _, wDef in pairs(u.weapondefs) do
+        if type(wDef) == "table" then
+          wDef.stockpile = true
+          wDef.coverage = tonumber(entry.droneAmmo) or 4
+          wDef.stockpiletime = tonumber(entry.spawnInterval) or 5
+          wDef.reloadtime = tonumber(entry.spawnInterval) or 5
+          wDef.customparams = wDef.customparams or {}
+          wDef.customparams.carried_unit = entry.primaryChild
+          wDef.customparams.spawns_name = table.concat(entry.allChildren, ",")
+          wDef.customparams.maxunits = tostring(entry.droneAmmo)
+          wDef.customparams.droneammo = tostring(entry.droneAmmo)
+          wDef.customparams.spawnrate = tostring(entry.spawnInterval)
+          wDef.customparams.metalcost = tostring(entry.spawnMetal)
+          wDef.customparams.energycost = tostring(entry.spawnEnergy)
+          wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
+          wDef.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
+          wDef.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
+        end
+      end
+    end
+
+    if entry.isControllable ~= false then
+      for _, childId in ipairs(entry.allChildren) do
+        local childDef = UnitDefs and UnitDefs[childId]
+        if childDef then
+          childDef.canselect = true
+          childDef.canmove = true
+          childDef.canattack = true
+          childDef.canfight = true
+          childDef.canpatrol = true
+          childDef.canstop = true
+          childDef.customparams = childDef.customparams or {}
+          childDef.customparams.canselect = "1"
+          childDef.customparams.is_controllable = "1"
+          childDef.customparams.drone_controllable = "1"
+        end
       end
     end
   end
