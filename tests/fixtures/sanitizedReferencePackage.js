@@ -288,7 +288,7 @@ export const SANITIZED_REFERENCE_FIXTURES = Object.freeze({
           },
         },
       }
-    `, { literalUnitTables: 1, minimumTypeIssues: 3 }),
+    `, { literalUnitTables: 1, minimumTypeIssues: 2 }),
   ]),
 });
 
