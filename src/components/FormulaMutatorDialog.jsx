@@ -93,7 +93,7 @@ export default function FormulaMutatorDialog({
           position: 'absolute',
           inset: 0,
           zIndex: 1000,
-          backgroundColor: 'rgba(10, 14, 20, 0.88)',
+          backgroundColor: 'var(--color-overlay, rgba(20, 18, 17, 0.75))',
           backdropFilter: 'blur(12px)',
           display: 'flex',
           alignItems: 'center',
@@ -103,11 +103,11 @@ export default function FormulaMutatorDialog({
           <div style={{
             maxWidth: '480px',
             width: '100%',
-            backgroundColor: 'var(--panel-bg, #161d26)',
-            border: '1px solid var(--border-color, rgba(255, 255, 255, 0.12))',
-            borderRadius: '12px',
+            backgroundColor: 'var(--color-surface-raised, #2c2927)',
+            border: '1px solid var(--color-border-strong, rgba(239, 222, 207, 0.25))',
+            borderRadius: 'var(--radius-md, 8px)',
             padding: '36px 32px',
-            boxShadow: '0 24px 64px rgba(0, 0, 0, 0.7)',
+            boxShadow: 'var(--shadow-float, 0 18px 48px rgba(0, 0, 0, 0.4))',
             textAlign: 'center',
             display: 'flex',
             flexDirection: 'column',
@@ -117,10 +117,10 @@ export default function FormulaMutatorDialog({
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
-              background: 'rgba(255, 183, 77, 0.12)',
-              color: '#ffb74d',
-              border: '1px solid rgba(255, 183, 77, 0.25)',
-              borderRadius: '4px',
+              background: 'var(--color-warning-surface, rgba(211, 166, 110, 0.15))',
+              color: 'var(--color-warning, #d3a66e)',
+              border: '1px solid var(--color-border-warm, rgba(211, 166, 110, 0.3))',
+              borderRadius: 'var(--radius-xs, 3px)',
               padding: '4px 10px',
               fontSize: '11px',
               fontWeight: 700,
@@ -134,8 +134,8 @@ export default function FormulaMutatorDialog({
               margin: 0,
               fontSize: '20px',
               fontWeight: 600,
-              color: '#f8fafc',
-              fontFamily: 'var(--font-sans, inherit)',
+              color: 'var(--color-text-strong, #f2e9df)',
+              fontFamily: 'var(--font-ui, sans-serif)',
               letterSpacing: '-0.01em'
             }}>
               Feature Under Active Development
@@ -143,7 +143,7 @@ export default function FormulaMutatorDialog({
             <p style={{
               margin: 0,
               fontSize: '13.5px',
-              color: '#94a3b8',
+              color: 'var(--color-text-muted, #b5a79c)',
               lineHeight: 1.65,
               maxWidth: '400px'
             }}>
