@@ -56,6 +56,19 @@ export const CARRIER_ARCHETYPES = [
     returnHpPercent: 40,
     description: 'High-altitude satellite platform launching space-combat drones.',
   },
+  {
+    id: 'rampart_geothermal',
+    name: 'Rampart Geothermal Platform',
+    faction: 'leg',
+    parentUnitId: 'legrampart',
+    childUnitId: 'legbasicassistdrone',
+    capacity: 20,
+    spawnInterval: 4,
+    metalCost: 90,
+    energyCost: 1000,
+    returnHpPercent: 0,
+    description: 'Geothermal defence structure launching independent controllable combat drones.',
+  },
 ];
 
 /**
