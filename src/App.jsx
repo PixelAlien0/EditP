@@ -2858,10 +2858,10 @@ export default function App() {
                     <span><strong>Batch Adjust</strong><small>Apply controlled changes across units</small></span>
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowFormulaMutator(true); setShowToolsMenu(false); }}>
-                    <span><strong>Formula Mutator <small style={{ color: '#ffb74d', fontWeight: 600 }}>[DEV]</small></strong><small>Evaluate math scaling equations (In Development)</small></span>
+                    <span><strong>Formula Mutator <small style={{ color: '#ffb74d', fontFamily: 'monospace', fontWeight: 700 }}>[DEV]</small></strong><small>Evaluate math scaling equations</small></span>
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowCarrierWorkbench(true); setShowToolsMenu(false); }}>
-                    <span><strong>Carrier &amp; Drone Studio <small style={{ color: '#ffb74d', fontWeight: 600 }}>[DEV]</small></strong><small>Forge parent-child carrier hangars (In Development)</small></span>
+                    <span><strong>Carrier &amp; Drone Studio <small style={{ color: '#ffb74d', fontFamily: 'monospace', fontWeight: 700 }}>[DEV]</small></strong><small>Forge parent-child carrier hangars</small></span>
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>
                     <span><strong>Preset Gallery</strong><small>Apply or save project snapshots</small></span>

@@ -191,49 +191,76 @@ export default function CarrierDroneWorkbenchDialog({
         <div style={{
           position: 'absolute',
           inset: 0,
-          zIndex: 999,
-          background: 'rgba(10, 14, 20, 0.92)',
-          backdropFilter: 'blur(8px)',
+          zIndex: 1000,
+          backgroundColor: 'rgba(10, 14, 20, 0.88)',
+          backdropFilter: 'blur(12px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '24px',
-          borderRadius: '12px'
+          padding: '32px'
         }}>
           <div style={{
-            maxWidth: '460px',
-            background: 'var(--panel-bg, #161d26)',
-            border: '1px solid var(--border-color, #3a4756)',
+            maxWidth: '480px',
+            width: '100%',
+            backgroundColor: 'var(--panel-bg, #161d26)',
+            border: '1px solid var(--border-color, rgba(255, 255, 255, 0.12))',
             borderRadius: '12px',
-            padding: '28px',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
-            textAlign: 'center'
+            padding: '36px 32px',
+            boxShadow: '0 24px 64px rgba(0, 0, 0, 0.7)',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px'
           }}>
-            <div style={{ fontSize: '36px', marginBottom: '12px' }}>⚙️</div>
             <div style={{
-              display: 'inline-block',
-              background: 'rgba(255, 183, 77, 0.15)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'rgba(255, 183, 77, 0.12)',
               color: '#ffb74d',
-              border: '1px solid rgba(255, 183, 77, 0.3)',
-              borderRadius: '20px',
-              padding: '4px 12px',
+              border: '1px solid rgba(255, 183, 77, 0.25)',
+              borderRadius: '4px',
+              padding: '4px 10px',
               fontSize: '11px',
               fontWeight: 700,
-              letterSpacing: '0.05em',
+              letterSpacing: '0.08em',
               textTransform: 'uppercase',
-              marginBottom: '12px'
+              fontFamily: 'var(--font-mono, monospace)'
+            }}>
+              EXPERIMENTAL FEATURE
+            </div>
+            <h3 style={{
+              margin: 0,
+              fontSize: '20px',
+              fontWeight: 600,
+              color: '#f8fafc',
+              fontFamily: 'var(--font-sans, inherit)',
+              letterSpacing: '-0.01em'
             }}>
               Feature Under Active Development
-            </div>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '20px', color: '#f0f4f8' }}>
-              Carrier &amp; Drone Studio Disclaimer
             </h3>
-            <p style={{ margin: '0 0 20px 0', fontSize: '13.5px', color: '#94a3b8', lineHeight: 1.6 }}>
-              The <strong>Carrier &amp; Deployed Drone Studio</strong> is currently under active development. Linkages, spawner parameters, and drone behavior options are experimental.
+            <p style={{
+              margin: 0,
+              fontSize: '13.5px',
+              color: '#94a3b8',
+              lineHeight: 1.65,
+              maxWidth: '400px'
+            }}>
+              The <strong>Carrier &amp; Deployed Drone Studio</strong> is currently an experimental workbench module. Drone carrier linkages and spawner parameters are still being refined.
             </p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <Button type="button" variant="secondary" onClick={onClose}>Back to Editor</Button>
-              <Button type="button" variant="primary" onClick={() => setWipAcknowledged(true)}>Proceed to Workbench</Button>
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              marginTop: '12px',
+              width: '100%',
+              justifyContent: 'center'
+            }}>
+              <Button type="button" variant="secondary" onClick={onClose} style={{ minWidth: '130px' }}>
+                Back to Editor
+              </Button>
+              <Button type="button" variant="primary" onClick={() => setWipAcknowledged(true)} style={{ minWidth: '160px' }}>
+                Proceed to Workbench
+              </Button>
             </div>
           </div>
         </div>
