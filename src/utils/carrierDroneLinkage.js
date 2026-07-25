@@ -150,10 +150,15 @@ export function buildCarrierLinkageTweaks(config) {
     'customparams.carried_unit': primaryId,
     'customparams.spawns_name': commaRoster,
     'customparams.droneammo': countStr,
+    'customparams.maxunits': countStr,
     'customparams.spawn_metal_cost': metalStr,
+    'customparams.metalcost': metalStr,
     'customparams.spawn_energy_cost': energyStr,
+    'customparams.energycost': energyStr,
     'customparams.spawn_interval': intervalStr,
+    'customparams.spawnrate': intervalStr,
     'customparams.carrierdeaththroe': isControllable ? 'release' : 'destroy',
-    'customparams.enabledocking': isControllable ? 'false' : 'true',
+    'customparams.enabledocking': isControllable ? false : true,
+    'customparams.docktohealthreshold': isControllable ? 0 : 33,
   };
 }

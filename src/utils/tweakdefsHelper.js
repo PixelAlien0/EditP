@@ -657,7 +657,8 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.spawn_energy_cost = tostring(entry.spawnEnergy)
     u.customparams.spawn_interval = tostring(entry.spawnInterval)
     u.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
-    u.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
+    u.customparams.enabledocking = (entry.isControllable == false) and true or false
+    u.customparams.docktohealthreshold = (entry.isControllable == false) and 33 or 0
     u.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
 
     u.buildoptions = entry.allChildren
@@ -678,7 +679,8 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
           wDef.customparams.metalcost = tostring(entry.spawnMetal)
           wDef.customparams.energycost = tostring(entry.spawnEnergy)
           wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
-          wDef.customparams.enabledocking = (entry.isControllable == false) and "true" or "false"
+          wDef.customparams.enabledocking = (entry.isControllable == false) and true or false
+          wDef.customparams.docktohealthreshold = (entry.isControllable == false) and 33 or 0
           wDef.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
         end
       end
