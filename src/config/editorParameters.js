@@ -257,7 +257,7 @@ export const STAT_KEYS = Object.freeze([
   { key: 'customparams.carrierdeaththroe', label: 'Carrier Death Behavior', icon: '[CDT]', type: 'string', nestedIn: 'customparams', patchKey: 'carrierdeaththroe' },
   { key: 'customparams.metalcost', label: 'Carried Unit Metal Cost', icon: '[CMC]', type: 'number', nestedIn: 'customparams', patchKey: 'metalcost' },
   { key: 'customparams.energycost', label: 'Carried Unit Energy Cost', icon: '[CEC]', type: 'number', nestedIn: 'customparams', patchKey: 'energycost' },
-  { key: 'needgeo', label: 'Requires Geothermal Vent', icon: '[GEO]', type: 'boolean' },
+  { key: 'needgeo', label: 'Requires Geothermal Vent', icon: '[GEO]', type: 'boolean', alwaysRelevant: true },
   { key: 'maxslope', label: 'Max Slope', icon: '[SLP]', type: 'number' },
   { key: 'maxwaterdepth', label: 'Max Depth', icon: '[DEP]', type: 'number' },
   { key: 'minwaterdepth', label: 'Min Depth', icon: '[MIN]', type: 'number' },
@@ -377,7 +377,7 @@ export function getApplicableUnitParameters(parameters, defaults = {}, tweaks = 
 }
 
 export const MOBILITY_STAT_KEYS = new Set([
-  'maxvelocity', 'acceleration', 'brakerate', 'turnrate', 'maxslope', 'maxwaterdepth',
+  'maxvelocity', 'acceleration', 'brakerate', 'turnrate', 'needgeo', 'maxslope', 'maxwaterdepth',
   'minwaterdepth', 'transportcapacity', 'cantbetransported', 'cruisealt',
   'waterline', 'maxreversevelocity', 'turninplace', 'turninplaceanglelimit', 'turninplacespeedlimit',
   'separationdistance', 'maxbank', 'maxpitch', 'turnradius', 'maxaileron', 'maxelevator',
