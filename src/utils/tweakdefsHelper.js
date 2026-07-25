@@ -12,8 +12,61 @@ export const CARRIER_LINKAGE_BEGIN = '-- EDITP_CARRIER_LINKAGE_BEGIN';
 export const CARRIER_LINKAGE_END = '-- EDITP_CARRIER_LINKAGE_END';
 
 
+export const UNIT_TWEAKS_BEGIN = '-- EDITP_UNIT_TWEAKS_BEGIN';
+export const UNIT_TWEAKS_END = '-- EDITP_UNIT_TWEAKS_END';
+
 function escapeLuaString(str) {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+export function generateUnitTweaksBlockLua(tweaks = {}) {
+  if (!tweaks || typeof tweaks !== 'object') return '';
+  const entries = Object.entries(tweaks).filter(([unitId, unitTweaks]) => {
+    return unitId && unitTweaks && typeof unitTweaks === 'object' && Object.keys(unitTweaks).length > 0;
+  });
+  if (entries.length === 0) return '';
+
+  const luaLines = [];
+  entries.forEach(([unitId, unitTweaks]) => {
+    const cleanUnitId = unitId.trim().toLowerCase();
+    const sets = [];
+    Object.entries(unitTweaks).forEach(([key, val]) => {
+      if (val === undefined || val === null) return;
+      if (key.startsWith('weapon_slot_')) {
+        const match = key.match(/^weapon_slot_(\d+)_(.+)$/);
+        if (match) {
+          const slotNum = match[1];
+          const rawParam = match[2];
+          let param = rawParam;
+          if (rawParam === 'velocity') param = 'weaponvelocity';
+          else if (rawParam === 'reload') param = 'reloadtime';
+          else if (rawParam === 'aoe') param = 'areaofeffect';
+          let valExpr = typeof val === 'boolean' ? (val ? 'true' : 'false') : (typeof val === 'number' ? val : JSON.stringify(val));
+          sets.push(`    if u.weapons and u.weapons[${slotNum}] and u.weapons[${slotNum}].def then
+      local wKey = string.lower(u.weapons[${slotNum}].def)
+      if u.weapondefs and u.weapondefs[wKey] then
+        u.weapondefs[wKey].${param} = ${valExpr}
+      end
+    end`);
+        }
+      }
+    });
+
+    if (sets.length > 0) {
+      luaLines.push(`  local u = UnitDefs and UnitDefs[${JSON.stringify(cleanUnitId)}]
+  if u then
+${sets.join('\n')}
+  end`);
+    }
+  });
+
+  if (luaLines.length === 0) return '';
+
+  return `${UNIT_TWEAKS_BEGIN}
+do
+${luaLines.join('\n')}
+end
+${UNIT_TWEAKS_END}`;
 }
 
 export function generateDeathProfilesBlockLua(profiles = []) {
@@ -763,7 +816,7 @@ export function compileTweakDefsLua({
     .replace(/^-- ----------------------------------------------------[\r\n]*/gm, '')
     .trim();
 
-  const cleanBody = stripBlock(stripBlock(
+  const cleanBody = stripBlock(stripBlock(stripBlock(
     stripBlock(stripBlock(
       stripBlock(
         strippedText,
@@ -774,7 +827,7 @@ export function compileTweakDefsLua({
       DEATH_PROFILE_END,
     ), SUPPORTING_WEAPONDEFS_BEGIN, SUPPORTING_WEAPONDEFS_END),
     CARRIER_LINKAGE_BEGIN, CARRIER_LINKAGE_END
-  ).trim();
+  ), UNIT_TWEAKS_BEGIN, UNIT_TWEAKS_END).trim();
   
   const includeCloneDefinitions = compileFlags?.includeClones ?? true;
   const clonesBlock = includeCloneDefinitions
@@ -796,12 +849,14 @@ export function compileTweakDefsLua({
   const deathProfileBlock = generateDeathProfilesBlockLua(deathExplosionTweaks);
   const supportingWeaponDefsBlock = generateSupportingWeaponDefsBlockLua(supportingWeaponDefs);
   const carrierLinkagesBlock = generateCarrierLinkagesBlockLua(tweaks);
+  const unitTweaksBlock = generateUnitTweaksBlockLua(tweaks);
   
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);
   if (clonesBlock.length > 0) {
     parts.push(`do\n${clonesBlock}\nend`);
   }
+  if (unitTweaksBlock.length > 0) parts.push(unitTweaksBlock);
   if (carrierLinkagesBlock.length > 0) parts.push(carrierLinkagesBlock);
   if (supportingWeaponDefsBlock.length > 0) parts.push(supportingWeaponDefsBlock);
   if (buildMenuBlock.length > 0) {
