@@ -355,6 +355,7 @@ export default function App() {
   const [showFormulaMutator, setShowFormulaMutator] = useState(false);
   const [showCarrierWorkbench, setShowCarrierWorkbench] = useState(false);
   const [showRandomPanel, setShowRandomPanel] = useState(false);
+  const [wipRandomPanelAcknowledged, setWipRandomPanelAcknowledged] = useState(false);
   const [randomScope, setRandomScope] = useState('selected');
   const [randomIntensity, setRandomIntensity] = useState('balanced');
   const [randomDomains, setRandomDomains] = useState({ economy: true, durability: true, mobility: true, weapons: true });
@@ -2866,9 +2867,9 @@ export default function App() {
                   <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>
                     <span><strong>Preset Gallery</strong><small>Apply or save project snapshots</small></span>
                   </button>
-                  {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}><span><strong>Weapon Lab</strong><small>Develop custom weapon blueprints</small></span></button>}
+                  {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}><span><strong>Weapon Lab <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Develop custom weapon blueprints</small></span></button>}
                   <button type="button" role="menuitem" onClick={() => { setShowRandomPanel(true); setShowToolsMenu(false); }}>
-                    <span><strong>Mutation Lab</strong><small>Generate deliberate random adjustments</small></span>
+                    <span><strong>Mutation Lab <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Generate deliberate random adjustments</small></span>
                   </button>
                 </div>
                 <div className="header-tools-menu__group" aria-label="Package and reference tools">
@@ -5800,6 +5801,84 @@ export default function App() {
       {/* Mutation Lab */}
       {showRandomPanel && (
         <div className="mutation-lab-overlay">
+          {!wipRandomPanelAcknowledged && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 1000,
+              backgroundColor: 'var(--color-overlay, rgba(20, 18, 17, 0.75))',
+              backdropFilter: 'blur(12px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '32px'
+            }}>
+              <div style={{
+                maxWidth: '480px',
+                width: '100%',
+                backgroundColor: 'var(--color-surface-raised, #2c2927)',
+                border: '1px solid var(--color-border-strong, rgba(239, 222, 207, 0.25))',
+                borderRadius: 'var(--radius-md, 8px)',
+                padding: '36px 32px',
+                boxShadow: 'var(--shadow-float, 0 18px 48px rgba(0, 0, 0, 0.4))',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '16px'
+              }}>
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  background: 'var(--color-warning-surface, rgba(211, 166, 110, 0.15))',
+                  color: 'var(--color-warning, #d3a66e)',
+                  border: '1px solid var(--color-border-warm, rgba(211, 166, 110, 0.3))',
+                  borderRadius: 'var(--radius-xs, 3px)',
+                  padding: '4px 10px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  fontFamily: 'var(--font-mono, monospace)'
+                }}>
+                  EXPERIMENTAL FEATURE
+                </div>
+                <h3 style={{
+                  margin: 0,
+                  fontSize: '20px',
+                  fontWeight: 600,
+                  color: 'var(--color-text-strong, #f2e9df)',
+                  fontFamily: 'var(--font-ui, sans-serif)',
+                  letterSpacing: '-0.01em'
+                }}>
+                  Feature Under Active Development
+                </h3>
+                <p style={{
+                  margin: 0,
+                  fontSize: '13.5px',
+                  color: 'var(--color-text-muted, #b5a79c)',
+                  lineHeight: 1.65,
+                  maxWidth: '400px'
+                }}>
+                  The <strong>Mutation Lab</strong> is currently an experimental workbench module. Guided stat randomization procedures are subject to updates.
+                </p>
+                <div style={{
+                  display: 'flex',
+                  gap: '12px',
+                  marginTop: '12px',
+                  width: '100%',
+                  justifyContent: 'center'
+                }}>
+                  <Button type="button" variant="secondary" onClick={() => setShowRandomPanel(false)} style={{ minWidth: '130px' }}>
+                    Back to Editor
+                  </Button>
+                  <Button type="button" variant="primary" onClick={() => setWipRandomPanelAcknowledged(true)} style={{ minWidth: '160px' }}>
+                    Proceed to Workbench
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="mutation-lab-modal" role="dialog" aria-modal="true" aria-labelledby="mutation-lab-title">
             <div className="mutation-lab-header">
               <div>

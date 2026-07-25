@@ -1,4 +1,4 @@
-import { useId, useMemo } from 'react';
+import { useId, useMemo, useState } from 'react';
 import '../styles/features/batch-adjust.css';
 import UnitArtwork from './UnitArtwork.jsx';
 import { Badge, Button, ButtonGroup, Dialog, IconButton, SelectField } from './ui.jsx';
