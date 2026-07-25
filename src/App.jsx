@@ -3233,6 +3233,7 @@ export default function App() {
                 title: 'Impact & resource behavior',
                 description: 'Damage falloff, projectile persistence, impulse, and per-shot costs.',
                 params: [
+                  { key: 'flighttime', label: 'Rocket Flight Time (seconds)', type: 'number' },
                   { key: 'edgeeffectiveness', label: 'AoE Edge Damage', type: 'number' },
                   { key: 'explosionspeed', label: 'Explosion Propagation', type: 'number' },
                   { key: 'camerashake', label: 'Camera Shake', type: 'number' },
