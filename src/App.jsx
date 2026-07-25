@@ -1443,7 +1443,7 @@ export default function App() {
               } else if (WEAPON_SLOT_STRING_PARAMS.has(param)) {
                 subPath = WEAPON_SLOT_PATHS[param] || param;
                 typedVal = val ? String(val) : '';
-                if (param === 'carried_unit' || param === 'spawns_name') {
+                if (param === 'carried_unit') {
                   const targetUnits = String(typedVal).split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
                   if (targetUnits.length > 0) {
                     setNestedVal(unitPatch, 'customparams.carried_unit', targetUnits[0]);
