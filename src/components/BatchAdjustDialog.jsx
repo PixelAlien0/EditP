@@ -36,6 +36,7 @@ export default function BatchAdjustDialog({
   const titleId = useId();
   const descriptionId = useId();
   const valueId = useId();
+  const [wipAcknowledged, setWipAcknowledged] = useState(false);
   const numericValue = Number(value);
   const isValid = Number.isFinite(numericValue);
   const range = mode === 'percent'
@@ -65,6 +66,84 @@ export default function BatchAdjustDialog({
       labelledBy={titleId}
       describedBy={descriptionId}
     >
+      {!wipAcknowledged && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1000,
+          backgroundColor: 'var(--color-overlay, rgba(20, 18, 17, 0.75))',
+          backdropFilter: 'blur(12px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '32px'
+        }}>
+          <div style={{
+            maxWidth: '480px',
+            width: '100%',
+            backgroundColor: 'var(--color-surface-raised, #2c2927)',
+            border: '1px solid var(--color-border-strong, rgba(239, 222, 207, 0.25))',
+            borderRadius: 'var(--radius-md, 8px)',
+            padding: '36px 32px',
+            boxShadow: 'var(--shadow-float, 0 18px 48px rgba(0, 0, 0, 0.4))',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'var(--color-warning-surface, rgba(211, 166, 110, 0.15))',
+              color: 'var(--color-warning, #d3a66e)',
+              border: '1px solid var(--color-border-warm, rgba(211, 166, 110, 0.3))',
+              borderRadius: 'var(--radius-xs, 3px)',
+              padding: '4px 10px',
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              fontFamily: 'var(--font-mono, monospace)'
+            }}>
+              EXPERIMENTAL FEATURE
+            </div>
+            <h3 style={{
+              margin: 0,
+              fontSize: '20px',
+              fontWeight: 600,
+              color: 'var(--color-text-strong, #f2e9df)',
+              fontFamily: 'var(--font-ui, sans-serif)',
+              letterSpacing: '-0.01em'
+            }}>
+              Feature Under Active Development
+            </h3>
+            <p style={{
+              margin: 0,
+              fontSize: '13.5px',
+              color: 'var(--color-text-muted, #b5a79c)',
+              lineHeight: 1.65,
+              maxWidth: '400px'
+            }}>
+              The <strong>Batch Adjust Studio</strong> is currently an experimental workbench module. Multi-unit parameter scaling rules are subject to updates.
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              marginTop: '12px',
+              width: '100%',
+              justifyContent: 'center'
+            }}>
+              <Button type="button" variant="secondary" onClick={onClose} aria-label="Close batch adjustment" style={{ minWidth: '130px' }}>
+                Back to Editor
+              </Button>
+              <Button type="button" variant="primary" onClick={() => setWipAcknowledged(true)} style={{ minWidth: '160px' }}>
+                Proceed to Workbench
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       <form onSubmit={event => { event.preventDefault(); onApply(); }}>
         <header className="batch-adjust__header">
           <div className="batch-adjust__heading">
@@ -72,7 +151,7 @@ export default function BatchAdjustDialog({
             <h2 id={titleId}>Batch Adjust Stats</h2>
             <p id={descriptionId}>Apply one controlled adjustment across every eligible unit in the current sidebar scope.</p>
           </div>
-          <IconButton label="Close batch adjustment" variant="quiet" size="sm" onClick={onClose}>×</IconButton>
+          <IconButton label={wipAcknowledged ? 'Close batch adjustment' : 'Close header'} variant="quiet" size="sm" onClick={onClose}>×</IconButton>
         </header>
 
         <div className="batch-adjust__body">

@@ -2856,7 +2856,7 @@ export default function App() {
                 <div className="header-tools-menu__group" aria-label="Editing tools">
                   <span className="header-tools-menu__group-label">Editing tools</span>
                   <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>
-                    <span><strong>Batch Adjust</strong><small>Apply controlled changes across units</small></span>
+                    <span><strong>Batch Adjust <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Apply controlled changes across units</small></span>
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowFormulaMutator(true); setShowToolsMenu(false); }}>
                     <span><strong>Formula Mutator <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Evaluate math scaling equations</small></span>
