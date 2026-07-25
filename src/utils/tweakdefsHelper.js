@@ -735,10 +735,6 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     u.customparams.docktohealthreshold = (entry.isControllable == false) and 33 or 0
     u.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
 
-    if string.find(entry.unitId, "geo") or string.find(entry.unitId, "rampart") then
-      u.needgeo = false
-    end
-
     if type(u.weapondefs) == "table" then
       for _, wDef in pairs(u.weapondefs) do
         if type(wDef) == "table" then

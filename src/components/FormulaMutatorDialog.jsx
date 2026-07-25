@@ -26,6 +26,7 @@ export default function FormulaMutatorDialog({
   const [scope, setScope] = useState('filtered');
   const [property, setProperty] = useState('health');
   const [formula, setFormula] = useState('health * 1.5');
+  const [wipAcknowledged, setWipAcknowledged] = useState(false);
 
   const error = useMemo(() => validateFormula(formula), [formula]);
 
@@ -87,6 +88,57 @@ export default function FormulaMutatorDialog({
       labelledBy={titleId}
       describedBy={descriptionId}
     >
+      {!wipAcknowledged && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 999,
+          background: 'rgba(10, 14, 20, 0.92)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          borderRadius: '12px'
+        }}>
+          <div style={{
+            maxWidth: '460px',
+            background: 'var(--panel-bg, #161d26)',
+            border: '1px solid var(--border-color, #3a4756)',
+            borderRadius: '12px',
+            padding: '28px',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>🛠️</div>
+            <div style={{
+              display: 'inline-block',
+              background: 'rgba(255, 183, 77, 0.15)',
+              color: '#ffb74d',
+              border: '1px solid rgba(255, 183, 77, 0.3)',
+              borderRadius: '20px',
+              padding: '4px 12px',
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              marginBottom: '12px'
+            }}>
+              Feature Under Active Development
+            </div>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '20px', color: '#f0f4f8' }}>
+              Formula Mutator Disclaimer
+            </h3>
+            <p style={{ margin: '0 0 20px 0', fontSize: '13.5px', color: '#94a3b8', lineHeight: 1.6 }}>
+              The <strong>Dynamic Formula Mutator</strong> is currently in active development. Math scaling formulas and batch evaluations are experimental and subject to changes.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <Button type="button" variant="secondary" onClick={onClose}>Back to Editor</Button>
+              <Button type="button" variant="primary" onClick={() => setWipAcknowledged(true)}>Proceed to Workbench</Button>
+            </div>
+          </div>
+        </div>
+      )}
       <form onSubmit={handleApply}>
         <header className="formula-mutator__header">
           <div className="formula-mutator__heading">
