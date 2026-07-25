@@ -3200,10 +3200,15 @@ export default function App() {
                 title: 'Advanced behavior',
                 description: 'BAR gadget-backed unit spawning and cluster/MIRV behavior. Referenced IDs must exist when the game loads.',
                 params: [
-                  { key: 'spawns_name', label: 'Spawned Unit ID', type: 'string' },
+                  { key: 'carried_unit', label: 'Carried / Spawned Unit ID', type: 'string' },
+                  { key: 'spawns_name', label: 'Spawn Roster (spawns_name)', type: 'string' },
                   { key: 'spawns_surface', label: 'Spawn Surface', type: 'string' },
+                  { key: 'spawnrate', label: 'Spawn Interval (seconds)', type: 'number' },
+                  { key: 'maxunits', label: 'Max Active Units (maxunits)', type: 'number' },
                   { key: 'spawn_metal_cost', label: 'Spawn Metal per Shot', type: 'number' },
                   { key: 'spawn_energy_cost', label: 'Spawn Energy per Shot', type: 'number' },
+                  { key: 'carrierdeaththroe', label: 'On Carrier Death (release/destroy)', type: 'string' },
+                  { key: 'enabledocking', label: 'Enable Docking (true/false)', type: 'string' },
                   { key: 'cluster_def', label: 'Cluster Weapon Def', type: 'string' },
                   { key: 'cluster_number', label: 'Cluster Projectile Count', type: 'number' },
                 ]

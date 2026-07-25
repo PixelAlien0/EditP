@@ -459,6 +459,9 @@ export const WEAPON_SLOT_PATHS = Object.freeze({
   shieldpowerregenenergy: 'shield.powerRegenEnergy', shieldenergyuse: 'shield.energyUse',
   shieldrechargedelay: 'shield.rechargeDelay', shieldintercepttype: 'shield.interceptType',
   spawns_name: 'customparams.spawns_name', spawns_surface: 'customparams.spawns_surface',
+  carried_unit: 'customparams.carried_unit', spawnrate: 'customparams.spawnrate',
+  maxunits: 'customparams.maxunits', carrierdeaththroe: 'customparams.carrierdeaththroe',
+  enabledocking: 'customparams.enabledocking',
   spawn_metal_cost: 'customparams.metalcost', spawn_energy_cost: 'customparams.energycost',
   cluster_def: 'customparams.cluster_def', cluster_number: 'customparams.cluster_number',
 });

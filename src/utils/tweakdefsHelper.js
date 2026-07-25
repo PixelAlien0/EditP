@@ -684,8 +684,6 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       u.needgeo = false
     end
 
-    u.buildoptions = entry.allChildren
-
     if type(u.weapondefs) == "table" then
       for _, wDef in pairs(u.weapondefs) do
         if type(wDef) == "table" then
