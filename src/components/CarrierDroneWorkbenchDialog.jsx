@@ -166,9 +166,7 @@ export default function CarrierDroneWorkbenchDialog({
   const handleParentSelect = newParentId => {
     setParentUnitId(newParentId);
     const cfg = resolveCarrierConfig(newParentId);
-    if (cfg.carriedUnit && allAvailableUnits.some(u => u.id.toLowerCase() === cfg.carriedUnit.toLowerCase())) {
-      setCarriedUnit(cfg.carriedUnit);
-    }
+    setCarriedUnit(cfg.carriedUnit || '');
     setCarriedUnitsText(cfg.carriedUnitsText || cfg.carriedUnit || '');
     setTargetWeaponSlot(cfg.targetWeaponSlot || 1);
     setTargetWeaponDef(cfg.targetWeaponDef || '');
@@ -194,10 +192,8 @@ export default function CarrierDroneWorkbenchDialog({
     const cfg = resolveCarrierConfig(parentUnitId, slotNumber);
     setTargetWeaponSlot(slotNumber);
     setTargetWeaponDef(cfg.targetWeaponDef || '');
-    if (cfg.carriedUnit) {
-      setCarriedUnit(cfg.carriedUnit);
-      setCarriedUnitsText(cfg.carriedUnitsText || cfg.carriedUnit);
-    }
+    setCarriedUnit(cfg.carriedUnit || '');
+    setCarriedUnitsText(cfg.carriedUnitsText || cfg.carriedUnit || '');
     setSpawnSurface(cfg.spawnSurface || '');
     setMaxUnits(cfg.maxUnitsText || String(cfg.maxUnits || 1));
     setStartingDroneCount(cfg.startingDroneCountText || '0');

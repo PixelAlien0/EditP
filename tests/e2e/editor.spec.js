@@ -616,24 +616,47 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await expect(dialog.getByLabel('Initial Units per Type')).toHaveValue('8');
   await expect(dialog.getByLabel('Auto-Return HP Threshold (%)')).toHaveValue('65');
   await dialog.getByLabel(/Deployed Unit IDs/).fill('armdrone corvamp');
+  await dialog.getByLabel('Drone Types').fill('fighter bomber');
   await dialog.getByLabel('Auto-Return HP Threshold (%)').fill('70');
   await dialog.getByLabel('Maximum Active Units per Type').fill('12 4');
+  await dialog.getByLabel('Initial Units per Type').fill('6 2');
+  await dialog.getByLabel('Metal Cost per Type').fill('25 90');
+  await dialog.getByLabel('Energy Cost per Type').fill('600 1200');
   await dialog.getByLabel('Docking Piece Groups').fill('1 2,3 4');
+  await dialog.getByLabel('Maximum Air Time per Type').fill('60 90');
+  await dialog.getByLabel('Minimum Dock Time per Type').fill('2 4');
+  await dialog.getByLabel('Drone Ammunition per Type').fill('0 5');
   await dialog.getByRole('button', { name: 'Apply Linkage' }).click();
 
   await page.getByRole('tab', { name: /Weapons/ }).click();
   await expect(page.locator('[data-param-key="carried_unit"] input')).toHaveValue('armdrone corvamp');
+  await expect(page.locator('[data-param-key="dronetype"] input')).toHaveValue('fighter bomber');
   await expect(page.locator('[data-param-key="maxunits"] input')).toHaveValue('12 4');
+  await expect(page.locator('[data-param-key="startingdronecount"] input')).toHaveValue('6 2');
+  await expect(page.locator('[data-param-key="spawn_metal_cost"] input')).toHaveValue('25 90');
+  await expect(page.locator('[data-param-key="spawn_energy_cost"] input')).toHaveValue('600 1200');
   await expect(page.locator('[data-param-key="dockingpieces"] input')).toHaveValue('1 2,3 4');
+  await expect(page.locator('[data-param-key="droneairtime"] input')).toHaveValue('60 90');
+  await expect(page.locator('[data-param-key="dronedocktime"] input')).toHaveValue('2 4');
+  await expect(page.locator('[data-param-key="droneammo"] input')).toHaveValue('0 5');
   await expect(page.locator('[data-param-key="docktohealthreshold"] input')).toHaveValue('70');
   await page.locator('[data-param-key="maxunits"] input').fill('13 5');
+  await page.locator('[data-param-key="spawn_energy_cost"] input').fill('700 1400');
+  await page.locator('[data-param-key="droneammo"] input').fill('2 6');
 
   await page.getByRole('button', { name: 'Tools' }).click();
   await page.getByRole('menuitem').filter({ hasText: 'Carrier & Drone Studio' }).click();
   const reopenedDialog = page.getByRole('dialog', { name: 'Carrier & Deployed Drone Linkage Workbench' });
   await expect(reopenedDialog.getByLabel(/Deployed Unit IDs/)).toHaveValue('armdrone corvamp');
+  await expect(reopenedDialog.getByLabel('Drone Types')).toHaveValue('fighter bomber');
   await expect(reopenedDialog.getByLabel('Maximum Active Units per Type')).toHaveValue('13 5');
+  await expect(reopenedDialog.getByLabel('Initial Units per Type')).toHaveValue('6 2');
+  await expect(reopenedDialog.getByLabel('Metal Cost per Type')).toHaveValue('25 90');
+  await expect(reopenedDialog.getByLabel('Energy Cost per Type')).toHaveValue('700 1400');
   await expect(reopenedDialog.getByLabel('Docking Piece Groups')).toHaveValue('1 2,3 4');
+  await expect(reopenedDialog.getByLabel('Maximum Air Time per Type')).toHaveValue('60 90');
+  await expect(reopenedDialog.getByLabel('Minimum Dock Time per Type')).toHaveValue('2 4');
+  await expect(reopenedDialog.getByLabel('Drone Ammunition per Type')).toHaveValue('2 6');
   await expect(reopenedDialog.getByLabel('Auto-Return HP Threshold (%)')).toHaveValue('70');
   await reopenedDialog.getByRole('button', { name: 'Apply Linkage' }).click();
 
@@ -643,6 +666,8 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   const output = page.locator('.export-code-preview');
   await expect(output).toContainText('carried_unit = "armdrone corvamp"');
   await expect(output).toContainText('maxunits = "13 5"');
+  await expect(output).toContainText('energycost = "700 1400"');
+  await expect(output).toContainText('droneammo = "2 6"');
   await expect(output).toContainText('dockingpieces = "1 2,3 4"');
   await expect(output).toContainText('docktohealthreshold = 70');
 
