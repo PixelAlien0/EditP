@@ -164,42 +164,6 @@
   gap: var(--space-2);
 }
 
-.carrier-workbench__presets {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-3);
-}
-
-.carrier-workbench__preset-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text);
-  cursor: pointer;
-  text-align: left;
-  transition: all var(--transition-fast);
-}
-
-.carrier-workbench__preset-card:hover {
-  border-color: var(--color-accent);
-  background: var(--color-surface-accent-subtle);
-}
-
-.carrier-workbench__preset-card strong {
-  color: var(--color-text-strong);
-  font-size: var(--font-size-xs);
-}
-
-.carrier-workbench__preset-card span {
-  margin-top: 4px;
-  color: var(--color-text-muted);
-  font-size: 11px;
-}
-
 .carrier-workbench__typebox-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

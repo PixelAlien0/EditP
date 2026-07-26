@@ -36,7 +36,7 @@ export function createProducerCatalog(rosters = {}, names = {}, defaults = {}) {
   return Object.keys(rosters)
     .flatMap(id => {
       const name = typeof names[id] === 'string' ? names[id].trim() : '';
-      if (!name) return [];
+      if (!name || name.toLowerCase() === id.toLowerCase()) return [];
 
       const kind = getProducerKind(defaults[id]);
       return [{
@@ -55,4 +55,3 @@ export function createProducerCatalog(rosters = {}, names = {}, defaults = {}) {
       || left.id.localeCompare(right.id)
     ));
 }
-

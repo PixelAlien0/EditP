@@ -20,8 +20,8 @@ describe('producer catalog', () => {
 
   it('omits unnamed BAR helper definitions instead of exposing raw IDs', () => {
     const catalog = createProducerCatalog(
-      { armlab: [], armsalab: [], armcomcon: [] },
-      { armlab: 'Bot Lab' },
+      { armlab: [], armsalab: [], armcomcon: [], armsaap: [] },
+      { armlab: 'Bot Lab', armsaap: 'armsaap' },
       {}
     );
 

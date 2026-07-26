@@ -23,6 +23,7 @@ const stylesheetOrder = [
   'src/styles/features/preset-gallery.css',
   'src/styles/features/editor-context.css',
   'src/styles/features/editor-workbench.css',
+  'src/styles/features/carrier-drone-workbench.css',
   'src/components/ui/ui.css',
 ]
 
@@ -91,8 +92,66 @@ const legacyOwnershipMigrations = [
     ],
   },
   {
+    // Header presentation now belongs exclusively to header.css. Keeping the
+    // earlier generic header generation in index.css forced the canonical
+    // stylesheet to win through dozens of !important declarations.
+    document: 'src/index.css',
+    selectors: [
+      '.app-header',
+      '.header-brand',
+      '.app-logo',
+      '.brand-text',
+      '.workflow-nav',
+      '.header-utility-actions',
+      '.history-controls',
+      '.header-file-action',
+    ],
+  },
+  {
+    // The roster designer is lazy-loaded with build-menu.css. Remove its
+    // earlier index.css implementation after the few still-used structural
+    // rules have been moved to that feature owner.
+    document: 'src/index.css',
+    selectors: [
+      '.designer-',
+      '.build-menu-',
+      '.slot-index',
+      '.slot-overlay-actions',
+      '.slot-unit-',
+      '.slot-pack-source',
+      '.slot-btn',
+    ],
+  },
+  {
     document: 'src/styles/features/editor-context.css',
     selectors: ['.editor-section-tabs'],
+  },
+  {
+    // These cards and the standalone comparison toolbar were replaced by the
+    // operational overview and the unified inspector.
+    document: 'src/styles/features/editor-context.css',
+    selectors: [
+      '.editor-workspace .unit-profile-card',
+      '.unit-profile-',
+      '.clone-identity-card',
+      '.comparison-mode-',
+      '.unit-override-badge',
+      '.reset-unit-btn',
+    ],
+  },
+  {
+    document: 'src/styles/features/dark-mode.css',
+    selectors: [
+      '.weapon-lab-page',
+      '.unit-profile-card',
+      '.reset-unit-btn',
+    ],
+  },
+  {
+    // Preset cards were removed when the carrier workbench became
+    // configuration-driven.
+    document: 'src/styles/features/carrier-drone-workbench.css',
+    selectors: ['.carrier-workbench__preset'],
   },
 ]
 
@@ -140,6 +199,22 @@ legacyDocument?.root.walkAtRules('keyframes', (atRule) => {
   if (references > 0) return
   atRule.remove()
   legacyDocument.removed += 1
+})
+
+// Once the legacy header generation is gone, header.css is loaded after the
+// reset/theme layers and its scoped selectors own the component outright.
+// Its old importance flags are therefore unnecessary cascade debt.
+const canonicalHeaderDocument = documents.find(
+  (entry) => entry.relativePath === 'src/styles/features/header.css',
+)
+canonicalHeaderDocument?.root.walkDecls((declaration) => {
+  if (!declaration.important) return
+  const selector = declaration.parent?.selector || ''
+  const isPrimaryActionContract = selector.includes('.header-create-action')
+    && ['border-color', 'background', 'color'].includes(declaration.prop)
+  if (isPrimaryActionContract) return
+  declaration.important = false
+  canonicalHeaderDocument.removed += 1
 })
 
 function atRuleContext(node) {

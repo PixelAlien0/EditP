@@ -3,29 +3,29 @@
   z-index: var(--z-dropdown);
   min-height: var(--header-height);
   height: var(--header-height);
-  padding: 0 clamp(14px, 1.35vw, 26px) !important;
-  display: grid !important;
-  grid-template-columns: minmax(190px, 236px) minmax(370px, 1fr) auto !important;
+  padding: 0 clamp(14px, 1.35vw, 26px);
+  display: grid;
+  grid-template-columns: minmax(190px, 236px) minmax(370px, 1fr) auto;
   align-items: center;
-  gap: clamp(10px, 1.15vw, 22px) !important;
+  gap: clamp(10px, 1.15vw, 22px);
   overflow: visible;
-  border-bottom: 1px solid var(--color-border) !important;
-  background: var(--color-surface) !important;
-  box-shadow: 0 3px 16px color-mix(in srgb, var(--color-text-strong) 5%, transparent) !important;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 3px 16px color-mix(in srgb, var(--color-text-strong) 5%, transparent);
 }
 
 .app-header .header-brand {
   min-width: 0;
   padding: 0;
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: 10px;
-  border: 0 !important;
-  background: transparent !important;
+  border: 0;
+  background: transparent;
   color: inherit;
   text-align: left;
   cursor: pointer;
-  box-shadow: none !important;
+  box-shadow: none;
 }
 
 .app-header .app-logo {
@@ -35,7 +35,7 @@
   padding: 5px;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-subtle) !important;
+  background: var(--color-surface-subtle);
   box-shadow: none;
 }
 
@@ -57,7 +57,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface-subtle) !important;
+  background: var(--color-surface-subtle);
 }
 
 .app-header .workflow-nav button {
@@ -68,12 +68,12 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
-  border: 1px solid transparent !important;
-  border-radius: var(--radius-sm) !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: var(--color-text-muted) !important;
-  font: 650 9px/1 var(--font-ui) !important;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-text-muted);
+  font: 650 9px/1 var(--font-ui);
   letter-spacing: .01em;
   white-space: nowrap;
   cursor: pointer;
@@ -81,30 +81,30 @@
 
 .app-header .workflow-nav__step {
   min-width: 17px;
-  color: var(--color-text-faint) !important;
-  font: 700 8px/1 var(--font-mono) !important;
+  color: var(--color-text-faint);
+  font: 700 8px/1 var(--font-mono);
   letter-spacing: .06em;
 }
 
 .app-header .workflow-nav__label {
-  color: inherit !important;
-  font: inherit !important;
+  color: inherit;
+  font: inherit;
 }
 
 .app-header .workflow-nav button:hover {
-  background: var(--color-surface-hover) !important;
-  color: var(--color-text-strong) !important;
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
 }
 
 .app-header .workflow-nav button.active {
-  border-color: var(--color-border-accent-muted) !important;
-  background: var(--color-surface) !important;
-  color: var(--color-text-strong) !important;
-  box-shadow: 0 1px 5px color-mix(in srgb, var(--color-text-strong) 6%, transparent) !important;
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+  box-shadow: 0 1px 5px color-mix(in srgb, var(--color-text-strong) 6%, transparent);
 }
 
 .app-header .workflow-nav button.active .workflow-nav__step {
-  color: var(--color-accent-strong) !important;
+  color: var(--color-accent-strong);
 }
 
 /* Utilities use small trays so unrelated actions no longer read as one long button row. */
@@ -148,21 +148,21 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 1px solid transparent !important;
-  border-radius: var(--radius-sm) !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: var(--color-text-muted) !important;
-  font: 650 9px/1 var(--font-ui) !important;
-  letter-spacing: .01em !important;
-  text-transform: none !important;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-text-muted);
+  font: 650 9px/1 var(--font-ui);
+  letter-spacing: .01em;
+  text-transform: none;
 }
 
 .app-header .header-utility-actions .history-controls button {
   width: 30px;
   min-width: 30px;
   padding: 0;
-  font-size: 14px !important;
+  font-size: 14px;
 }
 
 .app-header .header-utility-actions .history-controls button:disabled {
@@ -170,15 +170,15 @@
 }
 
 .app-header .header-utility-actions :is(.btn-action, .theme-toggle, .history-controls button):hover:not(:disabled) {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface-hover) !important;
-  color: var(--color-text-strong) !important;
+  border-color: var(--color-border);
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
 }
 
 .app-header .header-utility-actions :is(button, label):focus-visible {
   position: relative;
   z-index: 2;
-  outline: 2px solid var(--color-focus-ring) !important;
+  outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
 }
 
@@ -210,7 +210,7 @@
   border-color: var(--color-border-accent-muted) !important;
   background: var(--color-surface-accent-subtle) !important;
   color: var(--color-accent-strong) !important;
-  font-weight: 720 !important;
+  font-weight: 720;
 }
 
 .app-header .header-create-icon {
@@ -225,9 +225,9 @@
 }
 
 .header-create-action:hover:not(:disabled) {
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-accent-strong) !important;
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
 }
 
 .app-header .header-tools {
@@ -238,15 +238,15 @@
   min-height: 40px;
   height: 40px;
   padding-inline: 10px;
-  border-color: var(--color-border) !important;
-  background: var(--color-surface-subtle) !important;
-  color: var(--color-text) !important;
+  border-color: var(--color-border);
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
 }
 
 .app-header .header-tools-trigger[aria-expanded='true'] {
-  border-color: var(--color-border-accent-muted) !important;
-  background: var(--color-surface-accent-subtle) !important;
-  color: var(--color-accent-strong) !important;
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
 }
 
 .app-header .header-tools-chevron {
@@ -269,14 +269,14 @@
 }
 
 .app-header .header-project-actions .header-file-action + .header-file-action {
-  border-left-color: var(--color-border) !important;
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
+  border-left-color: var(--color-border);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .app-header .header-project-actions .header-file-action:first-child {
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .app-header .header-project-actions input,
@@ -383,7 +383,7 @@
 .app-header .header-tools-menu :is(button, label):hover,
 .app-header .header-tools-menu :is(button, label):focus-visible,
 .app-header .header-tools-menu label:focus-within {
-  border-color: var(--color-border) !important;
+  border-color: var(--color-border);
   background: var(--color-surface-hover);
   color: var(--color-text-strong);
   outline: 0;
@@ -407,7 +407,7 @@
 
 @media (max-width: 1640px) {
   .app-header {
-    grid-template-columns: minmax(178px, 212px) minmax(350px, 1fr) auto !important;
+    grid-template-columns: minmax(178px, 212px) minmax(350px, 1fr) auto;
   }
 
   .app-header .header-utility-actions {
@@ -428,14 +428,14 @@
   .app-header .header-credits-action,
   .app-header .header-chat-action {
     width: 32px;
-    padding-inline: 0 !important;
+    padding-inline: 0;
   }
 }
 
 @media (max-width: 1420px) {
   .app-header {
-    grid-template-columns: minmax(158px, 188px) minmax(318px, 1fr) auto !important;
-    gap: 8px !important;
+    grid-template-columns: minmax(158px, 188px) minmax(318px, 1fr) auto;
+    gap: 8px;
   }
 
   .app-header .brand-kicker,
@@ -456,7 +456,7 @@
 
 @media (max-width: 1180px) {
   .app-header {
-    grid-template-columns: 54px minmax(300px, 1fr) auto !important;
+    grid-template-columns: 54px minmax(300px, 1fr) auto;
   }
 
   .app-header .brand-text,
@@ -474,11 +474,11 @@
   }
 
   .app-header .workflow-nav__step {
-    display: none !important;
+    display: none;
   }
 
   .app-header .workflow-nav__label {
-    display: inline !important;
+    display: inline;
   }
 
   .app-header .header-utility-actions .header-create-action {
@@ -506,9 +506,9 @@
 
 @media (max-width: 1060px) {
   .app-header {
-    padding-inline: 10px !important;
-    grid-template-columns: 44px minmax(292px, 1fr) auto !important;
-    gap: 6px !important;
+    padding-inline: 10px;
+    grid-template-columns: 44px minmax(292px, 1fr) auto;
+    gap: 6px;
   }
 
   .app-header .app-logo {
@@ -528,7 +528,7 @@
   .app-header .header-menu-action,
   .app-header .theme-toggle {
     width: 32px;
-    padding-inline: 0 !important;
+    padding-inline: 0;
   }
 }
 

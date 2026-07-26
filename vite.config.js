@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
+    // Lightning CSS produces a smaller, standards-aware stylesheet bundle than
+    // the default minifier while preserving the existing authored cascade.
+    cssMinify: 'lightningcss',
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -14,6 +17,11 @@ export default defineConfig({
             || id.includes('/node_modules/scheduler/')
           ) {
             return 'react-vendor'
+          }
+          if (
+            /\/src\/utils\/(?:tweakSerializer|tweakdefsHelper|lobbyModules)\.js$/.test(id)
+          ) {
+            return 'editor-compiler'
           }
         },
       },

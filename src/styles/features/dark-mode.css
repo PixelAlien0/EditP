@@ -216,8 +216,7 @@ html[data-theme="dark"] {
 [data-theme="dark"] .editor-scroll-area,
 [data-theme="dark"] .review-workspace,
 [data-theme="dark"] .designer-page,
-[data-theme="dark"] .preset-gallery-page,
-[data-theme="dark"] .weapon-lab-page {
+[data-theme="dark"] .preset-gallery-page {
   background: var(--color-canvas) !important;
   color: var(--color-text) !important;
 }
@@ -275,12 +274,6 @@ html[data-theme="dark"] {
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
-}
-
-[data-theme="dark"] .reset-unit-btn {
-  border-color: color-mix(in srgb, var(--color-danger) 55%, var(--color-border)) !important;
-  background: transparent !important;
-  color: var(--color-danger) !important;
 }
 
 /* Sidebar filters and roster */
@@ -352,12 +345,6 @@ html[data-theme="dark"] {
 [data-theme="dark"] .editor-workspace .unit-context-card,
 [data-theme="dark"] .editor-workspace .clone-identity-card {
   border-color: var(--color-border) !important;
-  background: var(--color-surface-raised) !important;
-  box-shadow: none !important;
-}
-
-[data-theme="dark"] .editor-workspace .unit-profile-card {
-  border-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-border)) !important;
   background: var(--color-surface-raised) !important;
   box-shadow: none !important;
 }
