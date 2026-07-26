@@ -7832,5 +7832,68 @@
   "scav_xmasball2_6": [
     "t1",
     "scavenger"
+  ],
+  "armassistdrone": [
+    "t1"
+  ],
+  "armassistdrone_land": [
+    "t1"
+  ],
+  "armcomlvl2": [
+    "t1"
+  ],
+  "armcomnew": [
+    "t1"
+  ],
+  "armrespawn": [
+    "t1"
+  ],
+  "corassistdrone": [
+    "t1"
+  ],
+  "corassistdrone_land": [
+    "t1"
+  ],
+  "corcomlvl2": [
+    "t1"
+  ],
+  "correspawn": [
+    "t1"
+  ],
+  "legassistdrone": [
+    "t1"
+  ],
+  "legassistdrone_land": [
+    "t1"
+  ],
+  "legcomlvl10": [
+    "t1"
+  ],
+  "legcomlvl2": [
+    "t1"
+  ],
+  "legcomlvl3": [
+    "t1"
+  ],
+  "legcomlvl4": [
+    "t1"
+  ],
+  "legcomlvl5": [
+    "t1"
+  ],
+  "legcomlvl6": [
+    "t1"
+  ],
+  "legcomlvl7": [
+    "t1"
+  ],
+  "legcomlvl8": [
+    "t1"
+  ],
+  "legcomlvl9": [
+    "t1"
+  ],
+  "legnanotcbase": [
+    "t1"
   ]
 }

@@ -11,7 +11,10 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",
-    "sync-game-data": "node sync_github_data.js",
+    "sync-game-data": "node scripts/sync-game-data-snapshot.mjs",
+    "sync-game-data:core": "node sync_github_data.js",
+    "finalize-game-data": "node scripts/finalize-game-data-snapshot.mjs --write",
+    "audit-game-data": "node scripts/audit-game-data.mjs",
     "sync-unitpics": "node scripts/sync-unitpics.mjs",
     "sync-parameters": "node scripts/sync-parameter-defaults.mjs",
     "sync-explosions": "node scripts/sync-explosion-profiles.mjs",
@@ -22,7 +25,7 @@
     "audit-css": "node scripts/audit-css.mjs",
     "audit:bundle": "node scripts/audit-bundle.mjs",
     "consolidate-css": "node scripts/consolidate-css.mjs --write",
-    "verify": "npm run lint && npm run test && npm run build && npm run audit:bundle && npm run audit-css && npm run audit-unitpics:dist",
+    "verify": "npm run lint && npm run test && npm run build && npm run audit:bundle && npm run audit-css && npm run audit-game-data && npm run audit-unitpics:dist",
     "preview": "vite preview"
   },
   "dependencies": {

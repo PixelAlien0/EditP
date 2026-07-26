@@ -1,7 +1,7 @@
 {
   "version": 1,
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
-  "sourceCommit": "474108b81ab53b38ec8cdcdd16a4070b0a3cb9f6",
+  "sourceCommit": "e34440077024d3b122b89d07a314a2df7b1b181d",
   "categories": {
     "unitModel": [
       "chip.s3o",
@@ -659,6 +659,7 @@
       "Units/leganavymissileship.s3o",
       "Units/leganavyradjamship.s3o",
       "Units/LEGAP.s3o",
+      "Units/legapollyon.s3o",
       "Units/legapopupdef.s3o",
       "Units/LEGARAD.s3o",
       "Units/legaradk.s3o",
@@ -1437,6 +1438,7 @@
       "Units/leganavymissileship.cob",
       "Units/leganavyradjamship.cob",
       "Units/LEGAP.cob",
+      "Units/legapollyon.cob",
       "Units/legapopupdef.cob",
       "Units/LEGARAD.cob",
       "Units/legaradk.cob",
@@ -2163,6 +2165,7 @@
       "leganavymissileship.DDS",
       "leganavyradjamship.DDS",
       "LEGAP.DDS",
+      "LEGAPOLLYON.DDS",
       "legapopupdef.dds",
       "LEGARAD.DDS",
       "legaradk.DDS",

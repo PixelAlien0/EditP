@@ -2,6 +2,9 @@ import https from 'https';
 import fs from 'fs';
 import { pathToFileURL } from 'url';
 
+const SOURCE_REPOSITORY = 'beyond-all-reason/Beyond-All-Reason';
+const REQUESTED_SOURCE_REF = process.env.BAR_SOURCE_COMMIT || process.env.BAR_SOURCE_REF || 'master';
+
 const DATA_PATHS = Object.freeze({
   defaults: 'src/data/unit-defaults.json',
   categories: 'src/data/unit-categories.json',
@@ -42,6 +45,10 @@ function fetchJson(url) {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
+        if (res.statusCode !== 200) {
+          reject(new Error(`HTTP ${res.statusCode} for ${url}`));
+          return;
+        }
         try {
           resolve(JSON.parse(data));
         } catch (e) {
@@ -180,15 +187,22 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function run() {
+export async function run() {
   try {
+    const commit = await fetchJson(`https://api.github.com/repos/${SOURCE_REPOSITORY}/commits/${REQUESTED_SOURCE_REF}`);
+    const sourceCommit = commit.sha;
+    if (!/^[a-f0-9]{40}$/i.test(sourceCommit || '')) {
+      throw new Error(`Unable to resolve BAR source ref ${REQUESTED_SOURCE_REF}.`);
+    }
+    console.log(`Pinned BAR source: ${sourceCommit}`);
+
     const existingDefaults = readExistingJson(DATA_PATHS.defaults);
     const existingCategories = readExistingJson(DATA_PATHS.categories);
     const existingRosters = readExistingJson(DATA_PATHS.rosters);
     let unwrappedUnits;
     try {
       console.log('1. Downloading latest language/en/units.json (Names/Descriptions)...');
-      const langUnits = await fetchJson('https://cdn.jsdelivr.net/gh/beyond-all-reason/Beyond-All-Reason@master/language/en/units.json');
+      const langUnits = await fetchJson(`https://cdn.jsdelivr.net/gh/${SOURCE_REPOSITORY}@${sourceCommit}/language/en/units.json`);
       unwrappedUnits = langUnits.units || langUnits;
       console.log(`Downloaded name/desc database. Names keys: ${Object.keys(unwrappedUnits.names || {}).length}`);
       
@@ -201,7 +215,7 @@ async function run() {
     }
 
     console.log('2. Fetching repository file tree...');
-    const treeData = await fetchJson('https://api.github.com/repos/beyond-all-reason/Beyond-All-Reason/git/trees/master?recursive=1');
+    const treeData = await fetchJson(`https://api.github.com/repos/${SOURCE_REPOSITORY}/git/trees/${sourceCommit}?recursive=1`);
     if (!treeData.tree) {
       console.error('Failed to fetch repository tree.');
       return;
@@ -226,7 +240,7 @@ async function run() {
       console.log(`Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(unitFiles.length/batchSize)}...`);
       
       const promises = batch.map(file => {
-        const url = `https://cdn.jsdelivr.net/gh/beyond-all-reason/Beyond-All-Reason@master/${file.path}`;
+        const url = `https://cdn.jsdelivr.net/gh/${SOURCE_REPOSITORY}@${sourceCommit}/${file.path}`;
         return fetchRawText(url).then(text => {
           try {
             const parsedObj = parseLua(text);
@@ -515,8 +529,13 @@ async function run() {
     console.log(`  Units in Defaults: ${Object.keys(defaultsDb).length}`);
     console.log(`  Units Categorized: ${Object.keys(categoriesDb).length}`);
     console.log(`  Factory Rosters Mapped: ${Object.keys(rostersDb).length}`);
+    return {
+      sourceCommit,
+      sourceDate: commit.commit?.committer?.date || null,
+    };
   } catch (err) {
     console.error('Fatal Error during synchronization:', err);
+    throw err;
   }
 }
 

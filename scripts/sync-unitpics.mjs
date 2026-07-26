@@ -14,7 +14,7 @@ import {
 } from './unitpics-shared.mjs';
 
 const REPOSITORY = 'beyond-all-reason/Beyond-All-Reason';
-const BRANCH = process.env.BAR_REF || 'master';
+const BRANCH = process.env.BAR_SOURCE_COMMIT || process.env.BAR_SOURCE_REF || process.env.BAR_REF || 'master';
 const PRIMARY_QUALITY = 80;
 const FALLBACK_QUALITY = 76;
 const SIZE = 192;

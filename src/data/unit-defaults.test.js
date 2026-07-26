@@ -17,11 +17,11 @@ describe('special-unit defaults', () => {
   it('preserves legacy-key stats and the complete Apollyon loadout', () => {
     expect(units.names.legapollyon).toBe('Apollyon');
     expect(unitDefaults.legapollyon).toMatchObject({
-      metalcost: 15000,
-      energycost: 300000,
+      metalcost: 9000,
+      energycost: 240000,
       buildtime: 320000,
       health: 56000,
-      maxvelocity: 38,
+      maxvelocity: 48,
       acceleration: 0.02,
       brakerate: 0.04,
     });

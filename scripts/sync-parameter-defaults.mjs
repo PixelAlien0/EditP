@@ -42,6 +42,21 @@ const UNIT_FIELDS = Object.freeze({
   collisionvolumescales: 'collisionvolumescales', collisionvolumeoffsets: 'collisionvolumeoffsets',
 })
 
+const RECOVERY_UNIT_FIELDS = Object.freeze({
+  metalcost: 'metalcost', buildcostmetal: 'metalcost',
+  energycost: 'energycost', buildcostenergy: 'energycost',
+  buildtime: 'buildtime', health: 'health', maxdamage: 'health',
+  sightdistance: 'sightdistance', radardistance: 'radardistance', sonardistance: 'sonardistance',
+  workertime: 'workertime', metalmake: 'metalmake', extractsmetal: 'extractsmetal',
+  energymake: 'energymake', metalstorage: 'metalstorage', energystorage: 'energystorage',
+  cloakcost: 'cloakcost', cloakcostmoving: 'cloakcostmoving', builddistance: 'builddistance',
+  autoheal: 'autoheal', maxslope: 'maxslope', maxwaterdepth: 'maxwaterdepth',
+  minwaterdepth: 'minwaterdepth', transportcapacity: 'transportcapacity',
+  maxvelocity: 'maxvelocity', speed: 'maxvelocity', mass: 'mass',
+})
+
+const PARSED_UNIT_FIELDS = Object.freeze({ ...UNIT_FIELDS, ...RECOVERY_UNIT_FIELDS })
+
 const CUSTOM_PARAM_FIELDS = new Set([
   'armordef', 'restrictions_exclusion', 'crashable', 'fall_damage_multiplier',
   'water_fall_damage_multiplier', 'unitgroup', 'ignore_noair', 'attacksafetydistance',
@@ -87,6 +102,16 @@ const WEAPON_FIELDS = Object.freeze({
   dyndamagemin: 'dyndamagemin', dyndamagerange: 'dyndamagerange',
 })
 
+const RECOVERY_WEAPON_FIELDS = Object.freeze({
+  range: 'range', reloadtime: 'reload', weaponvelocity: 'velocity', velocity: 'velocity',
+  flighttime: 'flighttime', areaofeffect: 'aoe', accuracy: 'accuracy', sprayangle: 'sprayangle',
+  projectiles: 'projectiles', burst: 'burst', burstrate: 'burstrate',
+  edgeeffectiveness: 'edgeeffectiveness', impulsefactor: 'impulsefactor', impulseboost: 'impulseboost',
+  energypershot: 'energypershot', metalpershot: 'metalpershot', paralyzetime: 'paralyzetime',
+})
+
+const PARSED_WEAPON_FIELDS = Object.freeze({ ...WEAPON_FIELDS, ...RECOVERY_WEAPON_FIELDS })
+
 const SHIELD_FIELDS = Object.freeze({
   repulser: 'shieldrepulser', smart: 'shieldsmart', exterior: 'shieldexterior', visible: 'shieldvisible',
   maxspeed: 'shieldmaxspeed', force: 'shieldforce', radius: 'shieldradius', power: 'shieldpower',
@@ -101,12 +126,14 @@ const MOUNT_FIELDS = Object.freeze({
   fastquerypointupdate: 'fastquerypointupdate', burstcontrolwhenoutofarc: 'burstcontrolwhenoutofarc',
   accurateleading: 'accurateleading',
 })
+const PARSED_MOUNT_FIELDS = Object.freeze({ ...MOUNT_FIELDS, def: 'defKey' })
 
 const DAMAGE_FIELDS = Object.freeze({
   commanders: 'damage_vs_commander', vtol: 'damage_vs_vtol', subs: 'damage_vs_subs',
   shields: 'damage_vs_shields', scavboss: 'damage_vs_scavboss', raptorqueen: 'damage_vs_raptorqueen',
   raptor: 'damage_vs_raptor', mines: 'damage_vs_mines',
 })
+const PARSED_DAMAGE_FIELDS = Object.freeze({ ...DAMAGE_FIELDS, default: 'damage' })
 
 function walk(directory, result = []) {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -168,9 +195,13 @@ function parseUnitFile(file) {
       if (!currentMount) continue
       const match = line.match(/^\t\t\t\t([A-Za-z][A-Za-z0-9_]*)\s*=\s*(.+)$/)
       if (!match) continue
-      const target = MOUNT_FIELDS[match[1].toLowerCase()]
+      const target = PARSED_MOUNT_FIELDS[match[1].toLowerCase()]
       const value = scalar(match[2])
-      if (target && value !== undefined) weaponMounts[currentMount][target] = value
+      if (target && value !== undefined) {
+        weaponMounts[currentMount][target] = target === 'defKey'
+          ? String(value).toLowerCase()
+          : value
+      }
       continue
     }
     if (/^\t\tweapondefs\s*=\s*\{/i.test(line)) { inWeaponDefs = true; continue }
@@ -198,7 +229,7 @@ function parseUnitFile(file) {
         const match = line.match(/^\t\t\t\t\t(?:\[?["']?)([A-Za-z0-9_-]+)(?:["']?\]?)\s*=\s*(.+)$/)
         if (!match) continue
         const value = scalar(match[2])
-        const target = DAMAGE_FIELDS[match[1].toLowerCase()]
+        const target = PARSED_DAMAGE_FIELDS[match[1].toLowerCase()]
         if (target && value !== undefined) weaponDefs[currentWeapon][target] = value
         continue
       }
@@ -212,7 +243,7 @@ function parseUnitFile(file) {
       }
       const match = line.match(/^\t\t\t\t([A-Za-z][A-Za-z0-9_]*)\s*=\s*(.+)$/)
       if (!match) continue
-      const target = WEAPON_FIELDS[match[1].toLowerCase()]
+      const target = PARSED_WEAPON_FIELDS[match[1].toLowerCase()]
       const value = scalar(match[2])
       if (target && value !== undefined) weaponDefs[currentWeapon][target] = value
       continue
@@ -220,7 +251,7 @@ function parseUnitFile(file) {
 
     const match = line.match(/^\t\t([A-Za-z][A-Za-z0-9_]*)\s*=\s*(.+)$/)
     if (!match) continue
-    const target = UNIT_FIELDS[match[1].toLowerCase()]
+    const target = PARSED_UNIT_FIELDS[match[1].toLowerCase()]
     const value = scalar(match[2])
     if (target && value !== undefined) values[target] = value
   }
@@ -270,6 +301,34 @@ const defaults = JSON.parse(fs.readFileSync(outputFile, 'utf8'))
 const sources = new Map(walk(unitsRoot).map(parseUnitFile).filter(Boolean).map(unit => [unit.id, unit]))
 const explosions = parseExplosionProfiles()
 let resolved = 0
+let added = 0
+
+for (const [id, source] of sources) {
+  if (defaults[id]) continue
+  const hasCoreDefaults = ['metalcost', 'energycost', 'buildtime', 'health']
+    .every(key => Number.isFinite(Number(source.values[key])))
+  if (!hasCoreDefaults) continue
+
+  const weaponSlots = Object.entries(source.weaponMounts)
+    .map(([slot, mount]) => {
+      const defKey = String(mount.defKey || '').toLowerCase()
+      if (!defKey || !source.weaponDefs[defKey]) return null
+      return {
+        ...source.weaponDefs[defKey],
+        ...mount,
+        slot: Number(slot),
+        defKey,
+      }
+    })
+    .filter(Boolean)
+    .sort((left, right) => left.slot - right.slot)
+
+  defaults[id] = {
+    ...source.values,
+    ...(weaponSlots.length ? { weaponSlots } : {}),
+  }
+  added += 1
+}
 
 for (const [id, unit] of Object.entries(defaults)) {
   const source = sources.get(id) || (id.startsWith('scav_') ? sources.get(id.slice(5)) : null)
@@ -294,4 +353,4 @@ for (const [id, unit] of Object.entries(defaults)) {
 }
 
 fs.writeFileSync(outputFile, `${JSON.stringify(defaults, null, 2)}\n`)
-console.log(`Updated expanded parameter defaults for ${resolved}/${Object.keys(defaults).length} units.`)
+console.log(`Updated expanded parameter defaults for ${resolved}/${Object.keys(defaults).length} units (${added} newly recovered).`)
