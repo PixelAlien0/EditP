@@ -609,22 +609,27 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   const dialog = page.getByRole('dialog', { name: 'Carrier & Deployed Drone Linkage Workbench' });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel('Carrier Controller WeaponDef').locator('option:checked')).toContainText('PLASMA');
-  await expect(dialog.getByLabel('Initial Deployed Units (startingdronecount)')).toHaveValue('8');
+  await expect(dialog.getByLabel('Initial Units per Type')).toHaveValue('8');
   await expect(dialog.getByLabel('Auto-Return HP Threshold (%)')).toHaveValue('65');
+  await dialog.getByLabel(/Deployed Unit IDs/).fill('armdrone corvamp');
   await dialog.getByLabel('Auto-Return HP Threshold (%)').fill('70');
-  await dialog.getByLabel('Maximum Active Units (maxunits)').fill('12');
+  await dialog.getByLabel('Maximum Active Units per Type').fill('12 4');
+  await dialog.getByLabel('Docking Piece Groups').fill('1 2,3 4');
   await dialog.getByRole('button', { name: 'Apply Linkage' }).click();
 
   await page.getByRole('tab', { name: /Weapons/ }).click();
-  await expect(page.locator('[data-param-key="carried_unit"] input')).toHaveValue('armdrone');
-  await expect(page.locator('[data-param-key="maxunits"] input')).toHaveValue('12');
+  await expect(page.locator('[data-param-key="carried_unit"] input')).toHaveValue('armdrone corvamp');
+  await expect(page.locator('[data-param-key="maxunits"] input')).toHaveValue('12 4');
+  await expect(page.locator('[data-param-key="dockingpieces"] input')).toHaveValue('1 2,3 4');
   await expect(page.locator('[data-param-key="docktohealthreshold"] input')).toHaveValue('70');
-  await page.locator('[data-param-key="maxunits"] input').fill('13');
+  await page.locator('[data-param-key="maxunits"] input').fill('13 5');
 
   await page.getByRole('button', { name: 'Tools' }).click();
   await page.getByRole('menuitem').filter({ hasText: 'Carrier & Drone Studio' }).click();
   const reopenedDialog = page.getByRole('dialog', { name: 'Carrier & Deployed Drone Linkage Workbench' });
-  await expect(reopenedDialog.getByLabel('Maximum Active Units (maxunits)')).toHaveValue('13');
+  await expect(reopenedDialog.getByLabel(/Deployed Unit IDs/)).toHaveValue('armdrone corvamp');
+  await expect(reopenedDialog.getByLabel('Maximum Active Units per Type')).toHaveValue('13 5');
+  await expect(reopenedDialog.getByLabel('Docking Piece Groups')).toHaveValue('1 2,3 4');
   await expect(reopenedDialog.getByLabel('Auto-Return HP Threshold (%)')).toHaveValue('70');
   await reopenedDialog.getByRole('button', { name: 'Apply Linkage' }).click();
 
@@ -632,8 +637,9 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await page.getByText('Legacy combined compiler', { exact: true }).click();
   await page.getByRole('tab', { name: 'Units Lua' }).click();
   const output = page.locator('.export-code-preview');
-  await expect(output).toContainText('carried_unit = "armdrone"');
-  await expect(output).toContainText('maxunits = 13');
+  await expect(output).toContainText('carried_unit = "armdrone corvamp"');
+  await expect(output).toContainText('maxunits = "13 5"');
+  await expect(output).toContainText('dockingpieces = "1 2,3 4"');
   await expect(output).toContainText('docktohealthreshold = 70');
 
   await page.getByRole('tab', { name: 'Definitions Lua' }).click();

@@ -148,6 +148,37 @@ function getCarrierValue(unitTweaks, defaults, weaponSlot, key, ...aliases) {
   return undefined;
 }
 
+function splitSpaceList(value) {
+  return String(value ?? '')
+    .trim()
+    .split(/[\s,]+/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function splitDockingSections(value) {
+  return String(value ?? '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function alignList(values, count, fallback) {
+  const source = values.filter(value => value !== undefined && value !== null && String(value).trim() !== '');
+  return Array.from({ length: count }, (_, index) => (
+    source[index] ?? source[source.length - 1] ?? fallback
+  ));
+}
+
+function alignNumberList(value, count, fallback, { min = 0, max = Infinity, integer = false } = {}) {
+  return alignList(splitSpaceList(value), count, fallback).map(item => {
+    const parsed = Number(item);
+    const safeValue = Number.isFinite(parsed) ? parsed : fallback;
+    const clamped = Math.max(min, Math.min(max, safeValue));
+    return String(integer ? Math.round(clamped) : clamped);
+  });
+}
+
 /**
  * Extracts current carrier-drone linkage configuration from unit tweaks or defaults
  */
@@ -169,10 +200,7 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
     'carried_unit'
   ) ?? '';
 
-  const unitsList = String(targetChild)
-    .split(/[\s,]+/)
-    .map(s => s.trim())
-    .filter(Boolean);
+  const unitsList = splitSpaceList(targetChild);
 
   const primaryUnit = unitsList[0] || '';
   const secondaryUnits = unitsList.slice(1);
@@ -183,12 +211,20 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
     || unitId.includes('hive')
     || unitId.includes('spawner');
 
-  const maxUnits = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'maxunits', 'droneammo') ?? 4);
-  const spawnMetal = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_metal_cost', 'metalcost') ?? 100);
-  const spawnEnergy = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_energy_cost', 'energycost') ?? 1000);
+  const maxUnitsValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'maxunits', 'droneammo') ?? 4;
+  const startingDroneCountValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'startingdronecount') ?? 0;
+  const spawnMetalValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_metal_cost', 'metalcost') ?? 100;
+  const spawnEnergyValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_energy_cost', 'energycost') ?? 1000;
+  const droneTypeValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dronetype') ?? 'default';
+  const dockingPiecesValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dockingpieces') ?? '1';
+  const droneDockTimeValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dronedocktime') ?? '';
+  const droneAmmoValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'droneammo') ?? '';
+  const maxUnits = Number(splitSpaceList(maxUnitsValue)[0] ?? 4);
+  const spawnMetal = Number(splitSpaceList(spawnMetalValue)[0] ?? 100);
+  const spawnEnergy = Number(splitSpaceList(spawnEnergyValue)[0] ?? 1000);
   const spawnInterval = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_interval', 'spawnrate') ?? 5);
   const returnHp = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'drone_return_hp', 'docktohealthreshold') ?? 25);
-  const startingDroneCount = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'startingdronecount') ?? 0);
+  const startingDroneCount = Number(splitSpaceList(startingDroneCountValue)[0] ?? 0);
   const droneAirTimeValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'droneairtime');
   const droneAirTime = Number(droneAirTimeValue);
   const manualControlValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'manualdrones');
@@ -210,6 +246,7 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
     carriedUnit: primaryUnit,
     spawnsName: primaryUnit,
     secondaryUnits,
+    carriedUnitsText: unitsList.join(' '),
     deployMode: isGroundSpawner ? 'ground' : 'air',
     spawnSurface: surface,
     isControllable,
@@ -224,17 +261,26 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
       ),
     })),
     maxUnits: Number.isFinite(maxUnits) && maxUnits > 0 ? maxUnits : 4,
+    maxUnitsText: String(maxUnitsValue),
     // Retained for callers saved against the earlier, incorrectly named API.
     droneAmmo: Number.isFinite(maxUnits) && maxUnits > 0 ? maxUnits : 4,
     startingDroneCount: Number.isFinite(startingDroneCount) && startingDroneCount >= 0
       ? startingDroneCount
       : 0,
+    startingDroneCountText: String(startingDroneCountValue),
     droneAirTime: Number.isFinite(droneAirTime) && droneAirTime > 0 ? droneAirTime : null,
+    droneAirTimeText: droneAirTimeValue === undefined ? '' : String(droneAirTimeValue),
+    droneDockTimeText: String(droneDockTimeValue),
+    droneAmmoText: String(droneAmmoValue),
+    droneTypesText: String(droneTypeValue),
+    dockingPiecesText: String(dockingPiecesValue),
     manualControl,
     dockingEnabled,
     carrierDeathBehavior,
     spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
+    spawnMetalText: String(spawnMetalValue),
     spawnEnergy: Number.isFinite(spawnEnergy) ? spawnEnergy : 1000,
+    spawnEnergyText: String(spawnEnergyValue),
     spawnInterval: Number.isFinite(spawnInterval) && spawnInterval > 0 ? spawnInterval : 5,
     returnHp: Number.isFinite(returnHp) ? returnHp : 25,
   };
@@ -256,12 +302,17 @@ function getCarrierRoster(config) {
  * Formats carrier linkage state into unit tweaks key-value pairs
  */
 export function buildCarrierLinkageTweaks(config) {
-  if (!config || !config.parentUnitId || (!config.carriedUnit && !config.spawnsName)) {
+  if (!config || !config.parentUnitId
+    || (!config.carriedUnitsText && !config.carriedUnit && !config.spawnsName)) {
     return {};
   }
 
-  const primaryId = String(config.carriedUnit || config.spawnsName).trim().toLowerCase();
-  const carrierRoster = getCarrierRoster(config);
+  const requestedRoster = config.carriedUnitsText || getCarrierRoster(config);
+  const carriedUnits = [...new Set(splitSpaceList(requestedRoster).map(unitId => unitId.toLowerCase()))];
+  if (carriedUnits.length === 0) return {};
+  const primaryId = carriedUnits[0];
+  const carrierRoster = carriedUnits.join(' ');
+  const payloadCount = carriedUnits.length;
   const requestedDeathBehavior = String(
     config.carrierDeathBehavior
       || ((config.isControllable ?? true) ? 'control' : 'death')
@@ -271,19 +322,54 @@ export function buildCarrierLinkageTweaks(config) {
     : 'death';
   const manualControl = config.manualControl ?? true;
   const dockingEnabled = config.dockingEnabled ?? false;
-  const maxUnits = config.maxUnits ?? config.droneAmmo ?? 4;
-  const countStr = String(Math.max(1, Math.min(100, Math.round(maxUnits))));
-  const startingCountStr = String(Math.max(
+  const maxUnitsSource = config.maxUnitsText ?? config.maxUnits ?? config.droneAmmo ?? 4;
+  const maxUnitsList = alignNumberList(maxUnitsSource, payloadCount, 1, {
+    min: 1,
+    max: 100,
+    integer: true,
+  });
+  const startingCountList = alignNumberList(
+    config.startingDroneCountText ?? config.startingDroneCount ?? 0,
+    payloadCount,
     0,
-    Math.min(Number(countStr), Math.round(Number(config.startingDroneCount) || 0))
-  ));
+    { min: 0, max: 100, integer: true }
+  ).map((value, index) => String(Math.min(Number(value), Number(maxUnitsList[index]))));
   const intervalStr = String(Math.max(1, Math.round(config.spawnInterval || 5)));
-  const metalStr = String(Math.max(0, Math.round(config.spawnMetal || 0)));
-  const energyStr = String(Math.max(0, Math.round(config.spawnEnergy || 0)));
-  const requestedAirTime = Number(config.droneAirTime);
-  const safeAirTime = Number.isFinite(requestedAirTime) && requestedAirTime > 0
-    ? requestedAirTime
-    : SAFE_ORPHAN_DRONE_AIRTIME_SECONDS;
+  const metalList = alignNumberList(
+    config.spawnMetalText ?? config.spawnMetal ?? 0,
+    payloadCount,
+    0,
+    { min: 0, integer: true }
+  );
+  const energyList = alignNumberList(
+    config.spawnEnergyText ?? config.spawnEnergy ?? 0,
+    payloadCount,
+    0,
+    { min: 0, integer: true }
+  );
+  const droneTypes = alignList(splitSpaceList(config.droneTypesText), payloadCount, 'default');
+  const dockingSections = alignList(
+    splitDockingSections(config.dockingPiecesText),
+    payloadCount,
+    '1'
+  );
+  const requestedAirTimes = splitSpaceList(config.droneAirTimeText ?? config.droneAirTime);
+  const droneAirTimes = carrierDeathBehavior === 'death' && requestedAirTimes.length === 0
+    ? null
+    : alignNumberList(
+      requestedAirTimes,
+      payloadCount,
+      SAFE_ORPHAN_DRONE_AIRTIME_SECONDS,
+      { min: 1 }
+    );
+  const requestedDockTimes = splitSpaceList(config.droneDockTimeText);
+  const droneDockTimes = requestedDockTimes.length > 0
+    ? alignNumberList(requestedDockTimes, payloadCount, 0, { min: 0 })
+    : null;
+  const requestedAmmo = splitSpaceList(config.droneAmmoText);
+  const droneAmmo = requestedAmmo.length > 0
+    ? alignNumberList(requestedAmmo, payloadCount, 0, { min: 0, integer: true })
+    : null;
   const targetSlot = Math.max(1, Math.round(Number(config.targetWeaponSlot) || 1));
   const slotKey = key => getSlotTweakKey(targetSlot, key);
 
@@ -294,17 +380,22 @@ export function buildCarrierLinkageTweaks(config) {
     [slotKey('spawns_surface')]: String(
       config.spawnSurface ?? (config.deployMode === 'ground' ? 'LAND' : '')
     ).trim().toUpperCase(),
-    [slotKey('maxunits')]: countStr,
-    [slotKey('startingdronecount')]: startingCountStr,
-    [slotKey('spawn_metal_cost')]: metalStr,
-    [slotKey('spawn_energy_cost')]: energyStr,
+    [slotKey('dronetype')]: droneTypes.join(' '),
+    [slotKey('maxunits')]: maxUnitsList.join(' '),
+    [slotKey('startingdronecount')]: startingCountList.join(' '),
+    [slotKey('spawn_metal_cost')]: metalList.join(' '),
+    [slotKey('spawn_energy_cost')]: energyList.join(' '),
+    // BAR indexes availableSections by drone type even when docking is off.
+    // Always emit one comma-delimited section per carried unit to prevent the
+    // upstream line-573 nil access when a multi-type roster spawns.
+    [slotKey('dockingpieces')]: dockingSections.join(','),
     [slotKey('spawnrate')]: intervalStr,
     [slotKey('carrierdeaththroe')]: carrierDeathBehavior,
     [slotKey('manualdrones')]: manualControl ? 'true' : 'false',
     [slotKey('enabledocking')]: dockingEnabled ? 'true' : 'false',
-    [slotKey('droneairtime')]: carrierDeathBehavior === 'death'
-      ? (Number.isFinite(requestedAirTime) && requestedAirTime > 0 ? String(requestedAirTime) : undefined)
-      : String(safeAirTime),
+    [slotKey('droneairtime')]: droneAirTimes?.join(' '),
+    [slotKey('dronedocktime')]: droneDockTimes?.join(' '),
+    [slotKey('droneammo')]: droneAmmo?.join(' '),
     [slotKey('docktohealthreshold')]: String(
       Math.max(0, Math.min(100, Number(config.returnHp) || 0))
     ),

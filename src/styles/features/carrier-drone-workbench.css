@@ -12,7 +12,7 @@
 
 .carrier-workbench {
   width: 100%;
-  max-width: 920px;
+  max-width: 1080px;
   max-height: 92vh;
   display: flex;
   flex-direction: column;
@@ -168,6 +168,40 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-4);
+}
+
+.carrier-workbench__list-guide,
+.carrier-workbench__roster-field {
+  grid-column: 1 / -1;
+}
+
+.carrier-workbench__list-guide {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.carrier-workbench__list-guide strong {
+  color: var(--color-text-strong);
+}
+
+.carrier-workbench__list-guide code {
+  color: var(--color-accent);
+}
+
+.carrier-workbench__roster-field > label {
+  display: flex;
+  justify-content: space-between;
+}
+
+.carrier-workbench__roster-field > label span {
+  color: var(--color-text-muted);
+  font: 600 10px/1 var(--font-mono);
 }
 
 .carrier-workbench__footer {

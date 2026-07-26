@@ -132,6 +132,27 @@ function getValidationWarning(key, value) {
   if (normalizedKey.includes('carrierdeaththroe') && !['death', 'control', 'capture', 'release', 'parasite'].includes(normalizedValue)) {
     return { level: 'error', message: 'Use death, control, capture, release, or parasite' };
   }
+  const carrierListKey = normalizedKey.match(/(?:^|_)(maxunits|startingdronecount|spawn_metal_cost|spawn_energy_cost|droneairtime|dronedocktime|droneammo)$/)?.[1];
+  if (carrierListKey) {
+    const values = normalizedValue.split(/\s+/).filter(Boolean).map(Number);
+    if (values.length === 0 || values.some(item => !Number.isFinite(item))) {
+      return { level: 'error', message: 'Enter one number per carried unit, separated by spaces' };
+    }
+    const requiresInteger = ['maxunits', 'startingdronecount', 'droneammo'].includes(carrierListKey);
+    if (requiresInteger && values.some(item => !Number.isInteger(item))) {
+      return { level: 'error', message: 'Every list value must be a whole number' };
+    }
+    const minimum = carrierListKey === 'maxunits' ? 1 : 0;
+    if (values.some(item => item < minimum)) {
+      return {
+        level: 'error',
+        message: carrierListKey === 'maxunits'
+          ? 'Every capacity must be at least 1'
+          : 'List values cannot be negative',
+      };
+    }
+    return null;
+  }
   if ((key === 'collisionvolumescales' || key === 'collisionvolumeoffsets') && !/^\s*-?\d*\.?\d+(?:\s+-?\d*\.?\d+){2}\s*$/.test(String(value))) {
     return { level: 'error', message: 'Enter three numbers: X Y Z' };
   }

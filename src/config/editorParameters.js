@@ -409,6 +409,8 @@ export const WEAPON_SLOT_STRING_PARAMS = new Set([
   'soundstart', 'soundhit', 'soundhitwet', 'soundhitdry', 'texture1', 'texture2', 'texture3', 'colormap',
   'spawns_name', 'spawns_surface', 'spawns_mode', 'spawns_ceg', 'cluster_def',
   'carried_unit', 'dronetype', 'carrierdeaththroe', 'dockingpieces',
+  'maxunits', 'startingdronecount', 'spawn_metal_cost', 'spawn_energy_cost',
+  'droneairtime', 'dronedocktime', 'droneammo',
 ]);
 
 export const WEAPON_SLOT_MOUNT_PARAMS = new Set([
@@ -494,10 +496,10 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
       { key: 'carried_unit', label: 'Carried Unit IDs', type: 'string' },
       { key: 'dronetype', label: 'Drone Type', type: 'string' },
       { key: 'spawnrate', label: 'Spawn Interval (seconds)', type: 'number' },
-      { key: 'maxunits', label: 'Maximum Active Units', type: 'number' },
-      { key: 'startingdronecount', label: 'Initial Drone Count', type: 'number' },
-      { key: 'spawn_metal_cost', label: 'Metal per Deployed Unit', type: 'number' },
-      { key: 'spawn_energy_cost', label: 'Energy per Deployed Unit', type: 'number' },
+      { key: 'maxunits', label: 'Maximum Active Units', type: 'string' },
+      { key: 'startingdronecount', label: 'Initial Drone Count', type: 'string' },
+      { key: 'spawn_metal_cost', label: 'Metal per Deployed Unit', type: 'string' },
+      { key: 'spawn_energy_cost', label: 'Energy per Deployed Unit', type: 'string' },
       { key: 'controlradius', label: 'Control Radius', type: 'number' },
       { key: 'engagementrange', label: 'Engagement Range', type: 'number' },
       { key: 'manualdrones', label: 'Allow Direct Player Control', type: 'tri-state' },
@@ -526,9 +528,9 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
       { key: 'deathdecayrate', label: 'Orphaned Health Decay / Second', type: 'number' },
       { key: 'holdfireradius', label: 'Hold-Fire Wander Radius', type: 'number' },
       { key: 'droneminimumidleradius', label: 'Minimum Idle Radius', type: 'number' },
-      { key: 'droneairtime', label: 'Maximum Undocked Time (seconds)', type: 'number' },
-      { key: 'dronedocktime', label: 'Minimum Dock Time (seconds)', type: 'number' },
-      { key: 'droneammo', label: 'Drone Ammunition', type: 'number' },
+      { key: 'droneairtime', label: 'Maximum Undocked Time (seconds)', type: 'string' },
+      { key: 'dronedocktime', label: 'Minimum Dock Time (seconds)', type: 'string' },
+      { key: 'droneammo', label: 'Drone Ammunition', type: 'string' },
     ],
   },
 ]);

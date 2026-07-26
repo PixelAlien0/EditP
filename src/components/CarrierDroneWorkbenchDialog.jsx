@@ -108,16 +108,24 @@ export default function CarrierDroneWorkbenchDialog({
 
   const [parentUnitId, setParentUnitId] = useState(defaultParent);
   const [carriedUnit, setCarriedUnit] = useState(initialConfig.carriedUnit || 'armantiodrone');
+  const [carriedUnitsText, setCarriedUnitsText] = useState(
+    initialConfig.carriedUnitsText || initialConfig.carriedUnit || 'armantiodrone'
+  );
   const [targetWeaponSlot, setTargetWeaponSlot] = useState(initialConfig.targetWeaponSlot || 1);
   const [targetWeaponDef, setTargetWeaponDef] = useState(initialConfig.targetWeaponDef || '');
   const [spawnSurface, setSpawnSurface] = useState(initialConfig.spawnSurface || '');
   const [carrierDeathBehavior, setCarrierDeathBehavior] = useState(initialConfig.carrierDeathBehavior || 'death');
   const [manualControl, setManualControl] = useState(initialConfig.manualControl ?? true);
   const [dockingEnabled, setDockingEnabled] = useState(initialConfig.dockingEnabled ?? false);
-  const [maxUnits, setMaxUnits] = useState(initialConfig.maxUnits || initialConfig.droneAmmo || 6);
-  const [startingDroneCount, setStartingDroneCount] = useState(initialConfig.startingDroneCount ?? 0);
-  const [spawnMetal, setSpawnMetal] = useState(initialConfig.spawnMetal || 120);
-  const [spawnEnergy, setSpawnEnergy] = useState(initialConfig.spawnEnergy || 1200);
+  const [maxUnits, setMaxUnits] = useState(initialConfig.maxUnitsText || String(initialConfig.maxUnits || 6));
+  const [startingDroneCount, setStartingDroneCount] = useState(initialConfig.startingDroneCountText || '0');
+  const [spawnMetal, setSpawnMetal] = useState(initialConfig.spawnMetalText || String(initialConfig.spawnMetal ?? 0));
+  const [spawnEnergy, setSpawnEnergy] = useState(initialConfig.spawnEnergyText || String(initialConfig.spawnEnergy ?? 0));
+  const [droneTypesText, setDroneTypesText] = useState(initialConfig.droneTypesText || 'default');
+  const [dockingPiecesText, setDockingPiecesText] = useState(initialConfig.dockingPiecesText || '1');
+  const [droneAirTimeText, setDroneAirTimeText] = useState(initialConfig.droneAirTimeText || '');
+  const [droneDockTimeText, setDroneDockTimeText] = useState(initialConfig.droneDockTimeText || '');
+  const [droneAmmoText, setDroneAmmoText] = useState(initialConfig.droneAmmoText || '');
   const [spawnInterval, setSpawnInterval] = useState(initialConfig.spawnInterval || 5);
   const [returnHp, setReturnHp] = useState(initialConfig.returnHp || 25);
   const parentConfig = useMemo(
@@ -140,6 +148,11 @@ export default function CarrierDroneWorkbenchDialog({
     return { ...raw, displayName: getFormattedUnitName(raw) };
   }, [allAvailableUnits, carriedUnit]);
 
+  const carriedUnitIds = useMemo(
+    () => carriedUnitsText.trim().split(/[\s,]+/).filter(Boolean),
+    [carriedUnitsText]
+  );
+
   // Filtered unit list for the selection modal
   const filteredPickerUnits = useMemo(() => {
     const q = pickerQuery.trim().toLowerCase();
@@ -156,13 +169,19 @@ export default function CarrierDroneWorkbenchDialog({
     if (cfg.carriedUnit && allAvailableUnits.some(u => u.id.toLowerCase() === cfg.carriedUnit.toLowerCase())) {
       setCarriedUnit(cfg.carriedUnit);
     }
+    setCarriedUnitsText(cfg.carriedUnitsText || cfg.carriedUnit || '');
     setTargetWeaponSlot(cfg.targetWeaponSlot || 1);
     setTargetWeaponDef(cfg.targetWeaponDef || '');
     setSpawnSurface(cfg.spawnSurface || '');
-    setMaxUnits(cfg.maxUnits || cfg.droneAmmo || 1);
-    setStartingDroneCount(cfg.startingDroneCount ?? 0);
-    setSpawnMetal(cfg.spawnMetal ?? 0);
-    setSpawnEnergy(cfg.spawnEnergy ?? 0);
+    setMaxUnits(cfg.maxUnitsText || String(cfg.maxUnits || 1));
+    setStartingDroneCount(cfg.startingDroneCountText || '0');
+    setSpawnMetal(cfg.spawnMetalText || String(cfg.spawnMetal ?? 0));
+    setSpawnEnergy(cfg.spawnEnergyText || String(cfg.spawnEnergy ?? 0));
+    setDroneTypesText(cfg.droneTypesText || 'default');
+    setDockingPiecesText(cfg.dockingPiecesText || '1');
+    setDroneAirTimeText(cfg.droneAirTimeText || '');
+    setDroneDockTimeText(cfg.droneDockTimeText || '');
+    setDroneAmmoText(cfg.droneAmmoText || '');
     setSpawnInterval(cfg.spawnInterval || 1);
     setReturnHp(cfg.returnHp ?? 0);
     setCarrierDeathBehavior(cfg.carrierDeathBehavior || 'death');
@@ -175,12 +194,20 @@ export default function CarrierDroneWorkbenchDialog({
     const cfg = resolveCarrierConfig(parentUnitId, slotNumber);
     setTargetWeaponSlot(slotNumber);
     setTargetWeaponDef(cfg.targetWeaponDef || '');
-    if (cfg.carriedUnit) setCarriedUnit(cfg.carriedUnit);
+    if (cfg.carriedUnit) {
+      setCarriedUnit(cfg.carriedUnit);
+      setCarriedUnitsText(cfg.carriedUnitsText || cfg.carriedUnit);
+    }
     setSpawnSurface(cfg.spawnSurface || '');
-    setMaxUnits(cfg.maxUnits || cfg.droneAmmo || 1);
-    setStartingDroneCount(cfg.startingDroneCount ?? 0);
-    setSpawnMetal(cfg.spawnMetal ?? 0);
-    setSpawnEnergy(cfg.spawnEnergy ?? 0);
+    setMaxUnits(cfg.maxUnitsText || String(cfg.maxUnits || 1));
+    setStartingDroneCount(cfg.startingDroneCountText || '0');
+    setSpawnMetal(cfg.spawnMetalText || String(cfg.spawnMetal ?? 0));
+    setSpawnEnergy(cfg.spawnEnergyText || String(cfg.spawnEnergy ?? 0));
+    setDroneTypesText(cfg.droneTypesText || 'default');
+    setDockingPiecesText(cfg.dockingPiecesText || '1');
+    setDroneAirTimeText(cfg.droneAirTimeText || '');
+    setDroneDockTimeText(cfg.droneDockTimeText || '');
+    setDroneAmmoText(cfg.droneAmmoText || '');
     setSpawnInterval(cfg.spawnInterval || 1);
     setReturnHp(cfg.returnHp ?? 0);
     setCarrierDeathBehavior(cfg.carrierDeathBehavior || 'death');
@@ -190,22 +217,27 @@ export default function CarrierDroneWorkbenchDialog({
 
   const handleSave = event => {
     event.preventDefault();
-    if (!parentUnitId || !carriedUnit) return;
+    if (!parentUnitId || carriedUnitIds.length === 0) return;
 
     const compiledTweaks = buildCarrierLinkageTweaks({
       parentUnitId,
-      carriedUnit,
-      spawnsName: carriedUnit,
+      carriedUnit: carriedUnitIds[0],
+      carriedUnitsText,
       targetWeaponSlot,
       targetWeaponDef,
       spawnSurface,
       carrierDeathBehavior,
       manualControl,
       dockingEnabled,
-      maxUnits,
-      startingDroneCount,
-      spawnMetal,
-      spawnEnergy,
+      maxUnitsText: maxUnits,
+      startingDroneCountText: startingDroneCount,
+      spawnMetalText: spawnMetal,
+      spawnEnergyText: spawnEnergy,
+      droneTypesText,
+      dockingPiecesText,
+      droneAirTimeText,
+      droneDockTimeText,
+      droneAmmoText,
       spawnInterval,
       returnHp,
     });
@@ -224,6 +256,10 @@ export default function CarrierDroneWorkbenchDialog({
       name: `${childUnitInfo.name} Custom`,
     });
     setCarriedUnit(newId);
+    setCarriedUnitsText(current => {
+      const unitIds = current.trim().split(/[\s,]+/).filter(Boolean);
+      return [newId, ...unitIds.slice(1)].join(' ');
+    });
   };
 
   return (
@@ -265,7 +301,9 @@ export default function CarrierDroneWorkbenchDialog({
 
             <div className="carrier-workbench__link-bus" aria-hidden="true">
               <span className="carrier-workbench__link-arrow">→</span>
-              <span className="carrier-workbench__link-badge">{maxUnits} Drones</span>
+              <span className="carrier-workbench__link-badge">
+                {carriedUnitIds.length} {carriedUnitIds.length === 1 ? 'Type' : 'Types'}
+              </span>
             </div>
 
             <button
@@ -291,6 +329,12 @@ export default function CarrierDroneWorkbenchDialog({
             </div>
 
             <div className="carrier-workbench__typebox-grid">
+              <div className="carrier-workbench__list-guide">
+                <strong>Multi-drone list format</strong>
+                <span>Enter one space-separated value per deployed unit type. Separate each type's docking pieces with a comma.</span>
+                <code>units: drone_a drone_b · capacity: 6 3 · docks: 1 2 3,4 5</code>
+              </div>
+
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Spawn Surface Restriction</label>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -404,32 +448,63 @@ export default function CarrierDroneWorkbenchDialog({
                 </select>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="input-payload-capacity">Maximum Active Units (maxunits)</label>
+              <div className="form-group carrier-workbench__roster-field">
+                <label htmlFor="input-carried-units">
+                  Deployed Unit IDs <span>{carriedUnitIds.length} types</span>
+                </label>
                 <input
-                  id="input-payload-capacity"
-                  type="number"
+                  id="input-carried-units"
+                  type="text"
                   className="form-input"
-                  min="1"
-                  max="50"
-                  value={maxUnits}
-                  onChange={e => setMaxUnits(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                  value={carriedUnitsText}
+                  onChange={event => {
+                    const nextValue = event.target.value;
+                    setCarriedUnitsText(nextValue);
+                    setCarriedUnit(nextValue.trim().split(/[\s,]+/).filter(Boolean)[0] || '');
+                  }}
+                  placeholder="armdrone corvamp legdrone"
+                  spellCheck="false"
+                  required
+                />
+                <small>The first ID remains the visual preview. All listed IDs are compiled into <code>carried_unit</code>.</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-drone-types">Drone Types</label>
+                <input
+                  id="input-drone-types"
+                  type="text"
+                  className="form-input"
+                  value={droneTypesText}
+                  onChange={event => setDroneTypesText(event.target.value)}
+                  placeholder="fighter bomber default"
+                  spellCheck="false"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="input-starting-drone-count">Initial Deployed Units (startingdronecount)</label>
+                <label htmlFor="input-payload-capacity">Maximum Active Units per Type</label>
+                <input
+                  id="input-payload-capacity"
+                  type="text"
+                  className="form-input"
+                  value={maxUnits}
+                  onChange={event => setMaxUnits(event.target.value)}
+                  placeholder="6 3"
+                  inputMode="numeric"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-starting-drone-count">Initial Units per Type</label>
                 <input
                   id="input-starting-drone-count"
-                  type="number"
+                  type="text"
                   className="form-input"
-                  min="0"
-                  max={maxUnits}
                   value={startingDroneCount}
-                  onChange={e => setStartingDroneCount(Math.max(
-                    0,
-                    Math.min(maxUnits, parseInt(e.target.value, 10) || 0)
-                  ))}
+                  onChange={event => setStartingDroneCount(event.target.value)}
+                  placeholder="2 1"
+                  inputMode="numeric"
                 />
               </div>
 
@@ -460,27 +535,83 @@ export default function CarrierDroneWorkbenchDialog({
               </div>
 
               <div className="form-group">
-                <label htmlFor="input-spawn-metal">Spawn Metal Cost</label>
+                <label htmlFor="input-spawn-metal">Metal Cost per Type</label>
                 <input
                   id="input-spawn-metal"
-                  type="number"
+                  type="text"
                   className="form-input"
-                  min="0"
                   value={spawnMetal}
-                  onChange={e => setSpawnMetal(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                  onChange={event => setSpawnMetal(event.target.value)}
+                  placeholder="25 90"
+                  inputMode="numeric"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="input-spawn-energy">Spawn Energy Cost</label>
+                <label htmlFor="input-spawn-energy">Energy Cost per Type</label>
                 <input
                   id="input-spawn-energy"
-                  type="number"
+                  type="text"
                   className="form-input"
-                  min="0"
                   value={spawnEnergy}
-                  onChange={e => setSpawnEnergy(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                  onChange={event => setSpawnEnergy(event.target.value)}
+                  placeholder="600 1200"
+                  inputMode="numeric"
                 />
+              </div>
+
+              <div className="form-group carrier-workbench__roster-field">
+                <label htmlFor="input-docking-pieces">Docking Piece Groups</label>
+                <input
+                  id="input-docking-pieces"
+                  type="text"
+                  className="form-input"
+                  value={dockingPiecesText}
+                  onChange={event => setDockingPiecesText(event.target.value)}
+                  placeholder="1 2 3,4 5 6"
+                  spellCheck="false"
+                />
+                <small>One comma-separated group per deployed unit type. Missing groups are safely repeated during compilation.</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-drone-airtime">Maximum Air Time per Type</label>
+                <input
+                  id="input-drone-airtime"
+                  type="text"
+                  className="form-input"
+                  value={droneAirTimeText}
+                  onChange={event => setDroneAirTimeText(event.target.value)}
+                  placeholder="60 90"
+                  inputMode="numeric"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-drone-docktime">Minimum Dock Time per Type</label>
+                <input
+                  id="input-drone-docktime"
+                  type="text"
+                  className="form-input"
+                  value={droneDockTimeText}
+                  onChange={event => setDroneDockTimeText(event.target.value)}
+                  placeholder="2 4"
+                  inputMode="numeric"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-drone-ammo">Drone Ammunition per Type</label>
+                <input
+                  id="input-drone-ammo"
+                  type="text"
+                  className="form-input"
+                  value={droneAmmoText}
+                  onChange={event => setDroneAmmoText(event.target.value)}
+                  placeholder="0 4"
+                  inputMode="numeric"
+                />
+                <small>Use 0 for unlimited ammunition.</small>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-end' }}>
@@ -494,7 +625,7 @@ export default function CarrierDroneWorkbenchDialog({
 
         <footer className="carrier-workbench__footer">
           <span className="carrier-workbench__summary">
-            Carrier <strong>{parentUnitInfo.displayName}</strong> will launch up to <strong>{maxUnits}</strong> active <strong>{childUnitInfo.displayName}</strong> units every {spawnInterval}s. {manualControl ? 'They remain player-selectable.' : 'They remain carrier-directed.'}
+            <strong>{parentUnitInfo.displayName}</strong> will manage <strong>{carriedUnitIds.length}</strong> deployed unit {carriedUnitIds.length === 1 ? 'type' : 'types'} from controller slot {targetWeaponSlot}. {manualControl ? 'Units remain player-selectable.' : 'Units remain carrier-directed.'}
           </span>
           <div className="carrier-workbench__actions">
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
@@ -552,6 +683,10 @@ export default function CarrierDroneWorkbenchDialog({
                       handleParentSelect(unit.id);
                     } else {
                       setCarriedUnit(unit.id);
+                      setCarriedUnitsText(current => {
+                        const unitIds = current.trim().split(/[\s,]+/).filter(Boolean);
+                        return [unit.id, ...unitIds.slice(1)].join(' ');
+                      });
                     }
                     setPickerTarget(null);
                   }}

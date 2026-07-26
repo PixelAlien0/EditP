@@ -88,15 +88,19 @@ describe('carrierDroneLinkage', () => {
       editp_carrier_weapondef: 'plasma',
       'weapon_slot_2_carried_unit': 'armodrone',
       'weapon_slot_2_spawns_surface': 'SEA',
+      'weapon_slot_2_dronetype': 'default',
       'weapon_slot_2_maxunits': '8',
       'weapon_slot_2_startingdronecount': '0',
       'weapon_slot_2_spawn_metal_cost': '200',
       'weapon_slot_2_spawn_energy_cost': '1500',
+      'weapon_slot_2_dockingpieces': '1',
       'weapon_slot_2_spawnrate': '4',
       'weapon_slot_2_carrierdeaththroe': 'control',
       'weapon_slot_2_manualdrones': 'true',
       'weapon_slot_2_enabledocking': 'false',
       'weapon_slot_2_droneairtime': String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS),
+      'weapon_slot_2_dronedocktime': undefined,
+      'weapon_slot_2_droneammo': undefined,
       'weapon_slot_2_docktohealthreshold': '30',
       editp_carrier_roster: undefined,
       'customparams.carried_unit': undefined,
@@ -211,6 +215,44 @@ describe('carrierDroneLinkage', () => {
     expect(result.weapon_slot_1_droneairtime).toBeUndefined();
   });
 
+  it('aligns every parallel carrier list to a multi-unit roster', () => {
+    const result = buildCarrierLinkageTweaks({
+      parentUnitId: 'armcarrier',
+      carriedUnitsText: 'armdrone corvamp legdrone',
+      maxUnitsText: '6 3',
+      startingDroneCountText: '2 1 0',
+      spawnMetalText: '25 90 15',
+      spawnEnergyText: '600 1200 400',
+      droneTypesText: 'fighter bomber default',
+      dockingPiecesText: '1 2 3,4 5',
+      droneAirTimeText: '60 90',
+      droneDockTimeText: '2',
+      droneAmmoText: '0 4',
+      carrierDeathBehavior: 'control',
+    });
+
+    expect(result.weapon_slot_1_carried_unit).toBe('armdrone corvamp legdrone');
+    expect(result.weapon_slot_1_maxunits).toBe('6 3 3');
+    expect(result.weapon_slot_1_startingdronecount).toBe('2 1 0');
+    expect(result.weapon_slot_1_spawn_metal_cost).toBe('25 90 15');
+    expect(result.weapon_slot_1_spawn_energy_cost).toBe('600 1200 400');
+    expect(result.weapon_slot_1_dronetype).toBe('fighter bomber default');
+    expect(result.weapon_slot_1_dockingpieces).toBe('1 2 3,4 5,4 5');
+    expect(result.weapon_slot_1_droneairtime).toBe('60 90 90');
+    expect(result.weapon_slot_1_dronedocktime).toBe('2 2 2');
+    expect(result.weapon_slot_1_droneammo).toBe('0 4 4');
+  });
+
+  it('always emits one docking section per carried unit type', () => {
+    const result = buildCarrierLinkageTweaks({
+      parentUnitId: 'armcarrier',
+      carriedUnitsText: 'armdrone corvamp',
+      dockingPiecesText: '',
+    });
+
+    expect(result.weapon_slot_1_dockingpieces).toBe('1,1');
+  });
+
   it('guards advanced carrier edits that keep drones alive without an airtime', () => {
     const patch = ensureSafeCarrierWeaponPatch(
       { customparams: { carrierdeaththroe: 'control', manualdrones: true } },
@@ -227,6 +269,15 @@ describe('carrierDroneLinkage', () => {
     );
 
     expect(patch.customparams.droneairtime).toBe(120);
+  });
+
+  it('repairs unsafe multi-unit carrier patches compiled outside the workbench', () => {
+    const patch = ensureSafeCarrierWeaponPatch(
+      { customparams: { carried_unit: 'armdrone corvamp', dockingpieces: '2 3' } },
+      {}
+    );
+
+    expect(patch.customparams.dockingpieces).toBe('2 3,2 3');
   });
 
   it('clears carried_unit in ground mode and builds comma-separated multi-unit roster', () => {
