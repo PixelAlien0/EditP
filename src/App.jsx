@@ -275,6 +275,8 @@ export default function App() {
     factoryRosters,
     defaultsDb,
     explosionProfiles,
+    snapshot: gameDataSnapshot,
+    error: coreDataError,
     status: coreDataStatus,
     getTechTierOfUnit,
     getTagsOfUnit,
@@ -2648,7 +2650,7 @@ export default function App() {
         <img src="/logo.svg" alt="" />
         <span className="brand-kicker">BAR Editor</span>
         <h1>{coreDataStatus === 'error' ? 'Game definitions unavailable' : 'Preparing the unit library'}</h1>
-        <p>{coreDataStatus === 'error' ? 'Reload the editor to try loading the bundled BAR data again.' : 'Loading unit statistics and weapon definitions…'}</p>
+        <p>{coreDataStatus === 'error' ? (coreDataError || 'Reload the editor to try loading the bundled BAR data again.') : 'Loading unit statistics and weapon definitions…'}</p>
         {coreDataStatus === 'error' && <Button variant="primary" onClick={() => window.location.reload()}>Reload editor</Button>}
       </main>
     );
@@ -2669,6 +2671,9 @@ export default function App() {
           presenceStatus={presenceStatus}
           presenceActivityCounts={presenceActivityCounts}
           currentPresenceActivity={presenceActivity}
+          gameDataStatus={coreDataStatus}
+          gameDataError={coreDataError}
+          gameDataSnapshot={gameDataSnapshot}
           onToggleTheme={() => setThemeMode(mode => mode === 'dark' ? 'light' : 'dark')}
           onOpenCredits={() => setShowCreditsModal(true)}
           onEditUnits={() => {

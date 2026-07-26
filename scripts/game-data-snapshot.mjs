@@ -6,6 +6,7 @@ export const ROOT = path.resolve(import.meta.dirname, '..');
 export const DATA_DIRECTORY = path.join(ROOT, 'src', 'data');
 export const GAME_DATA_MANIFEST_PATH = path.join(DATA_DIRECTORY, 'game-data-manifest.json');
 export const SOURCE_REPOSITORY = 'beyond-all-reason/Beyond-All-Reason';
+export const SNAPSHOT_SCHEMA_VERSION = 1;
 
 export const SNAPSHOT_PATHS = Object.freeze({
   units: path.join(DATA_DIRECTORY, 'units.json'),
@@ -80,12 +81,15 @@ export function buildGameDataManifest({ sourceCommit, sourceDate = null, dataset
       key,
       {
         path: path.relative(ROOT, filePath).replaceAll('\\', '/'),
+        schemaVersion: SNAPSHOT_SCHEMA_VERSION,
         sha256: sha256File(filePath),
       },
     ])
   );
   return {
-    version: 1,
+    version: SNAPSHOT_SCHEMA_VERSION,
+    schemaVersion: SNAPSHOT_SCHEMA_VERSION,
+    snapshotId: `bar-${sourceCommit.slice(0, 12)}`,
     sourceRepository: SOURCE_REPOSITORY,
     sourceCommit,
     sourceDate,
@@ -93,4 +97,3 @@ export function buildGameDataManifest({ sourceCommit, sourceDate = null, dataset
     files,
   };
 }
-

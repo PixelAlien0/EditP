@@ -27,6 +27,15 @@ function compareKeys(label, source) {
 if (!/^[a-f0-9]{40}$/i.test(manifest.sourceCommit || '')) {
   errors.push('Snapshot manifest has no exact BAR source commit.');
 }
+if ((manifest.schemaVersion ?? manifest.version) !== 1) {
+  errors.push(`Unsupported snapshot schema ${manifest.schemaVersion ?? manifest.version ?? 'unknown'}.`);
+}
+if (manifest.snapshotId !== `bar-${String(manifest.sourceCommit || '').slice(0, 12)}`) {
+  errors.push('Snapshot ID does not match the pinned BAR source commit.');
+}
+if (manifest.sourceRepository !== 'beyond-all-reason/Beyond-All-Reason') {
+  errors.push(`Unexpected snapshot repository: ${manifest.sourceRepository || 'unknown'}.`);
+}
 
 compareKeys('Descriptions', datasets.units.descriptions);
 compareKeys('Defaults', datasets.defaults);
@@ -52,6 +61,7 @@ for (const [key, record] of Object.entries(manifest.files || {})) {
     errors.push(`Manifest dataset is missing: ${key}`);
     continue;
   }
+  if (record.schemaVersion !== 1) errors.push(`${key} has no supported dataset schema version.`);
   const actualHash = sha256File(expectedPath);
   if (record.sha256 !== actualHash) errors.push(`${key} changed without refreshing game-data-manifest.json.`);
 }
@@ -76,4 +86,3 @@ if (errors.length) {
 } else {
   console.log('\nAudit passed.');
 }
-

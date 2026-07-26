@@ -1,5 +1,7 @@
 {
   "version": 1,
+  "schemaVersion": 1,
+  "snapshotId": "bar-e34440077024",
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
   "sourceCommit": "e34440077024d3b122b89d07a314a2df7b1b181d",
   "sourceDate": "2026-07-22T08:53:15Z",
@@ -17,34 +19,42 @@
   "files": {
     "units": {
       "path": "src/data/units.json",
+      "schemaVersion": 1,
       "sha256": "b0b8ddc77ac209442915ef13c063fbb08a15c5598c0ef7dcfcf73b4a0a9a9dbb"
     },
     "defaults": {
       "path": "src/data/unit-defaults.json",
+      "schemaVersion": 1,
       "sha256": "38129f28f3d77b220172386aed4a7d71ace7cf8ea352c01aba2f3b1c162f25d9"
     },
     "categories": {
       "path": "src/data/unit-categories.json",
+      "schemaVersion": 1,
       "sha256": "9763c0c27312ebb1b799f1fc61887d15935720c494cd1dc9fdd0f5211fda528c"
     },
     "rosters": {
       "path": "src/data/factory-rosters.json",
+      "schemaVersion": 1,
       "sha256": "70e2eeedb43dc90b351bcabf9748d84eb2e14c53b2f127ac660337fab1c7226c"
     },
     "explosions": {
       "path": "src/data/explosion-profiles.json",
+      "schemaVersion": 1,
       "sha256": "b3593d002155d9ca0705f4a3fee30152ecc8a278bd8139fab072821f046b0624"
     },
     "artwork": {
       "path": "src/data/unitpic-manifest.json",
+      "schemaVersion": 1,
       "sha256": "d763b3b6f9e5f71d5d01d1deaa39f3e98f3546fe57ad5cc29286424487585355"
     },
     "tacticalIcons": {
       "path": "src/data/tactical-icon-manifest.json",
+      "schemaVersion": 1,
       "sha256": "173d2e5318beeb04ff6eeaa30df69462277cff369350d3340f1734da1239c16a"
     },
     "assets": {
       "path": "src/data/bar-asset-manifest.json",
+      "schemaVersion": 1,
       "sha256": "a134246b7876136f41be33843fde2ff83abe3665592523049018a3a4b6fe5c2f"
     }
   }

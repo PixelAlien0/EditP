@@ -22,6 +22,9 @@ export default function MainMenu({
   presenceStatus,
   presenceActivityCounts,
   currentPresenceActivity,
+  gameDataStatus,
+  gameDataError,
+  gameDataSnapshot,
   onToggleTheme,
   onOpenCredits,
   onEditUnits,
@@ -88,6 +91,15 @@ export default function MainMenu({
       </header>
 
       <div className="main-menu__frame">
+        {gameDataStatus === 'error' && (
+          <aside className="main-menu__data-warning" role="alert">
+            <span>Snapshot check failed</span>
+            <div>
+              <strong>BAR definitions are unavailable</strong>
+              <p>{gameDataError || 'The bundled game data could not be validated. Reload the deployed editor or restore the last validated build.'}</p>
+            </div>
+          </aside>
+        )}
         <section className="main-menu__project-desk" aria-labelledby="main-menu-title">
           <div className="main-menu__identity">
             <span className="main-menu__kicker">編集工房 · Definition workshop</span>
@@ -179,7 +191,15 @@ export default function MainMenu({
 
       <footer className="main-menu__footer">
         <span>Maintained by <strong>[Grump]SunlessK</strong></span>
-        <span>Local project session · BAR definitions loaded</span>
+        <span>
+          Local project session · {
+            gameDataStatus === 'ready'
+              ? `BAR snapshot ${gameDataSnapshot?.sourceCommit?.slice(0, 12) || 'validated'}`
+              : gameDataStatus === 'error'
+                ? 'BAR snapshot unavailable'
+                : 'Validating BAR definitions'
+          }
+        </span>
       </footer>
     </main>
   );
