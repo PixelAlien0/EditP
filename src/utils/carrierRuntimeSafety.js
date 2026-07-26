@@ -14,6 +14,11 @@ function alignValues(values, count, fallback) {
   ));
 }
 
+function isEnabled(value) {
+  if (value === undefined || value === null || value === '') return false;
+  return !['false', '0', 'off', 'no'].includes(String(value).trim().toLowerCase());
+}
+
 export function ensureSafeCarrierWeaponPatch(weaponPatch = {}, inheritedSlot = {}) {
   const customParams = weaponPatch.customparams || {};
   const carriedUnit = customParams.carried_unit ?? inheritedSlot.carried_unit;
@@ -24,8 +29,27 @@ export function ensureSafeCarrierWeaponPatch(weaponPatch = {}, inheritedSlot = {
     customParams.carrierdeaththroe ?? inheritedSlot.carrierdeaththroe ?? 'death'
   ).toLowerCase();
   const droneAirTime = customParams.droneairtime ?? inheritedSlot.droneairtime;
+  const droneAmmo = customParams.droneammo ?? inheritedSlot.droneammo;
   const safeCustomParams = { ...customParams };
   let changed = false;
+
+  // BAR only supplies one default ammo entry. Its carrier gadget indexes this
+  // list by carried-unit type, so every type must receive an explicit value.
+  const ammoValues = splitValues(droneAmmo)
+    .map(value => Number(value))
+    .filter(value => Number.isFinite(value) && value >= 0)
+    .map(value => String(Math.round(value)));
+  const nextDroneAmmo = alignValues(
+    ammoValues,
+    carriedUnits.length,
+    '0'
+  ).join(' ');
+  if (nextDroneAmmo !== String(customParams.droneammo ?? '')) {
+    safeCustomParams.droneammo = carriedUnits.length === 1
+      ? Number(nextDroneAmmo)
+      : nextDroneAmmo;
+    changed = true;
+  }
 
   if (carriedUnits.length > 1) {
     const dockingSource = customParams.dockingpieces ?? inheritedSlot.dockingpieces;
@@ -38,7 +62,17 @@ export function ensureSafeCarrierWeaponPatch(weaponPatch = {}, inheritedSlot = {
       carriedUnits.length,
       '1'
     ).join(',');
-    changed = safeCustomParams.dockingpieces !== customParams.dockingpieces;
+    changed = safeCustomParams.dockingpieces !== customParams.dockingpieces || changed;
+
+    const manualDrones = customParams.manualdrones ?? inheritedSlot.manualdrones;
+    const dockingEnabled = customParams.enabledocking ?? inheritedSlot.enabledocking;
+    if (isEnabled(manualDrones) && isEnabled(dockingEnabled)) {
+      // Direct-control multi-type rosters cannot issue automatic undock/idle
+      // orders reliably in BAR. Free deployment avoids one attached reserve
+      // being left behind for each carried-unit type.
+      safeCustomParams.enabledocking = false;
+      changed = true;
+    }
   }
 
   if (['control', 'capture', 'release'].includes(deathBehavior)) {

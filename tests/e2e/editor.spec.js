@@ -615,7 +615,14 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await expect(dialog.getByLabel('Carrier Controller WeaponDef').locator('option:checked')).toContainText('PLASMA');
   await expect(dialog.getByLabel('Initial Units per Type')).toHaveValue('8');
   await expect(dialog.getByLabel('Auto-Return HP Threshold (%)')).toHaveValue('65');
-  await dialog.getByLabel(/Deployed Unit IDs/).fill('armdrone corvamp');
+  await dialog.getByRole('button', { name: 'Add unit type' }).click();
+  const unitPicker = page.locator('.carrier-workbench__picker-dialog');
+  await unitPicker.getByPlaceholder(/Search unit by name or ID/).fill('corvamp');
+  await unitPicker.locator('.carrier-workbench__unit-option').filter({ hasText: 'corvamp' }).first().click();
+  await expect(dialog.locator('.carrier-workbench__roster-card')).toHaveCount(2);
+  await expect(dialog.getByLabel(/Raw roster IDs/)).toHaveValue('armdrone corvamp');
+  await expect(dialog.getByRole('button', { name: 'Dock and auto-return' })).toBeDisabled();
+  await dialog.getByLabel('Free-Deployment Idle Radius').fill('180');
   await dialog.getByLabel('Drone Types').fill('fighter bomber');
   await dialog.getByLabel('Auto-Return HP Threshold (%)').fill('70');
   await dialog.getByLabel('Maximum Active Units per Type').fill('12 4');
@@ -639,6 +646,7 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await expect(page.locator('[data-param-key="droneairtime"] input')).toHaveValue('60 90');
   await expect(page.locator('[data-param-key="dronedocktime"] input')).toHaveValue('2 4');
   await expect(page.locator('[data-param-key="droneammo"] input')).toHaveValue('0 5');
+  await expect(page.locator('[data-param-key="droneminimumidleradius"] input')).toHaveValue('180');
   await expect(page.locator('[data-param-key="docktohealthreshold"] input')).toHaveValue('70');
   await page.locator('[data-param-key="maxunits"] input').fill('13 5');
   await page.locator('[data-param-key="spawn_energy_cost"] input').fill('700 1400');
@@ -647,7 +655,8 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await page.getByRole('button', { name: 'Tools' }).click();
   await page.getByRole('menuitem').filter({ hasText: 'Carrier & Drone Studio' }).click();
   const reopenedDialog = page.getByRole('dialog', { name: 'Carrier & Deployed Drone Linkage Workbench' });
-  await expect(reopenedDialog.getByLabel(/Deployed Unit IDs/)).toHaveValue('armdrone corvamp');
+  await expect(reopenedDialog.getByLabel(/Raw roster IDs/)).toHaveValue('armdrone corvamp');
+  await expect(reopenedDialog.locator('.carrier-workbench__roster-card')).toHaveCount(2);
   await expect(reopenedDialog.getByLabel('Drone Types')).toHaveValue('fighter bomber');
   await expect(reopenedDialog.getByLabel('Maximum Active Units per Type')).toHaveValue('13 5');
   await expect(reopenedDialog.getByLabel('Initial Units per Type')).toHaveValue('6 2');
@@ -668,6 +677,8 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await expect(output).toContainText('maxunits = "13 5"');
   await expect(output).toContainText('energycost = "700 1400"');
   await expect(output).toContainText('droneammo = "2 6"');
+  await expect(output).toContainText('enabledocking = false');
+  await expect(output).toContainText('droneminimumidleradius = 180');
   await expect(output).toContainText('dockingpieces = "1 2,3 4"');
   await expect(output).toContainText('docktohealthreshold = 70');
 

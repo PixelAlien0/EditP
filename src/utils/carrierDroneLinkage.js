@@ -94,6 +94,7 @@ const LEGACY_CARRIER_TWEAK_KEYS = Object.freeze([
   'customparams.carrierdeaththroe',
   'customparams.manualdrones',
   'customparams.enabledocking',
+  'customparams.droneminimumidleradius',
   'customparams.droneairtime',
   'customparams.docktohealthreshold',
 ]);
@@ -218,7 +219,13 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
   const droneTypeValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dronetype') ?? 'default';
   const dockingPiecesValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dockingpieces') ?? '1';
   const droneDockTimeValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dronedocktime') ?? '';
-  const droneAmmoValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'droneammo') ?? '';
+  const droneAmmoValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'droneammo') ?? '0';
+  const minimumIdleRadiusValue = getCarrierValue(
+    unitTweaks,
+    defaults,
+    carrierWeaponSlot,
+    'droneminimumidleradius'
+  );
   const maxUnits = Number(splitSpaceList(maxUnitsValue)[0] ?? 4);
   const spawnMetal = Number(splitSpaceList(spawnMetalValue)[0] ?? 100);
   const spawnEnergy = Number(splitSpaceList(spawnEnergyValue)[0] ?? 1000);
@@ -276,6 +283,9 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
     dockingPiecesText: String(dockingPiecesValue),
     manualControl,
     dockingEnabled,
+    minimumIdleRadius: Number.isFinite(Number(minimumIdleRadiusValue))
+      ? Math.max(0, Number(minimumIdleRadiusValue))
+      : 160,
     carrierDeathBehavior,
     spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
     spawnMetalText: String(spawnMetalValue),
@@ -366,10 +376,20 @@ export function buildCarrierLinkageTweaks(config) {
   const droneDockTimes = requestedDockTimes.length > 0
     ? alignNumberList(requestedDockTimes, payloadCount, 0, { min: 0 })
     : null;
-  const requestedAmmo = splitSpaceList(config.droneAmmoText);
-  const droneAmmo = requestedAmmo.length > 0
-    ? alignNumberList(requestedAmmo, payloadCount, 0, { min: 0, integer: true })
-    : null;
+  // BAR defaults droneammo to a single "0" token. With multiple carried unit
+  // types, later entries otherwise receive nil and crash at maxAmmo > 0.
+  const droneAmmo = alignNumberList(
+    config.droneAmmoText,
+    payloadCount,
+    0,
+    { min: 0, integer: true }
+  );
+  const minimumIdleRadius = Math.max(
+    0,
+    Number.isFinite(Number(config.minimumIdleRadius))
+      ? Number(config.minimumIdleRadius)
+      : 160
+  );
   const targetSlot = Math.max(1, Math.round(Number(config.targetWeaponSlot) || 1));
   const slotKey = key => getSlotTweakKey(targetSlot, key);
 
@@ -393,9 +413,10 @@ export function buildCarrierLinkageTweaks(config) {
     [slotKey('carrierdeaththroe')]: carrierDeathBehavior,
     [slotKey('manualdrones')]: manualControl ? 'true' : 'false',
     [slotKey('enabledocking')]: dockingEnabled ? 'true' : 'false',
+    [slotKey('droneminimumidleradius')]: String(minimumIdleRadius),
     [slotKey('droneairtime')]: droneAirTimes?.join(' '),
     [slotKey('dronedocktime')]: droneDockTimes?.join(' '),
-    [slotKey('droneammo')]: droneAmmo?.join(' '),
+    [slotKey('droneammo')]: droneAmmo.join(' '),
     [slotKey('docktohealthreshold')]: String(
       Math.max(0, Math.min(100, Number(config.returnHp) || 0))
     ),

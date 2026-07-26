@@ -22,6 +22,29 @@ function getFormattedUnitName(u) {
   return u.name || u.id;
 }
 
+function splitParallelValues(value, delimiter = 'space') {
+  const text = String(value ?? '').trim();
+  if (!text) return [];
+  return delimiter === 'comma'
+    ? text.split(',').map(item => item.trim()).filter(Boolean)
+    : text.split(/\s+/).filter(Boolean);
+}
+
+function getParallelValue(value, index, fallback = '—', delimiter = 'space') {
+  const values = splitParallelValues(value, delimiter);
+  return values[index] ?? values[values.length - 1] ?? fallback;
+}
+
+function removeParallelValue(value, index, count, fallback = '', delimiter = 'space') {
+  const values = splitParallelValues(value, delimiter);
+  if (values.length === 0 && fallback === '') return '';
+  const aligned = Array.from({ length: count }, (_, itemIndex) => (
+    values[itemIndex] ?? values[values.length - 1] ?? fallback
+  ));
+  aligned.splice(index, 1);
+  return aligned.join(delimiter === 'comma' ? ',' : ' ');
+}
+
 export default function CarrierDroneWorkbenchDialog({
   open,
   onClose,
@@ -125,7 +148,8 @@ export default function CarrierDroneWorkbenchDialog({
   const [dockingPiecesText, setDockingPiecesText] = useState(initialConfig.dockingPiecesText || '1');
   const [droneAirTimeText, setDroneAirTimeText] = useState(initialConfig.droneAirTimeText || '');
   const [droneDockTimeText, setDroneDockTimeText] = useState(initialConfig.droneDockTimeText || '');
-  const [droneAmmoText, setDroneAmmoText] = useState(initialConfig.droneAmmoText || '');
+  const [droneAmmoText, setDroneAmmoText] = useState(initialConfig.droneAmmoText || '0');
+  const [minimumIdleRadius, setMinimumIdleRadius] = useState(initialConfig.minimumIdleRadius ?? 160);
   const [spawnInterval, setSpawnInterval] = useState(initialConfig.spawnInterval || 5);
   const [returnHp, setReturnHp] = useState(initialConfig.returnHp || 25);
   const parentConfig = useMemo(
@@ -152,6 +176,33 @@ export default function CarrierDroneWorkbenchDialog({
     () => carriedUnitsText.trim().split(/[\s,]+/).filter(Boolean),
     [carriedUnitsText]
   );
+  const multiTypeDirectControl = carriedUnitIds.length > 1 && manualControl;
+
+  const rosterRows = useMemo(() => carriedUnitIds.map((unitId, index) => {
+    const unit = allAvailableUnits.find(item => item.id.toLowerCase() === unitId.toLowerCase());
+    return {
+      id: unitId,
+      index,
+      name: getFormattedUnitName(unit || { id: unitId, name: unitId }),
+      artworkUnitId: unit?.artworkUnitId || unitId,
+      faction: unit?.faction || getFactionOfUnit(unitId) || 'all',
+      droneType: getParallelValue(droneTypesText, index, 'default'),
+      capacity: getParallelValue(maxUnits, index, '1'),
+      starting: getParallelValue(startingDroneCount, index, '0'),
+      metal: getParallelValue(spawnMetal, index, '0'),
+      energy: getParallelValue(spawnEnergy, index, '0'),
+      docking: getParallelValue(dockingPiecesText, index, '1', 'comma'),
+    };
+  }), [
+    allAvailableUnits,
+    carriedUnitIds,
+    dockingPiecesText,
+    droneTypesText,
+    maxUnits,
+    spawnEnergy,
+    spawnMetal,
+    startingDroneCount,
+  ]);
 
   // Filtered unit list for the selection modal
   const filteredPickerUnits = useMemo(() => {
@@ -179,7 +230,8 @@ export default function CarrierDroneWorkbenchDialog({
     setDockingPiecesText(cfg.dockingPiecesText || '1');
     setDroneAirTimeText(cfg.droneAirTimeText || '');
     setDroneDockTimeText(cfg.droneDockTimeText || '');
-    setDroneAmmoText(cfg.droneAmmoText || '');
+    setDroneAmmoText(cfg.droneAmmoText || '0');
+    setMinimumIdleRadius(cfg.minimumIdleRadius ?? 160);
     setSpawnInterval(cfg.spawnInterval || 1);
     setReturnHp(cfg.returnHp ?? 0);
     setCarrierDeathBehavior(cfg.carrierDeathBehavior || 'death');
@@ -203,7 +255,8 @@ export default function CarrierDroneWorkbenchDialog({
     setDockingPiecesText(cfg.dockingPiecesText || '1');
     setDroneAirTimeText(cfg.droneAirTimeText || '');
     setDroneDockTimeText(cfg.droneDockTimeText || '');
-    setDroneAmmoText(cfg.droneAmmoText || '');
+    setDroneAmmoText(cfg.droneAmmoText || '0');
+    setMinimumIdleRadius(cfg.minimumIdleRadius ?? 160);
     setSpawnInterval(cfg.spawnInterval || 1);
     setReturnHp(cfg.returnHp ?? 0);
     setCarrierDeathBehavior(cfg.carrierDeathBehavior || 'death');
@@ -224,7 +277,10 @@ export default function CarrierDroneWorkbenchDialog({
       spawnSurface,
       carrierDeathBehavior,
       manualControl,
-      dockingEnabled,
+      // BAR's multi-type carrier support is partial. Directly controlled
+      // rosters cannot reliably undock one attached reserve per unit type.
+      dockingEnabled: dockingEnabled && !multiTypeDirectControl,
+      minimumIdleRadius,
       maxUnitsText: maxUnits,
       startingDroneCountText: startingDroneCount,
       spawnMetalText: spawnMetal,
@@ -258,6 +314,48 @@ export default function CarrierDroneWorkbenchDialog({
     });
   };
 
+  const openUnitPicker = target => {
+    setPickerTarget(target);
+    setPickerQuery('');
+    setPickerFaction('all');
+  };
+
+  const handlePayloadSelect = unitId => {
+    const next = [...carriedUnitIds];
+    const targetToken = String(pickerTarget || '');
+    if (targetToken === 'child:add') {
+      if (!next.includes(unitId)) next.push(unitId);
+    } else {
+      const targetIndex = Math.max(0, Number(targetToken.split(':')[1]) || 0);
+      const existingIndex = next.indexOf(unitId);
+      if (existingIndex >= 0 && existingIndex !== targetIndex) {
+        [next[targetIndex], next[existingIndex]] = [next[existingIndex], next[targetIndex]];
+      } else {
+        next[targetIndex] = unitId;
+      }
+    }
+    const normalized = next.filter(Boolean);
+    if (normalized.length > 1 && manualControl) setDockingEnabled(false);
+    setCarriedUnitsText(normalized.join(' '));
+    setCarriedUnit(normalized[0] || '');
+  };
+
+  const handleRemovePayload = index => {
+    const count = carriedUnitIds.length;
+    const next = carriedUnitIds.filter((_, itemIndex) => itemIndex !== index);
+    setCarriedUnitsText(next.join(' '));
+    setCarriedUnit(next[0] || '');
+    setDroneTypesText(value => removeParallelValue(value, index, count, 'default'));
+    setMaxUnits(value => removeParallelValue(value, index, count, '1'));
+    setStartingDroneCount(value => removeParallelValue(value, index, count, '0'));
+    setSpawnMetal(value => removeParallelValue(value, index, count, '0'));
+    setSpawnEnergy(value => removeParallelValue(value, index, count, '0'));
+    setDockingPiecesText(value => removeParallelValue(value, index, count, '1', 'comma'));
+    setDroneAirTimeText(value => removeParallelValue(value, index, count));
+    setDroneDockTimeText(value => removeParallelValue(value, index, count));
+    setDroneAmmoText(value => removeParallelValue(value, index, count));
+  };
+
   return (
     <Dialog
       open={open}
@@ -272,7 +370,7 @@ export default function CarrierDroneWorkbenchDialog({
           <div className="carrier-workbench__heading">
             <span className="carrier-workbench__eyebrow">Carrier Systems</span>
             <h2 id={titleId}>Carrier &amp; Deployed Drone Linkage Workbench</h2>
-            <p id={descriptionId}>Connect parent warship chassis with child fighter drones, hangar capacities, and deployment metrics.</p>
+            <p id={descriptionId}>Connect one carrier controller to an ordered roster of deployed unit types.</p>
           </div>
           <IconButton label="Close carrier workbench" variant="quiet" size="sm" onClick={onClose}>×</IconButton>
         </header>
@@ -283,7 +381,7 @@ export default function CarrierDroneWorkbenchDialog({
             <button
               type="button"
               className="carrier-workbench__picker-card"
-              onClick={() => { setPickerTarget('parent'); setPickerQuery(''); setPickerFaction('all'); }}
+              onClick={() => openUnitPicker('parent')}
               title="Click to select Parent Carrier Chassis"
             >
               <UnitArtwork unitId={parentUnitInfo.artworkUnitId || parentUnitInfo.id} className="carrier-workbench__card-art" alt="" />
@@ -305,12 +403,12 @@ export default function CarrierDroneWorkbenchDialog({
             <button
               type="button"
               className="carrier-workbench__picker-card"
-              onClick={() => { setPickerTarget('child'); setPickerQuery(''); setPickerFaction('all'); }}
-              title="Click to select Deployed Child Drone"
+              onClick={() => openUnitPicker('child:0')}
+              title="Click to replace the primary deployed unit type"
             >
               <UnitArtwork unitId={childUnitInfo.artworkUnitId || childUnitInfo.id} className="carrier-workbench__card-art" alt="" />
               <div className="carrier-workbench__card-info">
-                <span className="carrier-workbench__card-role">Deployed Child Drone</span>
+                <span className="carrier-workbench__card-role">Primary Deployed Unit</span>
                 <span className="carrier-workbench__card-title">{childUnitInfo.displayName}</span>
                 <code className="carrier-workbench__card-code">{childUnitInfo.id}</code>
               </div>
@@ -318,27 +416,96 @@ export default function CarrierDroneWorkbenchDialog({
             </button>
           </section>
 
-          {/* Numeric Typeboxes for Parameters */}
+          <section className="carrier-workbench__section carrier-workbench__roster">
+            <div className="carrier-workbench__section-heading">
+              <div>
+                <span className="carrier-workbench__section-index">01 · Payload roster</span>
+                <h3>Deployed unit types</h3>
+                <p>Order controls how each parallel value maps to BAR's carrier lists.</p>
+              </div>
+              <Button type="button" variant="secondary" size="sm" onClick={() => openUnitPicker('child:add')}>
+                + Add unit type
+              </Button>
+            </div>
+
+            <div className="carrier-workbench__roster-grid">
+              {rosterRows.map(row => (
+                <article className="carrier-workbench__roster-card" key={`${row.id}-${row.index}`}>
+                  <div className="carrier-workbench__roster-identity">
+                    <span className="carrier-workbench__roster-order">{String(row.index + 1).padStart(2, '0')}</span>
+                    <UnitArtwork unitId={row.artworkUnitId} className="carrier-workbench__roster-art" alt="" />
+                    <div>
+                      <strong>{row.name}</strong>
+                      <code>{row.id}</code>
+                    </div>
+                    <span className="carrier-workbench__roster-type">{row.droneType}</span>
+                  </div>
+                  <dl className="carrier-workbench__roster-metrics">
+                    <div><dt>Capacity</dt><dd>{row.capacity}</dd></div>
+                    <div><dt>Initial</dt><dd>{row.starting}</dd></div>
+                    <div><dt>Cost</dt><dd>{row.metal} M · {row.energy} E</dd></div>
+                    <div><dt>Dock pieces</dt><dd>{row.docking}</dd></div>
+                  </dl>
+                  <div className="carrier-workbench__roster-actions">
+                    <Button size="sm" variant="quiet" onClick={() => openUnitPicker(`child:${row.index}`)}>Change</Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => handleRemovePayload(row.index)}
+                      aria-label={`Remove ${row.name} from payload roster`}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </article>
+              ))}
+              {rosterRows.length === 0 && (
+                <button type="button" className="carrier-workbench__roster-empty" onClick={() => openUnitPicker('child:add')}>
+                  <strong>Add the first deployed unit type</strong>
+                  <span>The workbench needs at least one payload before it can compile a linkage.</span>
+                </button>
+              )}
+            </div>
+
+            <div className="form-group carrier-workbench__roster-source">
+              <label htmlFor="input-carried-units">
+                Raw roster IDs <span>{carriedUnitIds.length} types</span>
+              </label>
+              <input
+                id="input-carried-units"
+                type="text"
+                className="form-input"
+                value={carriedUnitsText}
+                onChange={event => {
+                  const nextValue = event.target.value;
+                  setCarriedUnitsText(nextValue);
+                  setCarriedUnit(nextValue.trim().split(/[\s,]+/).filter(Boolean)[0] || '');
+                }}
+                placeholder="armdrone corvamp legdrone"
+                spellCheck="false"
+                required
+              />
+              <small>Advanced input: use space-separated unit IDs. The visual roster above follows this order.</small>
+            </div>
+          </section>
+
           <section className="carrier-workbench__section">
-            <div className="carrier-workbench__section-title">
-              <span>01. Hangar &amp; Deployment Parameters</span>
+            <div className="carrier-workbench__section-heading">
+              <div>
+                <span className="carrier-workbench__section-index">02 · Linkage behavior</span>
+                <h3>Carrier command contract</h3>
+                <p>Shared behavior applies to every unit type in this roster.</p>
+              </div>
             </div>
 
             <div className="carrier-workbench__typebox-grid">
-              <div className="carrier-workbench__list-guide">
-                <strong>Multi-drone list format</strong>
-                <span>Enter one space-separated value per deployed unit type. Separate each type's docking pieces with a comma.</span>
-                <code>units: drone_a drone_b · capacity: 6 3 · docks: 1 2 3,4 5</code>
-              </div>
-
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Spawn Surface Restriction</label>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <div className="carrier-workbench__segmented">
                   <button
                     type="button"
                     className={`carrier-workbench__faction-chip ${spawnSurface === '' ? 'is-active' : ''}`}
                     onClick={() => setSpawnSurface('')}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
                     Any surface
                   </button>
@@ -346,7 +513,6 @@ export default function CarrierDroneWorkbenchDialog({
                     type="button"
                     className={`carrier-workbench__faction-chip ${spawnSurface === 'LAND' ? 'is-active' : ''}`}
                     onClick={() => setSpawnSurface('LAND')}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
                     Land only
                   </button>
@@ -354,7 +520,6 @@ export default function CarrierDroneWorkbenchDialog({
                     type="button"
                     className={`carrier-workbench__faction-chip ${spawnSurface === 'SEA' ? 'is-active' : ''}`}
                     onClick={() => setSpawnSurface('SEA')}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
                     Sea only
                   </button>
@@ -363,12 +528,14 @@ export default function CarrierDroneWorkbenchDialog({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Drone Command Mode</label>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <div className="carrier-workbench__segmented">
                   <button
                     type="button"
                     className={`carrier-workbench__faction-chip ${manualControl ? 'is-active' : ''}`}
-                    onClick={() => setManualControl(true)}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                    onClick={() => {
+                      setManualControl(true);
+                      if (carriedUnitIds.length > 1) setDockingEnabled(false);
+                    }}
                   >
                     Direct player control
                   </button>
@@ -376,7 +543,6 @@ export default function CarrierDroneWorkbenchDialog({
                     type="button"
                     className={`carrier-workbench__faction-chip ${!manualControl ? 'is-active' : ''}`}
                     onClick={() => setManualControl(false)}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
                     Carrier-directed only
                   </button>
@@ -403,12 +569,11 @@ export default function CarrierDroneWorkbenchDialog({
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Docking Behavior</label>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <div className="carrier-workbench__segmented">
                   <button
                     type="button"
                     className={`carrier-workbench__faction-chip ${!dockingEnabled ? 'is-active' : ''}`}
                     onClick={() => setDockingEnabled(false)}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
                     Free deployment
                   </button>
@@ -416,12 +581,19 @@ export default function CarrierDroneWorkbenchDialog({
                     type="button"
                     className={`carrier-workbench__faction-chip ${dockingEnabled ? 'is-active' : ''}`}
                     onClick={() => setDockingEnabled(true)}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                    disabled={multiTypeDirectControl}
+                    title={multiTypeDirectControl
+                      ? 'BAR multi-type direct control leaves one attached reserve per type. Use free deployment.'
+                      : undefined}
                   >
                     Dock and auto-return
                   </button>
                 </div>
-                <small>Free deployment is safer for arbitrary unit models that do not have compatible docking pieces.</small>
+                <small>
+                  {multiTypeDirectControl
+                    ? 'Directly controlled multi-type rosters use free deployment so one unit of every type is not left attached to the carrier.'
+                    : 'Free deployment is safer for arbitrary unit models that do not have compatible docking pieces.'}
+                </small>
               </div>
 
               <div className="form-group">
@@ -442,27 +614,6 @@ export default function CarrierDroneWorkbenchDialog({
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div className="form-group carrier-workbench__roster-field">
-                <label htmlFor="input-carried-units">
-                  Deployed Unit IDs <span>{carriedUnitIds.length} types</span>
-                </label>
-                <input
-                  id="input-carried-units"
-                  type="text"
-                  className="form-input"
-                  value={carriedUnitsText}
-                  onChange={event => {
-                    const nextValue = event.target.value;
-                    setCarriedUnitsText(nextValue);
-                    setCarriedUnit(nextValue.trim().split(/[\s,]+/).filter(Boolean)[0] || '');
-                  }}
-                  placeholder="armdrone corvamp legdrone"
-                  spellCheck="false"
-                  required
-                />
-                <small>The first ID remains the visual preview. All listed IDs are compiled into <code>carried_unit</code>.</small>
               </div>
 
               <div className="form-group">
@@ -528,6 +679,22 @@ export default function CarrierDroneWorkbenchDialog({
                   value={returnHp}
                   onChange={e => setReturnHp(Math.max(0, Math.min(100, parseInt(e.target.value, 10) || 0)))}
                 />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-minimum-idle-radius">Free-Deployment Idle Radius</label>
+                <input
+                  id="input-minimum-idle-radius"
+                  type="number"
+                  className="form-input"
+                  min="0"
+                  max="2000"
+                  value={minimumIdleRadius}
+                  onChange={event => setMinimumIdleRadius(
+                    Math.max(0, Math.min(2000, Number(event.target.value) || 0))
+                  )}
+                />
+                <small>Keeps carrier-directed units from stacking at the carrier while idle. Recommended: 160.</small>
               </div>
 
               <div className="form-group">
@@ -639,7 +806,13 @@ export default function CarrierDroneWorkbenchDialog({
           overlayClassName="carrier-workbench-overlay"
         >
           <header className="carrier-workbench__picker-header">
-            <h3>Select {pickerTarget === 'parent' ? 'Parent Carrier Chassis' : 'Deployed Child Drone'}</h3>
+            <h3>
+              {pickerTarget === 'parent'
+                ? 'Select parent carrier chassis'
+                : pickerTarget === 'child:add'
+                  ? 'Add deployed unit type'
+                  : 'Replace deployed unit type'}
+            </h3>
             <IconButton label="Close unit picker" variant="quiet" size="sm" onClick={() => setPickerTarget(null)}>×</IconButton>
           </header>
 
@@ -673,16 +846,18 @@ export default function CarrierDroneWorkbenchDialog({
                 <button
                   key={unit.id}
                   type="button"
-                  className={`carrier-workbench__unit-option ${(pickerTarget === 'parent' ? parentUnitId : carriedUnit) === unit.id ? 'is-selected' : ''}`}
+                  className={`carrier-workbench__unit-option ${
+                    (pickerTarget === 'parent'
+                      ? parentUnitId
+                      : carriedUnitIds[Math.max(0, Number(String(pickerTarget).split(':')[1]) || 0)]) === unit.id
+                      ? 'is-selected'
+                      : ''
+                  }`}
                   onClick={() => {
                     if (pickerTarget === 'parent') {
                       handleParentSelect(unit.id);
                     } else {
-                      setCarriedUnit(unit.id);
-                      setCarriedUnitsText(current => {
-                        const unitIds = current.trim().split(/[\s,]+/).filter(Boolean);
-                        return [unit.id, ...unitIds.slice(1)].join(' ');
-                      });
+                      handlePayloadSelect(unit.id);
                     }
                     setPickerTarget(null);
                   }}

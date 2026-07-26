@@ -12,7 +12,7 @@
 
 .carrier-workbench {
   width: 100%;
-  max-width: 1080px;
+  max-width: 1180px;
   height: min(92vh, 900px);
   max-height: calc(100dvh - (var(--space-4) * 2));
   display: flex;
@@ -36,7 +36,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: var(--space-5) var(--space-6);
+  padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
 }
@@ -63,22 +63,22 @@
 .carrier-workbench__body {
   flex: 1;
   min-height: 0;
-  padding: var(--space-6);
+  padding: var(--space-4) var(--space-5);
   overflow: hidden auto;
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-4);
 }
 
 .carrier-workbench__deck-diagram {
   display: grid;
   grid-template-columns: 1fr 90px 1fr;
   align-items: center;
-  padding: var(--space-5) var(--space-6);
+  padding: var(--space-3);
   border: 1px solid var(--color-border-accent, var(--color-border));
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
+  background: var(--color-surface);
   gap: var(--space-4);
 }
 
@@ -86,7 +86,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  padding: var(--space-4);
+  padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -167,12 +167,35 @@
   gap: var(--space-3);
 }
 
-.carrier-workbench__section-title {
+.carrier-workbench__section-heading {
   color: var(--color-text-strong);
   font: 600 var(--font-size-sm)/1.2 var(--font-ui);
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+.carrier-workbench__section-heading {
+  justify-content: space-between;
+}
+
+.carrier-workbench__section-heading h3 {
+  margin: 2px 0 0;
+  color: var(--color-text-strong);
+  font: 700 17px/1.2 var(--font-display);
+}
+
+.carrier-workbench__section-heading p {
+  margin: 3px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.carrier-workbench__section-index {
+  color: var(--color-accent);
+  font: 650 9px/1 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
 .carrier-workbench__typebox-grid {
@@ -181,38 +204,146 @@
   gap: var(--space-4);
 }
 
-.carrier-workbench__list-guide,
-.carrier-workbench__roster-field {
-  grid-column: 1 / -1;
+.carrier-workbench__segmented {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
-.carrier-workbench__list-guide {
-  display: grid;
-  gap: var(--space-1);
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
+.carrier-workbench__segmented > button {
+  flex: 1;
+  min-height: 34px;
+  padding: 6px 10px;
   font-size: var(--font-size-xs);
 }
 
-.carrier-workbench__list-guide strong {
-  color: var(--color-text-strong);
+.carrier-workbench__roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-3);
 }
 
-.carrier-workbench__list-guide code {
+.carrier-workbench__roster-card {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.carrier-workbench__roster-identity {
+  display: grid;
+  grid-template-columns: auto 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.carrier-workbench__roster-order,
+.carrier-workbench__roster-type {
   color: var(--color-accent);
+  font: 650 9px/1 var(--font-mono);
 }
 
-.carrier-workbench__roster-field > label {
+.carrier-workbench__roster-art {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.carrier-workbench__roster-identity strong,
+.carrier-workbench__roster-identity code {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.carrier-workbench__roster-identity strong {
+  color: var(--color-text-strong);
+  font-size: var(--font-size-xs);
+}
+
+.carrier-workbench__roster-identity code {
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.carrier-workbench__roster-type {
+  padding: 4px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+}
+
+.carrier-workbench__roster-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: var(--space-3) 0;
+  border-block: 1px solid var(--color-border);
+}
+
+.carrier-workbench__roster-metrics div {
+  min-width: 0;
+  padding: var(--space-2);
+  border-inline-end: 1px solid var(--color-border);
+}
+
+.carrier-workbench__roster-metrics div:last-child {
+  border-inline-end: 0;
+}
+
+.carrier-workbench__roster-metrics dt {
+  color: var(--color-text-muted);
+  font: 600 8px/1 var(--font-mono);
+  text-transform: uppercase;
+}
+
+.carrier-workbench__roster-metrics dd {
+  margin: 5px 0 0;
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 650 10px/1.2 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.carrier-workbench__roster-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.carrier-workbench__roster-source > label {
   display: flex;
   justify-content: space-between;
 }
 
-.carrier-workbench__roster-field > label span {
+.carrier-workbench__roster-source > label span {
   color: var(--color-text-muted);
-  font: 600 10px/1 var(--font-mono);
+  font: 600 9px/1 var(--font-mono);
+}
+
+.carrier-workbench__roster-empty {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-1);
+  min-height: 92px;
+  place-content: center;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--color-text-muted);
+  text-align: center;
+  cursor: pointer;
+}
+
+.carrier-workbench__roster-empty strong {
+  color: var(--color-text-strong);
+}
+
+.carrier-workbench__roster-field {
+  grid-column: 1 / -1;
 }
 
 .carrier-workbench__footer {

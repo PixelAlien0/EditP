@@ -98,9 +98,10 @@ describe('carrierDroneLinkage', () => {
       'weapon_slot_2_carrierdeaththroe': 'control',
       'weapon_slot_2_manualdrones': 'true',
       'weapon_slot_2_enabledocking': 'false',
+      'weapon_slot_2_droneminimumidleradius': '160',
       'weapon_slot_2_droneairtime': String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS),
       'weapon_slot_2_dronedocktime': undefined,
-      'weapon_slot_2_droneammo': undefined,
+      'weapon_slot_2_droneammo': '0',
       'weapon_slot_2_docktohealthreshold': '30',
       editp_carrier_roster: undefined,
       'customparams.carried_unit': undefined,
@@ -118,6 +119,7 @@ describe('carrierDroneLinkage', () => {
       'customparams.carrierdeaththroe': undefined,
       'customparams.manualdrones': undefined,
       'customparams.enabledocking': undefined,
+      'customparams.droneminimumidleradius': undefined,
       'customparams.droneairtime': undefined,
       'customparams.docktohealthreshold': undefined,
     });
@@ -253,6 +255,16 @@ describe('carrierDroneLinkage', () => {
     expect(result.weapon_slot_1_dockingpieces).toBe('1,1');
   });
 
+  it('always emits one ammunition value per carried unit type', () => {
+    const result = buildCarrierLinkageTweaks({
+      parentUnitId: 'armcarrier',
+      carriedUnitsText: 'armdrone corvamp legdrone',
+      droneAmmoText: '',
+    });
+
+    expect(result.weapon_slot_1_droneammo).toBe('0 0 0');
+  });
+
   it('guards advanced carrier edits that keep drones alive without an airtime', () => {
     const patch = ensureSafeCarrierWeaponPatch(
       { customparams: { carrierdeaththroe: 'control', manualdrones: true } },
@@ -273,11 +285,20 @@ describe('carrierDroneLinkage', () => {
 
   it('repairs unsafe multi-unit carrier patches compiled outside the workbench', () => {
     const patch = ensureSafeCarrierWeaponPatch(
-      { customparams: { carried_unit: 'armdrone corvamp', dockingpieces: '2 3' } },
+      {
+        customparams: {
+          carried_unit: 'armdrone corvamp',
+          dockingpieces: '2 3',
+          manualdrones: true,
+          enabledocking: true,
+        },
+      },
       {}
     );
 
     expect(patch.customparams.dockingpieces).toBe('2 3,2 3');
+    expect(patch.customparams.droneammo).toBe('0 0');
+    expect(patch.customparams.enabledocking).toBe(false);
   });
 
   it('clears carried_unit in ground mode and builds comma-separated multi-unit roster', () => {
