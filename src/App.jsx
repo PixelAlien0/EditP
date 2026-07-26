@@ -74,6 +74,9 @@ const LazyCarrierDroneWorkbenchDialog = lazy(() => import('./components/CarrierD
 
 // Keep the laboratory code available while this experimental workspace is temporarily unpublished.
 const WEAPON_LAB_ENABLED = false;
+// Keep these implementations available for repair, but prevent broken bulk
+// mutation tools from changing project data through any public entry point.
+const MUTATOR_TOOLS_ENABLED = false;
 const SHOW_LEGACY_REVIEW_REFERENCE = false;
 
 const HEADER_WORKSPACES = Object.freeze([
@@ -2093,12 +2096,17 @@ export default function App() {
       { id: 'workspace-collections', kind: 'Workspace', label: 'Collections', description: 'Organize reusable nested unit scopes.', priority: 29, onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('collections'); } },
       { id: 'workspace-build', kind: 'Workspace', label: 'Build menus', description: 'Open Factory Roster Designer.', priority: 28, onSelect: () => { setShowMainMenu(false); setShowPresetGallery(false); setShowDesignerPanel(true); setActiveWorkspace('designer'); } },
       { id: 'workspace-review', kind: 'Workspace', label: 'Review & export', description: 'Validate and compile the current project.', priority: 27, onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('review'); } },
-      { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Apply one adjustment across matching units.', onSelect: () => { openEditor(); setShowBulkPanel(true); } },
       { id: 'tool-presets', kind: 'Tool', label: 'Preset gallery', description: 'Save or apply reusable project snapshots.', onSelect: () => { setShowMainMenu(false); setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); } },
       { id: 'tool-tweak-package', kind: 'Tool', label: 'Tweak Package Lab', description: 'Inspect and package modular tweakdefs and tweakunits safely.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); } },
       { id: 'tool-bar-reference-library', kind: 'Tool', label: 'BAR Reference Library', description: 'Search verified units, WeaponDefs, models, scripts, artwork, effects, sounds, and explosion profiles.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('reference-library'); } },
-      { id: 'tool-mutation', kind: 'Tool', label: 'Mutation lab', description: 'Generate controlled random adjustments.', onSelect: () => { openEditor(); setShowRandomPanel(true); } },
     ];
+
+    if (MUTATOR_TOOLS_ENABLED) {
+      commands.push(
+        { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Apply one adjustment across matching units.', onSelect: () => { openEditor(); setShowBulkPanel(true); } },
+        { id: 'tool-mutation', kind: 'Tool', label: 'Mutation lab', description: 'Generate controlled random adjustments.', onSelect: () => { openEditor(); setShowRandomPanel(true); } },
+      );
+    }
 
     STAT_KEYS.forEach(parameter => commands.push({
       id: `parameter-${parameter.key}`,
@@ -2901,11 +2909,11 @@ export default function App() {
                 </div>
                 <div className="header-tools-menu__group" aria-label="Editing tools">
                   <span className="header-tools-menu__group-label">Editing tools</span>
-                  <button type="button" role="menuitem" onClick={() => { setShowBulkPanel(true); setShowToolsMenu(false); }}>
-                    <span><strong>Batch Adjust <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Apply controlled changes across units</small></span>
+                  <button type="button" role="menuitem" disabled={!MUTATOR_TOOLS_ENABLED}>
+                    <span><strong>Batch Adjust <small className="header-tool-lock">Locked</small></strong><small>Temporarily unavailable while bulk editing is repaired</small></span>
                   </button>
-                  <button type="button" role="menuitem" onClick={() => { setShowFormulaMutator(true); setShowToolsMenu(false); }}>
-                    <span><strong>Formula Mutator <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Evaluate math scaling equations</small></span>
+                  <button type="button" role="menuitem" disabled={!MUTATOR_TOOLS_ENABLED}>
+                    <span><strong>Formula Mutator <small className="header-tool-lock">Locked</small></strong><small>Temporarily unavailable while formula evaluation is repaired</small></span>
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowCarrierWorkbench(true); setShowToolsMenu(false); }}>
                     <span><strong>Carrier &amp; Drone Studio</strong><small>Configure a BAR carrier controller WeaponDef</small></span>
@@ -2914,8 +2922,8 @@ export default function App() {
                     <span><strong>Preset Gallery</strong><small>Apply or save project snapshots</small></span>
                   </button>
                   {WEAPON_LAB_ENABLED && <button type="button" role="menuitem" onClick={() => { openWeaponLab(); setShowToolsMenu(false); }}><span><strong>Weapon Lab <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Develop custom weapon blueprints</small></span></button>}
-                  <button type="button" role="menuitem" onClick={() => { setShowRandomPanel(true); setShowToolsMenu(false); }}>
-                    <span><strong>Mutation Lab <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Generate deliberate random adjustments</small></span>
+                  <button type="button" role="menuitem" disabled={!MUTATOR_TOOLS_ENABLED}>
+                    <span><strong>Mutation Lab <small className="header-tool-lock">Locked</small></strong><small>Temporarily unavailable while mutation rules are repaired</small></span>
                   </button>
                 </div>
                 <div className="header-tools-menu__group" aria-label="Package and reference tools">
@@ -5855,7 +5863,7 @@ export default function App() {
       )}
 
       {/* Mutation Lab */}
-      {showRandomPanel && (
+      {MUTATOR_TOOLS_ENABLED && showRandomPanel && (
         <div className="mutation-lab-overlay">
           {!wipRandomPanelAcknowledged && (
             <div style={{
@@ -6172,7 +6180,7 @@ export default function App() {
         document.body,
       )}
 
-      {showBulkPanel && <Suspense fallback={null}><LazyBatchAdjustDialog
+      {MUTATOR_TOOLS_ENABLED && showBulkPanel && <Suspense fallback={null}><LazyBatchAdjustDialog
         open={showBulkPanel}
         onClose={() => setShowBulkPanel(false)}
         parameterGroups={BULK_PARAMETER_GROUPS}
@@ -6186,7 +6194,7 @@ export default function App() {
         scopeLabel={activeCollection ? `Collection · ${activeCollection.name}` : 'Current filters'}
         onApply={handleApplyBulk}
       /></Suspense>}
-      {showFormulaMutator && <Suspense fallback={null}><LazyFormulaMutatorDialog
+      {MUTATOR_TOOLS_ENABLED && showFormulaMutator && <Suspense fallback={null}><LazyFormulaMutatorDialog
         open={showFormulaMutator}
         onClose={() => setShowFormulaMutator(false)}
         units={allUnitsList}

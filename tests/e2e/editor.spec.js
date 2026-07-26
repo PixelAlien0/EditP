@@ -1097,10 +1097,12 @@ test('nested unit collections persist and scope expert workflows', async ({ page
   await expect(page.locator('.collection-scope-picker')).toContainText('Air Ops');
   await expect(page.locator('.results-summary').getByText('1 units')).toBeVisible();
   await page.getByRole('button', { name: /Tools/ }).click();
-  await page.getByRole('menuitem', { name: 'Batch Adjust' }).click();
-  const batchDialog = page.getByRole('dialog', { name: 'Batch Adjust Stats' });
-  await expect(batchDialog.getByText('Collection · Air Ops', { exact: true })).toBeVisible();
-  await batchDialog.getByRole('button', { name: 'Close batch adjustment' }).click();
+  const batchTool = page.getByRole('menuitem', { name: /Batch Adjust/ });
+  await expect(batchTool).toBeDisabled();
+  await expect(batchTool).toContainText('Locked');
+  await expect(page.getByRole('menuitem', { name: /Formula Mutator/ })).toBeDisabled();
+  await expect(page.getByRole('menuitem', { name: /Mutation Lab/ })).toBeDisabled();
+  await page.getByRole('button', { name: /Tools/ }).click();
 
   await page.getByRole('tab', { name: /Compare/ }).click();
   await expect(page.getByText('Collection scope', { exact: true })).toBeVisible();
