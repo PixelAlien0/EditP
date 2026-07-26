@@ -14,9 +14,20 @@ const FIELD_PATTERN = /^tweak(defs|units)(\d+)?$/i;
 const SUPPORTED_UNIT_CUSTOM_PARAMS = new Set([
   'carried_unit', 'spawnrate', 'maxunits', 'controlradius', 'enabledocking',
   'decayrate', 'deathdecayrate', 'carrierdeaththroe', 'metalcost', 'energycost',
+  'spawns_name', 'spawns_surface', 'dronetype', 'startingdronecount', 'engagementrange',
+  'dockingpieces', 'dockingradius', 'dockinghelperspeed', 'dockingarmor', 'dockinghealrate',
+  'docktohealthreshold', 'attackformationspread', 'attackformationoffset', 'holdfireradius',
+  'droneminimumidleradius', 'droneairtime', 'dronedocktime', 'droneammo',
 ]);
 const SUPPORTED_WEAPON_CUSTOM_PARAMS = new Set([
-  'spawns_name', 'spawns_surface', 'metalcost', 'energycost', 'cluster_def', 'cluster_number',
+  'spawns_name', 'spawns_surface', 'spawns_mode', 'spawns_expire', 'spawns_ceg', 'spawns_stun',
+  'spawn_blocked_by_shield', 'carried_unit', 'dronetype', 'spawnrate', 'maxunits',
+  'startingdronecount', 'controlradius', 'engagementrange', 'enabledocking', 'dockingpieces',
+  'dockingradius', 'dockinghelperspeed', 'dockingarmor', 'dockinghealrate',
+  'docktohealthreshold', 'attackformationspread', 'attackformationoffset', 'decayrate',
+  'deathdecayrate', 'carrierdeaththroe', 'holdfireradius', 'droneminimumidleradius',
+  'droneairtime', 'dronedocktime', 'droneammo', 'metalcost', 'energycost',
+  'cluster_def', 'cluster_number',
 ]);
 const SUPPORTED_UNIT_FIELDS = new Set([
   'metalcost', 'energycost', 'buildtime', 'health', 'maxvelocity', 'acceleration',
@@ -24,8 +35,22 @@ const SUPPORTED_UNIT_FIELDS = new Set([
   'workertime', 'metalmake', 'energymake', 'metalstorage', 'energystorage',
 ]);
 const WEAPON_CUSTOM_TO_EDITOR_KEY = Object.freeze({
-  spawns_name: 'spawns_name', spawns_surface: 'spawns_surface', metalcost: 'spawn_metal_cost',
-  energycost: 'spawn_energy_cost', cluster_def: 'cluster_def', cluster_number: 'cluster_number',
+  spawns_name: 'spawns_name', spawns_surface: 'spawns_surface', spawns_mode: 'spawns_mode',
+  spawns_expire: 'spawns_expire', spawns_ceg: 'spawns_ceg', spawns_stun: 'spawns_stun',
+  spawn_blocked_by_shield: 'spawn_blocked_by_shield', carried_unit: 'carried_unit',
+  dronetype: 'dronetype', spawnrate: 'spawnrate', maxunits: 'maxunits',
+  startingdronecount: 'startingdronecount', controlradius: 'controlradius',
+  engagementrange: 'engagementrange', enabledocking: 'enabledocking',
+  dockingpieces: 'dockingpieces', dockingradius: 'dockingradius',
+  dockinghelperspeed: 'dockinghelperspeed', dockingarmor: 'dockingarmor',
+  dockinghealrate: 'dockinghealrate', docktohealthreshold: 'docktohealthreshold',
+  attackformationspread: 'attackformationspread', attackformationoffset: 'attackformationoffset',
+  decayrate: 'decayrate', deathdecayrate: 'deathdecayrate',
+  carrierdeaththroe: 'carrierdeaththroe', holdfireradius: 'holdfireradius',
+  droneminimumidleradius: 'droneminimumidleradius', droneairtime: 'droneairtime',
+  dronedocktime: 'dronedocktime', droneammo: 'droneammo',
+  metalcost: 'spawn_metal_cost', energycost: 'spawn_energy_cost',
+  cluster_def: 'cluster_def', cluster_number: 'cluster_number',
 });
 const DIRECT_WEAPON_FIELDS = new Set([
   'range', 'accuracy', 'sprayangle', 'burst', 'burstrate', 'projectiles', 'stockpile',
@@ -69,7 +94,17 @@ STAT_KEYS.forEach(parameter => {
   });
 });
 const WEAPON_CUSTOM_EXPECTED_TYPES = new Map([
-  ['spawns_name', 'string'], ['spawns_surface', 'string'], ['metalcost', 'number'],
+  ['spawns_name', 'string'], ['spawns_surface', 'string'], ['spawns_mode', 'string'],
+  ['spawns_expire', 'number'], ['spawns_ceg', 'string'], ['spawns_stun', 'number'],
+  ['spawn_blocked_by_shield', 'boolean'], ['carried_unit', 'string'], ['dronetype', 'string'],
+  ['spawnrate', 'number'], ['maxunits', 'number'], ['startingdronecount', 'number'],
+  ['controlradius', 'number'], ['engagementrange', 'number'], ['enabledocking', 'boolean'],
+  ['dockingpieces', 'string'], ['dockingradius', 'number'], ['dockinghelperspeed', 'number'],
+  ['dockingarmor', 'number'], ['dockinghealrate', 'number'], ['docktohealthreshold', 'number'],
+  ['attackformationspread', 'number'], ['attackformationoffset', 'number'],
+  ['decayrate', 'number'], ['deathdecayrate', 'number'], ['carrierdeaththroe', 'string'],
+  ['holdfireradius', 'number'], ['droneminimumidleradius', 'number'], ['droneairtime', 'number'],
+  ['dronedocktime', 'number'], ['droneammo', 'number'], ['metalcost', 'number'],
   ['energycost', 'number'], ['cluster_def', 'string'], ['cluster_number', 'number'],
 ]);
 const ASSET_FIELD_KINDS = Object.freeze({
@@ -241,7 +276,8 @@ function extractUnitPatchDetails(unitId, unitPatch, origin = 'literal-table') {
   const customParams = unitPatch.customparams;
   if (customParams && typeof customParams === 'object') {
     Object.entries(customParams).forEach(([sourceKey, value]) => {
-      const editorKey = UNIT_CUSTOM_TO_EDITOR_KEY.get(sourceKey);
+      const editorKey = UNIT_CUSTOM_TO_EDITOR_KEY.get(sourceKey)
+        || (SUPPORTED_UNIT_CUSTOM_PARAMS.has(sourceKey) ? `customparams.${sourceKey}` : null);
       if (editorKey && isLiteralScalar(value)) conversions.push({ type: 'unit-parameter', unitId: normalizedUnitId, key: editorKey, value, origin });
     });
   }

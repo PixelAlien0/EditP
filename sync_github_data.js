@@ -360,6 +360,35 @@ async function run() {
                   delete wSlot.cegtag;
                 }
 
+                const weaponCustomParams = wDef.customparams || {};
+                const customParamFields = {
+                  spawns_name: 'spawns_name', spawns_surface: 'spawns_surface', spawns_mode: 'spawns_mode',
+                  spawns_expire: 'spawns_expire', spawns_ceg: 'spawns_ceg', spawns_stun: 'spawns_stun',
+                  spawn_blocked_by_shield: 'spawn_blocked_by_shield', carried_unit: 'carried_unit',
+                  dronetype: 'dronetype', spawnrate: 'spawnrate', maxunits: 'maxunits',
+                  startingdronecount: 'startingdronecount', controlradius: 'controlradius',
+                  engagementrange: 'engagementrange', enabledocking: 'enabledocking',
+                  dockingpieces: 'dockingpieces', dockingradius: 'dockingradius',
+                  dockinghelperspeed: 'dockinghelperspeed', dockingarmor: 'dockingarmor',
+                  dockinghealrate: 'dockinghealrate', docktohealthreshold: 'docktohealthreshold',
+                  attackformationspread: 'attackformationspread', attackformationoffset: 'attackformationoffset',
+                  decayrate: 'decayrate', deathdecayrate: 'deathdecayrate',
+                  carrierdeaththroe: 'carrierdeaththroe', holdfireradius: 'holdfireradius',
+                  droneminimumidleradius: 'droneminimumidleradius', droneairtime: 'droneairtime',
+                  dronedocktime: 'dronedocktime', droneammo: 'droneammo',
+                  metalcost: 'spawn_metal_cost', buildcostmetal: 'spawn_metal_cost',
+                  energycost: 'spawn_energy_cost', buildcostenergy: 'spawn_energy_cost',
+                  cluster_def: 'cluster_def', cluster_number: 'cluster_number',
+                };
+                Object.entries(customParamFields).forEach(([sourceKey, editorKey]) => {
+                  const value = weaponCustomParams[sourceKey];
+                  if (value === undefined) return;
+                  if (typeof value === 'number' || typeof value === 'boolean') wSlot[editorKey] = value;
+                  else if (typeof value === 'string' && /^-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(value.trim())) {
+                    wSlot[editorKey] = Number(value);
+                  } else wSlot[editorKey] = String(value);
+                });
+
                 if (w.onlytargetcategory !== undefined) wSlot.onlytargetcategory = String(w.onlytargetcategory);
                 if (w.badtargetcategory !== undefined) wSlot.badtargetcategory = String(w.badtargetcategory);
                 if (wDef.damage) {

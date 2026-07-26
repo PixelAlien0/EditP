@@ -32,6 +32,34 @@ describe('carrierDroneLinkage', () => {
     expect(config.spawnMetal).toBe(150);
   });
 
+  it('reads the real carrier controller WeaponDef from bundled defaults', () => {
+    const defaults = {
+      armdronecarry: {
+        weaponSlots: [
+          {
+            slot: 1,
+            defKey: 'plasma',
+            carried_unit: 'armdrone',
+            droneammo: 9,
+            spawn_metal_cost: 25,
+            spawn_energy_cost: 600,
+            spawnrate: 4,
+            docktohealthreshold: 65,
+            spawns_surface: 'SEA',
+            carrierdeaththroe: 'release',
+          },
+          { slot: 2, defKey: 'aamissile' },
+        ],
+      },
+    };
+    const config = getCarrierLinkageConfig('armdronecarry', {}, defaults);
+    expect(config.targetWeaponDef).toBe('plasma');
+    expect(config.weaponOptions).toHaveLength(2);
+    expect(config.carriedUnit).toBe('armdrone');
+    expect(config.returnHp).toBe(65);
+    expect(config.spawnSurface).toBe('SEA');
+  });
+
   it('builds compiled tweak dictionary safely', () => {
     const result = buildCarrierLinkageTweaks({
       parentUnitId: 'armcarrier',
@@ -42,25 +70,25 @@ describe('carrierDroneLinkage', () => {
       spawnEnergy: 1500,
       spawnInterval: 4,
       returnHp: 30,
+      targetWeaponDef: 'plasma',
+      spawnSurface: 'SEA',
     });
 
     expect(result).toEqual({
+      editp_carrier_weapondef: 'plasma',
+      editp_carrier_roster: 'armodrone',
       'customparams.carried_unit': 'armodrone',
-      'customparams.spawns_name': 'armodrone',
+      'customparams.spawns_surface': 'SEA',
       'customparams.droneammo': '8',
       'customparams.maxunits': '8',
       'customparams.stockpilelimit': '8',
-      'customparams.maxdrones': '8',
       'customparams.startingdronecount': '8',
-      'customparams.spawn_metal_cost': '200',
       'customparams.metalcost': '200',
-      'customparams.spawn_energy_cost': '1500',
       'customparams.energycost': '1500',
-      'customparams.spawn_interval': '4',
       'customparams.spawnrate': '4',
       'customparams.carrierdeaththroe': 'release',
-      'customparams.enabledocking': false,
-      'customparams.docktohealthreshold': 0,
+      'customparams.enabledocking': true,
+      'customparams.docktohealthreshold': 30,
     });
   });
 
@@ -75,6 +103,7 @@ describe('carrierDroneLinkage', () => {
     });
 
     expect(result['customparams.carried_unit']).toBe('corjugg_custom');
-    expect(result['customparams.spawns_name']).toBe('corjugg_custom,armantiodrone,corvamp');
+    expect(result.editp_carrier_roster).toBe('corjugg_custom armantiodrone corvamp');
+    expect(result['customparams.spawns_surface']).toBe('LAND');
   });
 });

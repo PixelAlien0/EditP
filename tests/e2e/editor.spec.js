@@ -556,6 +556,53 @@ test('advanced unit fields and custom parameters compile into tweakunits', async
   await expect(output).toContainText('fall_damage_multiplier = 0.5');
 });
 
+test('carrier parameters inherit from BAR and compile inside the selected WeaponDef customparams', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByPlaceholder(/Search unit name/i).fill('armdronecarry');
+  await page.locator('.unit-item').filter({ hasText: 'armdronecarry' }).first().click();
+  await page.getByRole('tab', { name: /Weapons/ }).click();
+
+  await expect(page.locator('[data-param-key="carried_unit"] input')).toHaveValue('armdrone');
+  await expect(page.locator('[data-param-key="docktohealthreshold"] input')).toHaveValue('65');
+  await page.locator('[data-param-key="startingdronecount"] input').fill('3');
+  await page.locator('[data-param-key="docktohealthreshold"] input').fill('70');
+
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+  await page.getByText('Legacy combined compiler', { exact: true }).click();
+  await page.getByRole('tab', { name: 'Units Lua' }).click();
+  const output = page.locator('.export-code-preview');
+  await expect(output).toContainText('weapondefs');
+  await expect(output).toContainText('plasma');
+  await expect(output).toContainText('startingdronecount = 3');
+  await expect(output).toContainText('docktohealthreshold = 70');
+});
+
+test('carrier studio targets one controller weapon and emits a BAR carrier linkage block', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByPlaceholder(/Search unit name/i).fill('armdronecarry');
+  await page.locator('.unit-item').filter({ hasText: 'armdronecarry' }).first().click();
+
+  await page.getByRole('button', { name: 'Tools' }).click();
+  await page.getByRole('menuitem').filter({ hasText: 'Carrier & Drone Studio' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Carrier & Deployed Drone Linkage Workbench' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByLabel('Carrier Controller WeaponDef')).toHaveValue('plasma');
+  await expect(dialog.getByLabel('Auto-Return HP Threshold (%)')).toHaveValue('65');
+  await dialog.getByLabel('Auto-Return HP Threshold (%)').fill('70');
+  await dialog.getByRole('button', { name: 'Apply Linkage' }).click();
+
+  await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
+  await page.getByText('Legacy combined compiler', { exact: true }).click();
+  await page.getByRole('tab', { name: 'Definitions Lua' }).click();
+  const output = page.locator('.export-code-preview');
+  await expect(output).toContainText('editp_find_carrier_weapondef');
+  await expect(output).toContainText('targetWeaponDef = "plasma"');
+  await expect(output).toContainText('dockToHealThreshold = 70');
+  await expect(output).not.toContainText('for _, wDef in pairs(u.weapondefs)');
+});
+
 test('parameter card hover keeps the entire section geometry stable', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await waitForMainMenu(page);

@@ -1,9 +1,8 @@
-import { useId, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import '../styles/features/carrier-drone-workbench.css';
 import { getFactionOfUnit } from '../utils/categories.js';
 import {
   buildCarrierLinkageTweaks,
-  CARRIER_ARCHETYPES,
   getCarrierLinkageConfig,
 } from '../utils/carrierDroneLinkage.js';
 import UnitArtwork from './UnitArtwork.jsx';
@@ -36,7 +35,6 @@ export default function CarrierDroneWorkbenchDialog({
 }) {
   const titleId = useId();
   const descriptionId = useId();
-  const [wipAcknowledged, setWipAcknowledged] = useState(false);
 
   // Validate and combine all existing real units + project clones
   const allAvailableUnits = useMemo(() => {
@@ -60,34 +58,61 @@ export default function CarrierDroneWorkbenchDialog({
     return [...cloneList, ...baseList];
   }, [units, clones]);
 
+  const resolveUnitDefaults = useCallback((unitId) => {
+    const normalizedId = String(unitId || '').toLowerCase();
+    const clone = clones.find(item => item.newId?.toLowerCase() === normalizedId);
+    return defaultsDb[clone?.baseId?.toLowerCase() || normalizedId] || {};
+  }, [clones, defaultsDb]);
+
   // Smart Carrier Unit Selection (defaults to real aircraft carrier if selected unit is not a carrier)
   const defaultParent = useMemo(() => {
     if (selectedUnit) {
       const sId = selectedUnit.id.toLowerCase();
       const sName = (selectedUnit.name || '').toLowerCase();
-      const isCarrier = sId.includes('carrier') || sName.includes('carrier') || Boolean(tweaks[sId]?.['customparams.carried_unit']);
+      const selectedDefaults = resolveUnitDefaults(sId);
+      const hasCarrierWeapon = selectedDefaults.weaponSlots?.some(slot => Boolean(slot.carried_unit));
+      const isCarrier = sId.includes('carrier') || sId.includes('carry') || sName.includes('carrier')
+        || Boolean(tweaks[sId]?.['customparams.carried_unit']) || hasCarrierWeapon;
       if (isCarrier && allAvailableUnits.some(u => u.id === sId)) {
         return sId;
       }
     }
-    const carrierMatch = allAvailableUnits.find(u => u.id.includes('carrier') || u.name.toLowerCase().includes('carrier'));
+    const carrierMatch = allAvailableUnits.find(u => (
+      u.id.includes('carrier')
+      || u.id.includes('carry')
+      || u.name.toLowerCase().includes('carrier')
+      || resolveUnitDefaults(u.id).weaponSlots?.some(slot => Boolean(slot.carried_unit))
+    ));
     return carrierMatch ? carrierMatch.id : (allAvailableUnits.find(u => u.id === 'armcarrier')?.id || allAvailableUnits[0]?.id || 'armcarrier');
-  }, [selectedUnit, allAvailableUnits, tweaks]);
+  }, [selectedUnit, allAvailableUnits, resolveUnitDefaults, tweaks]);
+
+  const resolveCarrierConfig = useCallback((unitId) => {
+    const inheritedDefaults = resolveUnitDefaults(unitId);
+    const effectiveDefaults = inheritedDefaults
+      ? { ...defaultsDb, [unitId]: inheritedDefaults }
+      : defaultsDb;
+    return getCarrierLinkageConfig(unitId, tweaks, effectiveDefaults);
+  }, [defaultsDb, resolveUnitDefaults, tweaks]);
 
   const initialConfig = useMemo(
-    () => getCarrierLinkageConfig(defaultParent, tweaks, defaultsDb),
-    [defaultParent, tweaks, defaultsDb]
+    () => resolveCarrierConfig(defaultParent),
+    [defaultParent, resolveCarrierConfig]
   );
 
   const [parentUnitId, setParentUnitId] = useState(defaultParent);
   const [carriedUnit, setCarriedUnit] = useState(initialConfig.carriedUnit || 'armantiodrone');
-  const [deployMode, setDeployMode] = useState(initialConfig.deployMode || 'air');
+  const [targetWeaponDef, setTargetWeaponDef] = useState(initialConfig.targetWeaponDef || '');
+  const [spawnSurface, setSpawnSurface] = useState(initialConfig.spawnSurface || '');
   const [isControllable, setIsControllable] = useState(initialConfig.isControllable ?? true);
   const [droneAmmo, setDroneAmmo] = useState(initialConfig.droneAmmo || 6);
   const [spawnMetal, setSpawnMetal] = useState(initialConfig.spawnMetal || 120);
   const [spawnEnergy, setSpawnEnergy] = useState(initialConfig.spawnEnergy || 1200);
   const [spawnInterval, setSpawnInterval] = useState(initialConfig.spawnInterval || 5);
   const [returnHp, setReturnHp] = useState(initialConfig.returnHp || 25);
+  const parentConfig = useMemo(
+    () => resolveCarrierConfig(parentUnitId),
+    [parentUnitId, resolveCarrierConfig]
+  );
 
   // Unit Selector Modal State (Parent or Child)
   const [pickerTarget, setPickerTarget] = useState(null); // 'parent' | 'child' | null
@@ -114,30 +139,14 @@ export default function CarrierDroneWorkbenchDialog({
     });
   }, [allAvailableUnits, pickerQuery, pickerFaction]);
 
-  const handleApplyPreset = preset => {
-    const validParent = allAvailableUnits.some(u => u.id.toLowerCase() === preset.parentUnitId.toLowerCase())
-      ? preset.parentUnitId
-      : parentUnitId;
-    const validChild = allAvailableUnits.some(u => u.id.toLowerCase() === preset.childUnitId.toLowerCase())
-      ? preset.childUnitId
-      : carriedUnit;
-
-    setParentUnitId(validParent);
-    setCarriedUnit(validChild);
-    setDroneAmmo(preset.capacity);
-    setSpawnInterval(preset.spawnInterval);
-    setSpawnMetal(preset.metalCost);
-    setSpawnEnergy(preset.energyCost);
-    setReturnHp(preset.returnHpPercent);
-  };
-
   const handleParentSelect = newParentId => {
     setParentUnitId(newParentId);
-    const cfg = getCarrierLinkageConfig(newParentId, tweaks, defaultsDb);
+    const cfg = resolveCarrierConfig(newParentId);
     if (cfg.carriedUnit && allAvailableUnits.some(u => u.id.toLowerCase() === cfg.carriedUnit.toLowerCase())) {
       setCarriedUnit(cfg.carriedUnit);
     }
-    if (cfg.deployMode) setDeployMode(cfg.deployMode);
+    setTargetWeaponDef(cfg.targetWeaponDef || '');
+    setSpawnSurface(cfg.spawnSurface || '');
     if (cfg.droneAmmo) setDroneAmmo(cfg.droneAmmo);
     if (cfg.spawnMetal) setSpawnMetal(cfg.spawnMetal);
     if (cfg.spawnEnergy) setSpawnEnergy(cfg.spawnEnergy);
@@ -153,7 +162,8 @@ export default function CarrierDroneWorkbenchDialog({
       parentUnitId,
       carriedUnit,
       spawnsName: carriedUnit,
-      deployMode,
+      targetWeaponDef,
+      spawnSurface,
       isControllable,
       droneAmmo,
       spawnMetal,
@@ -187,88 +197,10 @@ export default function CarrierDroneWorkbenchDialog({
       labelledBy={titleId}
       describedBy={descriptionId}
     >
-      {!wipAcknowledged && (
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1000,
-          backgroundColor: 'var(--color-overlay, rgba(20, 18, 17, 0.75))',
-          backdropFilter: 'blur(12px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '32px'
-        }}>
-          <div style={{
-            maxWidth: '480px',
-            width: '100%',
-            backgroundColor: 'var(--color-surface-raised, #2c2927)',
-            border: '1px solid var(--color-border-strong, rgba(239, 222, 207, 0.25))',
-            borderRadius: 'var(--radius-md, 8px)',
-            padding: '36px 32px',
-            boxShadow: 'var(--shadow-float, 0 18px 48px rgba(0, 0, 0, 0.4))',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px'
-          }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              background: 'var(--color-warning-surface, rgba(211, 166, 110, 0.15))',
-              color: 'var(--color-warning, #d3a66e)',
-              border: '1px solid var(--color-border-warm, rgba(211, 166, 110, 0.3))',
-              borderRadius: 'var(--radius-xs, 3px)',
-              padding: '4px 10px',
-              fontSize: '11px',
-              fontWeight: 700,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              fontFamily: 'var(--font-mono, monospace)'
-            }}>
-              EXPERIMENTAL FEATURE
-            </div>
-            <h3 style={{
-              margin: 0,
-              fontSize: '20px',
-              fontWeight: 600,
-              color: 'var(--color-text-strong, #f2e9df)',
-              fontFamily: 'var(--font-ui, sans-serif)',
-              letterSpacing: '-0.01em'
-            }}>
-              Feature Under Active Development
-            </h3>
-            <p style={{
-              margin: 0,
-              fontSize: '13.5px',
-              color: 'var(--color-text-muted, #b5a79c)',
-              lineHeight: 1.65,
-              maxWidth: '400px'
-            }}>
-              The <strong>Carrier &amp; Deployed Drone Studio</strong> is currently an experimental workbench module. Drone carrier linkages and spawner parameters are still being refined.
-            </p>
-            <div style={{
-              display: 'flex',
-              gap: '12px',
-              marginTop: '12px',
-              width: '100%',
-              justifyContent: 'center'
-            }}>
-              <Button type="button" variant="secondary" onClick={onClose} style={{ minWidth: '130px' }}>
-                Back to Editor
-              </Button>
-              <Button type="button" variant="primary" onClick={() => setWipAcknowledged(true)} style={{ minWidth: '160px' }}>
-                Proceed to Workbench
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
       <form onSubmit={handleSave}>
         <header className="carrier-workbench__header">
           <div className="carrier-workbench__heading">
-            <span className="carrier-workbench__eyebrow">Flight Deck Engineering</span>
+            <span className="carrier-workbench__eyebrow">Carrier Systems</span>
             <h2 id={titleId}>Carrier &amp; Deployed Drone Linkage Workbench</h2>
             <p id={descriptionId}>Connect parent warship chassis with child fighter drones, hangar capacities, and deployment metrics.</p>
           </div>
@@ -322,29 +254,37 @@ export default function CarrierDroneWorkbenchDialog({
 
             <div className="carrier-workbench__typebox-grid">
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Deployment System Mode</label>
+                <label>Spawn Surface Restriction</label>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                   <button
                     type="button"
-                    className={`carrier-workbench__faction-chip ${deployMode === 'air' ? 'is-active' : ''}`}
-                    onClick={() => setDeployMode('air')}
+                    className={`carrier-workbench__faction-chip ${spawnSurface === '' ? 'is-active' : ''}`}
+                    onClick={() => setSpawnSurface('')}
                     style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
-                    Air Fighter Drone (Aircraft Carrier / Hangar)
+                    Any surface
                   </button>
                   <button
                     type="button"
-                    className={`carrier-workbench__faction-chip ${deployMode === 'ground' ? 'is-active' : ''}`}
-                    onClick={() => setDeployMode('ground')}
+                    className={`carrier-workbench__faction-chip ${spawnSurface === 'LAND' ? 'is-active' : ''}`}
+                    onClick={() => setSpawnSurface('LAND')}
                     style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
-                    Ground / Assault Unit Spawner (Hive / Building)
+                    Land only
+                  </button>
+                  <button
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${spawnSurface === 'SEA' ? 'is-active' : ''}`}
+                    onClick={() => setSpawnSurface('SEA')}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                  >
+                    Sea only
                   </button>
                 </div>
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Spawned Unit Command Policy</label>
+                <label>Carrier Death Policy</label>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                   <button
                     type="button"
@@ -352,7 +292,7 @@ export default function CarrierDroneWorkbenchDialog({
                     onClick={() => setIsControllable(true)}
                     style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
-                    Player Controllable (Release to Player Control)
+                    Release surviving drones
                   </button>
                   <button
                     type="button"
@@ -360,9 +300,29 @@ export default function CarrierDroneWorkbenchDialog({
                     onClick={() => setIsControllable(false)}
                     style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
-                    Autonomous Squadron (Hangar Tethered)
+                    Destroy drones with carrier
                   </button>
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-carrier-weapon">Carrier Controller WeaponDef</label>
+                <select
+                  id="input-carrier-weapon"
+                  className="form-input"
+                  value={targetWeaponDef}
+                  onChange={event => setTargetWeaponDef(event.target.value)}
+                  required
+                >
+                  {parentConfig.weaponOptions.length === 0 && (
+                    <option value="">No weapon slot available</option>
+                  )}
+                  {parentConfig.weaponOptions.map(option => (
+                    <option key={`${option.slot}-${option.defKey}`} value={option.defKey}>
+                      {option.label}{option.isCarrierController ? ' · current carrier controller' : ''}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group">

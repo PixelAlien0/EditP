@@ -671,34 +671,47 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
           || '';
         if (!primaryChild) return null;
 
-        const spawnsNameVal = unitTweaks['customparams.spawns_name']
+        const spawnsNameVal = unitTweaks.editp_carrier_roster
+          || unitTweaks['customparams.spawns_name']
           || primaryChild;
 
         const allChildren = String(spawnsNameVal)
-          .split(',')
+          .split(/[\s,]+/)
           .map(s => s.trim().toLowerCase())
           .filter(Boolean);
 
-        const isGround = unitTweaks['customparams.spawntype'] === 'ground';
-        const isControllable = unitTweaks['customparams.carrierdeaththroe'] === 'release' ||
-          unitTweaks['customparams.is_controllable'] === '1' ||
-          unitTweaks['customparams.carrierdeaththroe'] === undefined;
-
+        const deathBehavior = String(unitTweaks['customparams.carrierdeaththroe'] || 'death').toLowerCase();
         const droneAmmo = Number(unitTweaks['customparams.droneammo'] || unitTweaks['customparams.maxunits'] || 4);
+        const maxUnits = Number(unitTweaks['customparams.maxunits'] || droneAmmo || 4);
+        const startingDroneCount = Number(unitTweaks['customparams.startingdronecount'] || 0);
         const spawnMetal = Number(unitTweaks['customparams.spawn_metal_cost'] || unitTweaks['customparams.metalcost'] || 100);
         const spawnEnergy = Number(unitTweaks['customparams.spawn_energy_cost'] || unitTweaks['customparams.energycost'] || 1000);
         const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] || unitTweaks['customparams.spawnrate'] || 5);
+        const dockToHealThreshold = Number(unitTweaks['customparams.docktohealthreshold'] ?? 30);
+        const dockingValue = unitTweaks['customparams.enabledocking'];
+        const dockingEnabled = dockingValue === undefined
+          ? true
+          : !['false', '0'].includes(String(dockingValue).toLowerCase());
 
         return {
           unitId,
           primaryChild,
           allChildren,
-          isGround,
-          isControllable,
+          targetWeaponDef: String(unitTweaks.editp_carrier_weapondef || '').trim().toLowerCase(),
+          spawnsSurface: String(unitTweaks['customparams.spawns_surface'] || '').trim().toUpperCase(),
+          deathBehavior: ['death', 'control', 'capture', 'release', 'parasite'].includes(deathBehavior)
+            ? deathBehavior
+            : 'death',
+          dockingEnabled,
           droneAmmo: Number.isFinite(droneAmmo) ? droneAmmo : 4,
+          maxUnits: Number.isFinite(maxUnits) ? maxUnits : 4,
+          startingDroneCount: Number.isFinite(startingDroneCount) ? startingDroneCount : 0,
           spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
           spawnEnergy: Number.isFinite(spawnEnergy) ? spawnEnergy : 1000,
           spawnInterval: Number.isFinite(spawnInterval) ? spawnInterval : 5,
+          dockToHealThreshold: Number.isFinite(dockToHealThreshold)
+            ? Math.max(0, Math.min(100, dockToHealThreshold))
+            : 30,
         };
       })
       .filter(Boolean);
@@ -709,79 +722,52 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
   return `${CARRIER_LINKAGE_BEGIN}
 local editp_carrier_linkages = ${serializeLuaTable({ entries })}
 
+local function editp_find_carrier_weapondef(unitDef, requestedKey)
+  if type(unitDef.weapondefs) ~= "table" then return nil end
+  if requestedKey and requestedKey ~= "" then
+    local requested = unitDef.weapondefs[string.lower(requestedKey)]
+    if type(requested) == "table" then return requested end
+  end
+  for _, candidate in pairs(unitDef.weapondefs) do
+    if type(candidate) == "table"
+      and type(candidate.customparams) == "table"
+      and candidate.customparams.carried_unit then
+      return candidate
+    end
+  end
+  local firstMount = type(unitDef.weapons) == "table" and unitDef.weapons[1] or nil
+  local firstKey = firstMount and firstMount.def and string.lower(firstMount.def) or nil
+  return firstKey and unitDef.weapondefs[firstKey] or nil
+end
+
 for _, entry in ipairs(editp_carrier_linkages.entries) do
   local u = UnitDefs and UnitDefs[entry.unitId]
   if u then
     local countStr = tostring(entry.droneAmmo)
-    local countNum = tonumber(entry.droneAmmo) or 4
+    local maxUnitsStr = tostring(entry.maxUnits)
+    local startingCountStr = tostring(entry.startingDroneCount)
     local intervalStr = tostring(entry.spawnInterval)
     local intervalNum = tonumber(entry.spawnInterval) or 5
     local metalStr = tostring(entry.spawnMetal)
     local energyStr = tostring(entry.spawnEnergy)
-
-    u.customparams = u.customparams or {}
-    u.customparams.carried_unit = entry.primaryChild
-    u.customparams.spawns_name = table.concat(entry.allChildren, ",")
-    u.customparams.droneammo = countStr
-    u.customparams.maxunits = countStr
-    u.customparams.stockpilelimit = countStr
-    u.customparams.maxdrones = countStr
-    u.customparams.startingdronecount = countStr
-    u.customparams.spawn_metal_cost = metalStr
-    u.customparams.spawn_energy_cost = energyStr
-    u.customparams.spawn_interval = intervalStr
-    u.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
-    u.customparams.enabledocking = (entry.isControllable == false) and true or false
-    u.customparams.docktohealthreshold = (entry.isControllable == false) and 33 or 0
-    u.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
-
-    if type(u.weapondefs) == "table" then
-      for _, wDef in pairs(u.weapondefs) do
-        if type(wDef) == "table" then
-          wDef.stockpile = true
-          wDef.coverage = countNum
-          wDef.stockpiletime = intervalNum
-          wDef.reloadtime = intervalNum
-          wDef.customparams = wDef.customparams or {}
-          wDef.customparams.carried_unit = entry.primaryChild
-          wDef.customparams.spawns_name = table.concat(entry.allChildren, ",")
-          wDef.customparams.maxunits = countStr
-          wDef.customparams.droneammo = countStr
-          wDef.customparams.stockpilelimit = countStr
-          wDef.customparams.maxdrones = countStr
-          wDef.customparams.startingdronecount = countStr
-          wDef.customparams.spawnrate = intervalStr
-          wDef.customparams.metalcost = metalStr
-          wDef.customparams.energycost = energyStr
-          wDef.customparams.carrierdeaththroe = (entry.isControllable == false) and "destroy" or "release"
-          wDef.customparams.enabledocking = (entry.isControllable == false) and true or false
-          wDef.customparams.docktohealthreshold = (entry.isControllable == false) and 33 or 0
-          wDef.customparams.is_controllable = (entry.isControllable == false) and "0" or "1"
-        end
-      end
-    end
-
-    if entry.isControllable ~= false then
-      for _, childId in ipairs(entry.allChildren) do
-        local childDef = UnitDefs and UnitDefs[childId]
-        if childDef then
-          childDef.canselect = true
-          childDef.canmove = true
-          childDef.canattack = true
-          childDef.canfight = true
-          childDef.canpatrol = true
-          childDef.canstop = true
-          childDef.customparams = childDef.customparams or {}
-          childDef.customparams.is_drone = nil
-          childDef.customparams.drone = nil
-          childDef.customparams.dronetype = nil
-          childDef.customparams.no_tether = "1"
-          childDef.customparams.no_select = "0"
-          childDef.customparams.noselect = "0"
-          childDef.customparams.canselect = "1"
-          childDef.customparams.is_controllable = "1"
-          childDef.customparams.drone_controllable = "1"
-        end
+    local wDef = editp_find_carrier_weapondef(u, entry.targetWeaponDef)
+    if wDef then
+      wDef.stockpile = true
+      wDef.stockpiletime = intervalNum
+      wDef.customparams = wDef.customparams or {}
+      wDef.customparams.carried_unit = table.concat(entry.allChildren, " ")
+      wDef.customparams.maxunits = maxUnitsStr
+      wDef.customparams.droneammo = countStr
+      wDef.customparams.stockpilelimit = maxUnitsStr
+      wDef.customparams.startingdronecount = startingCountStr
+      wDef.customparams.spawnrate = intervalStr
+      wDef.customparams.metalcost = metalStr
+      wDef.customparams.energycost = energyStr
+      wDef.customparams.carrierdeaththroe = entry.deathBehavior
+      wDef.customparams.enabledocking = entry.dockingEnabled
+      wDef.customparams.docktohealthreshold = entry.dockToHealThreshold
+      if entry.spawnsSurface and entry.spawnsSurface ~= "" then
+        wDef.customparams.spawns_surface = entry.spawnsSurface
       end
     end
   end

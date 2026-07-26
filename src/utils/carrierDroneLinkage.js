@@ -71,48 +71,74 @@ export const CARRIER_ARCHETYPES = [
   },
 ];
 
+function getCarrierWeaponSlot(defaults, requestedDefKey = '') {
+  const slots = Array.isArray(defaults?.weaponSlots) ? defaults.weaponSlots : [];
+  const normalizedRequest = String(requestedDefKey || '').trim().toLowerCase();
+  return slots.find(slot => String(slot.defKey || '').toLowerCase() === normalizedRequest)
+    || slots.find(slot => slot.carried_unit)
+    || slots[0]
+    || null;
+}
+
+function getCarrierValue(unitTweaks, defaults, weaponSlot, key, ...aliases) {
+  const keys = [key, ...aliases];
+  for (const candidate of keys) {
+    const tweakKey = `customparams.${candidate}`;
+    if (unitTweaks[tweakKey] !== undefined) return unitTweaks[tweakKey];
+  }
+  for (const candidate of keys) {
+    if (weaponSlot?.[candidate] !== undefined) return weaponSlot[candidate];
+    const defaultKey = `customparams.${candidate}`;
+    if (defaults[defaultKey] !== undefined) return defaults[defaultKey];
+  }
+  return undefined;
+}
+
 /**
  * Extracts current carrier-drone linkage configuration from unit tweaks or defaults
  */
 export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
   const unitTweaks = tweaks[unitId] || {};
   const defaults = defaultsDb[unitId] || {};
+  const requestedWeaponDef = unitTweaks.editp_carrier_weapondef || '';
+  const carrierWeaponSlot = getCarrierWeaponSlot(defaults, requestedWeaponDef);
 
-  const targetChild = unitTweaks['customparams.spawns_name']
-    ?? unitTweaks['customparams.spawns']
-    ?? unitTweaks['customparams.carried_unit']
-    ?? unitTweaks['customparams.spawn_name']
-    ?? unitTweaks['customparams.spawn_unit']
-    ?? unitTweaks['customparams.spawn']
-    ?? defaults.customparams?.spawns_name
-    ?? defaults.customparams?.carried_unit
-    ?? '';
+  const targetChild = getCarrierValue(
+    unitTweaks,
+    defaults,
+    carrierWeaponSlot,
+    'carried_unit',
+    'spawns_name',
+    'spawns',
+    'spawn_name',
+    'spawn_unit',
+    'spawn'
+  ) ?? '';
 
   const unitsList = String(targetChild)
-    .split(',')
+    .split(/[\s,]+/)
     .map(s => s.trim())
     .filter(Boolean);
 
   const primaryUnit = unitsList[0] || '';
   const secondaryUnits = unitsList.slice(1);
 
-  const hasCarriedUnit = Boolean(unitTweaks['customparams.carried_unit'] && unitTweaks['customparams.carried_unit'] !== '');
-  const isGroundSpawner = Boolean(
-    unitTweaks['customparams.spawntype'] === 'ground' ||
-    unitId.includes('hive') ||
-    unitId.includes('spawner') ||
-    !hasCarriedUnit
-  );
+  const surface = String(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawns_surface') || '').toUpperCase();
+  const isGroundSpawner = surface === 'LAND'
+    || unitTweaks['customparams.spawntype'] === 'ground'
+    || unitId.includes('hive')
+    || unitId.includes('spawner');
 
-  const droneAmmo = Number(unitTweaks['customparams.droneammo'] ?? unitTweaks['customparams.maxunits'] ?? defaults.customparams?.droneammo ?? 4);
-  const spawnMetal = Number(unitTweaks['customparams.spawn_metal_cost'] ?? unitTweaks['customparams.metalcost'] ?? defaults.customparams?.spawn_metal_cost ?? 100);
-  const spawnEnergy = Number(unitTweaks['customparams.spawn_energy_cost'] ?? unitTweaks['customparams.energycost'] ?? defaults.customparams?.spawn_energy_cost ?? 1000);
-  const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] ?? unitTweaks['customparams.spawnrate'] ?? defaults.customparams?.spawn_interval ?? 5);
-  const returnHp = Number(unitTweaks['customparams.drone_return_hp'] ?? defaults.customparams?.drone_return_hp ?? 25);
+  const droneAmmo = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'droneammo', 'maxunits') ?? 4);
+  const spawnMetal = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_metal_cost', 'metalcost') ?? 100);
+  const spawnEnergy = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_energy_cost', 'energycost') ?? 1000);
+  const spawnInterval = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_interval', 'spawnrate') ?? 5);
+  const returnHp = Number(getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'drone_return_hp', 'docktohealthreshold') ?? 25);
+  const carrierDeathBehavior = String(
+    getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'carrierdeaththroe') || 'death'
+  ).toLowerCase();
 
-  const isControllable = unitTweaks['customparams.carrierdeaththroe'] === 'release' ||
-    unitTweaks['customparams.is_controllable'] === '1' ||
-    (unitTweaks['customparams.carrierdeaththroe'] === undefined);
+  const isControllable = ['release', 'control', 'capture'].includes(carrierDeathBehavior);
 
   return {
     parentUnitId: unitId,
@@ -120,7 +146,15 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
     spawnsName: primaryUnit,
     secondaryUnits,
     deployMode: isGroundSpawner ? 'ground' : 'air',
+    spawnSurface: surface,
     isControllable,
+    targetWeaponDef: carrierWeaponSlot?.defKey || requestedWeaponDef,
+    weaponOptions: (defaults.weaponSlots || []).map(slot => ({
+      slot: slot.slot,
+      defKey: slot.defKey,
+      label: `Slot ${slot.slot} · ${String(slot.defKey || '').toUpperCase()}`,
+      isCarrierController: Boolean(slot.carried_unit),
+    })),
     droneAmmo: Number.isFinite(droneAmmo) && droneAmmo > 0 ? droneAmmo : 4,
     spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
     spawnEnergy: Number.isFinite(spawnEnergy) ? spawnEnergy : 1000,
@@ -129,7 +163,7 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
   };
 }
 
-function getCommaSeparatedRoster(config) {
+function getCarrierRoster(config) {
   const primaryId = String(config.carriedUnit || config.spawnsName || '').trim().toLowerCase();
   const secondaryList = Array.isArray(config.secondaryUnits)
     ? config.secondaryUnits.map(u => String(u).trim().toLowerCase()).filter(Boolean)
@@ -138,7 +172,7 @@ function getCommaSeparatedRoster(config) {
   return [primaryId, ...secondaryList]
     .filter(Boolean)
     .filter((v, idx, arr) => arr.indexOf(v) === idx)
-    .join(',');
+    .join(' ');
 }
 
 /**
@@ -150,8 +184,7 @@ export function buildCarrierLinkageTweaks(config) {
   }
 
   const primaryId = String(config.carriedUnit || config.spawnsName).trim().toLowerCase();
-  const commaRoster = getCommaSeparatedRoster(config);
-  const isGroundMode = config.deployMode === 'ground';
+  const carrierRoster = getCarrierRoster(config);
   const isControllable = config.isControllable ?? true;
 
   const countStr = String(Math.max(1, Math.min(100, Math.round(config.droneAmmo || 4))));
@@ -160,21 +193,21 @@ export function buildCarrierLinkageTweaks(config) {
   const energyStr = String(Math.max(0, Math.round(config.spawnEnergy || 0)));
 
   return {
+    editp_carrier_weapondef: String(config.targetWeaponDef || '').trim().toLowerCase(),
+    editp_carrier_roster: carrierRoster,
     'customparams.carried_unit': primaryId,
-    'customparams.spawns_name': commaRoster,
+    'customparams.spawns_surface': String(
+      config.spawnSurface ?? (config.deployMode === 'ground' ? 'LAND' : '')
+    ).trim().toUpperCase(),
     'customparams.droneammo': countStr,
     'customparams.maxunits': countStr,
     'customparams.stockpilelimit': countStr,
-    'customparams.maxdrones': countStr,
     'customparams.startingdronecount': countStr,
-    'customparams.spawn_metal_cost': metalStr,
     'customparams.metalcost': metalStr,
-    'customparams.spawn_energy_cost': energyStr,
     'customparams.energycost': energyStr,
-    'customparams.spawn_interval': intervalStr,
     'customparams.spawnrate': intervalStr,
-    'customparams.carrierdeaththroe': isControllable ? 'release' : 'destroy',
-    'customparams.enabledocking': isControllable ? false : true,
-    'customparams.docktohealthreshold': isControllable ? 0 : 33,
+    'customparams.carrierdeaththroe': isControllable ? 'release' : 'death',
+    'customparams.enabledocking': true,
+    'customparams.docktohealthreshold': Math.max(0, Math.min(100, Number(config.returnHp) || 0)),
   };
 }

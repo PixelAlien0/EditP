@@ -3,6 +3,7 @@ import {
   compileTweakDefsLua,
   generateDeathProfilesBlockLua,
   generateSupportingWeaponDefsBlockLua,
+  generateCarrierLinkagesBlockLua,
   generateBuildMenuBlockLua,
   generateClonesBlockLua,
   sortClonesDependency,
@@ -117,5 +118,34 @@ describe('nested clone generation', () => {
       compileFlags: { includeClones: true, includeRosters: true }, supportingWeaponDefs,
     });
     expect(lua.indexOf('local n = "armflash_clone"')).toBeLessThan(lua.indexOf('editp_supporting_weapondefs'));
+  });
+
+  it('targets one carrier controller WeaponDef without rewriting every weapon or child UnitDef', () => {
+    const lua = generateCarrierLinkagesBlockLua({
+      armdronecarry: {
+        editp_carrier_weapondef: 'plasma',
+        'customparams.carried_unit': 'armdrone',
+        'customparams.spawns_name': 'armdrone corvamp',
+        'customparams.maxunits': '8',
+        'customparams.startingdronecount': '2',
+        'customparams.droneammo': '6',
+        'customparams.spawnrate': '4',
+        'customparams.metalcost': '25',
+        'customparams.energycost': '600',
+        'customparams.enabledocking': true,
+        'customparams.docktohealthreshold': 65,
+        'customparams.carrierdeaththroe': 'release',
+        'customparams.spawns_surface': 'SEA',
+      },
+    });
+
+    expect(lua).toContain('editp_find_carrier_weapondef(u, entry.targetWeaponDef)');
+    expect(lua).toContain('wDef.customparams.carried_unit = table.concat(entry.allChildren, " ")');
+    expect(lua).toContain('wDef.customparams.docktohealthreshold = entry.dockToHealThreshold');
+    expect(lua).not.toContain('for _, wDef in pairs(u.weapondefs)');
+    expect(lua).not.toContain('wDef.coverage');
+    expect(lua).not.toContain('childDef.canselect');
+    expect(lua).not.toContain('customparams.is_controllable');
+    expect(lua).not.toContain('customparams.spawns_name =');
   });
 });

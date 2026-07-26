@@ -48,6 +48,26 @@ const CUSTOM_PARAM_FIELDS = new Set([
   'overrange_distance', 'paralyzemultiplier', 'removestop', 'maxrange',
 ])
 
+const WEAPON_CUSTOM_PARAM_FIELDS = Object.freeze({
+  spawns_name: 'spawns_name', spawns_surface: 'spawns_surface', spawns_mode: 'spawns_mode',
+  spawns_expire: 'spawns_expire', spawns_ceg: 'spawns_ceg', spawns_stun: 'spawns_stun',
+  spawn_blocked_by_shield: 'spawn_blocked_by_shield', carried_unit: 'carried_unit',
+  dronetype: 'dronetype', spawnrate: 'spawnrate', maxunits: 'maxunits',
+  startingdronecount: 'startingdronecount', controlradius: 'controlradius',
+  engagementrange: 'engagementrange', enabledocking: 'enabledocking',
+  dockingpieces: 'dockingpieces', dockingradius: 'dockingradius',
+  dockinghelperspeed: 'dockinghelperspeed', dockingarmor: 'dockingarmor',
+  dockinghealrate: 'dockinghealrate', docktohealthreshold: 'docktohealthreshold',
+  attackformationspread: 'attackformationspread', attackformationoffset: 'attackformationoffset',
+  decayrate: 'decayrate', deathdecayrate: 'deathdecayrate',
+  carrierdeaththroe: 'carrierdeaththroe', holdfireradius: 'holdfireradius',
+  droneminimumidleradius: 'droneminimumidleradius', droneairtime: 'droneairtime',
+  dronedocktime: 'dronedocktime', droneammo: 'droneammo',
+  metalcost: 'spawn_metal_cost', buildcostmetal: 'spawn_metal_cost',
+  energycost: 'spawn_energy_cost', buildcostenergy: 'spawn_energy_cost',
+  cluster_def: 'cluster_def', cluster_number: 'cluster_number',
+})
+
 const WEAPON_FIELDS = Object.freeze({
   avoidfeature: 'avoidfeature', avoidground: 'avoidground', avoidneutral: 'avoidneutral',
   collideenemy: 'collideenemy', collidenontarget: 'collidenontarget', collidecloaked: 'collidecloaked',
@@ -108,7 +128,13 @@ function scalar(source) {
 
 function parseUnitFile(file) {
   const source = fs.readFileSync(file, 'utf8')
-  const lines = source.split(/\r?\n/)
+  const lines = source.split(/\r?\n/).map(line => {
+    const indentation = line.match(/^[\t ]*/)?.[0] || ''
+    const columns = [...indentation].reduce((count, character) => (
+      count + (character === '\t' ? 4 : 1)
+    ), 0)
+    return `${'\t'.repeat(Math.floor(columns / 4))}${line.slice(indentation.length)}`
+  })
   const id = lines.map(line => line.match(/^\t([A-Za-z0-9_]+)\s*=\s*\{/i)?.[1]).find(Boolean)?.toLowerCase()
   if (!id) return null
   const values = {}
@@ -121,6 +147,7 @@ function parseUnitFile(file) {
   let inDamage = false
   let inShield = false
   let inCustomParams = false
+  let inWeaponCustomParams = false
 
   for (const line of lines) {
     if (/^\t\tcustomparams\s*=\s*\{/i.test(line)) { inCustomParams = true; continue }
@@ -147,16 +174,26 @@ function parseUnitFile(file) {
       continue
     }
     if (/^\t\tweapondefs\s*=\s*\{/i.test(line)) { inWeaponDefs = true; continue }
-    if (inWeaponDefs && /^\t\t\},?/.test(line)) { inWeaponDefs = false; currentWeapon = null; inDamage = false; inShield = false; continue }
+    if (inWeaponDefs && /^\t\t\},?/.test(line)) { inWeaponDefs = false; currentWeapon = null; inDamage = false; inShield = false; inWeaponCustomParams = false; continue }
 
     if (inWeaponDefs) {
       const weapon = line.match(/^\t\t\t(?:\[?["']?)([A-Za-z0-9_-]+)(?:["']?\]?)\s*=\s*\{/)
-      if (weapon) { currentWeapon = weapon[1].toLowerCase(); weaponDefs[currentWeapon] = {}; continue }
+      if (weapon) { currentWeapon = weapon[1].toLowerCase(); weaponDefs[currentWeapon] = {}; inWeaponCustomParams = false; continue }
       if (!currentWeapon) continue
+      if (/^\t\t\t\tcustomparams\s*=\s*\{/i.test(line)) { inWeaponCustomParams = true; continue }
       if (/^\t\t\t\tdamage\s*=\s*\{/i.test(line)) { inDamage = true; continue }
       if (/^\t\t\t\tshield\s*=\s*\{/i.test(line)) { inShield = true; continue }
+      if (inWeaponCustomParams && /^\t\t\t\t\},?/.test(line)) { inWeaponCustomParams = false; continue }
       if (inDamage && /^\t\t\t\t\},?/.test(line)) { inDamage = false; continue }
       if (inShield && /^\t\t\t\t\},?/.test(line)) { inShield = false; continue }
+      if (inWeaponCustomParams) {
+        const match = line.match(/^\t\t\t\t\t([A-Za-z][A-Za-z0-9_]*)\s*=\s*(.+)$/)
+        if (!match) continue
+        const value = scalar(match[2])
+        const target = WEAPON_CUSTOM_PARAM_FIELDS[match[1].toLowerCase()]
+        if (target && value !== undefined) weaponDefs[currentWeapon][target] = value
+        continue
+      }
       if (inDamage) {
         const match = line.match(/^\t\t\t\t\t(?:\[?["']?)([A-Za-z0-9_-]+)(?:["']?\]?)\s*=\s*(.+)$/)
         if (!match) continue
@@ -244,7 +281,7 @@ for (const [id, unit] of Object.entries(defaults)) {
   }
   Object.assign(unit, source.values)
   for (const slot of unit.weaponSlots || []) {
-    for (const key of [...Object.values(WEAPON_FIELDS), ...Object.values(DAMAGE_FIELDS), ...Object.values(SHIELD_FIELDS), ...Object.values(MOUNT_FIELDS)]) delete slot[key]
+    for (const key of [...Object.values(WEAPON_FIELDS), ...Object.values(WEAPON_CUSTOM_PARAM_FIELDS), ...Object.values(DAMAGE_FIELDS), ...Object.values(SHIELD_FIELDS), ...Object.values(MOUNT_FIELDS)]) delete slot[key]
     Object.assign(slot, source.weaponDefs[String(slot.defKey).toLowerCase()] || {})
     Object.assign(slot, source.weaponMounts[slot.slot] || {})
   }

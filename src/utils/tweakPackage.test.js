@@ -91,7 +91,14 @@ describe('tweak package import', () => {
             range = 600,
             reloadtime = 0.7,
             damage = { default = 42 },
-            customparams = { cluster_def = 'laser_sub', cluster_number = 4 },
+            customparams = {
+              cluster_def = 'laser_sub',
+              cluster_number = 4,
+              carried_unit = 'editp_drone',
+              startingdronecount = 2,
+              docktohealthreshold = 65,
+              enabledocking = true,
+            },
           },
           laser_sub = {
             range = 280,
@@ -113,6 +120,10 @@ describe('tweak package import', () => {
       expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'damage', value: 42 }),
       expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'reload', value: 0.7 }),
       expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'cluster_number', value: 4 }),
+      expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'carried_unit', value: 'editp_drone' }),
+      expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'startingdronecount', value: 2 }),
+      expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'docktohealthreshold', value: 65 }),
+      expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'enabledocking', value: true }),
       expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'onlytargetcategory', value: 'SURFACE' }),
       expect.objectContaining({ type: 'supporting-weapondef', weaponDef: expect.objectContaining({
         ownerUnitId: 'editp_ship', key: 'laser_sub', role: 'dependency', referencedBy: ['laser'],
@@ -338,7 +349,7 @@ describe('tweak package import', () => {
     expect(analysis.typeIssues).toEqual(expect.arrayContaining([
       expect.objectContaining({ field: 'health', expectedType: 'number', actualType: 'string', suggestion: '900' }),
       expect.objectContaining({ field: 'canattack', expectedType: 'boolean', actualType: 'string', suggestion: 'true' }),
-      expect.objectContaining({ field: 'customparams.enabledocking', expectedType: 'boolean', actualType: 'number', suggestion: 'true' }),
+      expect.objectContaining({ field: 'enabledocking', expectedType: 'boolean', actualType: 'number', suggestion: 'true' }),
       expect.objectContaining({ field: 'paralyzer', expectedType: 'boolean', actualType: 'string', suggestion: 'false' }),
     ]));
     expect(analysis.runtimeRisks).toEqual(expect.arrayContaining([

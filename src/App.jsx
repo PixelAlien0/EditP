@@ -17,6 +17,7 @@ import {
   getApplicableUnitParameters, resolveUnitParameterDefault, MOBILITY_STAT_KEYS, STAT_KEYS, TARGET_CATEGORY_GROUPS, UNIT_CATEGORIES as CATEGORIES,
   WEAPON_SLOT_BOOLEAN_PARAMS, WEAPON_SLOT_PATHS, WEAPON_SLOT_STRING_PARAMS,
   WEAPON_SLOT_MOUNT_PARAMS,
+  SPAWNER_CARRIER_WEAPON_GROUPS,
   WORKSPACE_TAB_DEFINITIONS,
 } from './config/editorParameters.js';
 import OnlinePresenceBadge from './components/OnlinePresenceBadge.jsx';
@@ -119,6 +120,17 @@ const BULK_PARAMETER_GROUPS = [
 
 function getValidationWarning(key, value) {
   if (value === undefined || value === '') return null;
+  const normalizedKey = key.toLowerCase();
+  const normalizedValue = String(value).trim().toLowerCase();
+  if (normalizedKey.includes('spawns_surface') && !['land', 'sea'].includes(normalizedValue)) {
+    return { level: 'error', message: 'BAR supports LAND or SEA for this field' };
+  }
+  if (normalizedKey.includes('spawns_mode') && !['random', 'random_locked', 'sequential'].includes(normalizedValue)) {
+    return { level: 'error', message: 'Use random, random_locked, or sequential' };
+  }
+  if (normalizedKey.includes('carrierdeaththroe') && !['death', 'control', 'capture', 'release', 'parasite'].includes(normalizedValue)) {
+    return { level: 'error', message: 'Use death, control, capture, release, or parasite' };
+  }
   if ((key === 'collisionvolumescales' || key === 'collisionvolumeoffsets') && !/^\s*-?\d*\.?\d+(?:\s+-?\d*\.?\d+){2}\s*$/.test(String(value))) {
     return { level: 'error', message: 'Enter three numbers: X Y Z' };
   }
@@ -162,6 +174,20 @@ function getValidationWarning(key, value) {
   if (key === 'coverage' && num < 0) return { level: 'error', message: 'Coverage cannot be negative' };
   if (isKey('spawnrate') && num <= 0) return { level: 'error', message: 'Spawn rate must be positive' };
   if (isKey('maxunits') && (!Number.isInteger(num) || num < 1)) return { level: 'error', message: 'Maximum units must be a positive integer' };
+  if ((isKey('startingdronecount') || isKey('droneammo')) && (!Number.isInteger(num) || num < 0)) {
+    return { level: 'error', message: 'Enter a non-negative whole number' };
+  }
+  if (isKey('docktohealthreshold') && (num < 0 || num > 100)) {
+    return { level: 'error', message: 'Docking threshold is a health percentage from 0 to 100' };
+  }
+  if (isKey('dockingarmor') && (num < 0 || num > 1)) {
+    return { level: 'error', message: 'Docked damage multiplier must be between 0 and 1' };
+  }
+  if ((isKey('spawns_expire') || isKey('spawns_stun') || isKey('dockinghealrate')
+    || isKey('dockingradius') || isKey('dockinghelperspeed') || isKey('engagementrange')
+    || isKey('droneairtime') || isKey('dronedocktime')) && num < 0) {
+    return { level: 'error', message: 'Value cannot be negative' };
+  }
   if ((key === 'footprintx' || key === 'footprintz') && (!Number.isInteger(num) || num < 1)) return { level: 'error', message: 'Footprint must be a positive whole number' };
   if (key === 'maxthisunit' && (!Number.isInteger(num) || num < 1)) return { level: 'error', message: 'Team limit must be a positive whole number' };
   if (isKey('cluster_number')) {
@@ -1444,22 +1470,6 @@ export default function App() {
               } else if (WEAPON_SLOT_STRING_PARAMS.has(param)) {
                 subPath = WEAPON_SLOT_PATHS[param] || param;
                 typedVal = val ? String(val) : '';
-                if (param === 'carried_unit') {
-                  const targetUnits = String(typedVal).split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-                  if (targetUnits.length > 0) {
-                    setNestedVal(unitPatch, 'customparams.carried_unit', targetUnits[0]);
-                    setNestedVal(unitPatch, 'customparams.spawns_name', targetUnits.join(','));
-                    setNestedVal(unitPatch, 'customparams.maxunits', '20');
-                    setNestedVal(unitPatch, 'customparams.droneammo', '20');
-                    setNestedVal(unitPatch, 'customparams.stockpilelimit', '20');
-                    setNestedVal(unitPatch, 'customparams.maxdrones', '20');
-                    setNestedVal(unitPatch, 'customparams.startingdronecount', '20');
-                    setNestedVal(unitPatch, 'customparams.carrierdeaththroe', 'release');
-                    setNestedVal(unitPatch, 'customparams.enabledocking', false);
-                    setNestedVal(unitPatch, 'customparams.docktohealthreshold', 0);
-                    setNestedVal(unitPatch, 'customparams.is_controllable', '1');
-                  }
-                }
               } else {
                 const parsedNum = parseFloat(val);
                 if (!Number.isNaN(parsedNum)) {
@@ -1514,16 +1524,6 @@ export default function App() {
           else if (val === 'true' || val === 'false') typedValue = val === 'true';
           setNestedVal(unitPatch, `customparams.${customKey}`, typedValue);
 
-          // Update buildoptions so Hive buildings construct the target spawned units
-          if (customKey === 'spawns_name' || (customKey === 'carried_unit' && typedValue)) {
-            const childUnits = String(typedValue)
-              .split(',')
-              .map(s => s.trim().toLowerCase())
-              .filter(Boolean);
-            if (childUnits.length > 0) {
-              setNestedVal(unitPatch, 'buildoptions', childUnits);
-            }
-          }
           return;
         }
         if (!config) return;
@@ -2302,16 +2302,20 @@ export default function App() {
           });
         }
         const referenceId = String(val || '').trim().toLowerCase();
-        if ((key === 'customparams.carried_unit' || /^weapon_slot_\d+_spawns_name$/.test(key))
-          && referenceId && !knownUnitIds.has(referenceId)) {
-          issues.push({
-            unitId,
-            unitName,
-            key,
-            value: val,
-            level: 'warning',
-            message: `Referenced unit "${val}" is not present in the current BAR definition catalog or project clones.`,
-          });
+        if (key === 'customparams.carried_unit'
+          || /^weapon_slot_\d+_(?:spawns_name|carried_unit)$/.test(key)) {
+          const referencedUnitIds = referenceId.split(/[\s,]+/).filter(Boolean);
+          const missingUnitIds = referencedUnitIds.filter(id => !knownUnitIds.has(id));
+          if (missingUnitIds.length > 0) {
+            issues.push({
+              unitId,
+              unitName,
+              key,
+              value: val,
+              level: 'warning',
+              message: `Referenced unit${missingUnitIds.length > 1 ? 's' : ''} ${missingUnitIds.map(id => `"${id}"`).join(', ')} ${missingUnitIds.length > 1 ? 'are' : 'is'} not present in the current BAR definition catalog or project clones.`,
+            });
+          }
         }
         const localSupportingWeaponDef = supportingDestinations.has(`${unitId}:${referenceId}`.toLowerCase());
         if (/^weapon_slot_\d+_cluster_def$/.test(key)
@@ -2496,7 +2500,7 @@ export default function App() {
       return next;
     });
     showToast(`Applied formula override to ${updates.length.toLocaleString()} ${updates.length === 1 ? 'unit' : 'units'}.`);
-  }, [showToast]);
+  }, [setTweaks, showToast]);
 
   const handleApplyCarrierLinkage = useCallback((parentUnitId, compiledTweaks) => {
     if (!parentUnitId || !compiledTweaks) return;
@@ -2508,7 +2512,7 @@ export default function App() {
       return next;
     });
     showToast(`Linked carrier "${parentUnitId}" to deployed drone "${compiledTweaks['customparams.carried_unit']}".`);
-  }, [showToast]);
+  }, [setTweaks, showToast]);
 
   const activeFaction = useMemo(() => {
     if (selectedUnit) {
@@ -2862,7 +2866,7 @@ export default function App() {
                     <span><strong>Formula Mutator <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Evaluate math scaling equations</small></span>
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowCarrierWorkbench(true); setShowToolsMenu(false); }}>
-                    <span><strong>Carrier &amp; Drone Studio <small style={{ color: 'var(--color-warning, #d3a66e)', fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}>[DEV]</small></strong><small>Forge parent-child carrier hangars</small></span>
+                    <span><strong>Carrier &amp; Drone Studio</strong><small>Configure a BAR carrier controller WeaponDef</small></span>
                   </button>
                   <button type="button" role="menuitem" onClick={() => { setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); setShowToolsMenu(false); }}>
                     <span><strong>Preset Gallery</strong><small>Apply or save project snapshots</small></span>
@@ -3213,27 +3217,14 @@ export default function App() {
             }));
 
             const advancedWeaponGroups = [
+              ...SPAWNER_CARRIER_WEAPON_GROUPS,
               {
-                title: 'Advanced behavior',
-                description: 'BAR gadget-backed unit spawning and cluster/MIRV behavior. Referenced IDs must exist when the game loads.',
+                title: 'Cluster / MIRV behavior',
+                description: 'Release a supporting WeaponDef as submunitions. The referenced definition must exist when BAR loads.',
                 params: [
-                  { key: 'carried_unit', label: 'Carried / Spawned Unit ID', type: 'string' },
-                  { key: 'spawns_name', label: 'Spawn Roster (spawns_name)', type: 'string' },
-                  { key: 'spawns_surface', label: 'Spawn Surface', type: 'string' },
-                  { key: 'spawns_height', label: 'Spawn Height Offset (spawns_height)', type: 'number' },
-                  { key: 'spawnrate', label: 'Spawn Interval (seconds)', type: 'number' },
-                  { key: 'maxunits', label: 'Max Active Units (maxunits)', type: 'number' },
-                  { key: 'startingdronecount', label: 'Initial Spawn Count (startingdronecount)', type: 'number' },
-                  { key: 'droneammo', label: 'Drone Stockpile Capacity (droneammo)', type: 'number' },
-                  { key: 'spawn_metal_cost', label: 'Spawn Metal per Shot', type: 'number' },
-                  { key: 'spawn_energy_cost', label: 'Spawn Energy per Shot', type: 'number' },
-                  { key: 'carrierdeaththroe', label: 'On Carrier Death (release/destroy)', type: 'string' },
-                  { key: 'enabledocking', label: 'Enable Docking (true/false)', type: 'string' },
-                  { key: 'docktohealthreshold', label: 'Docking Repair Threshold (0-1)', type: 'number' },
-                  { key: 'is_controllable', label: 'Player Controllable Drones (1/0)', type: 'number' },
                   { key: 'cluster_def', label: 'Cluster Weapon Def', type: 'string' },
                   { key: 'cluster_number', label: 'Cluster Projectile Count', type: 'number' },
-                ]
+                ],
               },
               {
                 title: 'Impact & resource behavior',
@@ -4194,10 +4185,11 @@ export default function App() {
                                     const isModified = currentTweakValue !== undefined;
                                     const defaultVal = slot[param.key];
                                     const displayValue = isModified ? currentTweakValue : (defaultVal !== undefined ? defaultVal : '');
+                                    const warning = getValidationWarning(tweakKey, displayValue);
                                     return (
                                       <div
                                         key={param.key}
-                                        className={`stat-card stat-card--advanced ${isModified ? 'modified' : ''} ${getRelationshipStateClass(param.key)}`}
+                                        className={`stat-card stat-card--advanced ${isModified ? 'modified' : ''} ${warning ? `is-${warning.level}` : ''} ${getRelationshipStateClass(param.key)}`}
                                         data-param-key={param.key}
                                         onFocusCapture={() => setActiveRelationshipKey(param.key)}
                                         onClick={() => setActiveRelationshipKey(param.key)}
@@ -4221,6 +4213,18 @@ export default function App() {
                                               <option value="true">Enabled</option>
                                               <option value="false">Disabled</option>
                                             </select>
+                                          ) : param.options ? (
+                                            <select
+                                              className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
+                                              value={displayValue}
+                                              onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value === '' ? undefined : e.target.value)}
+                                            >
+                                              {param.options.map(option => (
+                                                <option key={option || 'inherited'} value={option}>
+                                                  {option || 'Inherited'}
+                                                </option>
+                                              ))}
+                                            </select>
                                           ) : param.type === 'string' ? (
                                             WEAPON_ASSET_TYPES[param.key] ? (
                                               <AssetPicker
@@ -4242,7 +4246,7 @@ export default function App() {
                                           ) : (
                                             <input
                                               type="number"
-                                              className="stat-card-input"
+                                              className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
                                               value={displayValue}
                                               placeholder={defaultVal !== undefined ? String(defaultVal) : 'Inherited'}
                                               onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value)}
@@ -4258,6 +4262,11 @@ export default function App() {
                                             </span>
                                           )}
                                         </div>
+                                        {warning && (
+                                          <div className={`stat-card-warning is-${warning.level}`}>
+                                            {warning.message}
+                                          </div>
+                                        )}
                                         <ComparisonValue active={comparisonMode && isModified} before={defaultVal} after={currentTweakValue} />
                                       </div>
                                     );

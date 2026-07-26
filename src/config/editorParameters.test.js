@@ -4,6 +4,7 @@ import {
   resolveUnitParameterDefault,
   MOBILITY_STAT_KEYS,
   STAT_KEYS,
+  SPAWNER_CARRIER_WEAPON_GROUPS,
   WEAPON_SLOT_BOOLEAN_PARAMS,
   WEAPON_SLOT_MOUNT_PARAMS,
   WEAPON_SLOT_PATHS,
@@ -29,6 +30,20 @@ describe('editor parameter configuration', () => {
     expect(STAT_KEYS.find(parameter => parameter.key === 'acceleration')?.patchKey).toBe('maxAcc');
     expect(STAT_KEYS.find(parameter => parameter.key === 'brakerate')?.patchKey).toBe('maxDec');
     expect(STAT_KEYS.some(parameter => parameter.key === 'airsubalt')).toBe(false);
+  });
+
+  it('maps every visible spawner and carrier field to its BAR WeaponDef path', () => {
+    const parameters = SPAWNER_CARRIER_WEAPON_GROUPS.flatMap(group => group.params);
+    expect(parameters.length).toBeGreaterThan(20);
+    parameters.forEach(parameter => {
+      expect(WEAPON_SLOT_PATHS[parameter.key], parameter.key).toMatch(/^customparams\./);
+    });
+    expect(WEAPON_SLOT_PATHS.docktohealthreshold).toBe('customparams.docktohealthreshold');
+    expect(WEAPON_SLOT_PATHS.startingdronecount).toBe('customparams.startingdronecount');
+    expect(WEAPON_SLOT_PATHS.droneammo).toBe('customparams.droneammo');
+    expect(WEAPON_SLOT_BOOLEAN_PARAMS.has('enabledocking')).toBe(true);
+    expect(WEAPON_SLOT_PATHS.spawns_height).toBeUndefined();
+    expect(WEAPON_SLOT_PATHS.is_controllable).toBeUndefined();
   });
 
   it('keeps declared, featured, active, and edited unit parameters in the relevant view', () => {
