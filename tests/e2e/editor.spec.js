@@ -608,6 +608,10 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await page.getByRole('menuitem').filter({ hasText: 'Carrier & Drone Studio' }).click();
   const dialog = page.getByRole('dialog', { name: 'Carrier & Deployed Drone Linkage Workbench' });
   await expect(dialog).toBeVisible();
+  const scrollBody = dialog.locator('.carrier-workbench__body');
+  await expect.poll(() => scrollBody.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
+  await scrollBody.evaluate(element => { element.scrollTop = element.scrollHeight; });
+  await expect.poll(() => scrollBody.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
   await expect(dialog.getByLabel('Carrier Controller WeaponDef').locator('option:checked')).toContainText('PLASMA');
   await expect(dialog.getByLabel('Initial Units per Type')).toHaveValue('8');
   await expect(dialog.getByLabel('Auto-Return HP Threshold (%)')).toHaveValue('65');
