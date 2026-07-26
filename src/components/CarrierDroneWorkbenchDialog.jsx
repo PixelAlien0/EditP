@@ -28,6 +28,7 @@ export default function CarrierDroneWorkbenchDialog({
   units = [],
   clones = [],
   selectedUnit = null,
+  initialWeaponSlot = null,
   defaultsDb = {},
   tweaks = {},
   onApplyLinkage,
@@ -71,8 +72,11 @@ export default function CarrierDroneWorkbenchDialog({
       const sName = (selectedUnit.name || '').toLowerCase();
       const selectedDefaults = resolveUnitDefaults(sId);
       const hasCarrierWeapon = selectedDefaults.weaponSlots?.some(slot => Boolean(slot.carried_unit));
+      const hasConfiguredCarrierWeapon = Object.entries(tweaks[sId] || {}).some(([key, value]) => (
+        /^weapon_slot_\d+_carried_unit$/.test(key) && String(value || '').trim()
+      ));
       const isCarrier = sId.includes('carrier') || sId.includes('carry') || sName.includes('carrier')
-        || Boolean(tweaks[sId]?.['customparams.carried_unit']) || hasCarrierWeapon;
+        || Boolean(tweaks[sId]?.['customparams.carried_unit']) || hasCarrierWeapon || hasConfiguredCarrierWeapon;
       if (isCarrier && allAvailableUnits.some(u => u.id === sId)) {
         return sId;
       }
@@ -82,40 +86,43 @@ export default function CarrierDroneWorkbenchDialog({
       || u.id.includes('carry')
       || u.name.toLowerCase().includes('carrier')
       || resolveUnitDefaults(u.id).weaponSlots?.some(slot => Boolean(slot.carried_unit))
+      || Object.entries(tweaks[u.id] || {}).some(([key, value]) => (
+        /^weapon_slot_\d+_carried_unit$/.test(key) && String(value || '').trim()
+      ))
     ));
     return carrierMatch ? carrierMatch.id : (allAvailableUnits.find(u => u.id === 'armcarrier')?.id || allAvailableUnits[0]?.id || 'armcarrier');
   }, [selectedUnit, allAvailableUnits, resolveUnitDefaults, tweaks]);
 
-  const resolveCarrierConfig = useCallback((unitId) => {
+  const resolveCarrierConfig = useCallback((unitId, requestedSlot = null) => {
     const inheritedDefaults = resolveUnitDefaults(unitId);
     const effectiveDefaults = inheritedDefaults
       ? { ...defaultsDb, [unitId]: inheritedDefaults }
       : defaultsDb;
-    return getCarrierLinkageConfig(unitId, tweaks, effectiveDefaults);
+    return getCarrierLinkageConfig(unitId, tweaks, effectiveDefaults, requestedSlot);
   }, [defaultsDb, resolveUnitDefaults, tweaks]);
 
   const initialConfig = useMemo(
-    () => resolveCarrierConfig(defaultParent),
-    [defaultParent, resolveCarrierConfig]
+    () => resolveCarrierConfig(defaultParent, initialWeaponSlot),
+    [defaultParent, initialWeaponSlot, resolveCarrierConfig]
   );
 
   const [parentUnitId, setParentUnitId] = useState(defaultParent);
   const [carriedUnit, setCarriedUnit] = useState(initialConfig.carriedUnit || 'armantiodrone');
+  const [targetWeaponSlot, setTargetWeaponSlot] = useState(initialConfig.targetWeaponSlot || 1);
   const [targetWeaponDef, setTargetWeaponDef] = useState(initialConfig.targetWeaponDef || '');
   const [spawnSurface, setSpawnSurface] = useState(initialConfig.spawnSurface || '');
-  const [carrierDeathBehavior, setCarrierDeathBehavior] = useState(
-    initialConfig.carrierDeathBehavior === 'release' ? 'control' : (initialConfig.carrierDeathBehavior || 'control')
-  );
+  const [carrierDeathBehavior, setCarrierDeathBehavior] = useState(initialConfig.carrierDeathBehavior || 'death');
   const [manualControl, setManualControl] = useState(initialConfig.manualControl ?? true);
   const [dockingEnabled, setDockingEnabled] = useState(initialConfig.dockingEnabled ?? false);
   const [maxUnits, setMaxUnits] = useState(initialConfig.maxUnits || initialConfig.droneAmmo || 6);
+  const [startingDroneCount, setStartingDroneCount] = useState(initialConfig.startingDroneCount ?? 0);
   const [spawnMetal, setSpawnMetal] = useState(initialConfig.spawnMetal || 120);
   const [spawnEnergy, setSpawnEnergy] = useState(initialConfig.spawnEnergy || 1200);
   const [spawnInterval, setSpawnInterval] = useState(initialConfig.spawnInterval || 5);
   const [returnHp, setReturnHp] = useState(initialConfig.returnHp || 25);
   const parentConfig = useMemo(
-    () => resolveCarrierConfig(parentUnitId),
-    [parentUnitId, resolveCarrierConfig]
+    () => resolveCarrierConfig(parentUnitId, targetWeaponSlot),
+    [parentUnitId, resolveCarrierConfig, targetWeaponSlot]
   );
 
   // Unit Selector Modal State (Parent or Child)
@@ -149,14 +156,34 @@ export default function CarrierDroneWorkbenchDialog({
     if (cfg.carriedUnit && allAvailableUnits.some(u => u.id.toLowerCase() === cfg.carriedUnit.toLowerCase())) {
       setCarriedUnit(cfg.carriedUnit);
     }
+    setTargetWeaponSlot(cfg.targetWeaponSlot || 1);
     setTargetWeaponDef(cfg.targetWeaponDef || '');
     setSpawnSurface(cfg.spawnSurface || '');
-    if (cfg.maxUnits || cfg.droneAmmo) setMaxUnits(cfg.maxUnits || cfg.droneAmmo);
-    if (cfg.spawnMetal) setSpawnMetal(cfg.spawnMetal);
-    if (cfg.spawnEnergy) setSpawnEnergy(cfg.spawnEnergy);
-    if (cfg.spawnInterval) setSpawnInterval(cfg.spawnInterval);
-    if (cfg.returnHp) setReturnHp(cfg.returnHp);
-    setCarrierDeathBehavior(cfg.carrierDeathBehavior === 'release' ? 'control' : (cfg.carrierDeathBehavior || 'control'));
+    setMaxUnits(cfg.maxUnits || cfg.droneAmmo || 1);
+    setStartingDroneCount(cfg.startingDroneCount ?? 0);
+    setSpawnMetal(cfg.spawnMetal ?? 0);
+    setSpawnEnergy(cfg.spawnEnergy ?? 0);
+    setSpawnInterval(cfg.spawnInterval || 1);
+    setReturnHp(cfg.returnHp ?? 0);
+    setCarrierDeathBehavior(cfg.carrierDeathBehavior || 'death');
+    setManualControl(cfg.manualControl ?? true);
+    setDockingEnabled(cfg.dockingEnabled ?? false);
+  };
+
+  const handleWeaponSlotSelect = slotValue => {
+    const slotNumber = Number(slotValue);
+    const cfg = resolveCarrierConfig(parentUnitId, slotNumber);
+    setTargetWeaponSlot(slotNumber);
+    setTargetWeaponDef(cfg.targetWeaponDef || '');
+    if (cfg.carriedUnit) setCarriedUnit(cfg.carriedUnit);
+    setSpawnSurface(cfg.spawnSurface || '');
+    setMaxUnits(cfg.maxUnits || cfg.droneAmmo || 1);
+    setStartingDroneCount(cfg.startingDroneCount ?? 0);
+    setSpawnMetal(cfg.spawnMetal ?? 0);
+    setSpawnEnergy(cfg.spawnEnergy ?? 0);
+    setSpawnInterval(cfg.spawnInterval || 1);
+    setReturnHp(cfg.returnHp ?? 0);
+    setCarrierDeathBehavior(cfg.carrierDeathBehavior || 'death');
     setManualControl(cfg.manualControl ?? true);
     setDockingEnabled(cfg.dockingEnabled ?? false);
   };
@@ -169,12 +196,14 @@ export default function CarrierDroneWorkbenchDialog({
       parentUnitId,
       carriedUnit,
       spawnsName: carriedUnit,
+      targetWeaponSlot,
       targetWeaponDef,
       spawnSurface,
       carrierDeathBehavior,
       manualControl,
       dockingEnabled,
       maxUnits,
+      startingDroneCount,
       spawnMetal,
       spawnEnergy,
       spawnInterval,
@@ -316,26 +345,20 @@ export default function CarrierDroneWorkbenchDialog({
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>When the Carrier Is Destroyed</label>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                  <button
-                    type="button"
-                    className={`carrier-workbench__faction-chip ${carrierDeathBehavior === 'control' ? 'is-active' : ''}`}
-                    onClick={() => setCarrierDeathBehavior('control')}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
-                  >
-                    Keep survivors controllable
-                  </button>
-                  <button
-                    type="button"
-                    className={`carrier-workbench__faction-chip ${carrierDeathBehavior === 'death' ? 'is-active' : ''}`}
-                    onClick={() => setCarrierDeathBehavior('death')}
-                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
-                  >
-                    Destroy deployed units
-                  </button>
-                </div>
-                <small>Controllable survivors receive a safe lifetime value to avoid BAR's nil <code>droneAirTime</code> destruction error.</small>
+                <label htmlFor="input-carrier-death-behavior">When the Carrier Is Destroyed</label>
+                <select
+                  id="input-carrier-death-behavior"
+                  className="form-input"
+                  value={carrierDeathBehavior}
+                  onChange={event => setCarrierDeathBehavior(event.target.value)}
+                >
+                  <option value="death">Destroy deployed units</option>
+                  <option value="control">Keep survivors under player control</option>
+                  <option value="capture">Transfer survivors to the attacker</option>
+                  <option value="release">Release survivors from the carrier</option>
+                  <option value="parasite">Keep carrier relationship behavior</option>
+                </select>
+                <small>Surviving modes receive a safe lifetime value to avoid BAR's nil <code>droneAirTime</code> destruction error.</small>
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
@@ -366,15 +389,15 @@ export default function CarrierDroneWorkbenchDialog({
                 <select
                   id="input-carrier-weapon"
                   className="form-input"
-                  value={targetWeaponDef}
-                  onChange={event => setTargetWeaponDef(event.target.value)}
+                  value={String(targetWeaponSlot || '')}
+                  onChange={event => handleWeaponSlotSelect(event.target.value)}
                   required
                 >
                   {parentConfig.weaponOptions.length === 0 && (
                     <option value="">No weapon slot available</option>
                   )}
                   {parentConfig.weaponOptions.map(option => (
-                    <option key={`${option.slot}-${option.defKey}`} value={option.defKey}>
+                    <option key={`${option.slot}-${option.defKey}`} value={String(option.slot)}>
                       {option.label}{option.isCarrierController ? ' · current carrier controller' : ''}
                     </option>
                   ))}
@@ -391,6 +414,22 @@ export default function CarrierDroneWorkbenchDialog({
                   max="50"
                   value={maxUnits}
                   onChange={e => setMaxUnits(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-starting-drone-count">Initial Deployed Units (startingdronecount)</label>
+                <input
+                  id="input-starting-drone-count"
+                  type="number"
+                  className="form-input"
+                  min="0"
+                  max={maxUnits}
+                  value={startingDroneCount}
+                  onChange={e => setStartingDroneCount(Math.max(
+                    0,
+                    Math.min(maxUnits, parseInt(e.target.value, 10) || 0)
+                  ))}
                 />
               </div>
 

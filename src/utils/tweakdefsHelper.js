@@ -666,9 +666,10 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
     entries = Object.entries(tweaksOrEntries)
       .map(([unitId, unitTweaks]) => {
         if (!unitTweaks || typeof unitTweaks !== 'object') return null;
-        const primaryChild = unitTweaks['customparams.carried_unit']
-          || Object.entries(unitTweaks).find(([k]) => k.includes('carried_unit') && typeof unitTweaks[k] === 'string')?.[1]
-          || '';
+        // Canonical carrier edits live in weapon_slot_<n>_* and are compiled
+        // by tweakunits. Only recognize the explicit legacy UnitDef-level
+        // workbench shape here so the same linkage is never emitted twice.
+        const primaryChild = unitTweaks['customparams.carried_unit'] || '';
         if (!primaryChild) return null;
 
         const spawnsNameVal = unitTweaks.editp_carrier_roster

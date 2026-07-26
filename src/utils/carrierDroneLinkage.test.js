@@ -59,6 +59,7 @@ describe('carrierDroneLinkage', () => {
     };
     const config = getCarrierLinkageConfig('armdronecarry', {}, defaults);
     expect(config.targetWeaponDef).toBe('plasma');
+    expect(config.targetWeaponSlot).toBe(1);
     expect(config.weaponOptions).toHaveLength(2);
     expect(config.carriedUnit).toBe('armdrone');
     expect(config.returnHp).toBe(65);
@@ -77,28 +78,109 @@ describe('carrierDroneLinkage', () => {
       spawnEnergy: 1500,
       spawnInterval: 4,
       returnHp: 30,
+      targetWeaponSlot: 2,
       targetWeaponDef: 'plasma',
       spawnSurface: 'SEA',
     });
 
     expect(result).toEqual({
+      editp_carrier_slot: '2',
       editp_carrier_weapondef: 'plasma',
-      editp_carrier_roster: 'armodrone',
-      'customparams.carried_unit': 'armodrone',
-      'customparams.spawns_surface': 'SEA',
-      'customparams.droneammo': '0',
-      'customparams.maxunits': '8',
+      'weapon_slot_2_carried_unit': 'armodrone',
+      'weapon_slot_2_spawns_surface': 'SEA',
+      'weapon_slot_2_maxunits': '8',
+      'weapon_slot_2_startingdronecount': '0',
+      'weapon_slot_2_spawn_metal_cost': '200',
+      'weapon_slot_2_spawn_energy_cost': '1500',
+      'weapon_slot_2_spawnrate': '4',
+      'weapon_slot_2_carrierdeaththroe': 'control',
+      'weapon_slot_2_manualdrones': 'true',
+      'weapon_slot_2_enabledocking': 'false',
+      'weapon_slot_2_droneairtime': String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS),
+      'weapon_slot_2_docktohealthreshold': '30',
+      editp_carrier_roster: undefined,
+      'customparams.carried_unit': undefined,
+      'customparams.spawns_surface': undefined,
+      'customparams.droneammo': undefined,
+      'customparams.maxunits': undefined,
       'customparams.stockpilelimit': undefined,
-      'customparams.startingdronecount': '0',
-      'customparams.metalcost': '200',
-      'customparams.energycost': '1500',
-      'customparams.spawnrate': '4',
-      'customparams.carrierdeaththroe': 'control',
-      'customparams.manualdrones': '1',
-      'customparams.enabledocking': false,
-      'customparams.droneairtime': String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS),
-      'customparams.docktohealthreshold': 30,
+      'customparams.startingdronecount': undefined,
+      'customparams.spawn_metal_cost': undefined,
+      'customparams.spawn_energy_cost': undefined,
+      'customparams.metalcost': undefined,
+      'customparams.energycost': undefined,
+      'customparams.spawn_interval': undefined,
+      'customparams.spawnrate': undefined,
+      'customparams.carrierdeaththroe': undefined,
+      'customparams.manualdrones': undefined,
+      'customparams.enabledocking': undefined,
+      'customparams.droneairtime': undefined,
+      'customparams.docktohealthreshold': undefined,
     });
+  });
+
+  it('reads canonical weapon-slot values before legacy workbench values', () => {
+    const defaults = {
+      carrier: {
+        weaponSlots: [
+          { slot: 1, defKey: 'carrier_controller', carried_unit: 'default_drone', maxunits: 4 },
+          { slot: 2, defKey: 'secondary' },
+        ],
+      },
+    };
+    const tweaks = {
+      carrier: {
+        editp_carrier_slot: '1',
+        'customparams.carried_unit': 'legacy_drone',
+        'customparams.maxunits': '6',
+        'weapon_slot_1_carried_unit': 'workspace_drone',
+        'weapon_slot_1_maxunits': '12',
+        'weapon_slot_1_docktohealthreshold': '72',
+      },
+    };
+
+    const config = getCarrierLinkageConfig('carrier', tweaks, defaults);
+    expect(config.targetWeaponSlot).toBe(1);
+    expect(config.carriedUnit).toBe('workspace_drone');
+    expect(config.maxUnits).toBe(12);
+    expect(config.returnHp).toBe(72);
+  });
+
+  it('loads the requested weapon slot instead of leaking another slot configuration', () => {
+    const defaults = {
+      carrier: {
+        weaponSlots: [
+          { slot: 1, defKey: 'carrier_one', carried_unit: 'drone_one', maxunits: 4 },
+          { slot: 2, defKey: 'carrier_two', carried_unit: 'drone_two', maxunits: 8 },
+        ],
+      },
+    };
+    const tweaks = {
+      carrier: {
+        'weapon_slot_2_carried_unit': 'edited_drone_two',
+        'weapon_slot_2_maxunits': '14',
+      },
+    };
+
+    const config = getCarrierLinkageConfig('carrier', tweaks, defaults, 2);
+    expect(config.targetWeaponSlot).toBe(2);
+    expect(config.targetWeaponDef).toBe('carrier_two');
+    expect(config.carriedUnit).toBe('edited_drone_two');
+    expect(config.maxUnits).toBe(14);
+  });
+
+  it('does not treat an explosion spawner as a carrier payload', () => {
+    const defaults = {
+      launcher: {
+        weaponSlots: [
+          { slot: 1, defKey: 'spawn_shell', spawns_name: 'spawned_unit', spawns_surface: 'LAND' },
+        ],
+      },
+    };
+
+    const config = getCarrierLinkageConfig('launcher', {}, defaults);
+    expect(config.carriedUnit).toBe('');
+    expect(config.weaponOptions[0].isCarrierController).toBe(false);
   });
 
   it('emits BAR manual-control mode and a safe airtime for surviving drones', () => {
@@ -111,10 +193,10 @@ describe('carrierDroneLinkage', () => {
       dockingEnabled: false,
     });
 
-    expect(result['customparams.manualdrones']).toBe('1');
-    expect(result['customparams.carrierdeaththroe']).toBe('control');
-    expect(result['customparams.droneairtime']).toBe(String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS));
-    expect(result['customparams.startingdronecount']).toBe('0');
+    expect(result.weapon_slot_1_manualdrones).toBe('true');
+    expect(result.weapon_slot_1_carrierdeaththroe).toBe('control');
+    expect(result.weapon_slot_1_droneairtime).toBe(String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS));
+    expect(result.weapon_slot_1_startingdronecount).toBe('0');
   });
 
   it('does not emit a synthetic airtime when deployed units die with the carrier', () => {
@@ -125,8 +207,8 @@ describe('carrierDroneLinkage', () => {
       carrierDeathBehavior: 'death',
     });
 
-    expect(result['customparams.manualdrones']).toBeUndefined();
-    expect(result['customparams.droneairtime']).toBeUndefined();
+    expect(result.weapon_slot_1_manualdrones).toBe('false');
+    expect(result.weapon_slot_1_droneairtime).toBeUndefined();
   });
 
   it('guards advanced carrier edits that keep drones alive without an airtime', () => {
@@ -157,8 +239,7 @@ describe('carrierDroneLinkage', () => {
       spawnMetal: 100,
     });
 
-    expect(result['customparams.carried_unit']).toBe('corjugg_custom');
-    expect(result.editp_carrier_roster).toBe('corjugg_custom armantiodrone corvamp');
-    expect(result['customparams.spawns_surface']).toBe('LAND');
+    expect(result.weapon_slot_1_carried_unit).toBe('corjugg_custom armantiodrone corvamp');
+    expect(result.weapon_slot_1_spawns_surface).toBe('LAND');
   });
 });

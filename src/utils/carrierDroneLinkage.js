@@ -77,10 +77,49 @@ function readCarrierBoolean(value, fallback = false) {
   return !['false', '0', 'off', 'no'].includes(String(value).trim().toLowerCase());
 }
 
-function getCarrierWeaponSlot(defaults, requestedDefKey = '') {
+const LEGACY_CARRIER_TWEAK_KEYS = Object.freeze([
+  'editp_carrier_roster',
+  'customparams.carried_unit',
+  'customparams.spawns_surface',
+  'customparams.droneammo',
+  'customparams.maxunits',
+  'customparams.stockpilelimit',
+  'customparams.startingdronecount',
+  'customparams.spawn_metal_cost',
+  'customparams.spawn_energy_cost',
+  'customparams.metalcost',
+  'customparams.energycost',
+  'customparams.spawn_interval',
+  'customparams.spawnrate',
+  'customparams.carrierdeaththroe',
+  'customparams.manualdrones',
+  'customparams.enabledocking',
+  'customparams.droneairtime',
+  'customparams.docktohealthreshold',
+]);
+
+function getSlotTweakKey(slot, key) {
+  return `weapon_slot_${slot}_${key}`;
+}
+
+function findConfiguredCarrierSlot(unitTweaks = {}) {
+  const configuredKey = Object.keys(unitTweaks).find(key => (
+    /^weapon_slot_\d+_carried_unit$/.test(key)
+    && String(unitTweaks[key] || '').trim() !== ''
+  ));
+  const match = configuredKey?.match(/^weapon_slot_(\d+)_/);
+  return match ? Number(match[1]) : null;
+}
+
+function getCarrierWeaponSlot(defaults, unitTweaks = {}, requestedSlot = null, requestedDefKey = '') {
   const slots = Array.isArray(defaults?.weaponSlots) ? defaults.weaponSlots : [];
+  const normalizedSlot = Number(requestedSlot);
   const normalizedRequest = String(requestedDefKey || '').trim().toLowerCase();
-  return slots.find(slot => String(slot.defKey || '').toLowerCase() === normalizedRequest)
+  const configuredSlot = findConfiguredCarrierSlot(unitTweaks);
+  return slots.find(slot => Number(slot.slot) === normalizedSlot)
+    || slots.find(slot => Number(slot.slot) === Number(unitTweaks.editp_carrier_slot))
+    || slots.find(slot => Number(slot.slot) === configuredSlot)
+    || slots.find(slot => String(slot.defKey || '').toLowerCase() === normalizedRequest)
     || slots.find(slot => slot.carried_unit)
     || slots[0]
     || null;
@@ -88,6 +127,15 @@ function getCarrierWeaponSlot(defaults, requestedDefKey = '') {
 
 function getCarrierValue(unitTweaks, defaults, weaponSlot, key, ...aliases) {
   const keys = [key, ...aliases];
+  const slotNumber = Number(weaponSlot?.slot);
+  if (Number.isInteger(slotNumber) && slotNumber > 0) {
+    for (const candidate of keys) {
+      const tweakKey = getSlotTweakKey(slotNumber, candidate);
+      if (unitTweaks[tweakKey] !== undefined) return unitTweaks[tweakKey];
+    }
+  }
+  // Compatibility for projects saved by the original workbench, which put
+  // WeaponDef customparams at UnitDef level.
   for (const candidate of keys) {
     const tweakKey = `customparams.${candidate}`;
     if (unitTweaks[tweakKey] !== undefined) return unitTweaks[tweakKey];
@@ -103,22 +151,22 @@ function getCarrierValue(unitTweaks, defaults, weaponSlot, key, ...aliases) {
 /**
  * Extracts current carrier-drone linkage configuration from unit tweaks or defaults
  */
-export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
+export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, requestedSlot = null) {
   const unitTweaks = tweaks[unitId] || {};
   const defaults = defaultsDb[unitId] || {};
   const requestedWeaponDef = unitTweaks.editp_carrier_weapondef || '';
-  const carrierWeaponSlot = getCarrierWeaponSlot(defaults, requestedWeaponDef);
+  const carrierWeaponSlot = getCarrierWeaponSlot(
+    defaults,
+    unitTweaks,
+    requestedSlot,
+    requestedWeaponDef
+  );
 
   const targetChild = getCarrierValue(
     unitTweaks,
     defaults,
     carrierWeaponSlot,
-    'carried_unit',
-    'spawns_name',
-    'spawns',
-    'spawn_name',
-    'spawn_unit',
-    'spawn'
+    'carried_unit'
   ) ?? '';
 
   const unitsList = String(targetChild)
@@ -165,12 +213,15 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}) {
     deployMode: isGroundSpawner ? 'ground' : 'air',
     spawnSurface: surface,
     isControllable,
+    targetWeaponSlot: carrierWeaponSlot?.slot || Number(requestedSlot) || null,
     targetWeaponDef: carrierWeaponSlot?.defKey || requestedWeaponDef,
     weaponOptions: (defaults.weaponSlots || []).map(slot => ({
       slot: slot.slot,
       defKey: slot.defKey,
       label: `Slot ${slot.slot} · ${String(slot.defKey || '').toUpperCase()}`,
-      isCarrierController: Boolean(slot.carried_unit),
+      isCarrierController: Boolean(
+        getCarrierValue(unitTweaks, defaults, slot, 'carried_unit')
+      ),
     })),
     maxUnits: Number.isFinite(maxUnits) && maxUnits > 0 ? maxUnits : 4,
     // Retained for callers saved against the earlier, incorrectly named API.
@@ -233,29 +284,38 @@ export function buildCarrierLinkageTweaks(config) {
   const safeAirTime = Number.isFinite(requestedAirTime) && requestedAirTime > 0
     ? requestedAirTime
     : SAFE_ORPHAN_DRONE_AIRTIME_SECONDS;
+  const targetSlot = Math.max(1, Math.round(Number(config.targetWeaponSlot) || 1));
+  const slotKey = key => getSlotTweakKey(targetSlot, key);
 
-  return {
+  const result = {
+    editp_carrier_slot: String(targetSlot),
     editp_carrier_weapondef: String(config.targetWeaponDef || '').trim().toLowerCase(),
-    editp_carrier_roster: carrierRoster,
-    'customparams.carried_unit': primaryId,
-    'customparams.spawns_surface': String(
+    [slotKey('carried_unit')]: carrierRoster || primaryId,
+    [slotKey('spawns_surface')]: String(
       config.spawnSurface ?? (config.deployMode === 'ground' ? 'LAND' : '')
     ).trim().toUpperCase(),
-    // maxunits is capacity. droneammo is per-drone ammunition, where 0 means
-    // unlimited; older workbench output incorrectly used it as capacity.
-    'customparams.droneammo': '0',
-    'customparams.maxunits': countStr,
-    'customparams.stockpilelimit': undefined,
-    'customparams.startingdronecount': startingCountStr,
-    'customparams.metalcost': metalStr,
-    'customparams.energycost': energyStr,
-    'customparams.spawnrate': intervalStr,
-    'customparams.carrierdeaththroe': carrierDeathBehavior,
-    'customparams.manualdrones': manualControl ? '1' : undefined,
-    'customparams.enabledocking': dockingEnabled,
-    'customparams.droneairtime': carrierDeathBehavior === 'death'
+    [slotKey('maxunits')]: countStr,
+    [slotKey('startingdronecount')]: startingCountStr,
+    [slotKey('spawn_metal_cost')]: metalStr,
+    [slotKey('spawn_energy_cost')]: energyStr,
+    [slotKey('spawnrate')]: intervalStr,
+    [slotKey('carrierdeaththroe')]: carrierDeathBehavior,
+    [slotKey('manualdrones')]: manualControl ? 'true' : 'false',
+    [slotKey('enabledocking')]: dockingEnabled ? 'true' : 'false',
+    [slotKey('droneairtime')]: carrierDeathBehavior === 'death'
       ? (Number.isFinite(requestedAirTime) && requestedAirTime > 0 ? String(requestedAirTime) : undefined)
       : String(safeAirTime),
-    'customparams.docktohealthreshold': Math.max(0, Math.min(100, Number(config.returnHp) || 0)),
+    [slotKey('docktohealthreshold')]: String(
+      Math.max(0, Math.min(100, Number(config.returnHp) || 0))
+    ),
   };
+
+  // Applying the workbench also migrates its old UnitDef-level representation.
+  // This prevents Definitions Lua and Units Lua from applying two competing
+  // carrier configurations to the same unit.
+  LEGACY_CARRIER_TWEAK_KEYS.forEach(key => {
+    result[key] = undefined;
+  });
+
+  return result;
 }

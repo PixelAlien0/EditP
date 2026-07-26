@@ -2516,6 +2516,9 @@ export default function App() {
 
   const handleApplyCarrierLinkage = useCallback((parentUnitId, compiledTweaks) => {
     if (!parentUnitId || !compiledTweaks) return;
+    const linkedDrone = Object.entries(compiledTweaks).find(([key, value]) => (
+      /^weapon_slot_\d+_carried_unit$/.test(key) && value
+    ))?.[1];
     setTweaks(prevTweaks => {
       const next = { ...prevTweaks };
       const existing = { ...(next[parentUnitId] || {}) };
@@ -2529,7 +2532,7 @@ export default function App() {
       next[parentUnitId] = existing;
       return next;
     });
-    showToast(`Linked carrier "${parentUnitId}" to deployed drone "${compiledTweaks['customparams.carried_unit']}".`);
+    showToast(`Linked carrier "${parentUnitId}" to deployed drone "${linkedDrone || 'selected unit'}".`);
   }, [setTweaks, showToast]);
 
   const activeFaction = useMemo(() => {
@@ -6179,6 +6182,7 @@ export default function App() {
         units={allUnitsList}
         clones={clones}
         selectedUnit={selectedUnit}
+        initialWeaponSlot={activeWeaponSlotTab}
         defaultsDb={defaultsDb}
         tweaks={tweaks}
         onApplyLinkage={handleApplyCarrierLinkage}

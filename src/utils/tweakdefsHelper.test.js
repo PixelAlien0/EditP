@@ -152,4 +152,18 @@ describe('nested clone generation', () => {
     expect(lua).not.toContain('customparams.is_controllable');
     expect(lua).not.toContain('customparams.spawns_name =');
   });
+
+  it('does not duplicate canonical weapon-slot carrier edits in Definitions Lua', () => {
+    const lua = generateCarrierLinkagesBlockLua({
+      armdronecarry: {
+        editp_carrier_slot: '1',
+        editp_carrier_weapondef: 'plasma',
+        weapon_slot_1_carried_unit: 'armdrone',
+        weapon_slot_1_maxunits: '12',
+        weapon_slot_1_spawnrate: '3',
+      },
+    });
+
+    expect(lua).toBe('');
+  });
 });
