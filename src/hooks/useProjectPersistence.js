@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createProjectDocument, normalizeProjectDocument } from '../project/projectDocument.js';
+import {
+  createProjectDocument,
+  normalizeProjectDocumentWithReport,
+} from '../project/projectDocument.js';
 import { clearLegacyProjectState, persistLegacyProjectState } from '../storage/legacyProjectStorage.js';
 import { projectStorage } from '../storage/projectStorage.js';
 
@@ -17,8 +20,44 @@ export function useProjectPersistence({ state, hydrate, onNotice }) {
         if (disposed) return;
         const recovery = {};
         if (active?.document) {
-          Object.assign(recovery, normalizeProjectDocument(active.document));
-          onNotice('Recovered the latest local project.');
+          try {
+            const prepared = normalizeProjectDocumentWithReport(active.document);
+            Object.assign(recovery, prepared.document);
+            if (prepared.migrated) {
+              await projectStorage.saveActive(prepared.document);
+              onNotice(`Recovered and migrated the local project from v${prepared.fromVersion}.`);
+            } else {
+              onNotice('Recovered the latest local project.');
+            }
+          } catch (error) {
+            await projectStorage.saveRejectedProject({
+              sourceName: 'Corrupted local autosave',
+              rawText: JSON.stringify(active.document, null, 2),
+              error: error?.message,
+              code: error?.code,
+            });
+            const checkpoints = await projectStorage.listRecoveryCheckpoints();
+            let restoredCheckpoint = null;
+            for (const checkpoint of checkpoints) {
+              try {
+                restoredCheckpoint = {
+                  checkpoint,
+                  prepared: normalizeProjectDocumentWithReport(checkpoint.document),
+                };
+                break;
+              } catch {
+                // Keep looking for the newest checkpoint that still validates.
+              }
+            }
+            if (restoredCheckpoint) {
+              Object.assign(recovery, restoredCheckpoint.prepared.document);
+              await projectStorage.saveActive(restoredCheckpoint.prepared.document);
+              onNotice(`Recovered checkpoint: ${restoredCheckpoint.checkpoint.reason || 'Autosave'}.`);
+            } else {
+              await projectStorage.saveActive(initialDocumentRef.current);
+              onNotice('The local autosave was corrupted. A clean project was opened and the rejected data was preserved in Recovery.');
+            }
+          }
         } else {
           await projectStorage.saveActive(initialDocumentRef.current);
         }

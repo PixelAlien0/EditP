@@ -1,10 +1,13 @@
 const DATABASE_NAME = 'editp-projects';
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 const DOCUMENTS_STORE = 'documents';
 const CHECKPOINTS_STORE = 'checkpoints';
 const LIBRARIES_STORE = 'libraries';
+const REJECTED_PROJECTS_STORE = 'rejected-projects';
 const ACTIVE_KEY = 'active';
 const MAX_CHECKPOINTS = 10;
+const MAX_REJECTED_PROJECTS = 5;
+const MAX_REJECTED_SOURCE_LENGTH = 5 * 1024 * 1024;
 
 let databasePromise = null;
 
@@ -39,6 +42,10 @@ function openDatabase() {
         }
         if (!database.objectStoreNames.contains(LIBRARIES_STORE)) {
           database.createObjectStore(LIBRARIES_STORE, { keyPath: 'key' });
+        }
+        if (!database.objectStoreNames.contains(REJECTED_PROJECTS_STORE)) {
+          const rejectedProjects = database.createObjectStore(REJECTED_PROJECTS_STORE, { keyPath: 'id' });
+          rejectedProjects.createIndex('updatedAt', 'updatedAt');
         }
       };
       request.onsuccess = () => resolve(request.result);
@@ -94,6 +101,47 @@ async function saveLibrary(key, value) {
   await transactionDone(transaction);
 }
 
+async function saveRejectedProject({
+  sourceName = 'Unknown project',
+  rawText = '',
+  error = 'Project validation failed.',
+  code = 'INVALID_PROJECT',
+}) {
+  const database = await openDatabase();
+  const transaction = database.transaction(REJECTED_PROJECTS_STORE, 'readwrite');
+  const store = transaction.objectStore(REJECTED_PROJECTS_STORE);
+  const existing = await requestResult(store.getAll());
+  const record = {
+    id: crypto.randomUUID(),
+    sourceName: String(sourceName || 'Unknown project').slice(0, 260),
+    rawText: String(rawText || '').slice(0, MAX_REJECTED_SOURCE_LENGTH),
+    error: String(error || 'Project validation failed.').slice(0, 1000),
+    code: String(code || 'INVALID_PROJECT').slice(0, 80),
+    updatedAt: Date.now(),
+  };
+  store.put(record);
+  existing
+    .sort((left, right) => right.updatedAt - left.updatedAt)
+    .slice(MAX_REJECTED_PROJECTS - 1)
+    .forEach(item => store.delete(item.id));
+  await transactionDone(transaction);
+  return record;
+}
+
+async function listRejectedProjects() {
+  const database = await openDatabase();
+  const transaction = database.transaction(REJECTED_PROJECTS_STORE, 'readonly');
+  const records = await requestResult(transaction.objectStore(REJECTED_PROJECTS_STORE).getAll());
+  return records.sort((left, right) => right.updatedAt - left.updatedAt).slice(0, MAX_REJECTED_PROJECTS);
+}
+
+async function deleteRejectedProject(id) {
+  const database = await openDatabase();
+  const transaction = database.transaction(REJECTED_PROJECTS_STORE, 'readwrite');
+  transaction.objectStore(REJECTED_PROJECTS_STORE).delete(id);
+  await transactionDone(transaction);
+}
+
 export const projectStorage = {
   getActive,
   saveActive,
@@ -101,4 +149,7 @@ export const projectStorage = {
   listRecoveryCheckpoints,
   getLibrary,
   saveLibrary,
+  saveRejectedProject,
+  listRejectedProjects,
+  deleteRejectedProject,
 };

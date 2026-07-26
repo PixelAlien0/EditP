@@ -4,6 +4,30 @@ export const PROJECT_DOCUMENT_VERSION = '1.8';
 export const MAX_PROJECT_BYTES = 5 * 1024 * 1024;
 
 const UNIT_ID_PATTERN = /^[a-z0-9_]+$/i;
+const PROJECT_FIELD_NAMES = new Set([
+  'tweaks', 'clones', 'disabledUnitIds', 'buildMenuSteps', 'buildMenuPacks',
+  'unitDescriptions', 'weaponLibrary', 'supportingWeaponDefs', 'unitCollections',
+  'tweakModules', 'lobbySetup', 'projectName', 'projectAuthor', 'projectDesc',
+  'includeTweaks', 'includeClones', 'includeRosters', 'includeHeader',
+  // Historical aliases accepted only by the migration layer.
+  'unitTweaks', 'modifiedUnits', 'customUnits', 'clonedUnits', 'disabledUnits',
+  'descriptions', 'rosterChanges', 'factoryRosterChanges',
+]);
+const ARRAY_FIELDS = [
+  'clones', 'disabledUnitIds', 'buildMenuSteps', 'weaponLibrary',
+  'supportingWeaponDefs', 'unitCollections', 'tweakModules',
+];
+const RECORD_FIELDS = ['tweaks', 'buildMenuPacks', 'unitDescriptions', 'lobbySetup'];
+const TEXT_FIELDS = ['projectName', 'projectAuthor', 'projectDesc'];
+const BOOLEAN_FIELDS = ['includeTweaks', 'includeClones', 'includeRosters', 'includeHeader'];
+const MIGRATION_DEFAULTS = Object.freeze({
+  buildMenuPacks: { extraUnits: false, scavengerUnits: false },
+  weaponLibrary: [],
+  unitCollections: [],
+  tweakModules: [],
+  supportingWeaponDefs: [],
+  lobbySetup: {},
+});
 
 export class ProjectDocumentError extends Error {
   constructor(message, code = 'INVALID_PROJECT') {
@@ -16,6 +40,81 @@ export class ProjectDocumentError extends Error {
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
+
+function normalizedVersion(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) value = String(value);
+  if (typeof value !== 'string') return null;
+  const match = value.trim().match(/^(\d+)(?:\.(\d+))?$/);
+  if (!match) return null;
+  return `${Number(match[1])}.${Number(match[2] || 0)}`;
+}
+
+function versionParts(version) {
+  return version.split('.').map(Number);
+}
+
+function compareVersions(left, right) {
+  const [leftMajor, leftMinor] = versionParts(left);
+  const [rightMajor, rightMinor] = versionParts(right);
+  return leftMajor === rightMajor ? leftMinor - rightMinor : leftMajor - rightMajor;
+}
+
+function assertRecognizableProject(input) {
+  if (!Object.keys(input).some(key => PROJECT_FIELD_NAMES.has(key))) {
+    throw new ProjectDocumentError(
+      'This JSON file does not contain recognizable BAR Editor project data.',
+      'PROJECT_SHAPE_INVALID'
+    );
+  }
+}
+
+function assertProjectFieldTypes(document) {
+  for (const field of ARRAY_FIELDS) {
+    if (document[field] !== undefined && !Array.isArray(document[field])) {
+      throw new ProjectDocumentError(`Project field "${field}" is corrupted; an array was expected.`, 'PROJECT_FIELD_INVALID');
+    }
+  }
+  for (const field of RECORD_FIELDS) {
+    if (document[field] !== undefined && !isRecord(document[field])) {
+      throw new ProjectDocumentError(`Project field "${field}" is corrupted; an object was expected.`, 'PROJECT_FIELD_INVALID');
+    }
+  }
+  for (const field of TEXT_FIELDS) {
+    if (document[field] !== undefined && typeof document[field] !== 'string') {
+      throw new ProjectDocumentError(`Project field "${field}" is corrupted; text was expected.`, 'PROJECT_FIELD_INVALID');
+    }
+  }
+  for (const field of BOOLEAN_FIELDS) {
+    if (document[field] !== undefined && typeof document[field] !== 'boolean') {
+      throw new ProjectDocumentError(`Project field "${field}" is corrupted; true or false was expected.`, 'PROJECT_FIELD_INVALID');
+    }
+  }
+}
+
+function applyLegacyAliases(document) {
+  const migrated = { ...document };
+  migrated.tweaks ??= migrated.unitTweaks ?? migrated.modifiedUnits ?? {};
+  migrated.clones ??= migrated.customUnits ?? migrated.clonedUnits ?? [];
+  migrated.disabledUnitIds ??= migrated.disabledUnits ?? [];
+  migrated.unitDescriptions ??= migrated.descriptions ?? {};
+  migrated.buildMenuSteps ??= migrated.rosterChanges ?? migrated.factoryRosterChanges ?? [];
+  [
+    'unitTweaks', 'modifiedUnits', 'customUnits', 'clonedUnits', 'disabledUnits',
+    'descriptions', 'rosterChanges', 'factoryRosterChanges',
+  ].forEach(field => delete migrated[field]);
+  return migrated;
+}
+
+const PROJECT_MIGRATIONS = Object.freeze({
+  '1.0': document => ({ ...applyLegacyAliases(document), version: '1.1' }),
+  '1.1': document => ({ ...document, buildMenuPacks: document.buildMenuPacks ?? MIGRATION_DEFAULTS.buildMenuPacks, version: '1.2' }),
+  '1.2': document => ({ ...document, weaponLibrary: document.weaponLibrary ?? MIGRATION_DEFAULTS.weaponLibrary, version: '1.3' }),
+  '1.3': document => ({ ...document, unitCollections: document.unitCollections ?? MIGRATION_DEFAULTS.unitCollections, version: '1.4' }),
+  '1.4': document => ({ ...document, tweakModules: document.tweakModules ?? MIGRATION_DEFAULTS.tweakModules, version: '1.5' }),
+  '1.5': document => ({ ...document, supportingWeaponDefs: document.supportingWeaponDefs ?? MIGRATION_DEFAULTS.supportingWeaponDefs, version: '1.6' }),
+  '1.6': document => ({ ...document, lobbySetup: document.lobbySetup ?? MIGRATION_DEFAULTS.lobbySetup, version: '1.7' }),
+  '1.7': document => ({ ...document, version: '1.8' }),
+});
 
 function text(value, fallback = '', maxLength = 5000) {
   return typeof value === 'string' ? value.slice(0, maxLength) : fallback;
@@ -248,14 +347,58 @@ export function assertProjectSize(value) {
   return bytes;
 }
 
-export function migrateProjectDocument(input) {
+export function migrateProjectDocumentWithReport(input) {
   if (!isRecord(input)) throw new ProjectDocumentError('This file does not contain a BAR Editor project.');
   assertProjectSize(input);
-  return { ...input, version: PROJECT_DOCUMENT_VERSION };
+  assertRecognizableProject(input);
+
+  const declaredVersion = normalizedVersion(input.version);
+  if (input.version !== undefined && !declaredVersion) {
+    throw new ProjectDocumentError(`Project version "${String(input.version)}" is invalid.`, 'PROJECT_VERSION_INVALID');
+  }
+  const fromVersion = declaredVersion || '1.0';
+  if (compareVersions(fromVersion, PROJECT_DOCUMENT_VERSION) > 0) {
+    throw new ProjectDocumentError(
+      `This project uses version ${fromVersion}, but this editor supports up to ${PROJECT_DOCUMENT_VERSION}.`,
+      'PROJECT_VERSION_UNSUPPORTED'
+    );
+  }
+  if (versionParts(fromVersion)[0] !== 1) {
+    throw new ProjectDocumentError(`Project version ${fromVersion} is not supported.`, 'PROJECT_VERSION_UNSUPPORTED');
+  }
+
+  let document = structuredClone(input);
+  document.version = fromVersion;
+  const steps = [];
+  while (document.version !== PROJECT_DOCUMENT_VERSION) {
+    const migrate = PROJECT_MIGRATIONS[document.version];
+    if (!migrate) {
+      throw new ProjectDocumentError(
+        `No safe migration path exists from project version ${document.version}.`,
+        'PROJECT_MIGRATION_UNAVAILABLE'
+      );
+    }
+    const previousVersion = document.version;
+    document = migrate(document);
+    steps.push(`${previousVersion} → ${document.version}`);
+  }
+  assertProjectFieldTypes(document);
+
+  return {
+    document,
+    fromVersion,
+    toVersion: PROJECT_DOCUMENT_VERSION,
+    migrated: fromVersion !== PROJECT_DOCUMENT_VERSION,
+    assumedLegacyVersion: !declaredVersion,
+    steps,
+  };
 }
 
-export function normalizeProjectDocument(input) {
-  const migrated = migrateProjectDocument(input);
+export function migrateProjectDocument(input) {
+  return migrateProjectDocumentWithReport(input).document;
+}
+
+function normalizeMigratedProjectDocument(migrated) {
   return {
     version: PROJECT_DOCUMENT_VERSION,
     tweaks: normalizeTweaks(migrated.tweaks),
@@ -280,6 +423,25 @@ export function normalizeProjectDocument(input) {
     includeRosters: migrated.includeRosters !== false,
     includeHeader: migrated.includeHeader !== false,
   };
+}
+
+export function normalizeProjectDocumentWithReport(input) {
+  const migration = migrateProjectDocumentWithReport(input);
+  const document = normalizeMigratedProjectDocument(migration.document);
+  const warnings = [];
+  const compareRetainedCount = (field, before, after) => {
+    if (before > after) warnings.push(`${field}: ignored ${before - after} invalid or duplicate entr${before - after === 1 ? 'y' : 'ies'}.`);
+  };
+  compareRetainedCount('Tweaks', Object.keys(migration.document.tweaks || {}).length, Object.keys(document.tweaks).length);
+  compareRetainedCount('Clones', migration.document.clones?.length || 0, document.clones.length);
+  compareRetainedCount('Build menu changes', migration.document.buildMenuSteps?.length || 0, document.buildMenuSteps.length);
+  compareRetainedCount('Tweak modules', migration.document.tweakModules?.length || 0, document.tweakModules.length);
+  compareRetainedCount('Supporting WeaponDefs', migration.document.supportingWeaponDefs?.length || 0, document.supportingWeaponDefs.length);
+  return { ...migration, document, warnings };
+}
+
+export function normalizeProjectDocument(input) {
+  return normalizeProjectDocumentWithReport(input).document;
 }
 
 export function createProjectDocument(state) {

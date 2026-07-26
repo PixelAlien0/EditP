@@ -4,7 +4,9 @@ import {
   PROJECT_DOCUMENT_VERSION,
   ProjectDocumentError,
   assertProjectSize,
+  migrateProjectDocumentWithReport,
   normalizeProjectDocument,
+  normalizeProjectDocumentWithReport,
 } from './projectDocument.js';
 
 describe('project documents', () => {
@@ -33,6 +35,62 @@ describe('project documents', () => {
   it('rejects oversized projects before changing state', () => {
     expect(() => assertProjectSize('x'.repeat(MAX_PROJECT_BYTES + 1)))
       .toThrow(ProjectDocumentError);
+  });
+
+  it('migrates unversioned historical field names through explicit steps', () => {
+    const prepared = normalizeProjectDocumentWithReport({
+      modifiedUnits: { ARMDFLY: { health: 1500 } },
+      customUnits: [{ baseId: 'ARMDFLY', newId: 'OLD_CLONE', name: 'Old clone' }],
+      disabledUnits: ['ARMDFLY'],
+      rosterChanges: [{ builderId: 'ARMLAB', add: ['OLD_CLONE'] }],
+      projectName: 'Recovered legacy project',
+    });
+
+    expect(prepared).toMatchObject({
+      fromVersion: '1.0',
+      toVersion: PROJECT_DOCUMENT_VERSION,
+      migrated: true,
+      assumedLegacyVersion: true,
+    });
+    expect(prepared.steps).toHaveLength(8);
+    expect(prepared.document.tweaks.armdfly.health).toBe(1500);
+    expect(prepared.document.clones[0].newId).toBe('old_clone');
+    expect(prepared.document.buildMenuSteps[0].builderId).toBe('armlab');
+  });
+
+  it('rejects future project versions instead of silently relabelling them', () => {
+    expect(() => migrateProjectDocumentWithReport({
+      version: '2.0',
+      projectName: 'Future project',
+    })).toThrow(expect.objectContaining({
+      code: 'PROJECT_VERSION_UNSUPPORTED',
+    }));
+  });
+
+  it('rejects structurally corrupted fields before project state can be hydrated', () => {
+    const corrupted = {
+      version: '1.8',
+      projectName: 'Do not partially load',
+      tweaks: ['not', 'an', 'object'],
+      clones: [],
+    };
+    expect(() => normalizeProjectDocumentWithReport(corrupted)).toThrow(expect.objectContaining({
+      code: 'PROJECT_FIELD_INVALID',
+    }));
+    expect(corrupted.tweaks).toEqual(['not', 'an', 'object']);
+  });
+
+  it('reports entries removed during safe normalization', () => {
+    const prepared = normalizeProjectDocumentWithReport({
+      version: '1.8',
+      projectName: 'Repairable',
+      clones: [
+        { baseId: 'armdfly', newId: 'valid_clone' },
+        { baseId: '../bad', newId: 'invalid_clone' },
+      ],
+    });
+    expect(prepared.document.clones).toHaveLength(1);
+    expect(prepared.warnings).toContain('Clones: ignored 1 invalid or duplicate entry.');
   });
 
   it('migrates imported tweak modules into the current project version', () => {

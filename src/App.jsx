@@ -11,7 +11,11 @@ import { useProjectPersistence } from './hooks/useProjectPersistence.js';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout.js';
 import { useCoreGameData } from './hooks/useCoreGameData.js';
 import { PROJECT_STORE_DEFAULTS, useProjectStore } from './state/useProjectStore.js';
-import { assertProjectSize, normalizeProjectDocument } from './project/projectDocument.js';
+import {
+  assertProjectSize,
+  normalizeProjectDocumentWithReport,
+} from './project/projectDocument.js';
+import { projectStorage } from './storage/projectStorage.js';
 import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
 import {
   getApplicableUnitParameters, resolveUnitParameterDefault, MOBILITY_STAT_KEYS, STAT_KEYS, TARGET_CATEGORY_GROUPS, UNIT_CATEGORIES as CATEGORIES,
@@ -2072,14 +2076,32 @@ export default function App() {
       return;
     }
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
+      const rawText = String(event.target.result || '');
       try {
-        const config = normalizeProjectDocument(JSON.parse(event.target.result));
-        void createCheckpoint('before import').catch(() => undefined);
-        hydrateProjectStore(config);
-        showToast('Configuration imported successfully!');
+        const prepared = normalizeProjectDocumentWithReport(JSON.parse(rawText));
+        await createCheckpoint('Before project import').catch(() => undefined);
+        hydrateProjectStore(prepared.document);
+        setShowDesignerPanel(false);
+        setShowPresetGallery(false);
+        setActiveWorkspace('edit');
+        setShowMainMenu(false);
+        const migrationNotice = prepared.migrated
+          ? `Migrated project v${prepared.fromVersion} → v${prepared.toVersion}.`
+          : 'Configuration imported successfully!';
+        const repairNotice = prepared.warnings.length
+          ? ` ${prepared.warnings.length} repair warning${prepared.warnings.length === 1 ? '' : 's'} recorded.`
+          : '';
+        showToast(`${migrationNotice}${repairNotice}`);
       } catch (error) {
+        await projectStorage.saveRejectedProject({
+          sourceName: file.name,
+          rawText,
+          error: error?.message,
+          code: error?.code,
+        }).catch(() => undefined);
         showToast(error?.message || 'Error: Invalid config file');
+        setShowProjectCheckpoints(true);
       }
     };
     reader.readAsText(file);
@@ -2718,13 +2740,7 @@ export default function App() {
             setActiveWorkspace('reference-library');
             setShowMainMenu(false);
           }}
-          onLoadProject={(event) => {
-            handleImportConfig(event);
-            setShowDesignerPanel(false);
-            setShowPresetGallery(false);
-            setActiveWorkspace('edit');
-            setShowMainMenu(false);
-          }}
+          onLoadProject={handleImportConfig}
           onSaveProject={handleExportConfig}
         />
         {showCreditsModal && <CreditsModal onClose={() => setShowCreditsModal(false)} />}
