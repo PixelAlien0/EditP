@@ -1218,6 +1218,39 @@ test('clone identity remains editable and nested clones keep the selected clone 
   await expect(page.getByText('armdfly_editorial_nested_test', { exact: true }).first()).toBeVisible();
 });
 
+test('deleting a parent clone preserves a nested clone weapon chassis', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  const workflow = page.getByRole('navigation', { name: 'Editor workflow' });
+
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  let cloneDialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await cloneDialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_parent_delete_test');
+  await cloneDialog.getByRole('button', { name: 'Create Clone' }).click();
+
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  cloneDialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await expect(cloneDialog.getByLabel('Parent Unit', { exact: true })).toHaveValue('armdfly_parent_delete_test');
+  await cloneDialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_child_delete_test');
+  await cloneDialog.getByRole('button', { name: 'Create Clone' }).click();
+
+  await workflow.getByRole('button', { name: /Review & Export/ }).click();
+  await page.getByRole('region', { name: 'Project summary' }).getByRole('button', { name: /Custom units/ }).click();
+  const summary = page.getByRole('dialog', { name: 'Mod Summary Explorer' });
+  const parentRow = summary.locator('.summary-explorer-row').filter({ hasText: 'armdfly_parent_delete_test' });
+  await parentRow.getByRole('button', { name: 'Delete' }).click();
+  await expect(parentRow).toBeHidden();
+  await expect(summary.locator('.summary-explorer-row').filter({ hasText: 'armdfly_child_delete_test' })).toBeVisible();
+  await summary.getByRole('button', { name: 'Close Mod Summary Explorer' }).click();
+
+  await page.getByRole('button', { name: 'Back to editor' }).click();
+  await page.getByPlaceholder(/Search unit name/i).fill('armdfly_child_delete_test');
+  await page.locator('.unit-item').filter({ hasText: 'armdfly_child_delete_test' }).click();
+  await page.getByRole('tab', { name: /Weapons/ }).click();
+  await expect(page.getByText(/Chassis weapon slots \(1\)/i)).toBeVisible();
+});
+
 test('cloning preserves economy, durability, and explosion edits in their required lobby outputs', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);

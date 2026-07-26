@@ -1778,7 +1778,10 @@ export default function App() {
     const inheritedWeaponSwaps = parentClone ? getInheritedCloneWeaponSwaps(cleanBase) : {};
 
     const newClone = {
-      baseId: cleanBase,
+      // A clone-of-a-clone is materialized against the original BAR chassis.
+      // Its inherited edits and weapon swaps are copied below, so it remains
+      // independent if the intermediate clone is later removed.
+      baseId: rootId || cleanBase,
       newId: cleanNew,
       displayName: cleanName || cleanNew,
       description: cloneDesc.trim() || undefined,
@@ -1869,12 +1872,47 @@ export default function App() {
 
   const handleDeleteSummaryClone = (clone) => {
     const cloneId = clone.newId.toLowerCase();
-    setClones(prev => prev.filter(item => item.newId.toLowerCase() !== cloneId));
-    setTweaks(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== cloneId)));
+    const promotedDescendants = clones
+      .filter(candidate => candidate.newId.toLowerCase() !== cloneId)
+      .map(candidate => {
+        const { rootId, lineage } = getCloneLineage(candidate.newId);
+        const dependsOnDeletedClone = lineage.some(item => item.newId?.toLowerCase() === cloneId);
+        if (!dependsOnDeletedClone) return null;
+
+        const inheritedTweaks = lineage.reduce((merged, ancestor) => {
+          const ancestorId = ancestor.newId?.toLowerCase();
+          return ancestorId ? { ...merged, ...(tweaks[ancestorId] || {}) } : merged;
+        }, { ...(tweaks[rootId] || {}) });
+
+        return {
+          id: candidate.newId.toLowerCase(),
+          rootId: rootId || clone.baseId,
+          tweaks: inheritedTweaks,
+          weaponSwaps: getInheritedCloneWeaponSwaps(candidate.newId),
+        };
+      })
+      .filter(Boolean);
+    const promotedById = new Map(promotedDescendants.map(item => [item.id, item]));
+
+    setClones(prev => prev
+      .filter(item => item.newId.toLowerCase() !== cloneId)
+      .map(item => {
+        const promoted = promotedById.get(item.newId.toLowerCase());
+        if (!promoted) return item;
+        const rebased = { ...item, baseId: promoted.rootId };
+        if (Object.keys(promoted.weaponSwaps).length > 0) rebased.weaponSwaps = promoted.weaponSwaps;
+        else delete rebased.weaponSwaps;
+        return rebased;
+      }));
+    setTweaks(prev => {
+      const next = Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== cloneId));
+      promotedDescendants.forEach(promoted => { next[promoted.id] = { ...promoted.tweaks }; });
+      return next;
+    });
     setUnitDescriptions(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== cloneId)));
     setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, clone.newId, []));
     if (selectedUnitId?.toLowerCase() === cloneId) setSelectedUnitId(clone.baseId);
-    showToast(`Deleted clone ${clone.newId}`);
+    showToast(`Deleted clone ${clone.newId}${promotedDescendants.length ? `; preserved ${promotedDescendants.length} descendant${promotedDescendants.length === 1 ? '' : 's'}` : ''}`);
   };
 
   const handleDeleteAllSummaryClones = () => {
