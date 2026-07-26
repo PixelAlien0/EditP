@@ -642,7 +642,7 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await expect(page.locator('[data-param-key="startingdronecount"] input')).toHaveValue('6 2');
   await expect(page.locator('[data-param-key="spawn_metal_cost"] input')).toHaveValue('25 90');
   await expect(page.locator('[data-param-key="spawn_energy_cost"] input')).toHaveValue('600 1200');
-  await expect(page.locator('[data-param-key="dockingpieces"] input')).toHaveValue('1 2,3 4');
+  await expect(page.locator('[data-param-key="dockingpieces"] input')).toHaveValue(' , ');
   await expect(page.locator('[data-param-key="droneairtime"] input')).toHaveValue('60 90');
   await expect(page.locator('[data-param-key="dronedocktime"] input')).toHaveValue('2 4');
   await expect(page.locator('[data-param-key="droneammo"] input')).toHaveValue('0 5');
@@ -679,7 +679,7 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await expect(output).toContainText('droneammo = "2 6"');
   await expect(output).toContainText('enabledocking = false');
   await expect(output).toContainText('droneminimumidleradius = 180');
-  await expect(output).toContainText('dockingpieces = "1 2,3 4"');
+  await expect(output).toContainText('dockingpieces = " , "');
   await expect(output).toContainText('docktohealthreshold = 70');
 
   await page.getByRole('tab', { name: 'Definitions Lua' }).click();

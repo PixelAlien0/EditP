@@ -19,6 +19,10 @@ function isEnabled(value) {
   return !['false', '0', 'off', 'no'].includes(String(value).trim().toLowerCase());
 }
 
+function buildFreeDeploymentSections(count) {
+  return Array.from({ length: count }, () => ' ').join(',');
+}
+
 export function ensureSafeCarrierWeaponPatch(weaponPatch = {}, inheritedSlot = {}) {
   const customParams = weaponPatch.customparams || {};
   const carriedUnit = customParams.carried_unit ?? inheritedSlot.carried_unit;
@@ -53,25 +57,36 @@ export function ensureSafeCarrierWeaponPatch(weaponPatch = {}, inheritedSlot = {
 
   if (carriedUnits.length > 1) {
     const dockingSource = customParams.dockingpieces ?? inheritedSlot.dockingpieces;
-    const dockingSections = String(dockingSource ?? '')
-      .split(',')
-      .map(section => section.trim())
-      .filter(Boolean);
-    safeCustomParams.dockingpieces = alignValues(
-      dockingSections,
-      carriedUnits.length,
-      '1'
-    ).join(',');
+    const dockingEnabled = customParams.enabledocking ?? inheritedSlot.enabledocking;
+    if (isEnabled(dockingEnabled)) {
+      const dockingSections = String(dockingSource ?? '')
+        .split(',')
+        .map(section => section.trim())
+        .filter(Boolean);
+      safeCustomParams.dockingpieces = alignValues(
+        dockingSections,
+        carriedUnits.length,
+        '1'
+      ).join(',');
+    } else {
+      safeCustomParams.dockingpieces = buildFreeDeploymentSections(carriedUnits.length);
+    }
     changed = safeCustomParams.dockingpieces !== customParams.dockingpieces || changed;
 
     const manualDrones = customParams.manualdrones ?? inheritedSlot.manualdrones;
-    const dockingEnabled = customParams.enabledocking ?? inheritedSlot.enabledocking;
     if (isEnabled(manualDrones) && isEnabled(dockingEnabled)) {
       // Direct-control multi-type rosters cannot issue automatic undock/idle
       // orders reliably in BAR. Free deployment avoids one attached reserve
       // being left behind for each carried-unit type.
       safeCustomParams.enabledocking = false;
+      safeCustomParams.dockingpieces = buildFreeDeploymentSections(carriedUnits.length);
       changed = true;
+    }
+  } else {
+    const dockingEnabled = customParams.enabledocking ?? inheritedSlot.enabledocking;
+    if (!isEnabled(dockingEnabled)) {
+      safeCustomParams.dockingpieces = buildFreeDeploymentSections(1);
+      changed = safeCustomParams.dockingpieces !== customParams.dockingpieces || changed;
     }
   }
 

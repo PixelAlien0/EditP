@@ -86,6 +86,7 @@ describe('carrierDroneLinkage', () => {
     expect(result).toEqual({
       editp_carrier_slot: '2',
       editp_carrier_weapondef: 'plasma',
+      editp_carrier_dockingpieces: '1',
       'weapon_slot_2_carried_unit': 'armodrone',
       'weapon_slot_2_spawns_surface': 'SEA',
       'weapon_slot_2_dronetype': 'default',
@@ -93,7 +94,7 @@ describe('carrierDroneLinkage', () => {
       'weapon_slot_2_startingdronecount': '0',
       'weapon_slot_2_spawn_metal_cost': '200',
       'weapon_slot_2_spawn_energy_cost': '1500',
-      'weapon_slot_2_dockingpieces': '1',
+      'weapon_slot_2_dockingpieces': ' ',
       'weapon_slot_2_spawnrate': '4',
       'weapon_slot_2_carrierdeaththroe': 'control',
       'weapon_slot_2_manualdrones': 'true',
@@ -231,6 +232,7 @@ describe('carrierDroneLinkage', () => {
       droneDockTimeText: '2',
       droneAmmoText: '0 4',
       carrierDeathBehavior: 'control',
+      dockingEnabled: true,
     });
 
     expect(result.weapon_slot_1_carried_unit).toBe('armdrone corvamp legdrone');
@@ -245,14 +247,14 @@ describe('carrierDroneLinkage', () => {
     expect(result.weapon_slot_1_droneammo).toBe('0 4 4');
   });
 
-  it('always emits one docking section per carried unit type', () => {
+  it('emits empty indexed docking sections for free deployment', () => {
     const result = buildCarrierLinkageTweaks({
       parentUnitId: 'armcarrier',
       carriedUnitsText: 'armdrone corvamp',
       dockingPiecesText: '',
     });
 
-    expect(result.weapon_slot_1_dockingpieces).toBe('1,1');
+    expect(result.weapon_slot_1_dockingpieces).toBe(' , ');
   });
 
   it('always emits one ammunition value per carried unit type', () => {
@@ -296,9 +298,41 @@ describe('carrierDroneLinkage', () => {
       {}
     );
 
-    expect(patch.customparams.dockingpieces).toBe('2 3,2 3');
+    expect(patch.customparams.dockingpieces).toBe(' , ');
     expect(patch.customparams.droneammo).toBe('0 0');
     expect(patch.customparams.enabledocking).toBe(false);
+  });
+
+  it('removes physical docking pieces from free-deployment compiler patches', () => {
+    const patch = ensureSafeCarrierWeaponPatch(
+      {
+        customparams: {
+          carried_unit: 'armdrone corvamp',
+          dockingpieces: '1,1',
+          enabledocking: false,
+        },
+      },
+      {}
+    );
+
+    expect(patch.customparams.dockingpieces).toBe(' , ');
+  });
+
+  it('keeps aligned physical docks for carrier-directed multi-type rosters', () => {
+    const patch = ensureSafeCarrierWeaponPatch(
+      {
+        customparams: {
+          carried_unit: 'armdrone corvamp',
+          dockingpieces: '2 3',
+          manualdrones: false,
+          enabledocking: true,
+        },
+      },
+      {}
+    );
+
+    expect(patch.customparams.dockingpieces).toBe('2 3,2 3');
+    expect(patch.customparams.enabledocking).toBe(true);
   });
 
   it('clears carried_unit in ground mode and builds comma-separated multi-unit roster', () => {

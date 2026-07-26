@@ -180,6 +180,14 @@ function alignNumberList(value, count, fallback, { min = 0, max = Infinity, inte
   });
 }
 
+// BAR's string.split keeps whitespace-only comma sections in the outer
+// docking-section list, while the inner whitespace split produces no pieces.
+// This gives every drone type a valid section without teleporting its first
+// spawned unit onto piece 1 inside the carrier model.
+function buildFreeDeploymentSections(count) {
+  return Array.from({ length: count }, () => ' ').join(',');
+}
+
 /**
  * Extracts current carrier-drone linkage configuration from unit tweaks or defaults
  */
@@ -217,7 +225,9 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
   const spawnMetalValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_metal_cost', 'metalcost') ?? 100;
   const spawnEnergyValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_energy_cost', 'energycost') ?? 1000;
   const droneTypeValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dronetype') ?? 'default';
-  const dockingPiecesValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dockingpieces') ?? '1';
+  const dockingPiecesValue = unitTweaks.editp_carrier_dockingpieces
+    ?? getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dockingpieces')
+    ?? '1';
   const droneDockTimeValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'dronedocktime') ?? '';
   const droneAmmoValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'droneammo') ?? '0';
   const minimumIdleRadiusValue = getCarrierValue(
@@ -396,6 +406,9 @@ export function buildCarrierLinkageTweaks(config) {
   const result = {
     editp_carrier_slot: String(targetSlot),
     editp_carrier_weapondef: String(config.targetWeaponDef || '').trim().toLowerCase(),
+    // Preserve the user's real docking layout for later switching even while
+    // free deployment compiles empty physical docking sections.
+    editp_carrier_dockingpieces: String(config.dockingPiecesText || '1'),
     [slotKey('carried_unit')]: carrierRoster || primaryId,
     [slotKey('spawns_surface')]: String(
       config.spawnSurface ?? (config.deployMode === 'ground' ? 'LAND' : '')
@@ -408,7 +421,9 @@ export function buildCarrierLinkageTweaks(config) {
     // BAR indexes availableSections by drone type even when docking is off.
     // Always emit one comma-delimited section per carried unit to prevent the
     // upstream line-573 nil access when a multi-type roster spawns.
-    [slotKey('dockingpieces')]: dockingSections.join(','),
+    [slotKey('dockingpieces')]: dockingEnabled
+      ? dockingSections.join(',')
+      : buildFreeDeploymentSections(payloadCount),
     [slotKey('spawnrate')]: intervalStr,
     [slotKey('carrierdeaththroe')]: carrierDeathBehavior,
     [slotKey('manualdrones')]: manualControl ? 'true' : 'false',
