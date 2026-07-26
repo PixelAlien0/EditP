@@ -103,8 +103,12 @@ export default function CarrierDroneWorkbenchDialog({
   const [carriedUnit, setCarriedUnit] = useState(initialConfig.carriedUnit || 'armantiodrone');
   const [targetWeaponDef, setTargetWeaponDef] = useState(initialConfig.targetWeaponDef || '');
   const [spawnSurface, setSpawnSurface] = useState(initialConfig.spawnSurface || '');
-  const [isControllable, setIsControllable] = useState(initialConfig.isControllable ?? true);
-  const [droneAmmo, setDroneAmmo] = useState(initialConfig.droneAmmo || 6);
+  const [carrierDeathBehavior, setCarrierDeathBehavior] = useState(
+    initialConfig.carrierDeathBehavior === 'release' ? 'control' : (initialConfig.carrierDeathBehavior || 'control')
+  );
+  const [manualControl, setManualControl] = useState(initialConfig.manualControl ?? true);
+  const [dockingEnabled, setDockingEnabled] = useState(initialConfig.dockingEnabled ?? false);
+  const [maxUnits, setMaxUnits] = useState(initialConfig.maxUnits || initialConfig.droneAmmo || 6);
   const [spawnMetal, setSpawnMetal] = useState(initialConfig.spawnMetal || 120);
   const [spawnEnergy, setSpawnEnergy] = useState(initialConfig.spawnEnergy || 1200);
   const [spawnInterval, setSpawnInterval] = useState(initialConfig.spawnInterval || 5);
@@ -147,11 +151,14 @@ export default function CarrierDroneWorkbenchDialog({
     }
     setTargetWeaponDef(cfg.targetWeaponDef || '');
     setSpawnSurface(cfg.spawnSurface || '');
-    if (cfg.droneAmmo) setDroneAmmo(cfg.droneAmmo);
+    if (cfg.maxUnits || cfg.droneAmmo) setMaxUnits(cfg.maxUnits || cfg.droneAmmo);
     if (cfg.spawnMetal) setSpawnMetal(cfg.spawnMetal);
     if (cfg.spawnEnergy) setSpawnEnergy(cfg.spawnEnergy);
     if (cfg.spawnInterval) setSpawnInterval(cfg.spawnInterval);
     if (cfg.returnHp) setReturnHp(cfg.returnHp);
+    setCarrierDeathBehavior(cfg.carrierDeathBehavior === 'release' ? 'control' : (cfg.carrierDeathBehavior || 'control'));
+    setManualControl(cfg.manualControl ?? true);
+    setDockingEnabled(cfg.dockingEnabled ?? false);
   };
 
   const handleSave = event => {
@@ -164,8 +171,10 @@ export default function CarrierDroneWorkbenchDialog({
       spawnsName: carriedUnit,
       targetWeaponDef,
       spawnSurface,
-      isControllable,
-      droneAmmo,
+      carrierDeathBehavior,
+      manualControl,
+      dockingEnabled,
+      maxUnits,
       spawnMetal,
       spawnEnergy,
       spawnInterval,
@@ -227,7 +236,7 @@ export default function CarrierDroneWorkbenchDialog({
 
             <div className="carrier-workbench__link-bus" aria-hidden="true">
               <span className="carrier-workbench__link-arrow">→</span>
-              <span className="carrier-workbench__link-badge">{droneAmmo} Drones</span>
+              <span className="carrier-workbench__link-badge">{maxUnits} Drones</span>
             </div>
 
             <button
@@ -284,25 +293,72 @@ export default function CarrierDroneWorkbenchDialog({
               </div>
 
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                <label>Carrier Death Policy</label>
+                <label>Drone Command Mode</label>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                   <button
                     type="button"
-                    className={`carrier-workbench__faction-chip ${isControllable ? 'is-active' : ''}`}
-                    onClick={() => setIsControllable(true)}
+                    className={`carrier-workbench__faction-chip ${manualControl ? 'is-active' : ''}`}
+                    onClick={() => setManualControl(true)}
                     style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
-                    Release surviving drones
+                    Direct player control
                   </button>
                   <button
                     type="button"
-                    className={`carrier-workbench__faction-chip ${!isControllable ? 'is-active' : ''}`}
-                    onClick={() => setIsControllable(false)}
+                    className={`carrier-workbench__faction-chip ${!manualControl ? 'is-active' : ''}`}
+                    onClick={() => setManualControl(false)}
                     style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
                   >
-                    Destroy drones with carrier
+                    Carrier-directed only
                   </button>
                 </div>
+                <small>Direct control uses BAR's <code>manualdrones</code> mode. The carrier can still issue formation and recall orders.</small>
+              </div>
+
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>When the Carrier Is Destroyed</label>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                  <button
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${carrierDeathBehavior === 'control' ? 'is-active' : ''}`}
+                    onClick={() => setCarrierDeathBehavior('control')}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                  >
+                    Keep survivors controllable
+                  </button>
+                  <button
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${carrierDeathBehavior === 'death' ? 'is-active' : ''}`}
+                    onClick={() => setCarrierDeathBehavior('death')}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                  >
+                    Destroy deployed units
+                  </button>
+                </div>
+                <small>Controllable survivors receive a safe lifetime value to avoid BAR's nil <code>droneAirTime</code> destruction error.</small>
+              </div>
+
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Docking Behavior</label>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                  <button
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${!dockingEnabled ? 'is-active' : ''}`}
+                    onClick={() => setDockingEnabled(false)}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                  >
+                    Free deployment
+                  </button>
+                  <button
+                    type="button"
+                    className={`carrier-workbench__faction-chip ${dockingEnabled ? 'is-active' : ''}`}
+                    onClick={() => setDockingEnabled(true)}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.8rem' }}
+                  >
+                    Dock and auto-return
+                  </button>
+                </div>
+                <small>Free deployment is safer for arbitrary unit models that do not have compatible docking pieces.</small>
               </div>
 
               <div className="form-group">
@@ -326,15 +382,15 @@ export default function CarrierDroneWorkbenchDialog({
               </div>
 
               <div className="form-group">
-                <label htmlFor="input-payload-capacity">Hangar Payload Capacity (droneammo)</label>
+                <label htmlFor="input-payload-capacity">Maximum Active Units (maxunits)</label>
                 <input
                   id="input-payload-capacity"
                   type="number"
                   className="form-input"
                   min="1"
                   max="50"
-                  value={droneAmmo}
-                  onChange={e => setDroneAmmo(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                  value={maxUnits}
+                  onChange={e => setMaxUnits(Math.max(1, parseInt(e.target.value, 10) || 1))}
                 />
               </div>
 
@@ -399,7 +455,7 @@ export default function CarrierDroneWorkbenchDialog({
 
         <footer className="carrier-workbench__footer">
           <span className="carrier-workbench__summary">
-            Carrier <strong>{parentUnitInfo.displayName}</strong> will launch up to <strong>{droneAmmo}</strong> active <strong>{childUnitInfo.displayName}</strong> drones every {spawnInterval}s.
+            Carrier <strong>{parentUnitInfo.displayName}</strong> will launch up to <strong>{maxUnits}</strong> active <strong>{childUnitInfo.displayName}</strong> units every {spawnInterval}s. {manualControl ? 'They remain player-selectable.' : 'They remain carrier-directed.'}
           </span>
           <div className="carrier-workbench__actions">
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>

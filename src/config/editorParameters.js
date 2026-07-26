@@ -401,7 +401,7 @@ export const WEAPON_SLOT_BOOLEAN_PARAMS = new Set([
   'interceptsolo', 'largebeamlaser',
   'castshadow', 'smoketrailcastshadow', 'dyndamageinverted', 'shieldrepulser',
   'shieldsmart', 'shieldexterior', 'shieldvisible',
-  'enabledocking', 'spawn_blocked_by_shield',
+  'enabledocking', 'manualdrones', 'spawn_blocked_by_shield',
 ]);
 
 export const WEAPON_SLOT_STRING_PARAMS = new Set([
@@ -457,6 +457,7 @@ export const WEAPON_SLOT_PATHS = Object.freeze({
   dronetype: 'customparams.dronetype', maxunits: 'customparams.maxunits',
   startingdronecount: 'customparams.startingdronecount', controlradius: 'customparams.controlradius',
   engagementrange: 'customparams.engagementrange', carrierdeaththroe: 'customparams.carrierdeaththroe',
+  manualdrones: 'customparams.manualdrones',
   enabledocking: 'customparams.enabledocking', dockingpieces: 'customparams.dockingpieces',
   dockingradius: 'customparams.dockingradius', dockinghelperspeed: 'customparams.dockinghelperspeed',
   dockingarmor: 'customparams.dockingarmor', dockinghealrate: 'customparams.dockinghealrate',
@@ -499,6 +500,7 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
       { key: 'spawn_energy_cost', label: 'Energy per Deployed Unit', type: 'number' },
       { key: 'controlradius', label: 'Control Radius', type: 'number' },
       { key: 'engagementrange', label: 'Engagement Range', type: 'number' },
+      { key: 'manualdrones', label: 'Allow Direct Player Control', type: 'tri-state' },
       {
         key: 'carrierdeaththroe',
         label: 'Behavior When Carrier Dies',

@@ -12,7 +12,7 @@ export const MAX_TWEAK_PACKAGE_BYTES = 5 * 1024 * 1024;
 
 const FIELD_PATTERN = /^tweak(defs|units)(\d+)?$/i;
 const SUPPORTED_UNIT_CUSTOM_PARAMS = new Set([
-  'carried_unit', 'spawnrate', 'maxunits', 'controlradius', 'enabledocking',
+  'carried_unit', 'spawnrate', 'maxunits', 'controlradius', 'manualdrones', 'enabledocking',
   'decayrate', 'deathdecayrate', 'carrierdeaththroe', 'metalcost', 'energycost',
   'spawns_name', 'spawns_surface', 'dronetype', 'startingdronecount', 'engagementrange',
   'dockingpieces', 'dockingradius', 'dockinghelperspeed', 'dockingarmor', 'dockinghealrate',
@@ -22,7 +22,7 @@ const SUPPORTED_UNIT_CUSTOM_PARAMS = new Set([
 const SUPPORTED_WEAPON_CUSTOM_PARAMS = new Set([
   'spawns_name', 'spawns_surface', 'spawns_mode', 'spawns_expire', 'spawns_ceg', 'spawns_stun',
   'spawn_blocked_by_shield', 'carried_unit', 'dronetype', 'spawnrate', 'maxunits',
-  'startingdronecount', 'controlradius', 'engagementrange', 'enabledocking', 'dockingpieces',
+  'startingdronecount', 'controlradius', 'engagementrange', 'manualdrones', 'enabledocking', 'dockingpieces',
   'dockingradius', 'dockinghelperspeed', 'dockingarmor', 'dockinghealrate',
   'docktohealthreshold', 'attackformationspread', 'attackformationoffset', 'decayrate',
   'deathdecayrate', 'carrierdeaththroe', 'holdfireradius', 'droneminimumidleradius',
@@ -40,7 +40,7 @@ const WEAPON_CUSTOM_TO_EDITOR_KEY = Object.freeze({
   spawn_blocked_by_shield: 'spawn_blocked_by_shield', carried_unit: 'carried_unit',
   dronetype: 'dronetype', spawnrate: 'spawnrate', maxunits: 'maxunits',
   startingdronecount: 'startingdronecount', controlradius: 'controlradius',
-  engagementrange: 'engagementrange', enabledocking: 'enabledocking',
+  engagementrange: 'engagementrange', manualdrones: 'manualdrones', enabledocking: 'enabledocking',
   dockingpieces: 'dockingpieces', dockingradius: 'dockingradius',
   dockinghelperspeed: 'dockinghelperspeed', dockingarmor: 'dockingarmor',
   dockinghealrate: 'dockinghealrate', docktohealthreshold: 'docktohealthreshold',
@@ -98,7 +98,7 @@ const WEAPON_CUSTOM_EXPECTED_TYPES = new Map([
   ['spawns_expire', 'number'], ['spawns_ceg', 'string'], ['spawns_stun', 'number'],
   ['spawn_blocked_by_shield', 'boolean'], ['carried_unit', 'string'], ['dronetype', 'string'],
   ['spawnrate', 'number'], ['maxunits', 'number'], ['startingdronecount', 'number'],
-  ['controlradius', 'number'], ['engagementrange', 'number'], ['enabledocking', 'boolean'],
+  ['controlradius', 'number'], ['engagementrange', 'number'], ['manualdrones', 'boolean'], ['enabledocking', 'boolean'],
   ['dockingpieces', 'string'], ['dockingradius', 'number'], ['dockinghelperspeed', 'number'],
   ['dockingarmor', 'number'], ['dockinghealrate', 'number'], ['docktohealthreshold', 'number'],
   ['attackformationspread', 'number'], ['attackformationoffset', 'number'],

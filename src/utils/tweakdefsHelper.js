@@ -684,6 +684,13 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
         const droneAmmo = Number(unitTweaks['customparams.droneammo'] || unitTweaks['customparams.maxunits'] || 4);
         const maxUnits = Number(unitTweaks['customparams.maxunits'] || droneAmmo || 4);
         const startingDroneCount = Number(unitTweaks['customparams.startingdronecount'] || 0);
+        const manualDroneValue = unitTweaks['customparams.manualdrones'];
+        const manualDrones = manualDroneValue !== undefined
+          && !['false', '0', 'off', 'no'].includes(String(manualDroneValue).trim().toLowerCase());
+        const requestedDroneAirTime = Number(unitTweaks['customparams.droneairtime']);
+        const droneAirTime = Number.isFinite(requestedDroneAirTime) && requestedDroneAirTime > 0
+          ? requestedDroneAirTime
+          : (deathBehavior === 'death' ? null : 31536000);
         const spawnMetal = Number(unitTweaks['customparams.spawn_metal_cost'] || unitTweaks['customparams.metalcost'] || 100);
         const spawnEnergy = Number(unitTweaks['customparams.spawn_energy_cost'] || unitTweaks['customparams.energycost'] || 1000);
         const spawnInterval = Number(unitTweaks['customparams.spawn_interval'] || unitTweaks['customparams.spawnrate'] || 5);
@@ -706,6 +713,8 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
           droneAmmo: Number.isFinite(droneAmmo) ? droneAmmo : 4,
           maxUnits: Number.isFinite(maxUnits) ? maxUnits : 4,
           startingDroneCount: Number.isFinite(startingDroneCount) ? startingDroneCount : 0,
+          manualDrones,
+          droneAirTime,
           spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
           spawnEnergy: Number.isFinite(spawnEnergy) ? spawnEnergy : 1000,
           spawnInterval: Number.isFinite(spawnInterval) ? spawnInterval : 5,
@@ -747,13 +756,10 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
     local maxUnitsStr = tostring(entry.maxUnits)
     local startingCountStr = tostring(entry.startingDroneCount)
     local intervalStr = tostring(entry.spawnInterval)
-    local intervalNum = tonumber(entry.spawnInterval) or 5
     local metalStr = tostring(entry.spawnMetal)
     local energyStr = tostring(entry.spawnEnergy)
     local wDef = editp_find_carrier_weapondef(u, entry.targetWeaponDef)
     if wDef then
-      wDef.stockpile = true
-      wDef.stockpiletime = intervalNum
       wDef.customparams = wDef.customparams or {}
       wDef.customparams.carried_unit = table.concat(entry.allChildren, " ")
       wDef.customparams.maxunits = maxUnitsStr
@@ -764,6 +770,8 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       wDef.customparams.metalcost = metalStr
       wDef.customparams.energycost = energyStr
       wDef.customparams.carrierdeaththroe = entry.deathBehavior
+      wDef.customparams.manualdrones = entry.manualDrones and "1" or nil
+      wDef.customparams.droneairtime = entry.droneAirTime and tostring(entry.droneAirTime) or nil
       wDef.customparams.enabledocking = entry.dockingEnabled
       wDef.customparams.docktohealthreshold = entry.dockToHealThreshold
       if entry.spawnsSurface and entry.spawnsSurface ~= "" then

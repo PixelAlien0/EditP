@@ -4,6 +4,10 @@ import {
   CARRIER_ARCHETYPES,
   getCarrierLinkageConfig,
 } from './carrierDroneLinkage.js';
+import {
+  ensureSafeCarrierWeaponPatch,
+  SAFE_ORPHAN_DRONE_AIRTIME_SECONDS,
+} from './carrierRuntimeSafety.js';
 
 describe('carrierDroneLinkage', () => {
   it('exposes preset carrier archetypes', () => {
@@ -47,6 +51,7 @@ describe('carrierDroneLinkage', () => {
             docktohealthreshold: 65,
             spawns_surface: 'SEA',
             carrierdeaththroe: 'release',
+            manualdrones: '1',
           },
           { slot: 2, defKey: 'aamissile' },
         ],
@@ -58,6 +63,8 @@ describe('carrierDroneLinkage', () => {
     expect(config.carriedUnit).toBe('armdrone');
     expect(config.returnHp).toBe(65);
     expect(config.spawnSurface).toBe('SEA');
+    expect(config.manualControl).toBe(true);
+    expect(config.isControllable).toBe(false);
   });
 
   it('builds compiled tweak dictionary safely', () => {
@@ -79,17 +86,65 @@ describe('carrierDroneLinkage', () => {
       editp_carrier_roster: 'armodrone',
       'customparams.carried_unit': 'armodrone',
       'customparams.spawns_surface': 'SEA',
-      'customparams.droneammo': '8',
+      'customparams.droneammo': '0',
       'customparams.maxunits': '8',
-      'customparams.stockpilelimit': '8',
-      'customparams.startingdronecount': '8',
+      'customparams.stockpilelimit': undefined,
+      'customparams.startingdronecount': '0',
       'customparams.metalcost': '200',
       'customparams.energycost': '1500',
       'customparams.spawnrate': '4',
-      'customparams.carrierdeaththroe': 'release',
-      'customparams.enabledocking': true,
+      'customparams.carrierdeaththroe': 'control',
+      'customparams.manualdrones': '1',
+      'customparams.enabledocking': false,
+      'customparams.droneairtime': String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS),
       'customparams.docktohealthreshold': 30,
     });
+  });
+
+  it('emits BAR manual-control mode and a safe airtime for surviving drones', () => {
+    const result = buildCarrierLinkageTweaks({
+      parentUnitId: 'legvcarry',
+      carriedUnit: 'legdrone',
+      maxUnits: 5,
+      manualControl: true,
+      carrierDeathBehavior: 'control',
+      dockingEnabled: false,
+    });
+
+    expect(result['customparams.manualdrones']).toBe('1');
+    expect(result['customparams.carrierdeaththroe']).toBe('control');
+    expect(result['customparams.droneairtime']).toBe(String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS));
+    expect(result['customparams.startingdronecount']).toBe('0');
+  });
+
+  it('does not emit a synthetic airtime when deployed units die with the carrier', () => {
+    const result = buildCarrierLinkageTweaks({
+      parentUnitId: 'armcarrier',
+      carriedUnit: 'armantiodrone',
+      manualControl: false,
+      carrierDeathBehavior: 'death',
+    });
+
+    expect(result['customparams.manualdrones']).toBeUndefined();
+    expect(result['customparams.droneairtime']).toBeUndefined();
+  });
+
+  it('guards advanced carrier edits that keep drones alive without an airtime', () => {
+    const patch = ensureSafeCarrierWeaponPatch(
+      { customparams: { carrierdeaththroe: 'control', manualdrones: true } },
+      { carried_unit: 'armdrone' }
+    );
+
+    expect(patch.customparams.droneairtime).toBe(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS);
+  });
+
+  it('preserves explicit carrier airtime values', () => {
+    const patch = ensureSafeCarrierWeaponPatch(
+      { customparams: { carrierdeaththroe: 'control', droneairtime: 120 } },
+      { carried_unit: 'armdrone' }
+    );
+
+    expect(patch.customparams.droneairtime).toBe(120);
   });
 
   it('clears carried_unit in ground mode and builds comma-separated multi-unit roster', () => {

@@ -50,6 +50,7 @@ import AssetPicker from './components/editor/AssetPicker.jsx';
 import AdvancedCustomParameters from './components/editor/AdvancedCustomParameters.jsx';
 import { isValidCustomParameterKey } from './config/customParameters.js';
 import { collectKnownTargetableMask } from './config/behaviorInterceptor.js';
+import { ensureSafeCarrierWeaponPatch } from './utils/carrierRuntimeSafety.js';
 import {
   createUnitCollection,
   deleteCollectionAndPromoteChildren,
@@ -1553,6 +1554,17 @@ export default function App() {
         }
       });
 
+      // BAR's carrier gadget assumes droneAirTime exists when control/capture/
+      // release leaves deployed units alive after carrier destruction. Supply
+      // an effectively unlimited safe value when the edited or inherited
+      // controller omits it, preventing the upstream nil arithmetic crash.
+      getActiveWeaponSlotsForUnit(unitId).forEach(slot => {
+        const weaponKey = String(slot.defKey || '').toLowerCase();
+        const weaponPatch = unitPatch.weapondefs?.[weaponKey];
+        if (!weaponPatch) return;
+        unitPatch.weapondefs[weaponKey] = ensureSafeCarrierWeaponPatch(weaponPatch, slot);
+      });
+
       if (Object.keys(unitPatch).length > 0) {
         patchObj[unitId] = unitPatch;
       }
@@ -2507,7 +2519,13 @@ export default function App() {
     setTweaks(prevTweaks => {
       const next = { ...prevTweaks };
       const existing = { ...(next[parentUnitId] || {}) };
-      Object.assign(existing, compiledTweaks);
+      Object.entries(compiledTweaks).forEach(([key, value]) => {
+        if (value === undefined) {
+          delete existing[key];
+        } else {
+          existing[key] = value;
+        }
+      });
       next[parentUnitId] = existing;
       return next;
     });

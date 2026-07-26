@@ -133,6 +133,7 @@ describe('nested clone generation', () => {
         'customparams.metalcost': '25',
         'customparams.energycost': '600',
         'customparams.enabledocking': true,
+        'customparams.manualdrones': true,
         'customparams.docktohealthreshold': 65,
         'customparams.carrierdeaththroe': 'release',
         'customparams.spawns_surface': 'SEA',
@@ -142,6 +143,9 @@ describe('nested clone generation', () => {
     expect(lua).toContain('editp_find_carrier_weapondef(u, entry.targetWeaponDef)');
     expect(lua).toContain('wDef.customparams.carried_unit = table.concat(entry.allChildren, " ")');
     expect(lua).toContain('wDef.customparams.docktohealthreshold = entry.dockToHealThreshold');
+    expect(lua).toContain('wDef.customparams.manualdrones = entry.manualDrones and "1" or nil');
+    expect(lua).toContain('wDef.customparams.droneairtime = entry.droneAirTime and tostring(entry.droneAirTime) or nil');
+    expect(lua).not.toContain('wDef.stockpile = true');
     expect(lua).not.toContain('for _, wDef in pairs(u.weapondefs)');
     expect(lua).not.toContain('wDef.coverage');
     expect(lua).not.toContain('childDef.canselect');
