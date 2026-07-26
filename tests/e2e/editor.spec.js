@@ -126,6 +126,26 @@ test('build menu producer catalog separates factories and builders', async ({ pa
   await expect(catalog.getByText('Bot Lab', { exact: true }).first()).toBeVisible();
   await expect(catalog.getByText('armsaap', { exact: true })).toHaveCount(0);
 
+  const catalogScroll = catalog.locator('.designer-panel-scroll');
+  await expect.poll(() => catalogScroll.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
+  await catalogScroll.hover();
+  await page.mouse.wheel(0, 600);
+  await expect.poll(() => catalogScroll.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
+
+  const firstThumbnail = catalog.locator('.designer-unit-pic img').first();
+  await expect(firstThumbnail).toBeVisible();
+  const thumbnailGeometry = await firstThumbnail.evaluate(image => {
+    const imageRect = image.getBoundingClientRect();
+    return {
+      imageWidth: imageRect.width,
+      imageHeight: imageRect.height,
+      frameWidth: image.parentElement.clientWidth,
+      frameHeight: image.parentElement.clientHeight,
+    };
+  });
+  expect(Math.abs(thumbnailGeometry.imageWidth - thumbnailGeometry.frameWidth)).toBeLessThanOrEqual(1);
+  expect(Math.abs(thumbnailGeometry.imageHeight - thumbnailGeometry.frameHeight)).toBeLessThanOrEqual(1);
+
   await catalog.getByRole('button', { name: /Builders/ }).click();
   await expect(catalog.getByText('Groundhog', { exact: true })).toBeVisible();
   await expect(catalog.getByText('Bot Lab', { exact: true })).toHaveCount(0);
