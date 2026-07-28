@@ -1,10 +1,16 @@
+import { CapabilityLabels } from '../ui.jsx';
+
 export function ParameterMatrix({ sectionId, parameters, collapsedGroups, onToggleGroup, renderParameter }) {
   const featured = parameters.filter(parameter => parameter.featured);
   const groups = parameters.filter(parameter => !parameter.featured).reduce((result, parameter) => {
     const id = parameter.group || 'Additional';
     const existing = result.find(group => group.id === id);
-    if (existing) existing.parameters.push(parameter);
-    else result.push({ id, parameters: [parameter] });
+    if (existing) {
+      existing.parameters.push(parameter);
+      existing.capabilities = [...new Set([...existing.capabilities, ...(parameter.capabilities || [])])];
+    } else {
+      result.push({ id, parameters: [parameter], capabilities: [...(parameter.capabilities || [])] });
+    }
     return result;
   }, []);
 
@@ -27,7 +33,10 @@ export function ParameterMatrix({ sectionId, parameters, collapsedGroups, onTogg
                 onClick={() => onToggleGroup(storageId)}
                 aria-expanded={!collapsed}
               >
-                <span>{group.id}</span>
+                <span className="parameter-group-heading__title">
+                  <span>{group.id}</span>
+                  <CapabilityLabels capabilityIds={group.capabilities} compact />
+                </span>
                 <small>{group.parameters.length} fields{group.parameters.some(parameter => parameter.experimental) ? ' · Experimental' : ''}</small>
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
               </button>

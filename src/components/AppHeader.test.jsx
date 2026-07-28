@@ -74,4 +74,16 @@ describe('AppHeader', () => {
     expect(screen.queryByRole('menu', { name: 'Editor tools' })).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
   });
+
+  it('states tool readiness and runtime provenance in the menu', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+
+    await user.click(screen.getByRole('button', { name: 'Tools' }));
+
+    expect(screen.getByRole('menuitem', { name: /batch adjust/i })).toHaveTextContent('Locked');
+    expect(screen.getByRole('menuitem', { name: /carrier & drone studio/i })).toHaveTextContent('Gadget');
+    expect(screen.getByRole('menuitem', { name: /carrier & drone studio/i })).toHaveTextContent('Experimental');
+    expect(screen.getByRole('menuitem', { name: /bar reference library/i })).toHaveTextContent('Reference');
+  });
 });

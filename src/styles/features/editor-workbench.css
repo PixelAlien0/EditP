@@ -613,7 +613,8 @@
   cursor: pointer;
 }
 
-.parameter-group-heading > span {
+.parameter-group-heading__title {
+  min-width: 0;
   font: 700 var(--font-size-sm)/var(--line-height-ui) var(--font-ui);
 }
 

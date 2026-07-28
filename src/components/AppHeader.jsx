@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import OnlinePresenceBadge from './OnlinePresenceBadge.jsx';
-import { Button, ButtonGroup, FileButton, IconButton } from './ui.jsx';
+import { Button, ButtonGroup, CapabilityLabels, FileButton, IconButton } from './ui.jsx';
 
 const HEADER_WORKSPACES = Object.freeze([
   { id: 'edit', step: '01', label: 'Edit Units' },
@@ -201,45 +201,45 @@ export default function AppHeader({
               <div className="header-tools-menu__group" aria-label="Quick access">
                 <span className="header-tools-menu__group-label">Quick access</span>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onCommandPalette)}>
-                  <span><strong>Command Palette</strong><small>Search actions and workspaces</small></span><kbd>Ctrl K</kbd>
+                  <span><span className="header-tool-title"><strong>Command Palette</strong><CapabilityLabels featureId="tool.command-palette" compact /></span><small>Search actions and workspaces</small></span><kbd>Ctrl K</kbd>
                 </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onCheckpoints)}>
-                  <span><strong>Project Checkpoints</strong><small>Save and restore named states</small></span>
+                  <span><span className="header-tool-title"><strong>Project Checkpoints</strong><CapabilityLabels featureId="tool.checkpoints" compact /></span><small>Save and restore named states</small></span>
                 </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onCollections)}>
-                  <span><strong>Collections</strong><small>Organize reusable unit scopes</small></span>
+                  <span><span className="header-tool-title"><strong>Collections</strong><CapabilityLabels featureId="tool.collections" compact /></span><small>Organize reusable unit scopes</small></span>
                 </button>
               </div>
               <div className="header-tools-menu__group" aria-label="Editing tools">
                 <span className="header-tools-menu__group-label">Editing tools</span>
                 <button type="button" role="menuitem" disabled={!mutatorToolsEnabled}>
-                  <span><strong>Batch Adjust <small className="header-tool-lock">Locked</small></strong><small>Temporarily unavailable while bulk editing is repaired</small></span>
+                  <span><span className="header-tool-title"><strong>Batch Adjust</strong><CapabilityLabels capabilityIds={mutatorToolsEnabled ? ['experimental'] : ['locked']} compact /></span><small>Temporarily unavailable while bulk editing is repaired</small></span>
                 </button>
                 <button type="button" role="menuitem" disabled={!mutatorToolsEnabled}>
-                  <span><strong>Formula Mutator <small className="header-tool-lock">Locked</small></strong><small>Temporarily unavailable while formula evaluation is repaired</small></span>
+                  <span><span className="header-tool-title"><strong>Formula Mutator</strong><CapabilityLabels capabilityIds={mutatorToolsEnabled ? ['experimental'] : ['locked']} compact /></span><small>Temporarily unavailable while formula evaluation is repaired</small></span>
                 </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onCarrierWorkbench)}>
-                  <span><strong>Carrier &amp; Drone Studio</strong><small>Configure a BAR carrier controller WeaponDef</small></span>
+                  <span><span className="header-tool-title"><strong>Carrier &amp; Drone Studio</strong><CapabilityLabels featureId="tool.carrier-workbench" compact /></span><small>Configure a BAR carrier controller WeaponDef</small></span>
                 </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onPresetGallery)}>
-                  <span><strong>Preset Gallery</strong><small>Apply or save project snapshots</small></span>
+                  <span><span className="header-tool-title"><strong>Preset Gallery</strong><CapabilityLabels featureId="tool.preset-gallery" compact /></span><small>Apply or save project snapshots</small></span>
                 </button>
                 {weaponLabEnabled && (
                   <button type="button" role="menuitem" onClick={() => runToolAction(onWeaponLab)}>
-                    <span><strong>Weapon Lab <small className="header-tool-lock">Dev</small></strong><small>Develop custom weapon blueprints</small></span>
+                    <span><span className="header-tool-title"><strong>Weapon Lab</strong><CapabilityLabels capabilityIds={['development']} compact /></span><small>Develop custom weapon blueprints</small></span>
                   </button>
                 )}
                 <button type="button" role="menuitem" disabled={!mutatorToolsEnabled}>
-                  <span><strong>Mutation Lab <small className="header-tool-lock">Locked</small></strong><small>Temporarily unavailable while mutation rules are repaired</small></span>
+                  <span><span className="header-tool-title"><strong>Mutation Lab</strong><CapabilityLabels capabilityIds={mutatorToolsEnabled ? ['experimental'] : ['locked']} compact /></span><small>Temporarily unavailable while mutation rules are repaired</small></span>
                 </button>
               </div>
               <div className="header-tools-menu__group" aria-label="Package and reference tools">
                 <span className="header-tools-menu__group-label">Packages &amp; references</span>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onTweakLab)}>
-                  <span><strong>Tweak Package Lab</strong><small>Inspect community Lua safely</small></span>
+                  <span><span className="header-tool-title"><strong>Tweak Package Lab</strong><CapabilityLabels featureId="tool.tweak-package-lab" compact /></span><small>Inspect community Lua safely</small></span>
                 </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onReferenceLibrary)}>
-                  <span><strong>BAR Reference Library</strong><small>Search definitions and assets</small></span>
+                  <span><span className="header-tool-title"><strong>BAR Reference Library</strong><CapabilityLabels featureId="tool.reference-library" compact /></span><small>Search definitions and assets</small></span>
                 </button>
               </div>
               <div className="header-tools-menu-project-actions" role="group" aria-label="Project files">

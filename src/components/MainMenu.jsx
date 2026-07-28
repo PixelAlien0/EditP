@@ -1,4 +1,5 @@
 import OnlinePresenceBadge from './OnlinePresenceBadge.jsx';
+import { CapabilityLabels } from './ui.jsx';
 
 const ArrowIcon = () => (
   <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9h11" /><path d="m10.5 5 4 4-4 4" /></svg>
@@ -43,24 +44,24 @@ export default function MainMenu({
     {
       id: 'edit', number: '01', eyebrow: 'Core workspace', title: 'Edit units',
       description: 'Tune definitions, weapons, behavior, assets, and clone identity.',
-      meta: hasWork ? `${projectChangeCount} tracked changes` : 'Start here', primary: true, onSelect: onEditUnits,
+      meta: hasWork ? `${projectChangeCount} tracked changes` : 'Start here', capabilityId: 'workspace.edit', primary: true, onSelect: onEditUnits,
     },
     {
       id: 'build', number: '02', eyebrow: 'Production', title: 'Build menus',
       description: 'Compose factory rosters and place custom units into production.',
-      meta: rosterCount ? `${rosterCount} roster changes` : 'Roster designer', onSelect: onBuildMenus,
+      meta: rosterCount ? `${rosterCount} roster changes` : 'Roster designer', capabilityId: 'workspace.build-menus', onSelect: onBuildMenus,
     },
     {
       id: 'review', number: '03', eyebrow: 'Delivery', title: 'Review & export',
       description: 'Run compatibility preflight and prepare numbered lobby commands.',
-      meta: hasWork ? 'Preflight project' : 'Inspect output', onSelect: onReviewExport,
+      meta: hasWork ? 'Preflight project' : 'Inspect output', capabilityId: 'workspace.review', onSelect: onReviewExport,
     },
   ];
   const tools = [
-    { id: 'collections', code: 'COL', title: 'Collections', description: 'Organize reusable unit scopes.', onSelect: onCollections },
-    { id: 'presets', code: 'PRE', title: 'Preset Gallery', description: 'Save and apply project snapshots.', onSelect: onPresetGallery },
-    { id: 'tweak-lab', code: 'LAB', title: 'Tweak Package Lab', description: 'Inspect community Lua safely.', onSelect: onTweakLab },
-    { id: 'reference', code: 'REF', title: 'BAR Reference Library', description: 'Search definitions and assets.', onSelect: onReferenceLibrary },
+    { id: 'collections', code: 'COL', title: 'Collections', description: 'Organize reusable unit scopes.', capabilityId: 'workspace.collections', onSelect: onCollections },
+    { id: 'presets', code: 'PRE', title: 'Preset Gallery', description: 'Save and apply project snapshots.', capabilityId: 'tool.preset-gallery', onSelect: onPresetGallery },
+    { id: 'tweak-lab', code: 'LAB', title: 'Tweak Package Lab', description: 'Inspect community Lua safely.', capabilityId: 'tool.tweak-package-lab', onSelect: onTweakLab },
+    { id: 'reference', code: 'REF', title: 'BAR Reference Library', description: 'Search definitions and assets.', capabilityId: 'tool.reference-library', onSelect: onReferenceLibrary },
   ];
 
   return (
@@ -161,7 +162,10 @@ export default function MainMenu({
               <button key={item.id} type="button" className={item.primary ? 'is-primary' : ''} onClick={item.onSelect}>
                 <span className="main-menu__workspace-number">{item.number}</span>
                 <span className="main-menu__workspace-copy">
-                  <small>{item.eyebrow}</small>
+                  <span className="main-menu__workspace-capabilities">
+                    <small>{item.eyebrow}</small>
+                    <CapabilityLabels featureId={item.capabilityId} compact />
+                  </span>
                   <strong>{item.title}</strong>
                   <p>{item.description}</p>
                 </span>
@@ -180,7 +184,13 @@ export default function MainMenu({
               {tools.map(tool => (
                 <button type="button" key={tool.id} onClick={tool.onSelect}>
                   <span>{tool.code}</span>
-                  <span><strong>{tool.title}</strong><small>{tool.description}</small></span>
+                  <span>
+                    <span className="main-menu__tool-title">
+                      <strong>{tool.title}</strong>
+                      <CapabilityLabels featureId={tool.capabilityId} compact />
+                    </span>
+                    <small>{tool.description}</small>
+                  </span>
                   <b aria-hidden="true">↗</b>
                 </button>
               ))}

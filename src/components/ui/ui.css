@@ -165,6 +165,15 @@
 .ui-badge--danger { border-color: color-mix(in srgb, var(--color-danger) 50%, var(--color-border)); background: var(--color-danger-surface); color: var(--color-danger); }
 .ui-badge--info { border-color: color-mix(in srgb, var(--color-info) 50%, var(--color-border)); background: var(--color-info-surface); color: var(--color-info); }
 .ui-status-badge__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.ui-capability-labels {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.ui-capability-label {
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
 
 .ui-tabs { min-width: 0; display: flex; align-items: stretch; overflow-x: auto; border-bottom: 1px solid var(--color-border); scrollbar-width: none; }
 .ui-tabs::-webkit-scrollbar { display: none; }

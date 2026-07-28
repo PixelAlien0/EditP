@@ -478,6 +478,7 @@ export const WEAPON_SLOT_PATHS = Object.freeze({
 export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
   {
     title: 'Explosion spawner',
+    capabilities: ['bar-gadget'],
     description: 'Create units when this projectile explodes. These values are read by BAR’s Unit Explosion Spawner gadget.',
     params: [
       { key: 'spawns_name', label: 'Spawned Unit IDs', type: 'string' },
@@ -491,6 +492,7 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
   },
   {
     title: 'Carrier deployment',
+    capabilities: ['bar-gadget', 'experimental'],
     description: 'Deploy and control carried units through BAR’s carrier weapon contract.',
     params: [
       { key: 'carried_unit', label: 'Carried Unit IDs (space-separated)', type: 'string' },
@@ -513,6 +515,7 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
   },
   {
     title: 'Carrier docking & endurance',
+    capabilities: ['bar-gadget', 'experimental'],
     description: 'Recovery, formation, lifetime, and ammunition behavior for deployed units.',
     params: [
       { key: 'enabledocking', label: 'Enable Docking', type: 'tri-state' },

@@ -110,6 +110,7 @@ const editorAdvancedGroups = [
   ...SPAWNER_CARRIER_WEAPON_GROUPS,
   {
     title: 'Cluster / MIRV behavior',
+    capabilities: ['bar-gadget', 'supporting-definition'],
     description: 'Release a supporting WeaponDef as submunitions. The referenced definition must exist when BAR loads.',
     params: [
       { key: 'cluster_def', label: 'Cluster Weapon Def', type: 'string' },
@@ -293,10 +294,12 @@ const editorAdvancedGroups = [
 export const WEAPON_ADVANCED_GROUPS = Object.freeze(editorAdvancedGroups.map((group, groupOrder) => Object.freeze({
   ...group,
   groupOrder,
+  capabilities: Object.freeze(group.capabilities || ['engine-native']),
   params: Object.freeze(group.params.map((parameter, order) => Object.freeze({
     ...parameter,
     surface: 'advanced',
     group: group.title,
+    capabilities: Object.freeze(parameter.capabilities || group.capabilities || ['engine-native']),
     order,
     featured: false,
     unit: '',
