@@ -188,7 +188,12 @@ export default function ReviewPage({
               <div>
                 <span className="workflow-eyebrow">Current BAR setup</span>
                 <h4 id="lobby-export-guide-title">Numbered lobby package</h4>
-                <p>Definitions load first, followed by Units. Each group has exactly nine available fields.</p>
+                <p>
+                  Definitions load first, followed by Units. Each group has exactly nine available fields.
+                  {compiledLobbyModules?.deduplication?.removedBlockCount > 0
+                    ? ` Safe deduplication removed ${compiledLobbyModules.deduplication.removedBlockCount} exact ${compiledLobbyModules.deduplication.removedBlockCount === 1 ? 'duplicate' : 'duplicates'} and saved ${compiledLobbyModules.deduplication.encodedBytesSaved.toLocaleString()} encoded bytes.`
+                    : ''}
+                </p>
               </div>
               <Button variant="primary" onClick={copyAllLobbyCommands} disabled={!lobbyCommands || !compatibilityReport.canCopyLobbyCommands}>Copy all !bset commands</Button>
             </div>

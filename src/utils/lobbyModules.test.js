@@ -218,4 +218,74 @@ describe('numbered lobby module compilation', () => {
     expect(first.defs.largestModules).toEqual(second.defs.largestModules);
     expect(first.defs.largestModules.map(module => module.id)).toEqual(['defs-1', 'defs-2']);
   });
+
+  it('safely collapses byte-identical imported modules in the same execution stage', () => {
+    const duplicateLua = 'local exact_duplicate = true';
+    const compiled = compileLobbyModules({
+      tweakModules: [
+        { ...moduleOf('defs', 1), rawLua: duplicateLua },
+        { ...moduleOf('defs', 2), rawLua: duplicateLua },
+      ],
+      generatedTweakDefsLua: '',
+      generatedTweakUnitsLua: '',
+      base64Options: { padding: false },
+    });
+
+    expect(compiled.defs.required).toBe(1);
+    expect(compiled.defs.slots[0].blockIds).toEqual([
+      'imported:defs:defs-1',
+      'imported:defs:defs-2',
+    ]);
+    expect(compiled.deduplication).toMatchObject({
+      removedBlockCount: 1,
+      slotsSaved: 1,
+      before: { blockCount: 2, slotCount: 2 },
+      after: { blockCount: 1, slotCount: 1 },
+    });
+    expect(compiled.deduplication.rawBytesSaved).toBeGreaterThan(0);
+    expect(compiled.deduplication.encodedBytesSaved).toBeGreaterThan(0);
+  });
+
+  it('does not collapse identical Lua across load stages, lanes, or source ownership', () => {
+    const duplicateLua = 'local exact_duplicate = true';
+    const compiled = compileLobbyModules({
+      tweakModules: [
+        { ...moduleOf('defs', 1, 'before-editor'), rawLua: duplicateLua },
+        { ...moduleOf('defs', 2, 'after-editor'), rawLua: duplicateLua },
+        {
+          ...moduleOf('units', 3, 'before-editor'),
+          rawLua: '{ exact_duplicate = { health = 1, }, }',
+        },
+      ],
+      generatedTweakDefsLua: duplicateLua,
+      generatedTweakUnitsLua: '',
+      base64Options: { padding: false },
+    });
+
+    expect(compiled.deduplication.removedBlockCount).toBe(0);
+    expect(compiled.defs.required).toBe(3);
+    expect(compiled.units.required).toBe(1);
+  });
+
+  it('collapses repeated generated feature blocks while retaining canonical provenance', () => {
+    const feature = [
+      '-- EDITP_BUILDMENU_BEGIN',
+      'local exact_menu = true',
+      '-- EDITP_BUILDMENU_END',
+    ].join('\n');
+    const compiled = compileLobbyModules({
+      tweakModules: [],
+      generatedTweakDefsLua: `${feature}\n\n${feature}`,
+      generatedTweakUnitsLua: '',
+      base64Options: { padding: false },
+    });
+
+    expect(compiled.canonicalBlocks.defs).toHaveLength(2);
+    expect(compiled.effectiveBlocks.defs).toHaveLength(1);
+    expect(compiled.defs.slots[0].blockIds).toEqual([
+      'generated:defs:build-menu:1',
+      'generated:defs:build-menu:2',
+    ]);
+    expect(compiled.deduplication.removedBlockCount).toBe(1);
+  });
 });

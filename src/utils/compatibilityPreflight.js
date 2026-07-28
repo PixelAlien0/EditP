@@ -124,6 +124,16 @@ export function buildCompatibilityPreflight({
       detail: `${compilerValidation.checkedBlockCount} canonical blocks and ${compilerValidation.checkedSlotCount} lobby slots passed Lua 5.1 syntax, ownership, packing, numbering, and payload-integrity checks.`,
     });
   }
+  if (compiledModules?.deduplication?.removedBlockCount > 0) {
+    const deduplication = compiledModules.deduplication;
+    add({
+      id: 'delivery-safe-deduplication',
+      group: 'delivery',
+      level: 'info',
+      title: `${deduplication.removedBlockCount} exact ${deduplication.removedBlockCount === 1 ? 'duplicate' : 'duplicates'} safely collapsed`,
+      detail: `${deduplication.rawBytesSaved.toLocaleString()} raw bytes and ${deduplication.encodedBytesSaved.toLocaleString()} encoded bytes were removed${deduplication.slotsSaved ? `, saving ${deduplication.slotsSaved} numbered ${deduplication.slotsSaved === 1 ? 'slot' : 'slots'}` : ''}. Original block provenance remains available for validation.`,
+    });
+  }
 
   const analyses = packageAnalysis?.analyses || new Map();
   const activeBlockingIssues = (packageAnalysis?.blockingIssues || []).filter(issue => issueTouchesActiveModules(issue, activeIds));

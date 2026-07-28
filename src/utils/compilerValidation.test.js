@@ -86,4 +86,35 @@ describe('canonical compiler semantic validation', () => {
       'generated-unit-identity',
     ]));
   });
+
+  it('accepts exact duplicate provenance and rejects unsafe deduplication claims', () => {
+    const duplicateLua = 'local exact_duplicate = true';
+    const compiled = compileLobbyModules({
+      tweakModules: [
+        {
+          id: 'duplicate-a', kind: 'defs', stage: 'before-editor', order: 0,
+          label: 'Duplicate A', rawLua: duplicateLua, enabled: true, converted: false,
+        },
+        {
+          id: 'duplicate-b', kind: 'defs', stage: 'before-editor', order: 1,
+          label: 'Duplicate B', rawLua: duplicateLua, enabled: true, converted: false,
+        },
+      ],
+      generatedTweakDefsLua: '',
+      generatedTweakUnitsLua: '',
+    });
+    expect(validateCompiledLobbyModules(compiled).isValid).toBe(true);
+
+    const tampered = structuredClone(compiled);
+    tampered.canonicalBlocks.defs[1].lua = 'local different_behavior = true';
+    tampered.canonicalBlocks.all = [
+      ...tampered.canonicalBlocks.defs,
+      ...tampered.canonicalBlocks.units,
+    ];
+    const validation = validateCompiledLobbyModules(tampered);
+    expect(validation.isValid).toBe(false);
+    expect(validation.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'unsafe-deduplication', level: 'blocker' }),
+    ]));
+  });
 });

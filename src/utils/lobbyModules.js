@@ -50,6 +50,92 @@ function normalizedDependencies(dependencies) {
     .sort(compareCanonicalText);
 }
 
+function canonicalExecutionKey(block) {
+  return [
+    block.kind,
+    block.stage,
+    block.source,
+    block.category,
+    block.sourceFeature,
+    block.atomic ? 'atomic' : 'composable',
+    block.lua,
+  ].join('\u001f');
+}
+
+function blockProvenance(block) {
+  return {
+    id: block.id,
+    label: block.label,
+    source: block.source,
+    moduleId: block.metadata?.moduleId || '',
+    sourceName: block.metadata?.sourceName || '',
+    originalFieldName: block.metadata?.originalFieldName || '',
+  };
+}
+
+function deduplicateCanonicalLane(blocks, kind) {
+  const retained = [];
+  const byExecution = new Map();
+  const groupsByRetainedId = new Map();
+
+  blocks.forEach(block => {
+    const key = canonicalExecutionKey(block);
+    const retainedIndex = byExecution.get(key);
+    if (retainedIndex === undefined) {
+      byExecution.set(key, retained.length);
+      retained.push({
+        ...block,
+        deduplicatedBlockIds: [],
+        provenance: [blockProvenance(block)],
+      });
+      return;
+    }
+
+    const original = retained[retainedIndex];
+    const next = {
+      ...original,
+      dependencies: normalizedDependencies([...original.dependencies, ...block.dependencies]),
+      deduplicatedBlockIds: [...original.deduplicatedBlockIds, block.id],
+      provenance: [...original.provenance, blockProvenance(block)],
+    };
+    retained[retainedIndex] = next;
+    const group = groupsByRetainedId.get(original.id) || {
+      kind,
+      stage: original.stage,
+      source: original.source,
+      category: original.category,
+      retainedBlockId: original.id,
+      retainedLabel: original.label,
+      removedBlockIds: [],
+      removedLabels: [],
+      rawBytesSaved: 0,
+    };
+    group.removedBlockIds.push(block.id);
+    group.removedLabels.push(block.label);
+    group.rawBytesSaved += block.rawBytes;
+    groupsByRetainedId.set(original.id, group);
+  });
+
+  return {
+    blocks: retained,
+    groups: [...groupsByRetainedId.values()],
+  };
+}
+
+export function deduplicateCanonicalBlocks(canonicalBlocks) {
+  const defs = deduplicateCanonicalLane(canonicalBlocks?.defs || [], 'defs');
+  const units = deduplicateCanonicalLane(canonicalBlocks?.units || [], 'units');
+  return {
+    blocks: {
+      schemaVersion: canonicalBlocks?.schemaVersion ?? COMPILER_BLOCK_SCHEMA_VERSION,
+      defs: defs.blocks,
+      units: units.blocks,
+      all: [...defs.blocks, ...units.blocks],
+    },
+    groups: [...defs.groups, ...units.groups],
+  };
+}
+
 function canonicalBlock({
   id,
   label,
@@ -280,7 +366,7 @@ function combineUnitTables(left, right) {
 }
 
 function packedGeneratedBlock(kind, blocks, lua, index) {
-  const blockIds = blocks.map(block => block.id);
+  const blockIds = blocks.flatMap(block => [block.id, ...(block.deduplicatedBlockIds || [])]);
   const features = [...new Set(blocks.map(block => block.sourceFeature))];
   const dependencies = normalizedDependencies(blocks.flatMap(block => block.dependencies));
   return {
@@ -299,6 +385,8 @@ function packedGeneratedBlock(kind, blocks, lua, index) {
     rawBytes: textEncoder.encode(lua).byteLength,
     blockIds,
     blockCount: blockIds.length,
+    executionBlockCount: blocks.length,
+    deduplicatedBlockCount: blockIds.length - blocks.length,
     features,
   };
 }
@@ -350,8 +438,10 @@ function materializeLane(blocks, kind) {
     output.push({
       ...block,
       id: block.metadata.moduleId,
-      blockIds: [block.id],
-      blockCount: 1,
+      blockIds: [block.id, ...(block.deduplicatedBlockIds || [])],
+      blockCount: 1 + (block.deduplicatedBlockIds?.length || 0),
+      executionBlockCount: 1,
+      deduplicatedBlockCount: block.deduplicatedBlockIds?.length || 0,
       features: [block.sourceFeature],
     });
   });
@@ -406,7 +496,15 @@ function finalizeSlots(blocks, kind, maximum, padding) {
     ))
     .slice(0, 3)
     .map(({ id, label, encodedBytes, source }) => ({ id, label, encodedBytes, source }));
-  return { kind, slots, required, maximum, overflow, largestModules };
+  return {
+    kind,
+    slots,
+    required,
+    maximum,
+    overflow,
+    largestModules,
+    totalEncodedBytes: prepared.reduce((total, block) => total + block.encodedBytes, 0),
+  };
 }
 
 export function compileLobbyModules(projectState, options = {}) {
@@ -414,12 +512,29 @@ export function compileLobbyModules(projectState, options = {}) {
   const maxUnitsSlots = options.maxUnitsSlots ?? MAX_UNITS_SLOTS;
   const base64Padding = projectState.base64Options?.padding ?? false;
   const canonicalBlocks = buildCanonicalCompilerBlocks(projectState);
-  const defsBlocks = materializeLane(canonicalBlocks.defs, 'defs');
-  const unitsBlocks = materializeLane(canonicalBlocks.units, 'units');
+  const deduplicated = options.deduplicate === false
+    ? { blocks: canonicalBlocks, groups: [] }
+    : deduplicateCanonicalBlocks(canonicalBlocks);
+  const defsBlocks = materializeLane(deduplicated.blocks.defs, 'defs');
+  const unitsBlocks = materializeLane(deduplicated.blocks.units, 'units');
   const defs = finalizeSlots(defsBlocks, 'defs', maxDefsSlots, base64Padding);
   const units = finalizeSlots(unitsBlocks, 'units', maxUnitsSlots, base64Padding);
+  const hasDuplicates = deduplicated.groups.length > 0;
+  const baselineDefs = hasDuplicates
+    ? finalizeSlots(materializeLane(canonicalBlocks.defs, 'defs'), 'defs', maxDefsSlots, base64Padding)
+    : defs;
+  const baselineUnits = hasDuplicates
+    ? finalizeSlots(materializeLane(canonicalBlocks.units, 'units'), 'units', maxUnitsSlots, base64Padding)
+    : units;
   const overflow = defs.overflow || units.overflow;
   const allSlots = [...defs.slots, ...units.slots];
+  const removedBlockCount = deduplicated.groups.reduce(
+    (total, group) => total + group.removedBlockIds.length,
+    0,
+  );
+  const rawBytesSaved = deduplicated.groups.reduce((total, group) => total + group.rawBytesSaved, 0);
+  const baselineEncodedBytes = baselineDefs.totalEncodedBytes + baselineUnits.totalEncodedBytes;
+  const effectiveEncodedBytes = defs.totalEncodedBytes + units.totalEncodedBytes;
   return {
     defs,
     units,
@@ -427,7 +542,26 @@ export function compileLobbyModules(projectState, options = {}) {
     slots: allSlots,
     aggregateBytes: allSlots.reduce((total, slot) => total + slot.encodedBytes, 0),
     canonicalBlocks,
+    effectiveBlocks: deduplicated.blocks,
     base64Padding,
+    deduplication: {
+      enabled: options.deduplicate !== false,
+      groups: deduplicated.groups,
+      removedBlockCount,
+      rawBytesSaved,
+      encodedBytesSaved: Math.max(0, baselineEncodedBytes - effectiveEncodedBytes),
+      slotsSaved: Math.max(0, baselineDefs.required + baselineUnits.required - defs.required - units.required),
+      before: {
+        blockCount: canonicalBlocks.all.length,
+        slotCount: baselineDefs.required + baselineUnits.required,
+        encodedBytes: baselineEncodedBytes,
+      },
+      after: {
+        blockCount: deduplicated.blocks.all.length,
+        slotCount: defs.required + units.required,
+        encodedBytes: effectiveEncodedBytes,
+      },
+    },
   };
 }
 

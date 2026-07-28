@@ -91,6 +91,33 @@ describe('buildCompatibilityPreflight', () => {
     ]));
   });
 
+  it('reports safe compiler deduplication without downgrading readiness', () => {
+    const result = buildCompatibilityPreflight({
+      compiledModules: compiled({
+        deduplication: {
+          removedBlockCount: 2,
+          rawBytesSaved: 240,
+          encodedBytesSaved: 320,
+          slotsSaved: 1,
+        },
+      }),
+      compilerValidation: {
+        isValid: true,
+        checkedBlockCount: 4,
+        checkedSlotCount: 2,
+        issues: [],
+      },
+    });
+
+    expect(result).toMatchObject({ status: 'ready', canCopyLobbyCommands: true });
+    expect(result.items).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'delivery-safe-deduplication',
+        level: 'info',
+      }),
+    ]));
+  });
+
   it('keeps imperfect community Lua exportable when findings are advisory rather than definite failures', () => {
     const module = { id: 'module-a', label: 'Community tweak', enabled: true, converted: false, requirements: ['forceallunits'] };
     const analysis = packageAnalysis('module-a', {

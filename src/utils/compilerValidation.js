@@ -24,6 +24,18 @@ function normalizeLua(lua) {
   return String(lua || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').trim();
 }
 
+function executionSignature(block) {
+  return [
+    block.kind,
+    block.stage,
+    block.source,
+    block.category,
+    block.sourceFeature,
+    block.atomic ? 'atomic' : 'composable',
+    normalizeLua(block.lua),
+  ].join('\u001f');
+}
+
 function parseLua(lua, kind) {
   const source = kind === 'units' ? `return ${lua}` : lua;
   return luaparse.parse(source, { luaVersion: '5.1', comments: false });
@@ -60,6 +72,7 @@ function validateCanonicalBlocks(canonicalBlocks, add) {
     ['units', canonicalBlocks?.units || []],
   ];
   const seenBlockIds = new Set();
+  const blocksById = new Map();
   const generatedUnitIds = new Set();
 
   lanes.forEach(([lane, blocks]) => {
@@ -72,6 +85,7 @@ function validateCanonicalBlocks(canonicalBlocks, add) {
         add({ ...context, code: 'duplicate-block-id', level: 'blocker', message: `Canonical block ID ${block?.id || '(missing)'} is not unique.` });
       } else {
         seenBlockIds.add(block.id);
+        blocksById.set(block.id, block);
       }
       if (block?.kind !== lane) {
         add({ ...context, code: 'lane-kind-mismatch', level: 'blocker', message: `Block kind ${block?.kind || '(missing)'} does not match the ${lane} lane.` });
@@ -141,10 +155,66 @@ function validateCanonicalBlocks(canonicalBlocks, add) {
     add({ code: 'canonical-lane-index', level: 'blocker', message: 'The canonical all-block index does not match Definitions followed by Units.' });
   }
 
-  return seenBlockIds;
+  return { ids: seenBlockIds, blocksById };
 }
 
-function validateSlots(compiledModules, canonicalIds, add) {
+function validateDeduplication(compiledModules, blocksById, add) {
+  const report = compiledModules?.deduplication;
+  if (!report) {
+    add({ code: 'deduplication-report-missing', level: 'blocker', message: 'Safe deduplication provenance is unavailable.' });
+    return new Map();
+  }
+
+  const groupsByRetainedId = new Map();
+  const removedIds = new Set();
+  let removedCount = 0;
+  let rawBytesSaved = 0;
+  (report.groups || []).forEach(group => {
+    const retained = blocksById.get(group.retainedBlockId);
+    const removed = (group.removedBlockIds || []).map(id => blocksById.get(id));
+    const context = { lane: group.kind, blockId: group.retainedBlockId, source: group.source };
+    if (!retained || removed.some(block => !block)) {
+      add({ ...context, code: 'deduplication-provenance', level: 'blocker', message: 'A deduplication group references an unknown canonical block.' });
+      return;
+    }
+    if (removed.length === 0 || removed.some(block => executionSignature(block) !== executionSignature(retained))) {
+      add({ ...context, code: 'unsafe-deduplication', level: 'blocker', message: 'Only byte-identical blocks with matching lane, stage, source, category, and feature may be deduplicated.' });
+    }
+    group.removedBlockIds.forEach(id => {
+      if (removedIds.has(id) || id === group.retainedBlockId) {
+        add({ ...context, code: 'duplicate-deduplication-provenance', level: 'blocker', message: `Canonical block ${id} has invalid duplicate provenance.` });
+      }
+      removedIds.add(id);
+    });
+    const expectedRawSavings = removed.reduce((total, block) => total + (block?.rawBytes || 0), 0);
+    if (group.rawBytesSaved !== expectedRawSavings) {
+      add({ ...context, code: 'deduplication-byte-count', level: 'blocker', message: 'Deduplication raw-byte savings do not match the removed blocks.' });
+    }
+    removedCount += removed.length;
+    rawBytesSaved += expectedRawSavings;
+    groupsByRetainedId.set(group.retainedBlockId, group);
+  });
+
+  if (report.removedBlockCount !== removedCount || report.rawBytesSaved !== rawBytesSaved) {
+    add({ code: 'deduplication-summary', level: 'blocker', message: 'Deduplication summary totals do not match their provenance groups.' });
+  }
+  if (
+    report.before?.blockCount - report.after?.blockCount !== removedCount
+    || report.before?.encodedBytes - report.after?.encodedBytes !== report.encodedBytesSaved
+    || report.before?.slotCount - report.after?.slotCount !== report.slotsSaved
+  ) {
+    add({ code: 'deduplication-savings', level: 'blocker', message: 'Deduplication before/after savings are internally inconsistent.' });
+  }
+
+  const effectiveIds = compiledModules?.effectiveBlocks?.all?.map(block => block.id) || [];
+  const expectedEffectiveIds = [...blocksById.keys()].filter(id => !removedIds.has(id));
+  if (JSON.stringify(effectiveIds) !== JSON.stringify(expectedEffectiveIds)) {
+    add({ code: 'deduplication-effective-index', level: 'blocker', message: 'Effective compiler blocks do not match the deduplicated canonical index.' });
+  }
+  return groupsByRetainedId;
+}
+
+function validateSlots(compiledModules, canonicalIds, deduplicationGroups, add) {
   const seenFields = new Set();
   const recordedBlockIds = [];
   const allSlots = compiledModules?.slots || [];
@@ -178,7 +248,11 @@ function validateSlots(compiledModules, canonicalIds, add) {
     } else {
       recordedBlockIds.push(...slot.blockIds);
       if (slot.source === 'imported' && slot.blockIds.length !== 1) {
-        add({ ...context, code: 'imported-module-split', level: 'blocker', message: `${slot.fieldName} does not preserve its imported module as one atomic slot.` });
+        const group = deduplicationGroups.get(slot.blockIds[0]);
+        const expectedIds = group ? [group.retainedBlockId, ...group.removedBlockIds] : [];
+        if (JSON.stringify(slot.blockIds) !== JSON.stringify(expectedIds)) {
+          add({ ...context, code: 'imported-module-split', level: 'blocker', message: `${slot.fieldName} does not preserve one imported execution with complete duplicate provenance.` });
+        }
       }
     }
     try {
@@ -256,8 +330,9 @@ export function validateCompiledLobbyModules(compiledModules) {
   if (!compiledModules || !compiledModules.canonicalBlocks) {
     add({ code: 'compiler-output-missing', level: 'blocker', message: 'Canonical compiler output is unavailable.' });
   } else {
-    const canonicalIds = validateCanonicalBlocks(compiledModules.canonicalBlocks, add);
-    validateSlots(compiledModules, canonicalIds, add);
+    const canonical = validateCanonicalBlocks(compiledModules.canonicalBlocks, add);
+    const deduplicationGroups = validateDeduplication(compiledModules, canonical.blocksById, add);
+    validateSlots(compiledModules, canonical.ids, deduplicationGroups, add);
   }
 
   const orderedIssues = stableIssues(issues);
