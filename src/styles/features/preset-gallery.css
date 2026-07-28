@@ -3,55 +3,32 @@
   position: fixed;
   inset: var(--header-height) 0 0 !important;
   z-index: 9;
-  display: flex;
   overflow: hidden;
   background: var(--color-canvas) !important;
   color: var(--color-text) !important;
 }
 
-.preset-gallery-page .preset-gallery-modal {
-  width: 100%;
-  height: 100%;
-  max-height: none;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: var(--color-canvas) !important;
-  box-shadow: none !important;
+.preset-gallery-page__body {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
 }
 
-.preset-gallery-page .preset-gallery-header {
-  min-height: 84px;
-  padding: 16px clamp(24px, 2.6vw, 48px);
-  border-bottom: 1px solid var(--color-border) !important;
-  background: var(--color-surface-raised) !important;
-}
-
-.preset-gallery-page .preset-gallery-header > div:first-child > span,
 .preset-gallery-page .preset-save-copy > span,
 .preset-gallery-page .preset-card-overline {
   color: var(--color-accent-strong) !important;
 }
 
-.preset-gallery-page .preset-gallery-header > div:first-child > span i {
-  display: none;
-}
-
-.preset-gallery-page .preset-gallery-header h3,
 .preset-gallery-page .preset-card-heading h4 {
   color: var(--color-text-strong) !important;
   font-family: var(--font-display) !important;
 }
 
-.preset-gallery-page .preset-gallery-header p,
 .preset-gallery-page .preset-save-copy small,
 .preset-gallery-page .preset-card-heading time,
 .preset-gallery-page .preset-card p,
 .preset-gallery-page .preset-card-footer > span {
-  color: var(--color-text-muted) !important;
-}
-
-.preset-gallery-page .preset-gallery-header-actions > span {
-  border-left-color: var(--color-border) !important;
   color: var(--color-text-muted) !important;
 }
 

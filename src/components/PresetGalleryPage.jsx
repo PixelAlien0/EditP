@@ -14,20 +14,17 @@ export default function PresetGalleryPage({
   onClose
 }) {
   return (
-    <PageShell className="preset-gallery-page" label="Preset Gallery">
-      <div className="preset-gallery-modal" aria-labelledby="preset-gallery-title">
-        <div className="preset-gallery-header">
-          <div>
-            <span>Experiment library <i /> Local project states</span>
-            <h3 id="preset-gallery-title">Preset Gallery</h3>
-            <p>Capture a complete editor state, compare your experiments, then return to any one without rebuilding it.</p>
-          </div>
-          <div className="preset-gallery-header-actions">
-            <span>{presets.length} saved</span>
-            <Button className="preset-gallery-close" onClick={onClose}>Back to editor</Button>
-          </div>
-        </div>
-
+    <PageShell
+      className="preset-gallery-page"
+      label="Preset Gallery"
+      eyebrow="Experiment library"
+      title="Preset Gallery"
+      description="Capture a complete editor state, compare experiments, and restore them without rebuilding."
+      capabilityId="tool.preset-gallery"
+      metrics={[{ label: 'Saved presets', value: presets.length }]}
+      actions={<Button className="preset-gallery-close" onClick={onClose}>Back to editor</Button>}
+      bodyClassName="preset-gallery-page__body"
+    >
         <div className="preset-save-panel">
           <div className="preset-save-copy">
             <span>Capture current work</span>
@@ -80,7 +77,6 @@ export default function PresetGalleryPage({
             />
           )}
         </div>
-      </div>
     </PageShell>
   );
 }

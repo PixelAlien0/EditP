@@ -1,4 +1,5 @@
 import { cx } from './utils.js';
+import { CapabilityLabels } from './CapabilityBadge.jsx';
 
 export function SectionHeader({ eyebrow, title, description, actions, className, headingLevel = 2 }) {
   const Heading = `h${headingLevel}`;
@@ -14,8 +15,103 @@ export function SectionHeader({ eyebrow, title, description, actions, className,
   );
 }
 
-export function PageShell({ children, className, label }) {
-  return <main className={cx('ui-page-shell', className)} aria-label={label}>{children}</main>;
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  capabilityId,
+  capabilityIds,
+  context,
+  metrics = [],
+  status,
+  actions,
+  className,
+  headingId,
+  headingLevel = 2,
+}) {
+  const Heading = `h${headingLevel}`;
+  const hasUtilityRail = context || metrics.length > 0 || status || actions;
+
+  return (
+    <header className={cx('ui-page-header', className)}>
+      <div className="ui-page-header__copy">
+        <div className="ui-page-header__overline">
+          {eyebrow && <span>{eyebrow}</span>}
+          <CapabilityLabels featureId={capabilityId} capabilityIds={capabilityIds} compact />
+        </div>
+        <Heading id={headingId}>{title}</Heading>
+        {description && <p>{description}</p>}
+      </div>
+      {hasUtilityRail && (
+        <div className="ui-page-header__utility">
+          {context && <div className="ui-page-header__context">{context}</div>}
+          {metrics.length > 0 && (
+            <dl className="ui-page-header__metrics">
+              {metrics.map(metric => (
+                <div key={metric.label}>
+                  <dt>{metric.label}</dt>
+                  <dd>{metric.value}</dd>
+                  {metric.detail && <small>{metric.detail}</small>}
+                </div>
+              ))}
+            </dl>
+          )}
+          {status && <div className="ui-page-header__status">{status}</div>}
+          {actions && <div className="ui-page-header__actions">{actions}</div>}
+        </div>
+      )}
+    </header>
+  );
+}
+
+export function PageShell({
+  children,
+  className,
+  label,
+  eyebrow,
+  title,
+  description,
+  capabilityId,
+  capabilityIds,
+  context,
+  metrics,
+  status,
+  actions,
+  header,
+  toolbar,
+  footer,
+  bodyClassName,
+  headingId,
+  headingLevel = 2,
+  scrollMode = 'contained',
+}) {
+  const resolvedHeadingId = headingId || (title ? `page-${String(title).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : undefined);
+  const accessibleProps = resolvedHeadingId
+    ? { 'aria-labelledby': resolvedHeadingId }
+    : { 'aria-label': label };
+
+  return (
+    <main className={cx('ui-page-shell', `ui-page-shell--${scrollMode}`, className)} {...accessibleProps}>
+      {header || (title && (
+        <PageHeader
+          eyebrow={eyebrow}
+          title={title}
+          description={description}
+          capabilityId={capabilityId}
+          capabilityIds={capabilityIds}
+          context={context}
+          metrics={metrics}
+          status={status}
+          actions={actions}
+          headingId={resolvedHeadingId}
+          headingLevel={headingLevel}
+        />
+      ))}
+      {toolbar && <div className="ui-page-shell__toolbar">{toolbar}</div>}
+      <div className={cx('ui-page-shell__body', bodyClassName)}>{children}</div>
+      {footer && <footer className="ui-page-shell__footer">{footer}</footer>}
+    </main>
+  );
 }
 
 export function Card({ children, className, tone = 'default', padding = 'md', as: Element = 'div', ...props }) {

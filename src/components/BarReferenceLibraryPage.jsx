@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, EmptyState } from './ui.jsx';
+import { Button, EmptyState, PageShell } from './ui.jsx';
 import UnitArtwork from './UnitArtwork.jsx';
 import {
   BAR_REFERENCE_CATEGORIES,
@@ -233,21 +233,28 @@ export default function BarReferenceLibraryPage({
   };
 
   return (
-    <main className="bar-reference-library" aria-labelledby="bar-reference-library-title">
-      <header className="bar-reference-library__hero">
-        <div>
-          <span className="workflow-eyebrow">Bundled game knowledge</span>
-          <h2 id="bar-reference-library-title">Unified BAR Reference Library</h2>
-          <p>Search exact UnitDef, WeaponDef, artwork, model, script, effect, sound, texture, and explosion names from one verified workspace.</p>
-        </div>
-        <div className="bar-reference-library__hero-meta">
-          <div><strong>{catalog.items.length.toLocaleString()}</strong><span>references</span></div>
-          <div><strong>{catalog.counts.unit?.toLocaleString() || 0}</strong><span>units</span></div>
-          <div><strong>{catalog.counts.weapon?.toLocaleString() || 0}</strong><span>mounted weapons</span></div>
-          <Button onClick={onBack}>Back to editor</Button>
-        </div>
-      </header>
-
+    <PageShell
+      className="bar-reference-library"
+      label="Unified BAR Reference Library"
+      eyebrow="Bundled game knowledge"
+      title="Unified BAR Reference Library"
+      description="Search exact UnitDef, WeaponDef, artwork, model, script, effect, sound, texture, and explosion names from one verified workspace."
+      capabilityId="tool.reference-library"
+      metrics={[
+        { label: 'references', value: catalog.items.length.toLocaleString() },
+        { label: 'units', value: catalog.counts.unit?.toLocaleString() || 0 },
+        { label: 'mounted weapons', value: catalog.counts.weapon?.toLocaleString() || 0 },
+      ]}
+      actions={<Button onClick={onBack}>Back to editor</Button>}
+      bodyClassName="bar-reference-library__body"
+      footer={(
+        <>
+          <span>Source <strong>{catalog.metadata.sourceRepository}</strong></span>
+          <span>Snapshot <code>{catalog.metadata.sourceCommit?.slice(0, 12) || 'bundled'}</code></span>
+          <span>Schema v{catalog.metadata.version}</span>
+        </>
+      )}
+    >
       <nav className="bar-reference-library__categories" aria-label="Reference categories">
         {BAR_REFERENCE_CATEGORIES.map(item => (
           <button
@@ -319,11 +326,6 @@ export default function BarReferenceLibraryPage({
         <ReferenceInspector item={selectedItem} catalogById={catalogById} onSelect={setSelectedId} onOpenUnit={onOpenUnit} onCopy={copyValue} />
       </div>
 
-      <footer className="bar-reference-library__footer">
-        <span>Source <strong>{catalog.metadata.sourceRepository}</strong></span>
-        <span>Snapshot <code>{catalog.metadata.sourceCommit?.slice(0, 12) || 'bundled'}</code></span>
-        <span>Schema v{catalog.metadata.version}</span>
-      </footer>
-    </main>
+    </PageShell>
   );
 }

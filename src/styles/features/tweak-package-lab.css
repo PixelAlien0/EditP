@@ -1,29 +1,19 @@
 .tweak-package-lab {
   min-height: 0;
   height: 100%;
-  display: flex;
-  flex-direction: column;
   background: var(--color-canvas);
   color: var(--color-text-strong);
 }
 
-.tweak-lab-header {
-  min-height: 88px;
-  padding: var(--space-4) var(--space-5);
+.tweak-package-lab__body {
+  min-height: 0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-5);
-  border-bottom: 1px solid var(--color-border-subtle);
-  background: var(--color-surface);
+  flex-direction: column;
 }
 
-.tweak-lab-header h2,
 .tweak-lab-inspector h3 { margin: 2px 0; font-family: var(--font-display); }
-.tweak-lab-header p { margin: 0; color: var(--color-text); }
-.tweak-lab-header__actions { display: flex; align-items: center; gap: var(--space-3); }
-.tweak-lab-header__actions > span { padding: 7px 10px; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-pill); font: 600 11px/1 var(--font-mono); }
-.tweak-lab-header__actions > span.is-overflow { color: var(--color-danger); border-color: var(--color-danger); }
+.tweak-lab-slot-status { padding: 7px 10px; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-pill); font: 600 11px/1 var(--font-mono); white-space: nowrap; }
+.tweak-lab-slot-status.is-overflow { color: var(--color-danger); border-color: var(--color-danger); }
 
 .lobby-bundle-preview {
   flex: 0 0 auto;

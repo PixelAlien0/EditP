@@ -230,8 +230,7 @@ html[data-theme="dark"] {
 }
 
 [data-theme="dark"] .header-brand h1,
-[data-theme="dark"] .unit-dossier-title,
-[data-theme="dark"] .review-page-header h2 {
+[data-theme="dark"] .unit-dossier-title {
   color: var(--color-text-strong) !important;
 }
 
@@ -501,8 +500,6 @@ html[data-theme="dark"] {
 }
 
 [data-theme="dark"] .review-card-heading,
-[data-theme="dark"] .preset-gallery-page .preset-gallery-header,
-[data-theme="dark"] .designer-page .designer-modal-header,
 [data-theme="dark"] .designer-page .designer-panel,
 [data-theme="dark"] .designer-page .designer-panel-scroll,
 [data-theme="dark"] .designer-page .designer-roster-canvas {

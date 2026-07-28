@@ -75,67 +75,15 @@
 .collections-page {
   min-height: 0;
   height: calc(100vh - var(--app-header-height, 76px));
-  padding: clamp(20px, 3vw, 40px);
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: var(--space-5);
   overflow: hidden;
   background: var(--color-canvas);
   color: var(--color-text);
 }
 
-.collections-page__hero {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: var(--space-8);
-}
-
-.collections-page__hero h2 {
-  margin: 4px 0;
-  color: var(--color-text-strong);
-  font: 600 clamp(24px, 3vw, 34px)/1.1 var(--font-display);
-}
-
-.collections-page__hero p {
-  max-width: 680px;
-  margin: 0;
-  color: var(--color-text-muted);
-  font: 500 12px/1.55 var(--font-ui);
-}
-
-.collections-page__hero-actions {
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-2);
-}
-
-.collections-page__hero-actions > div {
-  min-width: 96px;
-  padding: var(--space-2) var(--space-3);
+.collections-page__body {
+  min-height: 0;
+  padding: clamp(20px, 3vw, 40px);
   display: grid;
-  align-content: center;
-  border-left: 1px solid var(--color-border);
-}
-
-.collections-page__hero-actions strong {
-  color: var(--color-text-strong);
-  font: 700 16px/1 var(--font-mono);
-}
-
-.collections-page__hero-actions span {
-  color: var(--color-text-muted);
-  font: 600 8px/1.4 var(--font-ui);
-  text-transform: uppercase;
-}
-
-.collections-page__hero-actions button {
-  min-width: 112px;
-  padding: 0 var(--space-4);
-  color: var(--color-accent-strong);
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
 }
 
 .collections-page__layout {
@@ -370,8 +318,7 @@
 .collection-members__limit { margin: 0; padding: 7px var(--space-5); border-top: 1px solid var(--color-border); color: var(--color-text-muted); font: 500 8px/1.3 var(--font-ui); }
 
 @media (max-width: 1100px) {
-  .collections-page { height: auto; min-height: calc(100vh - 76px); overflow: auto; }
-  .collections-page__hero { align-items: start; flex-direction: column; }
+  .collections-page__body { overflow: auto; }
   .collections-page__layout { min-height: 720px; grid-template-columns: 270px minmax(620px, 1fr); overflow: auto; }
   .collection-members__metrics { grid-template-columns: repeat(2, 1fr); }
   .collection-members__metrics > div:nth-child(3) { border-left: 0; border-top: 1px solid var(--color-border); }
@@ -379,10 +326,7 @@
 }
 
 @media (max-width: 720px) {
-  .collections-page { padding: var(--space-3); }
-  .collections-page__hero-actions { width: 100%; flex-wrap: wrap; }
-  .collections-page__hero-actions > div { flex: 1; }
-  .collections-page__hero-actions button { min-height: 40px; flex: 1 0 100%; }
+  .collections-page__body { padding: var(--space-3); }
   .collections-page__layout { display: block; min-height: 0; overflow: visible; }
   .collections-page__folders { min-height: 420px; border-right: 0; border-bottom: 1px solid var(--color-border); }
   .collection-members { min-height: 640px; }

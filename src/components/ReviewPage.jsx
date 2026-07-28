@@ -90,19 +90,26 @@ export default function ReviewPage({
   };
 
   return (
-    <PageShell className="review-workspace" label="Review and export">
-      <div className="review-page-header">
-        <div>
-          <span className="workflow-eyebrow">Final review</span>
-          <h2>Review &amp; Export</h2>
-          <p>Validate the project, inspect every change, and prepare the generated BAR configuration.</p>
-        </div>
-        <div className="review-header-actions">
+    <PageShell
+      className="review-workspace"
+      label="Review and export"
+      eyebrow="Final review"
+      title="Review & Export"
+      description="Validate the project, inspect every change, and prepare the generated BAR configuration."
+      capabilityId="workspace.review"
+      metrics={[
+        { label: 'Changes', value: projectChangeCount },
+        { label: 'Issues', value: validationIssues.length },
+      ]}
+      actions={(
+        <>
           <Button onClick={onBack}>Back to editor</Button>
           <Button variant="primary" onClick={onExport}>Download project file</Button>
-        </div>
-      </div>
-
+        </>
+      )}
+      bodyClassName="review-workspace__body"
+      scrollMode="scroll"
+    >
       <div className="review-content-grid">
         <div className="review-main-column">
           <section className="review-summary-grid" aria-label="Project summary">

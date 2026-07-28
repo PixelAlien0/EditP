@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Button, PageShell } from './ui.jsx';
 import UnitArtwork from './UnitArtwork.jsx';
 import UnitCollectionsPanel from './editor/UnitCollectionsPanel.jsx';
 import { getCollectionDescendantIds, getCollectionUnitIds } from '../project/unitCollections.js';
@@ -57,20 +58,20 @@ export default function CollectionsPage({
   const visibleUnits = filteredUnits.slice(0, RESULT_LIMIT);
 
   return (
-    <main className="collections-page" aria-labelledby="collections-page-title">
-      <header className="collections-page__hero">
-        <div>
-          <span className="workflow-eyebrow">Reusable unit scopes</span>
-          <h2 id="collections-page-title">Collections</h2>
-          <p>Organize vanilla and custom units into nested, overlapping folders for focused editing and review.</p>
-        </div>
-        <div className="collections-page__hero-actions">
-          <div><strong>{collections.length}</strong><span>folders</span></div>
-          <div><strong>{new Set(collections.flatMap(collection => collection.unitIds)).size}</strong><span>organized units</span></div>
-          <button type="button" onClick={onBack}>Back to editor</button>
-        </div>
-      </header>
-
+    <PageShell
+      className="collections-page"
+      label="Collections"
+      eyebrow="Reusable unit scopes"
+      title="Collections"
+      description="Organize vanilla and custom units into nested, overlapping folders for focused editing and review."
+      capabilityId="workspace.collections"
+      metrics={[
+        { label: 'Folders', value: collections.length },
+        { label: 'Organized units', value: new Set(collections.flatMap(collection => collection.unitIds)).size },
+      ]}
+      actions={<Button onClick={onBack}>Back to editor</Button>}
+      bodyClassName="collections-page__body"
+    >
       <div className="collections-page__layout">
         <aside className="collections-page__folders" aria-label="Collection folders">
           <UnitCollectionsPanel
@@ -163,6 +164,6 @@ export default function CollectionsPage({
           )}
         </section>
       </div>
-    </main>
+    </PageShell>
   );
 }

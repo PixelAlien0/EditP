@@ -367,19 +367,17 @@ export default function TweakPackageLabPage({
     : '0/9 Definitions · 0/9 Units';
 
   return (
-    <PageShell className="tweak-package-lab" label="Tweak Package Lab">
-      <header className="tweak-lab-header">
-        <div>
-          <span className="workflow-eyebrow">Static package workbench</span>
-          <h2>Tweak Package Lab</h2>
-          <p>Inspect modular BAR tweaks without executing imported Lua.</p>
-        </div>
-        <div className="tweak-lab-header__actions">
-          <span className={compiledModules?.overflow ? 'is-overflow' : ''}>{slotSummary}</span>
-          <Button onClick={onBack}>Back to editor</Button>
-        </div>
-      </header>
-
+    <PageShell
+      className="tweak-package-lab"
+      label="Tweak Package Lab"
+      eyebrow="Static package workbench"
+      title="Tweak Package Lab"
+      description="Inspect modular BAR tweaks without executing imported Lua."
+      capabilityId="tool.tweak-package-lab"
+      status={<span className={`tweak-lab-slot-status ${compiledModules?.overflow ? 'is-overflow' : ''}`}>{slotSummary}</span>}
+      actions={<Button onClick={onBack}>Back to editor</Button>}
+      bodyClassName="tweak-package-lab__body"
+    >
       {bundlePreview && (
         <LobbyBundlePreview
           bundle={bundlePreview}

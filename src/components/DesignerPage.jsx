@@ -36,26 +36,26 @@ export default function DesignerPage({
   onClose,
 }) {
   return (
-    <PageShell className="designer-page" label="Factory Roster Designer">
-      <div className="designer-modal-container">
-        <div className="designer-modal-header">
-          <div className="designer-modal-heading">
-            <span className="designer-modal-eyebrow">Production planning</span>
-            <span className="designer-modal-title">Factory Roster Designer</span>
-            <span className="designer-modal-subtitle">Compose, sequence, and validate factory build options.</span>
-          </div>
-          <div className="designer-header-context">
+    <PageShell
+      className="designer-page"
+      label="Factory Roster Designer"
+      eyebrow="Production planning"
+      title="Factory Roster Designer"
+      description="Compose, sequence, and validate factory build options."
+      capabilityId="workspace.build-menus"
+      context={(
             <div className="designer-selected-factory">
               <div className="designer-unit-pic"><img src={factoryIconUrl} alt="" /></div>
               <div><small>Current producer</small><span>{factoryName}</span><code>{factoryId}</code></div>
             </div>
-            <div className="designer-header-stats" aria-label="Selected producer status">
-              <div className="designer-header-stat"><span>Active slots</span><strong>{activeSlotCount}</strong></div>
-              <div className="designer-header-stat"><span>Changes</span><strong>{changeCount}</strong></div>
-            </div>
-            <Button className="designer-close-button" onClick={onClose}>← Back to editor</Button>
-          </div>
-        </div>
+      )}
+      metrics={[
+        { label: 'Active slots', value: activeSlotCount },
+        { label: 'Changes', value: changeCount },
+      ]}
+      actions={<Button className="designer-close-button" onClick={onClose}>Back to editor</Button>}
+      bodyClassName="designer-page__body"
+    >
         <section className="designer-roster-profiles" aria-labelledby="designer-roster-profiles-title">
           <div className="designer-roster-profiles__intro">
             <span className="designer-panel-kicker">Game setup</span>
@@ -314,7 +314,6 @@ export default function DesignerPage({
               )}
             </div>
           </div>
-        </div>
       </div>
     </PageShell>
   );

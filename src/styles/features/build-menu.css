@@ -3,76 +3,23 @@
   position: fixed;
   inset: var(--header-height) 0 0 !important;
   z-index: 9;
-  display: flex;
   padding: 0 !important;
   overflow: hidden;
   background: var(--color-canvas) !important;
 }
 
-.designer-page .designer-modal-container {
-  width: 100%;
-  height: 100% !important;
-  max-width: none;
+.designer-page__body {
   min-height: 0;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: var(--color-canvas) !important;
-  box-shadow: none !important;
 }
 
-.designer-page .designer-modal-header {
-  min-height: 88px;
-  padding: 15px clamp(24px, 2.2vw, 40px) !important;
-  display: grid;
-  grid-template-columns: minmax(360px, 1fr) auto;
-  align-items: center;
-  gap: clamp(24px, 3vw, 52px);
-  border-bottom: 1px solid var(--color-border) !important;
-  background: var(--color-surface-raised) !important;
-}
-
-.designer-page .designer-modal-heading {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: baseline;
-  column-gap: var(--space-4);
-  row-gap: 4px;
-}
-
-.designer-page .designer-modal-eyebrow,
 .designer-page .designer-panel-kicker {
   color: var(--color-accent-strong) !important;
   font: 750 8px/1.2 var(--font-mono);
   letter-spacing: .13em;
   text-transform: uppercase;
-}
-
-.designer-page .designer-modal-title {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  color: var(--color-text-strong) !important;
-  font: 550 clamp(25px, 1.8vw, 30px)/1.05 var(--font-display) !important;
-  letter-spacing: -.025em;
-}
-
-.designer-page .designer-modal-subtitle {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--color-text-muted) !important;
-  font-size: 10px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.designer-page .designer-header-context {
-  min-width: 0;
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-3);
 }
 
 .designer-page .designer-selected-factory {
@@ -123,46 +70,7 @@
   white-space: nowrap;
 }
 
-.designer-page .designer-header-stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(68px, 1fr));
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-}
-
-.designer-page .designer-header-stat {
-  min-width: 74px;
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 3px;
-  border: 0 !important;
-  border-right: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-}
-
-.designer-page .designer-header-stat:last-child {
-  border-right: 0 !important;
-}
-
-.designer-page .designer-header-stat span {
-  color: var(--color-text-muted) !important;
-  font: 700 7px/1 var(--font-mono);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.designer-page .designer-header-stat strong {
-  color: var(--color-text-strong) !important;
-  font: 560 21px/1 var(--font-display);
-}
-
 .designer-page .designer-close-button {
-  min-height: 54px;
   padding-inline: var(--space-4);
   border-color: var(--color-border) !important;
   background: transparent !important;
@@ -890,10 +798,6 @@
 }
 
 @media (max-width: 1420px) {
-  .designer-page .designer-modal-header {
-    grid-template-columns: minmax(300px, 1fr) auto;
-  }
-
   .designer-page .designer-selected-factory {
     min-width: 176px;
   }
@@ -908,16 +812,6 @@
 }
 
 @media (max-width: 1180px) {
-  .designer-page .designer-modal-header {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .designer-page .designer-header-context {
-    overflow-x: auto;
-    scrollbar-width: thin;
-  }
-
   .designer-page .designer-roster-profiles {
     grid-template-columns: 270px minmax(560px, 1fr);
     overflow-x: auto;
@@ -934,11 +828,6 @@
 }
 
 @media (max-height: 820px) {
-  .designer-page .designer-modal-header {
-    min-height: 76px;
-    padding-block: 10px !important;
-  }
-
   .designer-page .designer-roster-profiles {
     min-height: 62px;
     padding-block: 7px;
