@@ -1,5 +1,9 @@
 import { encodeLobbyBase64 } from './tweakSerializer.js';
 import {
+  GENERATED_SLOT_TARGET_BYTES,
+  LOBBY_SLOT_ADVISORY_BYTES,
+} from './byteBudget.js';
+import {
   BUILDMENU_BEGIN,
   BUILDMENU_END,
   CARRIER_LINKAGE_BEGIN,
@@ -16,7 +20,7 @@ import {
 
 export const MAX_DEFS_SLOTS = 9;
 export const MAX_UNITS_SLOTS = 9;
-export const GENERATED_SLOT_TARGET = 10000;
+export const GENERATED_SLOT_TARGET = GENERATED_SLOT_TARGET_BYTES;
 export const COMPILER_BLOCK_SCHEMA_VERSION = 1;
 
 const FEATURE_MARKERS = [
@@ -484,7 +488,7 @@ function finalizeSlots(blocks, kind, maximum, padding) {
       index: index + 1,
       fieldName,
       encoded,
-      compatibility: encoded.length > 12000 ? 'advisory' : 'ok',
+      compatibility: encoded.length > LOBBY_SLOT_ADVISORY_BYTES ? 'advisory' : 'ok',
       command: `!bset ${fieldName} ${encoded}`,
     };
   });

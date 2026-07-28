@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Button, EmptyState, PageShell, SwitchField, Tabs, TextAreaField, TextField } from './ui.jsx';
 import CompatibilityPreflight from './CompatibilityPreflight.jsx';
+import ByteBudgetInspector from './ByteBudgetInspector.jsx';
 import { analyzeTweakPackage } from '../utils/tweakPackage.js';
 import { buildCompatibilityPreflight } from '../utils/compatibilityPreflight.js';
 import { validateCompiledLobbyModules } from '../utils/compilerValidation.js';
@@ -210,6 +211,8 @@ export default function ReviewPage({
                 </div>
               ))}
             </div>
+
+            <ByteBudgetInspector compiledModules={compiledLobbyModules} />
 
             {compiledLobbyModules?.overflow && (
               <div className="lobby-slot-overflow" role="alert">
