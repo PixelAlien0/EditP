@@ -1,0 +1,276 @@
+import { useMemo } from 'react';
+
+export function getValidationWarning(key, value) {
+  if (value === undefined || value === '') return null;
+  const normalizedKey = key.toLowerCase();
+  const normalizedValue = String(value).trim().toLowerCase();
+  if (normalizedKey.includes('spawns_surface') && !['land', 'sea'].includes(normalizedValue)) {
+    return { level: 'error', message: 'BAR supports LAND or SEA for this field' };
+  }
+  if (normalizedKey.includes('spawns_mode') && !['random', 'random_locked', 'sequential'].includes(normalizedValue)) {
+    return { level: 'error', message: 'Use random, random_locked, or sequential' };
+  }
+  if (normalizedKey.includes('carrierdeaththroe') && !['death', 'control', 'capture', 'release', 'parasite'].includes(normalizedValue)) {
+    return { level: 'error', message: 'Use death, control, capture, release, or parasite' };
+  }
+
+  const carrierListKey = normalizedKey.match(
+    /(?:^|[_.])(maxunits|startingdronecount|spawn_metal_cost|spawn_energy_cost|droneairtime|dronedocktime|droneammo)$/
+  )?.[1];
+  if (carrierListKey) {
+    const values = normalizedValue.split(/\s+/).filter(Boolean).map(Number);
+    if (values.length === 0 || values.some(item => !Number.isFinite(item))) {
+      return { level: 'error', message: 'Enter one number per carried unit, separated by spaces' };
+    }
+    const requiresInteger = ['maxunits', 'startingdronecount', 'droneammo'].includes(carrierListKey);
+    if (requiresInteger && values.some(item => !Number.isInteger(item))) {
+      return { level: 'error', message: 'Every list value must be a whole number' };
+    }
+    const minimum = carrierListKey === 'maxunits' ? 1 : 0;
+    if (values.some(item => item < minimum)) {
+      return {
+        level: 'error',
+        message: carrierListKey === 'maxunits'
+          ? 'Every capacity must be at least 1'
+          : 'List values cannot be negative',
+      };
+    }
+    return null;
+  }
+
+  if ((key === 'collisionvolumescales' || key === 'collisionvolumeoffsets')
+    && !/^\s*-?\d*\.?\d+(?:\s+-?\d*\.?\d+){2}\s*$/.test(String(value))) {
+    return { level: 'error', message: 'Enter three numbers: X Y Z' };
+  }
+
+  const number = parseFloat(value);
+  if (Number.isNaN(number)) return null;
+  const isKey = pattern => normalizedKey.includes(pattern.toLowerCase());
+
+  if (isKey('reload') || isKey('stockpiletime')) {
+    if (number <= 0) return { level: 'error', message: 'Value must be positive' };
+    if (number < 0.03) return { level: 'warning', message: 'Below engine limit (0.033s)' };
+  }
+  if (isKey('burstrate') && number < 0) {
+    return { level: 'error', message: 'Burst rate cannot be negative' };
+  }
+  if (isKey('range') || isKey('sightdistance') || isKey('radardistance') || isKey('sonardistance') || isKey('builddistance')) {
+    if (number < 0) return { level: 'error', message: 'Range cannot be negative' };
+    if (number > 10000) return { level: 'warning', message: 'Exceeds standard map scale (10000)' };
+  }
+  if ((isKey('metalcost') || isKey('energycost')) && number < 0) {
+    return { level: 'error', message: 'Cost cannot be negative' };
+  }
+  if (isKey('buildtime') && number <= 0) {
+    return { level: 'error', message: 'Build time must be positive' };
+  }
+  if (isKey('health') && number <= 0) {
+    return { level: 'error', message: 'Health must be positive' };
+  }
+  if (isKey('maxvelocity')) {
+    if (number < 0) return { level: 'error', message: 'Speed cannot be negative' };
+    if (number > 400) return { level: 'warning', message: 'High speed may glitch (>400)' };
+  }
+  if (isKey('stockpilelimit') && number < 0) {
+    return { level: 'error', message: 'Limit cannot be negative' };
+  }
+  if (key === 'targetable' || key === 'interceptor' || key === 'interceptedbyshieldtype') {
+    if (!Number.isInteger(number) || number < 0) {
+      return { level: 'error', message: 'Bitmask must be a non-negative whole number' };
+    }
+  }
+  if (key === 'coverage' && number < 0) {
+    return { level: 'error', message: 'Coverage cannot be negative' };
+  }
+  if (isKey('spawnrate') && number <= 0) {
+    return { level: 'error', message: 'Spawn rate must be positive' };
+  }
+  if (isKey('maxunits') && (!Number.isInteger(number) || number < 1)) {
+    return { level: 'error', message: 'Maximum units must be a positive integer' };
+  }
+  if ((isKey('startingdronecount') || isKey('droneammo'))
+    && (!Number.isInteger(number) || number < 0)) {
+    return { level: 'error', message: 'Enter a non-negative whole number' };
+  }
+  if (isKey('docktohealthreshold') && (number < 0 || number > 100)) {
+    return { level: 'error', message: 'Docking threshold is a health percentage from 0 to 100' };
+  }
+  if (isKey('dockingarmor') && (number < 0 || number > 1)) {
+    return { level: 'error', message: 'Docked damage multiplier must be between 0 and 1' };
+  }
+  if ((isKey('spawns_expire') || isKey('spawns_stun') || isKey('dockinghealrate')
+    || isKey('dockingradius') || isKey('dockinghelperspeed') || isKey('engagementrange')
+    || isKey('droneairtime') || isKey('dronedocktime')) && number < 0) {
+    return { level: 'error', message: 'Value cannot be negative' };
+  }
+  if ((key === 'footprintx' || key === 'footprintz')
+    && (!Number.isInteger(number) || number < 1)) {
+    return { level: 'error', message: 'Footprint must be a positive whole number' };
+  }
+  if (key === 'maxthisunit' && (!Number.isInteger(number) || number < 1)) {
+    return { level: 'error', message: 'Team limit must be a positive whole number' };
+  }
+  if (isKey('cluster_number')) {
+    if (!Number.isInteger(number) || number < 1) {
+      return { level: 'error', message: 'Cluster count must be a positive integer' };
+    }
+    if (number > 64) return { level: 'warning', message: 'Large cluster counts can be expensive' };
+  }
+  if ((isKey('controlradius') || isKey('decayrate')) && number < 0) {
+    return { level: 'error', message: 'Value cannot be negative' };
+  }
+  return null;
+}
+
+export function useProjectValidation({
+  tweaks,
+  clones,
+  unitNames,
+  compiledLobbyModules,
+  allUnitsList,
+  defaultsDb,
+  resolveCloneRootId,
+  supportingWeaponDefs,
+  activeCollectionUnitIds,
+}) {
+  const validationIssues = useMemo(() => {
+    const issues = [];
+    const knownUnitIds = new Set(allUnitsList.map(unit => unit.id.toLowerCase()));
+    const knownWeaponDefs = new Set(
+      Object.values(defaultsDb)
+        .flatMap(unit => unit?.weaponSlots || [])
+        .map(slot => String(slot.defKey || '').toLowerCase())
+        .filter(Boolean)
+    );
+    const enabledSupportingWeaponDefs = supportingWeaponDefs.filter(
+      definition => definition.enabled !== false
+    );
+    const supportingDestinations = new Set(
+      enabledSupportingWeaponDefs.map(
+        definition => `${definition.ownerUnitId}:${definition.key}`.toLowerCase()
+      )
+    );
+
+    Object.entries(tweaks).forEach(([unitId, patch]) => {
+      const unitName = unitNames[unitId]
+        || clones.find(clone => clone.newId.toLowerCase() === unitId.toLowerCase())?.displayName
+        || unitId;
+      Object.entries(patch).forEach(([key, value]) => {
+        const warning = getValidationWarning(key, value);
+        if (warning) issues.push({ unitId, unitName, key, value, ...warning });
+
+        const referenceId = String(value || '').trim().toLowerCase();
+        if (key === 'customparams.carried_unit'
+          || /^weapon_slot_\d+_(?:spawns_name|carried_unit)$/.test(key)) {
+          const referencedUnitIds = referenceId.split(/[\s,]+/).filter(Boolean);
+          const missingUnitIds = referencedUnitIds.filter(id => !knownUnitIds.has(id));
+          if (missingUnitIds.length > 0) {
+            issues.push({
+              unitId,
+              unitName,
+              key,
+              value,
+              level: 'warning',
+              message: `Referenced unit${missingUnitIds.length > 1 ? 's' : ''} ${missingUnitIds.map(id => `"${id}"`).join(', ')} ${missingUnitIds.length > 1 ? 'are' : 'is'} not present in the current BAR definition catalog or project clones.`,
+            });
+          }
+        }
+
+        const localSupportingWeaponDef = supportingDestinations.has(
+          `${unitId}:${referenceId}`.toLowerCase()
+        );
+        if (/^weapon_slot_\d+_cluster_def$/.test(key)
+          && referenceId
+          && !knownWeaponDefs.has(referenceId)
+          && !localSupportingWeaponDef) {
+          issues.push({
+            unitId,
+            unitName,
+            key,
+            value,
+            level: 'warning',
+            message: `Referenced WeaponDef "${value}" is not present in the loaded BAR definitions. Raw imported modules may define it later.`,
+          });
+        }
+      });
+    });
+
+    const checkedSupportingDestinations = new Set();
+    enabledSupportingWeaponDefs.forEach(definition => {
+      const destination = `${definition.ownerUnitId}:${definition.key}`.toLowerCase();
+      const unitName = unitNames[definition.ownerUnitId] || definition.ownerUnitId;
+      if (checkedSupportingDestinations.has(destination)) {
+        issues.push({
+          unitId: definition.ownerUnitId,
+          unitName,
+          key: `supporting_weapondef_${definition.key}`,
+          level: 'error',
+          message: `Supporting WeaponDef "${definition.key}" is defined more than once for ${definition.ownerUnitId}.`,
+        });
+      }
+      checkedSupportingDestinations.add(destination);
+      if (!knownUnitIds.has(definition.ownerUnitId)) {
+        issues.push({
+          unitId: definition.ownerUnitId,
+          unitName: definition.ownerUnitId,
+          key: `supporting_weapondef_${definition.key}`,
+          level: 'error',
+          message: `Supporting WeaponDef owner "${definition.ownerUnitId}" is not present in the BAR catalog or project clones.`,
+        });
+      }
+      (definition.dependencies || []).forEach(dependency => {
+        const localDependency = `${definition.ownerUnitId}:${dependency}`.toLowerCase();
+        const baseHasDependency = defaultsDb[
+          resolveCloneRootId(definition.ownerUnitId)
+        ]?.weaponSlots?.some(slot => slot.defKey?.toLowerCase() === dependency);
+        if (!supportingDestinations.has(localDependency) && !baseHasDependency) {
+          issues.push({
+            unitId: definition.ownerUnitId,
+            unitName,
+            key: `supporting_weapondef_${definition.key}`,
+            level: 'warning',
+            message: `Supporting WeaponDef "${definition.key}" references missing dependency "${dependency}".`,
+          });
+        }
+      });
+    });
+
+    if (compiledLobbyModules.defs.overflow) {
+      issues.push({
+        unitId: 'project',
+        unitName: 'Lobby package',
+        key: 'tweakdefs_slots',
+        level: 'error',
+        message: `${compiledLobbyModules.defs.required} Definitions slots required; BAR provides 9.`,
+      });
+    }
+    if (compiledLobbyModules.units.overflow) {
+      issues.push({
+        unitId: 'project',
+        unitName: 'Lobby package',
+        key: 'tweakunits_slots',
+        level: 'error',
+        message: `${compiledLobbyModules.units.required} Units slots required; BAR provides 9.`,
+      });
+    }
+    return issues;
+  }, [
+    allUnitsList,
+    clones,
+    compiledLobbyModules,
+    defaultsDb,
+    resolveCloneRootId,
+    supportingWeaponDefs,
+    tweaks,
+    unitNames,
+  ]);
+
+  const scopedValidationIssues = useMemo(
+    () => activeCollectionUnitIds
+      ? validationIssues.filter(issue => activeCollectionUnitIds.has(issue.unitId))
+      : validationIssues,
+    [activeCollectionUnitIds, validationIssues]
+  );
+
+  return { validationIssues, scopedValidationIssues };
+}

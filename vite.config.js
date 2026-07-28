@@ -23,6 +23,10 @@ export default defineConfig({
           ) {
             return 'editor-compiler'
           }
+          if (/\/src\/controllers\/use[A-Z][^/]+Controller\.js$/.test(id)
+            || id.endsWith('/src/controllers/useProjectValidation.js')) {
+            return 'editor-controllers'
+          }
         },
       },
     },
