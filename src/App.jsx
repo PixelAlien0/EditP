@@ -83,6 +83,22 @@ const BULK_PARAMETER_GROUPS = [
   },
 ];
 
+function mergeSupportingWeaponDefinitions(current, incomingDefinitions) {
+  const incoming = Array.isArray(incomingDefinitions)
+    ? incomingDefinitions
+    : [incomingDefinitions];
+  const next = [...current];
+  incoming.filter(Boolean).forEach(definition => {
+    const destination = `${definition.ownerUnitId}:${definition.key}`.toLowerCase();
+    const index = next.findIndex(
+      item => `${item.ownerUnitId}:${item.key}`.toLowerCase() === destination
+    );
+    if (index >= 0) next[index] = { ...next[index], ...definition, enabled: true };
+    else next.push({ ...definition, enabled: true });
+  });
+  return next;
+}
+
 function getValidationWarning(key, value) {
   if (value === undefined || value === '') return null;
   const normalizedKey = key.toLowerCase();
@@ -280,7 +296,8 @@ export default function App() {
     setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setSupportingWeaponDefs, setUnitCollections, setTweakModules, setLobbySetup,
     setProjectName, setProjectAuthor, setProjectDesc,
     setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
-    hydrateProjectStore,
+    transactProject, applyProjectSnapshot, hydrateProjectStore,
+    undoProject, redoProject, historyPastCount, historyFutureCount,
   } = useProjectStore();
   const {
     tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
@@ -506,24 +523,6 @@ export default function App() {
   // Clone description input state
   const [cloneDesc, setCloneDesc] = useState('');
 
-  // Project history tracks the core editable mod state.
-  const projectSnapshot = useMemo(() => ({
-    tweaks,
-    clones,
-    disabledUnitIds,
-    buildMenuSteps,
-    buildMenuPacks,
-    weaponLibrary,
-    supportingWeaponDefs,
-    unitCollections,
-    tweakModules,
-    lobbySetup
-  }), [tweaks, clones, disabledUnitIds, buildMenuSteps, buildMenuPacks, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules, lobbySetup]);
-  const [historyPast, setHistoryPast] = useState([]);
-  const [historyFuture, setHistoryFuture] = useState([]);
-  const lastSnapshotRef = useRef(projectSnapshot);
-  const applyingHistoryRef = useRef(false);
-
   const unreadChatCount = useMemo(() => {
     if (showChatModal) return 0;
     return temporaryChat.messages.filter(message => (
@@ -537,52 +536,8 @@ export default function App() {
     setChatReadAt(Date.now());
   }, []);
 
-  useEffect(() => {
-    if (applyingHistoryRef.current) {
-      applyingHistoryRef.current = false;
-      lastSnapshotRef.current = projectSnapshot;
-      return;
-    }
-
-    if (JSON.stringify(lastSnapshotRef.current) === JSON.stringify(projectSnapshot)) return;
-    const previousSnapshot = lastSnapshotRef.current;
-    setHistoryPast(prev => [...prev.slice(-49), previousSnapshot]);
-    setHistoryFuture([]);
-    lastSnapshotRef.current = projectSnapshot;
-  }, [projectSnapshot]);
-
-  const applyProjectSnapshot = useCallback((snapshot) => {
-    setTweaks(snapshot.tweaks || {});
-    setClones(snapshot.clones || []);
-    setDisabledUnitIds(snapshot.disabledUnitIds || []);
-    setBuildMenuSteps(snapshot.buildMenuSteps || []);
-    setBuildMenuPacks(snapshot.buildMenuPacks || { extraUnits: false, scavengerUnits: false });
-    setWeaponLibrary(snapshot.weaponLibrary || []);
-    setSupportingWeaponDefs(snapshot.supportingWeaponDefs || []);
-    setUnitCollections(snapshot.unitCollections || []);
-    setTweakModules(snapshot.tweakModules || []);
-    setLobbySetup(snapshot.lobbySetup || PROJECT_STORE_DEFAULTS.lobbySetup);
-  }, [setBuildMenuPacks, setBuildMenuSteps, setClones, setDisabledUnitIds, setLobbySetup, setSupportingWeaponDefs, setTweaks, setUnitCollections, setWeaponLibrary, setTweakModules]);
-
-  const handleUndo = useCallback(() => {
-    if (historyPast.length === 0) return;
-    const target = historyPast[historyPast.length - 1];
-    applyingHistoryRef.current = true;
-    setHistoryPast(prev => prev.slice(0, -1));
-    setHistoryFuture(prev => [projectSnapshot, ...prev].slice(0, 50));
-    lastSnapshotRef.current = target;
-    applyProjectSnapshot(target);
-  }, [historyPast, projectSnapshot, applyProjectSnapshot]);
-
-  const handleRedo = useCallback(() => {
-    if (historyFuture.length === 0) return;
-    const target = historyFuture[0];
-    applyingHistoryRef.current = true;
-    setHistoryPast(prev => [...prev.slice(-49), projectSnapshot]);
-    setHistoryFuture(prev => prev.slice(1));
-    lastSnapshotRef.current = target;
-    applyProjectSnapshot(target);
-  }, [historyFuture, projectSnapshot, applyProjectSnapshot]);
+  const handleUndo = undoProject;
+  const handleRedo = redoProject;
 
   const showToast = useCallback((message) => {
     setToast({ show: true, message });
@@ -633,16 +588,7 @@ export default function App() {
 
   const handleApplyPreset = (preset) => {
     const snapshot = preset.snapshot || {};
-    applyingHistoryRef.current = true;
     applyProjectSnapshot(snapshot);
-    setUnitDescriptions(snapshot.unitDescriptions || {});
-    setProjectName(snapshot.projectName || 'BAR Editor Mod');
-    setProjectAuthor(snapshot.projectAuthor || 'Developer');
-    setProjectDesc(snapshot.projectDesc || 'A custom unit configuration mod.');
-    setIncludeTweaks(snapshot.includeTweaks ?? true);
-    setIncludeClones(snapshot.includeClones ?? true);
-    setIncludeRosters(snapshot.includeRosters ?? true);
-    setIncludeHeader(snapshot.includeHeader ?? true);
     setShowPresetGallery(false);
     showToast(`Applied preset: ${preset.name}`);
   };
@@ -698,9 +644,17 @@ export default function App() {
   }, [setTweakModules]);
 
   const handleImportLobbyBundle = useCallback(({ modules: incomingModules = [], lobbySetup: importedSetup }) => {
-    if (incomingModules.length) handleAddTweakModules(incomingModules);
-    if (importedSetup) setLobbySetup(importedSetup);
-  }, [handleAddTweakModules, setLobbySetup]);
+    transactProject(current => {
+      const hashes = new Set(current.tweakModules.map(module => module.contentHash));
+      const additions = incomingModules.filter(module => !hashes.has(module.contentHash));
+      return {
+        tweakModules: additions.length
+          ? [...current.tweakModules, ...additions].map((module, index) => ({ ...module, order: index }))
+          : current.tweakModules,
+        lobbySetup: importedSetup || current.lobbySetup,
+      };
+    });
+  }, [transactProject]);
 
   const handleClearLobbySetup = useCallback(() => {
     setLobbySetup(PROJECT_STORE_DEFAULTS.lobbySetup);
@@ -749,17 +703,10 @@ export default function App() {
   }, [setTweakModules]);
 
   const handleAddSupportingWeaponDefs = useCallback((incomingDefinitions) => {
-    const incoming = Array.isArray(incomingDefinitions) ? incomingDefinitions : [incomingDefinitions];
-    setSupportingWeaponDefs(current => {
-      const next = [...current];
-      incoming.filter(Boolean).forEach(definition => {
-        const destination = `${definition.ownerUnitId}:${definition.key}`.toLowerCase();
-        const index = next.findIndex(item => `${item.ownerUnitId}:${item.key}`.toLowerCase() === destination);
-        if (index >= 0) next[index] = { ...next[index], ...definition, enabled: true };
-        else next.push({ ...definition, enabled: true });
-      });
-      return next;
-    });
+    setSupportingWeaponDefs(current => mergeSupportingWeaponDefinitions(
+      current,
+      incomingDefinitions
+    ));
   }, [setSupportingWeaponDefs]);
 
   const handleUpdateSupportingWeaponDef = useCallback((definitionId, patch) => {
@@ -767,8 +714,8 @@ export default function App() {
     if (!target) return;
     const nextKey = typeof patch.key === 'string' ? patch.key : target.key;
     const renaming = nextKey && nextKey !== target.key;
-    setSupportingWeaponDefs(current => {
-      const updated = current.map(definition => {
+    transactProject(current => {
+      const updated = current.supportingWeaponDefs.map(definition => {
         if (definition.id === definitionId) return {
           ...definition,
           ...patch,
@@ -789,7 +736,7 @@ export default function App() {
           referencedBy,
         };
       });
-      return updated.map(definition => {
+      const normalizedDefinitions = updated.map(definition => {
         const dependency = typeof definition.definition?.customparams?.cluster_def === 'string'
           ? definition.definition.customparams.cluster_def.trim().toLowerCase()
           : '';
@@ -802,11 +749,10 @@ export default function App() {
             .map(candidate => candidate.key),
         };
       });
-    });
-    if (renaming) {
-      setTweaks(currentTweaks => {
-        const ownerPatch = currentTweaks[target.ownerUnitId];
-        if (!ownerPatch) return currentTweaks;
+      let nextTweaks = current.tweaks;
+      if (renaming) {
+        const ownerPatch = current.tweaks[target.ownerUnitId];
+        if (!ownerPatch) return { supportingWeaponDefs: normalizedDefinitions };
         let changed = false;
         const updatedOwnerPatch = Object.fromEntries(Object.entries(ownerPatch).map(([key, value]) => {
           if (/^weapon_slot_\d+_cluster_def$/.test(key) && String(value).toLowerCase() === target.key.toLowerCase()) {
@@ -815,10 +761,13 @@ export default function App() {
           }
           return [key, value];
         }));
-        return changed ? { ...currentTweaks, [target.ownerUnitId]: updatedOwnerPatch } : currentTweaks;
-      });
-    }
-  }, [setSupportingWeaponDefs, setTweaks, supportingWeaponDefs]);
+        if (changed) {
+          nextTweaks = { ...current.tweaks, [target.ownerUnitId]: updatedOwnerPatch };
+        }
+      }
+      return { supportingWeaponDefs: normalizedDefinitions, tweaks: nextTweaks };
+    });
+  }, [supportingWeaponDefs, transactProject]);
 
   const handleRemoveSupportingWeaponDef = useCallback((definitionId) => {
     setSupportingWeaponDefs(current => current.filter(definition => definition.id !== definitionId));
@@ -840,45 +789,9 @@ export default function App() {
         addToOriginalBuilders: false,
       });
     });
-    if (safeClones.length) {
-      setIncludeClones(true);
-      setClones(current => [...current, ...safeClones]);
-    }
-
     const menuConversions = conversions.filter(item => (
       item.type === 'build-add' || item.type === 'build-remove' || item.type === 'build-roster'
     ));
-    if (menuConversions.length) {
-      setIncludeRosters(true);
-      setBuildMenuSteps(current => {
-        const next = current.map(step => ({ ...step, add: [...(step.add || [])], remove: [...(step.remove || [])], order: [...(step.order || [])] }));
-        menuConversions.forEach(item => {
-          let step = next.find(entry => entry.builderId.toLowerCase() === item.builderId);
-          if (!step) {
-            step = { builderId: item.builderId, add: [], remove: [], order: [] };
-            next.push(step);
-          }
-          if (item.type === 'build-roster') {
-            const desired = [...new Set((item.unitIds || []).map(id => id.toLowerCase()))];
-            const rootBuilderId = resolveCloneRootId(item.builderId);
-            const defaults = activeFactoryRosters[item.builderId] || activeFactoryRosters[rootBuilderId] || [];
-            const defaultIds = defaults.map(id => id.toLowerCase());
-            const desiredSet = new Set(desired);
-            const defaultSet = new Set(defaultIds);
-            step.add = desired.filter(id => !defaultSet.has(id));
-            step.remove = defaultIds.filter(id => !desiredSet.has(id));
-            step.order = desired;
-          } else if (item.type === 'build-add') {
-            step.remove = step.remove.filter(id => id.toLowerCase() !== item.unitId);
-            if (!step.add.some(id => id.toLowerCase() === item.unitId)) step.add.push(item.unitId);
-          } else {
-            step.add = step.add.filter(id => id.toLowerCase() !== item.unitId);
-            if (!step.remove.some(id => id.toLowerCase() === item.unitId)) step.remove.push(item.unitId);
-          }
-        });
-        return next.filter(step => step.add.length || step.remove.length || step.order.length);
-      });
-    }
 
     const parameterConversions = conversions.filter(item => item.type === 'unit-parameter' && existingIds.has(item.unitId));
     const importedCloneBases = new Map(safeClones.map(clone => [clone.newId, clone.baseId]));
@@ -891,33 +804,86 @@ export default function App() {
         : defaultsDb[baseId]?.weaponSlots?.find(entry => entry.defKey?.toLowerCase() === item.weaponDefKey)?.slot;
       return resolvedSlot ? [{ ...item, tweakKey: `weapon_slot_${resolvedSlot}_${item.key}` }] : [];
     });
-    if (parameterConversions.length || weaponConversions.length) {
-      setIncludeTweaks(true);
-      setTweaks(current => {
-        const next = { ...current };
-        parameterConversions.forEach(item => {
-          next[item.unitId] = { ...(next[item.unitId] || {}), [item.key]: item.value };
-        });
-        weaponConversions.forEach(item => {
-          next[item.unitId] = { ...(next[item.unitId] || {}), [item.tweakKey]: item.value };
-        });
-        return next;
-      });
-    }
-
     const supportingConversions = conversions
       .filter(item => item.type === 'supporting-weapondef' && existingIds.has(item.weaponDef?.ownerUnitId))
       .map(item => item.weaponDef);
-    if (supportingConversions.length) handleAddSupportingWeaponDefs(supportingConversions);
 
     const appliedCount = safeClones.length + menuConversions.length + parameterConversions.length + weaponConversions.length + supportingConversions.length;
     if (appliedCount === 0) {
       showToast('No recognized changes could be applied. Resolve ID conflicts or inspect the module warnings.');
       return;
     }
-    setTweakModules(current => current.map(item => item.id === module.id ? { ...item, converted: true, enabled: false } : item));
+    transactProject(current => {
+      const nextSteps = current.buildMenuSteps.map(step => ({
+        ...step,
+        add: [...(step.add || [])],
+        remove: [...(step.remove || [])],
+        order: [...(step.order || [])],
+      }));
+      menuConversions.forEach(item => {
+        let step = nextSteps.find(entry => entry.builderId.toLowerCase() === item.builderId);
+        if (!step) {
+          step = { builderId: item.builderId, add: [], remove: [], order: [] };
+          nextSteps.push(step);
+        }
+        if (item.type === 'build-roster') {
+          const desired = [...new Set((item.unitIds || []).map(id => id.toLowerCase()))];
+          const rootBuilderId = resolveCloneRootId(item.builderId);
+          const defaults = activeFactoryRosters[item.builderId] || activeFactoryRosters[rootBuilderId] || [];
+          const defaultIds = defaults.map(id => id.toLowerCase());
+          const desiredSet = new Set(desired);
+          const defaultSet = new Set(defaultIds);
+          step.add = desired.filter(id => !defaultSet.has(id));
+          step.remove = defaultIds.filter(id => !desiredSet.has(id));
+          step.order = desired;
+        } else if (item.type === 'build-add') {
+          step.remove = step.remove.filter(id => id.toLowerCase() !== item.unitId);
+          if (!step.add.some(id => id.toLowerCase() === item.unitId)) step.add.push(item.unitId);
+        } else {
+          step.add = step.add.filter(id => id.toLowerCase() !== item.unitId);
+          if (!step.remove.some(id => id.toLowerCase() === item.unitId)) step.remove.push(item.unitId);
+        }
+      });
+
+      const nextTweaks = { ...current.tweaks };
+      parameterConversions.forEach(item => {
+        nextTweaks[item.unitId] = {
+          ...(nextTweaks[item.unitId] || {}),
+          [item.key]: item.value,
+        };
+      });
+      weaponConversions.forEach(item => {
+        nextTweaks[item.unitId] = {
+          ...(nextTweaks[item.unitId] || {}),
+          [item.tweakKey]: item.value,
+        };
+      });
+
+      return {
+        includeClones: safeClones.length ? true : current.includeClones,
+        includeRosters: menuConversions.length ? true : current.includeRosters,
+        includeTweaks: parameterConversions.length || weaponConversions.length
+          ? true
+          : current.includeTweaks,
+        clones: safeClones.length ? [...current.clones, ...safeClones] : current.clones,
+        buildMenuSteps: menuConversions.length
+          ? nextSteps.filter(step => step.add.length || step.remove.length || step.order.length)
+          : current.buildMenuSteps,
+        tweaks: parameterConversions.length || weaponConversions.length
+          ? nextTweaks
+          : current.tweaks,
+        supportingWeaponDefs: supportingConversions.length
+          ? mergeSupportingWeaponDefinitions(current.supportingWeaponDefs, supportingConversions)
+          : current.supportingWeaponDefs,
+        tweakModules: current.tweakModules.map(
+          item => item.id === module.id
+            ? { ...item, converted: true, enabled: false }
+            : item
+        ),
+      };
+    });
     showToast(`${appliedCount} recognized change${appliedCount === 1 ? '' : 's'} applied. Source module archived.`);
-  }, [activeFactoryRosters, allUnitsList, defaultsDb, handleAddSupportingWeaponDefs, resolveCloneRootId, setBuildMenuSteps, setClones, setIncludeClones, setIncludeRosters, setIncludeTweaks, setTweakModules, setTweaks, showToast]);
+  }, [activeFactoryRosters, allUnitsList, defaultsDb, resolveCloneRootId, showToast, transactProject]);
 
   const activeCollection = useMemo(
     () => unitCollections.find(collection => collection.id === activeCollectionId) || null,
@@ -1313,16 +1279,18 @@ export default function App() {
     }
     const slotNum = activeWeaponSlotTab || selectedUnitDefaults?.weaponSlots?.[0]?.slot;
     if (!slotNum) return;
-    setIncludeClones(true);
-    setClones(prev => prev.map(clone => {
-      if (clone.newId.toLowerCase() !== selectedUnit.id.toLowerCase()) return clone;
-      const weaponSwaps = { ...(clone.weaponSwaps || {}) };
-      weaponSwaps[String(slotNum)] = {
-        sourceUnitId: blueprint.sourceUnitId,
-        sourceWeaponDefKey: blueprint.sourceWeaponDefKey,
-        libraryWeaponId: blueprint.id
-      };
-      return { ...clone, weaponSwaps };
+    transactProject(current => ({
+      includeClones: true,
+      clones: current.clones.map(clone => {
+        if (clone.newId.toLowerCase() !== selectedUnit.id.toLowerCase()) return clone;
+        const weaponSwaps = { ...(clone.weaponSwaps || {}) };
+        weaponSwaps[String(slotNum)] = {
+          sourceUnitId: blueprint.sourceUnitId,
+          sourceWeaponDefKey: blueprint.sourceWeaponDefKey,
+          libraryWeaponId: blueprint.id
+        };
+        return { ...clone, weaponSwaps };
+      }),
     }));
     showToast(`Equipped ${blueprint.name} on slot ${slotNum}.`);
   };
@@ -1348,25 +1316,28 @@ export default function App() {
 
   // Update tweaked stat value
   const handleStatChange = (unitId, statKey, value) => {
-    if (clones.some(clone => clone.newId.toLowerCase() === unitId.toLowerCase())) {
-      setIncludeClones(true);
-      setIncludeTweaks(true);
-    }
-    setTweaks(prev => {
-      const unitTweaks = { ...prev[unitId] };
+    transactProject(current => {
+      const isClone = current.clones.some(
+        clone => clone.newId.toLowerCase() === unitId.toLowerCase()
+      );
+      const unitTweaks = { ...current.tweaks[unitId] };
       if (value === '' || value === undefined) {
         delete unitTweaks[statKey];
       } else {
         unitTweaks[statKey] = value;
       }
 
-      const next = { ...prev };
+      const next = { ...current.tweaks };
       if (Object.keys(unitTweaks).length === 0) {
         delete next[unitId];
       } else {
         next[unitId] = unitTweaks;
       }
-      return next;
+      return {
+        tweaks: next,
+        includeClones: isClone ? true : current.includeClones,
+        includeTweaks: isClone ? true : current.includeTweaks,
+      };
     });
   };
 
@@ -1445,14 +1416,16 @@ export default function App() {
 
   const handleCloneBuildersChange = (cloneId, builderIds) => {
     const normalized = [...new Set(builderIds.map(id => id.trim().toLowerCase()).filter(Boolean))];
-    setIncludeClones(true);
-    if (normalized.length > 0) setIncludeRosters(true);
-    setClones(prev => prev.map(clone => (
-      clone.newId.toLowerCase() === cloneId.toLowerCase()
-        ? { ...clone, builderIds: normalized }
-        : clone
-    )));
-    setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, cloneId, normalized));
+    transactProject(current => ({
+      includeClones: true,
+      includeRosters: normalized.length > 0 ? true : current.includeRosters,
+      clones: current.clones.map(clone => (
+        clone.newId.toLowerCase() === cloneId.toLowerCase()
+          ? { ...clone, builderIds: normalized }
+          : clone
+      )),
+      buildMenuSteps: applyCloneBuilderAssignments(current.buildMenuSteps, cloneId, normalized),
+    }));
   };
 
   const getAutomaticCloneBuilders = unitId => {
@@ -1519,21 +1492,27 @@ export default function App() {
         : {})
     };
 
-    setIncludeClones(true);
-    if (Object.keys(inheritedTweaks).length > 0) setIncludeTweaks(true);
-    if (newClone.builderIds.length > 0) setIncludeRosters(true);
-    setClones(prev => [...prev, newClone]);
-    if (activeCollection) {
-      setUnitCollections(previous => previous.map(collection => (
-        collection.id === activeCollection.id && !collection.unitIds.includes(cleanNew)
-          ? { ...collection, unitIds: [...collection.unitIds, cleanNew] }
-          : collection
-      )));
-    }
-    if (Object.keys(inheritedTweaks).length > 0) {
-      setTweaks(prev => ({ ...prev, [cleanNew]: { ...inheritedTweaks } }));
-    }
-    setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, cleanNew, newClone.builderIds));
+    transactProject(current => ({
+      includeClones: true,
+      includeTweaks: Object.keys(inheritedTweaks).length > 0 ? true : current.includeTweaks,
+      includeRosters: newClone.builderIds.length > 0 ? true : current.includeRosters,
+      clones: [...current.clones, newClone],
+      unitCollections: activeCollection
+        ? current.unitCollections.map(collection => (
+            collection.id === activeCollection.id && !collection.unitIds.includes(cleanNew)
+              ? { ...collection, unitIds: [...collection.unitIds, cleanNew] }
+              : collection
+          ))
+        : current.unitCollections,
+      tweaks: Object.keys(inheritedTweaks).length > 0
+        ? { ...current.tweaks, [cleanNew]: { ...inheritedTweaks } }
+        : current.tweaks,
+      buildMenuSteps: applyCloneBuilderAssignments(
+        current.buildMenuSteps,
+        cleanNew,
+        newClone.builderIds
+      ),
+    }));
     setSelectedUnitId(cleanNew);
     setShowClonePanel(false);
     showToast(`Created clone: ${cleanNew}${activeCollection ? ` in ${activeCollection.name}` : ''}`);
@@ -1563,32 +1542,37 @@ export default function App() {
       builderIds: [],
     };
 
-    setIncludeClones(true);
-    setClones(prev => [...prev, newClone]);
+    transactProject(current => ({
+      includeClones: true,
+      clones: [...current.clones, newClone],
+    }));
     setSelectedUnitId(cleanNew);
     showToast(`Created custom drone clone "${cleanName || cleanNew}".`);
   };
 
   // Reset tweaks
   const handleResetUnit = (unitId) => {
-    setTweaks(prev => {
-      const next = { ...prev };
+    transactProject(current => {
+      const next = { ...current.tweaks };
       delete next[unitId];
-      return next;
+      return {
+        tweaks: next,
+        disabledUnitIds: current.disabledUnitIds.filter(id => id !== unitId),
+      };
     });
-    setDisabledUnitIds(prev => prev.filter(id => id !== unitId));
     showToast(`Reset stats for ${unitId}`);
   };
 
   const handleResetSummaryUnitEdits = (unitId) => {
-    setTweaks(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== unitId.toLowerCase())));
-    setUnitDescriptions(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== unitId.toLowerCase())));
+    transactProject(current => ({
+      tweaks: Object.fromEntries(Object.entries(current.tweaks).filter(([id]) => id.toLowerCase() !== unitId.toLowerCase())),
+      unitDescriptions: Object.fromEntries(Object.entries(current.unitDescriptions).filter(([id]) => id.toLowerCase() !== unitId.toLowerCase())),
+    }));
     showToast(`Reset all edits for ${unitId}`);
   };
 
   const handleResetAllSummaryUnitEdits = () => {
-    setTweaks({});
-    setUnitDescriptions({});
+    transactProject({ tweaks: {}, unitDescriptions: {} });
     setActiveRelationshipKey(null);
     showToast('Reset all unit edits');
   };
@@ -1617,23 +1601,26 @@ export default function App() {
       .filter(Boolean);
     const promotedById = new Map(promotedDescendants.map(item => [item.id, item]));
 
-    setClones(prev => prev
-      .filter(item => item.newId.toLowerCase() !== cloneId)
-      .map(item => {
-        const promoted = promotedById.get(item.newId.toLowerCase());
-        if (!promoted) return item;
-        const rebased = { ...item, baseId: promoted.rootId };
-        if (Object.keys(promoted.weaponSwaps).length > 0) rebased.weaponSwaps = promoted.weaponSwaps;
-        else delete rebased.weaponSwaps;
-        return rebased;
-      }));
-    setTweaks(prev => {
-      const next = Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== cloneId));
-      promotedDescendants.forEach(promoted => { next[promoted.id] = { ...promoted.tweaks }; });
-      return next;
+    transactProject(current => {
+      const nextClones = current.clones
+        .filter(item => item.newId.toLowerCase() !== cloneId)
+        .map(item => {
+          const promoted = promotedById.get(item.newId.toLowerCase());
+          if (!promoted) return item;
+          const rebased = { ...item, baseId: promoted.rootId };
+          if (Object.keys(promoted.weaponSwaps).length > 0) rebased.weaponSwaps = promoted.weaponSwaps;
+          else delete rebased.weaponSwaps;
+          return rebased;
+        });
+      const nextTweaks = Object.fromEntries(Object.entries(current.tweaks).filter(([id]) => id.toLowerCase() !== cloneId));
+      promotedDescendants.forEach(promoted => { nextTweaks[promoted.id] = { ...promoted.tweaks }; });
+      return {
+        clones: nextClones,
+        tweaks: nextTweaks,
+        unitDescriptions: Object.fromEntries(Object.entries(current.unitDescriptions).filter(([id]) => id.toLowerCase() !== cloneId)),
+        buildMenuSteps: applyCloneBuilderAssignments(current.buildMenuSteps, clone.newId, []),
+      };
     });
-    setUnitDescriptions(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => id.toLowerCase() !== cloneId)));
-    setBuildMenuSteps(prev => applyCloneBuilderAssignments(prev, clone.newId, []));
     if (selectedUnitId?.toLowerCase() === cloneId) setSelectedUnitId(clone.baseId);
     showToast(`Deleted clone ${clone.newId}${promotedDescendants.length ? `; preserved ${promotedDescendants.length} descendant${promotedDescendants.length === 1 ? '' : 's'}` : ''}`);
   };
@@ -1641,10 +1628,15 @@ export default function App() {
   const handleDeleteAllSummaryClones = () => {
     const cloneIds = new Set(clones.map(clone => clone.newId.toLowerCase()));
     const selectedClone = clones.find(clone => clone.newId.toLowerCase() === selectedUnitId?.toLowerCase());
-    setClones([]);
-    setTweaks(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => !cloneIds.has(id.toLowerCase()))));
-    setUnitDescriptions(prev => Object.fromEntries(Object.entries(prev).filter(([id]) => !cloneIds.has(id.toLowerCase()))));
-    setBuildMenuSteps(prev => clones.reduce((steps, clone) => applyCloneBuilderAssignments(steps, clone.newId, []), prev));
+    transactProject(current => ({
+      clones: [],
+      tweaks: Object.fromEntries(Object.entries(current.tweaks).filter(([id]) => !cloneIds.has(id.toLowerCase()))),
+      unitDescriptions: Object.fromEntries(Object.entries(current.unitDescriptions).filter(([id]) => !cloneIds.has(id.toLowerCase()))),
+      buildMenuSteps: clones.reduce(
+        (steps, clone) => applyCloneBuilderAssignments(steps, clone.newId, []),
+        current.buildMenuSteps
+      ),
+    }));
     if (selectedClone) setSelectedUnitId(selectedClone.baseId);
     showToast('Deleted all custom clones');
   };
@@ -1655,9 +1647,11 @@ export default function App() {
   };
 
   const handleResetAllSummaryRosters = () => {
-    setBuildMenuSteps([]);
-    setBuildMenuPacks({ extraUnits: false, scavengerUnits: false });
-    setSupportingWeaponDefs([]);
+    transactProject({
+      buildMenuSteps: [],
+      buildMenuPacks: { extraUnits: false, scavengerUnits: false },
+      supportingWeaponDefs: [],
+    });
     showToast('Reverted all build-menu changes');
   };
 
@@ -1678,12 +1672,14 @@ export default function App() {
 
   const handleResetAllProjectChanges = () => {
     const selectedClone = clones.find(clone => clone.newId.toLowerCase() === selectedUnitId?.toLowerCase());
-    setTweaks({});
-    setUnitDescriptions({});
-    setClones([]);
-    setDisabledUnitIds([]);
-    setBuildMenuSteps([]);
-    setBuildMenuPacks({ extraUnits: false, scavengerUnits: false });
+    transactProject({
+      tweaks: {},
+      unitDescriptions: {},
+      clones: [],
+      disabledUnitIds: [],
+      buildMenuSteps: [],
+      buildMenuPacks: { extraUnits: false, scavengerUnits: false },
+    });
     setActiveRelationshipKey(null);
     if (selectedClone) setSelectedUnitId(selectedClone.baseId);
     showToast('Reset all active project changes');
@@ -1698,6 +1694,7 @@ export default function App() {
     }
 
     let count = 0;
+    const updates = [];
     bulkTargetUnits.forEach(unit => {
       const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
       const defaults = defaultsDb[baseId];
@@ -1718,7 +1715,7 @@ export default function App() {
             newVal = baseVal + changeVal;
           }
           if (newVal < 0) newVal = 0;
-          handleStatChange(unit.id, tweakKey, newVal.toFixed(2));
+          updates.push({ unitId: unit.id, key: tweakKey, value: newVal.toFixed(2) });
         });
         count++;
       } else {
@@ -1736,11 +1733,26 @@ export default function App() {
         if (newVal < 0 && (bulkStatKey.includes('cost') || bulkStatKey.includes('health') || bulkStatKey.includes('velocity'))) {
           newVal = 0;
         }
-        handleStatChange(unit.id, bulkStatKey, newVal.toFixed(2));
+        updates.push({ unitId: unit.id, key: bulkStatKey, value: newVal.toFixed(2) });
         count++;
       }
     });
 
+    transactProject(current => {
+      const nextTweaks = { ...current.tweaks };
+      updates.forEach(({ unitId, key, value }) => {
+        nextTweaks[unitId] = {
+          ...(nextTweaks[unitId] || {}),
+          [key]: value,
+        };
+      });
+      const touchesClone = bulkTargetUnits.some(unit => unit.isClone);
+      return {
+        tweaks: nextTweaks,
+        includeClones: touchesClone ? true : current.includeClones,
+        includeTweaks: touchesClone ? true : current.includeTweaks,
+      };
+    });
     setShowBulkPanel(false);
     showToast(`Adjusted ${bulkStatKey} for ${count} units by ${bulkMode === 'percent' ? (changeVal > 0 ? '+' : '') + changeVal + '%' : (changeVal > 0 ? '+' : '') + changeVal}`);
   };
@@ -2192,8 +2204,8 @@ export default function App() {
   };
 
   const handleAddUnitToFactory = (factoryId, unitId) => {
-    setBuildMenuSteps(prev => {
-      const next = [...prev];
+    transactProject(current => {
+      const next = [...current.buildMenuSteps];
       let idx = next.findIndex(s => s.builderId === factoryId);
       if (idx === -1) {
         next.push({ builderId: factoryId, add: [unitId], remove: [] });
@@ -2212,20 +2224,21 @@ export default function App() {
         }
         next[idx] = step;
       }
-      return next.filter(s => s.add.length > 0 || s.remove.length > 0 || (s.order && s.order.length > 0));
+      const nextSteps = next.filter(s => s.add.length > 0 || s.remove.length > 0 || (s.order && s.order.length > 0));
+      const nextClones = current.clones.some(clone => clone.newId.toLowerCase() === unitId.toLowerCase())
+        ? current.clones.map(clone => (
+            clone.newId.toLowerCase() === unitId.toLowerCase()
+              ? { ...clone, builderIds: [...new Set([...(clone.builderIds || []), factoryId.toLowerCase()])] }
+              : clone
+          ))
+        : current.clones;
+      return { buildMenuSteps: nextSteps, clones: nextClones };
     });
-    if (clones.some(clone => clone.newId.toLowerCase() === unitId.toLowerCase())) {
-      setClones(prev => prev.map(clone => (
-        clone.newId.toLowerCase() === unitId.toLowerCase()
-          ? { ...clone, builderIds: [...new Set([...(clone.builderIds || []), factoryId.toLowerCase()])] }
-          : clone
-      )));
-    }
   };
 
   const handleRemoveUnitFromFactory = (factoryId, unitId) => {
-    setBuildMenuSteps(prev => {
-      const next = [...prev];
+    transactProject(current => {
+      const next = [...current.buildMenuSteps];
       let idx = next.findIndex(s => s.builderId === factoryId);
       if (idx === -1) {
         next.push({ builderId: factoryId, add: [], remove: [unitId] });
@@ -2242,15 +2255,16 @@ export default function App() {
         }
         next[idx] = step;
       }
-      return next.filter(s => s.add.length > 0 || s.remove.length > 0 || (s.order && s.order.length > 0));
+      const nextSteps = next.filter(s => s.add.length > 0 || s.remove.length > 0 || (s.order && s.order.length > 0));
+      const nextClones = current.clones.some(clone => clone.newId.toLowerCase() === unitId.toLowerCase())
+        ? current.clones.map(clone => (
+            clone.newId.toLowerCase() === unitId.toLowerCase()
+              ? { ...clone, builderIds: (clone.builderIds || []).filter(id => id.toLowerCase() !== factoryId.toLowerCase()) }
+              : clone
+          ))
+        : current.clones;
+      return { buildMenuSteps: nextSteps, clones: nextClones };
     });
-    if (clones.some(clone => clone.newId.toLowerCase() === unitId.toLowerCase())) {
-      setClones(prev => prev.map(clone => (
-        clone.newId.toLowerCase() === unitId.toLowerCase()
-          ? { ...clone, builderIds: (clone.builderIds || []).filter(id => id.toLowerCase() !== factoryId.toLowerCase()) }
-          : clone
-      )));
-    }
   };
 
   const handleRevertUnitInFactory = (factoryId, unitId) => {
@@ -2509,8 +2523,8 @@ export default function App() {
       <AppHeader
         activeWorkspace={activeWorkspace}
         themeMode={themeMode}
-        historyPastCount={historyPast.length}
-        historyFutureCount={historyFuture.length}
+        historyPastCount={historyPastCount}
+        historyFutureCount={historyFutureCount}
         presence={{
           count: onlineCount,
           status: presenceStatus,

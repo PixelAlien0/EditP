@@ -1218,6 +1218,31 @@ test('clone identity remains editable and nested clones keep the selected clone 
   await expect(page.getByText('armdfly_editorial_nested_test', { exact: true }).first()).toBeVisible();
 });
 
+test('a clone workflow is committed as one undoable project transaction', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+
+  const cloneId = 'armdfly_atomic_history_test';
+  await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+  const dialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+  await dialog.getByLabel('New Unit ID', { exact: true }).fill(cloneId);
+  await dialog.getByRole('button', { name: 'Create Clone' }).click();
+  await expect(page.getByText(cloneId, { exact: true }).first()).toBeVisible();
+
+  const undo = page.getByRole('button', { name: 'Undo' });
+  const redo = page.getByRole('button', { name: 'Redo' });
+  await expect(undo).toBeEnabled();
+  await undo.click();
+
+  await page.getByPlaceholder(/Search unit name/i).fill(cloneId);
+  await expect(page.locator('.unit-item').filter({ hasText: cloneId })).toHaveCount(0);
+  await expect(redo).toBeEnabled();
+
+  await redo.click();
+  await expect(page.locator('.unit-item').filter({ hasText: cloneId })).toBeVisible();
+});
+
 test('deleting a parent clone preserves a nested clone weapon chassis', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
