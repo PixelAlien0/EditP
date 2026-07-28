@@ -3,6 +3,7 @@ import { Button, EmptyState, PageShell, SwitchField, Tabs, TextAreaField, TextFi
 import CompatibilityPreflight from './CompatibilityPreflight.jsx';
 import { analyzeTweakPackage } from '../utils/tweakPackage.js';
 import { buildCompatibilityPreflight } from '../utils/compatibilityPreflight.js';
+import { validateCompiledLobbyModules } from '../utils/compilerValidation.js';
 import '../styles/features/review-export.css';
 
 const EXPORT_TABS = [
@@ -41,15 +42,20 @@ export default function ReviewPage({
     () => analyzeTweakPackage(tweakModules, { knownUnitIds }),
     [knownUnitIds, tweakModules]
   );
+  const compilerValidation = useMemo(
+    () => validateCompiledLobbyModules(compiledLobbyModules),
+    [compiledLobbyModules]
+  );
   const compatibilityReport = useMemo(() => buildCompatibilityPreflight({
     validationIssues,
     compiledModules: compiledLobbyModules,
+    compilerValidation,
     tweakModules,
     packageAnalysis,
     lobbySetup,
     supportingWeaponDefs,
     knownUnitIds,
-  }), [compiledLobbyModules, knownUnitIds, lobbySetup, packageAnalysis, supportingWeaponDefs, tweakModules, validationIssues]);
+  }), [compiledLobbyModules, compilerValidation, knownUnitIds, lobbySetup, packageAnalysis, supportingWeaponDefs, tweakModules, validationIssues]);
   const openSummary = tab => onOpenSummary(tab);
   const copyOutput = async () => {
     try {
@@ -60,7 +66,7 @@ export default function ReviewPage({
     }
   };
   const copyLobbyValue = async (label, value) => {
-    if (!value) return;
+    if (!value || !compatibilityReport.canCopyLobbyCommands) return;
     try {
       await navigator.clipboard.writeText(value);
       onToast(`${label} value copied`);
@@ -251,7 +257,7 @@ export default function ReviewPage({
                           ['base64', 'Base64'],
                         ].map(([id, label]) => <button type="button" key={id} className={slotPreviewMode === id ? 'is-active' : ''} aria-pressed={slotPreviewMode === id} onClick={() => setSlotPreviewMode(id)}>{label}</button>)}
                       </div>
-                      <Button size="sm" onClick={() => copyLobbyValue(selectedLobbySlot.fieldName, selectedLobbySlot.command)}>Copy this !bset</Button>
+                      <Button size="sm" onClick={() => copyLobbyValue(selectedLobbySlot.fieldName, selectedLobbySlot.command)} disabled={!compatibilityReport.canCopyLobbyCommands}>Copy this !bset</Button>
                     </div>
                     <pre className="lobby-slot-code">{selectedSlotOutput}</pre>
                   </>
@@ -272,9 +278,9 @@ export default function ReviewPage({
               <Tabs className="export-output-tabs" size="sm" label="Legacy generated output format" items={EXPORT_TABS} value={activeOutputTab} onChange={setActiveOutputTab} />
               <pre className="export-code-preview">{activeCompiledOutput || activeCompiledOutputFallback}</pre>
               <div className="legacy-lobby-quick-actions" aria-label="Legacy combined payloads">
-                <Button size="sm" onClick={() => copyLobbyValue('Tweak Defs', tweakDefsB64)} disabled={!tweakDefsB64}>Copy Defs Base64</Button>
-                <Button size="sm" onClick={() => copyLobbyValue('Tweak Units', tweakUnitsB64)} disabled={!tweakUnitsB64}>Copy Units Base64</Button>
-                <Button size="sm" onClick={copyOutput}>Copy current output</Button>
+                <Button size="sm" onClick={() => copyLobbyValue('Tweak Defs', tweakDefsB64)} disabled={!tweakDefsB64 || !compatibilityReport.canCopyLobbyCommands}>Copy Defs Base64</Button>
+                <Button size="sm" onClick={() => copyLobbyValue('Tweak Units', tweakUnitsB64)} disabled={!tweakUnitsB64 || !compatibilityReport.canCopyLobbyCommands}>Copy Units Base64</Button>
+                <Button size="sm" onClick={copyOutput} disabled={!compatibilityReport.canCopyLobbyCommands}>Copy current output</Button>
               </div>
             </div>
           </details>

@@ -1,0 +1,89 @@
+import { createHash } from 'node:crypto';
+import { describe, expect, it } from 'vitest';
+import { COMPILER_REGRESSION_FIXTURES } from '../../tests/fixtures/compilerRegressionProjects.js';
+import { createSanitizedReferenceModules } from '../../tests/fixtures/sanitizedReferencePackage.js';
+import { validateCompiledLobbyModules } from './compilerValidation.js';
+import { buildLobbyCommands, compileLobbyModules } from './lobbyModules.js';
+
+function commandHash(compiled) {
+  return createHash('sha256').update(buildLobbyCommands(compiled), 'utf8').digest('hex');
+}
+
+describe('canonical compiler semantic validation', () => {
+  it.each(COMPILER_REGRESSION_FIXTURES)('keeps $id semantically valid and byte-stable', fixture => {
+    const compiled = compileLobbyModules(fixture.projectState);
+    const validation = validateCompiledLobbyModules(compiled);
+
+    expect(validation).toMatchObject({
+      status: 'ready',
+      isValid: true,
+      canExport: true,
+      counts: { blocker: 0, warning: 0, info: 0 },
+    });
+    expect(compiled.defs.required).toBe(fixture.expected.defsSlots);
+    expect(compiled.units.required).toBe(fixture.expected.unitsSlots);
+    expect(compiled.canonicalBlocks.all.map(block => block.category)).toEqual(fixture.expected.categories);
+    expect(commandHash(compiled)).toBe(fixture.expected.commandSha256);
+  });
+
+  it('accepts the sanitized nine-by-nine BAR package as structurally sound', () => {
+    const compiled = compileLobbyModules({
+      tweakModules: createSanitizedReferenceModules(),
+      generatedTweakDefsLua: '',
+      generatedTweakUnitsLua: '',
+      base64Options: { padding: false },
+    });
+
+    const validation = validateCompiledLobbyModules(compiled);
+    expect(validation.isValid).toBe(true);
+    expect(validation.checkedBlockCount).toBe(18);
+    expect(validation.checkedSlotCount).toBe(18);
+  });
+
+  it('blocks invalid Lua and a non-table Units payload', () => {
+    const compiled = compileLobbyModules({
+      tweakModules: [
+        {
+          id: 'bad-defs', kind: 'defs', stage: 'before-editor', order: 0,
+          label: 'Bad definitions', rawLua: 'if UnitDefs.armflash then', enabled: true, converted: false,
+        },
+        {
+          id: 'bad-units', kind: 'units', stage: 'before-editor', order: 0,
+          label: 'Bad units', rawLua: '"armflash"', enabled: true, converted: false,
+        },
+      ],
+      generatedTweakDefsLua: '',
+      generatedTweakUnitsLua: '',
+    });
+
+    const validation = validateCompiledLobbyModules(compiled);
+    expect(validation).toMatchObject({ status: 'blocked', isValid: false, canExport: false });
+    expect(validation.issues.map(issue => issue.code)).toEqual(expect.arrayContaining([
+      'lua-syntax',
+      'units-table-shape',
+      'slot-lua-syntax',
+    ]));
+  });
+
+  it('detects payload tampering, duplicate coverage, and inconsistent metadata', () => {
+    const compiled = compileLobbyModules(COMPILER_REGRESSION_FIXTURES[0].projectState);
+    const tampered = structuredClone(compiled);
+    tampered.slots[0].encoded = 'tampered';
+    tampered.slots[0].command = '!bset tweakdefs1 tampered';
+    tampered.slots[0].blockIds.push(tampered.slots[0].blockIds[0]);
+    tampered.slots[0].blockCount = tampered.slots[0].blockIds.length;
+    tampered.canonicalBlocks.units[0].metadata.unitId = 'wrong_unit';
+    tampered.canonicalBlocks.all = [
+      ...tampered.canonicalBlocks.defs,
+      ...tampered.canonicalBlocks.units,
+    ];
+
+    const validation = validateCompiledLobbyModules(tampered);
+    expect(validation.isValid).toBe(false);
+    expect(validation.issues.map(issue => issue.code)).toEqual(expect.arrayContaining([
+      'encoded-payload-mismatch',
+      'duplicate-block-coverage',
+      'generated-unit-identity',
+    ]));
+  });
+});

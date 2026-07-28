@@ -39,6 +39,7 @@ function stableItems(items) {
 export function buildCompatibilityPreflight({
   validationIssues = [],
   compiledModules,
+  compilerValidation,
   tweakModules = [],
   packageAnalysis,
   lobbySetup,
@@ -101,6 +102,26 @@ export function buildCompatibilityPreflight({
     add({
       id: 'delivery-order', group: 'delivery', level: 'pass', title: 'Definition order is deterministic',
       detail: 'All tweakdefs fields are emitted before tweakunits fields, with stable before-editor and after-editor module ordering.',
+    });
+  }
+  if (compilerValidation?.issues?.length) {
+    compilerValidation.issues.forEach(issue => add({
+      id: issue.id,
+      group: 'delivery',
+      level: issue.level,
+      title: issue.fieldName
+        ? `${issue.fieldName} · ${issue.code.replaceAll('-', ' ')}`
+        : `Compiler · ${issue.code.replaceAll('-', ' ')}`,
+      detail: issue.message,
+      action: issue.source === 'imported' ? { type: 'tweak-lab', label: 'Inspect module' } : null,
+    }));
+  } else if (compilerValidation?.isValid) {
+    add({
+      id: 'delivery-semantic-clear',
+      group: 'delivery',
+      level: 'pass',
+      title: 'Compiled Lua is structurally valid',
+      detail: `${compilerValidation.checkedBlockCount} canonical blocks and ${compilerValidation.checkedSlotCount} lobby slots passed Lua 5.1 syntax, ownership, packing, numbering, and payload-integrity checks.`,
     });
   }
 

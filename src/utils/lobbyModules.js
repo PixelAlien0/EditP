@@ -412,11 +412,12 @@ function finalizeSlots(blocks, kind, maximum, padding) {
 export function compileLobbyModules(projectState, options = {}) {
   const maxDefsSlots = options.maxDefsSlots ?? MAX_DEFS_SLOTS;
   const maxUnitsSlots = options.maxUnitsSlots ?? MAX_UNITS_SLOTS;
+  const base64Padding = projectState.base64Options?.padding ?? false;
   const canonicalBlocks = buildCanonicalCompilerBlocks(projectState);
   const defsBlocks = materializeLane(canonicalBlocks.defs, 'defs');
   const unitsBlocks = materializeLane(canonicalBlocks.units, 'units');
-  const defs = finalizeSlots(defsBlocks, 'defs', maxDefsSlots, projectState.base64Options?.padding ?? false);
-  const units = finalizeSlots(unitsBlocks, 'units', maxUnitsSlots, projectState.base64Options?.padding ?? false);
+  const defs = finalizeSlots(defsBlocks, 'defs', maxDefsSlots, base64Padding);
+  const units = finalizeSlots(unitsBlocks, 'units', maxUnitsSlots, base64Padding);
   const overflow = defs.overflow || units.overflow;
   const allSlots = [...defs.slots, ...units.slots];
   return {
@@ -426,6 +427,7 @@ export function compileLobbyModules(projectState, options = {}) {
     slots: allSlots,
     aggregateBytes: allSlots.reduce((total, slot) => total + slot.encodedBytes, 0),
     canonicalBlocks,
+    base64Padding,
   };
 }
 

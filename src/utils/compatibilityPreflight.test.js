@@ -65,6 +65,32 @@ describe('buildCompatibilityPreflight', () => {
     ]));
   });
 
+  it('blocks copy when final compiler semantics fail', () => {
+    const result = buildCompatibilityPreflight({
+      compiledModules: compiled(),
+      compilerValidation: {
+        isValid: false,
+        issues: [{
+          id: 'compiler-lua-syntax-tweakdefs1',
+          code: 'lua-syntax',
+          level: 'blocker',
+          fieldName: 'tweakdefs1',
+          source: 'generated',
+          message: 'Lua 5.1 syntax failed.',
+        }],
+      },
+    });
+
+    expect(result).toMatchObject({ status: 'blocked', canCopyLobbyCommands: false });
+    expect(result.items).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'compiler-lua-syntax-tweakdefs1',
+        group: 'delivery',
+        level: 'blocker',
+      }),
+    ]));
+  });
+
   it('keeps imperfect community Lua exportable when findings are advisory rather than definite failures', () => {
     const module = { id: 'module-a', label: 'Community tweak', enabled: true, converted: false, requirements: ['forceallunits'] };
     const analysis = packageAnalysis('module-a', {
