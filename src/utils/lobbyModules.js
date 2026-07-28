@@ -3,6 +3,7 @@ import {
   GENERATED_SLOT_TARGET_BYTES,
   LOBBY_SLOT_ADVISORY_BYTES,
 } from './byteBudget.js';
+import { compactLuaIfEquivalent } from './luaCompaction.js';
 import {
   BUILDMENU_BEGIN,
   BUILDMENU_END,
@@ -369,7 +370,7 @@ function combineUnitTables(left, right) {
   return `{\n${left.trim().slice(1, -1).trim()}\n${right.trim().slice(1, -1).trim()}\n}`;
 }
 
-function packedGeneratedBlock(kind, blocks, lua, index) {
+function packedGeneratedBlock(kind, blocks, lua, compaction, index) {
   const blockIds = blocks.flatMap(block => [block.id, ...(block.deduplicatedBlockIds || [])]);
   const features = [...new Set(blocks.map(block => block.sourceFeature))];
   const dependencies = normalizedDependencies(blocks.flatMap(block => block.dependencies));
@@ -387,6 +388,7 @@ function packedGeneratedBlock(kind, blocks, lua, index) {
     atomic: true,
     dependencies,
     rawBytes: textEncoder.encode(lua).byteLength,
+    compaction,
     blockIds,
     blockCount: blockIds.length,
     executionBlockCount: blocks.length,
@@ -402,35 +404,53 @@ function isCommentOnlyLua(lua) {
   });
 }
 
-function packGeneratedBlocks(blocks, kind) {
+function packGeneratedBlocks(blocks, kind, options) {
   const packed = [];
   blocks.filter(Boolean).forEach(block => {
     const current = packed.at(-1);
-    const combined = current
+    const combinedSource = current
       ? kind === 'units'
-        ? combineUnitTables(current.lua, block.lua)
-        : `${current.lua}\n\n${block.lua}`
+        ? combineUnitTables(current.sourceLua, block.lua)
+        : `${current.sourceLua}\n\n${block.lua}`
       : block.lua;
-    const encodedLength = encodeLobbyBase64(`${combined} `, { padding: false }).length;
+    const compaction = compactLuaIfEquivalent(combinedSource, {
+      kind,
+      enabled: options.compactGenerated,
+      padding: options.padding,
+    });
+    const encodedLength = compaction.encodedBytesAfter;
     const currentIsHeader = kind === 'defs'
       && current
       && current.blocks.every(item => isCommentOnlyLua(item.lua));
     if (current && (encodedLength <= GENERATED_SLOT_TARGET || currentIsHeader)) {
-      current.lua = combined;
+      current.sourceLua = combinedSource;
+      current.lua = compaction.lua;
+      current.compaction = compaction;
       current.blocks.push(block);
     } else {
-      packed.push({ lua: block.lua, blocks: [block] });
+      packed.push({
+        sourceLua: block.lua,
+        lua: compaction.lua,
+        compaction,
+        blocks: [block],
+      });
     }
   });
-  return packed.map((entry, index) => packedGeneratedBlock(kind, entry.blocks, entry.lua, index));
+  return packed.map((entry, index) => packedGeneratedBlock(
+    kind,
+    entry.blocks,
+    entry.lua,
+    entry.compaction,
+    index,
+  ));
 }
 
-function materializeLane(blocks, kind) {
+function materializeLane(blocks, kind, options) {
   const output = [];
   let pendingGenerated = [];
   const flushGenerated = () => {
     if (!pendingGenerated.length) return;
-    output.push(...packGeneratedBlocks(pendingGenerated, kind));
+    output.push(...packGeneratedBlocks(pendingGenerated, kind, options));
     pendingGenerated = [];
   };
   blocks.forEach(block => {
@@ -500,6 +520,7 @@ function finalizeSlots(blocks, kind, maximum, padding) {
     ))
     .slice(0, 3)
     .map(({ id, label, encodedBytes, source }) => ({ id, label, encodedBytes, source }));
+  const compacted = prepared.filter(block => block.compaction?.applied);
   return {
     kind,
     slots,
@@ -508,6 +529,18 @@ function finalizeSlots(blocks, kind, maximum, padding) {
     overflow,
     largestModules,
     totalEncodedBytes: prepared.reduce((total, block) => total + block.encodedBytes, 0),
+    compaction: {
+      attemptedSlotCount: prepared.filter(block => block.compaction?.attempted).length,
+      appliedSlotCount: compacted.length,
+      rawBytesSaved: compacted.reduce((total, block) => total + block.compaction.rawBytesSaved, 0),
+      encodedBytesSaved: compacted.reduce((total, block) => total + block.compaction.encodedBytesSaved, 0),
+      fallbackSlotCount: prepared.filter(block => (
+        block.source === 'generated'
+        && block.compaction?.attempted
+        && !block.compaction?.applied
+        && !['not-smaller', 'empty-source'].includes(block.compaction.reason)
+      )).length,
+    },
   };
 }
 
@@ -515,20 +548,24 @@ export function compileLobbyModules(projectState, options = {}) {
   const maxDefsSlots = options.maxDefsSlots ?? MAX_DEFS_SLOTS;
   const maxUnitsSlots = options.maxUnitsSlots ?? MAX_UNITS_SLOTS;
   const base64Padding = projectState.base64Options?.padding ?? false;
+  const compactionOptions = {
+    compactGenerated: options.compactGenerated !== false,
+    padding: base64Padding,
+  };
   const canonicalBlocks = buildCanonicalCompilerBlocks(projectState);
   const deduplicated = options.deduplicate === false
     ? { blocks: canonicalBlocks, groups: [] }
     : deduplicateCanonicalBlocks(canonicalBlocks);
-  const defsBlocks = materializeLane(deduplicated.blocks.defs, 'defs');
-  const unitsBlocks = materializeLane(deduplicated.blocks.units, 'units');
+  const defsBlocks = materializeLane(deduplicated.blocks.defs, 'defs', compactionOptions);
+  const unitsBlocks = materializeLane(deduplicated.blocks.units, 'units', compactionOptions);
   const defs = finalizeSlots(defsBlocks, 'defs', maxDefsSlots, base64Padding);
   const units = finalizeSlots(unitsBlocks, 'units', maxUnitsSlots, base64Padding);
   const hasDuplicates = deduplicated.groups.length > 0;
   const baselineDefs = hasDuplicates
-    ? finalizeSlots(materializeLane(canonicalBlocks.defs, 'defs'), 'defs', maxDefsSlots, base64Padding)
+    ? finalizeSlots(materializeLane(canonicalBlocks.defs, 'defs', compactionOptions), 'defs', maxDefsSlots, base64Padding)
     : defs;
   const baselineUnits = hasDuplicates
-    ? finalizeSlots(materializeLane(canonicalBlocks.units, 'units'), 'units', maxUnitsSlots, base64Padding)
+    ? finalizeSlots(materializeLane(canonicalBlocks.units, 'units', compactionOptions), 'units', maxUnitsSlots, base64Padding)
     : units;
   const overflow = defs.overflow || units.overflow;
   const allSlots = [...defs.slots, ...units.slots];
@@ -548,6 +585,15 @@ export function compileLobbyModules(projectState, options = {}) {
     canonicalBlocks,
     effectiveBlocks: deduplicated.blocks,
     base64Padding,
+    compaction: {
+      enabled: options.compactGenerated !== false,
+      equivalenceGuarded: true,
+      attemptedSlotCount: defs.compaction.attemptedSlotCount + units.compaction.attemptedSlotCount,
+      appliedSlotCount: defs.compaction.appliedSlotCount + units.compaction.appliedSlotCount,
+      rawBytesSaved: defs.compaction.rawBytesSaved + units.compaction.rawBytesSaved,
+      encodedBytesSaved: defs.compaction.encodedBytesSaved + units.compaction.encodedBytesSaved,
+      fallbackSlotCount: defs.compaction.fallbackSlotCount + units.compaction.fallbackSlotCount,
+    },
     deduplication: {
       enabled: options.deduplicate !== false,
       groups: deduplicated.groups,

@@ -143,6 +143,22 @@ function buildSuggestions(compiledModules, lanes, slots, contributors, options) 
     });
   }
 
+  const compaction = compiledModules?.compaction;
+  if (compaction?.appliedSlotCount > 0) {
+    suggestions.push({
+      level: 'info',
+      title: `Equivalent Lua compaction recovered ${compaction.encodedBytesSaved.toLocaleString()} encoded characters`,
+      detail: `${compaction.appliedSlotCount} generated ${compaction.appliedSlotCount === 1 ? 'slot was' : 'slots were'} compacted only after Lua 5.1 AST equivalence passed. Imported modules remain untouched.`,
+    });
+  }
+  if (compaction?.fallbackSlotCount > 0) {
+    suggestions.push({
+      level: 'warning',
+      title: `${compaction.fallbackSlotCount} generated ${compaction.fallbackSlotCount === 1 ? 'slot used' : 'slots used'} the safe fallback`,
+      detail: 'Equivalence could not be proven, so the compiler retained the original generated Lua for those slots.',
+    });
+  }
+
   if (!suggestions.length) {
     suggestions.push({
       level: 'info',
@@ -200,5 +216,6 @@ export function buildByteBudgetReport(compiledModules, configuration = {}) {
     contributors,
     suggestions: buildSuggestions(compiledModules, lanes, slots, contributors, options),
     deduplication: compiledModules?.deduplication || null,
+    compaction: compiledModules?.compaction || null,
   };
 }

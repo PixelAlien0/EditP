@@ -117,4 +117,21 @@ describe('canonical compiler semantic validation', () => {
       expect.objectContaining({ code: 'unsafe-deduplication', level: 'blocker' }),
     ]));
   });
+
+  it('accepts guarded compaction evidence and blocks tampered savings claims', () => {
+    const compiled = compileLobbyModules(COMPILER_REGRESSION_FIXTURES[0].projectState);
+    expect(compiled.compaction.appliedSlotCount).toBeGreaterThan(0);
+    expect(validateCompiledLobbyModules(compiled).isValid).toBe(true);
+
+    const tampered = structuredClone(compiled);
+    const compactedSlot = tampered.slots.find(slot => slot.compaction?.applied);
+    compactedSlot.compaction.rawBytesSaved += 1;
+    tampered.compaction.rawBytesSaved += 1;
+    const validation = validateCompiledLobbyModules(tampered);
+
+    expect(validation.isValid).toBe(false);
+    expect(validation.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'compaction-byte-count', level: 'blocker' }),
+    ]));
+  });
 });

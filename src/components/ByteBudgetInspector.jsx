@@ -73,6 +73,7 @@ export default function ByteBudgetInspector({ compiledModules }) {
   const largestSlot = [...report.slots]
     .sort((left, right) => right.encodedBytes - left.encodedBytes || left.fieldName.localeCompare(right.fieldName))[0];
   const deduplication = report.deduplication;
+  const compaction = report.compaction;
   const dedupBeforeBytes = deduplication?.before?.encodedBytes || 0;
   const dedupPercent = dedupBeforeBytes
     ? Math.min(100, ((deduplication?.encodedBytesSaved || 0) / dedupBeforeBytes) * 100)
@@ -126,6 +127,9 @@ export default function ByteBudgetInspector({ compiledModules }) {
           {deduplication?.removedBlockCount > 0
             ? ` Exact safe deduplication currently saves ${deduplication.encodedBytesSaved.toLocaleString()} characters (${dedupPercent.toFixed(1)}%).`
             : ' No byte-identical compiler blocks are currently eligible for safe deduplication.'}
+          {compaction?.appliedSlotCount > 0
+            ? ` Equivalence-guarded compaction saves another ${compaction.encodedBytesSaved.toLocaleString()} characters across ${compaction.appliedSlotCount} generated ${compaction.appliedSlotCount === 1 ? 'slot' : 'slots'}.`
+            : ''}
         </p>
       </div>
     </details>

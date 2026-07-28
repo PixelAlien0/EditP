@@ -218,6 +218,13 @@ function validateSlots(compiledModules, canonicalIds, deduplicationGroups, add) 
   const seenFields = new Set();
   const recordedBlockIds = [];
   const allSlots = compiledModules?.slots || [];
+  const compactionTotals = {
+    attemptedSlotCount: 0,
+    appliedSlotCount: 0,
+    fallbackSlotCount: 0,
+    rawBytesSaved: 0,
+    encodedBytesSaved: 0,
+  };
 
   let unitsStarted = false;
   allSlots.forEach(slot => {
@@ -242,6 +249,39 @@ function validateSlots(compiledModules, canonicalIds, deduplicationGroups, add) 
     }
     if (slot.command !== `!bset ${slot.fieldName} ${slot.encoded}`) {
       add({ ...context, code: 'command-mismatch', level: 'blocker', message: `${slot.fieldName} command does not match its encoded payload.` });
+    }
+    if (slot.source === 'imported' && slot.compaction) {
+      add({ ...context, code: 'imported-compaction', level: 'blocker', message: 'Imported Lua must remain byte-for-byte untouched by semantic compaction.' });
+    }
+    if (slot.source === 'generated') {
+      const compaction = slot.compaction;
+      if (!compaction) {
+        add({ ...context, code: 'compaction-evidence-missing', level: 'blocker', message: `${slot.fieldName} is missing its generated-Lua compaction evidence.` });
+      } else {
+        if (compaction.attempted) compactionTotals.attemptedSlotCount += 1;
+        if (compaction.applied) compactionTotals.appliedSlotCount += 1;
+        if (
+          compaction.attempted
+          && !compaction.applied
+          && !['not-smaller', 'empty-source'].includes(compaction.reason)
+        ) {
+          compactionTotals.fallbackSlotCount += 1;
+        }
+        compactionTotals.rawBytesSaved += compaction.rawBytesSaved || 0;
+        compactionTotals.encodedBytesSaved += compaction.encodedBytesSaved || 0;
+        const measuredRawBytes = textEncoder.encode(normalizedLua).byteLength;
+        if (
+          compaction.rawBytesAfter !== measuredRawBytes
+          || compaction.encodedBytesAfter !== expectedEncoded.length
+          || compaction.rawBytesBefore - compaction.rawBytesAfter !== compaction.rawBytesSaved
+          || compaction.encodedBytesBefore - compaction.encodedBytesAfter !== compaction.encodedBytesSaved
+        ) {
+          add({ ...context, code: 'compaction-byte-count', level: 'blocker', message: `${slot.fieldName} compaction savings do not match its delivered source.` });
+        }
+        if (compaction.applied && (!compaction.equivalent || compaction.reason !== 'equivalent')) {
+          add({ ...context, code: 'compaction-equivalence', level: 'blocker', message: `${slot.fieldName} claims compaction without successful Lua 5.1 AST equivalence.` });
+        }
+      }
     }
     if (!Array.isArray(slot.blockIds) || slot.blockIds.length === 0 || slot.blockCount !== slot.blockIds.length) {
       add({ ...context, code: 'slot-block-index', level: 'blocker', message: `${slot.fieldName} has an invalid canonical block index.` });
@@ -313,6 +353,29 @@ function validateSlots(compiledModules, canonicalIds, deduplicationGroups, add) 
         add({ lane: kind, fieldName: slot.fieldName, code: 'slot-sequence', level: 'blocker', message: `${kind} slots are not consecutively numbered.` });
       }
     });
+  }
+
+  const compactionReport = compiledModules?.compaction;
+  if (!compactionReport || compactionReport.equivalenceGuarded !== true) {
+    add({ code: 'compaction-report-missing', level: 'blocker', message: 'Generated-Lua compaction guard evidence is unavailable.' });
+  } else {
+    const matchesVisibleSlots = (
+      compactionReport.attemptedSlotCount === compactionTotals.attemptedSlotCount
+      && compactionReport.appliedSlotCount === compactionTotals.appliedSlotCount
+      && compactionReport.fallbackSlotCount === compactionTotals.fallbackSlotCount
+      && compactionReport.rawBytesSaved === compactionTotals.rawBytesSaved
+      && compactionReport.encodedBytesSaved === compactionTotals.encodedBytesSaved
+    );
+    const safelyIncludesOverflow = compiledModules?.overflow && (
+      compactionReport.attemptedSlotCount >= compactionTotals.attemptedSlotCount
+      && compactionReport.appliedSlotCount >= compactionTotals.appliedSlotCount
+      && compactionReport.fallbackSlotCount >= compactionTotals.fallbackSlotCount
+      && compactionReport.rawBytesSaved >= compactionTotals.rawBytesSaved
+      && compactionReport.encodedBytesSaved >= compactionTotals.encodedBytesSaved
+    );
+    if (!matchesVisibleSlots && !safelyIncludesOverflow) {
+      add({ code: 'compaction-summary', level: 'blocker', message: 'Semantic compaction summary totals do not match their generated slots.' });
+    }
   }
 }
 

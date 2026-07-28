@@ -219,6 +219,46 @@ describe('numbered lobby module compilation', () => {
     expect(first.defs.largestModules.map(module => module.id)).toEqual(['defs-1', 'defs-2']);
   });
 
+  it('compacts only generated slots and records equivalence-guarded savings', () => {
+    const importedLua = 'local imported_value = true\nlocal imported_spacing = true';
+    const project = {
+      tweakModules: [{
+        ...moduleOf('defs', 1),
+        rawLua: importedLua,
+      }],
+      generatedTweakDefsLua: [
+        '-- EDITP_UNIT_TWEAKS_BEGIN',
+        'do',
+        '  local unit = UnitDefs.armflash',
+        '  if unit then',
+        '    unit.health = 750',
+        '  end',
+        'end',
+        '-- EDITP_UNIT_TWEAKS_END',
+      ].join('\n'),
+      generatedTweakUnitsLua: '{\n  armflash = {\n    health = 750,\n  },\n}',
+      base64Options: { padding: false },
+    };
+    const compacted = compileLobbyModules(project);
+    const uncompacted = compileLobbyModules(project, { compactGenerated: false });
+
+    expect(compacted.defs.slots[0].source).toBe('imported');
+    expect(compacted.defs.slots[0].lua).toBe(importedLua);
+    expect(compacted.defs.slots[0].compaction).toBeUndefined();
+    expect(compacted.compaction).toMatchObject({
+      enabled: true,
+      equivalenceGuarded: true,
+      attemptedSlotCount: 2,
+      appliedSlotCount: 2,
+      fallbackSlotCount: 0,
+    });
+    expect(compacted.compaction.encodedBytesSaved).toBeGreaterThan(0);
+    expect(compacted.aggregateBytes).toBeLessThan(uncompacted.aggregateBytes);
+    expect(compacted.slots.filter(slot => slot.source === 'generated').every(slot => (
+      slot.compaction.applied && slot.compaction.equivalent
+    ))).toBe(true);
+  });
+
   it('safely collapses byte-identical imported modules in the same execution stage', () => {
     const duplicateLua = 'local exact_duplicate = true';
     const compiled = compileLobbyModules({

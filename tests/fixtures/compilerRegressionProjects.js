@@ -70,7 +70,7 @@ export const COMPILER_REGRESSION_FIXTURES = Object.freeze([
         'death-profiles',
         'unit-patch',
       ],
-      commandSha256: 'b0d34ec88da911c4b595d23cb250d42bb33b3f6b2dfb666f68c8b308653a600e',
+      commandSha256: '04150b4912cfdcf1e777ccb89d4a7dfa88614007beeddec19ef144327f14aed2',
     },
   },
   {
@@ -125,7 +125,7 @@ export const COMPILER_REGRESSION_FIXTURES = Object.freeze([
         'unit-patch',
         'imported-module',
       ],
-      commandSha256: '7e14827e0d903ab808dbc7577a48aa861caaacb358a21766cc1de29d31cc6a33',
+      commandSha256: 'da1e022c4d0c7cb3e3502c0f058595a6a8662d3002196300264b0a201f2e2b1f',
     },
   },
 ]);
