@@ -2510,6 +2510,10 @@ export default function App() {
       <CloneCreatorDialog
         open={showClonePanel}
         baseId={cloneBaseId}
+        baseName={selectedUnit?.name}
+        baseIconUrl={getProjectUnitIconUrl(cloneBaseId)}
+        baseFaction={selectedUnit?.faction}
+        baseTier={selectedUnit?.tags?.find(tag => /^t[1-4]$/.test(tag))}
         newId={cloneNewId}
         name={cloneName}
         description={cloneDesc}

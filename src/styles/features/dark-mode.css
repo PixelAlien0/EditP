@@ -538,13 +538,11 @@ html[data-theme="dark"] {
 }
 
 /* Dialogs and experimental tools */
-[data-theme="dark"] .clone-creator-overlay,
 [data-theme="dark"] .mutation-lab-overlay,
 [data-theme="dark"] .weapon-swap-overlay {
   background: var(--color-overlay) !important;
 }
 
-[data-theme="dark"] .clone-creator-modal,
 [data-theme="dark"] .mutation-lab-modal,
 [data-theme="dark"] .weapon-swap-modal,
 [data-theme="dark"] .weapon-swap-library,
@@ -561,7 +559,6 @@ html[data-theme="dark"] {
   box-shadow: none !important;
 }
 
-[data-theme="dark"] .clone-creator-header,
 [data-theme="dark"] .mutation-lab-header,
 [data-theme="dark"] .mutation-lab-actions,
 [data-theme="dark"] .weapon-swap-header,

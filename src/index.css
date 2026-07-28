@@ -536,11 +536,6 @@ input[type="checkbox"] {
   border: 1px solid var(--b1);
   border-radius: 3px;
 }
-.clone-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-md);
-}
 .form-group {
   display: flex;
   flex-direction: column;
@@ -761,8 +756,7 @@ input[type="checkbox"]:checked::after {
   color: var(--color-text-strong) !important;
   font-family: var(--font-display) !important;
 }
-.mutation-lab-header p,
-.clone-field small {
+.mutation-lab-header p {
   color: var(--color-text-muted) !important;
 }
 .mutation-lab-body,
@@ -1823,21 +1817,6 @@ select:focus-visible,
   }
   .weapon-substitution-actions button {
     flex: 1;
-  }
-}
-.clone-field--name,
-.clone-field--description,
-.clone-field--builders {
-  grid-column: 1 / -1;
-}
-.clone-field--builders>small {
-  color: #73695e;
-  font-size: 8px;
-  line-height: 1.4;
-}
-@media (max-width: 680px) {
-  .clone-field {
-    grid-column: 1;
   }
 }
 .preset-save-copy>span {

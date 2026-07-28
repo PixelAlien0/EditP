@@ -1449,6 +1449,16 @@ test('editor visual baseline: active weapon workspace', async ({ page }) => {
   await expect(page).toHaveScreenshot('editor-weapon-dark-1920.png');
 });
 
+for (const theme of ['dark', 'light']) {
+  test(`clone creator visual baseline: ${theme} workspace`, async ({ page }) => {
+    await openEditorVisualState(page, { theme, width: 1440, unitId: 'armdfly' });
+    await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
+    const cloneDialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
+    await expect(cloneDialog).toBeVisible();
+    await expect(cloneDialog).toHaveScreenshot(`clone-creator-${theme}-1440.png`);
+  });
+}
+
 test('editor visual baseline: cloned unit identity', async ({ page }) => {
   await openEditorVisualState(page, { theme: 'light', width: 1440, unitId: 'armdfly' });
   await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
