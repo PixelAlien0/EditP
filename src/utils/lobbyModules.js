@@ -30,11 +30,24 @@ const FEATURE_MARKERS = [
 
 const textEncoder = new TextEncoder();
 
+function compareCanonicalText(left, right) {
+  const leftText = String(left ?? '');
+  const rightText = String(right ?? '');
+  return leftText < rightText ? -1 : leftText > rightText ? 1 : 0;
+}
+
+function normalizeCompilerLua(lua) {
+  return String(lua || '')
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n?/g, '\n')
+    .trim();
+}
+
 function normalizedDependencies(dependencies) {
   return [...new Set((dependencies || [])
     .map(value => String(value || '').trim())
     .filter(Boolean))]
-    .sort((left, right) => left.localeCompare(right));
+    .sort(compareCanonicalText);
 }
 
 function canonicalBlock({
@@ -51,7 +64,7 @@ function canonicalBlock({
   dependencies = [],
   metadata = {},
 }) {
-  const normalizedLua = String(lua || '').trim();
+  const normalizedLua = normalizeCompilerLua(lua);
   if (!normalizedLua) return null;
   return {
     schemaVersion: COMPILER_BLOCK_SCHEMA_VERSION,
@@ -75,8 +88,9 @@ function normalizeImported(modules, kind, stage) {
   return (modules || [])
     .filter(module => module.enabled && !module.converted && module.kind === kind && module.stage === stage)
     .sort((left, right) => (Number(left.order) || 0) - (Number(right.order) || 0)
-      || String(left.label || '').localeCompare(String(right.label || ''))
-      || String(left.id || '').localeCompare(String(right.id || '')))
+      || compareCanonicalText(left.label, right.label)
+      || compareCanonicalText(left.id, right.id)
+      || compareCanonicalText(normalizeCompilerLua(left.rawLua), normalizeCompilerLua(right.rawLua)))
     .map((module, index) => canonicalBlock({
       id: `imported:${kind}:${module.id}`,
       label: module.label || module.id || `Imported ${kind} module ${index + 1}`,
@@ -100,7 +114,7 @@ function normalizeImported(modules, kind, stage) {
 }
 
 function splitSerializedUnitTable(lua) {
-  const source = String(lua || '').trim();
+  const source = normalizeCompilerLua(lua);
   if (!source.startsWith('{') || !source.endsWith('}')) return [source];
   const entries = [];
   let depth = 0;
@@ -126,7 +140,18 @@ function splitSerializedUnitTable(lua) {
   }
   const tail = source.slice(entryStart, -1).trim();
   if (tail) entries.push(tail);
-  return entries.length ? entries.map(entry => `{\n  ${entry.replace(/^\s*/, '')}\n}`) : [source];
+  return entries.length
+    ? entries
+      .map((entry, index) => ({
+        lua: `{\n  ${entry.replace(/^\s*/, '').replace(/,\s*$/, '')},\n}`,
+        index,
+      }))
+      .sort((left, right) => (
+        compareCanonicalText(extractUnitId(left.lua, left.index + 1), extractUnitId(right.lua, right.index + 1))
+        || left.index - right.index
+      ))
+      .map(entry => entry.lua)
+    : [source];
 }
 
 function findMarkedSpans(source) {
@@ -166,7 +191,7 @@ function addLegacyCloneSpan(source, spans) {
 }
 
 function splitGeneratedDefinitions(lua) {
-  const source = String(lua || '').trim();
+  const source = normalizeCompilerLua(lua);
   const blocks = [];
   const spans = addLegacyCloneSpan(source, findMarkedSpans(source));
   let cursor = 0;
@@ -215,9 +240,10 @@ function extractUnitId(lua, fallbackIndex) {
 }
 
 function generatedCanonicalBlocks(kind, lua) {
-  if (!String(lua || '').trim() || (kind === 'units' && String(lua).trim() === '{}')) return [];
+  const normalizedLua = normalizeCompilerLua(lua);
+  if (!normalizedLua || (kind === 'units' && normalizedLua === '{}')) return [];
   if (kind === 'units') {
-    return splitSerializedUnitTable(lua).map((blockLua, index) => {
+    return splitSerializedUnitTable(normalizedLua).map((blockLua, index) => {
       const unitId = extractUnitId(blockLua, index + 1);
       return canonicalBlock({
         id: `generated:units:unit-patch:${unitId}`,
@@ -233,7 +259,7 @@ function generatedCanonicalBlocks(kind, lua) {
       });
     }).filter(Boolean);
   }
-  return splitGeneratedDefinitions(lua).map((descriptor, index) => canonicalBlock({
+  return splitGeneratedDefinitions(normalizedLua).map((descriptor, index) => canonicalBlock({
     id: `generated:defs:${descriptor.category}:${descriptor.occurrence}`,
     label: descriptor.category
       .split('-')
@@ -373,7 +399,11 @@ function finalizeSlots(blocks, kind, maximum, padding) {
     };
   });
   const largestModules = [...prepared]
-    .sort((left, right) => right.encodedBytes - left.encodedBytes)
+    .sort((left, right) => (
+      right.encodedBytes - left.encodedBytes
+      || compareCanonicalText(left.kind, right.kind)
+      || compareCanonicalText(left.id, right.id)
+    ))
     .slice(0, 3)
     .map(({ id, label, encodedBytes, source }) => ({ id, label, encodedBytes, source }));
   return { kind, slots, required, maximum, overflow, largestModules };

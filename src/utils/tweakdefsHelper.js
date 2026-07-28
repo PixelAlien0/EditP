@@ -21,38 +21,53 @@ function escapeLuaString(str) {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
+function compareCanonicalText(left, right) {
+  const leftText = String(left ?? '');
+  const rightText = String(right ?? '');
+  return leftText < rightText ? -1 : leftText > rightText ? 1 : 0;
+}
+
 export function generateUnitTweaksBlockLua(tweaks = {}) {
   if (!tweaks || typeof tweaks !== 'object') return '';
-  const entries = Object.entries(tweaks).filter(([unitId, unitTweaks]) => {
-    return unitId && unitTweaks && typeof unitTweaks === 'object' && Object.keys(unitTweaks).length > 0;
-  });
+  const entries = Object.entries(tweaks)
+    .filter(([unitId, unitTweaks]) => {
+      return unitId && unitTweaks && typeof unitTweaks === 'object' && Object.keys(unitTweaks).length > 0;
+    })
+    .sort(([leftId], [rightId]) => compareCanonicalText(
+      String(leftId).trim().toLowerCase(),
+      String(rightId).trim().toLowerCase(),
+    ));
   if (entries.length === 0) return '';
 
   const luaLines = [];
   entries.forEach(([unitId, unitTweaks]) => {
     const cleanUnitId = unitId.trim().toLowerCase();
     const sets = [];
-    Object.entries(unitTweaks).forEach(([key, val]) => {
-      if (val === undefined || val === null) return;
-      if (key.startsWith('weapon_slot_')) {
-        const match = key.match(/^weapon_slot_(\d+)_(.+)$/);
-        if (match) {
-          const slotNum = match[1];
-          const rawParam = match[2];
-          let param = rawParam;
-          if (rawParam === 'velocity') param = 'weaponvelocity';
-          else if (rawParam === 'reload') param = 'reloadtime';
-          else if (rawParam === 'aoe') param = 'areaofeffect';
-          let valExpr = typeof val === 'boolean' ? (val ? 'true' : 'false') : (typeof val === 'number' ? val : JSON.stringify(val));
-          sets.push(`    if u.weapons and u.weapons[${slotNum}] and u.weapons[${slotNum}].def then
+    Object.entries(unitTweaks)
+      .sort(([leftKey], [rightKey]) => compareCanonicalText(leftKey, rightKey))
+      .forEach(([key, val]) => {
+        if (val === undefined || val === null) return;
+        if (key.startsWith('weapon_slot_')) {
+          const match = key.match(/^weapon_slot_(\d+)_(.+)$/);
+          if (match) {
+            const slotNum = match[1];
+            const rawParam = match[2];
+            let param = rawParam;
+            if (rawParam === 'velocity') param = 'weaponvelocity';
+            else if (rawParam === 'reload') param = 'reloadtime';
+            else if (rawParam === 'aoe') param = 'areaofeffect';
+            const valExpr = typeof val === 'boolean'
+              ? (val ? 'true' : 'false')
+              : (typeof val === 'number' ? val : JSON.stringify(val));
+            sets.push(`    if u.weapons and u.weapons[${slotNum}] and u.weapons[${slotNum}].def then
       local wKey = string.lower(u.weapons[${slotNum}].def)
       if u.weapondefs and u.weapondefs[wKey] then
         u.weapondefs[wKey].${param} = ${valExpr}
       end
     end`);
+          }
         }
-      }
-    });
+      });
 
     if (sets.length > 0) {
       luaLines.push(`  local u = UnitDefs and UnitDefs[${JSON.stringify(cleanUnitId)}]
@@ -75,7 +90,11 @@ export function generateDeathProfilesBlockLua(profiles = []) {
   if (!profiles.length) return '';
   const calls = [];
   const sourceProfiles = {};
-  for (const profile of profiles) {
+  const orderedProfiles = [...profiles].sort((left, right) => compareCanonicalText(
+    String(left?.unitId || '').trim().toLowerCase(),
+    String(right?.unitId || '').trim().toLowerCase(),
+  ));
+  for (const profile of orderedProfiles) {
     const unitId = String(profile.unitId || '').trim().toLowerCase();
     if (!unitId) continue;
     for (const kind of ['death', 'selfd']) {
@@ -141,10 +160,11 @@ export function generateSupportingWeaponDefsBlockLua(definitions = []) {
       definition: definition.definition,
       mountedSlots: Array.isArray(definition.mountedSlots)
         ? [...new Set(definition.mountedSlots.map(Number).filter(slot => Number.isInteger(slot) && slot > 0))]
+          .sort((left, right) => left - right)
         : [],
     }))
     .filter(entry => entry.owner && entry.key && entry.definition && typeof entry.definition === 'object')
-    .sort((left, right) => left.owner.localeCompare(right.owner) || left.key.localeCompare(right.key));
+    .sort((left, right) => compareCanonicalText(left.owner, right.owner) || compareCanonicalText(left.key, right.key));
   if (!entries.length) return '';
   const payload = serializeLuaTable({ entries });
   return `${SUPPORTING_WEAPONDEFS_BEGIN}
@@ -255,7 +275,9 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
   }
   
   if (clone.weaponSwaps) {
-    Object.entries(clone.weaponSwaps).forEach(([slotNum, swap]) => {
+    Object.entries(clone.weaponSwaps)
+      .sort(([leftSlot], [rightSlot]) => Number(leftSlot) - Number(rightSlot) || compareCanonicalText(leftSlot, rightSlot))
+      .forEach(([slotNum, swap]) => {
       let srcUnit = swap.sourceUnitId.trim().toLowerCase();
       // strip scav_ prefix for weapon source too
       if (srcUnit.startsWith('scav_')) srcUnit = srcUnit.slice(5);
@@ -270,7 +292,7 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
           lines.push(...generateWeaponBlueprintOverridesLua(blueprint, targetWep));
         }
       }
-    });
+      });
   }
   lines.push(`  end`, `end`);
   return lines.join('\n');
@@ -306,7 +328,7 @@ export function getBuildersOfUnit(unitId, buildOptions, clones = []) {
       builders.push(builderId);
     }
   }
-  return builders.sort((a, b) => a.localeCompare(b));
+  return builders.sort(compareCanonicalText);
 }
 
 export function getClonesOfAncestor(ancestorId, clones) {
@@ -437,7 +459,12 @@ function applyDisabledUnitsToSteps(steps, disabledIds, buildOptions, clones) {
 }
 
 export function sortClonesDependency(clones) {
-  const items = clones.filter(c => c.newId.trim() && c.baseId.trim());
+  const items = clones
+    .filter(c => c.newId.trim() && c.baseId.trim())
+    .sort((left, right) => compareCanonicalText(
+      left.newId.trim().toLowerCase(),
+      right.newId.trim().toLowerCase(),
+    ));
   const newIds = new Set(items.map(c => c.newId.trim().toLowerCase()));
   const cloneMap = new Map(items.map(c => [c.newId.trim().toLowerCase(), c]));
   const result = [];
@@ -536,7 +563,7 @@ export function generateClonesBlockLua(clones, weaponLibrary = []) {
 function generateRemoveTableLua(removeSet) {
   if (removeSet.size === 0) return 'local remove = {}';
   const lines = ['local remove = {'];
-  for (const id of [...removeSet].sort((a, b) => a.localeCompare(b))) {
+  for (const id of [...removeSet].sort(compareCanonicalText)) {
     lines.push(`  ["${escapeLuaString(id)}"] = true,`);
   }
   lines.push('}');
@@ -610,7 +637,12 @@ export function generateSingleBuilderDeltaLua(step) {
 }
 
 export function generateBuildMenuBlockLua(steps) {
-  const activeSteps = steps.filter(s => s.builderId.trim() && (s.add.some(x => x.trim().length > 0) || s.remove.some(x => x.trim().length > 0)));
+  const activeSteps = steps
+    .filter(s => s.builderId.trim() && (s.add.some(x => x.trim().length > 0) || s.remove.some(x => x.trim().length > 0)))
+    .sort((left, right) => compareCanonicalText(
+      left.builderId.trim().toLowerCase(),
+      right.builderId.trim().toLowerCase(),
+    ));
   if (activeSteps.length === 0) return '';
   
   const stepCodes = activeSteps.map(generateSingleBuilderDeltaLua).filter(Boolean);
@@ -663,9 +695,16 @@ export function extractBlock(luaScript, beginMarker, endMarker) {
 export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
   let entries = [];
   if (Array.isArray(tweaksOrEntries)) {
-    entries = tweaksOrEntries;
+    entries = [...tweaksOrEntries].sort((left, right) => compareCanonicalText(
+      String(left?.unitId || '').trim().toLowerCase(),
+      String(right?.unitId || '').trim().toLowerCase(),
+    ));
   } else if (tweaksOrEntries && typeof tweaksOrEntries === 'object') {
     entries = Object.entries(tweaksOrEntries)
+      .sort(([leftId], [rightId]) => compareCanonicalText(
+        String(leftId).trim().toLowerCase(),
+        String(rightId).trim().toLowerCase(),
+      ))
       .map(([unitId, unitTweaks]) => {
         if (!unitTweaks || typeof unitTweaks !== 'object') return null;
         // Canonical carrier edits live in weapon_slot_<n>_* and are compiled
@@ -799,8 +838,9 @@ export function compileTweakDefsLua({
   supportingWeaponDefs = [],
   tweaks = {},
 }) {
+  const normalizedCurrentLua = String(currentTweakDefsLua || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
   // Strip out any existing comments or headers that start with "-- Mod Name:" to avoid piling up duplicate headers
-  const strippedText = currentTweakDefsLua
+  const strippedText = normalizedCurrentLua
     .replace(/^-- Mod Name:.*[\r\n]*/gm, '')
     .replace(/^-- Author:.*[\r\n]*/gm, '')
     .replace(/^-- Description:.*[\r\n]*/gm, '')
@@ -823,17 +863,18 @@ export function compileTweakDefsLua({
   ), UNIT_TWEAKS_BEGIN, UNIT_TWEAKS_END), CLONES_BEGIN, CLONES_END).trim();
   
   const includeCloneDefinitions = compileFlags?.includeClones ?? true;
+  const orderedClones = sortClonesDependency(customUnitClones || []);
   const clonesBlock = includeCloneDefinitions
-    ? generateClonesBlockLua(customUnitClones, weaponLibrary)
+    ? generateClonesBlockLua(orderedClones, weaponLibrary)
     : '';
   
   const menuConfig = { disabledUnitIds, unitBuildOptions };
   const safeBuildMenuSteps = includeCloneDefinitions
     ? buildMenuWizardSteps
-    : removeExcludedCloneReferences(buildMenuWizardSteps, customUnitClones);
+    : removeExcludedCloneReferences(buildMenuWizardSteps, orderedClones);
   const updatedSteps = updateBuildMenuSteps(
     safeBuildMenuSteps,
-    includeCloneDefinitions ? customUnitClones : [],
+    includeCloneDefinitions ? orderedClones : [],
     menuConfig
   );
   const buildMenuBlock = (compileFlags?.includeRosters ?? true)
@@ -862,11 +903,11 @@ export function compileTweakDefsLua({
       `-- Mod Name: ${projectMeta.name || 'BAR Editor Mod'}`,
       `-- Author: ${projectMeta.author || 'BAR Editor'}`,
       `-- Description: ${projectMeta.desc || ''}`,
-      `-- Generated with BAR Editor on ${new Date().toISOString().slice(0, 10)}`,
+      `-- Generated with BAR Editor`,
       `-- ----------------------------------------------------`
     );
   }
   const headerStr = headerLines.length > 0 ? headerLines.join('\n') + '\n\n' : '';
 
-  return headerStr + parts.join('\n\n');
+  return (headerStr + parts.join('\n\n')).replace(/\r\n?/g, '\n').trimEnd();
 }

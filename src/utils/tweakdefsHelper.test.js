@@ -166,4 +166,86 @@ describe('nested clone generation', () => {
 
     expect(lua).toBe('');
   });
+
+  it('compiles equivalent project state to byte-identical Definitions Lua', () => {
+    const cloneA = {
+      baseId: 'armflash',
+      newId: 'zeta_clone',
+      displayName: 'Zeta',
+      builderIds: ['armlab'],
+      weaponSwaps: {
+        2: { sourceUnitId: 'corak', sourceWeaponDefKey: 'laser' },
+        1: { sourceUnitId: 'armflash', sourceWeaponDefKey: 'laser' },
+      },
+    };
+    const cloneB = {
+      baseId: 'corak',
+      newId: 'alpha_clone',
+      displayName: 'Alpha',
+      builderIds: ['corlab'],
+    };
+    const deathA = {
+      unitId: 'zeta_clone',
+      explodeAs: 'mediumexplosiongeneric',
+      death: { damage: 300, aoe: 120 },
+    };
+    const deathB = {
+      unitId: 'alpha_clone',
+      explodeAs: 'smallexplosiongeneric',
+      death: { damage: 100, aoe: 48 },
+    };
+    const supportA = {
+      ownerUnitId: 'zeta_clone',
+      key: 'child_weapon',
+      definition: { range: 300 },
+      mountedSlots: [2, 1],
+    };
+    const supportB = {
+      ownerUnitId: 'alpha_clone',
+      key: 'child_weapon',
+      definition: { range: 200 },
+      mountedSlots: [1],
+    };
+    const shared = {
+      disabledUnitIds: [],
+      unitBuildOptions: {},
+      projectMeta: { name: 'Stable Project', author: 'Tester', desc: 'Repeatable output' },
+      compileFlags: { includeClones: true, includeRosters: true },
+      weaponLibrary: [],
+    };
+    const first = compileTweakDefsLua({
+      ...shared,
+      currentTweakDefsLua: '\uFEFFlocal retained = true\r\n',
+      customUnitClones: [cloneA, cloneB],
+      buildMenuWizardSteps: [
+        { builderId: 'corlab', add: ['alpha_clone'], remove: [] },
+        { builderId: 'armlab', add: ['zeta_clone'], remove: [] },
+      ],
+      deathExplosionTweaks: [deathA, deathB],
+      supportingWeaponDefs: [supportA, supportB],
+      tweaks: {
+        zeta_clone: { weapon_slot_2_range: 500, weapon_slot_1_damage: 70 },
+        alpha_clone: { weapon_slot_1_range: 250 },
+      },
+    });
+    const second = compileTweakDefsLua({
+      ...shared,
+      currentTweakDefsLua: 'local retained = true\n',
+      customUnitClones: [cloneB, cloneA],
+      buildMenuWizardSteps: [
+        { builderId: 'armlab', add: ['zeta_clone'], remove: [] },
+        { builderId: 'corlab', add: ['alpha_clone'], remove: [] },
+      ],
+      deathExplosionTweaks: [deathB, deathA],
+      supportingWeaponDefs: [supportB, supportA],
+      tweaks: {
+        alpha_clone: { weapon_slot_1_range: 250 },
+        zeta_clone: { weapon_slot_1_damage: 70, weapon_slot_2_range: 500 },
+      },
+    });
+
+    expect(first).toBe(second);
+    expect(first).toContain('-- Generated with BAR Editor');
+    expect(first).not.toMatch(/Generated with BAR Editor on \d{4}-\d{2}-\d{2}/);
+  });
 });

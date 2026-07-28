@@ -1,6 +1,10 @@
 // Lua key validation regex
 const keyRegex = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
+function compareLuaKeys(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
 function Jo(str) {
   return `"${str
     .replace(/\\/g, '\\\\')
@@ -38,7 +42,7 @@ function Xo(val, depth) {
     return `{\n${val.map(item => `${nextIndent}${Xo(item, depth + 1)},`).join('\n')}\n${indent}}`;
   }
   if (typeof val === 'object') {
-    const keys = Object.keys(val).sort((a, b) => a.localeCompare(b));
+    const keys = Object.keys(val).sort(compareLuaKeys);
     if (keys.length === 0) return '{}';
     return `{\n${keys
       .map(k => `${nextIndent}${Yo(k)} = ${Xo(val[k], depth + 1)},`)
@@ -48,7 +52,7 @@ function Xo(val, depth) {
 }
 
 export function serializeLuaTable(obj) {
-  const keys = Object.keys(obj).sort((a, b) => a.localeCompare(b));
+  const keys = Object.keys(obj).sort(compareLuaKeys);
   if (keys.length === 0) {
     return '{\n}';
   }

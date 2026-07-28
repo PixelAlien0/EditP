@@ -173,4 +173,49 @@ describe('numbered lobby module compilation', () => {
     expect(compiled.defs.slots[0].lua).toContain('-- Mod Name: Canonical block test');
     expect(compiled.defs.slots[0].lua).toContain('-- EDITP_CLONES_BEGIN');
   });
+
+  it('produces byte-identical slots and commands for equivalent input ordering', () => {
+    const defsBefore = {
+      ...moduleOf('defs', 1, 'before-editor'),
+      rawLua: '\uFEFFlocal alpha = true\r\nlocal beta = true\r\n',
+      dependencies: ['corak', 'armflash'],
+    };
+    const defsAfter = moduleOf('defs', 2, 'after-editor');
+    const first = compileLobbyModules({
+      tweakModules: [defsAfter, defsBefore],
+      generatedTweakDefsLua: '-- stable generated defs\r\nlocal generated = true\r\n',
+      generatedTweakUnitsLua: '{ corak = { speed = 60 }, armflash = { health = 100 } }',
+      base64Options: { padding: false },
+    });
+    const second = compileLobbyModules({
+      tweakModules: [
+        { ...defsBefore, rawLua: 'local alpha = true\nlocal beta = true' },
+        defsAfter,
+      ],
+      generatedTweakDefsLua: '-- stable generated defs\nlocal generated = true',
+      generatedTweakUnitsLua: '{ armflash = { health = 100 }, corak = { speed = 60 } }',
+      base64Options: { padding: false },
+    });
+
+    expect(first.slots.map(slot => slot.lua)).toEqual(second.slots.map(slot => slot.lua));
+    expect(first.slots.map(slot => slot.encoded)).toEqual(second.slots.map(slot => slot.encoded));
+    expect(first.canonicalBlocks).toEqual(second.canonicalBlocks);
+    expect(buildLobbyCommands(first)).toBe(buildLobbyCommands(second));
+  });
+
+  it('uses deterministic tie-breakers for equally sized module diagnostics', () => {
+    const first = compileLobbyModules({
+      tweakModules: [moduleOf('defs', 2), moduleOf('defs', 1)],
+      generatedTweakDefsLua: '',
+      generatedTweakUnitsLua: '',
+    });
+    const second = compileLobbyModules({
+      tweakModules: [moduleOf('defs', 1), moduleOf('defs', 2)],
+      generatedTweakDefsLua: '',
+      generatedTweakUnitsLua: '',
+    });
+
+    expect(first.defs.largestModules).toEqual(second.defs.largestModules);
+    expect(first.defs.largestModules.map(module => module.id)).toEqual(['defs-1', 'defs-2']);
+  });
 });
