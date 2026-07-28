@@ -4,6 +4,7 @@ export { Switch, SwitchField } from './Switch.jsx';
 export { Field, TextField, TextAreaField, SelectField } from './Field.jsx';
 export { Badge, StatusBadge } from './Badge.jsx';
 export { Tabs } from './Tabs.jsx';
+export { Type, Eyebrow, TechnicalText } from './Typography.jsx';
 export { SectionHeader, PageHeader, PageShell, Card, StatCard, Divider } from './Layout.jsx';
 export { Spinner, EmptyState, Callout } from './Feedback.jsx';
 export { Dialog } from './Dialog.jsx';

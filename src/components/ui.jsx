@@ -4,6 +4,7 @@ export { Field, TextField, TextAreaField, SelectField } from './ui/Field.jsx';
 export { Badge, StatusBadge } from './ui/Badge.jsx';
 export { CapabilityLabels } from './ui/CapabilityBadge.jsx';
 export { Tabs } from './ui/Tabs.jsx';
+export { Type, Eyebrow, TechnicalText } from './ui/Typography.jsx';
 export { SectionHeader, PageHeader, PageShell, Card, StatCard, Divider } from './ui/Layout.jsx';
 export { Spinner, EmptyState, Callout } from './ui/Feedback.jsx';
 export { Dialog } from './ui/Dialog.jsx';

@@ -6,7 +6,7 @@ import {
   LOBBY_SETUP_CATEGORY_META,
   parseLobbySetupBundle,
 } from '../utils/lobbySetupBundle.js';
-import { Button, EmptyState, PageShell, Switch } from './ui.jsx';
+import { Button, EmptyState, PageShell, Switch, Type } from './ui.jsx';
 import '../styles/features/tweak-package-lab.css';
 
 const LOBBY_CATEGORY_ORDER = [
@@ -44,9 +44,9 @@ function LobbyBundlePreview({ bundle, selection, onToggle, onCancel, onImport })
     <section className="lobby-bundle-preview" aria-labelledby="lobby-bundle-preview-title">
       <header className="lobby-bundle-preview__header">
         <div>
-          <span className="workflow-eyebrow">Full lobby bundle detected</span>
-          <h3 id="lobby-bundle-preview-title">Review before importing</h3>
-          <p>Lua remains disabled. Lobby and host commands are stored for inspection and are never run by the editor.</p>
+          <Type variant="eyebrow" className="workflow-eyebrow">Full lobby bundle detected</Type>
+          <Type as="h3" variant="section-title" id="lobby-bundle-preview-title">Review before importing</Type>
+          <Type as="p" variant="description">Lua remains disabled. Lobby and host commands are stored for inspection and are never run by the editor.</Type>
         </div>
         <div className="lobby-bundle-preview__actions">
           <Button onClick={onCancel}>Cancel</Button>
@@ -391,9 +391,9 @@ export default function TweakPackageLabPage({
       {!bundlePreview && lobbySetup?.commands?.length > 0 && (
         <section className="tweak-lobby-setup-summary" aria-label="Imported lobby setup">
           <div>
-            <span className="workflow-eyebrow">Imported lobby setup</span>
-            <strong>{lobbySetup.sourceName || 'Lobby command bundle'}</strong>
-            <small>{lobbySetup.commands.length} effective commands · {lobbySetup.slotResetFields?.length || 0} slot resets · stored for inspection</small>
+            <Type variant="eyebrow" className="workflow-eyebrow">Imported lobby setup</Type>
+            <Type as="strong" variant="subsection-title">{lobbySetup.sourceName || 'Lobby command bundle'}</Type>
+            <Type as="small" variant="technical">{lobbySetup.commands.length} effective commands · {lobbySetup.slotResetFields?.length || 0} slot resets · stored for inspection</Type>
           </div>
           <div className="tweak-lobby-setup-summary__categories">
             {LOBBY_CATEGORY_ORDER.map(category => {
@@ -408,7 +408,7 @@ export default function TweakPackageLabPage({
       {modules.length > 0 && (
         <section className="tweak-package-audit" aria-label="Package dependency audit">
           <div className="tweak-package-audit__heading">
-            <div><span className="workflow-eyebrow">Package architecture</span><h3>Dependencies and reusable recipes</h3></div>
+            <div><Type variant="eyebrow" className="workflow-eyebrow">Package architecture</Type><Type as="h3" variant="section-title">Dependencies and reusable recipes</Type></div>
             <div className="tweak-package-audit__actions">
               <span className={packageAnalysis.blockingIssues.length ? 'is-error' : ''}>
                 {packageAnalysis.blockingIssues.length
@@ -536,7 +536,7 @@ export default function TweakPackageLabPage({
           ) : (
             <>
               <div className="tweak-lab-inspector__heading">
-                <div><span className="workflow-eyebrow">Module inspection</span><h3>{selected.label}</h3></div>
+                <div><Type variant="eyebrow" className="workflow-eyebrow">Module inspection</Type><Type as="h3" variant="section-title">{selected.label}</Type></div>
                 <div className="tweak-lab-inspector__actions">
                   <select aria-label="Module loading stage" value={selected.stage} onChange={event => onUpdateModule(selected.id, { stage: event.target.value })}>
                     <option value="before-editor">Before editor</option>
@@ -584,7 +584,7 @@ export default function TweakPackageLabPage({
               </div>
               <section className="tweak-analyzer-v2 inspector-summary-panel inspector-diagnostics-panel" aria-label="Analyzer V2 findings">
                 <div className="tweak-analysis-section__heading">
-                  <div><span className="workflow-eyebrow">Static structure</span><h4>Analyzer V2 findings</h4></div>
+                  <div><Type variant="eyebrow" className="workflow-eyebrow">Static structure</Type><Type as="h4" variant="subsection-title">Analyzer V2 findings</Type></div>
                   <strong>{selectedAnalysis.findings.length}</strong>
                 </div>
                 <div className="tweak-analyzer-confidence" aria-label="Finding confidence">

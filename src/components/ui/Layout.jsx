@@ -1,14 +1,15 @@
 import { cx } from './utils.js';
 import { CapabilityLabels } from './CapabilityBadge.jsx';
+import { Type } from './Typography.jsx';
 
 export function SectionHeader({ eyebrow, title, description, actions, className, headingLevel = 2 }) {
   const Heading = `h${headingLevel}`;
   return (
     <header className={cx('ui-section-header', className)}>
       <div className="ui-section-header__copy">
-        {eyebrow && <span className="ui-section-header__eyebrow">{eyebrow}</span>}
-        <Heading>{title}</Heading>
-        {description && <p>{description}</p>}
+        {eyebrow && <Type variant="eyebrow" className="ui-section-header__eyebrow">{eyebrow}</Type>}
+        <Type as={Heading} variant="section-title">{title}</Type>
+        {description && <Type as="p" variant="description">{description}</Type>}
       </div>
       {actions && <div className="ui-section-header__actions">{actions}</div>}
     </header>
@@ -36,11 +37,11 @@ export function PageHeader({
     <header className={cx('ui-page-header', className)}>
       <div className="ui-page-header__copy">
         <div className="ui-page-header__overline">
-          {eyebrow && <span>{eyebrow}</span>}
+          {eyebrow && <Type variant="eyebrow">{eyebrow}</Type>}
           <CapabilityLabels featureId={capabilityId} capabilityIds={capabilityIds} compact />
         </div>
-        <Heading id={headingId}>{title}</Heading>
-        {description && <p>{description}</p>}
+        <Type as={Heading} variant="page-title" id={headingId}>{title}</Type>
+        {description && <Type as="p" variant="description">{description}</Type>}
       </div>
       {hasUtilityRail && (
         <div className="ui-page-header__utility">
@@ -49,9 +50,9 @@ export function PageHeader({
             <dl className="ui-page-header__metrics">
               {metrics.map(metric => (
                 <div key={metric.label}>
-                  <dt>{metric.label}</dt>
-                  <dd>{metric.value}</dd>
-                  {metric.detail && <small>{metric.detail}</small>}
+                  <Type as="dt" variant="metadata">{metric.label}</Type>
+                  <Type as="dd" variant="section-title">{metric.value}</Type>
+                  {metric.detail && <Type as="small" variant="technical">{metric.detail}</Type>}
                 </div>
               ))}
             </dl>

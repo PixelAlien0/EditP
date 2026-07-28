@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Button, EmptyState } from './ui.jsx';
+import { Button, EmptyState, Type } from './ui.jsx';
 import '../styles/features/compatibility-preflight.css';
 
 const FILTERS = [
@@ -55,9 +55,9 @@ export default function CompatibilityPreflight({ report, onAction }) {
           <span>{report.status === 'blocked' ? '!' : report.status === 'review' ? '◇' : '✓'}</span>
         </div>
         <div>
-          <span className="workflow-eyebrow">Compatibility preflight · {status.eyebrow}</span>
-          <h3 id="compatibility-preflight-title">{status.title}</h3>
-          <p>{status.description}</p>
+          <Type variant="eyebrow" className="workflow-eyebrow">Compatibility preflight · {status.eyebrow}</Type>
+          <Type as="h3" variant="section-title" id="compatibility-preflight-title">{status.title}</Type>
+          <Type as="p" variant="description">{status.description}</Type>
         </div>
         <div className="compatibility-preflight__scope">
           <span>Static scope</span>

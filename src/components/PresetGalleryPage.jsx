@@ -1,4 +1,4 @@
-import { Button, EmptyState, PageShell, TextField } from './ui.jsx';
+import { Button, EmptyState, PageShell, TextField, Type } from './ui.jsx';
 import '../styles/features/preset-gallery.css';
 
 export default function PresetGalleryPage({
@@ -27,8 +27,8 @@ export default function PresetGalleryPage({
     >
         <div className="preset-save-panel">
           <div className="preset-save-copy">
-            <span>Capture current work</span>
-            <small>Includes tweaks, clones, build menus, and export settings.</small>
+            <Type variant="eyebrow">Capture current work</Type>
+            <Type as="small" variant="description">Includes tweaks, clones, build menus, and export settings.</Type>
           </div>
           <TextField label="Preset name" placeholder={`${projectName} preset`} value={presetName} onChange={event => onPresetNameChange(event.target.value)} />
           <TextField label="Project note" placeholder="Optional note, e.g. fast T1 air experiment" value={presetDescription} onChange={event => onPresetDescriptionChange(event.target.value)} />
@@ -48,8 +48,8 @@ export default function PresetGalleryPage({
                   <div className="preset-card-heading">
                     <span className="preset-card-mark" aria-hidden="true">{preset.name?.charAt(0).toUpperCase() || 'P'}</span>
                     <div className="preset-card-identity">
-                      <span className="preset-card-overline">Project snapshot</span>
-                      <h4>{preset.name}</h4>
+                      <Type variant="eyebrow" className="preset-card-overline">Project snapshot</Type>
+                      <Type as="h4" variant="subsection-title">{preset.name}</Type>
                     </div>
                     <time dateTime={preset.createdAt}>{new Date(preset.createdAt).toLocaleDateString()}</time>
                   </div>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Button, PageShell } from './ui.jsx';
+import { Button, PageShell, Type } from './ui.jsx';
 import UnitArtwork from './UnitArtwork.jsx';
 import UnitCollectionsPanel from './editor/UnitCollectionsPanel.jsx';
 import { getCollectionDescendantIds, getCollectionUnitIds } from '../project/unitCollections.js';
@@ -88,8 +88,8 @@ export default function CollectionsPage({
             onCleanupCollection={onCleanupCollection}
           />
           <div className="collections-page__guidance">
-            <span>Scope behavior</span>
-            <p>A parent includes every member in its child folders. A unit can belong directly to as many folders as needed.</p>
+            <Type variant="eyebrow">Scope behavior</Type>
+            <Type as="p" variant="description">A parent includes every member in its child folders. A unit can belong directly to as many folders as needed.</Type>
           </div>
         </aside>
 
@@ -98,9 +98,9 @@ export default function CollectionsPage({
             <>
               <header className="collection-members__header">
                 <div>
-                  <span>Active collection</span>
-                  <h3 id="collection-members-title">{activeCollection.name}</h3>
-                  <p>{descendantIds.size - 1} nested folders contribute to this scope.</p>
+                  <Type variant="eyebrow">Active collection</Type>
+                  <Type as="h3" variant="section-title" id="collection-members-title">{activeCollection.name}</Type>
+                  <Type as="p" variant="description">{descendantIds.size - 1} nested folders contribute to this scope.</Type>
                 </div>
                 <div className="collection-members__metrics" aria-label="Collection summary">
                   <div><strong>{directIds.size}</strong><span>direct</span></div>
@@ -157,9 +157,9 @@ export default function CollectionsPage({
             </>
           ) : (
             <div className="collection-members__blank">
-              <span>Collection workspace</span>
-              <h3 id="collection-members-title">Select a collection to inspect its unit scope</h3>
-              <p>Choose an existing collection or create a new one to review included units, nested scope inheritance, and editing impact.</p>
+              <Type variant="eyebrow">Collection workspace</Type>
+              <Type as="h3" variant="section-title" id="collection-members-title">Select a collection to inspect its unit scope</Type>
+              <Type as="p" variant="description">Choose an existing collection or create a new one to review included units, nested scope inheritance, and editing impact.</Type>
             </div>
           )}
         </section>

@@ -15,13 +15,6 @@
   overflow: hidden;
 }
 
-.designer-page .designer-panel-kicker {
-  color: var(--color-accent-strong) !important;
-  font: 750 8px/1.2 var(--font-mono);
-  letter-spacing: .13em;
-  text-transform: uppercase;
-}
-
 .designer-page .designer-selected-factory {
   min-width: clamp(190px, 14vw, 248px);
   min-height: 54px;
@@ -109,15 +102,10 @@
 
 .designer-page .designer-roster-profiles__intro > strong {
   grid-row: 1;
-  color: var(--color-text-strong);
-  font: 560 16px/1.1 var(--font-display);
 }
 
 .designer-page .designer-roster-profiles__intro > small {
   grid-column: 1 / -1;
-  color: var(--color-text-muted);
-  font-size: 9px;
-  line-height: 1.4;
 }
 
 .designer-page .designer-roster-profiles__options {
@@ -245,9 +233,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  color: var(--color-text-strong) !important;
-  font: 560 20px/1.1 var(--font-display);
-  letter-spacing: -.015em;
   text-transform: none;
 }
 

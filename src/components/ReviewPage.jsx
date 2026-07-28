@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Button, EmptyState, PageShell, SwitchField, Tabs, TextAreaField, TextField } from './ui.jsx';
+import { Button, EmptyState, PageShell, SwitchField, Tabs, TextAreaField, TextField, Type } from './ui.jsx';
 import CompatibilityPreflight from './CompatibilityPreflight.jsx';
 import ByteBudgetInspector from './ByteBudgetInspector.jsx';
 import { analyzeTweakPackage } from '../utils/tweakPackage.js';
@@ -122,7 +122,7 @@ export default function ReviewPage({
           {collectionScope && (
             <section className="review-card review-collection-summary" aria-labelledby="review-collection-title">
               <div className="review-card-heading">
-                <div><span className="workflow-eyebrow">Active collection scope</span><h3 id="review-collection-title">{collectionScope.name}</h3></div>
+                <div><Type variant="eyebrow" className="workflow-eyebrow">Active collection scope</Type><Type as="h3" variant="section-title" id="review-collection-title">{collectionScope.name}</Type></div>
                 <span className="review-status ready">Summary scope</span>
               </div>
               <div className="review-summary-grid">
@@ -138,7 +138,7 @@ export default function ReviewPage({
 
           <section className="review-card validation-center">
             <div className="review-card-heading">
-              <div><span className="workflow-eyebrow">Validation center</span><h3>{validationIssues.length === 0 ? 'Ready to export' : `${validationIssues.length} ${validationIssues.length === 1 ? 'issue' : 'issues'} to review`}</h3></div>
+              <div><Type variant="eyebrow" className="workflow-eyebrow">Validation center</Type><Type as="h3" variant="section-title">{validationIssues.length === 0 ? 'Ready to export' : `${validationIssues.length} ${validationIssues.length === 1 ? 'issue' : 'issues'} to review`}</Type></div>
               <span className={`review-status ${validationIssues.some(issue => issue.level === 'error') ? 'error' : validationIssues.length ? 'warning' : 'ready'}`}>{validationIssues.some(issue => issue.level === 'error') ? 'Blocked' : validationIssues.length ? 'Review' : 'Ready'}</span>
             </div>
             {validationIssues.length === 0 ? (
@@ -149,7 +149,7 @@ export default function ReviewPage({
           </section>
 
           <section className="review-card change-ledger">
-            <div className="review-card-heading"><div><span className="workflow-eyebrow">Change ledger</span><h3>{projectChangeCount} project changes</h3></div><button className="text-button" onClick={() => openSummary('tweaks')}>Open full summary</button></div>
+            <div className="review-card-heading"><div><Type variant="eyebrow" className="workflow-eyebrow">Change ledger</Type><Type as="h3" variant="section-title">{projectChangeCount} project changes</Type></div><button className="text-button" onClick={() => openSummary('tweaks')}>Open full summary</button></div>
             {modifiedUnitIds.length === 0 && clones.length === 0 && disabledUnitIds.length === 0 ? (
               <EmptyState compact className="review-empty-state" title="No unit changes yet" description="Return to Edit Units to begin modifying the project." />
             ) : (
@@ -164,9 +164,9 @@ export default function ReviewPage({
         <aside className="modular-export-console" aria-label="Export console">
           <header className="modular-export-console__header">
             <div>
-              <span className="workflow-eyebrow">Lobby delivery</span>
-              <h3>Export Console</h3>
-              <p>{projectName || 'Untitled BAR project'}</p>
+              <Type variant="eyebrow" className="workflow-eyebrow">Lobby delivery</Type>
+              <Type as="h3" variant="section-title">Export Console</Type>
+              <Type as="p" variant="description">{projectName || 'Untitled BAR project'}</Type>
             </div>
             <div className="export-console-health">
               <span className={`review-status ${compatibilityReport.status === 'blocked' ? 'error' : compatibilityReport.status === 'review' ? 'warning' : 'ready'}`}>
@@ -194,14 +194,14 @@ export default function ReviewPage({
           <section className="modular-lobby-package" aria-labelledby="lobby-export-guide-title">
             <div className="modular-lobby-package__heading">
               <div>
-                <span className="workflow-eyebrow">Current BAR setup</span>
-                <h4 id="lobby-export-guide-title">Numbered lobby package</h4>
-                <p>
+                <Type variant="eyebrow" className="workflow-eyebrow">Current BAR setup</Type>
+                <Type as="h4" variant="subsection-title" id="lobby-export-guide-title">Numbered lobby package</Type>
+                <Type as="p" variant="description">
                   Definitions load first, followed by Units. Each group has exactly nine available fields.
                   {compiledLobbyModules?.deduplication?.removedBlockCount > 0
                     ? ` Safe deduplication removed ${compiledLobbyModules.deduplication.removedBlockCount} exact ${compiledLobbyModules.deduplication.removedBlockCount === 1 ? 'duplicate' : 'duplicates'} and saved ${compiledLobbyModules.deduplication.encodedBytesSaved.toLocaleString()} encoded bytes.`
                     : ''}
-                </p>
+                </Type>
               </div>
               <Button variant="primary" onClick={copyAllLobbyCommands} disabled={!lobbyCommands || !compatibilityReport.canCopyLobbyCommands}>Copy all !bset commands</Button>
             </div>

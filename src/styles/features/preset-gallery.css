@@ -15,17 +15,6 @@
   overflow: hidden;
 }
 
-.preset-gallery-page .preset-save-copy > span,
-.preset-gallery-page .preset-card-overline {
-  color: var(--color-accent-strong) !important;
-}
-
-.preset-gallery-page .preset-card-heading h4 {
-  color: var(--color-text-strong) !important;
-  font-family: var(--font-display) !important;
-}
-
-.preset-gallery-page .preset-save-copy small,
 .preset-gallery-page .preset-card-heading time,
 .preset-gallery-page .preset-card p,
 .preset-gallery-page .preset-card-footer > span {

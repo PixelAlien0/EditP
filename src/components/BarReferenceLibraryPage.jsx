@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, EmptyState, PageShell } from './ui.jsx';
+import { Button, EmptyState, PageShell, Type } from './ui.jsx';
 import UnitArtwork from './UnitArtwork.jsx';
 import {
   BAR_REFERENCE_CATEGORIES,
@@ -48,9 +48,9 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
   if (!item) {
     return (
       <aside className="bar-reference-inspector is-empty" aria-label="Reference details">
-        <span>Reference desk</span>
-        <h3>Select a BAR reference</h3>
-        <p>Inspect exact names, definition values, ownership, and reverse usage without leaving the library.</p>
+        <Type variant="eyebrow">Reference desk</Type>
+        <Type as="h3" variant="section-title">Select a BAR reference</Type>
+        <Type as="p" variant="description">Inspect exact names, definition values, ownership, and reverse usage without leaving the library.</Type>
       </aside>
     );
   }
@@ -61,7 +61,7 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
     <aside className="bar-reference-inspector" aria-label="Reference details">
       <header>
         <ReferenceGlyph item={item} />
-        <div><span>{item.subtitle}</span><h3>{item.title}</h3><code>{item.value}</code></div>
+        <div><Type variant="eyebrow">{item.subtitle}</Type><Type as="h3" variant="section-title">{item.title}</Type><Type as="code" variant="technical">{item.value}</Type></div>
       </header>
 
       <p className="bar-reference-inspector__description">{item.description}</p>

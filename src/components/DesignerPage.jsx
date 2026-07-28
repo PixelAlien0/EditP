@@ -1,4 +1,4 @@
-import { Button, PageShell, Switch } from './ui.jsx';
+import { Button, PageShell, Switch, Type } from './ui.jsx';
 import UnitArtwork from './UnitArtwork.jsx';
 import '../styles/features/build-menu.css';
 
@@ -58,9 +58,9 @@ export default function DesignerPage({
     >
         <section className="designer-roster-profiles" aria-labelledby="designer-roster-profiles-title">
           <div className="designer-roster-profiles__intro">
-            <span className="designer-panel-kicker">Game setup</span>
-            <strong id="designer-roster-profiles-title">Roster profile</strong>
-            <small>Preview the same conditional build options enabled in a BAR lobby.</small>
+            <Type variant="eyebrow" className="designer-panel-kicker">Game setup</Type>
+            <Type as="strong" variant="subsection-title" id="designer-roster-profiles-title">Roster profile</Type>
+            <Type as="small" variant="description">Preview the same conditional build options enabled in a BAR lobby.</Type>
           </div>
           <div className="designer-roster-profiles__options">
             {Object.entries(packDefinitions).map(([packId, pack]) => (
@@ -82,11 +82,11 @@ export default function DesignerPage({
         <div className="designer-modal-content">
           <div className="designer-panel designer-factory-browser">
             <div className="designer-panel-header">
-              <span className="designer-panel-kicker">Producer catalog</span>
-              <span className="designer-panel-title">Choose a producer <small>{producerCatalog.length}</small></span>
-              <span className="designer-producer-summary">
+              <Type variant="eyebrow" className="designer-panel-kicker">Producer catalog</Type>
+              <Type variant="section-title" className="designer-panel-title">Choose a producer <small>{producerCatalog.length}</small></Type>
+              <Type variant="technical" className="designer-producer-summary">
                 {producerCounts.factory} factories <span aria-hidden="true">·</span> {producerCounts.builder} builders
-              </span>
+              </Type>
               <input
                 type="text"
                 className="search-input"
@@ -176,18 +176,18 @@ export default function DesignerPage({
 
           <div className="designer-panel designer-roster-canvas">
             <div className="designer-panel-header">
-              <span className="designer-panel-kicker">Production sequence</span>
-              <span className="designer-panel-title">
+              <Type variant="eyebrow" className="designer-panel-kicker">Production sequence</Type>
+              <Type variant="section-title" className="designer-panel-title">
                 {factoryName}
                 {isFactoryModified(factoryId) && (
                   <button type="button" className="designer-reset-factory" onClick={onResetProducer}>
                     Reset producer
                   </button>
                 )}
-              </span>
-              <div className="designer-panel-description">
+              </Type>
+              <Type as="div" variant="description" className="designer-panel-description">
                 Drag units to reorder the build menu. Removed slots remain visible until restored.
-              </div>
+              </Type>
             </div>
 
             <div className="designer-panel-scroll designer-roster-scroll">
@@ -261,8 +261,8 @@ export default function DesignerPage({
 
           <div className="designer-panel designer-unit-library">
             <div className="designer-panel-header">
-              <span className="designer-panel-kicker">Unit library</span>
-              <span className="designer-panel-title">Add production options <small>{availableUnits.length}</small></span>
+              <Type variant="eyebrow" className="designer-panel-kicker">Unit library</Type>
+              <Type variant="section-title" className="designer-panel-title">Add production options <small>{availableUnits.length}</small></Type>
               <input
                 type="text"
                 className="search-input"
