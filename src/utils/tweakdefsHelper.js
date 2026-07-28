@@ -10,6 +10,8 @@ export const SUPPORTING_WEAPONDEFS_BEGIN = '-- EDITP_SUPPORTING_WEAPONDEFS_BEGIN
 export const SUPPORTING_WEAPONDEFS_END = '-- EDITP_SUPPORTING_WEAPONDEFS_END';
 export const CARRIER_LINKAGE_BEGIN = '-- EDITP_CARRIER_LINKAGE_BEGIN';
 export const CARRIER_LINKAGE_END = '-- EDITP_CARRIER_LINKAGE_END';
+export const CLONES_BEGIN = '-- EDITP_CLONES_BEGIN';
+export const CLONES_END = '-- EDITP_CLONES_END';
 
 
 export const UNIT_TWEAKS_BEGIN = '-- EDITP_UNIT_TWEAKS_BEGIN';
@@ -807,7 +809,7 @@ export function compileTweakDefsLua({
     .replace(/^-- ----------------------------------------------------[\r\n]*/gm, '')
     .trim();
 
-  const cleanBody = stripBlock(stripBlock(stripBlock(
+  const cleanBody = stripBlock(stripBlock(stripBlock(stripBlock(
     stripBlock(stripBlock(
       stripBlock(
         strippedText,
@@ -818,7 +820,7 @@ export function compileTweakDefsLua({
       DEATH_PROFILE_END,
     ), SUPPORTING_WEAPONDEFS_BEGIN, SUPPORTING_WEAPONDEFS_END),
     CARRIER_LINKAGE_BEGIN, CARRIER_LINKAGE_END
-  ), UNIT_TWEAKS_BEGIN, UNIT_TWEAKS_END).trim();
+  ), UNIT_TWEAKS_BEGIN, UNIT_TWEAKS_END), CLONES_BEGIN, CLONES_END).trim();
   
   const includeCloneDefinitions = compileFlags?.includeClones ?? true;
   const clonesBlock = includeCloneDefinitions
@@ -845,7 +847,7 @@ export function compileTweakDefsLua({
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);
   if (clonesBlock.length > 0) {
-    parts.push(`do\n${clonesBlock}\nend`);
+    parts.push(`${CLONES_BEGIN}\ndo\n${clonesBlock}\nend\n${CLONES_END}`);
   }
   if (unitTweaksBlock.length > 0) parts.push(unitTweaksBlock);
   if (carrierLinkagesBlock.length > 0) parts.push(carrierLinkagesBlock);

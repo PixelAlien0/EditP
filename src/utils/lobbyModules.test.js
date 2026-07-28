@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { buildLobbyCommands, compileLobbyModules } from './lobbyModules.js';
+import {
+  buildCanonicalCompilerBlocks,
+  buildLobbyCommands,
+  COMPILER_BLOCK_SCHEMA_VERSION,
+  compileLobbyModules,
+} from './lobbyModules.js';
 import luaparse from 'luaparse';
 import { serializeLuaTable } from './tweakSerializer.js';
 
@@ -65,5 +70,107 @@ describe('numbered lobby module compilation', () => {
     });
     expect(compiled.defs.required).toBe(2);
     compiled.defs.slots.forEach(slot => expect(() => luaparse.parse(slot.lua)).not.toThrow());
+  });
+
+  it('creates versioned canonical blocks with stable feature ownership and source metadata', () => {
+    const generated = [
+      '-- project preamble',
+      '-- EDITP_CARRIER_LINKAGE_BEGIN',
+      'local carrier_linkage = true',
+      '-- EDITP_CARRIER_LINKAGE_END',
+      '-- EDITP_SUPPORTING_WEAPONDEFS_BEGIN',
+      'local supporting_weapon = true',
+      '-- EDITP_SUPPORTING_WEAPONDEFS_END',
+      '-- EDITP_BUILDMENU_BEGIN',
+      'local build_menu = true',
+      '-- EDITP_BUILDMENU_END',
+    ].join('\n');
+    const imported = {
+      ...moduleOf('defs', 4),
+      sourceName: 'reference.lua',
+      originalFieldName: 'tweakdefs2',
+      dependencies: [' unit_b ', 'unit_a', 'unit_a'],
+    };
+    const blocks = buildCanonicalCompilerBlocks({
+      tweakModules: [imported],
+      generatedTweakDefsLua: generated,
+      generatedTweakUnitsLua: '{ armflash = { health = 100 }, corak = { speed = 60 } }',
+    });
+
+    expect(blocks.schemaVersion).toBe(COMPILER_BLOCK_SCHEMA_VERSION);
+    expect(blocks.defs.map(block => block.sourceFeature)).toEqual([
+      'tweak-package',
+      'legacy-source',
+      'carrier-workbench',
+      'weapon-dependencies',
+      'build-menus',
+    ]);
+    expect(blocks.defs[0]).toMatchObject({
+      id: 'imported:defs:defs-4',
+      kind: 'defs',
+      category: 'imported-module',
+      stage: 'before-editor',
+      dependencies: ['unit_a', 'unit_b'],
+      metadata: {
+        moduleId: 'defs-4',
+        sourceName: 'reference.lua',
+        originalFieldName: 'tweakdefs2',
+      },
+    });
+    expect(blocks.all.every(block => block.rawBytes > 0)).toBe(true);
+    expect(new Set(blocks.all.map(block => block.id)).size).toBe(blocks.all.length);
+    expect(blocks.defs.map(block => block.sequence)).toEqual([0, 1, 2, 3, 4]);
+    expect(blocks.units.map(block => block.metadata.unitId)).toEqual(['armflash', 'corak']);
+  });
+
+  it('records every canonical block exactly once in its materialized lobby slots', () => {
+    const compiled = compileLobbyModules({
+      tweakModules: [
+        moduleOf('defs', 1, 'before-editor'),
+        moduleOf('defs', 2, 'after-editor'),
+      ],
+      generatedTweakDefsLua: [
+        '-- EDITP_UNIT_TWEAKS_BEGIN',
+        'local unit_patch = true',
+        '-- EDITP_UNIT_TWEAKS_END',
+        '-- EDITP_DEATH_PROFILES_BEGIN',
+        'local death_patch = true',
+        '-- EDITP_DEATH_PROFILES_END',
+      ].join('\n'),
+      generatedTweakUnitsLua: serializeLuaTable({
+        armflash: { health: 100 },
+        corak: { speed: 60 },
+      }),
+      base64Options: { padding: false },
+    });
+    const recordedIds = compiled.slots.flatMap(slot => slot.blockIds);
+    const canonicalIds = compiled.canonicalBlocks.all.map(block => block.id);
+
+    expect(recordedIds).toEqual(canonicalIds);
+    expect(new Set(recordedIds).size).toBe(recordedIds.length);
+    expect(compiled.slots.every(slot => slot.blockCount === slot.blockIds.length)).toBe(true);
+  });
+
+  it('keeps generated header comments attached to an oversized first feature block', () => {
+    const compiled = compileLobbyModules({
+      tweakModules: [],
+      generatedTweakDefsLua: [
+        '-- Mod Name: Canonical block test',
+        '-- Generated with BAR Editor',
+        '-- EDITP_CLONES_BEGIN',
+        'do',
+        '  local function clone_copy(value) return value end',
+        ...Array.from({ length: 500 }, () => '  local clone_value = true -- padding'),
+        'end',
+        '-- EDITP_CLONES_END',
+      ].join('\n'),
+      generatedTweakUnitsLua: '',
+      base64Options: { padding: false },
+    });
+
+    expect(compiled.defs.required).toBe(1);
+    expect(compiled.defs.slots[0].blockCount).toBe(2);
+    expect(compiled.defs.slots[0].lua).toContain('-- Mod Name: Canonical block test');
+    expect(compiled.defs.slots[0].lua).toContain('-- EDITP_CLONES_BEGIN');
   });
 });
