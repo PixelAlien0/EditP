@@ -8,6 +8,13 @@ import {
   normalizeInterceptionMask,
   toggleInterceptionChannel,
 } from '../../config/behaviorInterceptor.js';
+import { getWeaponParameterDefinition } from '../../config/weaponParameters.js';
+
+const COMMAND_FIRE_CONTROL = getWeaponParameterDefinition('commandfire');
+const INTERCEPT_SOLO_CONTROL = getWeaponParameterDefinition('interceptsolo');
+const COVERAGE_CONTROL = getWeaponParameterDefinition('coverage');
+const TARGETABLE_CONTROL = getWeaponParameterDefinition('targetable');
+const INTERCEPTOR_CONTROL = getWeaponParameterDefinition('interceptor');
 
 function hasOwn(object, key) {
   return Object.prototype.hasOwnProperty.call(object || {}, key);
@@ -216,7 +223,7 @@ export default function BehaviorInterceptorEditor({
 
           <div className="weapon-behavior-controls">
             <BooleanOverride
-              control={{ key: 'commandfire', label: 'Manual fire only', description: 'Responds to manual-fire orders instead of automatic attack.' }}
+              control={COMMAND_FIRE_CONTROL}
               inheritedValue={slot.commandfire}
               modified={weaponModified('commandfire')}
               value={weaponValue('commandfire')}
@@ -224,7 +231,7 @@ export default function BehaviorInterceptorEditor({
               onFocus={onParameterFocus}
             />
             <BooleanOverride
-              control={{ key: 'interceptsolo', label: 'Exclusive interception', description: 'Prevents other interceptors from committing to the same projectile.' }}
+              control={INTERCEPT_SOLO_CONTROL}
               inheritedValue={slot.interceptsolo}
               modified={weaponModified('interceptsolo')}
               value={weaponValue('interceptsolo')}
@@ -232,7 +239,7 @@ export default function BehaviorInterceptorEditor({
               onFocus={onParameterFocus}
             />
             <label className={`behavior-control ${weaponModified('coverage') ? 'is-edited' : ''}`} data-param-key="coverage">
-              <span className="behavior-control__copy"><strong>Acquisition coverage</strong><small>Radius used to search for matching projectiles.</small></span>
+              <span className="behavior-control__copy"><strong>{COVERAGE_CONTROL.label}</strong><small>{COVERAGE_CONTROL.description}</small></span>
               <span className="behavior-control__field">
                 <input
                   type="number"
@@ -253,9 +260,9 @@ export default function BehaviorInterceptorEditor({
           <header><span>Channel matrix</span><small>Matching bits establish compatibility</small></header>
           <div className="interception-mask-grid">
             <MaskEditor
-              label="Projectile targetable mask"
-              description="Which interceptor channels can acquire this projectile."
-              parameterKey="targetable"
+              label={TARGETABLE_CONTROL.label}
+              description={TARGETABLE_CONTROL.description}
+              parameterKey={TARGETABLE_CONTROL.key}
               value={targetable}
               inheritedValue={slot.targetable}
               modified={weaponModified('targetable')}
@@ -266,9 +273,9 @@ export default function BehaviorInterceptorEditor({
               <span>Match when</span><strong>INTERCEPTOR &amp; TARGETABLE ≠ 0</strong>
             </div>
             <MaskEditor
-              label="Interceptor weapon mask"
-              description="Which projectile channels this weapon searches for."
-              parameterKey="interceptor"
+              label={INTERCEPTOR_CONTROL.label}
+              description={INTERCEPTOR_CONTROL.description}
+              parameterKey={INTERCEPTOR_CONTROL.key}
               value={interceptor}
               inheritedValue={slot.interceptor}
               modified={weaponModified('interceptor')}

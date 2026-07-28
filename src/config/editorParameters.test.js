@@ -4,12 +4,19 @@ import {
   resolveUnitParameterDefault,
   MOBILITY_STAT_KEYS,
   STAT_KEYS,
+  WORKSPACE_TAB_DEFINITIONS,
+} from './editorParameters.js';
+import {
+  getWeaponParameterDefinition,
   SPAWNER_CARRIER_WEAPON_GROUPS,
+  WEAPON_ADVANCED_GROUPS,
+  WEAPON_CORE_PARAMETERS,
+  WEAPON_EDITABLE_PARAMETER_CATALOG,
+  WEAPON_PARAMETER_CATALOG,
   WEAPON_SLOT_BOOLEAN_PARAMS,
   WEAPON_SLOT_MOUNT_PARAMS,
   WEAPON_SLOT_PATHS,
-  WORKSPACE_TAB_DEFINITIONS,
-} from './editorParameters.js';
+} from './weaponParameters.js';
 
 describe('editor parameter configuration', () => {
   it('keeps parameter and workspace identifiers unique', () => {
@@ -30,6 +37,20 @@ describe('editor parameter configuration', () => {
     expect(STAT_KEYS.find(parameter => parameter.key === 'acceleration')?.patchKey).toBe('maxAcc');
     expect(STAT_KEYS.find(parameter => parameter.key === 'brakerate')?.patchKey).toBe('maxDec');
     expect(STAT_KEYS.some(parameter => parameter.key === 'airsubalt')).toBe(false);
+  });
+
+  it('uses one unique weapon catalog for presentation and compilation', () => {
+    expect(new Set(WEAPON_PARAMETER_CATALOG.map(parameter => parameter.key)).size)
+      .toBe(WEAPON_PARAMETER_CATALOG.length);
+    expect(WEAPON_EDITABLE_PARAMETER_CATALOG.length)
+      .toBe(WEAPON_CORE_PARAMETERS.length + WEAPON_ADVANCED_GROUPS.flatMap(group => group.params).length + 7);
+
+    WEAPON_PARAMETER_CATALOG.forEach(parameter => {
+      expect(parameter.path, parameter.key).toBeTruthy();
+      expect(['weapondef', 'mount'], parameter.key).toContain(parameter.compileTarget);
+      expect(['number', 'boolean', 'string'], parameter.key).toContain(parameter.valueType);
+      expect(getWeaponParameterDefinition(parameter.key)).toBe(parameter);
+    });
   });
 
   it('maps every visible spawner and carrier field to its BAR WeaponDef path', () => {

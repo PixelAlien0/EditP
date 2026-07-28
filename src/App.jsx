@@ -12,8 +12,8 @@ import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
 import {
   MOBILITY_STAT_KEYS,
   STAT_KEYS,
-  WEAPON_SLOT_PATHS,
 } from './config/editorParameters.js';
+import { WEAPON_EDITABLE_PARAMETER_CATALOG } from './config/weaponParameters.js';
 import AppHeader from './components/AppHeader.jsx';
 import MainMenu from './components/MainMenu.jsx';
 import AppDialogs from './components/AppDialogs.jsx';
@@ -1366,13 +1366,13 @@ export default function App() {
       },
     }));
 
-    Object.keys(WEAPON_SLOT_PATHS).forEach(key => commands.push({
-      id: `weapon-parameter-${key}`,
+    WEAPON_EDITABLE_PARAMETER_CATALOG.forEach(parameter => commands.push({
+      id: `weapon-parameter-${parameter.key}`,
       kind: 'Weapon field',
-      label: getRelationshipLabel(key),
+      label: parameter.label || getRelationshipLabel(parameter.key),
       description: 'Open the active weapon slot and focus this field.',
-      keywords: key,
-      onSelect: () => { openEditor(); setActiveParamTab('weapons'); setActiveRelationshipKey(key); },
+      keywords: parameter.key,
+      onSelect: () => { openEditor(); setActiveParamTab('weapons'); setActiveRelationshipKey(parameter.key); },
     }));
 
     allUnitsList.forEach(unit => commands.push({

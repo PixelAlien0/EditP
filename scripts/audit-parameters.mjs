@@ -1,21 +1,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { STAT_KEYS } from '../src/config/editorParameters.js';
 import {
-  SPAWNER_CARRIER_WEAPON_GROUPS,
-  STAT_KEYS,
+  WEAPON_EDITABLE_PARAMETER_CATALOG,
+  WEAPON_PARAMETER_CATALOG,
   WEAPON_SLOT_BOOLEAN_PARAMS,
   WEAPON_SLOT_MOUNT_PARAMS,
   WEAPON_SLOT_PATHS,
   WEAPON_SLOT_STRING_PARAMS,
-} from '../src/config/editorParameters.js';
+} from '../src/config/weaponParameters.js';
 import { CUSTOM_PARAMETER_CATALOG } from '../src/config/customParameters.js';
 import { UNIT_BEHAVIOR_CONTROLS } from '../src/config/behaviorInterceptor.js';
 import { getParameterHelp } from '../src/config/parameterGuidance.js';
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const workspaceSourcePath = path.join(projectRoot, 'src/components/editor/EditUnitsWorkspace.jsx');
-const behaviorSourcePath = path.join(projectRoot, 'src/components/editor/BehaviorInterceptorEditor.jsx');
 const defaultsPath = path.join(projectRoot, 'src/data/unit-defaults.json');
 
 const UNIT_STRUCTURAL_KEYS = new Set([
@@ -34,8 +33,6 @@ const UNIT_STRUCTURAL_KEYS = new Set([
   'weapon1Burstrate',
 ]);
 const WEAPON_STRUCTURAL_KEYS = new Set(['slot', 'defKey']);
-const TARGET_MASK_KEYS = new Set(['onlytargetcategory', 'badtargetcategory']);
-const NUMERIC_TEXT_CONTROLS = new Set(['hightrajectory']);
 const VALID_PARAMETER_TYPES = new Set(['number', 'boolean', 'string', 'text', 'tri-state']);
 
 function readText(filePath) {
@@ -60,51 +57,6 @@ function duplicates(values) {
   return sorted(repeated);
 }
 
-function findSourceSection(source, startMarker, endMarker, label, blockers) {
-  const start = source.indexOf(startMarker);
-  const end = source.indexOf(endMarker, start + startMarker.length);
-  if (start < 0 || end < 0 || end <= start) {
-    blockers.push(`${label} could not be located; update the audit source markers.`);
-    return '';
-  }
-  return source.slice(start, end);
-}
-
-function extractInlineWeaponParameters(source, blockers) {
-  const section = findSourceSection(
-    source,
-    'const slotParams = [',
-    'const activeSlotTweaks',
-    'Edit Units weapon parameter catalog',
-    blockers,
-  );
-  const parameters = [];
-  const pattern = /\{\s*key:\s*'([^']+)'[\s\S]*?label:\s*'([^']+)'[\s\S]*?type:\s*'([^']+)'/g;
-  let match;
-  while ((match = pattern.exec(section)) !== null) {
-    parameters.push({ key: match[1], label: match[2], type: match[3], owner: 'Edit Units workspace' });
-  }
-  if (parameters.length === 0) {
-    blockers.push('No inline weapon controls were discovered in EditUnitsWorkspace.jsx.');
-  }
-  return parameters;
-}
-
-function extractBehaviorWeaponKeys(source) {
-  const keys = new Set();
-  const patterns = [
-    /setWeapon\('([^']+)'/g,
-    /weaponValue\('([^']+)'/g,
-    /weaponModified\('([^']+)'/g,
-    /parameterKey="([^"]+)"/g,
-  ];
-  patterns.forEach(pattern => {
-    let match;
-    while ((match = pattern.exec(source)) !== null) keys.add(match[1]);
-  });
-  return keys;
-}
-
 function collectSnapshotKeys(defaultsDb) {
   const units = Object.values(defaultsDb);
   return {
@@ -118,19 +70,12 @@ function collectSnapshotKeys(defaultsDb) {
   };
 }
 
-function buildWeaponCatalog(workspaceSource, behaviorSource, blockers) {
-  const inlineParameters = extractInlineWeaponParameters(workspaceSource, blockers);
-  const spawnerParameters = SPAWNER_CARRIER_WEAPON_GROUPS.flatMap(group => (
-    group.params.map(parameter => ({
-      ...parameter,
-      owner: `Shared catalog: ${group.title}`,
-    }))
-  ));
-  const behaviorKeys = extractBehaviorWeaponKeys(behaviorSource);
-  const catalog = [...inlineParameters, ...spawnerParameters];
+function buildWeaponCatalog() {
+  const catalog = WEAPON_EDITABLE_PARAMETER_CATALOG;
   const coveredKeys = new Set(catalog.map(parameter => parameter.key));
-  behaviorKeys.forEach(key => coveredKeys.add(key));
-  TARGET_MASK_KEYS.forEach(key => coveredKeys.add(key));
+  const behaviorKeys = new Set(
+    catalog.filter(parameter => parameter.surface === 'behavior').map(parameter => parameter.key),
+  );
   return { catalog, coveredKeys, behaviorKeys };
 }
 
@@ -151,16 +96,12 @@ function formatList(values, limit = 16) {
 
 export function auditParameterCompleteness({
   defaultsDb,
-  workspaceSource,
-  behaviorSource,
 } = {}) {
   const blockers = [];
   const warnings = [];
   const loadedDefaults = defaultsDb || JSON.parse(readText(defaultsPath));
-  const workspace = workspaceSource ?? readText(workspaceSourcePath);
-  const behavior = behaviorSource ?? readText(behaviorSourcePath);
   const snapshot = collectSnapshotKeys(loadedDefaults);
-  const weaponCatalog = buildWeaponCatalog(workspace, behavior, blockers);
+  const weaponCatalog = buildWeaponCatalog();
 
   const statKeys = STAT_KEYS.map(parameter => parameter.key);
   const customKeys = CUSTOM_PARAMETER_CATALOG.map(parameter => `customparams.${parameter.key}`);
@@ -174,7 +115,7 @@ export function auditParameterCompleteness({
 
   const duplicateUnitKeys = duplicates(statKeys);
   const duplicateCustomKeys = duplicates(customKeys);
-  const duplicateWeaponKeys = duplicates(weaponCatalog.catalog.map(parameter => parameter.key));
+  const duplicateWeaponKeys = duplicates(WEAPON_PARAMETER_CATALOG.map(parameter => parameter.key));
   const invalidUnitMetadata = STAT_KEYS
     .filter(parameter => (
       !parameter.key
@@ -191,7 +132,7 @@ export function auditParameterCompleteness({
       || !['number', 'boolean', 'string'].includes(parameter.type)
     ))
     .map(parameter => parameter.key || '(missing key)');
-  const invalidWeaponMetadata = weaponCatalog.catalog
+  const invalidWeaponMetadata = WEAPON_PARAMETER_CATALOG
     .filter(parameter => (
       !parameter.key
       || !parameter.label
@@ -228,30 +169,23 @@ export function auditParameterCompleteness({
     }
   }
 
-  const weaponTypesByKey = new Map();
-  weaponCatalog.catalog.forEach(parameter => {
-    if (!weaponTypesByKey.has(parameter.key)) weaponTypesByKey.set(parameter.key, new Set());
-    weaponTypesByKey.get(parameter.key).add(parameter.type);
-  });
   const unclassifiedBooleanControls = sorted(
-    [...weaponTypesByKey]
-      .filter(([key, types]) => (
-        [...types].some(type => type === 'boolean' || type === 'tri-state')
-        && !WEAPON_SLOT_BOOLEAN_PARAMS.has(key)
-        && !WEAPON_SLOT_MOUNT_PARAMS.has(key)
+    weaponCatalog.catalog
+      .filter(parameter => (
+        parameter.valueType === 'boolean'
+        && !WEAPON_SLOT_BOOLEAN_PARAMS.has(parameter.key)
+        && !WEAPON_SLOT_MOUNT_PARAMS.has(parameter.key)
       ))
-      .map(([key]) => key),
+      .map(parameter => parameter.key),
   );
   const unclassifiedStringControls = sorted(
-    [...weaponTypesByKey]
-      .filter(([key, types]) => (
-        [...types].some(type => type === 'string' || type === 'text')
-        && !WEAPON_SLOT_STRING_PARAMS.has(key)
-        && !WEAPON_SLOT_MOUNT_PARAMS.has(key)
-        && !TARGET_MASK_KEYS.has(key)
-        && !NUMERIC_TEXT_CONTROLS.has(key)
+    weaponCatalog.catalog
+      .filter(parameter => (
+        parameter.valueType === 'string'
+        && !WEAPON_SLOT_STRING_PARAMS.has(parameter.key)
+        && !WEAPON_SLOT_MOUNT_PARAMS.has(parameter.key)
       ))
-      .map(([key]) => key),
+      .map(parameter => parameter.key),
   );
 
   const compilerOnlyKeys = sorted(unique([
@@ -267,7 +201,6 @@ export function auditParameterCompleteness({
       && !WEAPON_SLOT_STRING_PARAMS.has(key)
       && !WEAPON_SLOT_MOUNT_PARAMS.has(key)
       && !Object.hasOwn(WEAPON_SLOT_PATHS, key)
-      && !TARGET_MASK_KEYS.has(key)
     )),
   );
 

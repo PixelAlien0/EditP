@@ -1,11 +1,11 @@
 import luaparse from 'luaparse';
+import { STAT_KEYS } from '../config/editorParameters.js';
 import {
-  STAT_KEYS,
+  WEAPON_PARAMETER_CATALOG,
   WEAPON_SLOT_BOOLEAN_PARAMS,
   WEAPON_SLOT_MOUNT_PARAMS,
-  WEAPON_SLOT_PATHS,
   WEAPON_SLOT_STRING_PARAMS,
-} from '../config/editorParameters.js';
+} from '../config/weaponParameters.js';
 
 export const MAX_TWEAK_MODULE_BYTES = 1024 * 1024;
 export const MAX_TWEAK_PACKAGE_BYTES = 5 * 1024 * 1024;
@@ -19,39 +19,23 @@ const SUPPORTED_UNIT_CUSTOM_PARAMS = new Set([
   'docktohealthreshold', 'attackformationspread', 'attackformationoffset', 'holdfireradius',
   'droneminimumidleradius', 'droneairtime', 'dronedocktime', 'droneammo',
 ]);
-const SUPPORTED_WEAPON_CUSTOM_PARAMS = new Set([
-  'spawns_name', 'spawns_surface', 'spawns_mode', 'spawns_expire', 'spawns_ceg', 'spawns_stun',
-  'spawn_blocked_by_shield', 'carried_unit', 'dronetype', 'spawnrate', 'maxunits',
-  'startingdronecount', 'controlradius', 'engagementrange', 'manualdrones', 'enabledocking', 'dockingpieces',
-  'dockingradius', 'dockinghelperspeed', 'dockingarmor', 'dockinghealrate',
-  'docktohealthreshold', 'attackformationspread', 'attackformationoffset', 'decayrate',
-  'deathdecayrate', 'carrierdeaththroe', 'holdfireradius', 'droneminimumidleradius',
-  'droneairtime', 'dronedocktime', 'droneammo', 'metalcost', 'energycost',
-  'cluster_def', 'cluster_number',
-]);
+const weaponCustomParameters = WEAPON_PARAMETER_CATALOG.filter(parameter => (
+  parameter.path.startsWith('customparams.')
+));
+const SUPPORTED_WEAPON_CUSTOM_PARAMS = new Set(
+  weaponCustomParameters.map(parameter => parameter.path.slice('customparams.'.length)),
+);
 const SUPPORTED_UNIT_FIELDS = new Set([
   'metalcost', 'energycost', 'buildtime', 'health', 'maxvelocity', 'acceleration',
   'brakerate', 'turnrate', 'mass', 'sightdistance', 'radardistance', 'sonardistance',
   'workertime', 'metalmake', 'energymake', 'metalstorage', 'energystorage',
 ]);
-const WEAPON_CUSTOM_TO_EDITOR_KEY = Object.freeze({
-  spawns_name: 'spawns_name', spawns_surface: 'spawns_surface', spawns_mode: 'spawns_mode',
-  spawns_expire: 'spawns_expire', spawns_ceg: 'spawns_ceg', spawns_stun: 'spawns_stun',
-  spawn_blocked_by_shield: 'spawn_blocked_by_shield', carried_unit: 'carried_unit',
-  dronetype: 'dronetype', spawnrate: 'spawnrate', maxunits: 'maxunits',
-  startingdronecount: 'startingdronecount', controlradius: 'controlradius',
-  engagementrange: 'engagementrange', manualdrones: 'manualdrones', enabledocking: 'enabledocking',
-  dockingpieces: 'dockingpieces', dockingradius: 'dockingradius',
-  dockinghelperspeed: 'dockinghelperspeed', dockingarmor: 'dockingarmor',
-  dockinghealrate: 'dockinghealrate', docktohealthreshold: 'docktohealthreshold',
-  attackformationspread: 'attackformationspread', attackformationoffset: 'attackformationoffset',
-  decayrate: 'decayrate', deathdecayrate: 'deathdecayrate',
-  carrierdeaththroe: 'carrierdeaththroe', holdfireradius: 'holdfireradius',
-  droneminimumidleradius: 'droneminimumidleradius', droneairtime: 'droneairtime',
-  dronedocktime: 'dronedocktime', droneammo: 'droneammo',
-  metalcost: 'spawn_metal_cost', energycost: 'spawn_energy_cost',
-  cluster_def: 'cluster_def', cluster_number: 'cluster_number',
-});
+const WEAPON_CUSTOM_TO_EDITOR_KEY = Object.freeze(Object.fromEntries(
+  weaponCustomParameters.map(parameter => [
+    parameter.path.slice('customparams.'.length),
+    parameter.key,
+  ]),
+));
 const DIRECT_WEAPON_FIELDS = new Set([
   'range', 'accuracy', 'sprayangle', 'burst', 'burstrate', 'projectiles', 'stockpile',
   'stockpiletime', 'flighttime', 'wobble', 'dance', 'tolerance', 'firetolerance',
@@ -82,7 +66,11 @@ STAT_KEYS.forEach(parameter => {
     UNIT_FIELD_TO_EDITOR_KEY.set(sourceKey, parameter.key);
   }
 });
-const WEAPON_PATH_TO_EDITOR_KEY = new Map(Object.entries(WEAPON_SLOT_PATHS).map(([editorKey, path]) => [path.toLowerCase(), editorKey]));
+const WEAPON_PATH_TO_EDITOR_KEY = new Map(
+  [...WEAPON_PARAMETER_CATALOG]
+    .reverse()
+    .map(parameter => [parameter.path.toLowerCase(), parameter.key]),
+);
 const UNIT_FIELD_EXPECTED_TYPES = new Map();
 const UNIT_CUSTOM_EXPECTED_TYPES = new Map();
 STAT_KEYS.forEach(parameter => {
@@ -93,20 +81,12 @@ STAT_KEYS.forEach(parameter => {
     target.set(normalized, parameter.type);
   });
 });
-const WEAPON_CUSTOM_EXPECTED_TYPES = new Map([
-  ['spawns_name', 'string'], ['spawns_surface', 'string'], ['spawns_mode', 'string'],
-  ['spawns_expire', 'number'], ['spawns_ceg', 'string'], ['spawns_stun', 'number'],
-  ['spawn_blocked_by_shield', 'boolean'], ['carried_unit', 'string'], ['dronetype', 'string'],
-  ['spawnrate', 'number'], ['maxunits', 'number'], ['startingdronecount', 'number'],
-  ['controlradius', 'number'], ['engagementrange', 'number'], ['manualdrones', 'boolean'], ['enabledocking', 'boolean'],
-  ['dockingpieces', 'string'], ['dockingradius', 'number'], ['dockinghelperspeed', 'number'],
-  ['dockingarmor', 'number'], ['dockinghealrate', 'number'], ['docktohealthreshold', 'number'],
-  ['attackformationspread', 'number'], ['attackformationoffset', 'number'],
-  ['decayrate', 'number'], ['deathdecayrate', 'number'], ['carrierdeaththroe', 'string'],
-  ['holdfireradius', 'number'], ['droneminimumidleradius', 'number'], ['droneairtime', 'number'],
-  ['dronedocktime', 'number'], ['droneammo', 'number'], ['metalcost', 'number'],
-  ['energycost', 'number'], ['cluster_def', 'string'], ['cluster_number', 'number'],
-]);
+const WEAPON_CUSTOM_EXPECTED_TYPES = new Map(
+  weaponCustomParameters.map(parameter => [
+    parameter.path.slice('customparams.'.length),
+    parameter.acceptedTypes,
+  ]),
+);
 const ASSET_FIELD_KINDS = Object.freeze({
   objectname: 'model', script: 'script', buildpic: 'artwork', model: 'projectile model',
   cegtag: 'CEG', explosiongenerator: 'CEG', soundstart: 'sound', soundhit: 'sound',
@@ -121,9 +101,10 @@ const GENERIC_FIELD_EXPECTED_TYPES = new Map();
 const addGenericExpectation = (field, type) => {
   if (!field || !type) return;
   const normalized = String(field).toLowerCase();
+  const normalizedType = Array.isArray(type) && type.length === 1 ? type[0] : type;
   const current = GENERIC_FIELD_EXPECTED_TYPES.get(normalized);
-  if (!current) GENERIC_FIELD_EXPECTED_TYPES.set(normalized, type);
-  else if (current !== type) GENERIC_FIELD_EXPECTED_TYPES.set(normalized, null);
+  if (!current) GENERIC_FIELD_EXPECTED_TYPES.set(normalized, normalizedType);
+  else if (current !== normalizedType) GENERIC_FIELD_EXPECTED_TYPES.set(normalized, null);
 };
 UNIT_FIELD_EXPECTED_TYPES.forEach((type, field) => addGenericExpectation(field, type));
 UNIT_CUSTOM_EXPECTED_TYPES.forEach((type, field) => addGenericExpectation(field, type));
@@ -948,19 +929,22 @@ function collectTypeIssues(source) {
   const addIssue = (match, field, value, expectedType, scope) => {
     if (!expectedType || value === undefined) return;
     const actualType = actualLiteralType(value);
-    if (actualType === expectedType) return;
-    const suggestion = canonicalValueSuggestion(value, expectedType);
+    const expectedTypes = Array.isArray(expectedType) ? expectedType : [expectedType];
+    if (expectedTypes.includes(actualType)) return;
+    const preferredType = expectedTypes[0];
+    const expectedLabel = expectedTypes.join(' or ');
+    const suggestion = canonicalValueSuggestion(value, preferredType);
     issues.push({
       code: 'literal-type',
       level: 'warning',
       line: lineNumberAt(source, match.index),
       scope,
       field: field.toLowerCase(),
-      expectedType,
+      expectedType: expectedLabel,
       actualType,
       value,
       suggestion,
-      message: `${scope} ${field} expects ${expectedType}, but this assignment uses ${actualType}.${suggestion ? ` Prefer ${suggestion}.` : ''}`,
+      message: `${scope} ${field} expects ${expectedLabel}, but this assignment uses ${actualType}.${suggestion ? ` Prefer ${suggestion}.` : ''}`,
     });
   };
 

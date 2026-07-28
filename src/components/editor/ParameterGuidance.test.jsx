@@ -14,7 +14,7 @@ describe('parameter guidance', () => {
   it('combines overlapping relationship groups without repeating fields', () => {
     const relationship = getParameterRelationship('weapons', 'commandfire');
 
-    expect(relationship.title).toBe('Commandfire connects 2 systems');
+    expect(relationship.title).toBe('Manual Fire Only connects 2 systems');
     expect(relationship.keys.filter(key => key === 'commandfire')).toHaveLength(1);
     expect(relationship.keys).toContain('interceptor');
     expect(relationship.keys).toContain('canattack');
@@ -38,7 +38,7 @@ describe('parameter guidance', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Reload (s)' }));
     expect(onSelect).toHaveBeenCalledWith('reload');
   });
 

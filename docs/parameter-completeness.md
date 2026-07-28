@@ -8,9 +8,9 @@ The audit checks four connected surfaces:
 
 1. Bundled unit and weapon fields in `unit-defaults.json`.
 2. Unit and custom-parameter metadata used by the editor.
-3. Weapon controls rendered by the main workspace and the secondary
-   behavior/interceptor editor.
-4. Compiler type and path schemas used to produce `tweakunits`.
+3. The canonical weapon catalog in `src/config/weaponParameters.js`, including
+   core fields, advanced groups, target masks, and behavior/interceptor fields.
+4. Compiler targets, value types, and Lua paths derived from that catalog.
 
 The command fails when a snapshot field has no editing surface, a rendered
 control cannot be compiled safely, metadata is incomplete, parameter keys are

@@ -1,4 +1,5 @@
 import { STAT_KEYS } from './editorParameters.js';
+import { getWeaponParameterDefinition } from './weaponParameters.js';
 
 
 const PARAMETER_RELATIONSHIPS = [
@@ -125,6 +126,7 @@ export const PARAMETER_SECTION_GUIDANCE = {
 
 export function getRelationshipLabel(key) {
   return STAT_KEYS.find(item => item.key === key)?.label
+    || getWeaponParameterDefinition(key)?.label
     || PARAMETER_LABEL_OVERRIDES[key]
     || key.replace(/^customparams\./, '').replaceAll('_', ' ').replace(/\b\w/g, character => character.toUpperCase());
 }

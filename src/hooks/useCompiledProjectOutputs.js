@@ -1,11 +1,6 @@
 import { useMemo } from 'react';
-import {
-  STAT_KEYS,
-  WEAPON_SLOT_BOOLEAN_PARAMS,
-  WEAPON_SLOT_MOUNT_PARAMS,
-  WEAPON_SLOT_PATHS,
-  WEAPON_SLOT_STRING_PARAMS,
-} from '../config/editorParameters.js';
+import { STAT_KEYS } from '../config/editorParameters.js';
+import { getWeaponParameterDefinition } from '../config/weaponParameters.js';
 import { isValidCustomParameterKey } from '../config/customParameters.js';
 import { ensureSafeCarrierWeaponPatch } from '../utils/carrierRuntimeSafety.js';
 import { buildLobbyCommands, compileLobbyModules } from '../utils/lobbyModules.js';
@@ -115,23 +110,23 @@ export function useCompiledProjectOutputs({
           const parameter = match[2];
           const slot = getActiveWeaponSlots(unitId).find(candidate => candidate.slot === slotNumber);
           if (!slot?.defKey) return;
+          const parameterDefinition = getWeaponParameterDefinition(parameter);
 
-          if (parameter === 'onlytargetcategory' || parameter === 'badtargetcategory' || WEAPON_SLOT_MOUNT_PARAMS.has(parameter)) {
+          if (parameterDefinition?.compileTarget === 'mount') {
             setNestedValue(unitPatch, `weapons.${slotNumber}.${parameter}`, coerceWeaponMountValue(parameter, value));
             return;
           }
 
-          let path = WEAPON_SLOT_PATHS[parameter] || parameter;
+          let path = parameterDefinition?.path || parameter;
           let typedValue = value;
-          if (parameter === 'interceptedbyshields') {
-            path = 'interceptedbyshieldtype';
+          if (parameterDefinition?.valueTransform === 'shield-mask') {
             typedValue = value === 'true' || value === true ? 1 : 0;
-          } else if (WEAPON_SLOT_BOOLEAN_PARAMS.has(parameter)) {
+          } else if (parameterDefinition?.valueType === 'boolean') {
             typedValue = value === 'true' || value === true;
             if (parameter === 'toairweapon' && typedValue && !Object.hasOwn(statPatch, `weapon_slot_${slotNumber}_onlytargetcategory`)) {
               setNestedValue(unitPatch, `weapons.${slotNumber}.onlytargetcategory`, 'VTOL');
             }
-          } else if (WEAPON_SLOT_STRING_PARAMS.has(parameter)) {
+          } else if (parameterDefinition?.valueType === 'string') {
             typedValue = value ? String(value) : '';
           } else {
             typedValue = Number.parseFloat(value);
