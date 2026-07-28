@@ -66,6 +66,28 @@ test('main menu separates the active project, core workspaces, and specialist wo
   await expect(page.getByRole('heading', { name: 'Unified BAR Reference Library' })).toBeVisible();
 });
 
+test('main menu fits standard desktop viewports without nested scrolling', async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1750, height: 987 },
+    { width: 1920, height: 1080 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await waitForMainMenu(page);
+
+    const geometry = await page.locator('.main-menu').evaluate(menu => {
+      const frame = menu.querySelector('.main-menu__frame');
+      return {
+        documentOverflow: document.documentElement.scrollHeight - document.documentElement.clientHeight,
+        frameOverflow: frame.scrollHeight - frame.clientHeight,
+      };
+    });
+
+    expect(geometry.documentOverflow).toBeLessThanOrEqual(1);
+    expect(geometry.frameOverflow).toBeLessThanOrEqual(1);
+  }
+});
+
 test('build-picture browser distinguishes normal and Scavenger artwork namespaces', async ({ page }) => {
   await waitForMainMenu(page);
   await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
@@ -272,8 +294,31 @@ test('editor header stays grouped and usable across supported desktop widths', a
   await expect(menu.getByText('Quick access', { exact: true })).toBeVisible();
   await expect(menu.getByText('Editing tools', { exact: true })).toBeVisible();
   await expect(menu.getByText('Packages & references', { exact: true })).toBeVisible();
+  const menuDensity = await menu.evaluate(element => {
+    const items = [...element.querySelectorAll('[role="menuitem"]')];
+    const groups = [...element.querySelectorAll('.header-tools-menu__group')];
+    return {
+      shortestItem: Math.min(...items.map(item => item.getBoundingClientRect().height)),
+      groupGaps: groups.slice(1).map((group, index) => (
+        group.getBoundingClientRect().top - groups[index].getBoundingClientRect().bottom
+      )),
+    };
+  });
+  expect(menuDensity.shortestItem).toBeGreaterThanOrEqual(48);
+  expect(Math.min(...menuDensity.groupGaps)).toBeGreaterThanOrEqual(8);
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
+});
+
+test('tools menu visual baseline: grouped dark workbench', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.addInitScript(() => localStorage.setItem('bmf_theme', 'dark'));
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /^Tools/ }).click();
+  const menu = page.getByRole('menu', { name: 'Editor tools' });
+  await expect(menu).toBeVisible();
+  await expect(menu).toHaveScreenshot('tools-menu-dark-1440.png');
 });
 
 test('Tweak Package Lab imports inert modules and exposes numbered slots', async ({ page }) => {

@@ -63,7 +63,19 @@
   --space-6: 24px;
   --space-7: 28px;
   --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-11: 44px;
   --space-12: 48px;
+
+  /* Semantic density: related items stay close; sections receive breathing room. */
+  --density-inline-gap: var(--space-2);
+  --density-control-gap: var(--space-3);
+  --density-panel-gap: var(--space-4);
+  --density-section-gap: var(--space-6);
+  --density-page-gap: var(--space-9);
+  --density-panel-padding: var(--space-4);
+  --density-page-gutter: clamp(var(--space-5), 2.5vw, var(--space-10));
 
   --font-size-xs: 10px;
   --font-size-sm: 12px;
