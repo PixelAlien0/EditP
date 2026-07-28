@@ -1,0 +1,277 @@
+import { useEffect, useRef, useState } from 'react';
+import OnlinePresenceBadge from './OnlinePresenceBadge.jsx';
+import { Button, ButtonGroup, FileButton, IconButton } from './ui.jsx';
+
+const HEADER_WORKSPACES = Object.freeze([
+  { id: 'edit', step: '01', label: 'Edit Units' },
+  { id: 'collections', step: '02', label: 'Collections' },
+  { id: 'designer', step: '03', label: 'Build Menus' },
+  { id: 'review', step: '04', label: 'Review & Export' },
+]);
+
+export default function AppHeader({
+  activeWorkspace,
+  themeMode,
+  historyPastCount,
+  historyFutureCount,
+  presence,
+  unreadChatCount,
+  weaponLabEnabled = false,
+  mutatorToolsEnabled = false,
+  onWorkspaceChange,
+  onMainMenu,
+  onToggleTheme,
+  onUndo,
+  onRedo,
+  onCredits,
+  onChat,
+  onClone,
+  onCommandPalette,
+  onCheckpoints,
+  onCollections,
+  onCarrierWorkbench,
+  onPresetGallery,
+  onWeaponLab,
+  onTweakLab,
+  onReferenceLibrary,
+  onExport,
+  onImport,
+}) {
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const toolsRef = useRef(null);
+
+  useEffect(() => {
+    if (!toolsOpen) return undefined;
+
+    const closeFromOutside = event => {
+      if (!toolsRef.current?.contains(event.target)) setToolsOpen(false);
+    };
+    const closeFromKeyboard = event => {
+      if (event.key !== 'Escape') return;
+      setToolsOpen(false);
+      toolsRef.current?.querySelector('.header-tools-trigger')?.focus();
+    };
+
+    document.addEventListener('pointerdown', closeFromOutside);
+    document.addEventListener('keydown', closeFromKeyboard);
+    toolsRef.current?.querySelector('[role="menuitem"]:not(:disabled)')?.focus();
+    return () => {
+      document.removeEventListener('pointerdown', closeFromOutside);
+      document.removeEventListener('keydown', closeFromKeyboard);
+    };
+  }, [toolsOpen]);
+
+  const runToolAction = action => {
+    setToolsOpen(false);
+    action?.();
+  };
+
+  return (
+    <header className="app-header">
+      <div className="header-brand-group">
+        <button type="button" className="header-brand" onClick={onMainMenu} title="Return to main menu">
+          <img src="/logo.svg" alt="BAR Editor" className="app-logo" />
+          <div className="brand-text">
+            <span className="brand-kicker">Mod workspace</span>
+            <h1>BAR Editor</h1>
+          </div>
+        </button>
+        <OnlinePresenceBadge
+          count={presence.count}
+          status={presence.status}
+          activityCounts={presence.activityCounts}
+          currentActivity={presence.currentActivity}
+          compact
+        />
+      </div>
+
+      <nav className="workflow-nav" aria-label="Editor workflow">
+        {HEADER_WORKSPACES.map(workspace => (
+          <button
+            key={workspace.id}
+            className={activeWorkspace === workspace.id ? 'active' : ''}
+            aria-current={activeWorkspace === workspace.id ? 'page' : undefined}
+            onClick={() => onWorkspaceChange(workspace.id)}
+          >
+            <span className="workflow-nav__step">{workspace.step}</span>
+            <span className="workflow-nav__label">{workspace.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <div className="header-actions header-utility-actions">
+        <div className="header-control-cluster" role="group" aria-label="Navigation, appearance, and history">
+          <Button
+            variant="quiet"
+            className="btn-action btn-secondary header-menu-action"
+            onClick={onMainMenu}
+            title="Return to main menu"
+            aria-label="Return to main menu"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M6.5 3.25 1.75 8l4.75 4.75" />
+              <path d="M2.25 8h8.25a3.25 3.25 0 0 1 3.25 3.25v1" />
+            </svg>
+            <span className="header-menu-label">Main menu</span>
+          </Button>
+          <Button
+            variant="quiet"
+            className="theme-toggle"
+            aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}
+            aria-pressed={themeMode === 'dark'}
+            onClick={onToggleTheme}
+          >
+            <span className="theme-toggle-mark" aria-hidden="true">{themeMode === 'dark' ? '☼' : '◐'}</span>
+            <span>{themeMode === 'dark' ? 'Light' : 'Dark'}</span>
+          </Button>
+          <ButtonGroup className="history-controls" label="Change history">
+            <IconButton variant="quiet" size="sm" label="Undo" onClick={onUndo} disabled={historyPastCount === 0} title="Undo (Ctrl+Z)">↶</IconButton>
+            <IconButton variant="quiet" size="sm" label="Redo" onClick={onRedo} disabled={historyFutureCount === 0} title="Redo (Ctrl+Y)">↷</IconButton>
+          </ButtonGroup>
+        </div>
+
+        <div className="header-collaboration-actions" role="group" aria-label="Community and project information">
+          <Button
+            variant="quiet"
+            className="btn-action btn-secondary header-credits-action"
+            onClick={onCredits}
+            title="Disclaimer, asset sources, and project credits"
+          >
+            <span className="header-credits-icon" aria-hidden="true">i</span>
+            <span className="header-credits-label">Credits</span>
+          </Button>
+          <Button
+            variant="quiet"
+            className="btn-action btn-secondary header-chat-action"
+            onClick={onChat}
+            aria-haspopup="dialog"
+            title="Open temporary editor chat"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3 3.25h10a1.5 1.5 0 0 1 1.5 1.5v5.5a1.5 1.5 0 0 1-1.5 1.5H8l-3.25 2v-2H3a1.5 1.5 0 0 1-1.5-1.5v-5.5A1.5 1.5 0 0 1 3 3.25Z" />
+              <path d="M4.5 6.5h7M4.5 8.75h4.75" />
+            </svg>
+            <span className="header-chat-label">Chat</span>
+            {unreadChatCount > 0 && (
+              <span className="header-chat-unread" aria-label={`${unreadChatCount} unread chat messages`}>
+                {Math.min(unreadChatCount, 9)}{unreadChatCount > 9 ? '+' : ''}
+              </span>
+            )}
+          </Button>
+        </div>
+
+        <Button
+          variant="primary"
+          className="btn-action header-create-action"
+          aria-label="Create a clone of the selected unit"
+          title="Create a clone of the selected unit"
+          onClick={onClone}
+        >
+          <svg className="header-create-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="2.25" y="2.25" width="8.5" height="8.5" rx="1.25" />
+            <path d="M5.25 5.25h7.5a1 1 0 0 1 1 1v7.5" />
+            <path d="M10 11.5h4" />
+            <path d="M12 9.5v4" />
+          </svg>
+          <span className="header-create-label">Clone unit</span>
+        </Button>
+
+        <div className="header-tools" ref={toolsRef}>
+          <Button
+            className="btn-action btn-secondary header-tools-trigger"
+            aria-label="Tools"
+            aria-haspopup="menu"
+            aria-expanded={toolsOpen}
+            aria-controls="header-tools-menu"
+            onClick={() => setToolsOpen(open => !open)}
+          >
+            <svg className="header-action-icon" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3 4.25h10M5.5 8h5M7 11.75h2" />
+            </svg>
+            <span>Tools</span>
+            <span className="header-tools-chevron" aria-hidden="true">⌄</span>
+          </Button>
+          {toolsOpen && (
+            <div className="header-tools-menu" id="header-tools-menu" role="menu" aria-label="Editor tools">
+              <div className="header-tools-menu__intro">
+                <span className="header-tools-menu__eyebrow">Workbench</span>
+                <strong>Editor tools</strong>
+                <small>Utilities, saved states, and BAR references.</small>
+              </div>
+              <div className="header-tools-menu__group" aria-label="Quick access">
+                <span className="header-tools-menu__group-label">Quick access</span>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onCommandPalette)}>
+                  <span><strong>Command Palette</strong><small>Search actions and workspaces</small></span><kbd>Ctrl K</kbd>
+                </button>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onCheckpoints)}>
+                  <span><strong>Project Checkpoints</strong><small>Save and restore named states</small></span>
+                </button>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onCollections)}>
+                  <span><strong>Collections</strong><small>Organize reusable unit scopes</small></span>
+                </button>
+              </div>
+              <div className="header-tools-menu__group" aria-label="Editing tools">
+                <span className="header-tools-menu__group-label">Editing tools</span>
+                <button type="button" role="menuitem" disabled={!mutatorToolsEnabled}>
+                  <span><strong>Batch Adjust <small className="header-tool-lock">Locked</small></strong><small>Temporarily unavailable while bulk editing is repaired</small></span>
+                </button>
+                <button type="button" role="menuitem" disabled={!mutatorToolsEnabled}>
+                  <span><strong>Formula Mutator <small className="header-tool-lock">Locked</small></strong><small>Temporarily unavailable while formula evaluation is repaired</small></span>
+                </button>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onCarrierWorkbench)}>
+                  <span><strong>Carrier &amp; Drone Studio</strong><small>Configure a BAR carrier controller WeaponDef</small></span>
+                </button>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onPresetGallery)}>
+                  <span><strong>Preset Gallery</strong><small>Apply or save project snapshots</small></span>
+                </button>
+                {weaponLabEnabled && (
+                  <button type="button" role="menuitem" onClick={() => runToolAction(onWeaponLab)}>
+                    <span><strong>Weapon Lab <small className="header-tool-lock">Dev</small></strong><small>Develop custom weapon blueprints</small></span>
+                  </button>
+                )}
+                <button type="button" role="menuitem" disabled={!mutatorToolsEnabled}>
+                  <span><strong>Mutation Lab <small className="header-tool-lock">Locked</small></strong><small>Temporarily unavailable while mutation rules are repaired</small></span>
+                </button>
+              </div>
+              <div className="header-tools-menu__group" aria-label="Package and reference tools">
+                <span className="header-tools-menu__group-label">Packages &amp; references</span>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onTweakLab)}>
+                  <span><strong>Tweak Package Lab</strong><small>Inspect community Lua safely</small></span>
+                </button>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onReferenceLibrary)}>
+                  <span><strong>BAR Reference Library</strong><small>Search definitions and assets</small></span>
+                </button>
+              </div>
+              <div className="header-tools-menu-project-actions" role="group" aria-label="Project files">
+                <button type="button" onClick={() => runToolAction(onExport)}>Save Project</button>
+                <label>
+                  Load Project
+                  <input type="file" accept=".json" onChange={event => { setToolsOpen(false); onImport(event); }} />
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="header-project-actions">
+          <Button
+            className="btn-action btn-secondary header-file-action"
+            onClick={onExport}
+            title="Download your configuration profile locally"
+          >
+            <svg className="header-action-icon" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3 2.5h8.25L13.5 4.75v8.75h-11v-11Z" /><path d="M5 2.5v4h5v-4M5 13.5V9h6v4.5" />
+            </svg>
+            <span>Save Project</span>
+          </Button>
+          <FileButton className="btn-action btn-secondary header-file-action" title="Upload an exported .json config" accept=".json" onChange={onImport}>
+            <svg className="header-action-icon" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 2.25v7.5M5.25 7 8 9.75 10.75 7" /><path d="M2.5 10.5v3h11v-3" />
+            </svg>
+            <span>Load Project</span>
+          </FileButton>
+        </div>
+      </div>
+    </header>
+  );
+}
