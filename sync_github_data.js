@@ -1,6 +1,7 @@
 import https from 'https';
 import fs from 'fs';
 import { pathToFileURL } from 'url';
+import { reconcileUnitCategories } from './scripts/game-data-snapshot.mjs';
 
 const SOURCE_REPOSITORY = 'beyond-all-reason/Beyond-All-Reason';
 const REQUESTED_SOURCE_REF = process.env.BAR_SOURCE_COMMIT || process.env.BAR_SOURCE_REF || 'master';
@@ -444,7 +445,9 @@ export async function run() {
         const tags = [];
         const pathLower = filePath.toLowerCase();
         
-        if (pathLower.includes('aircraft') || pathLower.includes('seaplane')) tags.push('aircraft');
+        const isAircraft = unit.canfly === true
+          || Number(unit.cruisealt ?? unit.cruisealtitude) > 0;
+        if (isAircraft || pathLower.includes('aircraft') || pathLower.includes('seaplane')) tags.push('aircraft');
         else if (pathLower.includes('bot') || pathLower.includes('raptor')) tags.push('bots');
         else if (pathLower.includes('vehicle')) tags.push('vehicles');
         else if (pathLower.includes('hover')) tags.push('hovercraft');
@@ -522,7 +525,14 @@ export async function run() {
     console.log('4. Writing databases...');
     fs.writeFileSync('src/data/units.json', JSON.stringify(unwrappedUnits, null, 2), 'utf8');
     fs.writeFileSync(DATA_PATHS.defaults, JSON.stringify(defaultsDb, null, 2), 'utf8');
-    fs.writeFileSync(DATA_PATHS.categories, JSON.stringify(categoriesDb, null, 2), 'utf8');
+    const reconciledCategories = reconcileUnitCategories({
+      categories: categoriesDb,
+      defaults: defaultsDb,
+      rosters: rostersDb,
+      names: unwrappedUnits.names || {},
+    });
+
+    fs.writeFileSync(DATA_PATHS.categories, JSON.stringify(reconciledCategories, null, 2), 'utf8');
     fs.writeFileSync(DATA_PATHS.rosters, JSON.stringify(rostersDb, null, 2), 'utf8');
 
     console.log('Synchronization complete!');

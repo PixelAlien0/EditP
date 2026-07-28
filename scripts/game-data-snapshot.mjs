@@ -50,6 +50,57 @@ export function sortedObject(source) {
   );
 }
 
+const PRODUCER_CLASSIFICATION_RULES = Object.freeze([
+  { tag: 'aircraft', pattern: /\b(?:aircraft (?:plant|gantry)|drone plant|seaplane platform)\b/i },
+  { tag: 'bots', pattern: /\bbot lab\b/i },
+  { tag: 'vehicles', pattern: /\bvehicle plant\b/i },
+  { tag: 'hovercraft', pattern: /\bhovercraft platform\b/i },
+  { tag: 'ships', pattern: /\bshipyard\b/i },
+]);
+
+function addCategoryTag(tags, tag) {
+  if (tags.includes(tag)) return;
+  const tierIndex = tags.findIndex(value => /^t(?:\d|1\.5)$/i.test(String(value)));
+  if (tierIndex === -1) tags.push(tag);
+  else tags.splice(tierIndex, 0, tag);
+}
+
+export function getProducerClassification(name) {
+  return PRODUCER_CLASSIFICATION_RULES.find(rule => rule.pattern.test(String(name || '')))?.tag || '';
+}
+
+export function reconcileUnitCategories({
+  categories = {},
+  defaults = {},
+  rosters = {},
+  names = {},
+} = {}) {
+  const reconciled = Object.fromEntries(
+    Object.entries(categories).map(([unitId, tags]) => [
+      normalizeUnitId(unitId),
+      [...new Set(Array.isArray(tags) ? tags : [])],
+    ])
+  );
+
+  for (const [unitId, unitDefaults] of Object.entries(defaults)) {
+    const normalizedId = normalizeUnitId(unitId);
+    const tags = reconciled[normalizedId] ||= [];
+    if (Number(unitDefaults?.cruisealt) > 0) addCategoryTag(tags, 'aircraft');
+  }
+
+  for (const [producerId, roster] of Object.entries(rosters)) {
+    const classification = getProducerClassification(names[normalizeUnitId(producerId)]);
+    if (!classification) continue;
+    for (const rawUnitId of Array.isArray(roster) ? roster : []) {
+      const unitId = normalizeUnitId(rawUnitId);
+      const tags = reconciled[unitId];
+      if (tags) addCategoryTag(tags, classification);
+    }
+  }
+
+  return reconciled;
+}
+
 export function getDatasetCounts(datasets) {
   const names = datasets.units?.names || {};
   const descriptions = datasets.units?.descriptions || {};

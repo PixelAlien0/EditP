@@ -42,4 +42,13 @@ describe('bundled BAR game-data snapshot', () => {
       }
     }
   });
+
+  it('classifies every airborne definition as aircraft', () => {
+    const missingAircraftTag = Object.entries(unitDefaults)
+      .filter(([, defaults]) => Number(defaults.cruisealt) > 0)
+      .map(([unitId]) => unitId)
+      .filter(unitId => !unitCategories[unitId]?.includes('aircraft'));
+
+    expect(missingAircraftTag).toEqual([]);
+  });
 });

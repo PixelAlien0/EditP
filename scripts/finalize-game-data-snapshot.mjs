@@ -6,6 +6,7 @@ import {
   loadSnapshotDatasets,
   normalizeBuildPicture,
   normalizeUnitId,
+  reconcileUnitCategories,
   writeJson,
 } from './game-data-snapshot.mjs';
 
@@ -43,6 +44,12 @@ function reconcileOrdered(source, fallback) {
 datasets.units.names = reconcileOrdered(existingNames, unitId => unitId);
 datasets.units.descriptions = reconcileOrdered(existingDescriptions, () => '');
 datasets.categories = reconcileOrdered(datasets.categories, () => ['t1']);
+datasets.categories = reconcileUnitCategories({
+  categories: datasets.categories,
+  defaults: datasets.defaults,
+  rosters: datasets.rosters,
+  names: datasets.units.names,
+});
 
 for (const [producerId, roster] of Object.entries(datasets.rosters)) {
   if (!canonicalSet.has(normalizeUnitId(producerId))) {

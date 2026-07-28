@@ -55,6 +55,17 @@ for (const [producerId, roster] of Object.entries(datasets.rosters)) {
   }
 }
 
+const airborneWithoutAircraftTag = unitIds.filter(unitId => (
+  Number(datasets.defaults[unitId]?.cruisealt) > 0
+  && !datasets.categories[unitId]?.includes('aircraft')
+));
+if (airborneWithoutAircraftTag.length) {
+  errors.push(
+    `${airborneWithoutAircraftTag.length} airborne units are missing the aircraft classification: `
+    + airborneWithoutAircraftTag.slice(0, 12).join(', ')
+  );
+}
+
 for (const [key, record] of Object.entries(manifest.files || {})) {
   const expectedPath = SNAPSHOT_PATHS[key];
   if (!expectedPath || !fs.existsSync(expectedPath)) {

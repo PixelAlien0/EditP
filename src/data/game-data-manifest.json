@@ -30,7 +30,7 @@
     "categories": {
       "path": "src/data/unit-categories.json",
       "schemaVersion": 1,
-      "sha256": "9763c0c27312ebb1b799f1fc61887d15935720c494cd1dc9fdd0f5211fda528c"
+      "sha256": "c5473de23aa65c2112913dcc505744adeed5358277fb5227f2eca75e24dbe7c0"
     },
     "rosters": {
       "path": "src/data/factory-rosters.json",

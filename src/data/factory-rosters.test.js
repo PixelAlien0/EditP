@@ -40,4 +40,15 @@ describe('Legion factory roster data', () => {
     expect(entries.legvp).toMatchObject({ name: 'Legion Vehicle Plant', tier: 'T1', rosterSize: 10 });
     expect(entries.legavp).toMatchObject({ name: 'Advanced Vehicle Plant', tier: 'T2', rosterSize: 15 });
   });
+
+  it('classifies the complete Legion airborne catalog instead of only seaplanes', () => {
+    const airborneLegionUnits = Object.entries(unitDefaults)
+      .filter(([unitId, defaults]) => unitId.startsWith('leg') && Number(defaults.cruisealt) > 0)
+      .map(([unitId]) => unitId);
+
+    expect(airborneLegionUnits.length).toBeGreaterThan(7);
+    for (const unitId of airborneLegionUnits) {
+      expect(unitCategories[unitId], `${unitId} should be filterable as aircraft`).toContain('aircraft');
+    }
+  });
 });

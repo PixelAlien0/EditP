@@ -32,6 +32,16 @@ function He(e) {
   return [];
 }
 
+export function mergeDerivedCategoryTags(baseTags = [], defaults = {}) {
+  const tags = [...new Set(Array.isArray(baseTags) ? baseTags : [])];
+  if (Number(defaults?.cruisealt) > 0 && !tags.includes('aircraft')) {
+    const tierIndex = tags.findIndex(tag => /^t(?:\d|1\.5)$/i.test(String(tag)));
+    if (tierIndex === -1) tags.push('aircraft');
+    else tags.splice(tierIndex, 0, 'aircraft');
+  }
+  return tags;
+}
+
 export function getFactionOfUnit(unitId) {
   const t = unitId.toLowerCase();
   if (t.includes('raptor') || t.includes('acid')) return 'rap';
@@ -65,7 +75,7 @@ export function getTechTierOfUnit(unitId, defaultsDb = {}) {
 }
 
 export function getTagsOfUnit(unitId, defaultsDb = {}) {
-  const baseTags = He(unitId);
+  const baseTags = mergeDerivedCategoryTags(He(unitId), defaultsDb[unitId]);
   const techTag = getTechTierOfUnit(unitId, defaultsDb);
   return [...baseTags, techTag];
 }
