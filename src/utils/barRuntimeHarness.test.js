@@ -1,9 +1,12 @@
+import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import {
   assertRuntimeCompatibility,
   evaluateRuntimeExpectations,
   executeCompiledBarModules,
 } from '../../scripts/lib/bar-runtime-harness.mjs';
+import { useCompiledProjectOutputs } from '../hooks/useCompiledProjectOutputs.js';
+import { ADVANCED_MECHANICS_RUNTIME_FIXTURES } from './fixtures/advancedMechanicsRuntimeFixtures.js';
 import { compileLobbyModules } from './lobbyModules.js';
 import { serializeLuaTable } from './tweakSerializer.js';
 import { compileTweakDefsLua } from './tweakdefsHelper.js';
@@ -52,6 +55,34 @@ function generatedPackage({
     generatedTweakUnitsLua: serializeLuaTable(units),
     base64Options: { padding: false },
   });
+}
+
+function compileAdvancedMechanicsFixture(fixture) {
+  const { result } = renderHook(() => useCompiledProjectOutputs({
+    tweaks: fixture.tweaks || {},
+    allUnitsList: fixture.units || [],
+    clones: fixture.clones || [],
+    defaultsDb: fixture.defaultsDb || {},
+    explosionProfiles: fixture.explosionProfiles || {},
+    resolveCloneRootId: unitId => fixture.cloneRoots?.[unitId] || unitId,
+    getInheritedCloneWeaponSwaps: unitId => fixture.weaponSwaps?.[unitId] || {},
+    includeTweaks: true,
+    includeClones: true,
+    includeRosters: true,
+    includeHeader: false,
+    tweakDefsLua: '',
+    buildMenuSteps: [],
+    disabledUnitIds: [],
+    activeFactoryRosters: {},
+    projectName: 'Advanced mechanics runtime fixture',
+    projectAuthor: '',
+    projectDesc: '',
+    weaponLibrary: [],
+    supportingWeaponDefs: fixture.supportingWeaponDefs || [],
+    tweakModules: [],
+    base64Options: { padding: false },
+  }));
+  return result.current.compiledLobbyModules;
 }
 
 describe('BAR runtime compatibility harness', () => {
@@ -280,4 +311,21 @@ describe('BAR runtime compatibility harness', () => {
       instructionLimit: 1000,
     })).toThrow(/Instruction budget exceeded in tweakdefs1/);
   });
+});
+
+describe('advanced mechanics BAR runtime fixtures', () => {
+  it.each(ADVANCED_MECHANICS_RUNTIME_FIXTURES)(
+    '$id — $description',
+    fixture => {
+      const compiled = compileAdvancedMechanicsFixture(fixture);
+      const result = executeCompiledBarModules(compiled, {
+        unitDefs: fixture.runtimeUnitDefs,
+        weaponDefs: fixture.runtimeWeaponDefs || {},
+      });
+
+      assertRuntimeCompatibility(result, fixture.expectations);
+      expect(result.status).toBe('passed');
+      expect(result.execution.length).toBeGreaterThan(0);
+    },
+  );
 });
