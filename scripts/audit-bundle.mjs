@@ -30,10 +30,10 @@ const budgets = {
   entryGzip: 150 * 1024,
   largestJs: 500 * 1024,
   entryCss: 325 * 1024,
-  // Includes every lazy workspace stylesheet. The source catalog and reusable
-  // custom-weapon borrow surface add one bounded feature increment while the
-  // initial CSS ceiling remains independently enforced above.
-  totalCss: 390 * 1024,
+  // Includes every lazy workspace stylesheet. Weapon Laboratory source,
+  // storage, and blueprint-dossier surfaces are bounded here while the much
+  // more important initial CSS ceiling remains independently enforced above.
+  totalCss: 393 * 1024,
   dist: 25 * 1024 * 1024
 };
 

@@ -24,10 +24,10 @@ import {
 import '../styles/features/weapon-laboratory.css';
 
 const LAB_TABS = [
-  { id: 'source', label: 'Source catalog', panelId: 'weapon-lab-panel-source' },
-  { id: 'gameplay', label: 'Gameplay profile', panelId: 'weapon-lab-panel-gameplay' },
-  { id: 'effects', label: 'Effects & assets', panelId: 'weapon-lab-panel-effects' },
-  { id: 'library', label: 'Custom storage', panelId: 'weapon-lab-panel-library' },
+  { id: 'source', label: 'Source catalog', description: 'Choose a BAR WeaponDef', panelId: 'weapon-lab-panel-source' },
+  { id: 'gameplay', label: 'Gameplay profile', description: 'Tune behavior and balance', panelId: 'weapon-lab-panel-gameplay' },
+  { id: 'effects', label: 'Effects & assets', description: 'Bind native or custom VFX', panelId: 'weapon-lab-panel-effects' },
+  { id: 'library', label: 'Custom storage', description: 'Manage reusable weapons', panelId: 'weapon-lab-panel-library' },
 ];
 
 const EFFECT_NUMBER_GROUPS = [
@@ -327,30 +327,74 @@ export default function WeaponLaboratoryPage({
     >
       <div className="weapon-laboratory__layout">
         <aside className="weapon-lab-brief" aria-label="Blueprint brief">
-          <section>
-            <Type variant="eyebrow">Current blueprint</Type>
+          <header>
+            <div className="weapon-lab-brief__status">
+              <Type variant="eyebrow">Blueprint dossier</Type>
+              <StatusBadge status={issues.length ? 'warning' : isSaved ? 'success' : 'info'}>
+                {issues.length ? 'Review' : isSaved ? 'Stored' : 'Working draft'}
+              </StatusBadge>
+            </div>
             <Type as="h2" variant="section-title">{draft.name || 'Untitled weapon'}</Type>
-            <p>{draft.description || 'No design note has been added.'}</p>
-          </section>
+            <p>{draft.description || 'Add a design note to document this weapon’s intended role.'}</p>
+            <dl>
+              <div>
+                <dt>WeaponDef</dt>
+                <dd>{draft.sourceWeaponDefKey?.toUpperCase() || 'Unselected'}</dd>
+              </div>
+              <div>
+                <dt>Source unit</dt>
+                <dd>{draft.sourceUnitId || 'Unselected'}</dd>
+              </div>
+            </dl>
+          </header>
+
           <nav aria-label="Laboratory section summary">
+            <div>
+              <Type variant="eyebrow">Workbench</Type>
+              <span>Four stages</span>
+            </div>
             {LAB_TABS.map((item, index) => (
               <button
                 key={item.id}
                 type="button"
                 className={activeTab === item.id ? 'is-active' : ''}
                 onClick={() => setActiveTab(item.id)}
+                aria-current={activeTab === item.id ? 'page' : undefined}
               >
                 <span>0{index + 1}</span>
-                <strong>{item.label}</strong>
-                {item.id === 'library' && <small>{library.length}</small>}
-                {item.id === 'source' && <small>{sourceCatalog.length}</small>}
+                <span>
+                  <strong>{item.label}</strong>
+                  <small>{item.description}</small>
+                </span>
+                <span>
+                  {item.id === 'library'
+                    ? library.length
+                    : item.id === 'source'
+                      ? sourceCatalog.length.toLocaleString()
+                      : item.id === 'gameplay'
+                        ? 'Tune'
+                        : 'VFX'}
+                </span>
               </button>
             ))}
           </nav>
-          <div className="weapon-lab-brief__scope">
-            <Type variant="eyebrow">Runtime scope</Type>
-            <p>Gameplay overrides compile into cloned WeaponDefs. Generated CEG definitions require a full game or mod package.</p>
-          </div>
+
+          <footer>
+            <div className="weapon-lab-brief__status">
+              <Type variant="eyebrow">Compile route</Type>
+              <Badge size="sm">Local project</Badge>
+            </div>
+            <div>
+              <span>Gameplay profile</span>
+              <strong>Cloned WeaponDef</strong>
+              <small>Available after equipping the stored weapon.</small>
+            </div>
+            <div>
+              <span>Generated effects</span>
+              <strong>Game or mod package</strong>
+              <small>Custom CEG definitions require installed Lua assets.</small>
+            </div>
+          </footer>
         </aside>
 
         <div className="weapon-lab-workbench">

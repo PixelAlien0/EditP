@@ -58,7 +58,7 @@
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-columns: clamp(190px, 15vw, 244px) minmax(520px, 1fr) clamp(260px, 20vw, 330px);
+  grid-template-columns: clamp(232px, 17vw, 280px) minmax(520px, 1fr) clamp(260px, 20vw, 330px);
   background: var(--color-canvas);
 }
 
@@ -72,70 +72,172 @@
 }
 
 .weapon-lab-brief {
-  padding: var(--space-5);
+  padding: var(--space-5) var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-5);
   border-right: 1px solid var(--color-border);
   background: var(--color-surface);
 }
 
-.weapon-lab-brief > section {
+.weapon-lab-brief > header {
   display: grid;
   gap: var(--space-2);
 }
 
-.weapon-lab-brief > section > p {
+.weapon-lab-brief__status,
+.weapon-lab-brief nav > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.weapon-lab-brief > header > p,
+.weapon-lab-brief nav button small,
+.weapon-lab-brief > footer small {
   color: var(--color-text-muted);
-  font: 500 var(--font-size-xs)/var(--line-height-body) var(--font-ui);
+  font: 500 var(--font-size-xs)/1.4 var(--font-ui);
+}
+
+.weapon-lab-brief > header > dl {
+  margin-top: var(--space-2);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-surface-raised);
+}
+
+.weapon-lab-brief > header > dl > div {
+  min-width: 0;
+  padding: var(--space-3);
+  display: grid;
+  gap: 5px;
+}
+
+.weapon-lab-brief > header > dl > div + div {
+  border-left: 1px solid var(--color-border);
+}
+
+.weapon-lab-brief dt,
+.weapon-lab-brief > footer > div > span {
+  color: var(--color-text-muted);
+  font: 700 7px/1 var(--font-mono);
+  text-transform: uppercase;
+}
+
+.weapon-lab-brief dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 700 9px/1.2 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .weapon-lab-brief nav {
   display: grid;
-  border-top: 1px solid var(--color-border);
+  gap: 5px;
+}
+
+.weapon-lab-brief nav > div {
+  min-height: 24px;
 }
 
 .weapon-lab-brief nav button {
-  min-height: 48px;
-  padding: 0 var(--space-2);
+  min-height: 58px;
+  padding: var(--space-2);
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) auto;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-2);
-  border: 0;
-  border-bottom: 1px solid var(--color-border);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
 }
 
-.weapon-lab-brief nav button:hover,
-.weapon-lab-brief nav button.is-active {
+.weapon-lab-brief nav button:hover {
+  border-color: var(--color-border);
   background: var(--color-surface-hover);
   color: var(--color-text-strong);
 }
 
 .weapon-lab-brief nav button.is-active {
-  box-shadow: inset 2px 0 0 var(--color-accent);
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-text-strong);
 }
 
-.weapon-lab-brief nav span,
-.weapon-lab-brief nav small {
+.weapon-lab-brief nav button > span:first-child {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-raised);
   color: var(--color-text-muted);
-  font: 700 8px/1 var(--font-mono);
+  font: 700 7px/1 var(--font-mono);
 }
 
-.weapon-lab-brief nav strong {
+.weapon-lab-brief nav button.is-active > span:first-child {
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.weapon-lab-brief nav button > span:nth-child(2) {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.weapon-lab-brief nav button :is(strong, small) {
   overflow: hidden;
-  font: 700 var(--font-size-xs)/1.25 var(--font-ui);
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.weapon-lab-brief__scope {
-  margin-top: auto;
-  padding-top: var(--space-4);
+.weapon-lab-brief nav button strong {
+  font: 700 var(--font-size-xs)/1.2 var(--font-ui);
+}
+
+.weapon-lab-brief nav button > span:last-child {
+  color: var(--color-text-muted);
+  font: 700 7px/1 var(--font-mono);
+}
+
+.weapon-lab-brief nav button.is-active > span:last-child {
+  color: var(--color-accent-strong);
+}
+
+.weapon-lab-brief > footer {
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.weapon-lab-brief > footer > div:not(:first-child) {
+  display: grid;
+  gap: 4px;
+}
+
+.weapon-lab-brief > footer > div + div {
+  padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
+}
+
+.weapon-lab-brief > footer strong {
+  color: var(--color-text-strong);
+  font: 700 var(--font-size-xs)/1.25 var(--font-ui);
 }
 
 .weapon-lab-workbench {
@@ -521,7 +623,7 @@
 
 @media (max-width: 1439px) {
   .weapon-laboratory__layout {
-    grid-template-columns: 200px minmax(500px, 1fr) 270px;
+    grid-template-columns: 220px minmax(500px, 1fr) 270px;
   }
   .weapon-lab-identity-panel { grid-template-columns: 1fr; gap: var(--space-4); }
   .weapon-lab-palette-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -529,7 +631,7 @@
 
 @media (max-width: 1180px) {
   .weapon-laboratory__layout {
-    grid-template-columns: 190px minmax(0, 1fr);
+    grid-template-columns: 214px minmax(0, 1fr);
   }
   .weapon-lab-inspector {
     grid-column: 2;

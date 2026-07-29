@@ -49,8 +49,10 @@ export default memo(function VirtualizedUnitList({
 }) {
   const containerRef = useRef(null);
   const animationFrameRef = useRef(0);
+  const unitsLengthRef = useRef(units.length);
   const [viewportHeight, setViewportHeight] = useState(0);
   const [visiblePosition, setVisiblePosition] = useState({ start: 0, visibleEnd: 0 });
+  unitsLengthRef.current = units.length;
 
   const modifiedIds = useMemo(() => new Set(modifiedUnitIds), [modifiedUnitIds]);
   const disabledIds = useMemo(() => new Set(disabledUnitIds), [disabledUnitIds]);
@@ -90,7 +92,7 @@ export default memo(function VirtualizedUnitList({
     if (!container) return;
     container.scrollTop = 0;
     const rows = Math.max(1, Math.ceil((container.clientHeight || ROW_HEIGHT * FALLBACK_VIEWPORT_ROWS) / ROW_HEIGHT));
-    setVisiblePosition({ start: 0, visibleEnd: Math.min(units.length, rows) });
+    setVisiblePosition({ start: 0, visibleEnd: Math.min(unitsLengthRef.current, rows) });
   }, [resetKey]);
 
   useEffect(() => () => cancelAnimationFrame(animationFrameRef.current), []);
