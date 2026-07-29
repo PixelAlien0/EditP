@@ -528,7 +528,7 @@
   background: var(--color-surface);
 }
 
-.asset-picker-dialog__results button {
+.asset-picker-dialog__results > button {
   content-visibility: auto;
   contain-intrinsic-size: auto 54px;
   width: 100%;
@@ -545,15 +545,15 @@
   cursor: pointer;
 }
 
-.asset-picker-dialog--sound .asset-picker-dialog__results button {
+.asset-picker-dialog--sound .asset-picker-dialog__results > button {
   min-height: 58px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   padding-inline: var(--space-2);
 }
 
-.asset-picker-dialog--sound .asset-picker-dialog__results button:hover,
-.asset-picker-dialog--sound .asset-picker-dialog__results button.is-selected {
+.asset-picker-dialog--sound .asset-picker-dialog__results > button:hover,
+.asset-picker-dialog--sound .asset-picker-dialog__results > button.is-selected {
   box-shadow: inset 3px 0 0 var(--color-accent);
 }
 
@@ -569,22 +569,22 @@
   font: 700 9px/1 var(--font-mono) !important;
 }
 
-.asset-picker-dialog__results button:hover,
-.asset-picker-dialog__results button.is-selected {
+.asset-picker-dialog__results > button:hover,
+.asset-picker-dialog__results > button.is-selected {
   background: var(--color-surface-hover);
   color: var(--color-text-strong);
 }
 
-.asset-picker-dialog__results button span {
+.asset-picker-dialog__results > button span {
   color: var(--color-accent-strong);
   font-size: 10px;
 }
 
-.asset-picker-dialog__results button.has-preview {
+.asset-picker-dialog__results > button.has-preview {
   min-height: 54px;
 }
 
-.asset-picker-dialog--visual .asset-picker-dialog__results button.has-preview {
+.asset-picker-dialog--visual .asset-picker-dialog__results > button.has-preview {
   min-width: 0;
   min-height: 94px;
   display: grid;
@@ -598,12 +598,12 @@
   background: var(--color-surface-raised);
 }
 
-.asset-picker-dialog--visual .asset-picker-dialog__results button.has-preview:hover {
+.asset-picker-dialog--visual .asset-picker-dialog__results > button.has-preview:hover {
   border-color: var(--color-border-strong);
   background: var(--color-surface-hover);
 }
 
-.asset-picker-dialog--visual .asset-picker-dialog__results button.has-preview.is-selected {
+.asset-picker-dialog--visual .asset-picker-dialog__results > button.has-preview.is-selected {
   border-color: var(--color-accent-strong);
   background: var(--color-surface-accent-subtle);
 }
@@ -673,12 +673,12 @@
   text-transform: uppercase;
 }
 
-.asset-picker-dialog__results button .asset-picker-dialog__select-label {
+.asset-picker-dialog__results > button .asset-picker-dialog__select-label {
   flex: 0 0 auto;
   color: var(--color-accent-strong);
 }
 
-.asset-picker-dialog--visual .asset-picker-dialog__results button .asset-picker-dialog__select-label {
+.asset-picker-dialog--visual .asset-picker-dialog__results > button .asset-picker-dialog__select-label {
   grid-column: 2;
   justify-self: end;
   align-self: end;
