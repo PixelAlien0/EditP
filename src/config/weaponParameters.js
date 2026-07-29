@@ -113,7 +113,7 @@ const editorAdvancedGroups = [
     capabilities: ['bar-gadget'],
     description: 'BAR gadget-backed horizontal sector-fire spread (used by Tremor). Rotates horizontal X/Z projectile velocity while preserving vertical trajectory to form a ground sector.',
     params: [
-      { key: 'speceffect', label: 'Special Effect Mode (speceffect)', type: 'string' },
+      { key: 'speceffect', label: 'Special Effect Mode (speceffect)', type: 'text', valueType: 'string', options: ['sector_fire', 'area_damage', 'cluster_fire', 'spawner'] },
       { key: 'spread_angle', label: 'Horizontal Spread Angle (°)', type: 'number' },
       { key: 'max_range_reduction', label: 'Range Depth Variation (0-1)', type: 'number' },
     ],
