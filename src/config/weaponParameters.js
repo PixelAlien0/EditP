@@ -109,6 +109,16 @@ export const WEAPON_CORE_PARAMETERS = Object.freeze(coreParameters.map((paramete
 const editorAdvancedGroups = [
   ...SPAWNER_CARRIER_WEAPON_GROUPS,
   {
+    title: 'Sector fire (horizontal spread)',
+    capabilities: ['bar-gadget'],
+    description: 'BAR gadget-backed horizontal sector-fire spread (used by Tremor). Rotates horizontal X/Z projectile velocity while preserving vertical trajectory to form a ground sector.',
+    params: [
+      { key: 'speceffect', label: 'Special Effect Mode (speceffect)', type: 'string' },
+      { key: 'spread_angle', label: 'Horizontal Spread Angle (°)', type: 'number' },
+      { key: 'max_range_reduction', label: 'Range Depth Variation (0-1)', type: 'number' },
+    ],
+  },
+  {
     title: 'Cluster / MIRV behavior',
     capabilities: ['bar-gadget', 'supporting-definition'],
     description: 'Release a supporting WeaponDef as submunitions. The referenced definition must exist when BAR loads.',

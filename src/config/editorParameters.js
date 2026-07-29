@@ -411,6 +411,7 @@ export const WEAPON_SLOT_STRING_PARAMS = new Set([
   'carried_unit', 'dronetype', 'carrierdeaththroe', 'dockingpieces',
   'maxunits', 'startingdronecount', 'spawn_metal_cost', 'spawn_energy_cost',
   'droneairtime', 'dronedocktime', 'droneammo',
+  'speceffect', 'spread_angle', 'max_range_reduction',
 ]);
 
 export const WEAPON_SLOT_MOUNT_PARAMS = new Set([
@@ -473,6 +474,8 @@ export const WEAPON_SLOT_PATHS = Object.freeze({
   droneammo: 'customparams.droneammo',
   spawn_metal_cost: 'customparams.metalcost', spawn_energy_cost: 'customparams.energycost',
   cluster_def: 'customparams.cluster_def', cluster_number: 'customparams.cluster_number',
+  speceffect: 'customparams.speceffect', spread_angle: 'customparams.spread_angle',
+  max_range_reduction: 'customparams.max_range_reduction',
 });
 
 export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([

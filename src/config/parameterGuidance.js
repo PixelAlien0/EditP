@@ -31,6 +31,7 @@ const PARAMETER_RELATIONSHIPS = [
   { section: 'weapons', title: 'Carrier deployment', description: 'Carrier payload, timing, capacity, costs, control range, direct control, and death behavior form one gadget-backed system.', keys: ['carried_unit', 'dronetype', 'spawnrate', 'maxunits', 'startingdronecount', 'spawn_metal_cost', 'spawn_energy_cost', 'controlradius', 'engagementrange', 'manualdrones', 'carrierdeaththroe'] },
   { section: 'weapons', title: 'Carrier docking and endurance', description: 'Docking, healing, formation, decay, flight time, and ammunition determine the deployed squadron lifecycle.', keys: ['enabledocking', 'dockingpieces', 'dockingradius', 'dockinghelperspeed', 'dockingarmor', 'dockinghealrate', 'docktohealthreshold', 'attackformationspread', 'attackformationoffset', 'decayrate', 'deathdecayrate', 'holdfireradius', 'droneminimumidleradius', 'droneairtime', 'dronedocktime', 'droneammo'] },
   { section: 'weapons', title: 'Cluster behavior', description: 'Cluster submunitions depend on a valid supporting WeaponDef and a practical projectile count.', keys: ['cluster_def', 'cluster_number'] },
+  { section: 'weapons', title: 'Sector fire (horizontal spread)', description: 'BAR gadget-backed horizontal sector-fire spread (used by Tremor). Rotates horizontal X/Z projectile velocity while preserving vertical trajectory to form a ground sector.', keys: ['speceffect', 'spread_angle', 'max_range_reduction'] },
   { section: 'weapons', title: 'Projectile interception', description: 'Targetable and interceptor bitmasks must share a channel; coverage controls the acquisition radius and exclusive interception prevents duplicate commitments.', keys: ['targetable', 'interceptor', 'coverage', 'interceptsolo', 'commandfire'] }
 ];
 
@@ -89,6 +90,9 @@ const PARAMETER_HELP = {
   holdfireradius: 'Wander radius used while the carrier is set to hold fire.', droneminimumidleradius: 'Minimum idle radius used when docking is unavailable.',
   droneairtime: 'Maximum seconds a deployed unit stays undocked before returning.', dronedocktime: 'Minimum seconds a unit remains docked.', droneammo: 'Ammunition assigned to each deployed unit.',
   cluster_def: 'WeaponDef key released as cluster submunitions.', cluster_number: 'Number of submunitions released by the cluster projectile.',
+  'customparams.speceffect': 'BAR gadget-backed special effect mode. Set to "sector_fire" to enable Tremor-style horizontal sector spread.',
+  'customparams.spread_angle': 'Total horizontal left/right spread angle in degrees across the ground sector.',
+  'customparams.max_range_reduction': 'Fraction (0.00 to 1.00) controlling depth variation toward the shooter within the sector.',
   paralyzer: 'Turns damage into paralysis rather than hit-point loss.', paralyzetime: 'Maximum paralysis duration.', mygravity: 'Overrides map gravity for ballistic weapons.', heightboostfactor: 'Terrain-height effect on cannon range.',
   startvelocity: 'Projectile speed immediately after launch.', weaponacceleration: 'Speed gained per second until maximum velocity.', tracks: 'Enables homing guidance.', turnrate: 'How quickly a guided projectile can turn.',
   trajectoryheight: 'Guided missile arc height.', wobble: 'Random direction variation during flight.', dance: 'Random positional variation during flight.', fixedlauncher: 'Uses the firing piece orientation at launch.',
