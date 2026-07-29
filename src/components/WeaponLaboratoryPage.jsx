@@ -14,6 +14,7 @@ import {
 } from './ui.jsx';
 import AssetPicker from './editor/AssetPicker.jsx';
 import {
+  createWeaponBlueprintDraft,
   getWeaponBlueprintMetrics,
   normalizeWeaponBlueprint,
   validateWeaponBlueprint,
@@ -21,9 +22,10 @@ import {
 import '../styles/features/weapon-laboratory.css';
 
 const LAB_TABS = [
+  { id: 'source', label: 'Source catalog', panelId: 'weapon-lab-panel-source' },
   { id: 'gameplay', label: 'Gameplay profile', panelId: 'weapon-lab-panel-gameplay' },
   { id: 'effects', label: 'Effects & assets', panelId: 'weapon-lab-panel-effects' },
-  { id: 'library', label: 'Blueprint library', panelId: 'weapon-lab-panel-library' },
+  { id: 'library', label: 'Custom storage', panelId: 'weapon-lab-panel-library' },
 ];
 
 const GAMEPLAY_GROUPS = [
@@ -159,12 +161,91 @@ function LabGroup({ title, description, engine, enabled = true, toggle, fields, 
   );
 }
 
-function LibraryPanel({ library, currentId, canEquip, onLoad, onEquip, onDelete }) {
+function SourceCatalogPanel({ sources, currentSourceId, onClone }) {
+  const [query, setQuery] = useState('');
+  const [limit, setLimit] = useState(48);
+  const filtered = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return sources;
+    return sources.filter(source => [
+      source.sourceWeaponDefKey,
+      source.sourceUnitName,
+      source.sourceUnitId,
+    ].some(value => String(value || '').toLowerCase().includes(normalizedQuery)));
+  }, [query, sources]);
+  const visibleSources = filtered.slice(0, limit);
+
+  return (
+    <div className="weapon-lab-source-catalog">
+      <header>
+        <div>
+          <Type variant="eyebrow">BAR WeaponDefs</Type>
+          <Type as="h2" variant="section-title">Choose a weapon to clone</Type>
+          <Type as="p" variant="description">The source remains untouched. Cloning creates an isolated draft that is only compiled after you save it and equip it to a clone.</Type>
+        </div>
+        <Badge>{filtered.length} sources</Badge>
+      </header>
+      <label className="weapon-lab-source-search">
+        <span>Search weapon, unit, or definition ID</span>
+        <input
+          type="search"
+          className="ui-control"
+          placeholder="e.g. heat ray, Tremor, arm"
+          value={query}
+          onChange={event => {
+            setQuery(event.target.value);
+            setLimit(48);
+          }}
+        />
+      </label>
+      <div className="weapon-lab-source-grid">
+        {visibleSources.map(source => {
+          const sourceDraft = createWeaponBlueprintDraft({
+            sourceUnitId: source.sourceUnitId,
+            slot: source.slot,
+          });
+          const metrics = getWeaponBlueprintMetrics(sourceDraft);
+          const isCurrent = currentSourceId === source.id;
+          return (
+            <article key={source.id} className={`weapon-lab-source-card ${isCurrent ? 'is-current' : ''}`}>
+              <header>
+                <div>
+                  <strong>{source.sourceWeaponDefKey.toUpperCase()}</strong>
+                  <span>{source.sourceUnitName}</span>
+                  <code>{source.sourceUnitId}</code>
+                </div>
+                {isCurrent && <Badge tone="accent" size="sm">Draft source</Badge>}
+              </header>
+              <dl>
+                <div><dt>DPS</dt><dd>{metrics.dps.toFixed(1)}</dd></div>
+                <div><dt>Range</dt><dd>{metrics.range.toLocaleString()}</dd></div>
+                <div><dt>Reload</dt><dd>{Number(sourceDraft.overrides.reload || 0).toFixed(2)}s</dd></div>
+              </dl>
+              <Button size="sm" variant={isCurrent ? 'secondary' : 'primary'} onClick={() => onClone(source)}>
+                {isCurrent ? 'Clone fresh copy' : 'Clone to workspace'}
+              </Button>
+            </article>
+          );
+        })}
+      </div>
+      {!visibleSources.length && (
+        <EmptyState title="No source weapons found" description="Try a broader unit name or WeaponDef ID." />
+      )}
+      {visibleSources.length < filtered.length && (
+        <Button className="weapon-lab-source-more" onClick={() => setLimit(previous => previous + 48)}>
+          Show 48 more · {filtered.length - visibleSources.length} remaining
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function LibraryPanel({ library, currentId, onLoad, onDelete }) {
   if (!library.length) {
     return (
       <EmptyState
-        title="No saved blueprints"
-        description="Save the current profile to create a reusable weapon design. Blueprints remain inside the project file."
+        title="Custom weapon storage is empty"
+        description="Clone a BAR weapon, customize the isolated draft, then save it here. Stored weapons do not affect any unit until equipped."
       />
     );
   }
@@ -195,8 +276,7 @@ function LibraryPanel({ library, currentId, canEquip, onLoad, onEquip, onDelete 
               <div><dt>Delivery</dt><dd>{metrics.delivery}</dd></div>
             </dl>
             <footer>
-              <Button size="sm" onClick={() => onLoad(blueprint)}>Open</Button>
-              <Button size="sm" variant="primary" disabled={!canEquip} onClick={() => onEquip(blueprint)}>Equip</Button>
+              <Button size="sm" variant="primary" onClick={() => onLoad(blueprint)}>Edit stored copy</Button>
               <Button size="sm" variant="danger" onClick={() => onDelete(blueprint.id)}>Delete</Button>
             </footer>
           </article>
@@ -209,17 +289,15 @@ function LibraryPanel({ library, currentId, canEquip, onLoad, onEquip, onDelete 
 export default function WeaponLaboratoryPage({
   draft,
   library,
-  selectedUnit,
-  activeSlotNumber,
+  sourceCatalog,
   onDraftChange,
-  onNewVariant,
+  onCloneSource,
   onSave,
-  onEquip,
   onDelete,
   onExportVfx,
   onClose,
 }) {
-  const [activeTab, setActiveTab] = useState('gameplay');
+  const [activeTab, setActiveTab] = useState('source');
   const normalizedDraft = useMemo(
     () => normalizeWeaponBlueprint(draft, { createId: false }),
     [draft]
@@ -227,7 +305,6 @@ export default function WeaponLaboratoryPage({
   const issues = useMemo(() => validateWeaponBlueprint(draft), [draft]);
   const metrics = useMemo(() => getWeaponBlueprintMetrics(draft), [draft]);
   const isSaved = Boolean(draft?.id && library.some(item => item.id === draft.id));
-  const canEquip = Boolean(selectedUnit?.isClone);
   const updateDraft = patch => onDraftChange(previous => ({ ...previous, ...patch }));
   const updateOverride = (key, value) => onDraftChange(previous => ({
     ...previous,
@@ -245,16 +322,16 @@ export default function WeaponLaboratoryPage({
       className="weapon-laboratory"
       eyebrow="Armament engineering"
       title="Weapon Laboratory"
-      description="Build a reusable weapon profile from the selected slot, validate its output, and equip it on a custom unit."
+      description="Clone a BAR weapon into an isolated design workspace, customize it, and preserve it in project storage for later loadout use."
       capabilityIds={['development', 'generated']}
       metrics={[
-        { label: 'Blueprints', value: library.length },
-        { label: 'Target slot', value: activeSlotNumber || '—' },
+        { label: 'Stored weapons', value: library.length },
+        { label: 'BAR sources', value: sourceCatalog.length },
       ]}
       status={<StatusBadge status={issues.length ? 'warning' : isSaved ? 'success' : 'info'}>{issues.length ? `${issues.length} to review` : isSaved ? 'Saved' : 'Draft'}</StatusBadge>}
       actions={(
         <>
-          <Button onClick={onNewVariant}>New from slot</Button>
+          <Button onClick={() => setActiveTab('source')}>Choose source</Button>
           <Button onClick={onClose}>Back to editor</Button>
         </>
       )}
@@ -266,7 +343,11 @@ export default function WeaponLaboratoryPage({
             <code>{draft.sourceUnitId}</code>
           </div>
           <Tabs
-            items={LAB_TABS.map(item => item.id === 'library' ? { ...item, count: library.length } : item)}
+            items={LAB_TABS.map(item => item.id === 'library'
+              ? { ...item, count: library.length }
+              : item.id === 'source'
+                ? { ...item, count: sourceCatalog.length }
+                : item)}
             value={activeTab}
             onChange={setActiveTab}
             label="Weapon Laboratory sections"
@@ -293,6 +374,7 @@ export default function WeaponLaboratoryPage({
                 <span>0{index + 1}</span>
                 <strong>{item.label}</strong>
                 {item.id === 'library' && <small>{library.length}</small>}
+                {item.id === 'source' && <small>{sourceCatalog.length}</small>}
               </button>
             ))}
           </nav>
@@ -303,6 +385,19 @@ export default function WeaponLaboratoryPage({
         </aside>
 
         <div className="weapon-lab-workbench">
+          {activeTab === 'source' && (
+            <div id="weapon-lab-panel-source" role="tabpanel" className="weapon-lab-tab-panel">
+              <SourceCatalogPanel
+                sources={sourceCatalog}
+                currentSourceId={`${draft.sourceUnitId}:${draft.sourceWeaponDefKey}`}
+                onClone={source => {
+                  onCloneSource(source);
+                  setActiveTab('gameplay');
+                }}
+              />
+            </div>
+          )}
+
           {activeTab === 'gameplay' && (
             <div id="weapon-lab-panel-gameplay" role="tabpanel" className="weapon-lab-tab-panel">
               <section className="weapon-lab-identity-panel">
@@ -406,17 +501,18 @@ export default function WeaponLaboratoryPage({
               <header className="weapon-lab-library-header">
                 <div>
                   <Type variant="eyebrow">Project library</Type>
-                  <Type as="h2" variant="section-title">Reusable weapon blueprints</Type>
-                  <Type as="p" variant="description">Open a design for editing or equip it on the selected clone’s active weapon slot.</Type>
+                  <Type as="h2" variant="section-title">Custom weapon storage</Type>
+                  <Type as="p" variant="description">Stored designs remain project assets until you equip one from the Custom Weapons tab in Borrow a Weapon.</Type>
                 </div>
                 <Badge>{library.length} saved</Badge>
               </header>
               <LibraryPanel
                 library={library}
                 currentId={draft.id}
-                canEquip={canEquip}
-                onLoad={blueprint => onDraftChange(normalizeWeaponBlueprint(blueprint, { createId: false }))}
-                onEquip={onEquip}
+                onLoad={blueprint => {
+                  onDraftChange(normalizeWeaponBlueprint(blueprint, { createId: false }));
+                  setActiveTab('gameplay');
+                }}
                 onDelete={onDelete}
               />
             </div>
@@ -451,15 +547,11 @@ export default function WeaponLaboratoryPage({
               <p className="is-ready">Blueprint values are structurally valid.</p>
             )}
             <p>The browser does not simulate Recoil rendering. Validate custom CEGs in game before distributing them.</p>
-            {!canEquip && <p className="is-advisory">Select or create a cloned unit to equip this blueprint. Vanilla units can still be used as sources.</p>}
+            <p className="is-advisory">Saving only writes to custom weapon storage. It does not change the source weapon or any unit loadout.</p>
           </section>
 
           <div className="weapon-lab-action-stack">
-            <Button variant="primary" fullWidth disabled={issues.length > 0} onClick={() => onSave(draft)}>Save blueprint</Button>
-            <Button fullWidth disabled={issues.length > 0 || !canEquip} onClick={() => {
-              const saved = onSave(draft);
-              if (saved) onEquip(saved);
-            }}>Save & equip on slot {activeSlotNumber}</Button>
+            <Button variant="primary" fullWidth disabled={issues.length > 0} onClick={() => onSave(draft)}>Save to custom storage</Button>
             <Button fullWidth disabled={!effectEnabled || issues.length > 0} onClick={() => onExportVfx(draft)}>Save & download effect Lua</Button>
           </div>
         </aside>

@@ -559,3 +559,131 @@
     transition: none;
   }
 }
+
+.weapon-lab-source-catalog {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.weapon-lab-source-catalog > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.weapon-lab-source-catalog > header > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.weapon-lab-source-search {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.weapon-lab-source-search > span {
+  color: var(--color-text-muted);
+  font: 700 var(--font-size-xs)/1.2 var(--font-ui);
+  letter-spacing: .04em;
+}
+
+.weapon-lab-source-search .ui-control {
+  width: 100%;
+}
+
+.weapon-lab-source-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.weapon-lab-source-card {
+  min-width: 0;
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.weapon-lab-source-card.is-current {
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface-accent-subtle);
+}
+
+.weapon-lab-source-card > header {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.weapon-lab-source-card > header > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.weapon-lab-source-card strong,
+.weapon-lab-source-card span,
+.weapon-lab-source-card code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-lab-source-card strong {
+  color: var(--color-text-strong);
+  font: 700 var(--font-size-sm)/1.2 var(--font-mono);
+}
+
+.weapon-lab-source-card span {
+  color: var(--color-text);
+  font: 650 var(--font-size-sm)/1.2 var(--font-ui);
+}
+
+.weapon-lab-source-card code {
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-xs)/1.2 var(--font-mono);
+}
+
+.weapon-lab-source-card dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.weapon-lab-source-card dl > div {
+  min-width: 0;
+  padding-top: var(--space-2);
+  display: grid;
+  gap: 3px;
+  border-top: 1px solid var(--color-border);
+}
+
+.weapon-lab-source-card dt {
+  color: var(--color-text-muted);
+  font: 700 8px/1 var(--font-ui);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.weapon-lab-source-card dd {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 700 var(--font-size-xs)/1.2 var(--font-mono);
+  text-overflow: ellipsis;
+}
+
+.weapon-lab-source-card > .ui-button {
+  justify-self: stretch;
+}
+
+.weapon-lab-source-more {
+  justify-self: center;
+}

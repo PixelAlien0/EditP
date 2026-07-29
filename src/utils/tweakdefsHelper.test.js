@@ -100,6 +100,36 @@ describe('nested clone generation', () => {
     expect(profile).toContain('fusionexplosionselfd');
   });
 
+  it('keeps stored custom weapons out of output until a clone equips one', () => {
+    const library = [{
+      id: 'weapon_rose',
+      name: 'Rose Cannon',
+      sourceUnitId: 'armflash',
+      sourceWeaponDefKey: 'plasma',
+      overrides: { damage: 240, reload: 2 },
+    }];
+    const unequipped = generateClonesBlockLua([
+      { baseId: 'armflash', newId: 'plain_clone', displayName: 'Plain', builderIds: [] },
+    ], library);
+    expect(unequipped).not.toContain('editp_weapon_rose');
+
+    const equipped = generateClonesBlockLua([{
+      baseId: 'armflash',
+      newId: 'armed_clone',
+      displayName: 'Armed',
+      builderIds: [],
+      weaponSwaps: {
+        1: {
+          sourceUnitId: 'armflash',
+          sourceWeaponDefKey: 'plasma',
+          libraryWeaponId: 'weapon_rose',
+        },
+      },
+    }], library);
+    expect(equipped).toContain('editp_weapon_rose');
+    expect(equipped).toContain('w.damage.default = 240');
+  });
+
   it('compiles supporting WeaponDefs into their owner after clone creation', () => {
     const supportingWeaponDefs = [{
       id: 'support_cluster', ownerUnitId: 'armflash_clone', key: 'cluster_child', enabled: true,

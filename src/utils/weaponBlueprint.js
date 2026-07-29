@@ -88,6 +88,35 @@ export function createWeaponBlueprintDraft({ sourceUnitId, slot, name } = {}) {
   };
 }
 
+export function createWeaponSourceCatalog(units = [], defaultsDb = {}) {
+  const seen = new Set();
+  return units
+    .filter(unit => unit?.id && !unit.isClone)
+    .flatMap(unit => {
+      const weaponSlots = defaultsDb?.[String(unit.id).toLowerCase()]?.weaponSlots;
+      if (!Array.isArray(weaponSlots)) return [];
+      return weaponSlots.flatMap(slot => {
+        const sourceWeaponDefKey = cleanId(slot?.defKey);
+        const sourceUnitId = cleanId(unit.id);
+        const identity = `${sourceUnitId}:${sourceWeaponDefKey}`;
+        if (!sourceWeaponDefKey || seen.has(identity)) return [];
+        seen.add(identity);
+        return [{
+          id: identity,
+          sourceUnitId,
+          sourceUnitName: String(unit.name || unit.id),
+          sourceWeaponDefKey,
+          slot: { ...slot },
+        }];
+      });
+    })
+    .sort((left, right) => (
+      left.sourceWeaponDefKey.localeCompare(right.sourceWeaponDefKey)
+      || left.sourceUnitName.localeCompare(right.sourceUnitName)
+      || left.sourceUnitId.localeCompare(right.sourceUnitId)
+    ));
+}
+
 export function normalizeWeaponBlueprint(draft, { createId = true } = {}) {
   if (!draft || typeof draft !== 'object') return null;
   const sourceWeaponDefKey = cleanId(draft.sourceWeaponDefKey);

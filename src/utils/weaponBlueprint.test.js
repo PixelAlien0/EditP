@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   createWeaponBlueprintDraft,
+  createWeaponSourceCatalog,
   generateWeaponVfxPackLua,
   getWeaponBlueprintMetrics,
   normalizeWeaponBlueprint,
@@ -15,6 +16,24 @@ describe('weapon blueprints', () => {
     });
     expect(draft.sourceWeaponDefKey).toBe('plasma');
     expect(draft.overrides).toMatchObject({ damage: 100, reload: 2, range: 500, cegtag: 'laser' });
+  });
+
+  it('builds a deterministic source catalog without duplicate mounts', () => {
+    const catalog = createWeaponSourceCatalog([
+      { id: 'armflash', name: 'Flash' },
+      { id: 'armflash_clone', name: 'Flash Clone', isClone: true },
+      { id: 'corak', name: 'Grunt' },
+    ], {
+      armflash: {
+        weaponSlots: [
+          { slot: 1, defKey: 'plasma', damage: 100 },
+          { slot: 2, defKey: 'plasma', damage: 100 },
+        ],
+      },
+      corak: { weaponSlots: [{ slot: 1, defKey: 'laser', damage: 40 }] },
+    });
+    expect(catalog.map(item => item.id)).toEqual(['corak:laser', 'armflash:plasma']);
+    expect(catalog[1].slot.damage).toBe(100);
   });
 
   it('uses BAR EditP names for generated CEG bindings', () => {

@@ -667,3 +667,294 @@
 @media (prefers-reduced-motion: reduce) {
   .weapon-swap-overlay * { transition: none !important; }
 }
+
+.weapon-swap-mode-tabs {
+  min-height: 42px;
+  padding: 5px var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.weapon-swap-mode-tabs button {
+  min-height: 30px;
+  padding: 0 var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: 700 var(--font-size-xs)/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.weapon-swap-mode-tabs button:hover {
+  border-color: var(--color-border);
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
+}
+
+.weapon-swap-mode-tabs button.is-active {
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.weapon-swap-mode-tabs button span {
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  font: 700 8px/1 var(--font-mono);
+  opacity: .8;
+}
+
+.weapon-swap-custom-library .weapon-swap-library-heading small {
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-xs)/1.3 var(--font-ui);
+}
+
+.weapon-swap-custom-list {
+  min-height: 0;
+  padding: var(--space-1);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
+}
+
+.weapon-swap-custom-item {
+  width: 100%;
+  min-height: 58px;
+  padding: var(--space-2);
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.weapon-swap-custom-item:hover {
+  border-color: var(--color-border);
+  background: var(--color-surface-hover);
+}
+
+.weapon-swap-custom-item.is-selected {
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-accent-soft);
+}
+
+.weapon-swap-custom-swatch {
+  width: 10px;
+  height: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--custom-weapon-color);
+}
+
+.weapon-swap-custom-item > span:nth-child(2) {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.weapon-swap-custom-item strong,
+.weapon-swap-custom-item code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-swap-custom-item strong {
+  color: var(--color-text-strong);
+  font: 650 var(--font-size-sm)/1.2 var(--font-ui);
+}
+
+.weapon-swap-custom-item code,
+.weapon-swap-custom-item small {
+  color: var(--color-text-muted);
+  font: 600 9px/1.2 var(--font-mono);
+}
+
+.weapon-swap-custom-list__empty {
+  min-height: 160px;
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.weapon-swap-custom-list__empty strong {
+  color: var(--color-text-strong);
+  font: 560 var(--font-size-md)/1.2 var(--font-display);
+}
+
+.weapon-swap-custom-stage {
+  overflow-y: auto;
+}
+
+.weapon-swap-custom-detail {
+  min-height: 100%;
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.weapon-swap-custom-detail > header {
+  padding: var(--space-4);
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.weapon-swap-custom-detail__swatch {
+  width: 18px;
+  height: 54px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--custom-weapon-color);
+}
+
+.weapon-swap-custom-detail > header > div:nth-child(2) {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.weapon-swap-custom-detail > header h4,
+.weapon-swap-custom-detail > header code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-swap-custom-detail > header code {
+  color: var(--color-text-muted);
+  font: 600 var(--font-size-xs)/1.2 var(--font-mono);
+}
+
+.weapon-swap-custom-detail > p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-sm)/var(--line-height-body) var(--font-ui);
+}
+
+.weapon-swap-custom-detail > dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.weapon-swap-custom-detail > dl > div {
+  min-width: 0;
+  padding: var(--space-3);
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.weapon-swap-custom-detail dt,
+.weapon-swap-custom-detail section > div span {
+  color: var(--color-text-muted);
+  font: 700 8px/1.2 var(--font-ui);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.weapon-swap-custom-detail dd {
+  margin: 0;
+  color: var(--color-text-strong);
+  font: 700 var(--font-size-lg)/1.1 var(--font-mono);
+}
+
+.weapon-swap-custom-detail dl small {
+  color: var(--color-text-muted);
+  font: 500 9px/1.2 var(--font-ui);
+}
+
+.weapon-swap-custom-detail > section {
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+}
+
+.weapon-swap-custom-detail section > div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.weapon-swap-custom-detail section code,
+.weapon-swap-custom-detail section strong {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 650 var(--font-size-xs)/1.3 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-swap-custom-detail > footer {
+  padding-top: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.weapon-swap-custom-detail > footer p {
+  max-width: 54ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-xs)/var(--line-height-body) var(--font-ui);
+}
+
+.weapon-swap-mode-tabs button:focus-visible,
+.weapon-swap-custom-item:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .weapon-swap-custom-detail > dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weapon-swap-custom-detail > footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

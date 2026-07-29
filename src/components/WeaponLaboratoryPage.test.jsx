@@ -21,12 +21,23 @@ function renderLaboratory(overrides = {}) {
   const props = {
     draft,
     library: [],
-    selectedUnit: { id: 'armflash_clone', isClone: true },
-    activeSlotNumber: 1,
+    sourceCatalog: [{
+      id: 'armflash:plasma',
+      sourceUnitId: 'armflash',
+      sourceUnitName: 'Flash',
+      sourceWeaponDefKey: 'plasma',
+      slot: {
+        defKey: 'plasma',
+        damage: 100,
+        reload: 2,
+        range: 500,
+        projectiles: 1,
+        burst: 1,
+      },
+    }],
     onDraftChange: vi.fn(),
-    onNewVariant: vi.fn(),
+    onCloneSource: vi.fn(),
     onSave: vi.fn(() => ({ ...draft, id: 'saved' })),
-    onEquip: vi.fn(),
     onDelete: vi.fn(),
     onExportVfx: vi.fn(),
     onClose: vi.fn(),
@@ -36,23 +47,35 @@ function renderLaboratory(overrides = {}) {
 }
 
 describe('WeaponLaboratoryPage', () => {
-  it('shows output analysis and separates gameplay, effects, and library workflows', async () => {
+  it('starts with source selection and separates authoring, effects, and storage workflows', async () => {
     const user = userEvent.setup();
-    renderLaboratory();
-    expect(screen.getByText('50.0')).toBeInTheDocument();
+    const { props } = renderLaboratory();
+    expect(screen.getAllByText('50.0').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: 'Choose a weapon to clone' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Clone fresh copy' }));
+    expect(props.onCloneSource).toHaveBeenCalledWith(expect.objectContaining({
+      sourceUnitId: 'armflash',
+      sourceWeaponDefKey: 'plasma',
+    }));
     expect(screen.getByRole('heading', { name: 'Define the reusable profile' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: 'Effects & assets' }));
     expect(screen.getByText('Native weapon references')).toBeInTheDocument();
     expect(screen.getByText(/does not simulate Recoil rendering/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('tab', { name: /Blueprint library/ }));
-    expect(screen.getByText('No saved blueprints')).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: /Custom storage/ }));
+    expect(screen.getByText('Custom weapon storage is empty')).toBeInTheDocument();
   });
 
-  it('does not allow a vanilla unit to equip a blueprint', () => {
-    renderLaboratory({ selectedUnit: { id: 'armflash', isClone: false } });
-    expect(screen.getByRole('button', { name: /Save & equip/ })).toBeDisabled();
-    expect(screen.getByText(/Select or create a cloned unit/i)).toBeInTheDocument();
+  it('saves to storage without exposing an immediate equip action', async () => {
+    const user = userEvent.setup();
+    const { props } = renderLaboratory();
+    await user.click(screen.getByRole('button', { name: 'Clone fresh copy' }));
+    const saveButton = screen.getByRole('button', { name: 'Save to custom storage' });
+    expect(saveButton).toBeEnabled();
+    expect(screen.queryByRole('button', { name: /Save & equip/ })).not.toBeInTheDocument();
+    await user.click(saveButton);
+    expect(props.onSave).toHaveBeenCalled();
   });
 });

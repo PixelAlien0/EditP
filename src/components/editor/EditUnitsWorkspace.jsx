@@ -956,14 +956,14 @@ export default function EditUnitsWorkspace({ context }) {
                                   <div className="weapon-substitution-title">
                                     <strong>Weapon substitution</strong>
                                     <span className="weapon-substitution-status" aria-live="polite">
-                                      {swap ? 'Borrowed' : 'Original'}
+                                      {swap?.libraryWeaponId ? 'Custom' : swap ? 'Borrowed' : 'Original'}
                                     </span>
                                   </div>
                                   {swap ? (
                                     <div className="weapon-substitution-route">
                                       <code>{(originalSlot?.defKey || slot.defKey).toUpperCase()}</code>
                                       <span aria-hidden="true">→</span>
-                                      <code>{swap.sourceWeaponDefKey.toUpperCase()}</code>
+                                      <code>{swap.libraryWeaponId ? `CUSTOM:${swap.libraryWeaponId}` : swap.sourceWeaponDefKey.toUpperCase()}</code>
                                     </div>
                                   ) : (
                                     <small>Borrow a compatible weapon while preserving this slot’s editable overrides.</small>

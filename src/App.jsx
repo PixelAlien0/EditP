@@ -18,6 +18,7 @@ import AppHeader from './components/AppHeader.jsx';
 import MainMenu from './components/MainMenu.jsx';
 import AppDialogs from './components/AppDialogs.jsx';
 import CloneCreatorDialog from './components/CloneCreatorDialog.jsx';
+import CustomWeaponBorrowPanel from './components/CustomWeaponBorrowPanel.jsx';
 import UnitArtwork from './components/UnitArtwork.jsx';
 import { getBuildPicturePreviewUrl, getUnitIconUrl } from './utils/unitArtwork.js';
 import { useFactoryRosterController } from './controllers/useFactoryRosterController.js';
@@ -39,6 +40,7 @@ import {
 } from './project/unitCollections.js';
 import {
   createWeaponBlueprintDraft,
+  createWeaponSourceCatalog,
   generateWeaponVfxPackLua,
   normalizeWeaponBlueprint,
 } from './utils/weaponBlueprint.js';
@@ -233,6 +235,8 @@ export default function App() {
   const [swapSearchQuery, setSwapSearchQuery] = useState('');
   const workspaceLayout = useWorkspaceLayout();
   const [selectedSwapUnitId, setSelectedSwapUnitId] = useState(null);
+  const [selectedSwapBlueprintId, setSelectedSwapBlueprintId] = useState(null);
+  const [swapLibraryMode, setSwapLibraryMode] = useState('bar');
   const [activeSwapSlotNum, setActiveSwapSlotNum] = useState(1);
   const [activeWeaponSlotTab, setActiveWeaponSlotTab] = useState(1);
   const [swapWeaponTypeFilter, setSwapWeaponTypeFilter] = useState('all');
@@ -852,6 +856,11 @@ export default function App() {
     return defaults;
   }, [selectedUnit, clones, weaponLibrary, defaultsDb, getInheritedCloneWeaponSwaps, resolveCloneRootId]);
 
+  const weaponSourceCatalog = useMemo(
+    () => createWeaponSourceCatalog(allUnitsList, defaultsDb),
+    [allUnitsList, defaultsDb]
+  );
+
   const openWeaponLab = () => {
     if (!WEAPON_LAB_ENABLED) {
       showToast('Weapon Laboratory is temporarily unavailable.');
@@ -859,12 +868,18 @@ export default function App() {
     }
     const activeSlot = selectedUnitDefaults?.weaponSlots?.find(slot => slot.slot === activeWeaponSlotTab)
       || selectedUnitDefaults?.weaponSlots?.[0];
-    if (!selectedUnit || !activeSlot) {
-      showToast('Select a unit with an active weapon slot first.');
+    const fallbackSource = weaponSourceCatalog[0];
+    if (!activeSlot && !fallbackSource) {
+      showToast('No BAR weapon sources are available in the current data snapshot.');
       return;
     }
-    const sourceUnitId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
-    setWeaponBlueprintDraft(createWeaponBlueprintDraft({ sourceUnitId, slot: activeSlot }));
+    const sourceUnitId = activeSlot && selectedUnit
+      ? selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id
+      : fallbackSource.sourceUnitId;
+    setWeaponBlueprintDraft(createWeaponBlueprintDraft({
+      sourceUnitId,
+      slot: activeSlot || fallbackSource.slot,
+    }));
     setShowWeaponLab(true);
     setActiveWorkspace('weapon-lab');
   };
@@ -880,12 +895,21 @@ export default function App() {
     return blueprint;
   };
 
-  const equipWeaponBlueprint = (blueprint) => {
+  const cloneWeaponSourceToDraft = source => {
+    const draft = createWeaponBlueprintDraft({
+      sourceUnitId: source.sourceUnitId,
+      slot: source.slot,
+    });
+    setWeaponBlueprintDraft(draft);
+    return draft;
+  };
+
+  const equipWeaponBlueprint = (blueprint, targetSlot = activeWeaponSlotTab) => {
     if (!selectedUnit?.isClone) {
       showToast('Weapon blueprints can be equipped on custom clone units only.');
       return;
     }
-    const slotNum = activeWeaponSlotTab || selectedUnitDefaults?.weaponSlots?.[0]?.slot;
+    const slotNum = targetSlot || selectedUnitDefaults?.weaponSlots?.[0]?.slot;
     if (!slotNum) return;
     transactProject(current => ({
       includeClones: true,
@@ -901,6 +925,20 @@ export default function App() {
       }),
     }));
     showToast(`Equipped ${blueprint.name} on slot ${slotNum}.`);
+  };
+
+  const deleteWeaponBlueprint = blueprintId => {
+    const usageCount = clones.reduce((count, clone) => (
+      count + Object.values(clone.weaponSwaps || {})
+        .filter(swap => swap.libraryWeaponId === blueprintId).length
+    ), 0);
+    if (usageCount > 0) {
+      showToast(`This custom weapon is equipped in ${usageCount} clone slot${usageCount === 1 ? '' : 's'}. Replace or restore those slots before deleting it.`);
+      return false;
+    }
+    setWeaponLibrary(previous => previous.filter(item => item.id !== blueprintId));
+    if (weaponBlueprintDraft?.id === blueprintId) openWeaponLab();
+    return true;
   };
 
   const handleDownloadWeaponVfxPack = (draft = null) => {
@@ -1937,6 +1975,32 @@ export default function App() {
             </button>
           </div>
 
+          <div className="weapon-swap-mode-tabs" role="tablist" aria-label="Weapon source type">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={swapLibraryMode === 'bar'}
+              className={swapLibraryMode === 'bar' ? 'is-active' : ''}
+              onClick={() => setSwapLibraryMode('bar')}
+            >
+              BAR weapons
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={swapLibraryMode === 'custom'}
+              className={swapLibraryMode === 'custom' ? 'is-active' : ''}
+              onClick={() => {
+                setSwapLibraryMode('custom');
+                setSelectedSwapBlueprintId(current => current || weaponLibrary[0]?.id || null);
+              }}
+            >
+              Custom weapons
+              <span>{weaponLibrary.length}</span>
+            </button>
+          </div>
+
+          {swapLibraryMode === 'bar' ? (
           <div className="weapon-swap-body">
             {/* Left Column: Search, Faction Filters & Unit list */}
             <aside className="weapon-swap-library" aria-label="Weapon donor library">
@@ -2209,9 +2273,29 @@ export default function App() {
                   <p>Select a unit from the library to compare its weapon systems with the current slot.</p>
                 </div>
               )}
-            </div>
           </div>
-        </div>
+          </div>
+          ) : (
+            <div className="weapon-swap-body">
+              <CustomWeaponBorrowPanel
+                library={weaponLibrary}
+                selectedBlueprintId={selectedSwapBlueprintId}
+                targetSlot={activeSwapSlotNum}
+                onSelect={setSelectedSwapBlueprintId}
+                onEquip={blueprint => {
+                  equipWeaponBlueprint(blueprint, activeSwapSlotNum);
+                  setShowSwapModal(false);
+                  setSwapPosition(null);
+                }}
+                onOpenLaboratory={() => {
+                  setShowSwapModal(false);
+                  setSwapPosition(null);
+                  openWeaponLab();
+                }}
+              />
+            </div>
+          )}
+      </div>
         </div>
       )}
 
@@ -2221,19 +2305,16 @@ export default function App() {
           <LazyWeaponLaboratoryPage
             draft={weaponBlueprintDraft}
             library={weaponLibrary}
-            selectedUnit={selectedUnit}
-            activeSlotNumber={activeWeaponSlotTab}
+            sourceCatalog={weaponSourceCatalog}
             onDraftChange={setWeaponBlueprintDraft}
-            onNewVariant={openWeaponLab}
+            onCloneSource={cloneWeaponSourceToDraft}
             onSave={draft => {
               const blueprint = persistWeaponBlueprint(draft);
-              if (blueprint) showToast('Weapon blueprint saved to the project library.');
+              if (blueprint) showToast('Custom weapon saved to project storage.');
               return blueprint;
             }}
-            onEquip={equipWeaponBlueprint}
             onDelete={blueprintId => {
-              setWeaponLibrary(previous => previous.filter(item => item.id !== blueprintId));
-              if (weaponBlueprintDraft.id === blueprintId) openWeaponLab();
+              deleteWeaponBlueprint(blueprintId);
             }}
             onExportVfx={handleDownloadWeaponVfxPack}
             onClose={() => {
