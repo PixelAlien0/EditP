@@ -11,6 +11,9 @@ import {
 } from '../../config/editorParameters.js';
 import {
   getApplicableWeaponParameters,
+  getSpecialProjectileBehavior,
+  getSpecialProjectileParameters,
+  SPECIAL_PROJECTILE_PARAMETER_KEYS,
   WEAPON_ADVANCED_GROUPS,
   WEAPON_ASSET_TYPES,
   WEAPON_CORE_PARAMETERS,
@@ -378,14 +381,26 @@ export default function EditUnitsWorkspace({ context }) {
               hasParameter: hasWeaponParameter,
               includeEssential: true,
             });
+            const activeSpecialProjectileValue = slot
+              ? String(
+                activeSlotTweaks[`weapon_slot_${slot.slot}_speceffect`]
+                  ?? slot.speceffect
+                  ?? ''
+              ).trim().toLowerCase()
+              : '';
             const applicableAdvancedWeaponGroups = advancedWeaponGroups
-              .map(group => ({
-                ...group,
-                params: getApplicableWeaponParameters(group.params, {
+              .map(group => {
+                const groupParameters = group.kind === 'special-projectile'
+                  ? getSpecialProjectileParameters(activeSpecialProjectileValue)
+                  : group.params;
+                return {
+                  ...group,
+                  params: getApplicableWeaponParameters(groupParameters, {
                   showAll: showAllWeaponParams,
                   hasParameter: hasWeaponParameter,
                 }),
-              }))
+                };
+              })
               .filter(group => group.params.length > 0);
             const detectedWeaponParameterCount = slot
               ? slotParams.filter(param => hasWeaponParameter(param.key)).length
@@ -1139,12 +1154,32 @@ export default function EditUnitsWorkspace({ context }) {
 
                           <div className="weapon-advanced-groups">
                             {applicableAdvancedWeaponGroups.map(group => {
-                              const sectorFireValue = group.kind === 'sector-fire'
+                              const specialProjectileValue = group.kind === 'special-projectile'
                                 ? (activeSlotTweaks[`weapon_slot_${slot.slot}_speceffect`] ?? slot.speceffect ?? '')
                                 : '';
-                              const sectorFireActive = sectorFireValue === 'sector_fire';
+                              const specialProjectileBehavior = getSpecialProjectileBehavior(specialProjectileValue);
+                              const specialProjectileHasOverrides = group.kind === 'special-projectile'
+                                && ['speceffect', ...SPECIAL_PROJECTILE_PARAMETER_KEYS].some(key => (
+                                  activeSlotTweaks[`weapon_slot_${slot.slot}_${key}`] !== undefined
+                                ));
+                              const changeSpecialProjectileBehavior = nextValue => {
+                                const nextBehavior = getSpecialProjectileBehavior(nextValue);
+                                handleStatChange(
+                                  selectedUnit.id,
+                                  `weapon_slot_${slot.slot}_speceffect`,
+                                  nextBehavior?.id
+                                );
+                                const retainedKeys = new Set(nextBehavior?.parameterKeys || []);
+                                SPECIAL_PROJECTILE_PARAMETER_KEYS
+                                  .filter(key => !retainedKeys.has(key))
+                                  .forEach(key => handleStatChange(
+                                    selectedUnit.id,
+                                    `weapon_slot_${slot.slot}_${key}`,
+                                    undefined
+                                  ));
+                              };
                               const applySectorFireBaseline = () => {
-                                handleStatChange(selectedUnit.id, `weapon_slot_${slot.slot}_speceffect`, 'sector_fire');
+                                changeSpecialProjectileBehavior('sector_fire');
                                 handleStatChange(
                                   selectedUnit.id,
                                   `weapon_slot_${slot.slot}_spread_angle`,
@@ -1158,8 +1193,10 @@ export default function EditUnitsWorkspace({ context }) {
                                 handleStatChange(selectedUnit.id, `weapon_slot_${slot.slot}_accuracy`, 0);
                                 handleStatChange(selectedUnit.id, `weapon_slot_${slot.slot}_sprayangle`, 0);
                               };
-                              const resetSectorFireSetup = () => {
-                                ['speceffect', 'spread_angle', 'max_range_reduction', 'accuracy', 'sprayangle']
+                              const resetSpecialProjectileSetup = () => {
+                                const keys = ['speceffect', ...SPECIAL_PROJECTILE_PARAMETER_KEYS];
+                                if (specialProjectileValue === 'sector_fire') keys.push('accuracy', 'sprayangle');
+                                keys
                                   .forEach(key => handleStatChange(
                                     selectedUnit.id,
                                     `weapon_slot_${slot.slot}_${key}`,
@@ -1168,25 +1205,32 @@ export default function EditUnitsWorkspace({ context }) {
                               };
                               return (
                               <section
-                                className={`weapon-advanced-group ${group.kind === 'sector-fire' ? 'weapon-sector-fire' : ''}`}
+                                className={`weapon-advanced-group ${group.kind === 'special-projectile' ? 'weapon-special-projectile' : ''}`}
                                 key={group.title}
                               >
                                 <div className="weapon-advanced-group-heading">
                                   <div className="weapon-advanced-group-heading__copy">
                                     <span className="weapon-advanced-group-heading__title">{group.title}</span>
-                                    <small>{group.description}</small>
+                                    <small>{specialProjectileBehavior?.description || group.description}</small>
                                   </div>
-                                  {group.kind === 'sector-fire' && (
+                                  {group.kind === 'special-projectile' && (
                                     <div className="weapon-advanced-group-heading__actions">
                                       <span className="section-heading__meta">
-                                        {sectorFireActive ? 'Sector active' : 'Standard firing'}
+                                        {specialProjectileBehavior?.summary || 'Standard / inherited'}
                                       </span>
                                       <div className="ui-button-group">
-                                        <Button size="sm" variant="primary" onClick={applySectorFireBaseline}>
-                                          Apply clean sector
-                                        </Button>
-                                        <Button size="sm" variant="ghost" onClick={resetSectorFireSetup}>
-                                          Reset setup
+                                        {specialProjectileValue === 'sector_fire' && (
+                                          <Button size="sm" variant="primary" onClick={applySectorFireBaseline}>
+                                            Apply Tremor baseline
+                                          </Button>
+                                        )}
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          disabled={!specialProjectileBehavior && !specialProjectileHasOverrides}
+                                          onClick={resetSpecialProjectileSetup}
+                                        >
+                                          Reset behavior
                                         </Button>
                                       </div>
                                     </div>
@@ -1231,11 +1275,17 @@ export default function EditUnitsWorkspace({ context }) {
                                             <select
                                               className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
                                               value={displayValue}
-                                              onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value === '' ? undefined : e.target.value)}
+                                              onChange={e => {
+                                                if (param.key === 'speceffect') {
+                                                  changeSpecialProjectileBehavior(e.target.value);
+                                                  return;
+                                                }
+                                                handleStatChange(selectedUnit.id, tweakKey, e.target.value === '' ? undefined : e.target.value);
+                                              }}
                                             >
                                               {param.options.map(option => (
                                                 <option key={option || 'inherited'} value={option}>
-                                                  {option === 'sector_fire' ? 'Enabled · sector_fire' : option || 'Inherited'}
+                                                  {param.optionLabels?.[option] || option || 'Inherited'}
                                                 </option>
                                               ))}
                                             </select>

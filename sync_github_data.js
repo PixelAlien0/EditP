@@ -396,6 +396,12 @@ export async function run() {
                   cluster_def: 'cluster_def', cluster_number: 'cluster_number',
                   speceffect: 'speceffect', spread_angle: 'spread_angle',
                   max_range_reduction: 'max_range_reduction',
+                  cruise_min_height: 'cruise_min_height', cruise_max_height: 'cruise_max_height',
+                  lockon_dist: 'lockon_dist', guidance_lost_radius: 'guidance_lost_radius',
+                  speceffect_def: 'speceffect_def', number: 'speceffect_number',
+                  splitexplosionceg: 'splitexplosionceg', waterpenceg: 'waterpenceg',
+                  cegtag: 'speceffect_cegtag', model: 'speceffect_model',
+                  tracking_turn_radius: 'tracking_turn_radius',
                 };
                 Object.entries(customParamFields).forEach(([sourceKey, editorKey]) => {
                   const value = weaponCustomParams[sourceKey];

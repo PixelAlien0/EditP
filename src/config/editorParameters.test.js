@@ -8,6 +8,8 @@ import {
 } from './editorParameters.js';
 import {
   getWeaponParameterDefinition,
+  getSpecialProjectileParameters,
+  SPECIAL_PROJECTILE_BEHAVIOR_IDS,
   SPAWNER_CARRIER_WEAPON_GROUPS,
   WEAPON_ADVANCED_GROUPS,
   WEAPON_CORE_PARAMETERS,
@@ -68,7 +70,16 @@ describe('editor parameter configuration', () => {
     expect(WEAPON_SLOT_PATHS.is_controllable).toBeUndefined();
   });
 
-  it('compiles sector-fire settings with BAR-compatible paths and scalar types', () => {
+  it('compiles every BAR special-projectile field through collision-safe paths', () => {
+    expect(SPECIAL_PROJECTILE_BEHAVIOR_IDS).toEqual([
+      'sector_fire',
+      'cruise',
+      'retarget',
+      'guidance',
+      'split',
+      'cannonwaterpen',
+      'torpwaterpen',
+    ]);
     expect(getWeaponParameterDefinition('speceffect')).toMatchObject({
       path: 'customparams.speceffect',
       valueType: 'string',
@@ -81,6 +92,26 @@ describe('editor parameter configuration', () => {
       path: 'customparams.max_range_reduction',
       valueType: 'number',
     });
+    expect(getWeaponParameterDefinition('speceffect_number')).toMatchObject({
+      path: 'customparams.number',
+      valueType: 'number',
+    });
+    expect(getWeaponParameterDefinition('speceffect_cegtag')).toMatchObject({
+      path: 'customparams.cegtag',
+      valueType: 'string',
+    });
+    expect(getWeaponParameterDefinition('speceffect_model')).toMatchObject({
+      path: 'customparams.model',
+      valueType: 'string',
+    });
+    expect(getSpecialProjectileParameters('split').map(parameter => parameter.key)).toEqual([
+      'speceffect',
+      'speceffect_def',
+      'speceffect_number',
+      'splitexplosionceg',
+      'speceffect_cegtag',
+      'speceffect_model',
+    ]);
   });
 
   it('keeps declared, featured, active, and edited unit parameters in the relevant view', () => {

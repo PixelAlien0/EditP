@@ -41,8 +41,26 @@ describe('controller helpers', () => {
     expect(getValidationWarning('weapon_slot_1_burstrate', '-1')).toMatchObject({
       level: 'error',
     });
-    expect(getValidationWarning('weapon_slot_1_speceffect', 'sector_fire')).toBeNull();
+    [
+      'sector_fire',
+      'cruise',
+      'retarget',
+      'guidance',
+      'split',
+      'cannonwaterpen',
+      'torpwaterpen',
+    ].forEach(mode => {
+      expect(getValidationWarning('weapon_slot_1_speceffect', mode)).toBeNull();
+    });
     expect(getValidationWarning('weapon_slot_1_speceffect', 'sector_fyre')).toMatchObject({
+      level: 'error',
+    });
+    expect(getValidationWarning('weapon_slot_1_speceffect_def', 'child_weapon')).toBeNull();
+    expect(getValidationWarning('weapon_slot_1_speceffect_number', '6')).toBeNull();
+    expect(getValidationWarning('weapon_slot_1_speceffect_number', '0')).toMatchObject({
+      level: 'error',
+    });
+    expect(getValidationWarning('weapon_slot_1_tracking_turn_radius', '0')).toMatchObject({
       level: 'error',
     });
     expect(getValidationWarning('weapon_slot_1_spread_angle', '22')).toBeNull();

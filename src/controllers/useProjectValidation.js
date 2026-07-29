@@ -1,4 +1,8 @@
 import { useMemo } from 'react';
+import {
+  getSpecialProjectileBehavior,
+  isSupportedSpecialProjectileBehavior,
+} from '../config/specialProjectileBehaviors.js';
 
 export function getValidationWarning(key, value) {
   if (value === undefined || value === '') return null;
@@ -13,8 +17,9 @@ export function getValidationWarning(key, value) {
   if (normalizedKey.includes('carrierdeaththroe') && !['death', 'control', 'capture', 'release', 'parasite'].includes(normalizedValue)) {
     return { level: 'error', message: 'Use death, control, capture, release, or parasite' };
   }
-  if (normalizedKey.includes('speceffect') && normalizedValue !== 'sector_fire') {
-    return { level: 'error', message: 'The editor currently supports BAR’s verified sector_fire mode only' };
+  if (/(?:^|_)speceffect$/.test(normalizedKey)
+    && !isSupportedSpecialProjectileBehavior(normalizedValue)) {
+    return { level: 'error', message: 'Select one of BAR’s supported special projectile behaviors' };
   }
 
   const carrierListKey = normalizedKey.match(
@@ -119,6 +124,19 @@ export function getValidationWarning(key, value) {
     }
     if (number > 64) return { level: 'warning', message: 'Large cluster counts can be expensive' };
   }
+  if (isKey('speceffect_number')) {
+    if (!Number.isInteger(number) || number < 1) {
+      return { level: 'error', message: 'Submunition count must be a positive integer' };
+    }
+    if (number > 64) return { level: 'warning', message: 'Large split counts can be expensive' };
+  }
+  if ((isKey('cruise_min_height') || isKey('cruise_max_height') || isKey('lockon_dist')
+    || isKey('guidance_lost_radius')) && number < 0) {
+    return { level: 'error', message: 'Value cannot be negative' };
+  }
+  if (isKey('tracking_turn_radius') && number <= 0) {
+    return { level: 'error', message: 'Tracking turn radius must be positive' };
+  }
   if (isKey('spread_angle')) {
     if (number <= 0) return { level: 'error', message: 'Sector angle must be greater than 0°' };
     if (number > 180) return { level: 'warning', message: 'Angles above 180° can fire behind the weapon' };
@@ -189,7 +207,7 @@ export function useProjectValidation({
         const localSupportingWeaponDef = supportingDestinations.has(
           `${unitId}:${referenceId}`.toLowerCase()
         );
-        if (/^weapon_slot_\d+_cluster_def$/.test(key)
+        if (/^weapon_slot_\d+_(?:cluster_def|speceffect_def)$/.test(key)
           && referenceId
           && !knownWeaponDefs.has(referenceId)
           && !localSupportingWeaponDef) {
@@ -201,6 +219,52 @@ export function useProjectValidation({
             level: 'warning',
             message: `Referenced WeaponDef "${value}" is not present in the loaded BAR definitions. Raw imported modules may define it later.`,
           });
+        }
+      });
+
+      Object.entries(patch).forEach(([key, value]) => {
+        const modeMatch = key.match(/^weapon_slot_(\d+)_speceffect$/);
+        if (!modeMatch) return;
+        const behavior = getSpecialProjectileBehavior(value);
+        if (!behavior) return;
+
+        const slotNumber = Number(modeMatch[1]);
+        const rootDefaults = defaultsDb[resolveCloneRootId(unitId)];
+        const defaultSlot = rootDefaults?.weaponSlots?.find(
+          slot => Number(slot.slot) === slotNumber
+        ) || {};
+        behavior.requiredParameterKeys.forEach(parameterKey => {
+          const patchKey = `weapon_slot_${slotNumber}_${parameterKey}`;
+          const effectiveValue = patch[patchKey] ?? defaultSlot[parameterKey];
+          if (effectiveValue === undefined || String(effectiveValue).trim() === '') {
+            issues.push({
+              unitId,
+              unitName,
+              key: patchKey,
+              level: 'error',
+              message: `${behavior.label} requires ${parameterKey.replaceAll('_', ' ')}.`,
+            });
+          }
+        });
+
+        if (behavior.id === 'cruise') {
+          const minimum = Number(
+            patch[`weapon_slot_${slotNumber}_cruise_min_height`]
+              ?? defaultSlot.cruise_min_height
+          );
+          const maximum = Number(
+            patch[`weapon_slot_${slotNumber}_cruise_max_height`]
+              ?? defaultSlot.cruise_max_height
+          );
+          if (Number.isFinite(minimum) && Number.isFinite(maximum) && minimum > maximum) {
+            issues.push({
+              unitId,
+              unitName,
+              key: `weapon_slot_${slotNumber}_cruise_max_height`,
+              level: 'error',
+              message: 'Maximum cruise clearance must be at least the minimum clearance.',
+            });
+          }
         }
       });
     });

@@ -411,7 +411,8 @@ export const WEAPON_SLOT_STRING_PARAMS = new Set([
   'carried_unit', 'dronetype', 'carrierdeaththroe', 'dockingpieces',
   'maxunits', 'startingdronecount', 'spawn_metal_cost', 'spawn_energy_cost',
   'droneairtime', 'dronedocktime', 'droneammo',
-  'speceffect',
+  'speceffect', 'speceffect_def', 'splitexplosionceg', 'waterpenceg',
+  'speceffect_cegtag', 'speceffect_model',
 ]);
 
 export const WEAPON_SLOT_MOUNT_PARAMS = new Set([
@@ -476,6 +477,17 @@ export const WEAPON_SLOT_PATHS = Object.freeze({
   cluster_def: 'customparams.cluster_def', cluster_number: 'customparams.cluster_number',
   speceffect: 'customparams.speceffect', spread_angle: 'customparams.spread_angle',
   max_range_reduction: 'customparams.max_range_reduction',
+  cruise_min_height: 'customparams.cruise_min_height',
+  cruise_max_height: 'customparams.cruise_max_height',
+  lockon_dist: 'customparams.lockon_dist',
+  guidance_lost_radius: 'customparams.guidance_lost_radius',
+  speceffect_def: 'customparams.speceffect_def',
+  speceffect_number: 'customparams.number',
+  splitexplosionceg: 'customparams.splitexplosionceg',
+  waterpenceg: 'customparams.waterpenceg',
+  speceffect_cegtag: 'customparams.cegtag',
+  speceffect_model: 'customparams.model',
+  tracking_turn_radius: 'customparams.tracking_turn_radius',
 });
 
 export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([

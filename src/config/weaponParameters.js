@@ -5,8 +5,16 @@ import {
   WEAPON_SLOT_PATHS as LEGACY_PATHS,
   WEAPON_SLOT_STRING_PARAMS as LEGACY_STRING_PARAMS,
 } from './editorParameters.js';
+import { SPECIAL_PROJECTILE_PARAMETERS } from './specialProjectileBehaviors.js';
 
 export { SPAWNER_CARRIER_WEAPON_GROUPS };
+export {
+  getSpecialProjectileBehavior,
+  getSpecialProjectileParameters,
+  SPECIAL_PROJECTILE_BEHAVIORS,
+  SPECIAL_PROJECTILE_BEHAVIOR_IDS,
+  SPECIAL_PROJECTILE_PARAMETER_KEYS,
+} from './specialProjectileBehaviors.js';
 
 const FEATURED_KEYS = new Set(['damage', 'reload', 'range', 'velocity', 'aoe']);
 const SCALAR_LIST_KEYS = new Set([
@@ -109,41 +117,12 @@ export const WEAPON_CORE_PARAMETERS = Object.freeze(coreParameters.map((paramete
 const editorAdvancedGroups = [
   ...SPAWNER_CARRIER_WEAPON_GROUPS,
   {
-    title: 'Sector fire (horizontal spread)',
-    kind: 'sector-fire',
+    title: 'Special projectile behavior',
+    kind: 'special-projectile',
     alwaysVisible: true,
     capabilities: ['bar-gadget'],
-    description: 'BAR’s Tremor behavior scatters projectiles across a horizontal ground sector. It is random within the sector, not an evenly spaced fan.',
-    params: [
-      {
-        key: 'speceffect',
-        label: 'Sector Fire Mode',
-        type: 'string',
-        valueType: 'string',
-        options: ['', 'sector_fire'],
-        alwaysRelevant: true,
-      },
-      {
-        key: 'spread_angle',
-        label: 'Horizontal Sector Angle (°)',
-        type: 'number',
-        valueType: 'number',
-        min: 0.1,
-        max: 360,
-        step: 0.5,
-        alwaysRelevant: true,
-      },
-      {
-        key: 'max_range_reduction',
-        label: 'Sector Depth (0–1)',
-        type: 'number',
-        valueType: 'number',
-        min: 0,
-        max: 1,
-        step: 0.05,
-        alwaysRelevant: true,
-      },
-    ],
+    description: 'Select one behavior implemented by BAR custom weapon behaviours. Only parameters required by the selected mode are shown.',
+    params: SPECIAL_PROJECTILE_PARAMETERS,
   },
   {
     title: 'Cluster / MIRV behavior',
