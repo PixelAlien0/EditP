@@ -113,9 +113,9 @@ export default function ReviewPage({
       <div className="review-content-grid">
         <div className="review-main-column">
           <section className="review-summary-grid" aria-label="Project summary">
-            <button onClick={() => openSummary('tweaks')}><span>Modified units</span><strong>{modifiedUnitIds.length}</strong><small>Parameter overrides</small></button>
-            <button onClick={() => openSummary('clones')}><span>Custom units</span><strong>{clones.length}</strong><small>Cloned definitions</small></button>
-            <button onClick={() => openSummary('rosters')}><span>Build menus</span><strong>{buildMenuSteps.length}</strong><small>Roster operations</small></button>
+            <button type="button" onClick={() => openSummary('tweaks')}><span>Modified units</span><strong>{modifiedUnitIds.length}</strong><small>Parameter overrides</small></button>
+            <button type="button" onClick={() => openSummary('clones')}><span>Custom units</span><strong>{clones.length}</strong><small>Cloned definitions</small></button>
+            <button type="button" onClick={() => openSummary('rosters')}><span>Build menus</span><strong>{buildMenuSteps.length}</strong><small>Roster operations</small></button>
             <div><span>Disabled units</span><strong>{disabledUnitIds.length}</strong><small>Removed from play</small></div>
           </section>
 
@@ -136,29 +136,31 @@ export default function ReviewPage({
 
           <CompatibilityPreflight report={compatibilityReport} onAction={handleCompatibilityAction} />
 
-          <section className="review-card validation-center">
-            <div className="review-card-heading">
-              <div><Type variant="eyebrow" className="workflow-eyebrow">Validation center</Type><Type as="h3" variant="section-title">{validationIssues.length === 0 ? 'Ready to export' : `${validationIssues.length} ${validationIssues.length === 1 ? 'issue' : 'issues'} to review`}</Type></div>
-              <span className={`review-status ${validationIssues.some(issue => issue.level === 'error') ? 'error' : validationIssues.length ? 'warning' : 'ready'}`}>{validationIssues.some(issue => issue.level === 'error') ? 'Blocked' : validationIssues.length ? 'Review' : 'Ready'}</span>
-            </div>
-            {validationIssues.length === 0 ? (
-              <EmptyState compact className="review-empty-state" title="No validation issues detected" description="Your current parameter values pass the editor's safety checks." />
-            ) : (
-              <div className="validation-list">{validationIssues.map((issue, index) => <div key={`${issue.unitName}-${issue.key}-${index}`} className={`validation-row ${issue.level}`}><span>{issue.unitName}</span><code>{issue.key.replace('weapon_slot_', 'Weapon ')}</code><strong>{issue.message}</strong></div>)}</div>
-            )}
-          </section>
-
-          <section className="review-card change-ledger">
-            <div className="review-card-heading"><div><Type variant="eyebrow" className="workflow-eyebrow">Change ledger</Type><Type as="h3" variant="section-title">{projectChangeCount} project changes</Type></div><button className="text-button" onClick={() => openSummary('tweaks')}>Open full summary</button></div>
-            {modifiedUnitIds.length === 0 && clones.length === 0 && disabledUnitIds.length === 0 ? (
-              <EmptyState compact className="review-empty-state" title="No unit changes yet" description="Return to Edit Units to begin modifying the project." />
-            ) : (
-              <div className="change-ledger-list">
-                {modifiedUnitIds.slice(0, 8).map(id => <button key={id} onClick={() => onEditUnit(id)}><span>{unitNames[id] || id}</span><code>{Object.keys(tweaks[id] || {}).length} fields</code><strong>Edit →</strong></button>)}
-                {modifiedUnitIds.length > 8 && <div className="ledger-more">+{modifiedUnitIds.length - 8} more modified units</div>}
+          <div className="review-detail-grid">
+            <section className="review-card validation-center">
+              <div className="review-card-heading">
+                <div><Type variant="eyebrow" className="workflow-eyebrow">Validation center</Type><Type as="h3" variant="section-title">{validationIssues.length === 0 ? 'Ready to export' : `${validationIssues.length} ${validationIssues.length === 1 ? 'issue' : 'issues'} to review`}</Type></div>
+                <span className={`review-status ${validationIssues.some(issue => issue.level === 'error') ? 'error' : validationIssues.length ? 'warning' : 'ready'}`}>{validationIssues.some(issue => issue.level === 'error') ? 'Blocked' : validationIssues.length ? 'Review' : 'Ready'}</span>
               </div>
-            )}
-          </section>
+              {validationIssues.length === 0 ? (
+                <EmptyState compact className="review-empty-state" title="No validation issues detected" description="Your current parameter values pass the editor's safety checks." />
+              ) : (
+                <div className="validation-list">{validationIssues.map((issue, index) => <div key={`${issue.unitName}-${issue.key}-${index}`} className={`validation-row ${issue.level}`}><span>{issue.unitName}</span><code>{issue.key.replace('weapon_slot_', 'Weapon ')}</code><strong>{issue.message}</strong></div>)}</div>
+              )}
+            </section>
+
+            <section className="review-card change-ledger">
+              <div className="review-card-heading"><div><Type variant="eyebrow" className="workflow-eyebrow">Change ledger</Type><Type as="h3" variant="section-title">{projectChangeCount} project changes</Type></div><button type="button" className="text-button" onClick={() => openSummary('tweaks')}>Full summary</button></div>
+              {modifiedUnitIds.length === 0 && clones.length === 0 && disabledUnitIds.length === 0 ? (
+                <EmptyState compact className="review-empty-state" title="No unit changes yet" description="Return to Edit Units to begin modifying the project." />
+              ) : (
+                <div className="change-ledger-list">
+                  {modifiedUnitIds.slice(0, 8).map(id => <button type="button" key={id} onClick={() => onEditUnit(id)}><span>{unitNames[id] || id}</span><code>{Object.keys(tweaks[id] || {}).length} fields</code><strong>Edit →</strong></button>)}
+                  {modifiedUnitIds.length > 8 && <div className="ledger-more">+{modifiedUnitIds.length - 8} more modified units</div>}
+                </div>
+              )}
+            </section>
+          </div>
         </div>
 
         <aside className="modular-export-console" aria-label="Export console">
@@ -172,11 +174,14 @@ export default function ReviewPage({
               <span className={`review-status ${compatibilityReport.status === 'blocked' ? 'error' : compatibilityReport.status === 'review' ? 'warning' : 'ready'}`}>
                 {compatibilityReport.status === 'blocked' ? 'Preflight blocked' : compatibilityReport.status === 'review' ? 'Review advised' : 'Preflight clear'}
               </span>
-              <small>{totalBytesUsed.toLocaleString()} encoded bytes</small>
+              <div className="export-console-health__metrics">
+                <span><small>Slots</small><strong>{lobbySlots.length} / 18</strong></span>
+                <span><small>Payload</small><strong>{totalBytesUsed.toLocaleString()} B</strong></span>
+              </div>
             </div>
           </header>
 
-          <details className="export-console-config" open>
+          <details className="export-console-config">
             <summary><span>Package identity</span><small>Name, attribution, and enabled systems</small></summary>
             <div className="export-metadata-grid">
               <TextField label="Mod name" value={projectName} onChange={event => setProjectName(event.target.value)} />

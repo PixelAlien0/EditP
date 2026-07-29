@@ -477,18 +477,13 @@ html[data-theme="dark"] {
 }
 
 [data-theme="dark"] .code-box,
-[data-theme="dark"] .compiled-code-wrapper,
-[data-theme="dark"] .export-code-preview {
+[data-theme="dark"] .compiled-code-wrapper {
   border-color: var(--color-border) !important;
   background: var(--color-code-canvas) !important;
   color: var(--color-text-on-dark) !important;
 }
 
 /* Review, designer, preset gallery */
-[data-theme="dark"] .review-summary-grid > *,
-[data-theme="dark"] .review-card,
-[data-theme="dark"] .validation-row,
-[data-theme="dark"] .change-ledger-list > button,
 [data-theme="dark"] .preset-gallery-page .preset-card,
 [data-theme="dark"] .preset-gallery-page .preset-save-panel,
 [data-theme="dark"] .designer-page .designer-panel-header,
@@ -499,7 +494,6 @@ html[data-theme="dark"] {
   box-shadow: none !important;
 }
 
-[data-theme="dark"] .review-card-heading,
 [data-theme="dark"] .designer-page .designer-panel,
 [data-theme="dark"] .designer-page .designer-panel-scroll,
 [data-theme="dark"] .designer-page .designer-roster-canvas {
@@ -519,22 +513,6 @@ html[data-theme="dark"] {
 [data-theme="dark"] .designer-page .build-menu-slot.removed {
   border-color: var(--color-border) !important;
   background: var(--color-disabled-surface) !important;
-}
-
-[data-theme="dark"] .review-status.ready,
-[data-theme="dark"] .review-status.ok {
-  background: var(--color-success-surface) !important;
-  color: var(--color-success) !important;
-}
-
-[data-theme="dark"] .review-status.warning {
-  background: var(--color-warning-surface) !important;
-  color: var(--color-warning) !important;
-}
-
-[data-theme="dark"] .review-status.error {
-  background: var(--color-danger-surface) !important;
-  color: var(--color-danger) !important;
 }
 
 /* Dialogs and experimental tools */

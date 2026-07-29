@@ -80,7 +80,7 @@ export default function ByteBudgetInspector({ compiledModules }) {
     : 0;
 
   return (
-    <details className="export-console-config" open>
+    <details className="export-console-config">
       <summary>
         <span>Byte Budget Inspector</span>
         <small>{STATUS_LABELS[report.status]} · {report.aggregate.slotsRequired} / {report.aggregate.maximumSlots} fields</small>
