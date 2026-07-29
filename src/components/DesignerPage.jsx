@@ -238,11 +238,11 @@ export default function DesignerPage({
                         )}
                         {!removed ? (
                           <button className="slot-btn slot-btn-remove" onClick={event => { event.stopPropagation(); onRemoveRosterUnit(item.id); }}>
-                            Remove
+                            <span className="slot-btn-icon" aria-hidden="true">✕</span> Remove
                           </button>
                         ) : (
                           <button className="slot-btn slot-btn-restore" onClick={event => { event.stopPropagation(); onRestoreRosterUnit(item.id); }}>
-                            Restore
+                            <span className="slot-btn-icon" aria-hidden="true">↺</span> Restore
                           </button>
                         )}
                       </div>
