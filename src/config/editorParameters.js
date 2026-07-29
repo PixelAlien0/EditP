@@ -391,7 +391,7 @@ export const UNIT_CATEGORIES = Object.freeze([
 ]);
 
 export const WEAPON_SLOT_BOOLEAN_PARAMS = new Set([
-  'canattackground', 'toairweapon', 'stockpile', 'avoidfriendly', 'collidefriendly',
+  'canattackground', 'stockpile', 'avoidfriendly', 'collidefriendly',
   'impactonly', 'noexplode', 'burnblow', 'noselfdamage', 'paralyzer', 'waterweapon',
   'firesubmersed', 'collidefeature', 'collideneutral', 'collideground', 'tracks',
   'fixedlauncher', 'smoketrail', 'groundbounce', 'waterbounce', 'beamburst', 'sweepfire',
@@ -421,8 +421,7 @@ export const WEAPON_SLOT_MOUNT_PARAMS = new Set([
 ]);
 
 export const WEAPON_SLOT_PATHS = Object.freeze({
-  damage: 'damage.default', damage_vs_light: 'damage.light', damage_vs_medium: 'damage.medium',
-  damage_vs_heavy: 'damage.heavy', damage_vs_commander: 'damage.commanders', damage_vs_vtol: 'damage.vtol',
+  damage: 'damage.default', damage_vs_commander: 'damage.commanders', damage_vs_vtol: 'damage.vtol',
   damage_vs_subs: 'damage.subs', damage_vs_shields: 'damage.shields', damage_vs_scavboss: 'damage.scavboss',
   damage_vs_raptorqueen: 'damage.raptorqueen', damage_vs_raptor: 'damage.raptor', damage_vs_mines: 'damage.mines', reload: 'reloadtime',
   velocity: 'weaponvelocity', aoe: 'areaofeffect', stockpilelimit: 'customparams.stockpilelimit',

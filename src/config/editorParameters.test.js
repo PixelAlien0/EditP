@@ -12,6 +12,7 @@ import {
   SPECIAL_PROJECTILE_BEHAVIOR_IDS,
   SPAWNER_CARRIER_WEAPON_GROUPS,
   WEAPON_ADVANCED_GROUPS,
+  WEAPON_COMPATIBILITY_PARAMETERS,
   WEAPON_CORE_PARAMETERS,
   WEAPON_EDITABLE_PARAMETER_CATALOG,
   WEAPON_PARAMETER_CATALOG,
@@ -52,6 +53,27 @@ describe('editor parameter configuration', () => {
       expect(['weapondef', 'mount'], parameter.key).toContain(parameter.compileTarget);
       expect(['number', 'boolean', 'string'], parameter.key).toContain(parameter.valueType);
       expect(getWeaponParameterDefinition(parameter.key)).toBe(parameter);
+    });
+
+    expect(WEAPON_COMPATIBILITY_PARAMETERS.map(parameter => parameter.key)).toEqual([
+      'damage_vs_light',
+      'damage_vs_medium',
+      'damage_vs_heavy',
+      'toairweapon',
+      'interceptedbyshields',
+    ]);
+    expect(WEAPON_COMPATIBILITY_PARAMETERS.every(parameter => parameter.deprecated)).toBe(true);
+    expect(WEAPON_EDITABLE_PARAMETER_CATALOG.some(parameter => parameter.surface === 'compatibility')).toBe(false);
+    expect(getWeaponParameterDefinition('toairweapon')).toMatchObject({
+      path: 'onlytargetcategory',
+      compileTarget: 'mount',
+      valueTransform: 'anti-air-category',
+      replacementKey: 'onlytargetcategory',
+    });
+    expect(getWeaponParameterDefinition('interceptedbyshields')).toMatchObject({
+      path: 'interceptedbyshieldtype',
+      valueTransform: 'shield-mask',
+      replacementKey: 'interceptedbyshieldtype',
     });
   });
 

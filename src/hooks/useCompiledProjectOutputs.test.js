@@ -59,4 +59,51 @@ describe('useCompiledProjectOutputs', () => {
     expect(result.current.generatedTweakUnitsLua).toContain('i18n_en_tooltip = "Fast raider with a custom role."');
     expect(result.current.tweakUnitsB64).not.toBe('');
   });
+
+  it('compiles legacy weapon fields through their canonical BAR targets', () => {
+    const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
+      tweaks: {
+        armflash: {
+          weapon_slot_1_damage_vs_light: '75',
+          weapon_slot_1_toairweapon: true,
+          weapon_slot_1_interceptedbyshields: true,
+        },
+      },
+      defaultsDb: {
+        armflash: {
+          health: 620,
+          weaponSlots: [{ slot: 1, defKey: 'armflash_laser' }],
+        },
+      },
+    })));
+
+    expect(result.current.generatedTweakUnitsLua).toContain('light = 75');
+    expect(result.current.generatedTweakUnitsLua).toContain('onlytargetcategory = "VTOL"');
+    expect(result.current.generatedTweakUnitsLua).toContain('interceptedbyshieldtype = 1');
+    expect(result.current.generatedTweakUnitsLua).not.toContain('toairweapon');
+    expect(result.current.generatedTweakUnitsLua).not.toContain('interceptedbyshields');
+  });
+
+  it('prefers canonical weapon edits over legacy compatibility aliases', () => {
+    const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
+      tweaks: {
+        armflash: {
+          weapon_slot_1_toairweapon: true,
+          weapon_slot_1_onlytargetcategory: 'SURFACE',
+          weapon_slot_1_interceptedbyshields: true,
+          weapon_slot_1_interceptedbyshieldtype: '4',
+        },
+      },
+      defaultsDb: {
+        armflash: {
+          health: 620,
+          weaponSlots: [{ slot: 1, defKey: 'armflash_laser' }],
+        },
+      },
+    })));
+
+    expect(result.current.generatedTweakUnitsLua).toContain('onlytargetcategory = "SURFACE"');
+    expect(result.current.generatedTweakUnitsLua).toContain('interceptedbyshieldtype = 4');
+    expect(result.current.generatedTweakUnitsLua).not.toContain('onlytargetcategory = "VTOL"');
+  });
 });

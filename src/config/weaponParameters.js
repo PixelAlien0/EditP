@@ -28,9 +28,6 @@ const SCALAR_LIST_KEYS = new Set([
 ]);
 const CORE_GROUPS = Object.freeze({
   damage: 'Damage & cadence',
-  damage_vs_light: 'Damage & cadence',
-  damage_vs_medium: 'Damage & cadence',
-  damage_vs_heavy: 'Damage & cadence',
   damage_vs_commander: 'Damage & cadence',
   reload: 'Damage & cadence',
   projectiles: 'Damage & cadence',
@@ -45,7 +42,6 @@ const CORE_GROUPS = Object.freeze({
   heightmod: 'Range & accuracy',
   hightrajectory: 'Range & accuracy',
   canattackground: 'Targeting & safety',
-  toairweapon: 'Targeting & safety',
   avoidfriendly: 'Targeting & safety',
   collidefriendly: 'Targeting & safety',
   interceptedbyshieldtype: 'Targeting & safety',
@@ -357,10 +353,45 @@ export const WEAPON_TARGET_MASK_PARAMETERS = Object.freeze(
 );
 
 const compatibilityParameters = [
-  { key: 'damage_vs_light', label: 'Damage vs Light', type: 'number', surface: 'compatibility' },
-  { key: 'damage_vs_medium', label: 'Damage vs Medium', type: 'number', surface: 'compatibility' },
-  { key: 'damage_vs_heavy', label: 'Damage vs Heavy', type: 'number', surface: 'compatibility' },
-  { key: 'toairweapon', label: 'Anti-Air Only', type: 'tri-state', surface: 'compatibility' },
+  {
+    key: 'damage_vs_light',
+    label: 'Damage vs Light',
+    type: 'number',
+    path: 'damage.light',
+    surface: 'compatibility',
+    deprecated: true,
+    description: 'Preserves projects that target a mod-defined light armor class. The current bundled BAR snapshot does not use this class.',
+  },
+  {
+    key: 'damage_vs_medium',
+    label: 'Damage vs Medium',
+    type: 'number',
+    path: 'damage.medium',
+    surface: 'compatibility',
+    deprecated: true,
+    description: 'Preserves projects that target a mod-defined medium armor class. The current bundled BAR snapshot does not use this class.',
+  },
+  {
+    key: 'damage_vs_heavy',
+    label: 'Damage vs Heavy',
+    type: 'number',
+    path: 'damage.heavy',
+    surface: 'compatibility',
+    deprecated: true,
+    description: 'Preserves projects that target a mod-defined heavy armor class. The current bundled BAR snapshot does not use this class.',
+  },
+  {
+    key: 'toairweapon',
+    label: 'Anti-Air Only',
+    type: 'tri-state',
+    path: 'onlytargetcategory',
+    compileTarget: 'mount',
+    valueTransform: 'anti-air-category',
+    surface: 'compatibility',
+    deprecated: true,
+    replacementKey: 'onlytargetcategory',
+    description: 'Legacy anti-air shortcut. Existing projects compile to the canonical per-slot VTOL target category.',
+  },
   {
     key: 'interceptedbyshields',
     label: 'Intercepted by Shields',
@@ -368,6 +399,9 @@ const compatibilityParameters = [
     surface: 'compatibility',
     path: 'interceptedbyshieldtype',
     valueTransform: 'shield-mask',
+    deprecated: true,
+    replacementKey: 'interceptedbyshieldtype',
+    description: 'Legacy shield toggle. Existing projects compile to the canonical shield interception bitmask.',
   },
 ];
 
@@ -402,9 +436,10 @@ const editableParameters = [
 ];
 
 export const WEAPON_EDITABLE_PARAMETER_CATALOG = Object.freeze(editableParameters.map(normalizeParameter));
+export const WEAPON_COMPATIBILITY_PARAMETERS = Object.freeze(compatibilityParameters.map(normalizeParameter));
 export const WEAPON_PARAMETER_CATALOG = Object.freeze([
   ...WEAPON_EDITABLE_PARAMETER_CATALOG,
-  ...compatibilityParameters.map(normalizeParameter),
+  ...WEAPON_COMPATIBILITY_PARAMETERS,
 ]);
 export const WEAPON_PARAMETER_BY_KEY = new Map(
   WEAPON_PARAMETER_CATALOG.map(parameter => [parameter.key, parameter]),
@@ -412,7 +447,7 @@ export const WEAPON_PARAMETER_BY_KEY = new Map(
 
 export const WEAPON_ESSENTIAL_KEYS = new Set([
   'damage', 'reload', 'range', 'velocity', 'aoe', 'projectiles', 'burst', 'burstrate',
-  'canattackground', 'toairweapon',
+  'canattackground',
 ]);
 
 export const WEAPON_ASSET_TYPES = Object.freeze(Object.fromEntries(

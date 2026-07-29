@@ -10,6 +10,8 @@ describe('parameter completeness audit', () => {
     expect(report.counts.units).toBeGreaterThan(1_000);
     expect(report.counts.unitParameters).toBeGreaterThan(100);
     expect(report.counts.renderedWeaponParameters).toBeGreaterThan(150);
+    expect(report.counts.compatibilityWeaponFields).toBe(5);
+    expect(report.warnings.join('\n')).not.toContain('compiler-only weapon fields');
   });
 
   it('blocks unknown snapshot fields instead of silently dropping them', () => {

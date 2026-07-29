@@ -118,9 +118,17 @@ export function useCompiledProjectOutputs({
           const slot = getActiveWeaponSlots(unitId).find(candidate => candidate.slot === slotNumber);
           if (!slot?.defKey) return;
           const parameterDefinition = getWeaponParameterDefinition(parameter);
+          const canonicalTweakKey = parameterDefinition?.replacementKey
+            ? `weapon_slot_${slotNumber}_${parameterDefinition.replacementKey}`
+            : null;
+          if (canonicalTweakKey && Object.hasOwn(statPatch, canonicalTweakKey)) return;
 
           if (parameterDefinition?.compileTarget === 'mount') {
-            setNestedValue(unitPatch, `weapons.${slotNumber}.${parameter}`, coerceWeaponMountValue(parameter, value));
+            const mountPath = parameterDefinition.path || parameter;
+            const mountValue = parameterDefinition.valueTransform === 'anti-air-category'
+              ? (value === 'true' || value === true ? 'VTOL' : '')
+              : coerceWeaponMountValue(mountPath, value);
+            setNestedValue(unitPatch, `weapons.${slotNumber}.${mountPath}`, mountValue);
             return;
           }
 
@@ -130,9 +138,6 @@ export function useCompiledProjectOutputs({
             typedValue = value === 'true' || value === true ? 1 : 0;
           } else if (parameterDefinition?.valueType === 'boolean') {
             typedValue = value === 'true' || value === true;
-            if (parameter === 'toairweapon' && typedValue && !Object.hasOwn(statPatch, `weapon_slot_${slotNumber}_onlytargetcategory`)) {
-              setNestedValue(unitPatch, `weapons.${slotNumber}.onlytargetcategory`, 'VTOL');
-            }
           } else if (parameterDefinition?.valueType === 'string') {
             typedValue = value ? String(value) : '';
           } else {

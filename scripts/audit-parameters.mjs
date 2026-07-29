@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { STAT_KEYS } from '../src/config/editorParameters.js';
 import {
   WEAPON_EDITABLE_PARAMETER_CATALOG,
+  WEAPON_COMPATIBILITY_PARAMETERS,
   WEAPON_PARAMETER_CATALOG,
   WEAPON_SLOT_BOOLEAN_PARAMS,
   WEAPON_SLOT_MOUNT_PARAMS,
@@ -72,11 +73,13 @@ function collectSnapshotKeys(defaultsDb) {
 
 function buildWeaponCatalog() {
   const catalog = WEAPON_EDITABLE_PARAMETER_CATALOG;
+  const compilerCatalog = WEAPON_PARAMETER_CATALOG;
   const coveredKeys = new Set(catalog.map(parameter => parameter.key));
+  const compilerKeys = new Set(compilerCatalog.map(parameter => parameter.key));
   const behaviorKeys = new Set(
     catalog.filter(parameter => parameter.surface === 'behavior').map(parameter => parameter.key),
   );
-  return { catalog, coveredKeys, behaviorKeys };
+  return { catalog, compilerCatalog, coveredKeys, compilerKeys, behaviorKeys };
 }
 
 function getExplicitHelpGaps(parameters) {
@@ -193,7 +196,7 @@ export function auditParameterCompleteness({
     ...WEAPON_SLOT_STRING_PARAMS,
     ...WEAPON_SLOT_MOUNT_PARAMS,
     ...Object.keys(WEAPON_SLOT_PATHS),
-  ]).filter(key => !weaponCatalog.coveredKeys.has(key)));
+  ]).filter(key => !weaponCatalog.compilerKeys.has(key)));
   const editorOnlyWeaponKeys = sorted(
     [...weaponCatalog.coveredKeys].filter(key => (
       !snapshot.weaponKeys.has(key)
@@ -250,6 +253,7 @@ export function auditParameterCompleteness({
       snapshotUnitFields: unitSnapshotFields.length,
       snapshotWeaponFields: weaponSnapshotFields.length,
       behaviorWeaponFields: weaponCatalog.behaviorKeys.size,
+      compatibilityWeaponFields: WEAPON_COMPATIBILITY_PARAMETERS.length,
     },
     blockers,
     warnings,
@@ -265,6 +269,7 @@ function printReport(report) {
   console.log(`  Editable weapon controls: ${counts.renderedWeaponParameters}`);
   console.log(`  Snapshot fields: ${counts.snapshotUnitFields} unit / ${counts.snapshotWeaponFields} weapon`);
   console.log(`  Secondary behavior/interceptor fields: ${counts.behaviorWeaponFields}`);
+  console.log(`  Legacy compatibility fields: ${counts.compatibilityWeaponFields}`);
 
   report.warnings.forEach(warning => console.warn(`  Advisory: ${warning}`));
   report.blockers.forEach(blocker => console.error(`  ERROR: ${blocker}`));

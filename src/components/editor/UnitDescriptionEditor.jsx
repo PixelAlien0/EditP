@@ -76,6 +76,7 @@ export default function UnitDescriptionEditor({
           <Button
             variant="primary"
             size="sm"
+            className="inspector-description-apply"
             disabled={!dirty}
             onClick={commitDraft}
           >
