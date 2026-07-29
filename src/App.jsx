@@ -50,8 +50,8 @@ const LazyFormulaMutatorDialog = lazy(() => import('./components/FormulaMutatorD
 const LazyCarrierDroneWorkbenchDialog = lazy(() => import('./components/CarrierDroneWorkbenchDialog.jsx'));
 const LazyMutationLabDialog = lazy(() => import('./components/MutationLabDialog.jsx'));
 
-// Keep the laboratory code available while this experimental workspace is temporarily unpublished.
-const WEAPON_LAB_ENABLED = false;
+// Publish the experimental Weapon Laboratory workspace and its Tools entry.
+const WEAPON_LAB_ENABLED = true;
 // Keep these implementations available for repair, but prevent broken bulk
 // mutation tools from changing project data through any public entry point.
 const MUTATOR_TOOLS_ENABLED = false;
