@@ -776,9 +776,8 @@
     "t2"
   ],
   "armtdrone": [
-    "ships",
-    "defenses",
     "aircraft",
+    "defenses",
     "t1"
   ],
   "armtrident": [
@@ -1698,9 +1697,8 @@
     "t2"
   ],
   "cortdrone": [
-    "ships",
-    "defenses",
     "aircraft",
+    "defenses",
     "t1"
   ],
   "corcs": [
@@ -2029,8 +2027,8 @@
     "t1"
   ],
   "legaca": [
-    "factories",
     "aircraft",
+    "factories",
     "t2"
   ],
   "legaceb": [
@@ -2064,8 +2062,8 @@
     "t2"
   ],
   "legca": [
-    "factories",
     "aircraft",
+    "factories",
     "t1"
   ],
   "legch": [
@@ -2104,8 +2102,8 @@
     "t1"
   ],
   "legspcon": [
-    "factories",
     "aircraft",
+    "factories",
     "t1"
   ],
   "legabm": [
@@ -3286,7 +3284,6 @@
     "t1"
   ],
   "raptor_air_bomber_acid_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
@@ -3367,42 +3364,34 @@
     "t1"
   ],
   "raptor_air_bomber_basic_t1_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_bomber_basic_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_bomber_basic_t2_v2": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_bomber_basic_t4_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_bomber_basic_t4_v2": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_bomber_brood_t4_v2": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_bomber_brood_t4_v3": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_bomber_brood_t4_v4": [
-    "bots",
     "aircraft",
     "t1"
   ],
@@ -3427,7 +3416,6 @@
     "t1"
   ],
   "raptor_air_bomber_emp_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
@@ -3464,32 +3452,26 @@
     "t1"
   ],
   "raptor_air_fighter_basic_t1_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_fighter_basic_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_fighter_basic_t2_v2": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_fighter_basic_t2_v3": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_fighter_basic_t2_v4": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_fighter_basic_t4_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
@@ -3530,7 +3512,6 @@
     "t1"
   ],
   "raptor_air_kamikaze_basic_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
@@ -3596,17 +3577,14 @@
     "t1"
   ],
   "raptor_air_scout_basic_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_scout_basic_t3_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_scout_basic_t4_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
@@ -3825,27 +3803,22 @@
     "t1"
   ],
   "raptor_air_gunship_acid_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_gunship_antiair_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_gunship_basic_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_gunship_emp_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
   "raptor_air_gunship_fire_t2_v1": [
-    "bots",
     "aircraft",
     "t1"
   ],
@@ -4857,9 +4830,8 @@
     "scavenger"
   ],
   "scav_armtdrone": [
-    "ships",
-    "defenses",
     "aircraft",
+    "defenses",
     "t1",
     "scavenger"
   ],
@@ -6000,9 +5972,8 @@
     "scavenger"
   ],
   "scav_cortdrone": [
-    "ships",
-    "defenses",
     "aircraft",
+    "defenses",
     "t1",
     "scavenger"
   ],
@@ -6410,8 +6381,8 @@
     "scavenger"
   ],
   "scav_legaca": [
-    "factories",
     "aircraft",
+    "factories",
     "t2",
     "scavenger"
   ],
@@ -6447,8 +6418,8 @@
     "scavenger"
   ],
   "scav_legca": [
-    "factories",
     "aircraft",
+    "factories",
     "t1",
     "scavenger"
   ],
@@ -6489,8 +6460,8 @@
     "scavenger"
   ],
   "scav_legspcon": [
-    "factories",
     "aircraft",
+    "factories",
     "t1",
     "scavenger"
   ],

@@ -41,5 +41,17 @@ describe('controller helpers', () => {
     expect(getValidationWarning('weapon_slot_1_burstrate', '-1')).toMatchObject({
       level: 'error',
     });
+    expect(getValidationWarning('weapon_slot_1_speceffect', 'sector_fire')).toBeNull();
+    expect(getValidationWarning('weapon_slot_1_speceffect', 'sector_fyre')).toMatchObject({
+      level: 'error',
+    });
+    expect(getValidationWarning('weapon_slot_1_spread_angle', '22')).toBeNull();
+    expect(getValidationWarning('weapon_slot_1_spread_angle', '0')).toMatchObject({
+      level: 'error',
+    });
+    expect(getValidationWarning('weapon_slot_1_max_range_reduction', '0.3')).toBeNull();
+    expect(getValidationWarning('weapon_slot_1_max_range_reduction', '1.1')).toMatchObject({
+      level: 'error',
+    });
   });
 });

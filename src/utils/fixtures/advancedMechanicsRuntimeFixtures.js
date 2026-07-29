@@ -133,6 +133,47 @@ export const ADVANCED_MECHANICS_RUNTIME_FIXTURES = Object.freeze([
     },
   }),
   Object.freeze({
+    id: 'sector-fire-horizontal-spread',
+    description: 'writes the verified Tremor sector-fire contract without replacing unrelated WeaponDef custom parameters',
+    units: [{ id: 'editp_inferno', name: 'Runtime Inferno', isClone: false }],
+    defaultsDb: {
+      editp_inferno: {
+        weaponSlots: [{ slot: 1, defKey: 'rapidnapalm' }],
+      },
+    },
+    tweaks: {
+      editp_inferno: {
+        weapon_slot_1_speceffect: 'sector_fire',
+        weapon_slot_1_spread_angle: 22,
+        weapon_slot_1_max_range_reduction: 0.3,
+        weapon_slot_1_accuracy: 0,
+        weapon_slot_1_sprayangle: 0,
+      },
+    },
+    runtimeUnitDefs: {
+      editp_inferno: {
+        weapons: [{ def: 'RAPIDNAPALM' }],
+        weapondefs: {
+          rapidnapalm: {
+            accuracy: 200,
+            sprayangle: 1500,
+            customparams: { area_onhit: 1 },
+          },
+        },
+      },
+    },
+    expectations: {
+      paths: [
+        { path: 'editp_inferno.weapondefs.rapidnapalm.customparams.speceffect', equals: 'sector_fire' },
+        { path: 'editp_inferno.weapondefs.rapidnapalm.customparams.spread_angle', equals: 22 },
+        { path: 'editp_inferno.weapondefs.rapidnapalm.customparams.max_range_reduction', equals: 0.3 },
+        { path: 'editp_inferno.weapondefs.rapidnapalm.customparams.area_onhit', equals: 1 },
+        { path: 'editp_inferno.weapondefs.rapidnapalm.accuracy', equals: 0 },
+        { path: 'editp_inferno.weapondefs.rapidnapalm.sprayangle', equals: 0 },
+      ],
+    },
+  }),
+  Object.freeze({
     id: 'nested-clone-explosion-isolation',
     description: 'keeps death and self-destruct profiles isolated on a nested clone',
     units: [

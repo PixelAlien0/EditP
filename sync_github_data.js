@@ -394,6 +394,8 @@ export async function run() {
                   metalcost: 'spawn_metal_cost', buildcostmetal: 'spawn_metal_cost',
                   energycost: 'spawn_energy_cost', buildcostenergy: 'spawn_energy_cost',
                   cluster_def: 'cluster_def', cluster_number: 'cluster_number',
+                  speceffect: 'speceffect', spread_angle: 'spread_angle',
+                  max_range_reduction: 'max_range_reduction',
                 };
                 Object.entries(customParamFields).forEach(([sourceKey, editorKey]) => {
                   const value = weaponCustomParams[sourceKey];

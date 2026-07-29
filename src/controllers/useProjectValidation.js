@@ -13,6 +13,9 @@ export function getValidationWarning(key, value) {
   if (normalizedKey.includes('carrierdeaththroe') && !['death', 'control', 'capture', 'release', 'parasite'].includes(normalizedValue)) {
     return { level: 'error', message: 'Use death, control, capture, release, or parasite' };
   }
+  if (normalizedKey.includes('speceffect') && normalizedValue !== 'sector_fire') {
+    return { level: 'error', message: 'The editor currently supports BAR’s verified sector_fire mode only' };
+  }
 
   const carrierListKey = normalizedKey.match(
     /(?:^|[_.])(maxunits|startingdronecount|spawn_metal_cost|spawn_energy_cost|droneairtime|dronedocktime|droneammo)$/
@@ -115,6 +118,13 @@ export function getValidationWarning(key, value) {
       return { level: 'error', message: 'Cluster count must be a positive integer' };
     }
     if (number > 64) return { level: 'warning', message: 'Large cluster counts can be expensive' };
+  }
+  if (isKey('spread_angle')) {
+    if (number <= 0) return { level: 'error', message: 'Sector angle must be greater than 0°' };
+    if (number > 180) return { level: 'warning', message: 'Angles above 180° can fire behind the weapon' };
+  }
+  if (isKey('max_range_reduction') && (number < 0 || number > 1)) {
+    return { level: 'error', message: 'Sector depth must be between 0 and 1' };
   }
   if ((isKey('controlradius') || isKey('decayrate')) && number < 0) {
     return { level: 'error', message: 'Value cannot be negative' };

@@ -68,6 +68,21 @@ describe('editor parameter configuration', () => {
     expect(WEAPON_SLOT_PATHS.is_controllable).toBeUndefined();
   });
 
+  it('compiles sector-fire settings with BAR-compatible paths and scalar types', () => {
+    expect(getWeaponParameterDefinition('speceffect')).toMatchObject({
+      path: 'customparams.speceffect',
+      valueType: 'string',
+    });
+    expect(getWeaponParameterDefinition('spread_angle')).toMatchObject({
+      path: 'customparams.spread_angle',
+      valueType: 'number',
+    });
+    expect(getWeaponParameterDefinition('max_range_reduction')).toMatchObject({
+      path: 'customparams.max_range_reduction',
+      valueType: 'number',
+    });
+  });
+
   it('keeps declared, featured, active, and edited unit parameters in the relevant view', () => {
     const parameters = [
       { key: 'health', featured: true },

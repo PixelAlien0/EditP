@@ -51,4 +51,15 @@ describe('special-unit defaults', () => {
     });
     expect(unitDefaults.armdfly.weaponSlots).toHaveLength(1);
   });
+
+  it('preserves BAR sector-fire metadata for Tremor variants', () => {
+    for (const unitId of ['cortrem', 'scav_cortrem']) {
+      expect(unitDefaults[unitId]?.weaponSlots?.[0]).toMatchObject({
+        defKey: 'tremor_spread_fire',
+        speceffect: 'sector_fire',
+        spread_angle: 22,
+        max_range_reduction: 0.3,
+      });
+    }
+  });
 });

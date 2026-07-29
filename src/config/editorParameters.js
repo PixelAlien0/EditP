@@ -411,7 +411,7 @@ export const WEAPON_SLOT_STRING_PARAMS = new Set([
   'carried_unit', 'dronetype', 'carrierdeaththroe', 'dockingpieces',
   'maxunits', 'startingdronecount', 'spawn_metal_cost', 'spawn_energy_cost',
   'droneairtime', 'dronedocktime', 'droneammo',
-  'speceffect', 'spread_angle', 'max_range_reduction',
+  'speceffect',
 ]);
 
 export const WEAPON_SLOT_MOUNT_PARAMS = new Set([

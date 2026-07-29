@@ -20,22 +20,22 @@
     "units": {
       "path": "src/data/units.json",
       "schemaVersion": 1,
-      "sha256": "b0b8ddc77ac209442915ef13c063fbb08a15c5598c0ef7dcfcf73b4a0a9a9dbb"
+      "sha256": "08c3555bdb530848d0204bc136a83c57bc6af151eac20d7a844e7aea1e85a836"
     },
     "defaults": {
       "path": "src/data/unit-defaults.json",
       "schemaVersion": 1,
-      "sha256": "38129f28f3d77b220172386aed4a7d71ace7cf8ea352c01aba2f3b1c162f25d9"
+      "sha256": "dfd13dad93f7bed2eb10a52135c67fd08a5be62bddb95d08540d4d2a8ab055bf"
     },
     "categories": {
       "path": "src/data/unit-categories.json",
       "schemaVersion": 1,
-      "sha256": "c5473de23aa65c2112913dcc505744adeed5358277fb5227f2eca75e24dbe7c0"
+      "sha256": "8de523cc4dc107583365702a95495f01023533bf6408d4c298c7ba6cef51bdbc"
     },
     "rosters": {
       "path": "src/data/factory-rosters.json",
       "schemaVersion": 1,
-      "sha256": "70e2eeedb43dc90b351bcabf9748d84eb2e14c53b2f127ac660337fab1c7226c"
+      "sha256": "a5743d0b48a6188a16a5ab387d18bd5ba0ed0664b72410c4b52304f630c2dbf4"
     },
     "explosions": {
       "path": "src/data/explosion-profiles.json",
@@ -45,7 +45,7 @@
     "artwork": {
       "path": "src/data/unitpic-manifest.json",
       "schemaVersion": 1,
-      "sha256": "d763b3b6f9e5f71d5d01d1deaa39f3e98f3546fe57ad5cc29286424487585355"
+      "sha256": "695066bb6f91f4bd4393665bd237e5243378b9e6ddceffbe5d519dd452cc985d"
     },
     "tacticalIcons": {
       "path": "src/data/tactical-icon-manifest.json",

@@ -110,12 +110,39 @@ const editorAdvancedGroups = [
   ...SPAWNER_CARRIER_WEAPON_GROUPS,
   {
     title: 'Sector fire (horizontal spread)',
+    kind: 'sector-fire',
+    alwaysVisible: true,
     capabilities: ['bar-gadget'],
-    description: 'BAR gadget-backed horizontal sector-fire spread (used by Tremor). Rotates horizontal X/Z projectile velocity while preserving vertical trajectory to form a ground sector.',
+    description: 'BAR’s Tremor behavior scatters projectiles across a horizontal ground sector. It is random within the sector, not an evenly spaced fan.',
     params: [
-      { key: 'speceffect', label: 'Special Effect Mode (speceffect)', type: 'string' },
-      { key: 'spread_angle', label: 'Horizontal Spread Angle (°)', type: 'number' },
-      { key: 'max_range_reduction', label: 'Range Depth Variation (0-1)', type: 'number' },
+      {
+        key: 'speceffect',
+        label: 'Sector Fire Mode',
+        type: 'string',
+        valueType: 'string',
+        options: ['', 'sector_fire'],
+        alwaysRelevant: true,
+      },
+      {
+        key: 'spread_angle',
+        label: 'Horizontal Sector Angle (°)',
+        type: 'number',
+        valueType: 'number',
+        min: 0.1,
+        max: 360,
+        step: 0.5,
+        alwaysRelevant: true,
+      },
+      {
+        key: 'max_range_reduction',
+        label: 'Sector Depth (0–1)',
+        type: 'number',
+        valueType: 'number',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        alwaysRelevant: true,
+      },
     ],
   },
   {
@@ -446,6 +473,7 @@ export function getApplicableWeaponParameters(parameters, {
   if (showAll) return parameters;
   return parameters.filter(parameter => (
     hasParameter(parameter.key)
+    || parameter.alwaysRelevant
     || (includeEssential && WEAPON_ESSENTIAL_KEYS.has(parameter.key))
   ));
 }

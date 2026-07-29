@@ -1138,13 +1138,57 @@ export default function EditUnitsWorkspace({ context }) {
                           </Suspense>
 
                           <div className="weapon-advanced-groups">
-                            {applicableAdvancedWeaponGroups.map(group => (
-                              <section className="weapon-advanced-group" key={group.title}>
+                            {applicableAdvancedWeaponGroups.map(group => {
+                              const sectorFireValue = group.kind === 'sector-fire'
+                                ? (activeSlotTweaks[`weapon_slot_${slot.slot}_speceffect`] ?? slot.speceffect ?? '')
+                                : '';
+                              const sectorFireActive = sectorFireValue === 'sector_fire';
+                              const applySectorFireBaseline = () => {
+                                handleStatChange(selectedUnit.id, `weapon_slot_${slot.slot}_speceffect`, 'sector_fire');
+                                handleStatChange(
+                                  selectedUnit.id,
+                                  `weapon_slot_${slot.slot}_spread_angle`,
+                                  activeSlotTweaks[`weapon_slot_${slot.slot}_spread_angle`] ?? slot.spread_angle ?? 22
+                                );
+                                handleStatChange(
+                                  selectedUnit.id,
+                                  `weapon_slot_${slot.slot}_max_range_reduction`,
+                                  activeSlotTweaks[`weapon_slot_${slot.slot}_max_range_reduction`] ?? slot.max_range_reduction ?? 0.3
+                                );
+                                handleStatChange(selectedUnit.id, `weapon_slot_${slot.slot}_accuracy`, 0);
+                                handleStatChange(selectedUnit.id, `weapon_slot_${slot.slot}_sprayangle`, 0);
+                              };
+                              const resetSectorFireSetup = () => {
+                                ['speceffect', 'spread_angle', 'max_range_reduction', 'accuracy', 'sprayangle']
+                                  .forEach(key => handleStatChange(
+                                    selectedUnit.id,
+                                    `weapon_slot_${slot.slot}_${key}`,
+                                    undefined
+                                  ));
+                              };
+                              return (
+                              <section
+                                className={`weapon-advanced-group ${group.kind === 'sector-fire' ? 'weapon-sector-fire' : ''}`}
+                                key={group.title}
+                              >
                                 <div className="weapon-advanced-group-heading">
                                   <div>
                                     <span>{group.title}</span>
                                     <small>{group.description}</small>
                                   </div>
+                                  {group.kind === 'sector-fire' && (
+                                    <div className="ui-button-group">
+                                      <span className="section-heading__meta">
+                                        {sectorFireActive ? 'Sector active' : 'Standard firing'}
+                                      </span>
+                                      <Button size="sm" variant="primary" onClick={applySectorFireBaseline}>
+                                        Apply clean sector
+                                      </Button>
+                                      <Button size="sm" variant="ghost" onClick={resetSectorFireSetup}>
+                                        Reset setup
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="editor-grid weapon-parameter-grid weapon-advanced-grid">
                                   {group.params.map(param => {
@@ -1189,7 +1233,7 @@ export default function EditUnitsWorkspace({ context }) {
                                             >
                                               {param.options.map(option => (
                                                 <option key={option || 'inherited'} value={option}>
-                                                  {option || 'Inherited'}
+                                                  {option === 'sector_fire' ? 'Enabled · sector_fire' : option || 'Inherited'}
                                                 </option>
                                               ))}
                                             </select>
@@ -1216,6 +1260,9 @@ export default function EditUnitsWorkspace({ context }) {
                                               type="number"
                                               className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
                                               value={displayValue}
+                                              min={param.min}
+                                              max={param.max}
+                                              step={param.step}
                                               placeholder={defaultVal !== undefined ? String(defaultVal) : 'Inherited'}
                                               onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value)}
                                             />
@@ -1241,7 +1288,8 @@ export default function EditUnitsWorkspace({ context }) {
                                   })}
                                 </div>
                               </section>
-                            ))}
+                              );
+                            })}
                           </div>
 
                           {/* Target Category Masks */}
