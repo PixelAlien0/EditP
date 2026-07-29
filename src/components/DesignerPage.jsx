@@ -303,7 +303,9 @@ export default function DesignerPage({
                       </div>
                     </div>
                   </div>
-                  <button className="designer-add-unit" onClick={() => onAddRosterUnit(unit.id)}>+ Add</button>
+                  <button className="designer-add-unit" onClick={() => onAddRosterUnit(unit.id)}>
+                    <span className="designer-add-unit-icon" aria-hidden="true">+</span> Add
+                  </button>
                 </div>
               ))}
               {availableUnits.length === 0 && (

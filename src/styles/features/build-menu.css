@@ -500,21 +500,46 @@
 }
 
 .designer-page .designer-add-unit {
-  min-width: 54px;
-  min-height: 30px;
-  padding: 5px 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 62px;
+  min-height: 28px;
+  padding: 5px 12px;
   flex: 0 0 auto;
-  border: 1px solid var(--color-border-accent-muted) !important;
-  border-radius: var(--radius-xs);
-  background: transparent !important;
-  color: var(--color-accent-strong) !important;
-  font-size: 8px;
-  font-weight: 750;
+  border: 1px solid rgba(59, 130, 246, 0.45) !important;
+  border-radius: var(--radius-full, 9999px) !important;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(37, 99, 235, 0.32)) !important;
+  color: #93c5fd !important;
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   cursor: pointer;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.designer-page .designer-add-unit .designer-add-unit-icon {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.9;
 }
 
 .designer-page .designer-add-unit:hover {
-  background: var(--color-accent-soft) !important;
+  border-color: #60a5fa !important;
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-1px) scale(1.04);
+}
+
+.designer-page .designer-add-unit:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.3) !important;
 }
 
 .designer-page .designer-roster-scroll {
