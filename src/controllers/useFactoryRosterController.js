@@ -113,24 +113,31 @@ export function useFactoryRosterController({
   ]);
 
   const availableUnitsForFactory = useMemo(() => {
-    const activeIds = new Set(
-      activeRosterItems
-        .filter(item => item.status !== 'removed')
-        .map(item => item.id.toLowerCase())
+    const rosterStatuses = new Map(
+      activeRosterItems.map(item => [item.id.toLowerCase(), item.status])
     );
     const factoryFaction = getFactionOfUnit(selectedFactoryId);
     const query = availableSearchQuery.trim().toLowerCase();
 
-    return allUnitsList.filter(unit => {
-      if (activeIds.has(unit.id.toLowerCase())) return false;
-      if (availableFactionFilter === 'clone' && !unit.isClone) return false;
-      if (availableFactionFilter === 'factory' && unit.faction !== factoryFaction) return false;
-      if (!['all', 'factory', 'clone'].includes(availableFactionFilter)
-        && unit.faction !== availableFactionFilter) return false;
-      return !query
-        || unit.id.toLowerCase().includes(query)
-        || unit.name.toLowerCase().includes(query);
-    });
+    return allUnitsList
+      .filter(unit => {
+        if (availableFactionFilter === 'clone' && !unit.isClone) return false;
+        if (availableFactionFilter === 'factory' && unit.faction !== factoryFaction) return false;
+        if (!['all', 'factory', 'clone'].includes(availableFactionFilter)
+          && unit.faction !== availableFactionFilter) return false;
+        return !query
+          || unit.id.toLowerCase().includes(query)
+          || unit.name.toLowerCase().includes(query);
+      })
+      .map(unit => ({
+        ...unit,
+        rosterStatus: rosterStatuses.get(unit.id.toLowerCase()) || null,
+      }))
+      .sort((left, right) => {
+        const leftRank = left.rosterStatus === 'removed' ? 1 : left.rosterStatus ? 2 : 0;
+        const rightRank = right.rosterStatus === 'removed' ? 1 : right.rosterStatus ? 2 : 0;
+        return leftRank - rightRank || left.name.localeCompare(right.name);
+      });
   }, [
     activeRosterItems,
     allUnitsList,

@@ -35,6 +35,11 @@ export default function DesignerPage({
   onAddRosterUnit,
   onClose,
 }) {
+  const removedItems = rosterItems.filter(item => item.status === 'removed');
+  const baseSlotCount = rosterItems.filter(item => item.status !== 'added').length;
+  const addedSlotCount = rosterItems.filter(item => item.status === 'added').length;
+  const suggestedUnits = availableUnits.filter(unit => !unit.rosterStatus).slice(0, 3);
+
   return (
     <PageShell
       className="designer-page"
@@ -63,20 +68,32 @@ export default function DesignerPage({
             <Type as="small" variant="description">Preview the same conditional build options enabled in a BAR lobby.</Type>
           </div>
           <div className="designer-roster-profiles__options">
-            {Object.entries(packDefinitions).map(([packId, pack]) => (
-              <Switch
-                key={packId}
-                className="designer-pack-option"
-                checked={Boolean(rosterPacks[packId])}
-                onChange={() => onToggleRosterPack(packId)}
-                label={`${pack.label}: ${rosterPacks[packId] ? 'enabled' : 'disabled'}`}
-              >
-                <span className="designer-pack-option__copy">
-                  <strong>{pack.label}</strong>
-                  <small>{pack.description}</small>
-                </span>
-              </Switch>
-            ))}
+            {Object.entries(packDefinitions).map(([packId, pack]) => {
+              const affectedProducers = Object.keys(pack.additions || {}).length;
+              const addedOptions = Object.values(pack.additions || {})
+                .reduce((total, additions) => total + additions.length, 0);
+              const enabled = Boolean(rosterPacks[packId]);
+              return (
+                <Switch
+                  key={packId}
+                  className="designer-pack-option"
+                  checked={enabled}
+                  onChange={() => onToggleRosterPack(packId)}
+                  label={`${pack.label}: ${enabled ? 'enabled' : 'disabled'}`}
+                >
+                  <span className="designer-pack-option__copy">
+                    <span className="designer-pack-option__heading">
+                      <strong>{pack.label}</strong>
+                      <span className="designer-pack-option__state">{enabled ? 'Enabled' : 'Off'}</span>
+                    </span>
+                    <small>{pack.description}</small>
+                    <span className="designer-pack-option__impact">
+                      {affectedProducers} producer rosters · {addedOptions} unit placements
+                    </span>
+                  </span>
+                </Switch>
+              );
+            })}
           </div>
         </section>
         <div className="designer-modal-content">
@@ -163,11 +180,19 @@ export default function DesignerPage({
                       <span className="designer-unit-name">{producer.name}</span>
                       <div className="designer-unit-meta">
                         <span className="designer-unit-id">{producer.id}</span>
+                        <span className={`designer-producer-faction designer-producer-faction--${producer.faction}`}>
+                          {producer.faction}
+                        </span>
                         <span className={`designer-producer-kind designer-producer-kind--${producer.kind}`}>{producer.kindLabel}</span>
                         <span className="designer-producer-tier">{producer.tier}</span>
                         {isFactoryModified(producer.id) && <span className="designer-item-status designer-item-status--modified">Modified</span>}
                       </div>
                     </div>
+                    <span className={`designer-producer-capacity ${producer.rosterSize === 0 ? 'is-warning' : ''}`}>
+                      <strong>{producer.rosterSize}</strong>
+                      <small>{producer.rosterSize === 1 ? 'slot' : 'slots'}</small>
+                      {producer.rosterSize === 0 && <em>Missing roster data</em>}
+                    </span>
                   </button>
                 );
               })}
@@ -186,7 +211,10 @@ export default function DesignerPage({
                 )}
               </Type>
               <Type as="div" variant="description" className="designer-panel-description">
-                Drag units to reorder the build menu. Removed slots remain visible until restored.
+                <span>Drag units to reorder the build menu. Removed slots remain visible until restored.</span>
+                <span className="designer-sequence-summary">
+                  {activeSlotCount} active · {baseSlotCount} roster references · {addedSlotCount} custom
+                </span>
               </Type>
             </div>
 
@@ -226,7 +254,13 @@ export default function DesignerPage({
                       }}
                       className={`build-menu-slot ${added ? 'added' : ''} ${removed ? 'removed' : ''}`}
                     >
-                      <span className="slot-index">{String(index + 1).padStart(2, '0')}</span>
+                      <span className="slot-index" aria-label={`Slot ${index + 1}`}>
+                        <small>Slot</small>{String(index + 1).padStart(2, '0')}
+                      </span>
+                      {!removed && <span className="slot-drag-handle" aria-hidden="true" title="Drag to reorder">⠿</span>}
+                      <span className={`slot-status slot-status--${item.status}`}>
+                        {removed ? 'Removed' : added ? 'Added' : 'Default'}
+                      </span>
                       <UnitArtwork src={getUnitIconUrl(item.id)} alt="" className="build-menu-slot-image" />
                       <div className="slot-overlay-actions">
                         <span className="slot-unit-name" title={item.name}>{item.name}</span>
@@ -237,23 +271,39 @@ export default function DesignerPage({
                           </span>
                         )}
                         {!removed ? (
-                          <button className="slot-btn slot-btn-remove" onClick={event => { event.stopPropagation(); onRemoveRosterUnit(item.id); }}>
+                          <Button size="sm" variant="danger" className="slot-btn" aria-label={`Remove ${item.name} from ${factoryName}`} onClick={event => { event.stopPropagation(); onRemoveRosterUnit(item.id); }}>
                             <span className="slot-btn-icon" aria-hidden="true">✕</span> Remove
-                          </button>
+                          </Button>
                         ) : (
-                          <button className="slot-btn slot-btn-restore" onClick={event => { event.stopPropagation(); onRestoreRosterUnit(item.id); }}>
+                          <Button size="sm" className="slot-btn slot-btn-restore" aria-label={`Restore ${item.name} to ${factoryName}`} onClick={event => { event.stopPropagation(); onRestoreRosterUnit(item.id); }}>
                             <span className="slot-btn-icon" aria-hidden="true">↺</span> Restore
-                          </button>
+                          </Button>
                         )}
                       </div>
                     </div>
                   );
                 })}
               </div>
-              {rosterItems.every(item => item.status === 'removed') && (
-                <div className="designer-empty-state">
+              {(rosterItems.length === 0 || removedItems.length === rosterItems.length) && (
+                <div className="designer-empty-state designer-empty-state--production">
+                  <span className="designer-empty-state__index" aria-hidden="true">00</span>
                   <strong>No production options</strong>
-                  <span>Roster is currently empty. Game engine will not display this factory in-game.</span>
+                  <span>This producer has no active build choices and will not expose a usable production roster in game.</span>
+                  <div className="designer-empty-state__actions">
+                    {removedItems.length > 0 && (
+                      <Button
+                        size="sm"
+                        onClick={() => removedItems.forEach(item => onRestoreRosterUnit(item.id))}
+                      >
+                        Restore {removedItems.length} removed
+                      </Button>
+                    )}
+                    {suggestedUnits.map(unit => (
+                      <Button size="sm" key={unit.id} onClick={() => onAddRosterUnit(unit.id)}>
+                        + {unit.name}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -289,8 +339,14 @@ export default function DesignerPage({
             </div>
 
             <div className="designer-panel-scroll">
-              {availableUnits.map(unit => (
-                <div key={unit.id} className="designer-roster-item">
+              {availableUnits.map(unit => {
+                const inRoster = unit.rosterStatus && unit.rosterStatus !== 'removed';
+                const wasRemoved = unit.rosterStatus === 'removed';
+                return (
+                <div
+                  key={unit.id}
+                  className={`designer-roster-item ${inRoster ? 'is-present' : ''} ${wasRemoved ? 'is-removed' : ''}`}
+                >
                   <div className="designer-unit-card">
                     <div className="designer-unit-pic">
                       <UnitArtwork src={getUnitIconUrl(unit.id)} alt="" />
@@ -300,14 +356,28 @@ export default function DesignerPage({
                       <div className="designer-unit-meta">
                         <span className="designer-unit-id">{unit.id}</span>
                         {unit.isClone && <span className="designer-item-status designer-item-status--clone">Clone</span>}
+                        {inRoster && <span className="designer-item-status designer-item-status--present">In roster</span>}
+                        {wasRemoved && <span className="designer-item-status designer-item-status--removed">Removed</span>}
                       </div>
                     </div>
                   </div>
-                  <button className="designer-add-unit" onClick={() => onAddRosterUnit(unit.id)}>
-                    <span className="designer-add-unit-icon" aria-hidden="true">+</span> Add
-                  </button>
+                  <Button
+                    size="sm"
+                    className={`designer-add-unit ${wasRemoved ? 'is-restore' : ''}`}
+                    disabled={Boolean(inRoster)}
+                    onClick={() => wasRemoved ? onRestoreRosterUnit(unit.id) : onAddRosterUnit(unit.id)}
+                    aria-label={
+                      inRoster
+                        ? `${unit.name} is already in this roster`
+                        : `${wasRemoved ? 'Restore' : 'Add'} ${unit.name}`
+                    }
+                  >
+                    <span className="designer-add-unit-icon" aria-hidden="true">{inRoster ? '✓' : wasRemoved ? '↺' : '+'}</span>
+                    {inRoster ? 'Added' : wasRemoved ? 'Restore' : 'Add'}
+                  </Button>
                 </div>
-              ))}
+                );
+              })}
               {availableUnits.length === 0 && (
                 <div className="designer-empty-state">
                   <strong>No matching units</strong>

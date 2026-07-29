@@ -144,6 +144,8 @@ test('build menu producer catalog separates factories and builders', async ({ pa
   await page.getByRole('button', { name: /Build Menus/i }).click();
 
   const catalog = page.locator('.designer-factory-browser');
+  await expect(page.getByText(/producer rosters · \d+ unit placements/i).first()).toBeVisible();
+  await expect(page.locator('.designer-roster-canvas').getByText('Default').first()).toBeVisible();
   await expect(catalog.getByText('Groundhog', { exact: true })).toBeVisible();
   await expect(catalog.getByText('Bot Lab', { exact: true }).first()).toBeVisible();
   await expect(catalog.getByText('armsaap', { exact: true })).toHaveCount(0);
@@ -183,6 +185,11 @@ test('build menu producer catalog separates factories and builders', async ({ pa
   await expect(catalog.getByText('Legion Vehicle Plant', { exact: true })).toBeVisible();
   await producerSearch.fill('legavp');
   await expect(catalog.getByText('Advanced Vehicle Plant', { exact: true })).toBeVisible();
+
+  const unitLibrary = page.locator('.designer-unit-library');
+  await unitLibrary.getByPlaceholder('Search units to add...').fill('armck');
+  await expect(unitLibrary.getByText('In roster', { exact: true })).toBeVisible();
+  await expect(unitLibrary.locator('.designer-add-unit:disabled')).toBeDisabled();
 });
 
 test('behavior and interceptor editor links unit policy, projectile masks, and coverage', async ({ page }) => {
