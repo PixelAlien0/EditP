@@ -143,8 +143,7 @@
 }
 
 .weapon-lab-tab-panel {
-  width: min(1080px, 100%);
-  margin-inline: auto;
+  width: 100%;
   display: grid;
   gap: var(--space-5);
 }
@@ -688,11 +687,20 @@
   justify-self: center;
 }
 
-.weapon-lab-canonical-parameters,
-.weapon-lab-canonical-parameter-groups {
-  min-width: 0;
+.weapon-lab-canonical-parameters {
   display: grid;
   gap: var(--space-3);
+}
+
+.weapon-lab-canonical-parameter-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+  gap: var(--space-3);
+}
+
+.weapon-lab-canonical-parameter-groups > [open],
+.weapon-lab-canonical-parameter-groups > .weapon-lab-target-masks {
+  grid-column: 1 / -1;
 }
 
 .weapon-lab-parameter-toolbar {
@@ -709,16 +717,6 @@
 .weapon-lab-parameter-toolbar > div:first-child {
   display: grid;
   gap: 3px;
-}
-
-.weapon-lab-parameter-toolbar strong {
-  color: var(--color-text-strong);
-  font: 600 var(--font-size-md)/1.2 var(--font-display);
-}
-
-.weapon-lab-parameter-toolbar small {
-  color: var(--color-text-muted);
-  font: 500 var(--font-size-xs)/1.3 var(--font-ui);
 }
 
 .weapon-lab-parameter-view {
@@ -780,14 +778,14 @@
 
 .weapon-lab-parameter-grid {
   padding: var(--space-3);
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
   border-top: 1px solid var(--color-border);
 }
 
 .weapon-lab-parameter {
-  min-height: 116px;
+  flex: 1 1 230px;
   padding: var(--space-3);
   display: grid;
   grid-template-rows: auto var(--control-height-md) minmax(24px, auto);

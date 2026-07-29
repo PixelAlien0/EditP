@@ -323,7 +323,7 @@ export default function WeaponBlueprintParameterEditor({ blueprint, onChange }) 
             overrideValues={overrideValues}
             effectiveValues={effectiveValues}
             onChange={onChange}
-            defaultOpen={index < 2}
+            defaultOpen={index === 0}
           />
         ))}
         <TargetMaskGroup
