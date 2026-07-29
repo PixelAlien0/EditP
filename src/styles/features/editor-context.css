@@ -264,7 +264,8 @@
   letter-spacing: .02em;
 }
 
-.unit-identity-edit {
+.unit-identity-edit,
+.unit-description-edit {
   min-height: 24px;
   padding: 3px var(--space-2);
   flex: 0 0 auto;
@@ -274,6 +275,19 @@
   color: var(--color-accent-strong);
   font: 700 var(--font-size-xs)/1 var(--font-ui);
   cursor: pointer;
+}
+
+.unit-description-edit {
+  border-color: var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.unit-description-edit.is-edited {
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
 }
 
 .unit-dossier-metrics {

@@ -64,6 +64,7 @@ export function useCompiledProjectOutputs({
   projectName,
   projectAuthor,
   projectDesc,
+  unitDescriptions = {},
   weaponLibrary,
   supportingWeaponDefs,
   tweakModules,
@@ -96,7 +97,13 @@ export function useCompiledProjectOutputs({
       });
     };
 
-    Object.entries(tweaks).forEach(([unitId, statPatch]) => {
+    const editedUnitIds = new Set([
+      ...Object.keys(tweaks),
+      ...Object.keys(unitDescriptions),
+    ]);
+
+    editedUnitIds.forEach(unitId => {
+      const statPatch = tweaks[unitId] || {};
       const unit = unitsById.get(unitId);
       const defaults = defaultsDb[unit?.isClone ? resolveCloneRootId(unitId) : unitId];
       if (!defaults) return;
@@ -174,6 +181,16 @@ export function useCompiledProjectOutputs({
         else unitPatch[patchKey] = typedValue;
       });
 
+      const description = unitDescriptions[unitId];
+      if (typeof description === 'string' && description.trim()) {
+        unitPatch.description = description.trim();
+        [
+          'en', 'de', 'fr', 'es', 'it', 'ru', 'zh', 'cs', 'hr', 'lt',
+        ].forEach(language => {
+          setNestedValue(unitPatch, `customparams.i18n_${language}_tooltip`, description.trim());
+        });
+      }
+
       getActiveWeaponSlots(unitId).forEach(slot => {
         const weaponKey = String(slot.defKey || '').toLowerCase();
         const weaponPatch = unitPatch.weapondefs?.[weaponKey];
@@ -191,6 +208,7 @@ export function useCompiledProjectOutputs({
     includeTweaks,
     resolveCloneRootId,
     tweaks,
+    unitDescriptions,
   ]);
 
   const deathExplosionTweaks = useMemo(() => {

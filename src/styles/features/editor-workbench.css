@@ -808,6 +808,19 @@
 
 .inspector-description-field { min-height: 88px; resize: vertical; }
 
+.inspector-description-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.inspector-description-actions > small {
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-xs)/1.4 var(--font-mono);
+}
+
 .inspector-form-grid {
   display: grid;
   gap: var(--space-4);

@@ -22,6 +22,7 @@ function createInput(overrides = {}) {
     projectName: 'Test',
     projectAuthor: '',
     projectDesc: '',
+    unitDescriptions: {},
     weaponLibrary: [],
     supportingWeaponDefs: [],
     tweakModules: [],
@@ -46,5 +47,16 @@ describe('useCompiledProjectOutputs', () => {
 
     expect(result.current.generatedTweakUnitsLua).toBe('{\n}');
     expect(result.current.tweakUnitsB64).toBe('');
+  });
+
+  it('exports edited unit descriptions and localized BAR tooltips', () => {
+    const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
+      tweaks: {},
+      unitDescriptions: { armflash: 'Fast raider with a custom role.' },
+    })));
+
+    expect(result.current.generatedTweakUnitsLua).toContain('description = "Fast raider with a custom role."');
+    expect(result.current.generatedTweakUnitsLua).toContain('i18n_en_tooltip = "Fast raider with a custom role."');
+    expect(result.current.tweakUnitsB64).not.toBe('');
   });
 });

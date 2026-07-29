@@ -177,7 +177,7 @@ export default function App() {
 
   const {
     state: projectStore,
-    setTweaks, setClones, setDisabledUnitIds, setUnitDescriptions,
+    setTweaks, setClones, setDisabledUnitIds,
     setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setSupportingWeaponDefs, setUnitCollections, setTweakModules, setLobbySetup,
     setProjectName, setProjectAuthor, setProjectDesc,
     setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
@@ -490,7 +490,7 @@ export default function App() {
       return {
         id,
         name,
-        desc: unitsDb.descriptions[id] || '',
+        desc: unitDescriptions[id] ?? unitsDb.descriptions[id] ?? '',
         faction,
         tags,
         techTier,
@@ -509,7 +509,9 @@ export default function App() {
       list.push({
         id: c.newId,
         name: c.displayName || c.newId,
-        desc: `Cloned from ${cloneNames.get(parentId) || unitsDb.names[parentId] || c.baseId}`,
+        desc: unitDescriptions[c.newId]
+          ?? c.description
+          ?? `Cloned from ${cloneNames.get(parentId) || unitsDb.names[parentId] || c.baseId}`,
         faction: getFactionOfUnit(rootBaseId),
         tags: [...getTagsOfUnit(rootBaseId).filter(tag => !/^t[1-4]$/.test(tag)), techTier],
         techTier,
@@ -520,7 +522,7 @@ export default function App() {
     });
 
     return list.sort((a, b) => a.name.localeCompare(b.name));
-  }, [clones, defaultsDb, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitsDb.descriptions, unitsDb.names]);
+  }, [clones, defaultsDb, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitDescriptions, unitsDb.descriptions, unitsDb.names]);
   const {
     activeFactoryRosters,
     selectedProducer,
@@ -756,12 +758,13 @@ export default function App() {
       }
       if (showModifiedOnly) {
         const hasTweaks = Boolean(tweaks[unit.id] && Object.keys(tweaks[unit.id]).length > 0);
+        const hasDescription = Object.hasOwn(unitDescriptions, unit.id);
         const isDisabled = disabledUnitIds.includes(unit.id);
-        if (!hasTweaks && !isDisabled && !unit.isClone) return false;
+        if (!hasTweaks && !hasDescription && !isDisabled && !unit.isClone) return false;
       }
       return queryFilterFn(unit);
     });
-  }, [activeCollectionUnitIds, allUnitsList, selectedFaction, selectedCats, queryFilterFn, showModifiedOnly, tweaks, disabledUnitIds]);
+  }, [activeCollectionUnitIds, allUnitsList, selectedFaction, selectedCats, queryFilterFn, showModifiedOnly, tweaks, unitDescriptions, disabledUnitIds]);
 
   const bulkTargetUnits = useMemo(() => filteredUnits.filter(unit => {
     const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
@@ -1100,6 +1103,7 @@ export default function App() {
     projectName,
     projectAuthor,
     projectDesc,
+    unitDescriptions,
     weaponLibrary,
     supportingWeaponDefs,
     tweakModules,
@@ -1543,13 +1547,17 @@ export default function App() {
 
   const updateSelectedUnitDescription = useCallback(value => {
     if (!selectedUnit) return;
-    setUnitDescriptions(current => {
-      const next = { ...current };
-      if (value === '') delete next[selectedUnit.id];
-      else next[selectedUnit.id] = value;
-      return next;
+    const normalizedValue = value.slice(0, 1000);
+    transactProject(current => {
+      const nextDescriptions = { ...current.unitDescriptions };
+      if (normalizedValue.trim() === '') delete nextDescriptions[selectedUnit.id];
+      else nextDescriptions[selectedUnit.id] = normalizedValue;
+      return {
+        unitDescriptions: nextDescriptions,
+        includeTweaks: normalizedValue.trim() === '' ? current.includeTweaks : true,
+      };
     });
-  }, [selectedUnit, setUnitDescriptions]);
+  }, [selectedUnit, transactProject]);
   const activeCompiledOutput = activeOutputTab === 'tweakdefs_lua'
     ? generatedTweakDefsLua
     : activeOutputTab === 'tweakunits_lua'

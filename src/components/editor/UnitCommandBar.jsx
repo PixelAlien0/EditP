@@ -3,7 +3,7 @@ import { Button, Switch } from '../ui.jsx';
 
 export default function UnitCommandBar({
   baseId, artworkUrl, unitId, name, faction, tier, unitClass, weaponCount, overrideCount,
-  isClone, disabled, onDisabledChange, onReset, onOpenIdentity,
+  isClone, descriptionEdited, disabled, onDisabledChange, onReset, onOpenIdentity, onOpenDescription,
 }) {
   return (
     <header className="editor-unit-header">
@@ -22,6 +22,13 @@ export default function UnitCommandBar({
             <span className={`clone-badge ${isClone ? '' : 'unit-source-badge'}`}>
               {isClone ? 'Clone prototype' : 'Vanilla unit'}
             </span>
+            <button
+              type="button"
+              className={`unit-description-edit${descriptionEdited ? ' is-edited' : ''}`}
+              onClick={onOpenDescription}
+            >
+              {descriptionEdited ? 'Description edited' : 'Edit description'}
+            </button>
             {isClone && (
               <button type="button" className="unit-identity-edit" onClick={onOpenIdentity}>
                 Edit identity
