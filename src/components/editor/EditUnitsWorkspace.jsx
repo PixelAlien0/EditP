@@ -42,6 +42,7 @@ import {
 } from '../../config/parameterGuidance.js';
 import AssetPicker from './AssetPicker.jsx';
 import AdvancedCustomParameters from './AdvancedCustomParameters.jsx';
+import UnitDescriptionEditor from './UnitDescriptionEditor.jsx';
 
 const LazyBehaviorInterceptorEditor = lazy(() => import('./BehaviorInterceptorEditor.jsx'));
 
@@ -1498,32 +1499,13 @@ export default function EditUnitsWorkspace({ context }) {
                   onClear={() => setActiveRelationshipKey(null)}
                 />
                 {selectedUnit && (
-                  <section className="inspector-section-card">
-                    <div className="inspector-section-heading">
-                      <span>Unit description</span>
-                      <small>{Object.hasOwn(unitDescriptions, selectedUnit.id) ? 'Edited in this project' : 'Inherited from BAR'}</small>
-                    </div>
-                    <textarea
-                      id="selected-unit-description"
-                      className="form-input inspector-description-field"
-                      aria-label={`Custom description for ${selectedUnit.name}`}
-                      placeholder={selectedUnit.desc || 'No chassis description available.'}
-                      value={unitDescriptions[selectedUnit.id] || ''}
-                      maxLength={1000}
-                      onChange={event => updateSelectedUnitDescription(event.target.value)}
-                    />
-                    <div className="inspector-description-actions">
-                      <small>{(unitDescriptions[selectedUnit.id] || '').length} / 1000 characters</small>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        disabled={!Object.hasOwn(unitDescriptions, selectedUnit.id)}
-                        onClick={() => updateSelectedUnitDescription('')}
-                      >
-                        Restore inherited
-                      </Button>
-                    </div>
-                  </section>
+                  <UnitDescriptionEditor
+                    unitId={selectedUnit.id}
+                    unitName={selectedUnit.name}
+                    inheritedDescription={selectedUnit.baseDesc}
+                    value={unitDescriptions[selectedUnit.id] || ''}
+                    onCommit={updateSelectedUnitDescription}
+                  />
                 )}
               </div>
             ),

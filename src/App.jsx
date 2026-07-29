@@ -491,6 +491,7 @@ export default function App() {
         id,
         name,
         desc: unitDescriptions[id] ?? unitsDb.descriptions[id] ?? '',
+        baseDesc: unitsDb.descriptions[id] ?? '',
         faction,
         tags,
         techTier,
@@ -506,12 +507,13 @@ export default function App() {
         ? getEffectiveTechTier(c.newId, rootBaseId)
         : getTechTierFromValue(inheritedTier);
       const parentId = c.baseId.trim().toLowerCase();
+      const inheritedDescription = c.description
+        ?? `Cloned from ${cloneNames.get(parentId) || unitsDb.names[parentId] || c.baseId}`;
       list.push({
         id: c.newId,
         name: c.displayName || c.newId,
-        desc: unitDescriptions[c.newId]
-          ?? c.description
-          ?? `Cloned from ${cloneNames.get(parentId) || unitsDb.names[parentId] || c.baseId}`,
+        desc: unitDescriptions[c.newId] ?? inheritedDescription,
+        baseDesc: inheritedDescription,
         faction: getFactionOfUnit(rootBaseId),
         tags: [...getTagsOfUnit(rootBaseId).filter(tag => !/^t[1-4]$/.test(tag)), techTier],
         techTier,
