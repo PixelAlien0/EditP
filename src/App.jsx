@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { lazy, Suspense, useState, useMemo, useEffect, useCallback } from 'react';
 import { BUILD_MENU_PACKS } from './data/build-menu-packs.js';
 import { getFactionOfUnit, getTechTierFromValue } from './utils/categories.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
@@ -125,9 +125,6 @@ export default function App() {
   const [showModifiedOnly, setShowModifiedOnly] = useState(false);
   const [activeCollectionId, setActiveCollectionId] = useState(null);
   const [selectedUnitId, setSelectedUnitId] = useState('armdfly');
-  const [unitListScrollTop, setUnitListScrollTop] = useState(0);
-  const [unitListViewportHeight, setUnitListViewportHeight] = useState(0);
-  const unitListContainerRef = useRef(null);
 
   useEffect(() => {
     document.documentElement.dataset.theme = themeMode;
@@ -204,12 +201,12 @@ export default function App() {
     return lineage.reduce((merged, clone) => ({ ...merged, ...(clone.weaponSwaps || {}) }), {});
   }, [getCloneLineage]);
 
-  const getProjectUnitIconUrl = (unitId) => {
+  const getProjectUnitIconUrl = useCallback((unitId) => {
     const editedBuildPicture = tweaks[unitId]?.buildpic;
     const editedPreview = getBuildPicturePreviewUrl(editedBuildPicture);
     if (editedPreview) return editedPreview;
     return getUnitIconUrl(resolveCloneRootId(unitId));
-  };
+  }, [resolveCloneRootId, tweaks]);
 
   const [base64Options, setBase64Options] = useState({ padding: false });
   const tweakDefsLua = '';
@@ -747,41 +744,6 @@ export default function App() {
   };
 
   const hasActiveUnitFilters = Boolean(activeCollection || searchQuery.trim() || selectedFaction !== 'all' || selectedCats.length > 0 || showModifiedOnly);
-
-  const unitRowHeight = 64;
-  const unitListOverscan = 8;
-  const virtualUnitRange = useMemo(() => {
-    const estimatedViewportRows = 18;
-    const start = Math.max(0, Math.floor(unitListScrollTop / unitRowHeight) - unitListOverscan);
-    const end = Math.min(filteredUnits.length, start + estimatedViewportRows + unitListOverscan * 2);
-    return {
-      start,
-      end,
-      units: filteredUnits.slice(start, end)
-    };
-  }, [filteredUnits, unitListScrollTop]);
-
-  const unitScrollHint = useMemo(() => {
-    const viewportHeight = unitListViewportHeight || unitRowHeight * 18;
-    const visibleEnd = Math.min(filteredUnits.length, Math.ceil((unitListScrollTop + viewportHeight) / unitRowHeight));
-    const remaining = Math.max(0, filteredUnits.length - visibleEnd);
-    return { remaining, hasMore: remaining > 0 };
-  }, [filteredUnits.length, unitListScrollTop, unitListViewportHeight]);
-
-  useEffect(() => {
-    setUnitListScrollTop(0);
-    unitListContainerRef.current?.scrollTo({ top: 0 });
-  }, [activeCollectionId, searchQuery, selectedFaction, selectedCats, showModifiedOnly]);
-
-  useEffect(() => {
-    const container = unitListContainerRef.current;
-    if (!container) return undefined;
-    const updateViewport = () => setUnitListViewportHeight(container.clientHeight);
-    updateViewport();
-    const observer = new ResizeObserver(updateViewport);
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [activeWorkspace, showMainMenu]);
 
   // Selection defaults
   useEffect(() => {
@@ -1408,10 +1370,10 @@ export default function App() {
     }
   }, [activeFaction]);
 
-  const modifiedUnitIds = [...new Set([
+  const modifiedUnitIds = useMemo(() => [...new Set([
     ...Object.keys(tweaks).filter(id => Object.keys(tweaks[id] || {}).length > 0),
-    ...Object.keys(unitDescriptions)
-  ])];
+    ...Object.keys(unitDescriptions),
+  ])], [tweaks, unitDescriptions]);
   const activeCollectionModifiedCount = activeCollectionUnitIds
     ? modifiedUnitIds.filter(unitId => activeCollectionUnitIds.has(unitId)).length
     : modifiedUnitIds.length;
@@ -1742,7 +1704,6 @@ export default function App() {
             setShowSwapModal,
             setSwapPosition,
             setSwapSearchQuery,
-            setUnitListScrollTop,
             showAllUnitParams,
             showAllWeaponParams,
             showModifiedOnly,
@@ -1753,12 +1714,8 @@ export default function App() {
             tweakUnitsB64,
             unitCollections,
             unitDescriptions,
-            unitListContainerRef,
-            unitRowHeight,
-            unitScrollHint,
             unitsDb,
             updateSelectedUnitDescription,
-            virtualUnitRange,
             workspaceLayout,
           }}
         />

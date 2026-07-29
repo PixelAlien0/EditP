@@ -20,9 +20,9 @@ import {
   WEAPON_TARGET_MASK_PARAMETERS,
 } from '../../config/weaponParameters.js';
 import { Button, SectionHeader, Switch, StatCard } from '../ui.jsx';
-import UnitArtwork from '../UnitArtwork.jsx';
 import EditorShell from './EditorShell.jsx';
 import UnitLibraryPane from './UnitLibraryPane.jsx';
+import VirtualizedUnitList from './VirtualizedUnitList.jsx';
 import CollectionScopePicker from './CollectionScopePicker.jsx';
 import UnitCommandBar from './UnitCommandBar.jsx';
 import ParameterCanvas, { ParameterMatrix } from './ParameterCanvas.jsx';
@@ -131,7 +131,6 @@ export default function EditUnitsWorkspace({ context }) {
     setShowSwapModal,
     setSwapPosition,
     setSwapSearchQuery,
-    setUnitListScrollTop,
     showAllUnitParams,
     showAllWeaponParams,
     showModifiedOnly,
@@ -142,12 +141,8 @@ export default function EditUnitsWorkspace({ context }) {
     tweakUnitsB64,
     unitCollections,
     unitDescriptions,
-    unitListContainerRef,
-    unitRowHeight,
-    unitScrollHint,
     unitsDb,
     updateSelectedUnitDescription,
-    virtualUnitRange,
     workspaceLayout,
   } = context;
   const activeUnitFilterCount = (
@@ -290,71 +285,16 @@ export default function EditUnitsWorkspace({ context }) {
             )}
           </div>
 
-          {/* Scrollable list of units with icons */}
-          <div className="unit-list-region">
-          <div
-            ref={unitListContainerRef}
-            className="unit-list-container"
-            onScroll={event => setUnitListScrollTop(event.currentTarget.scrollTop)}
-          >
-              {filteredUnits.length === 0 ? (
-                <div className="unit-list-empty">
-                  <strong>No matching units</strong>
-                  <span>Try removing a category or clearing the current filters.</span>
-                  <button className="filter-action-btn active" onClick={clearUnitFilters}>Clear all filters</button>
-                </div>
-              ) : (
-              <div className="unit-list-virtual" style={{ height: `${filteredUnits.length * unitRowHeight}px` }}>
-              <div className="unit-list" style={{ transform: `translateY(${virtualUnitRange.start * unitRowHeight}px)` }}>
-              {virtualUnitRange.units.map(unit => {
-                const isModified = tweaks[unit.id] && Object.keys(tweaks[unit.id]).length > 0;
-                const isDisabled = disabledUnitIds.includes(unit.id);
-                return (
-                  <button
-                    type="button"
-                    key={unit.id}
-                    className={`unit-item ${selectedUnitId === unit.id ? 'active' : ''}`}
-                    onClick={() => setSelectedUnitId(unit.id)}
-                    aria-pressed={selectedUnitId === unit.id}
-                    style={{ height: `${unitRowHeight}px` }}
-                  >
-                    <div className="unit-item-icon">
-                      <UnitArtwork src={getProjectUnitIconUrl(unit.id)} alt="" />
-                    </div>
-                    <div className="unit-item-info">
-                      <div className="unit-item-header">
-                        <span className="unit-item-name">
-                          {unit.name}
-                        </span>
-                        {isModified && (
-                          <span className="unit-status unit-status--modified">MOD</span>
-                        )}
-                        {isDisabled && (
-                          <span className="unit-status unit-status--disabled">DIS</span>
-                        )}
-                      </div>
-                      <span className="unit-item-id">
-                        {unit.id}
-                      </span>
-                    </div>
-                    <span className="unit-tier">
-                      {unit.techTier.toUpperCase()}
-                    </span>
-                  </button>
-                );
-              })}
-              </div>
-            </div>
-              )}
-          </div>
-          {unitScrollHint.hasMore && (
-            <div className="unit-scroll-hint" aria-hidden="true">
-              <svg viewBox="0 0 16 16"><path d="M8 3.25v8.5" /><path d="m4.75 8.5 3.25 3.25 3.25-3.25" /></svg>
-              <span>Continue browsing</span>
-              <strong>{unitScrollHint.remaining.toLocaleString()} remaining</strong>
-            </div>
-          )}
-          </div>
+          <VirtualizedUnitList
+            units={filteredUnits}
+            selectedUnitId={selectedUnitId}
+            modifiedUnitIds={modifiedUnitIds}
+            disabledUnitIds={disabledUnitIds}
+            getUnitIconUrl={getProjectUnitIconUrl}
+            onSelectUnit={setSelectedUnitId}
+            onClearFilters={clearUnitFilters}
+            resetKey={`${activeCollectionId || 'all'}|${searchQuery}|${selectedFaction}|${selectedCats.join(',')}|${showModifiedOnly}`}
+          />
         </UnitLibraryPane>
 
         {/* Center: selected unit stat parameters editor */}
