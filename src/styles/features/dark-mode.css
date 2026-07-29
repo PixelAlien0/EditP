@@ -33,7 +33,6 @@
 }
 
 [data-theme="dark"] .app-header,
-[data-theme="dark"] .sidebar,
 [data-theme="dark"] .editor-unit-header,
 [data-theme="dark"] .editor-section-tabs,
 [data-theme="dark"] .editor-workspace,
@@ -44,20 +43,6 @@
   box-shadow: none !important;
 }
 
-[data-theme="dark"] .sidebar {
-  background: var(--color-surface) !important;
-}
-
-[data-theme="dark"] .sidebar-heading,
-[data-theme="dark"] .search-filter-section,
-[data-theme="dark"] .results-summary {
-  border-color: var(--color-border) !important;
-}
-
-[data-theme="dark"] .sidebar-heading h2,
-[data-theme="dark"] .sidebar-eyebrow,
-[data-theme="dark"] .sidebar-filter-label,
-[data-theme="dark"] .results-summary,
 [data-theme="dark"] .unit-dossier-title,
 [data-theme="dark"] .editor-section-tabs .workspace-tab-btn,
 [data-theme="dark"] .editor-section-tabs .workspace-tab-btn.active {
@@ -80,9 +65,6 @@
   color: var(--color-text-muted) !important;
 }
 
-[data-theme="dark"] .faction-tab,
-[data-theme="dark"] .category-chip,
-[data-theme="dark"] .filter-action-btn,
 [data-theme="dark"] .btn-action,
 [data-theme="dark"] .history-controls button,
 [data-theme="dark"] .changes-drawer-toggle {
@@ -92,9 +74,6 @@
   box-shadow: none !important;
 }
 
-[data-theme="dark"] .faction-tab:hover,
-[data-theme="dark"] .category-chip:hover,
-[data-theme="dark"] .filter-action-btn:hover,
 [data-theme="dark"] .btn-action:hover,
 [data-theme="dark"] .history-controls button:hover:not(:disabled) {
   border-color: var(--color-accent) !important;
@@ -102,39 +81,6 @@
   color: var(--color-accent-strong) !important;
 }
 
-[data-theme="dark"] .faction-tab.active,
-[data-theme="dark"] .category-chip.active,
-[data-theme="dark"] .filter-action-btn.active {
-  box-shadow: none !important;
-}
-
-[data-theme="dark"] .sidebar .unit-list-container {
-  background: var(--color-surface-muted) !important;
-}
-
-[data-theme="dark"] .sidebar .unit-item {
-  border-color: transparent !important;
-  border-bottom-color: var(--color-border) !important;
-  background: transparent !important;
-}
-
-[data-theme="dark"] .sidebar .unit-item:hover {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface-hover) !important;
-}
-
-[data-theme="dark"] .sidebar .unit-item.active {
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-surface-raised) !important;
-  box-shadow: var(--shadow-selection) !important;
-}
-
-[data-theme="dark"] .sidebar .unit-item-icon {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface) !important;
-}
-
-[data-theme="dark"] .sidebar .unit-item-name,
 [data-theme="dark"] .unit-item-name {
   color: var(--color-text-strong) !important;
 }
@@ -242,8 +188,7 @@ html[data-theme="dark"] {
 }
 
 [data-theme="dark"] .unit-source-badge,
-[data-theme="dark"] .clone-badge,
-[data-theme="dark"] .sidebar-total {
+[data-theme="dark"] .clone-badge {
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
   color: var(--color-text-muted) !important;
@@ -273,48 +218,6 @@ html[data-theme="dark"] {
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
-}
-
-/* Sidebar filters and roster */
-[data-theme="dark"] .sidebar-heading,
-[data-theme="dark"] .search-filter-section {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
-}
-
-[data-theme="dark"] .sidebar-eyebrow,
-[data-theme="dark"] .sidebar-filter-label {
-  color: var(--color-accent-strong) !important;
-  opacity: 1 !important;
-}
-
-[data-theme="dark"] .stat-search-query-tip,
-[data-theme="dark"] .stat-search-query-tip code,
-[data-theme="dark"] .results-summary {
-  color: var(--color-text-muted) !important;
-}
-
-[data-theme="dark"] .faction-tab,
-[data-theme="dark"] .category-chip,
-[data-theme="dark"] .filter-action-btn {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface-raised) !important;
-  color: var(--color-text) !important;
-}
-
-[data-theme="dark"] .faction-tab.active,
-[data-theme="dark"] .category-chip.active,
-[data-theme="dark"] .filter-action-btn.active {
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text-strong) !important;
-}
-
-[data-theme="dark"] .filter-action-btn:disabled {
-  border-color: var(--color-border-subtle) !important;
-  background: var(--color-disabled-surface) !important;
-  color: var(--color-text-muted) !important;
 }
 
 /* Section navigation, context strip, and parameter editor */

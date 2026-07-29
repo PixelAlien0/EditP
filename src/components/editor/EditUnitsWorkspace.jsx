@@ -149,6 +149,12 @@ export default function EditUnitsWorkspace({ context }) {
     virtualUnitRange,
     workspaceLayout,
   } = context;
+  const activeUnitFilterCount = (
+    (searchQuery.trim() ? 1 : 0)
+    + (selectedFaction !== 'all' ? 1 : 0)
+    + selectedCats.length
+    + (showModifiedOnly ? 1 : 0)
+  );
   return (
       <EditorShell
         layout={workspaceLayout.layout}
@@ -176,102 +182,111 @@ export default function EditUnitsWorkspace({ context }) {
             onManage={() => setActiveWorkspace('collections')}
           />
           <div className="search-filter-section">
-
-            {/* Search */}
-            <div className="search-wrapper">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Search unit name, ID, or stat..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
+            <div className="unit-library-search">
+              <label htmlFor="unit-library-search">Find a unit</label>
+              <div className="search-wrapper">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <circle cx="8.5" cy="8.5" r="4.75" />
+                  <path d="m12 12 4 4" />
+                </svg>
+                <input
+                  id="unit-library-search"
+                  type="text"
+                  className="search-input"
+                  placeholder="Search unit name, ID, or stat..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+              </div>
               <div className="stat-search-query-tip">
                 Query format: <code>hp &gt; 3000</code> or <code>speed &lt; 50</code>
               </div>
             </div>
 
-            {/* Faction selector (no emojis) */}
-            <div className="sidebar-filter-label">Faction</div>
-            <div className="faction-tabs">
-              <button
-                className={`faction-tab ${selectedFaction === 'all' ? 'active' : ''}`}
-                onClick={() => setSelectedFaction('all')}
-              >
-                ALL
-              </button>
-              <button
-                className={`faction-tab ${selectedFaction === 'arm' ? 'active' : ''}`}
-                onClick={() => setSelectedFaction('arm')}
-              >
-                <img src="/factions/armada.png" alt="Armada" />
-              </button>
-              <button
-                className={`faction-tab ${selectedFaction === 'cor' ? 'active' : ''}`}
-                onClick={() => setSelectedFaction('cor')}
-              >
-                <img src="/factions/cortex.png" alt="Cortex" />
-              </button>
-              <button
-                className={`faction-tab ${selectedFaction === 'leg' ? 'active' : ''}`}
-                onClick={() => setSelectedFaction('leg')}
-              >
-                <img src="/factions/legion.png" alt="Legion" />
-              </button>
-              <button
-                className={`faction-tab ${selectedFaction === 'rap' ? 'active' : ''}`}
-                onClick={() => setSelectedFaction('rap')}
-                title="Raptors"
-              >
-                Raptors
-              </button>
-              <button
-                className={`faction-tab ${selectedFaction === 'scav' ? 'active' : ''}`}
-                onClick={() => setSelectedFaction('scav')}
-                title="Scavengers"
-              >
-                Scavs
-              </button>
-            </div>
+            <details className="unit-filter-disclosure">
+              <summary>
+                <span>Filter library</span>
+                <span className="unit-filter-disclosure__count">
+                  {activeUnitFilterCount ? `${activeUnitFilterCount} active` : 'All units'}
+                </span>
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
+              </summary>
+              <div className="unit-filter-disclosure__body">
+                <div className="unit-filter-group">
+                  <div className="sidebar-filter-label">Faction</div>
+                  <div className="faction-tabs" role="group" aria-label="Faction filters">
+                    {[
+                      { id: 'all', label: 'All' },
+                      { id: 'arm', label: 'Armada', image: '/factions/armada.png' },
+                      { id: 'cor', label: 'Cortex', image: '/factions/cortex.png' },
+                      { id: 'leg', label: 'Legion', image: '/factions/legion.png' },
+                      { id: 'rap', label: 'Raptors' },
+                      { id: 'scav', label: 'Scavs' },
+                    ].map(faction => (
+                      <button
+                        type="button"
+                        key={faction.id}
+                        className={`faction-tab ${selectedFaction === faction.id ? 'active' : ''}`}
+                        onClick={() => setSelectedFaction(faction.id)}
+                        aria-pressed={selectedFaction === faction.id}
+                      >
+                        {faction.image && <img src={faction.image} alt="" />}
+                        <span>{faction.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            {/* Category tags */}
-            <div className="sidebar-filter-label">Classification</div>
-            <div className="category-chips" role="group" aria-label="Unit classification filters">
-              {CATEGORIES.map(cat => (
-                <button
-                  type="button"
-                  key={cat}
-                  className={`category-chip ${selectedCats.includes(cat) ? 'active' : ''}`}
-                  onClick={() => handleCatClick(cat)}
-                  aria-pressed={selectedCats.includes(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+                <div className="unit-filter-group">
+                  <div className="sidebar-filter-label">Classification</div>
+                  <div className="category-chips" role="group" aria-label="Unit classification filters">
+                    {CATEGORIES.map(cat => (
+                      <button
+                        type="button"
+                        key={cat}
+                        className={`category-chip ${selectedCats.includes(cat) ? 'active' : ''}`}
+                        onClick={() => handleCatClick(cat)}
+                        aria-pressed={selectedCats.includes(cat)}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            <div className="filter-actions">
-              <button
-                className={`filter-action-btn ${showModifiedOnly ? 'active' : ''}`}
-                onClick={() => setShowModifiedOnly(prev => !prev)}
-                title="Show changed, disabled, and cloned units"
-              >
-                Modified only
-              </button>
-              <button
-                className="filter-action-btn"
-                onClick={clearUnitFilters}
-                disabled={!hasActiveUnitFilters}
-              >
-                Clear filters
-              </button>
-            </div>
+                <div className="filter-actions">
+                  <button
+                    className={`filter-action-btn ${showModifiedOnly ? 'active' : ''}`}
+                    onClick={() => setShowModifiedOnly(prev => !prev)}
+                    title="Show changed, disabled, and cloned units"
+                    aria-pressed={showModifiedOnly}
+                  >
+                    Modified only
+                  </button>
+                  <button
+                    className="filter-action-btn"
+                    onClick={clearUnitFilters}
+                    disabled={!hasActiveUnitFilters}
+                  >
+                    Clear filters
+                  </button>
+                </div>
+              </div>
+            </details>
+          </div>
 
-            <div className="results-summary" aria-live="polite">
-              <span>{filteredUnits.length.toLocaleString()} units</span>
-              {activeCollection ? <span>{activeCollection.name}</span> : hasActiveUnitFilters && <span>Filtered</span>}
+          <div className="unit-results-bar" aria-live="polite">
+            <div>
+              <span>Available units</span>
+              <strong>{filteredUnits.length.toLocaleString()}</strong>
             </div>
-
+            {activeCollection ? (
+              <span className="unit-results-bar__context">{activeCollection.name}</span>
+            ) : hasActiveUnitFilters ? (
+              <span className="unit-results-bar__context">Filtered view</span>
+            ) : (
+              <span className="unit-results-bar__context">Complete catalog</span>
+            )}
           </div>
 
           {/* Scrollable list of units with icons */}
@@ -334,8 +349,8 @@ export default function EditUnitsWorkspace({ context }) {
           {unitScrollHint.hasMore && (
             <div className="unit-scroll-hint" aria-hidden="true">
               <svg viewBox="0 0 16 16"><path d="M8 3.25v8.5" /><path d="m4.75 8.5 3.25 3.25 3.25-3.25" /></svg>
-              <span>Scroll to browse</span>
-              <strong>{unitScrollHint.remaining.toLocaleString()} more</strong>
+              <span>Continue browsing</span>
+              <strong>{unitScrollHint.remaining.toLocaleString()} remaining</strong>
             </div>
           )}
           </div>

@@ -35,10 +35,7 @@ export default function CollectionScopePicker({
   return (
     <section className="collection-scope-picker" aria-labelledby="collection-scope-picker-title">
       <div className="collection-scope-picker__heading">
-        <div>
-          <span>Library scope</span>
-          <strong id="collection-scope-picker-title">{active?.name || 'All units'}</strong>
-        </div>
+        <span id="collection-scope-picker-title">Library scope</span>
         <button type="button" onClick={onManage}>Manage</button>
       </div>
       <label>

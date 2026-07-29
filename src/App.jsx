@@ -778,7 +778,7 @@ export default function App() {
 
   const hasActiveUnitFilters = Boolean(activeCollection || searchQuery.trim() || selectedFaction !== 'all' || selectedCats.length > 0 || showModifiedOnly);
 
-  const unitRowHeight = 58;
+  const unitRowHeight = 64;
   const unitListOverscan = 8;
   const virtualUnitRange = useMemo(() => {
     const estimatedViewportRows = 18;

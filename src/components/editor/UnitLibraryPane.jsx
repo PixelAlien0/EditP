@@ -26,12 +26,17 @@ export default function UnitLibraryPane({ collapsed, compact = false, total, fil
   return (
     <aside id="unit-library-pane" className="sidebar unit-library-pane" aria-label="Unit library">
       <div className="sidebar-heading">
-        <div>
+        <div className="unit-library-pane__heading-copy">
           <span className="sidebar-eyebrow">Unit library</span>
           <h2>Browse forces</h2>
+          {!compact && (
+            <p>
+              {filteredCount.toLocaleString()} shown
+              {filteredCount !== total ? ` · ${total.toLocaleString()} total` : ''}
+            </p>
+          )}
         </div>
         <div className="unit-library-pane__heading-actions">
-          {!compact && <span className="sidebar-total">{total.toLocaleString()}</span>}
           <button
             type="button"
             className="workspace-pane-collapse-action"
