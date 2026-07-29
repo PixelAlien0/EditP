@@ -24,6 +24,8 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
   const known = isKnownBarAsset(assetType, value);
   const currentPreviewUrl = getAssetPreviewUrl(assetType, value);
   const isVisualBrowser = assetType === 'buildPicture' || assetType === 'iconType';
+  const isSoundBrowser = assetType === 'sound';
+
   useEffect(() => {
     if ((assetType !== 'iconType' && assetType !== 'sound') || (!open && !value)) return undefined;
     let active = true;
@@ -32,6 +34,7 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
     });
     return () => { active = false; };
   }, [assetType, open, value]);
+
   const results = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return needle
@@ -41,6 +44,7 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
         })
       : options;
   }, [assetType, options, query]);
+
   const pageCount = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount - 1);
   const visibleResults = results.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
@@ -50,6 +54,7 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
     setPage(Math.max(0, Math.min(nextPage, pageCount - 1)));
     requestAnimationFrame(() => resultsRef.current?.scrollTo({ top: 0 }));
   };
+  const assetLabel = ASSET_TYPE_LABELS[assetType] || 'Asset browser';
 
   return (
     <div className="asset-picker">
@@ -67,63 +72,67 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
           onChange={event => onChange(event.target.value)}
           aria-label={label}
         />
-        {assetType === 'sound' && value && (
-          <SoundPreviewButton soundName={value} compact />
-        )}
+        {isSoundBrowser && value && <SoundPreviewButton soundName={value} compact />}
         <Button variant="secondary" className="asset-picker__browse" onClick={() => { setPage(0); setOpen(true); }}>Browse</Button>
       </div>
       {value && <span className={`asset-picker__status ${known ? 'is-known' : 'is-unverified'}`}>{known ? 'BAR asset' : 'Custom / unverified'}</span>}
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
-        className={`asset-picker-dialog ${isVisualBrowser ? 'asset-picker-dialog--visual' : ''} ${assetType === 'iconType' ? 'asset-picker-dialog--tactical' : ''}`}
+        className={`asset-picker-dialog ${isVisualBrowser ? 'asset-picker-dialog--visual' : ''} ${isSoundBrowser ? 'asset-picker-dialog--sound' : ''} ${assetType === 'iconType' ? 'asset-picker-dialog--tactical' : ''}`}
         labelledBy={titleId}
         initialFocusRef={searchRef}
       >
         <header className="asset-picker-dialog__header">
-          <div>
+          <div className="asset-picker-dialog__header-copy">
             <span>Validated BAR references</span>
-            <h2 id={titleId}>{ASSET_TYPE_LABELS[assetType] || 'Asset browser'}</h2>
+            <h2 id={titleId}>{assetLabel}</h2>
             <p>{options.length.toLocaleString()} names found in the bundled BAR definition snapshot.</p>
           </div>
           <IconButton variant="quiet" label="Close asset browser" onClick={() => setOpen(false)}>×</IconButton>
         </header>
         <div className="asset-picker-dialog__search">
-          <input
-            ref={searchRef}
-            type="search"
-            value={query}
-            placeholder={`Search ${ASSET_TYPE_LABELS[assetType]?.toLowerCase() || 'assets'}…`}
-            onChange={event => { setQuery(event.target.value); changePage(0); }}
-          />
-          <span>{results.length.toLocaleString()} matches</span>
+          <label>
+            <span className="ui-visually-hidden">Search {assetLabel.toLowerCase()}</span>
+            <input
+              ref={searchRef}
+              type="search"
+              value={query}
+              placeholder={`Search ${assetLabel.toLowerCase()}…`}
+              onChange={event => { setQuery(event.target.value); changePage(0); }}
+            />
+          </label>
+          <span className="asset-picker-dialog__match-count" aria-live="polite">{results.length.toLocaleString()} matches</span>
         </div>
-        <div ref={resultsRef} className="asset-picker-dialog__results" role="listbox" aria-label={ASSET_TYPE_LABELS[assetType] || 'BAR assets'}>
+        <div ref={resultsRef} className="asset-picker-dialog__results" role="listbox" aria-label={assetLabel}>
           {visibleResults.map((option, index) => {
             const previewUrl = getAssetPreviewUrl(assetType, option);
             const metadata = getAssetOptionMetadata(assetType, option);
             const scopedPicture = assetType === 'buildPicture' && option.includes('/');
+            const selected = option.toLowerCase() === String(value).toLowerCase();
             return (
               <button
                 type="button"
                 role="option"
-                aria-selected={option.toLowerCase() === String(value).toLowerCase()}
+                aria-selected={selected}
                 aria-posinset={currentPage * PAGE_SIZE + index + 1}
                 aria-setsize={results.length}
-                className={`${option.toLowerCase() === String(value).toLowerCase() ? 'is-selected' : ''} ${previewUrl ? 'has-preview' : ''}`}
+                className={`${selected ? 'is-selected' : ''} ${previewUrl ? 'has-preview' : ''}`}
                 key={option}
                 onClick={() => { onChange(option); setOpen(false); setQuery(''); }}
               >
                 <span className="asset-picker-dialog__option-copy">
+                  {isSoundBrowser && <span className="asset-picker-dialog__option-number" aria-hidden="true">{String(currentPage * PAGE_SIZE + index + 1).padStart(3, '0')}</span>}
                   {previewUrl && <img src={previewUrl} alt="" loading="lazy" decoding="async" />}
-                  {assetType === 'sound' && <SoundPreviewButton soundName={option} compact />}
+                  {isSoundBrowser && <SoundPreviewButton soundName={option} compact />}
                   <span>
                     <code>{option}</code>
+                    {isSoundBrowser && <small>Sound reference · preview before selecting</small>}
                     {scopedPicture && <small>{option.split('/')[0]} variant</small>}
                     {metadata && <small>{metadata.bitmap.replace(/^icons\//i, '')} · scale {metadata.size.toFixed(2)}</small>}
                   </span>
                 </span>
-                <span className="asset-picker-dialog__select-label">Select</span>
+                <span className="asset-picker-dialog__select-label">{selected ? 'Selected' : 'Select'}</span>
               </button>
             );
           })}
