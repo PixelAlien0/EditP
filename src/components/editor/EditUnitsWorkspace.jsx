@@ -616,6 +616,7 @@ export default function EditUnitsWorkspace({ context }) {
                         parameters={structureParams}
                         collapsedGroups={workspaceLayout.layout.collapsedGroups}
                         onToggleGroup={workspaceLayout.toggleGroup}
+                        isParameterModified={stat => tweaks[selectedUnit.id]?.[stat.key] !== undefined}
                         renderParameter={stat => {
                           const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                           const defaults = defaultsDb[baseId] || {};
@@ -667,15 +668,18 @@ export default function EditUnitsWorkspace({ context }) {
                                     workspaceLayout.setInspectorTab('details');
                                     workspaceLayout.setRightCollapsed(false);
                                   }} />
+                                  {stat.unit && <small className="parameter-card-unit">{stat.unit}</small>}
                                 </span>
-                                {diffPercent !== null && (
-                                  <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
-                                    {diffPercent >= 0 ? '+' : ''}{diffPercent}%
+                                <span className="parameter-card-status">
+                                  {diffPercent !== null && (
+                                    <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
+                                      {diffPercent >= 0 ? '+' : ''}{diffPercent}%
+                                    </span>
+                                  )}
+                                  <span className={`parameter-card-state ${isModified ? 'is-edited' : defaultResolution.source.startsWith('engine') ? 'is-engine' : 'is-inherited'}`}>
+                                    {isModified ? 'Edited' : defaultResolution.source.startsWith('engine') ? 'Engine' : 'Inherited'}
                                   </span>
-                                )}
-                                {!isModified && defaultResolution.source.startsWith('engine') && (
-                                  <span className="stat-card-engine-default" title={`Inherited Recoil default: ${defaultResolution.label}`}>Engine</span>
-                                )}
+                                </span>
                               </div>
 
                               <div className="stat-card-input-wrapper">
@@ -765,6 +769,7 @@ export default function EditUnitsWorkspace({ context }) {
                         parameters={mobilityParams}
                         collapsedGroups={workspaceLayout.layout.collapsedGroups}
                         onToggleGroup={workspaceLayout.toggleGroup}
+                        isParameterModified={stat => tweaks[selectedUnit.id]?.[stat.key] !== undefined}
                         renderParameter={stat => {
                           const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                           const defaults = defaultsDb[baseId] || {};
@@ -803,15 +808,18 @@ export default function EditUnitsWorkspace({ context }) {
                                     workspaceLayout.setInspectorTab('details');
                                     workspaceLayout.setRightCollapsed(false);
                                   }} />
+                                  {stat.unit && <small className="parameter-card-unit">{stat.unit}</small>}
                                 </span>
-                                {diffPercent !== null && (
-                                  <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
-                                    {diffPercent >= 0 ? '+' : ''}{diffPercent}%
+                                <span className="parameter-card-status">
+                                  {diffPercent !== null && (
+                                    <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
+                                      {diffPercent >= 0 ? '+' : ''}{diffPercent}%
+                                    </span>
+                                  )}
+                                  <span className={`parameter-card-state ${isModified ? 'is-edited' : defaultResolution.source.startsWith('engine') ? 'is-engine' : 'is-inherited'}`}>
+                                    {isModified ? 'Edited' : defaultResolution.source.startsWith('engine') ? 'Engine' : 'Inherited'}
                                   </span>
-                                )}
-                                {!isModified && defaultResolution.source.startsWith('engine') && (
-                                  <span className="stat-card-engine-default" title={`Inherited Recoil default: ${defaultResolution.label}`}>Engine</span>
-                                )}
+                                </span>
                               </div>
 
                               <div className="stat-card-input-wrapper">
@@ -1005,6 +1013,9 @@ export default function EditUnitsWorkspace({ context }) {
                             parameters={applicableSlotParams}
                             collapsedGroups={workspaceLayout.layout.collapsedGroups}
                             onToggleGroup={workspaceLayout.toggleGroup}
+                            isParameterModified={param => (
+                              tweaks[selectedUnit.id]?.[`weapon_slot_${slot.slot}_${param.key}`] !== undefined
+                            )}
                             renderParameter={param => {
                               const tweakKey = `weapon_slot_${slot.slot}_${param.key}`;
                               const currentTweakValue = tweaks[selectedUnit.id]?.[tweakKey];
@@ -1027,16 +1038,25 @@ export default function EditUnitsWorkspace({ context }) {
                                   onClick={() => setActiveRelationshipKey(param.key)}
                                 >
                                   <div className="stat-card-label">
-                                    <span>{param.label}<ParameterHelp paramKey={param.key} label={param.label} onOpen={() => {
-                                      setActiveRelationshipKey(param.key);
-                                      workspaceLayout.setInspectorTab('details');
-                                      workspaceLayout.setRightCollapsed(false);
-                                    }} /></span>
-                                    {diffPercent !== null && (
-                                      <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
-                                        {diffPercent >= 0 ? '+' : ''}{diffPercent}%
+                                    <span>
+                                      {param.label}
+                                      <ParameterHelp paramKey={param.key} label={param.label} onOpen={() => {
+                                        setActiveRelationshipKey(param.key);
+                                        workspaceLayout.setInspectorTab('details');
+                                        workspaceLayout.setRightCollapsed(false);
+                                      }} />
+                                      {param.unit && <small className="parameter-card-unit">{param.unit}</small>}
+                                    </span>
+                                    <span className="parameter-card-status">
+                                      {diffPercent !== null && (
+                                        <span className={`stat-card-diff ${diffPercent >= 0 ? 'diff-positive' : 'diff-negative'}`}>
+                                          {diffPercent >= 0 ? '+' : ''}{diffPercent}%
+                                        </span>
+                                      )}
+                                      <span className={`parameter-card-state ${isModified ? 'is-edited' : 'is-inherited'}`}>
+                                        {isModified ? 'Edited' : 'Inherited'}
                                       </span>
-                                    )}
+                                    </span>
                                   </div>
                                   <div className="stat-card-input-wrapper">
                                     {param.assetType ? (
@@ -1213,16 +1233,26 @@ export default function EditUnitsWorkspace({ context }) {
                                         key={param.key}
                                         className={`stat-card stat-card--advanced ${isModified ? 'modified' : ''} ${warning ? `is-${warning.level}` : ''} ${getRelationshipStateClass(param.key)}`}
                                         data-param-key={param.key}
+                                        data-param-unit={param.unit || undefined}
                                         onFocusCapture={() => setActiveRelationshipKey(param.key)}
                                         onClick={() => setActiveRelationshipKey(param.key)}
                                       >
                                         <div className="stat-card-label">
-                                          <span>{param.label}<ParameterHelp paramKey={param.key} label={param.label} onOpen={() => {
-                                            setActiveRelationshipKey(param.key);
-                                            workspaceLayout.setInspectorTab('details');
-                                            workspaceLayout.setRightCollapsed(false);
-                                          }} /></span>
-                                          {param.danger && <span className="stat-card-diff diff-negative">Caution</span>}
+                                          <span>
+                                            {param.label}
+                                            <ParameterHelp paramKey={param.key} label={param.label} onOpen={() => {
+                                              setActiveRelationshipKey(param.key);
+                                              workspaceLayout.setInspectorTab('details');
+                                              workspaceLayout.setRightCollapsed(false);
+                                            }} />
+                                            {param.unit && <small className="parameter-card-unit">{param.unit}</small>}
+                                          </span>
+                                          <span className="parameter-card-status">
+                                            {param.danger && <span className="stat-card-diff diff-negative">Caution</span>}
+                                            <span className={`parameter-card-state ${isModified ? 'is-edited' : 'is-inherited'}`}>
+                                              {isModified ? 'Edited' : 'Inherited'}
+                                            </span>
+                                          </span>
                                         </div>
                                         <div className="stat-card-input-wrapper">
                                           {param.type === 'tri-state' ? (
@@ -1284,13 +1314,15 @@ export default function EditUnitsWorkspace({ context }) {
                                             />
                                           )}
                                           {isModified && (
-                                            <span
+                                            <button
+                                              type="button"
                                               className="stat-card-default-pill"
+                                              aria-label={`Reset ${param.label}`}
                                               title="Reset to inherited value"
                                               onClick={() => handleStatChange(selectedUnit.id, tweakKey, undefined)}
                                             >
                                               ×
-                                            </span>
+                                            </button>
                                           )}
                                         </div>
                                         {warning && (

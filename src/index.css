@@ -135,8 +135,7 @@ body {
   gap: var(--space-3);
 }
 .expert-toggle-row .ui-switch,
-.export-flags .ui-switch,
-.stat-card .ui-switch {
+.export-flags .ui-switch {
   flex: 0 0 var(--control-target-min);
 }
 .mutation-domain-grid .mutation-domain-option {
@@ -164,13 +163,6 @@ body {
 }
 .mutation-domain-grid .mutation-domain-option strong { color: var(--color-text-strong); font-size: var(--font-size-xs); }
 .mutation-domain-grid .mutation-domain-option small { color: var(--color-text-muted); font-size: var(--font-size-xs); }
-.stat-card .ui-switch.weapon-parameter-switch {
-  margin-left: auto;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
 .unit-item.active {
   border-left-color: var(--b-a);
 }
@@ -260,81 +252,10 @@ body {
 .editor-grid {
   display: grid;
 }
-.stat-card {
-  display: flex;
-  flex-direction: column;
-}
-.stat-card--compact {
-  gap: 4px;
-}
-.stat-card-diff,
-.stat-card-diff.diff-positive,
-.stat-card-diff.diff-negative {
-  animation: none;
-  padding: 2px 5px;
-  border: 1px solid rgba(168, 125, 82, 0.20);
-  border-radius: 4px;
-  font-size: 7px;
-  font-weight: 650;
-  letter-spacing: 0.025em;
-}
-.stat-card-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  text-transform: uppercase;
-}
-.stat-card-input-wrapper {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-.stat-card-input {
-  flex: 1;
-  min-width: 0;
-  transition: border-color 0.15s ease;
-}
-.stat-card-input::-webkit-inner-spin-button,
-.stat-card-input::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.stat-card-input[type="number"] {
-  -moz-appearance: textfield;
-}
-.stat-card-input:focus {
-  outline: none;
-}
 input[type="checkbox"] {
   flex: 0 0 auto;
   transition: background 0.2s ease, border-color 0.2s ease;
   outline: none;
-}
-.stat-card-diff {
-  font-weight: 700;
-  border: 1px solid transparent;
-  flex-shrink: 0;
-  animation: pop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-}
-@keyframes pop {
-  from {
-    transform: scale(0.75);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-.diff-positive {
-  background: rgba(90, 155, 100, 0.10);
-  color: #72b882;
-  border-color: rgba(90, 155, 100, 0.18);
-}
-.diff-negative {
-  background: rgba(185, 90, 90, 0.10);
-  color: #c47070;
-  border-color: rgba(185, 90, 90, 0.18);
 }
 .custom-params-section {
   background: var(--bg-1);
@@ -631,25 +552,6 @@ select:focus-visible,
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 12px;
   margin-bottom: 24px;
-}
-.weapon-parameter-grid .stat-card--compact {
-  min-height: 96px;
-  padding: 13px !important;
-}
-.weapon-parameter-grid .stat-card-label {
-  min-height: 24px;
-  align-items: flex-start;
-  color: #675f59 !important;
-  font-size: 9px;
-  line-height: 1.35;
-}
-.weapon-parameter-grid .stat-card-input {
-  min-height: 38px;
-  padding: 7px 10px;
-  font-size: 13px;
-}
-.weapon-parameter-grid .stat-card-input-wrapper {
-  margin-top: auto;
 }
 .target-filter-panel {
   border: 1px solid #d8cfc5 !important;
@@ -1043,12 +945,6 @@ select:focus-visible,
     display: none;
   }
 }
-.stat-card {
-  border-color: var(--b0);
-}
-.stat-card-input {
-  border-color: var(--b1);
-}
 .changes-pane-content {
   padding: 14px !important;
   gap: 10px !important;
@@ -1145,105 +1041,6 @@ select:focus-visible,
 @container (min-width: 961px) {
 }
 @media (max-width: 1250px) {
-}
-.stat-card {
-  position: relative;
-  overflow: hidden;
-  gap: 11px;
-  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
-}
-.stat-card::before {
-  content: '';
-  position: absolute;
-  inset: 0 14px auto;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(168, 125, 82, 0.22), transparent);
-  opacity: 0.46;
-}
-.stat-card:hover {
-  background:
-    linear-gradient(145deg, rgba(168, 125, 82, 0.055), transparent 52%),
-    rgba(38, 35, 28, 0.94);
-}
-.stat-card-label {
-  min-height: 18px;
-  font-family: var(--font-ui);
-  font-weight: 600;
-}
-.stat-card-label span.icon {
-  margin-right: 6px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  opacity: 0.92;
-}
-.stat-card-input-wrapper {
-  margin-top: auto;
-  gap: 8px;
-}
-.stat-card-input {
-  padding: 9px 11px;
-  font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 550;
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.22);
-}
-.stat-card-input:focus {
-  box-shadow:
-    0 0 0 3px rgba(168, 125, 82, 0.08),
-    inset 0 1px 4px rgba(0, 0, 0, 0.24);
-}
-.stat-card-input::placeholder {
-  color: #716458;
-  opacity: 0.85;
-}
-.stat-card-diff {
-  padding: 3px 6px;
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.01em;
-}
-.stat-card:has(input[type="checkbox"]) .stat-card-input-wrapper {
-  min-height: 40px;
-  justify-content: flex-end;
-  padding: 0 4px;
-}
-.stat-card:has(input[type="checkbox"]) input[type="checkbox"] {
-  width: 34px;
-  height: 19px;
-}
-.stat-card:has(input[type="checkbox"]) input[type="checkbox"]::after {
-  width: 13px;
-  height: 13px;
-}
-.stat-card:has(input[type="checkbox"]) input[type="checkbox"]:checked::after {
-  left: 17px;
-}
-.stat-card--compact {
-  min-height: 92px;
-  padding: 11px !important;
-  border-radius: 6px;
-}
-.stat-card--compact .stat-card-label {
-  font-size: 9px;
-}
-.stat-card--compact .stat-card-input {
-  min-height: 34px;
-  padding: 6px 8px;
-  font-size: 12px;
-}
-.stat-card.modified,
-.stat-card.modified:hover {
-  animation: none;
-}
-.stat-card.modified::before {
-  background: transparent !important;
-  opacity: 0 !important;
-}
-.stat-card.modified .stat-card-diff {
-  border-color: rgba(168, 125, 82, 0.38);
-  background: rgba(168, 125, 82, 0.11);
-  color: #d1b58d;
 }
 .target-filter-panel {
   display: flex;
@@ -1941,19 +1738,6 @@ textarea:focus-visible,
   gap: 12px;
   margin-bottom: 30px;
 }
-.stat-card {
-  min-height: 104px;
-  padding: 14px !important;
-  border: 1px solid #ddd4cb !important;
-  border-radius: var(--radius-sm) !important;
-  background: var(--paper-clean) !important;
-  box-shadow: none !important;
-}
-.stat-card:hover {
-  border-color: #bdb0a6 !important;
-  box-shadow: var(--shadow-soft) !important;
-  transform: none;
-}
 .expert-setting-status {
   display: inline-flex;
   align-items: center;
@@ -1966,57 +1750,6 @@ textarea:focus-visible,
   font-size: 9px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-}
-.stat-card::before,
-.stat-card.modified::before {
-  display: none !important;
-}
-.stat-card-label {
-  color: var(--ink-muted) !important;
-  font-size: 9px;
-  letter-spacing: 0.09em;
-}
-.stat-card-label span.icon {
-  color: var(--sakura-deep) !important;
-}
-.stat-card-input {
-  min-height: 39px;
-  border: 1px solid #d9d0c7 !important;
-  border-radius: var(--radius-sm) !important;
-  background: #f7f3ed !important;
-  color: var(--ink-strong) !important;
-}
-.stat-card-input:hover,
-.stat-card-input:focus {
-  border-color: var(--sakura) !important;
-  background: var(--paper-clean) !important;
-}
-.stat-card.modified,
-.stat-card.modified:hover {
-  border-color: #c5949d !important;
-  background: #fffafa !important;
-  box-shadow: inset 0 0 0 1px rgba(181, 111, 123, 0.1) !important;
-}
-.stat-card.modified .stat-card-label {
-  color: var(--sakura-deep) !important;
-}
-.stat-card.modified .stat-card-label::after {
-  content: "EDITED";
-  margin-left: auto;
-  padding: 2px 5px;
-  border-radius: 3px;
-  background: var(--sakura-wash);
-  color: var(--sakura-deep);
-  font-family: var(--font-mono);
-  font-size: 7px;
-  letter-spacing: 0.08em;
-}
-.stat-card-diff,
-.stat-card-diff.diff-positive,
-.stat-card-diff.diff-negative {
-  border-color: #e2d5d6 !important;
-  background: var(--sakura-wash) !important;
-  color: var(--sakura-deep) !important;
 }
 .code-pane {
   border-left: 1px solid #d8cfc5 !important;
@@ -2126,36 +1859,8 @@ textarea:focus-visible,
   border-color: var(--color-border) !important;
   color: var(--color-text) !important;
 }
-.stat-card.modified .stat-card-input,
-.stat-card.modified .stat-card-input:hover,
-.stat-card.modified .stat-card-input:focus {
-  border-color: #c98b96 !important;
-  background: #fffaf9 !important;
-  color: var(--color-text-strong) !important;
-  box-shadow: inset 0 0 0 1px rgba(181, 111, 123, 0.08) !important;
-}
-.editor-grid .stat-card,
-.weapon-parameter-grid .stat-card {
-  contain: paint;
-  isolation: isolate;
-  outline: 1px solid transparent;
-  outline-offset: 0;
-  transition: none !important;
-}
-.editor-grid .stat-card:hover,
-.weapon-parameter-grid .stat-card:hover {
-  border-color: #ddd4cb !important;
-  background: var(--color-surface-raised) !important;
-  box-shadow: none !important;
-  transform: none !important;
-  outline-color: #bdb0a6;
-}
 .editor-grid.weapon-parameter-grid {
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-}
-.weapon-parameter-grid .stat-card {
-  min-height: 104px !important;
-  padding: 14px !important;
 }
 .weapon-substitution {
   min-height: 76px !important;

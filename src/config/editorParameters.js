@@ -133,6 +133,30 @@ const STAT_PRESENTATION = Object.freeze({
   selfd_explosion_impulsefactor: { group: 'Self-destruct profile', unit: 'multiplier' },
 });
 
+export const UNIT_PARAMETER_GROUP_DESCRIPTIONS = Object.freeze({
+  Additional: 'Additional engine fields and specialist unit behavior.',
+  Economy: 'Construction costs, work requirements, and builder output.',
+  Durability: 'Health, resistance, recovery, and physical weight.',
+  Sensors: 'Vision, radar, sonar, stealth, and detection signatures.',
+  Production: 'Resource generation, extraction, upkeep, and conversion.',
+  'Storage & utility': 'Resource reserves, cloaking costs, and build reach.',
+  Classification: 'Tech level, availability limits, and unit classification.',
+  'Advanced behavior': 'BAR gadget contracts for carried and spawned units.',
+  Handling: 'Acceleration, braking, turning, and movement response.',
+  'Terrain access': 'Slope, water-depth, and terrain traversal constraints.',
+  Transport: 'Cargo capacity, loading, unloading, and transport policy.',
+  'Aircraft profile': 'Altitude, banking, strafing, and aircraft handling.',
+  'Death & self-destruct': 'Explosion definitions and self-destruct policy.',
+  'Collision & physics': 'Blocking, collision, push resistance, and posture.',
+  Cloaking: 'Cloak availability, energy use, and reveal behavior.',
+  'Builder capabilities': 'Repair, reclaim, capture, resurrection, and assist output.',
+  'Combat behavior': 'Default orders, pursuit, manual fire, and kamikaze behavior.',
+  'Footprint & placement': 'Occupied map cells, yard maps, and placement rules.',
+  'Assets & collision': 'Models, scripts, build pictures, icons, and collision volumes.',
+  'Death explosion profile': 'Damage, area, impulse, and camera response on death.',
+  'Self-destruct profile': 'Damage, area, impulse, and camera response on self-destruct.',
+});
+
 export const UNIT_ENGINE_DEFAULTS_SOURCE = Object.freeze({
   repository: 'beyond-all-reason/RecoilEngine',
   commit: 'c5fa84d7bf0972c86614b4631b8cc93d09f181e8',
@@ -348,6 +372,9 @@ export const STAT_KEYS = Object.freeze([
   featured: false,
   ...parameter,
   ...(STAT_PRESENTATION[parameter.key] || {}),
+  groupDescription: UNIT_PARAMETER_GROUP_DESCRIPTIONS[
+    (STAT_PRESENTATION[parameter.key] || {}).group || 'Additional'
+  ],
   engineDefault: UNIT_ENGINE_DEFAULTS[parameter.key],
 })));
 

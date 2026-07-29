@@ -97,7 +97,6 @@
   background: var(--color-accent-soft) !important;
 }
 
-[data-theme="dark"] .stat-card,
 [data-theme="dark"] .unit-context-card,
 [data-theme="dark"] .clone-identity-card,
 [data-theme="dark"] .project-metadata-card,
@@ -108,14 +107,6 @@
   background: var(--color-surface-raised) !important;
   color: var(--color-text) !important;
   box-shadow: none !important;
-}
-
-[data-theme="dark"] .stat-card input,
-[data-theme="dark"] .stat-card select,
-[data-theme="dark"] .stat-card textarea {
-  background: var(--color-surface) !important;
-  color: var(--color-text-strong) !important;
-  border-color: var(--color-border) !important;
 }
 
 [data-theme="dark"] .changes-drawer,
@@ -268,8 +259,6 @@ html[data-theme="dark"] {
   color: var(--color-text-muted) !important;
 }
 
-[data-theme="dark"] .stat-card,
-[data-theme="dark"] .stat-card:hover,
 [data-theme="dark"] .target-filter-panel,
 [data-theme="dark"] .target-filter-row,
 [data-theme="dark"] .weapon-substitution {
@@ -279,13 +268,11 @@ html[data-theme="dark"] {
   box-shadow: none !important;
 }
 
-[data-theme="dark"] .stat-card-label,
 [data-theme="dark"] .target-filter-label,
 [data-theme="dark"] .weapon-substitution-copy > strong {
   color: var(--color-text-strong) !important;
 }
 
-[data-theme="dark"] .stat-card-label span.icon,
 [data-theme="dark"] .target-filter-helper,
 [data-theme="dark"] .target-filter-group > span,
 [data-theme="dark"] .weapon-substitution-copy > span,
@@ -293,20 +280,12 @@ html[data-theme="dark"] {
   color: var(--color-text-muted) !important;
 }
 
-[data-theme="dark"] .stat-card-input,
-[data-theme="dark"] .stat-card select,
 [data-theme="dark"] .clone-identity-fields input,
 [data-theme="dark"] .clone-identity-fields select {
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
   color: var(--color-text-strong) !important;
   box-shadow: none !important;
-}
-
-[data-theme="dark"] .stat-card.modified,
-[data-theme="dark"] .stat-card.modified .stat-card-input {
-  border-color: color-mix(in srgb, var(--color-accent) 72%, var(--color-border)) !important;
-  background: var(--color-surface-accent-subtle) !important;
 }
 
 [data-theme="dark"] .stat-card-default-pill,

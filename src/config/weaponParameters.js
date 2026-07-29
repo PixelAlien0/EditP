@@ -53,6 +53,14 @@ const CORE_GROUPS = Object.freeze({
   model: 'Presentation',
   explosiongenerator: 'Presentation',
 });
+const CORE_GROUP_DESCRIPTIONS = Object.freeze({
+  'Damage & cadence': 'Damage delivery, reload timing, projectiles, and burst rhythm.',
+  Additional: 'Additional armor-class damage and engine-native weapon behavior.',
+  'Range & accuracy': 'Reach, projectile travel, lifetime, spread, and trajectory.',
+  'Targeting & safety': 'Target acquisition, friendly-fire policy, and interception.',
+  Ammunition: 'Stockpile requirements, production time, and stored capacity.',
+  Presentation: 'Projectile class, model, trail, and explosion presentation.',
+});
 const CORE_UNITS = Object.freeze({
   damage: 'damage',
   reload: 'seconds',
@@ -106,6 +114,7 @@ export const WEAPON_CORE_PARAMETERS = Object.freeze(coreParameters.map((paramete
   surface: 'core',
   featured: FEATURED_KEYS.has(parameter.key),
   group: CORE_GROUPS[parameter.key] || 'Additional',
+  groupDescription: CORE_GROUP_DESCRIPTIONS[CORE_GROUPS[parameter.key] || 'Additional'],
   order,
   unit: CORE_UNITS[parameter.key] || '',
 })));
@@ -311,6 +320,7 @@ export const WEAPON_ADVANCED_GROUPS = Object.freeze(editorAdvancedGroups.map((gr
     ...parameter,
     surface: 'advanced',
     group: group.title,
+    groupDescription: group.description,
     capabilities: Object.freeze(parameter.capabilities || group.capabilities || ['engine-native']),
     order,
     featured: false,
