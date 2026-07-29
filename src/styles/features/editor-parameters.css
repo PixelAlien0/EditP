@@ -290,27 +290,39 @@
 .weapon-advanced-group-heading {
   margin-bottom: var(--space-3);
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-5);
 }
 
-.weapon-advanced-group-heading > div {
+.weapon-advanced-group-heading__copy {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: var(--space-1);
 }
 
-.weapon-advanced-group-heading span {
+.weapon-advanced-group-heading__title {
   color: var(--color-text-strong);
   font-family: var(--font-display);
   font-size: 17px;
   font-weight: 560;
+  line-height: 1.2;
 }
 
-.weapon-advanced-group-heading small {
+.weapon-advanced-group-heading__copy small {
+  max-width: 76ch;
   color: var(--color-text-muted);
   font-size: 10px;
+  line-height: 1.45;
+}
+
+.weapon-advanced-group-heading__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
 }
 
 .weapon-advanced-grid {
@@ -324,6 +336,25 @@
 .stat-card--advanced .stat-card-input {
   min-width: 0;
 }
+
+@media (max-width: 760px) {
+  .weapon-advanced-group-heading,
+  .weapon-advanced-group-heading__actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .weapon-advanced-group-heading__actions .section-heading__meta {
+    align-self: flex-start;
+  }
+
+  .weapon-advanced-group-heading__actions .ui-button-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .stat-card-default-pill:focus-visible {
   outline: 2px solid var(--color-accent-strong) !important;
   outline-offset: 2px !important;

@@ -1172,21 +1172,23 @@ export default function EditUnitsWorkspace({ context }) {
                                 key={group.title}
                               >
                                 <div className="weapon-advanced-group-heading">
-                                  <div>
-                                    <span>{group.title}</span>
+                                  <div className="weapon-advanced-group-heading__copy">
+                                    <span className="weapon-advanced-group-heading__title">{group.title}</span>
                                     <small>{group.description}</small>
                                   </div>
                                   {group.kind === 'sector-fire' && (
-                                    <div className="ui-button-group">
+                                    <div className="weapon-advanced-group-heading__actions">
                                       <span className="section-heading__meta">
                                         {sectorFireActive ? 'Sector active' : 'Standard firing'}
                                       </span>
-                                      <Button size="sm" variant="primary" onClick={applySectorFireBaseline}>
-                                        Apply clean sector
-                                      </Button>
-                                      <Button size="sm" variant="ghost" onClick={resetSectorFireSetup}>
-                                        Reset setup
-                                      </Button>
+                                      <div className="ui-button-group">
+                                        <Button size="sm" variant="primary" onClick={applySectorFireBaseline}>
+                                          Apply clean sector
+                                        </Button>
+                                        <Button size="sm" variant="ghost" onClick={resetSectorFireSetup}>
+                                          Reset setup
+                                        </Button>
+                                      </div>
                                     </div>
                                   )}
                                 </div>
