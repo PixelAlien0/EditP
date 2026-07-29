@@ -907,6 +907,10 @@
   background: var(--color-surface-accent-subtle);
 }
 
+.weapon-lab-parameter.has-asset {
+  grid-template-rows: auto auto minmax(24px, auto);
+}
+
 .weapon-lab-parameter__heading,
 .weapon-lab-parameter__footer {
   display: flex;
@@ -921,9 +925,13 @@
 }
 
 .weapon-lab-parameter > .asset-picker .asset-picker__field {
-  height: var(--control-height-md);
+  min-height: var(--control-height-md);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.weapon-lab-parameter.has-sound .asset-picker__field {
+  grid-template-columns: minmax(0, 1fr) 28px auto;
 }
 
 .weapon-lab-parameter__footer {

@@ -120,7 +120,12 @@ function ParameterControl({ parameter, sourceValues, overrideValues, effectiveVa
   }
 
   return (
-    <div className={`weapon-lab-parameter ${modified ? 'is-modified' : ''}`}>
+    <div className={[
+      'weapon-lab-parameter',
+      parameter.assetType ? 'has-asset' : '',
+      parameter.assetType === 'sound' ? 'has-sound' : '',
+      modified ? 'is-modified' : '',
+    ].filter(Boolean).join(' ')}>
       <div className="weapon-lab-parameter__heading">
         <span>{parameter.label}</span>
         <Badge tone={modified ? 'accent' : 'neutral'} size="sm">{modified ? 'Edited' : 'Source'}</Badge>
