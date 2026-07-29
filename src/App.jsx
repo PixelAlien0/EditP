@@ -28,7 +28,7 @@ import {
 import { useCloneController } from './controllers/useCloneController.js';
 import { useTweakPackageController } from './controllers/useTweakPackageController.js';
 import { useProjectFileController } from './controllers/useProjectFileController.js';
-import { Button, Switch } from './components/ui.jsx';
+import { Button } from './components/ui.jsx';
 import EditUnitsWorkspace from './components/editor/EditUnitsWorkspace.jsx';
 import { getRelationshipLabel } from './config/parameterGuidance.js';
 import { collectKnownTargetableMask } from './config/behaviorInterceptor.js';
@@ -37,6 +37,11 @@ import {
   deleteCollectionAndPromoteChildren,
   getCollectionUnitIds,
 } from './project/unitCollections.js';
+import {
+  createWeaponBlueprintDraft,
+  generateWeaponVfxPackLua,
+  normalizeWeaponBlueprint,
+} from './utils/weaponBlueprint.js';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
 const LazyCollectionsPage = lazy(() => import('./components/CollectionsPage.jsx'));
@@ -49,6 +54,7 @@ const LazyBarReferenceLibraryPage = lazy(() => import('./components/BarReference
 const LazyFormulaMutatorDialog = lazy(() => import('./components/FormulaMutatorDialog.jsx'));
 const LazyCarrierDroneWorkbenchDialog = lazy(() => import('./components/CarrierDroneWorkbenchDialog.jsx'));
 const LazyMutationLabDialog = lazy(() => import('./components/MutationLabDialog.jsx'));
+const LazyWeaponLaboratoryPage = lazy(() => import('./components/WeaponLaboratoryPage.jsx'));
 
 // Publish the experimental Weapon Laboratory workspace and its Tools entry.
 const WEAPON_LAB_ENABLED = true;
@@ -84,52 +90,6 @@ const BULK_PARAMETER_GROUPS = [
       })),
   },
 ];
-
-function hexToRgbUnit(hex) {
-  const clean = String(hex || '#ffffff').replace('#', '').padEnd(6, 'f').slice(0, 6);
-  return [0, 2, 4].map(index => parseInt(clean.slice(index, index + 2), 16) / 255);
-}
-
-function generateWeaponVfxPackLua(blueprints) {
-  const entries = [];
-  const inRange = (value, min, max, fallback) => {
-    const number = Number(value);
-    return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : fallback;
-  };
-  blueprints.filter(item => item.appearance?.vfxEnabled).forEach(blueprint => {
-    const safeId = blueprint.id.replace(/[^a-z0-9_]/gi, '_').toLowerCase();
-    const appearance = blueprint.appearance || {};
-    const primary = hexToRgbUnit(appearance.color);
-    const secondary = hexToRgbUnit(appearance.secondaryColor || appearance.color);
-    const brightness = inRange(appearance.brightness, 0.1, 2, 1);
-    const particleSize = inRange(appearance.particleSize, 1, 40, 5);
-    const particleCount = Math.round(inRange(appearance.particleCount, 1, 32, 4));
-    const particleLife = Math.round(inRange(appearance.particleLife, 1, 90, 12));
-    const spread = inRange(appearance.spread, 0, 90, 3);
-    const trailSize = inRange(appearance.trailSize, 1, 80, particleSize * 1.35);
-    const trailLength = inRange(appearance.trailLength, 1, 160, particleSize * 4);
-    const trailGrowth = inRange(appearance.trailGrowth, -1, 5, 0.15);
-    const trailLife = Math.round(inRange(appearance.trailLife, 1, 60, 5));
-    const trailOffset = inRange(appearance.trailOffset, 0, 1, 0.2);
-    const heatSize = inRange(appearance.heatSize, 1, 120, particleSize * 2.4);
-    const heatGrowth = inRange(appearance.heatGrowth, 0, 20, Math.max(0.2, particleSize * 0.08));
-    const heatFalloff = inRange(appearance.heatFalloff, 0.1, 12, 1.1);
-    const flashSize = inRange(appearance.flashSize, 1, 250, particleSize * 5);
-    const flashAlpha = inRange(appearance.flashAlpha, 0, 1, 0.55);
-    const flashGrowth = inRange(appearance.flashGrowth, 0, 40, particleSize * 0.55);
-    const flashLife = Math.round(inRange(appearance.flashLife, 1, 60, 8));
-    const texture = String(appearance.texture || 'flare').replace(/[^a-z0-9_-]/gi, '') || 'flare';
-    const colorMap = `${primary.map(v => Math.min(1, v * brightness).toFixed(3)).join(' ')} 0.85  ${secondary.map(v => Math.min(1, v * brightness).toFixed(3)).join(' ')} 0.35  0 0 0 0.01`;
-
-    entries.push(`  ["bmf_${safeId}_trail"] = {\n    usedefaultexplosions = false,\n    muzzleflare = {\n      air = true, ground = true, water = true, underwater = true,\n      class = "CBitmapMuzzleFlame", count = 1,\n      properties = {\n        colormap = [[${colorMap}]], dir = [[dir]], frontoffset = ${trailOffset.toFixed(2)},\n        fronttexture = [[${texture}]], sidetexture = [[${texture}]],\n        length = ${trailLength.toFixed(2)}, size = ${trailSize.toFixed(2)}, sizegrowth = ${trailGrowth.toFixed(2)}, ttl = ${trailLife},\n      },\n    },\n  }`);
-    const impactSpawners = [];
-    if (appearance.heatEnabled !== false) impactSpawners.push(`    core = {\n      air = true, ground = true, water = true, underwater = true,\n      class = "CHeatCloudProjectile", count = 1,\n      properties = {\n        heat = ${Math.round(12 * brightness)}, maxheat = ${Math.round(16 * brightness)}, heatfalloff = ${heatFalloff.toFixed(2)},\n        pos = [[0, 3, 0]], size = ${heatSize.toFixed(2)}, sizegrowth = ${heatGrowth.toFixed(2)}, texture = [[${texture}]],\n      },\n    }`);
-    if (appearance.particlesEnabled !== false) impactSpawners.push(`    sparks = {\n      air = true, ground = true, water = true, underwater = true,\n      class = "CSimpleParticleSystem", count = 1,\n      properties = {\n        airdrag = 0.88, colormap = [[${colorMap}]], directional = true,\n        emitrot = 35, emitrotspread = ${spread.toFixed(2)}, emitvector = [[0, 1, 0]],\n        gravity = [[0, -0.08, 0]], numparticles = ${particleCount * 2},\n        particlelife = ${particleLife}, particlelifespread = 4, particlesize = ${(particleSize * 0.8).toFixed(2)},\n        particlespeed = ${Math.max(1, particleSize * 0.45).toFixed(2)}, particlespeedspread = 1.5,\n        sizegrowth = -0.04, texture = [[${texture}]],\n      },\n    }`);
-    if (appearance.groundFlashEnabled !== false) impactSpawners.push(`    groundflash = {\n      color = [[${primary.map(v => v.toFixed(3)).join(' ')}]], circlealpha = ${(flashAlpha * 0.55).toFixed(2)}, circlegrowth = ${flashGrowth.toFixed(2)},\n      flashalpha = ${flashAlpha.toFixed(2)}, flashsize = ${flashSize.toFixed(2)}, ttl = ${flashLife},\n    }`);
-    entries.push(`  ["bmf_${safeId}_impact"] = {\n    usedefaultexplosions = false,\n${impactSpawners.join(',\n')}\n  }`);
-  });
-  return `-- Generated by BAR Editor Weapon Laboratory\n-- Place this file inside your mod's effects/ directory.\nreturn {\n${entries.join(',\n')}\n}\n`;
-}
 
 export default function App() {
   const {
@@ -904,102 +864,14 @@ export default function App() {
       return;
     }
     const sourceUnitId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
-    setWeaponBlueprintDraft({
-      id: '',
-      name: `${activeSlot.defKey.toUpperCase()} Variant`,
-      sourceUnitId,
-      sourceWeaponDefKey: activeSlot.defKey,
-      description: '',
-      appearance: {
-        vfxEnabled: true,
-        color: '#c69a68',
-        secondaryColor: '#f0d5a8',
-        brightness: 1,
-        particleSize: 5,
-        particleCount: 4,
-        particleLife: 12,
-        spread: 3,
-        texture: 'flare',
-        trailSize: 7,
-        trailLength: 20,
-        trailGrowth: 0.15,
-        trailLife: 5,
-        trailOffset: 0.2,
-        particlesEnabled: true,
-        heatEnabled: true,
-        heatSize: 12,
-        heatGrowth: 0.4,
-        heatFalloff: 1.1,
-        groundFlashEnabled: true,
-        flashSize: 25,
-        flashAlpha: 0.55,
-        flashGrowth: 3,
-        flashLife: 8
-      },
-      overrides: {
-        damage: activeSlot.damage ?? '',
-        range: activeSlot.range ?? '',
-        reload: activeSlot.reload ?? '',
-        velocity: activeSlot.velocity ?? '',
-        aoe: activeSlot.aoe ?? '',
-        projectiles: activeSlot.projectiles ?? '',
-        burst: activeSlot.burst ?? '',
-        burstrate: activeSlot.burstrate ?? '',
-        accuracy: activeSlot.accuracy ?? '',
-        sprayangle: activeSlot.sprayangle ?? '',
-        flighttime: activeSlot.flighttime ?? '',
-        cegtag: activeSlot.cegTag || '',
-        explosiongenerator: activeSlot.explosiongenerator || '',
-        model: activeSlot.model || ''
-      }
-    });
+    setWeaponBlueprintDraft(createWeaponBlueprintDraft({ sourceUnitId, slot: activeSlot }));
     setShowWeaponLab(true);
     setActiveWorkspace('weapon-lab');
   };
 
   const persistWeaponBlueprint = (draft = weaponBlueprintDraft) => {
     if (!draft?.sourceUnitId || !draft?.sourceWeaponDefKey) return null;
-    const id = draft.id || `weapon_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-    const safeId = id.replace(/[^a-z0-9_]/gi, '_').toLowerCase();
-    const appearance = {
-      vfxEnabled: false,
-      secondaryColor: draft.appearance?.color || '#ffffff',
-      particleSize: 5,
-      particleCount: 4,
-      particleLife: 12,
-      spread: 3,
-      texture: 'flare',
-      trailSize: 7,
-      trailLength: 20,
-      trailGrowth: 0.15,
-      trailLife: 5,
-      trailOffset: 0.2,
-      particlesEnabled: true,
-      heatEnabled: true,
-      heatSize: 12,
-      heatGrowth: 0.4,
-      heatFalloff: 1.1,
-      groundFlashEnabled: true,
-      flashSize: 25,
-      flashAlpha: 0.55,
-      flashGrowth: 3,
-      flashLife: 8,
-      ...draft.appearance
-    };
-    const blueprint = {
-      ...draft,
-      id,
-      appearance,
-      overrides: {
-        ...draft.overrides,
-        ...(appearance.vfxEnabled ? {
-          cegtag: `bmf_${safeId}_trail`,
-          explosiongenerator: `custom:bmf_${safeId}_impact`
-        } : {})
-      },
-      name: draft.name.trim() || `${draft.sourceWeaponDefKey.toUpperCase()} Variant`,
-      updatedAt: new Date().toISOString()
-    };
+    const blueprint = normalizeWeaponBlueprint(draft);
     setWeaponLibrary(prev => {
       const exists = prev.some(item => item.id === blueprint.id);
       return exists ? prev.map(item => item.id === blueprint.id ? blueprint : item) : [blueprint, ...prev];
@@ -1031,8 +903,12 @@ export default function App() {
     showToast(`Equipped ${blueprint.name} on slot ${slotNum}.`);
   };
 
-  const handleDownloadWeaponVfxPack = () => {
-    const enabled = weaponLibrary.filter(item => item.appearance?.vfxEnabled);
+  const handleDownloadWeaponVfxPack = (draft = null) => {
+    const savedBlueprint = draft ? persistWeaponBlueprint(draft) : null;
+    const exportLibrary = savedBlueprint
+      ? [savedBlueprint, ...weaponLibrary.filter(item => item.id !== savedBlueprint.id)]
+      : weaponLibrary;
+    const enabled = exportLibrary.filter(item => item.appearance?.vfxEnabled);
     if (enabled.length === 0) {
       showToast('Enable custom VFX on at least one saved weapon blueprint first.');
       return;
@@ -1042,7 +918,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'bmf_weapon_effects.lua';
+    anchor.download = 'editp_weapon_effects.lua';
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
@@ -2341,143 +2217,31 @@ export default function App() {
 
       {/* Weapon Laboratory */}
       {showWeaponLab && activeWorkspace === 'weapon-lab' && weaponBlueprintDraft && (
-        <main className="weapon-lab-page" aria-labelledby="weapon-lab-title">
-          <div className="weapon-lab-modal">
-            <div className="weapon-lab-header">
-              <div className="weapon-lab-header-copy">
-                <span className="weapon-lab-header-kicker">Armament forge <i /> Phase 02</span>
-                <h3 id="weapon-lab-title">Weapon Laboratory</h3>
-                <p>Clone, tune, and export a reusable weapon definition with engine-native CEG bindings.</p>
-              </div>
-              <div className="weapon-lab-page-actions"><div className="weapon-lab-header-stat"><strong>{weaponLibrary.length}</strong><span>saved designs</span></div><div className="weapon-lab-header-stat"><strong>{weaponBlueprintDraft.sourceWeaponDefKey.toUpperCase()}</strong><span>source weapon</span></div><button type="button" className="weapon-lab-close" onClick={() => { setShowWeaponLab(false); setActiveWorkspace('edit'); }}>Back to editor</button></div>
-            </div>
-
-            <div className="weapon-lab-layout">
-              <div className="weapon-lab-editor">
-                <div className="weapon-lab-source">
-                  <span>Source weapon</span>
-                  <strong>{weaponBlueprintDraft.sourceWeaponDefKey.toUpperCase()}</strong>
-                  <small>{weaponBlueprintDraft.sourceUnitId}</small>
-                </div>
-
-                <div className="weapon-lab-identity">
-                  <label>Name<input className="form-input" value={weaponBlueprintDraft.name} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, name: e.target.value }))} /></label>
-                  <label>Library note<input className="form-input" placeholder="Optional role or design note" value={weaponBlueprintDraft.description} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, description: e.target.value }))} /></label>
-                </div>
-
-                <section className="weapon-lab-section">
-                  <div className="weapon-lab-section-heading"><span>Core profile</span><small>Exported gameplay values</small></div>
-                  <div className="weapon-lab-core-grid">
-                    {[
-                      ['damage', 'Damage'], ['range', 'Range'], ['reload', 'Reload'], ['velocity', 'Velocity'],
-                      ['aoe', 'Splash AoE'], ['projectiles', 'Projectiles'], ['burst', 'Burst'], ['burstrate', 'Burst Rate'],
-                      ['accuracy', 'Accuracy'], ['sprayangle', 'Spray angle'], ['flighttime', 'Flight time']
-                    ].map(([key, label]) => (
-                      <label key={key}>{label}
-                        <input type="number" className="form-input" value={weaponBlueprintDraft.overrides[key]} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, overrides: { ...prev.overrides, [key]: e.target.value } }))} />
-                      </label>
-                    ))}
-                  </div>
-                  <div className="weapon-lab-performance-strip">
-                    <div><span>Damage / second</span><strong>{(() => { const damage = Number(weaponBlueprintDraft.overrides.damage) || 0; const reload = Number(weaponBlueprintDraft.overrides.reload) || 1; const burst = Number(weaponBlueprintDraft.overrides.burst) || 1; const projectiles = Number(weaponBlueprintDraft.overrides.projectiles) || 1; return ((damage * burst * projectiles) / reload).toFixed(1); })()}</strong></div>
-                    <div><span>Engagement range</span><strong>{Number(weaponBlueprintDraft.overrides.range || 0).toLocaleString()}</strong></div>
-                    <div><span>Impact radius</span><strong>{Number(weaponBlueprintDraft.overrides.aoe || 0).toLocaleString()}</strong></div>
-                    <div><span>Delivery</span><strong>{Number(weaponBlueprintDraft.overrides.burst) > 1 ? 'Burst' : Number(weaponBlueprintDraft.overrides.projectiles) > 1 ? 'Volley' : 'Direct'}</strong></div>
-                  </div>
-                </section>
-
-                <section className="weapon-lab-section">
-                  <div className="weapon-lab-section-heading"><span>Effect studio</span><small>Live study + exportable Spring CEG</small></div>
-                  <div className="weapon-lab-vfx-toggle">
-                    <Switch className="weapon-lab-switch" label="Generate custom trail and impact" checked={weaponBlueprintDraft.appearance.vfxEnabled} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, vfxEnabled: e.target.checked } }))} />
-                    <span><strong>Generate custom trail + impact</strong><small>Saving assigns unique CEG names to this blueprint.</small></span>
-                  </div>
-                  <div className="weapon-lab-visual-grid">
-                    <label>Trail / CEG<input className="form-input" placeholder="e.g. bluebeam" value={weaponBlueprintDraft.overrides.cegtag} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, overrides: { ...prev.overrides, cegtag: e.target.value } }))} /></label>
-                    <label>Explosion<input className="form-input" placeholder="e.g. custom:plasma_big" value={weaponBlueprintDraft.overrides.explosiongenerator} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, overrides: { ...prev.overrides, explosiongenerator: e.target.value } }))} /></label>
-                    <label>Projectile model<input className="form-input" placeholder="e.g. missile.3do" value={weaponBlueprintDraft.overrides.model} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, overrides: { ...prev.overrides, model: e.target.value } }))} /></label>
-                    <label>Core colour<input type="color" value={weaponBlueprintDraft.appearance.color} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, color: e.target.value } }))} /></label>
-                    <label>Falloff colour<input type="color" value={weaponBlueprintDraft.appearance.secondaryColor} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, secondaryColor: e.target.value } }))} /></label>
-                    <label>Texture<select className="form-input" value={weaponBlueprintDraft.appearance.texture} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, texture: e.target.value } }))}><option value="flare">Flare</option><option value="plasma">Plasma</option><option value="smoke">Smoke</option><option value="heatcloud">Heat cloud</option></select></label>
-                    <label>Brightness <em>{weaponBlueprintDraft.appearance.brightness.toFixed(1)}×</em><input type="number" min="0.4" max="2" step="0.1" className="form-input" value={weaponBlueprintDraft.appearance.brightness} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, brightness: Number(e.target.value) } }))} /></label>
-                    <label>Particle size<input type="number" min="1" max="40" className="form-input" value={weaponBlueprintDraft.appearance.particleSize} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, particleSize: Number(e.target.value) } }))} /></label>
-                    <label>Particle count<input type="number" min="1" max="32" className="form-input" value={weaponBlueprintDraft.appearance.particleCount} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, particleCount: Number(e.target.value) } }))} /></label>
-                    <label>Particle life<input type="number" min="1" max="90" className="form-input" value={weaponBlueprintDraft.appearance.particleLife} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, particleLife: Number(e.target.value) } }))} /></label>
-                    <label>Spread<input type="number" min="0" max="30" className="form-input" value={weaponBlueprintDraft.appearance.spread} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, spread: Number(e.target.value) } }))} /></label>
-                  </div>
-                  <div className="weapon-ceg-builder">
-                    <section>
-                      <div className="weapon-ceg-builder-heading"><div><span>Trail emitter</span><small>CBitmapMuzzleFlame · directional flare, beam, or rail trace</small></div><strong>CEG trail</strong></div>
-                      <div className="weapon-ceg-controls">
-                        <label>Width<input type="number" min="1" max="80" className="form-input" value={weaponBlueprintDraft.appearance.trailSize ?? 7} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailSize: Number(e.target.value) } }))} /></label>
-                        <label>Length<input type="number" min="1" max="160" className="form-input" value={weaponBlueprintDraft.appearance.trailLength ?? 20} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailLength: Number(e.target.value) } }))} /></label>
-                        <label>Growth<input type="number" min="-1" max="5" step="0.05" className="form-input" value={weaponBlueprintDraft.appearance.trailGrowth ?? 0.15} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailGrowth: Number(e.target.value) } }))} /></label>
-                        <label>Lifetime<input type="number" min="1" max="60" className="form-input" value={weaponBlueprintDraft.appearance.trailLife ?? 5} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailLife: Number(e.target.value) } }))} /></label>
-                        <label>Front offset<input type="number" min="0" max="1" step="0.05" className="form-input" value={weaponBlueprintDraft.appearance.trailOffset ?? 0.2} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, trailOffset: Number(e.target.value) } }))} /></label>
-                      </div>
-                    </section>
-                    <section>
-                      <div className="weapon-ceg-builder-heading"><div><span>Impact particles</span><small>CSimpleParticleSystem · moving debris, sparks, and energy</small></div><div className="weapon-ceg-switch"><Switch label="Enable impact particles" checked={weaponBlueprintDraft.appearance.particlesEnabled !== false} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, particlesEnabled: e.target.checked } }))} /><span>Enabled</span></div></div>
-                      <div className="weapon-ceg-note">Uses the particle size, count, lifetime, and spread controls above. The emitter applies gravity, drag, directional motion, and lifetime spread automatically.</div>
-                    </section>
-                    <section>
-                      <div className="weapon-ceg-builder-heading"><div><span>Heat core</span><small>CHeatCloudProjectile · expanding background burst</small></div><div className="weapon-ceg-switch"><Switch label="Enable heat core" checked={weaponBlueprintDraft.appearance.heatEnabled !== false} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, heatEnabled: e.target.checked } }))} /><span>Enabled</span></div></div>
-                      <div className="weapon-ceg-controls">
-                        <label>Initial size<input type="number" min="1" max="120" className="form-input" value={weaponBlueprintDraft.appearance.heatSize ?? 12} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, heatSize: Number(e.target.value) } }))} /></label>
-                        <label>Size growth<input type="number" min="0" max="20" step="0.1" className="form-input" value={weaponBlueprintDraft.appearance.heatGrowth ?? 0.4} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, heatGrowth: Number(e.target.value) } }))} /></label>
-                        <label>Heat falloff<input type="number" min="0.1" max="12" step="0.1" className="form-input" value={weaponBlueprintDraft.appearance.heatFalloff ?? 1.1} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, heatFalloff: Number(e.target.value) } }))} /></label>
-                      </div>
-                    </section>
-                    <section>
-                      <div className="weapon-ceg-builder-heading"><div><span>Ground flash</span><small>CStandardGroundFlash · impact light and expanding ring</small></div><div className="weapon-ceg-switch"><Switch label="Enable ground flash" checked={weaponBlueprintDraft.appearance.groundFlashEnabled !== false} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, groundFlashEnabled: e.target.checked } }))} /><span>Enabled</span></div></div>
-                      <div className="weapon-ceg-controls">
-                        <label>Flash size<input type="number" min="1" max="250" className="form-input" value={weaponBlueprintDraft.appearance.flashSize ?? 25} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, flashSize: Number(e.target.value) } }))} /></label>
-                        <label>Flash alpha<input type="number" min="0" max="1" step="0.05" className="form-input" value={weaponBlueprintDraft.appearance.flashAlpha ?? 0.55} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, flashAlpha: Number(e.target.value) } }))} /></label>
-                        <label>Ring growth<input type="number" min="0" max="40" step="0.1" className="form-input" value={weaponBlueprintDraft.appearance.flashGrowth ?? 3} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, flashGrowth: Number(e.target.value) } }))} /></label>
-                        <label>Lifetime<input type="number" min="1" max="60" className="form-input" value={weaponBlueprintDraft.appearance.flashLife ?? 8} onChange={e => setWeaponBlueprintDraft(prev => ({ ...prev, appearance: { ...prev.appearance, flashLife: Number(e.target.value) } }))} /></label>
-                      </div>
-                    </section>
-                  </div>
-                  <div className="weapon-ceg-manifest">
-                    <div><span>Export manifest</span><small>Rendering is validated in Recoil, not simulated in the browser.</small></div>
-                    <code>bmf_{weaponBlueprintDraft.id || 'new_weapon'}_trail</code>
-                    <span>CBitmapMuzzleFlame</span>
-                    {weaponBlueprintDraft.appearance.particlesEnabled !== false && <span>CSimpleParticleSystem</span>}
-                    {weaponBlueprintDraft.appearance.heatEnabled !== false && <span>CHeatCloudProjectile</span>}
-                    {weaponBlueprintDraft.appearance.groundFlashEnabled !== false && <span>CStandardGroundFlash</span>}
-                  </div>
-                  <p className="weapon-lab-export-note">The downloaded Lua belongs in your full mod's <code>effects/</code> folder. Lobby tweakdefs can reference CEGs, but cannot register new effect definitions by themselves.</p>
-                </section>
-
-                <div className="weapon-lab-actions">
-                  <button type="button" className="weapon-lab-export-vfx" onClick={handleDownloadWeaponVfxPack}>Download VFX Lua</button>
-                  <button type="button" className="weapon-lab-save" onClick={() => { persistWeaponBlueprint(); showToast('Weapon blueprint saved to library.'); }}>Save blueprint</button>
-                  <button type="button" className="weapon-lab-equip" onClick={() => { const blueprint = persistWeaponBlueprint(); if (blueprint) equipWeaponBlueprint(blueprint); }}>Save & equip on slot {activeWeaponSlotTab}</button>
-                </div>
-              </div>
-
-              <aside className="weapon-library-panel">
-                <div className="weapon-library-heading"><span>Weapon library</span><strong>{weaponLibrary.length} blueprints</strong></div>
-                <div className="weapon-library-list">
-                  {weaponLibrary.length > 0 ? weaponLibrary.map(blueprint => (
-                    <article className="weapon-library-card" key={blueprint.id}>
-                      <div className="weapon-library-card-main">
-                        <span className="weapon-library-swatch" style={{ background: blueprint.appearance?.color || '#c69a68' }} />
-                        <div><strong>{blueprint.name}</strong><small>{blueprint.sourceWeaponDefKey} · {blueprint.sourceUnitId}</small></div>
-                      </div>
-                      <p>{blueprint.description || 'Reusable weapon blueprint'}</p>
-                      <div>
-                        <button type="button" onClick={() => { setWeaponBlueprintDraft(blueprint); }}>Edit</button>
-                        <button type="button" onClick={() => equipWeaponBlueprint(blueprint)}>Equip</button>
-                        <button type="button" className="weapon-library-delete" onClick={() => setWeaponLibrary(prev => prev.filter(item => item.id !== blueprint.id))}>Delete</button>
-                      </div>
-                    </article>
-                  )) : <div className="weapon-library-empty"><strong>Library is empty</strong><span>Save the active weapon as a blueprint to build a reusable collection.</span></div>}
-                </div>
-              </aside>
-            </div>
-          </div>
-        </main>
+        <Suspense fallback={<main className="weapon-laboratory workspace-loading"><span>Preparing Weapon Laboratory…</span></main>}>
+          <LazyWeaponLaboratoryPage
+            draft={weaponBlueprintDraft}
+            library={weaponLibrary}
+            selectedUnit={selectedUnit}
+            activeSlotNumber={activeWeaponSlotTab}
+            onDraftChange={setWeaponBlueprintDraft}
+            onNewVariant={openWeaponLab}
+            onSave={draft => {
+              const blueprint = persistWeaponBlueprint(draft);
+              if (blueprint) showToast('Weapon blueprint saved to the project library.');
+              return blueprint;
+            }}
+            onEquip={equipWeaponBlueprint}
+            onDelete={blueprintId => {
+              setWeaponLibrary(previous => previous.filter(item => item.id !== blueprintId));
+              if (weaponBlueprintDraft.id === blueprintId) openWeaponLab();
+            }}
+            onExportVfx={handleDownloadWeaponVfxPack}
+            onClose={() => {
+              setShowWeaponLab(false);
+              setActiveWorkspace('edit');
+            }}
+          />
+        </Suspense>
       )}
 
       {MUTATOR_TOOLS_ENABLED && showRandomPanel && (

@@ -1,0 +1,561 @@
+/* Weapon Laboratory: canonical full-page workbench. No browser rendering preview is implied. */
+.app-container > .weapon-laboratory {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.weapon-laboratory__toolbar {
+  min-height: 52px;
+  padding: 0 var(--density-page-gutter);
+  display: grid;
+  grid-template-columns: minmax(220px, .38fr) minmax(480px, 1fr);
+  align-items: stretch;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.weapon-lab-source-summary {
+  min-width: 0;
+  padding-right: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-right: 1px solid var(--color-border);
+}
+
+.weapon-lab-source-summary > span {
+  color: var(--color-text-muted);
+  font: 700 8px/1 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.weapon-lab-source-summary > strong {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 700 var(--font-size-xs)/1 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-lab-source-summary > code {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font: 600 9px/1 var(--font-mono);
+}
+
+.weapon-laboratory__toolbar .ui-tabs {
+  padding-left: var(--space-3);
+  border: 0;
+}
+
+.weapon-laboratory__body {
+  overflow: hidden;
+}
+
+.weapon-laboratory__layout {
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: clamp(190px, 15vw, 244px) minmax(520px, 1fr) clamp(260px, 20vw, 330px);
+  background: var(--color-canvas);
+}
+
+.weapon-lab-brief,
+.weapon-lab-inspector,
+.weapon-lab-workbench {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.weapon-lab-brief {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  border-right: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.weapon-lab-brief > section {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.weapon-lab-brief > section > p {
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-xs)/var(--line-height-body) var(--font-ui);
+}
+
+.weapon-lab-brief nav {
+  display: grid;
+  border-top: 1px solid var(--color-border);
+}
+
+.weapon-lab-brief nav button {
+  min-height: 48px;
+  padding: 0 var(--space-2);
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.weapon-lab-brief nav button:hover,
+.weapon-lab-brief nav button.is-active {
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
+}
+
+.weapon-lab-brief nav button.is-active {
+  box-shadow: inset 2px 0 0 var(--color-accent);
+}
+
+.weapon-lab-brief nav span,
+.weapon-lab-brief nav small {
+  color: var(--color-text-muted);
+  font: 700 8px/1 var(--font-mono);
+}
+
+.weapon-lab-brief nav strong {
+  overflow: hidden;
+  font: 700 var(--font-size-xs)/1.25 var(--font-ui);
+  text-overflow: ellipsis;
+}
+
+.weapon-lab-brief__scope {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.weapon-lab-workbench {
+  padding: var(--space-6) clamp(var(--space-5), 2vw, var(--space-8)) var(--space-10);
+}
+
+.weapon-lab-tab-panel {
+  width: min(1080px, 100%);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.weapon-lab-identity-panel,
+.weapon-lab-group,
+.weapon-lab-effects-master,
+.weapon-lab-library-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.weapon-lab-identity-panel {
+  padding: var(--space-5);
+  display: grid;
+  grid-template-columns: minmax(180px, .4fr) minmax(360px, 1fr);
+  gap: var(--space-6);
+}
+
+.weapon-lab-identity-panel > div:first-child {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+}
+
+.weapon-lab-identity-grid {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(180px, .75fr) minmax(260px, 1.25fr);
+  gap: var(--space-3);
+}
+
+.weapon-lab-identity-grid .ui-textarea {
+  min-height: var(--control-height-md);
+  height: var(--control-height-md);
+  resize: vertical;
+}
+
+.weapon-lab-group-stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.weapon-lab-group {
+  overflow: hidden;
+}
+
+.weapon-lab-group > header {
+  min-height: 58px;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-subtle);
+}
+
+.weapon-lab-group > header > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.weapon-lab-group > header > .ui-badge {
+  margin-left: auto;
+}
+
+.weapon-lab-group > header > .ui-switch-field {
+  width: auto;
+  margin-left: auto;
+  padding: 0;
+}
+
+.weapon-lab-group > header > .ui-switch-field .ui-switch-field__copy {
+  display: none;
+}
+
+.weapon-lab-field-grid {
+  padding: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(146px, 1fr));
+  gap: var(--space-3);
+}
+
+.weapon-lab-number-field {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.weapon-lab-number-field > span {
+  min-height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font: 700 var(--font-size-xs)/1.2 var(--font-ui);
+}
+
+.weapon-lab-number-field > span small {
+  color: var(--color-text-muted);
+  font: 600 8px/1 var(--font-mono);
+}
+
+.weapon-lab-effects-master {
+  min-height: 74px;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.weapon-lab-effects-master .ui-switch-field {
+  padding: 0;
+  flex: 1;
+}
+
+.weapon-lab-native-assets .weapon-lab-asset-grid {
+  padding: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.weapon-lab-native-assets .asset-picker {
+  min-width: 0;
+}
+
+.weapon-lab-native-assets .asset-picker::before {
+  margin-bottom: 6px;
+  display: block;
+  color: var(--color-text);
+  font: 700 var(--font-size-xs)/1.2 var(--font-ui);
+}
+
+.weapon-lab-native-assets .asset-picker:nth-child(1)::before { content: 'Trail / CEG'; }
+.weapon-lab-native-assets .asset-picker:nth-child(2)::before { content: 'Explosion generator'; }
+.weapon-lab-native-assets .asset-picker:nth-child(3)::before { content: 'Projectile model'; }
+
+.weapon-lab-native-assets .asset-picker__field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.weapon-lab-palette-grid {
+  padding: var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.weapon-lab-palette-grid > label:not(.ui-field) {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  color: var(--color-text);
+  font: 700 var(--font-size-xs)/1.2 var(--font-ui);
+}
+
+.weapon-lab-palette-grid input[type="color"] {
+  width: 100%;
+  min-height: var(--control-height-md);
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.weapon-lab-group.is-disabled > :not(header),
+.weapon-lab-group-stack.is-disabled {
+  opacity: .42;
+  pointer-events: none;
+}
+
+.weapon-lab-library-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.weapon-lab-library-header > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.weapon-lab-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.weapon-lab-library-card {
+  padding: var(--space-4);
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+}
+
+.weapon-lab-library-card.is-current {
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface-accent-subtle);
+}
+
+.weapon-lab-library-card__heading {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.weapon-lab-swatch {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--weapon-swatch);
+}
+
+.weapon-lab-library-card__heading > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.weapon-lab-library-card__heading strong {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 700 var(--font-size-sm)/1.2 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-lab-library-card code,
+.weapon-lab-library-card p {
+  color: var(--color-text-muted);
+  font: 600 9px/1.35 var(--font-mono);
+}
+
+.weapon-lab-library-card p {
+  min-height: 32px;
+  font-family: var(--font-ui);
+}
+
+.weapon-lab-library-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-block: 1px solid var(--color-border);
+}
+
+.weapon-lab-library-card dl > div {
+  padding: var(--space-2);
+  display: grid;
+  gap: 3px;
+  border-right: 1px solid var(--color-border);
+}
+
+.weapon-lab-library-card dl > div:last-child { border-right: 0; }
+.weapon-lab-library-card dt { color: var(--color-text-muted); font: 700 7px/1 var(--font-mono); text-transform: uppercase; }
+.weapon-lab-library-card dd { color: var(--color-text-strong); font: 700 var(--font-size-xs)/1 var(--font-mono); }
+.weapon-lab-library-card footer { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+.weapon-lab-inspector {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  border-left: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.weapon-lab-analysis,
+.weapon-lab-manifest,
+.weapon-lab-validation {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.weapon-lab-analysis dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-surface-raised);
+}
+
+.weapon-lab-analysis dl > div {
+  min-width: 0;
+  padding: var(--space-3);
+  display: grid;
+  gap: 3px;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.weapon-lab-analysis dl > div:nth-child(2n) { border-right: 0; }
+.weapon-lab-analysis dl > div:nth-last-child(-n + 2) { border-bottom: 0; }
+.weapon-lab-analysis dt { color: var(--color-text-muted); font: 700 8px/1 var(--font-mono); text-transform: uppercase; }
+.weapon-lab-analysis dd { color: var(--color-text-strong); font: 560 20px/1 var(--font-display); }
+.weapon-lab-analysis small { color: var(--color-text-muted); font: 500 8px/1.2 var(--font-ui); }
+
+.weapon-lab-delivery {
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  font: 600 var(--font-size-xs)/1 var(--font-ui);
+}
+
+.weapon-lab-delivery strong { color: var(--color-text-strong); }
+
+.weapon-lab-manifest {
+  padding-block: var(--space-4);
+  border-block: 1px solid var(--color-border);
+}
+
+.weapon-lab-manifest > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.weapon-lab-manifest span { color: var(--color-text-muted); font: 700 8px/1 var(--font-mono); text-transform: uppercase; }
+.weapon-lab-manifest code {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 600 9px/1.3 var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-lab-validation ul {
+  padding-left: var(--space-4);
+  color: var(--color-danger);
+  font: 600 var(--font-size-xs)/var(--line-height-body) var(--font-ui);
+}
+
+.weapon-lab-validation p {
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-xs)/var(--line-height-body) var(--font-ui);
+}
+
+.weapon-lab-validation p.is-ready {
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-surface);
+  color: var(--color-success);
+}
+
+.weapon-lab-validation p.is-advisory {
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-surface);
+  color: var(--color-warning);
+}
+
+.weapon-lab-action-stack {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 1439px) {
+  .weapon-laboratory__layout {
+    grid-template-columns: 200px minmax(500px, 1fr) 270px;
+  }
+  .weapon-lab-identity-panel { grid-template-columns: 1fr; gap: var(--space-4); }
+  .weapon-lab-palette-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1180px) {
+  .weapon-laboratory__layout {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+  .weapon-lab-inspector {
+    grid-column: 2;
+    overflow: visible;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
+  }
+  .weapon-lab-workbench {
+    overflow: visible;
+  }
+  .weapon-laboratory__body {
+    overflow: auto;
+  }
+  .weapon-laboratory__layout {
+    height: auto;
+    min-height: 100%;
+  }
+  .weapon-lab-action-stack { margin: 0; align-content: start; }
+  .weapon-lab-native-assets .weapon-lab-asset-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weapon-lab-brief nav button {
+    transition: none;
+  }
+}

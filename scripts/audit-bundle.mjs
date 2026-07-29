@@ -30,7 +30,10 @@ const budgets = {
   entryGzip: 150 * 1024,
   largestJs: 500 * 1024,
   entryCss: 325 * 1024,
-  totalCss: 368 * 1024,
+  // Includes every lazy workspace stylesheet. Weapon Laboratory is delivered
+  // only when opened, so keep the initial CSS budget unchanged while allowing
+  // its canonical feature sheet inside the complete-project ceiling.
+  totalCss: 380 * 1024,
   dist: 25 * 1024 * 1024
 };
 
