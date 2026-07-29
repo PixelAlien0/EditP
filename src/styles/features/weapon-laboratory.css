@@ -721,6 +721,11 @@
 
 .weapon-lab-parameter-view {
   flex: 0 0 auto;
+  background: var(--color-surface-raised);
+}
+
+.weapon-lab-parameter-view button {
+  background: transparent;
 }
 
 .weapon-lab-parameter-group {
