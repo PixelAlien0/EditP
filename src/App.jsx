@@ -39,6 +39,7 @@ import {
   getCollectionUnitIds,
 } from './project/unitCollections.js';
 import {
+  applyWeaponBlueprintToSlot,
   createWeaponBlueprintDraft,
   createWeaponSourceCatalog,
   generateWeaponVfxPackLua,
@@ -813,21 +814,9 @@ export default function App() {
               const blueprint = swap.libraryWeaponId
                 ? weaponLibrary.find(item => item.id === swap.libraryWeaponId)
                 : null;
-              const overrides = blueprint?.overrides || {};
               return {
-                ...srcSlot,
-                damage: Number.isFinite(Number(overrides.damage)) ? Number(overrides.damage) : srcSlot.damage,
-                range: Number.isFinite(Number(overrides.range)) ? Number(overrides.range) : srcSlot.range,
-                reload: Number.isFinite(Number(overrides.reload)) ? Number(overrides.reload) : srcSlot.reload,
-                velocity: Number.isFinite(Number(overrides.velocity)) ? Number(overrides.velocity) : srcSlot.velocity,
-                aoe: Number.isFinite(Number(overrides.aoe)) ? Number(overrides.aoe) : srcSlot.aoe,
-                projectiles: Number.isFinite(Number(overrides.projectiles)) ? Number(overrides.projectiles) : srcSlot.projectiles,
-                burst: Number.isFinite(Number(overrides.burst)) ? Number(overrides.burst) : srcSlot.burst,
-                burstrate: Number.isFinite(Number(overrides.burstrate)) ? Number(overrides.burstrate) : srcSlot.burstrate,
-                cegTag: overrides.cegtag || srcSlot.cegTag,
-                explosiongenerator: overrides.explosiongenerator || srcSlot.explosiongenerator,
-                model: overrides.model || srcSlot.model,
-                slot: wSlot.slot // Retain destination slot number
+                ...(blueprint ? applyWeaponBlueprintToSlot(srcSlot, blueprint) : srcSlot),
+                slot: wSlot.slot, // Retain destination slot number
               };
             }
           }

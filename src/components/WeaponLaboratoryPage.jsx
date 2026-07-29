@@ -13,9 +13,11 @@ import {
   Type,
 } from './ui.jsx';
 import AssetPicker from './editor/AssetPicker.jsx';
+import WeaponBlueprintParameterEditor from './WeaponBlueprintParameterEditor.jsx';
 import {
   createWeaponBlueprintDraft,
   getWeaponBlueprintMetrics,
+  getWeaponBlueprintParameterValue,
   normalizeWeaponBlueprint,
   validateWeaponBlueprint,
 } from '../utils/weaponBlueprint.js';
@@ -26,41 +28,6 @@ const LAB_TABS = [
   { id: 'gameplay', label: 'Gameplay profile', panelId: 'weapon-lab-panel-gameplay' },
   { id: 'effects', label: 'Effects & assets', panelId: 'weapon-lab-panel-effects' },
   { id: 'library', label: 'Custom storage', panelId: 'weapon-lab-panel-library' },
-];
-
-const GAMEPLAY_GROUPS = [
-  {
-    id: 'output',
-    title: 'Output',
-    description: 'Damage delivered by each projectile and the resulting impact area.',
-    fields: [
-      { key: 'damage', label: 'Damage', min: 0, step: 1 },
-      { key: 'aoe', label: 'Splash radius', min: 0, step: 1 },
-      { key: 'projectiles', label: 'Projectiles', min: 1, step: 1 },
-    ],
-  },
-  {
-    id: 'cadence',
-    title: 'Cadence',
-    description: 'Timing for individual shots, bursts, and volleys.',
-    fields: [
-      { key: 'reload', label: 'Reload time', min: 0, step: 0.01, suffix: 's' },
-      { key: 'burst', label: 'Burst count', min: 1, step: 1 },
-      { key: 'burstrate', label: 'Burst interval', min: 0, step: 0.01, suffix: 's' },
-    ],
-  },
-  {
-    id: 'delivery',
-    title: 'Delivery',
-    description: 'Range, projectile motion, and practical hit dispersion.',
-    fields: [
-      { key: 'range', label: 'Range', min: 0, step: 1, suffix: 'elmo' },
-      { key: 'velocity', label: 'Velocity', min: 0, step: 1 },
-      { key: 'flighttime', label: 'Flight time', min: 0, step: 0.1, suffix: 's' },
-      { key: 'accuracy', label: 'Accuracy cone', min: 0, step: 1 },
-      { key: 'sprayangle', label: 'Spray angle', min: 0, step: 1 },
-    ],
-  },
 ];
 
 const EFFECT_NUMBER_GROUPS = [
@@ -219,7 +186,7 @@ function SourceCatalogPanel({ sources, currentSourceId, onClone }) {
               <dl>
                 <div><dt>DPS</dt><dd>{metrics.dps.toFixed(1)}</dd></div>
                 <div><dt>Range</dt><dd>{metrics.range.toLocaleString()}</dd></div>
-                <div><dt>Reload</dt><dd>{Number(sourceDraft.overrides.reload || 0).toFixed(2)}s</dd></div>
+                <div><dt>Reload</dt><dd>{Number(getWeaponBlueprintParameterValue(sourceDraft, 'reload') || 0).toFixed(2)}s</dd></div>
               </dl>
               <Button size="sm" variant={isCurrent ? 'secondary' : 'primary'} onClick={() => onClone(source)}>
                 {isCurrent ? 'Clone fresh copy' : 'Clone to workspace'}
@@ -306,10 +273,12 @@ export default function WeaponLaboratoryPage({
   const metrics = useMemo(() => getWeaponBlueprintMetrics(draft), [draft]);
   const isSaved = Boolean(draft?.id && library.some(item => item.id === draft.id));
   const updateDraft = patch => onDraftChange(previous => ({ ...previous, ...patch }));
-  const updateOverride = (key, value) => onDraftChange(previous => ({
-    ...previous,
-    overrides: { ...previous.overrides, [key]: value },
-  }));
+  const updateOverride = (key, value) => onDraftChange(previous => {
+    const overrides = { ...(previous.overrides || {}) };
+    if (value === undefined || value === null || value === '') delete overrides[key];
+    else overrides[key] = value;
+    return { ...previous, overrides };
+  });
   const updateAppearance = (key, value) => onDraftChange(previous => ({
     ...previous,
     appearance: { ...previous.appearance, [key]: value },
@@ -420,16 +389,10 @@ export default function WeaponLaboratoryPage({
                   />
                 </div>
               </section>
-              <div className="weapon-lab-group-stack">
-                {GAMEPLAY_GROUPS.map(group => (
-                  <LabGroup
-                    key={group.id}
-                    {...group}
-                    values={draft.overrides}
-                    onChange={updateOverride}
-                  />
-                ))}
-              </div>
+              <WeaponBlueprintParameterEditor
+                blueprint={draft}
+                onChange={updateOverride}
+              />
             </div>
           )}
 
@@ -454,9 +417,9 @@ export default function WeaponLaboratoryPage({
                   <Badge size="sm">Engine assets</Badge>
                 </header>
                 <div className="weapon-lab-asset-grid">
-                  <AssetPicker assetType="ceg" label="Trail / CEG" value={draft.overrides.cegtag || ''} onChange={value => updateOverride('cegtag', value)} />
-                  <AssetPicker assetType="ceg" label="Explosion generator" value={draft.overrides.explosiongenerator || ''} onChange={value => updateOverride('explosiongenerator', value)} />
-                  <AssetPicker assetType="projectileModel" label="Projectile model" value={draft.overrides.model || ''} onChange={value => updateOverride('model', value)} />
+                  <AssetPicker assetType="ceg" label="Trail / CEG" value={getWeaponBlueprintParameterValue(draft, 'cegTag') || ''} onChange={value => updateOverride('cegTag', value)} />
+                  <AssetPicker assetType="ceg" label="Explosion generator" value={getWeaponBlueprintParameterValue(draft, 'explosiongenerator') || ''} onChange={value => updateOverride('explosiongenerator', value)} />
+                  <AssetPicker assetType="projectileModel" label="Projectile model" value={getWeaponBlueprintParameterValue(draft, 'model') || ''} onChange={value => updateOverride('model', value)} />
                 </div>
               </section>
 
@@ -534,9 +497,9 @@ export default function WeaponLaboratoryPage({
           <section className="weapon-lab-manifest">
             <Type variant="eyebrow">Export manifest</Type>
             <div><span>WeaponDef source</span><code>{draft.sourceWeaponDefKey}</code></div>
-            <div><span>Trail binding</span><code>{effectEnabled ? `editp_${generatedId}_trail` : draft.overrides.cegtag || 'Inherited'}</code></div>
-            <div><span>Impact binding</span><code>{effectEnabled ? `custom:editp_${generatedId}_impact` : draft.overrides.explosiongenerator || 'Inherited'}</code></div>
-            <div><span>Projectile model</span><code>{draft.overrides.model || 'Inherited'}</code></div>
+            <div><span>Trail binding</span><code>{effectEnabled ? `editp_${generatedId}_trail` : getWeaponBlueprintParameterValue(draft, 'cegTag') || 'Inherited'}</code></div>
+            <div><span>Impact binding</span><code>{effectEnabled ? `custom:editp_${generatedId}_impact` : getWeaponBlueprintParameterValue(draft, 'explosiongenerator') || 'Inherited'}</code></div>
+            <div><span>Projectile model</span><code>{getWeaponBlueprintParameterValue(draft, 'model') || 'Inherited'}</code></div>
           </section>
 
           <section className="weapon-lab-validation">

@@ -106,7 +106,16 @@ describe('nested clone generation', () => {
       name: 'Rose Cannon',
       sourceUnitId: 'armflash',
       sourceWeaponDefKey: 'plasma',
-      overrides: { damage: 240, reload: 2 },
+      overrides: {
+        damage: 240,
+        reload: 2,
+        tracks: true,
+        turnrate: 42000,
+        soundstart: 'custom_fire',
+        cluster_number: 6,
+        onlytargetcategory: 'SURFACE',
+        maxangledif: 35,
+      },
     }];
     const unequipped = generateClonesBlockLua([
       { baseId: 'armflash', newId: 'plain_clone', displayName: 'Plain', builderIds: [] },
@@ -128,6 +137,12 @@ describe('nested clone generation', () => {
     }], library);
     expect(equipped).toContain('editp_weapon_rose');
     expect(equipped).toContain('w.damage.default = 240');
+    expect(equipped).toContain('w.tracks = true');
+    expect(equipped).toContain('w.turnrate = 42000');
+    expect(equipped).toContain('w.soundstart = "custom_fire"');
+    expect(equipped).toContain('w.customparams.cluster_number = 6');
+    expect(equipped).toContain('m.onlytargetcategory = "SURFACE"');
+    expect(equipped).toContain('m.maxangledif = 35');
   });
 
   it('compiles supporting WeaponDefs into their owner after clone creation', () => {

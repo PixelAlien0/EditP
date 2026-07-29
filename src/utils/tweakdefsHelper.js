@@ -1,4 +1,5 @@
 import { serializeLuaTable } from './tweakSerializer.js';
+import { getWeaponParameterDefinition } from '../config/weaponParameters.js';
 
 export const BUILDMENU_BEGIN = '-- EDITP_BUILDMENU_BEGIN';
 export const BUILDMENU_END = '-- EDITP_BUILDMENU_END';
@@ -189,46 +190,77 @@ end
 ${SUPPORTING_WEAPONDEFS_END}`;
 }
 
-function generateWeaponBlueprintOverridesLua(blueprint, weaponDefKey) {
-  const overrides = blueprint?.overrides || {};
+function normalizeBlueprintOverrideValue(parameter, value) {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (parameter.valueType === 'boolean') {
+    if (value === true || value === 'true' || value === 1 || value === '1') return true;
+    if (value === false || value === 'false' || value === 0 || value === '0') return false;
+    return undefined;
+  }
+  if (parameter.valueType === 'number') {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : undefined;
+  }
+  return String(value);
+}
+
+function generateNestedAssignment(target, path, value) {
+  const pathParts = String(path || '').split('.').filter(Boolean);
+  if (!pathParts.length) return [];
   const lines = [];
-  const numberFields = {
-    damage: 'damage.default',
-    range: 'range',
-    reload: 'reloadtime',
-    velocity: 'weaponvelocity',
-    aoe: 'areaofeffect',
-    projectiles: 'projectiles',
-    burst: 'burst',
-    burstrate: 'burstrate',
-    accuracy: 'accuracy',
-    sprayangle: 'sprayangle',
-    flighttime: 'flighttime'
-  };
+  for (let index = 0; index < pathParts.length - 1; index += 1) {
+    const parent = [target, ...pathParts.slice(0, index + 1)].join('.');
+    lines.push(`      ${parent} = ${parent} or {}`);
+  }
+  const serializedValue = typeof value === 'string'
+    ? JSON.stringify(value)
+    : value === true
+      ? 'true'
+      : value === false
+        ? 'false'
+        : String(value);
+  lines.push(`      ${[target, ...pathParts].join('.')} = ${serializedValue}`);
+  return lines;
+}
 
-  Object.entries(numberFields).forEach(([key, path]) => {
-    const value = Number(overrides[key]);
-    if (!Number.isFinite(value)) return;
-    if (path === 'damage.default') {
-      lines.push(`      w.damage = w.damage or {}`);
-      lines.push(`      w.damage.default = ${value}`);
-    } else {
-      lines.push(`      w.${path} = ${value}`);
-    }
-  });
+export function generateWeaponBlueprintOverridesLua(blueprint, weaponDefKey, slotNum) {
+  const overrides = blueprint?.overrides || {};
+  const weaponLines = [];
+  const mountLines = [];
+  Object.entries(overrides)
+    .map(([rawKey, value]) => [rawKey === 'cegtag' ? 'cegTag' : rawKey, value])
+    .sort(([leftKey], [rightKey]) => compareCanonicalText(leftKey, rightKey))
+    .forEach(([key, rawValue]) => {
+      const parameter = getWeaponParameterDefinition(key);
+      if (!parameter || parameter.deprecated) return;
+      const value = normalizeBlueprintOverrideValue(parameter, rawValue);
+      if (value === undefined) return;
+      const target = parameter.compileTarget === 'mount' ? 'm' : 'w';
+      const assignments = generateNestedAssignment(target, parameter.path, value);
+      if (target === 'm') mountLines.push(...assignments);
+      else weaponLines.push(...assignments);
+    });
 
-  ['cegtag', 'explosiongenerator', 'model'].forEach(key => {
-    if (typeof overrides[key] === 'string' && overrides[key].trim()) {
-      lines.push(`      w.${key} = ${JSON.stringify(overrides[key].trim())}`);
-    }
-  });
-
-  if (lines.length === 0) return [];
+  if (weaponLines.length === 0 && mountLines.length === 0) return [];
+  const lines = [];
+  if (weaponLines.length > 0) {
+    lines.push(
+      `    if u.weapondefs and u.weapondefs[${JSON.stringify(weaponDefKey)}] then`,
+      `      local w = u.weapondefs[${JSON.stringify(weaponDefKey)}]`,
+      ...weaponLines,
+      `    end`,
+    );
+  }
+  if (mountLines.length > 0) {
+    lines.push(
+      `    if u.weapons and u.weapons[${Number(slotNum)}] then`,
+      `      local m = u.weapons[${Number(slotNum)}]`,
+      ...mountLines,
+      `    end`,
+    );
+  }
   return [
-    `    if u.weapondefs and u.weapondefs[${JSON.stringify(weaponDefKey)}] then`,
-    `      local w = u.weapondefs[${JSON.stringify(weaponDefKey)}]`,
     ...lines,
-    `    end`
   ];
 }
 
@@ -289,7 +321,7 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
         const targetWep = blueprint ? `editp_${blueprint.id.replace(/[^a-z0-9_]/gi, '_').toLowerCase()}` : srcWep;
         lines.push(`    clone_swap_weapon(u, ${slotNum}, ${JSON.stringify(srcUnit)}, ${JSON.stringify(srcWep)}, ${JSON.stringify(targetWep)})`);
         if (blueprint) {
-          lines.push(...generateWeaponBlueprintOverridesLua(blueprint, targetWep));
+          lines.push(...generateWeaponBlueprintOverridesLua(blueprint, targetWep, slotNum));
         }
       }
       });

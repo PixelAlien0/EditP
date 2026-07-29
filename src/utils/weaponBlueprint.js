@@ -1,3 +1,9 @@
+import {
+  WEAPON_EDITABLE_PARAMETER_CATALOG,
+  WEAPON_ESSENTIAL_KEYS,
+  getWeaponParameterDefinition,
+} from '../config/weaponParameters.js';
+
 const DEFAULT_APPEARANCE = Object.freeze({
   vfxEnabled: false,
   color: '#c69a68',
@@ -25,25 +31,21 @@ const DEFAULT_APPEARANCE = Object.freeze({
   flashLife: 8,
 });
 
-export const WEAPON_BLUEPRINT_NUMERIC_KEYS = Object.freeze([
-  'damage',
-  'range',
-  'reload',
-  'velocity',
-  'aoe',
-  'projectiles',
-  'burst',
-  'burstrate',
-  'accuracy',
-  'sprayangle',
-  'flighttime',
-]);
+export const WEAPON_BLUEPRINT_NUMERIC_KEYS = Object.freeze(
+  WEAPON_EDITABLE_PARAMETER_CATALOG
+    .filter(parameter => parameter.valueType === 'number')
+    .map(parameter => parameter.key),
+);
 
-export const WEAPON_BLUEPRINT_REFERENCE_KEYS = Object.freeze([
-  'cegtag',
-  'explosiongenerator',
-  'model',
-]);
+export const WEAPON_BLUEPRINT_REFERENCE_KEYS = Object.freeze(
+  WEAPON_EDITABLE_PARAMETER_CATALOG
+    .filter(parameter => parameter.assetType)
+    .map(parameter => parameter.key),
+);
+
+const LEGACY_BLUEPRINT_KEY_ALIASES = Object.freeze({
+  cegtag: 'cegTag',
+});
 
 function finiteOr(value, fallback = 0) {
   const number = Number(value);
@@ -64,7 +66,7 @@ function readSlotValue(slot, key) {
     reload: ['reload', 'reloadtime'],
     velocity: ['velocity', 'weaponvelocity'],
     aoe: ['aoe', 'areaofeffect'],
-    cegtag: ['cegTag', 'cegtag'],
+    cegTag: ['cegTag', 'cegtag'],
   };
   for (const candidate of aliases[key] || [key]) {
     if (slot[candidate] !== undefined && slot[candidate] !== null) return slot[candidate];
@@ -72,8 +74,73 @@ function readSlotValue(slot, key) {
   return '';
 }
 
+function canonicalBlueprintKey(key) {
+  return LEGACY_BLUEPRINT_KEY_ALIASES[key] || key;
+}
+
+function cleanBlueprintValues(values = {}) {
+  const cleaned = {};
+  Object.entries(values || {}).forEach(([rawKey, value]) => {
+    const key = canonicalBlueprintKey(rawKey);
+    if (!getWeaponParameterDefinition(key)) return;
+    if (value === undefined || value === null || value === '') return;
+    cleaned[key] = value;
+  });
+  return cleaned;
+}
+
+export function getWeaponBlueprintSourceValues(blueprint) {
+  return cleanBlueprintValues(blueprint?.sourceValues || {});
+}
+
+export function getWeaponBlueprintOverrides(blueprint) {
+  return cleanBlueprintValues(blueprint?.overrides || {});
+}
+
+export function getWeaponBlueprintEffectiveValues(blueprint) {
+  return {
+    ...getWeaponBlueprintSourceValues(blueprint),
+    ...getWeaponBlueprintOverrides(blueprint),
+  };
+}
+
+export function getWeaponBlueprintParameterValue(blueprint, key) {
+  const canonicalKey = canonicalBlueprintKey(key);
+  const overrides = getWeaponBlueprintOverrides(blueprint);
+  if (Object.prototype.hasOwnProperty.call(overrides, canonicalKey)) return overrides[canonicalKey];
+  return getWeaponBlueprintSourceValues(blueprint)[canonicalKey];
+}
+
+export function isWeaponBlueprintParameterModified(blueprint, key) {
+  return Object.prototype.hasOwnProperty.call(
+    getWeaponBlueprintOverrides(blueprint),
+    canonicalBlueprintKey(key),
+  );
+}
+
+export function applyWeaponBlueprintToSlot(slot = {}, blueprint) {
+  const result = { ...slot };
+  const values = getWeaponBlueprintEffectiveValues(blueprint);
+  WEAPON_EDITABLE_PARAMETER_CATALOG.forEach(parameter => {
+    if (!Object.prototype.hasOwnProperty.call(values, parameter.key)) return;
+    result[parameter.key] = values[parameter.key];
+  });
+  return result;
+}
+
 export function createWeaponBlueprintDraft({ sourceUnitId, slot, name } = {}) {
   const sourceWeaponDefKey = String(slot?.defKey || '').trim().toLowerCase();
+  const sourceValues = {};
+  WEAPON_EDITABLE_PARAMETER_CATALOG.forEach(parameter => {
+    const value = readSlotValue(slot, parameter.key);
+    if (value !== '' && value !== undefined && value !== null) sourceValues[parameter.key] = value;
+  });
+  WEAPON_ESSENTIAL_KEYS.forEach(key => {
+    if (!Object.prototype.hasOwnProperty.call(sourceValues, key)) {
+      const value = readSlotValue(slot, key);
+      if (value !== '' && value !== undefined && value !== null) sourceValues[key] = value;
+    }
+  });
   return {
     id: '',
     name: name || `${sourceWeaponDefKey.toUpperCase() || 'Weapon'} Variant`,
@@ -81,10 +148,8 @@ export function createWeaponBlueprintDraft({ sourceUnitId, slot, name } = {}) {
     sourceWeaponDefKey,
     description: '',
     appearance: { ...DEFAULT_APPEARANCE },
-    overrides: Object.fromEntries(
-      [...WEAPON_BLUEPRINT_NUMERIC_KEYS, ...WEAPON_BLUEPRINT_REFERENCE_KEYS]
-        .map(key => [key, readSlotValue(slot, key)])
-    ),
+    sourceValues,
+    overrides: {},
   };
 }
 
@@ -126,10 +191,11 @@ export function normalizeWeaponBlueprint(draft, { createId = true } = {}) {
     : '');
   const safeId = cleanId(id || 'new_weapon');
   const appearance = { ...DEFAULT_APPEARANCE, ...(draft.appearance || {}) };
+  const sourceValues = cleanBlueprintValues(draft.sourceValues);
   const overrides = {
-    ...(draft.overrides || {}),
+    ...cleanBlueprintValues(draft.overrides),
     ...(appearance.vfxEnabled ? {
-      cegtag: `editp_${safeId}_trail`,
+      cegTag: `editp_${safeId}_trail`,
       explosiongenerator: `custom:editp_${safeId}_impact`,
     } : {}),
   };
@@ -142,22 +208,23 @@ export function normalizeWeaponBlueprint(draft, { createId = true } = {}) {
     name: String(draft.name || '').trim() || `${sourceWeaponDefKey.toUpperCase() || 'Weapon'} Variant`,
     description: String(draft.description || '').trim(),
     appearance,
+    sourceValues,
     overrides,
     updatedAt: new Date().toISOString(),
   };
 }
 
 export function getWeaponBlueprintMetrics(blueprint) {
-  const overrides = blueprint?.overrides || {};
-  const damage = finiteOr(overrides.damage);
-  const reload = Math.max(0.001, finiteOr(overrides.reload, 1));
-  const burst = Math.max(1, finiteOr(overrides.burst, 1));
-  const projectiles = Math.max(1, finiteOr(overrides.projectiles, 1));
+  const values = getWeaponBlueprintEffectiveValues(blueprint);
+  const damage = finiteOr(values.damage);
+  const reload = Math.max(0.001, finiteOr(values.reload, 1));
+  const burst = Math.max(1, finiteOr(values.burst, 1));
+  const projectiles = Math.max(1, finiteOr(values.projectiles, 1));
   return {
     dps: (damage * burst * projectiles) / reload,
     alpha: damage * burst * projectiles,
-    range: finiteOr(overrides.range),
-    aoe: finiteOr(overrides.aoe),
+    range: finiteOr(values.range),
+    aoe: finiteOr(values.aoe),
     delivery: burst > 1 ? 'Burst' : projectiles > 1 ? 'Volley' : 'Direct',
   };
 }
@@ -168,7 +235,7 @@ export function validateWeaponBlueprint(blueprint) {
   if (!cleanId(blueprint?.sourceUnitId)) issues.push({ field: 'sourceUnitId', message: 'The source unit is missing.' });
   if (!cleanId(blueprint?.sourceWeaponDefKey)) issues.push({ field: 'sourceWeaponDefKey', message: 'The source WeaponDef is missing.' });
 
-  const overrides = blueprint?.overrides || {};
+  const overrides = getWeaponBlueprintOverrides(blueprint);
   WEAPON_BLUEPRINT_NUMERIC_KEYS.forEach(key => {
     if (overrides[key] === '' || overrides[key] === null || overrides[key] === undefined) return;
     if (!Number.isFinite(Number(overrides[key]))) issues.push({ field: key, message: `${key} must be numeric.` });

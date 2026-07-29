@@ -59,6 +59,12 @@ describe('WeaponLaboratoryPage', () => {
       sourceWeaponDefKey: 'plasma',
     }));
     expect(screen.getByRole('heading', { name: 'Define the reusable profile' })).toBeInTheDocument();
+    expect(screen.getByText(/Canonical BAR parameter catalog/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'All' }));
+    expect(screen.getByText('Shield profile')).toBeInTheDocument();
+    expect(screen.getByText('Carrier deployment')).toBeInTheDocument();
+    expect(screen.getByText('Target category filters')).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: 'Effects & assets' }));
     expect(screen.getByText('Native weapon references')).toBeInTheDocument();

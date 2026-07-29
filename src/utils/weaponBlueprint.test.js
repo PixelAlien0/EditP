@@ -3,6 +3,7 @@ import {
   createWeaponBlueprintDraft,
   createWeaponSourceCatalog,
   generateWeaponVfxPackLua,
+  getWeaponBlueprintEffectiveValues,
   getWeaponBlueprintMetrics,
   normalizeWeaponBlueprint,
   validateWeaponBlueprint,
@@ -15,7 +16,37 @@ describe('weapon blueprints', () => {
       slot: { defKey: 'plasma', damage: 100, reload: 2, range: 500, cegTag: 'laser' },
     });
     expect(draft.sourceWeaponDefKey).toBe('plasma');
-    expect(draft.overrides).toMatchObject({ damage: 100, reload: 2, range: 500, cegtag: 'laser' });
+    expect(draft.sourceValues).toMatchObject({ damage: 100, reload: 2, range: 500, cegTag: 'laser' });
+    expect(draft.overrides).toEqual({});
+  });
+
+  it('captures the canonical advanced weapon fields without marking the source as edited', () => {
+    const draft = createWeaponBlueprintDraft({
+      sourceUnitId: 'armmercury',
+      slot: {
+        defKey: 'aamissile',
+        damage: 800,
+        interceptor: 2,
+        coverage: 1200,
+        tracks: true,
+        turnrate: 48000,
+        soundstart: 'rockhvy1',
+        onlytargetcategory: 'VTOL',
+        speceffect: 'cruise',
+        cruise_min_height: 80,
+      },
+    });
+    expect(draft.sourceValues).toMatchObject({
+      interceptor: 2,
+      coverage: 1200,
+      tracks: true,
+      turnrate: 48000,
+      soundstart: 'rockhvy1',
+      onlytargetcategory: 'VTOL',
+      speceffect: 'cruise',
+      cruise_min_height: 80,
+    });
+    expect(getWeaponBlueprintEffectiveValues(draft).damage).toBe(800);
   });
 
   it('builds a deterministic source catalog without duplicate mounts', () => {
@@ -45,7 +76,7 @@ describe('weapon blueprints', () => {
       appearance: { vfxEnabled: true },
       overrides: {},
     });
-    expect(blueprint.overrides.cegtag).toBe('editp_rose_cannon_trail');
+    expect(blueprint.overrides.cegTag).toBe('editp_rose_cannon_trail');
     expect(blueprint.overrides.explosiongenerator).toBe('custom:editp_rose_cannon_impact');
     expect(generateWeaponVfxPackLua([blueprint])).toContain('["editp_rose_cannon_trail"]');
     expect(generateWeaponVfxPackLua([blueprint])).not.toContain('bmf_');
