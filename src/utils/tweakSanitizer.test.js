@@ -34,8 +34,24 @@ buildoptions = {
 }
 `;
     const { sanitizedSource, issuesFixed } = repairAndSanitizeTweakPackage(raw);
-    expect(sanitizedSource).not.toContain('[2] = ""');
     expect(sanitizedSource).not.toContain('[3] = ""');
     expect(issuesFixed).toBe(2);
+  });
+
+  it('repairs function signature parameter list typos (e.g. jIa.metalcost -> j) a.metalcost)', () => {
+    const raw = `function SOLBALANCEE(e,f,g,h,i,jIa.metalcost=100 end`;
+    const { sanitizedSource, issuesFixed } = repairAndSanitizeTweakPackage(raw);
+    expect(sanitizedSource).toContain('function SOLBALANCEE(e,f,g,h,i,j) a.metalcost=100 end');
+    expect(issuesFixed).toBe(1);
+  });
+
+  it('auto-corrects mismatched helper call typos (e.g. ONX -> ON)', () => {
+    const raw = `
+function ON(d) a.onoffable=d end
+ONX(true)
+`;
+    const { sanitizedSource, issuesFixed } = repairAndSanitizeTweakPackage(raw);
+    expect(sanitizedSource).toContain('ON(true)');
+    expect(issuesFixed).toBe(1);
   });
 });

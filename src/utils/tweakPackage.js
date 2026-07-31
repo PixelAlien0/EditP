@@ -1537,7 +1537,40 @@ export function repairAndSanitizeTweakPackage(sourceText) {
     issuesFixed += emptyBuildOptions;
   }
 
-  // 4. Clean empty trailing lines / consecutive blank lines
+  // 4. Smart Lua Syntax Repair: Function signature parameter list typos (e.g. function FOO(a,b,cIa.field= -> function FOO(a,b,c) a.field=)
+  const fnTypoMatches = (text.match(/function\s+[A-Za-z0-9_]+\s*\([^)]*?[I|][a-zA-Z0-9_]+\./gi) || []).length;
+  if (fnTypoMatches > 0) {
+    text = text.replace(/(function\s+[A-Za-z0-9_]+\s*\([^)]*?)[I|]([a-zA-Z0-9_]+\.)/gi, '$1) $2');
+    issuesFixed += fnTypoMatches;
+  }
+
+  // 5. Smart Lua Syntax Repair: Unclosed string literal arguments in helper calls (e.g. NAME("Epic Unit) -> NAME("Epic Unit"))
+  const unclosedStringMatches = (text.match(/\b[A-Za-z_][A-Za-z0-9_]*\s*\(\s*"[^"\r\n)]+\s*\)/g) || [])
+    .filter(match => !/".*"/.test(match)).length;
+  if (unclosedStringMatches > 0) {
+    text = text.replace(/(\b[A-Za-z_][A-Za-z0-9_]*\s*\(\s*"[^"\r\n)]+)(\s*\))/g, (match, prefix, suffix) => {
+      return prefix.endsWith('"') ? match : `${prefix}"${suffix}`;
+    });
+    issuesFixed += unclosedStringMatches;
+  }
+
+  // 6. Smart Lua Syntax Repair: Mismatched/typo helper function calls
+  const declaredFunctions = new Set([...text.matchAll(/function\s+([A-Za-z0-9_]+)\s*\(/g)].map(m => m[1]));
+  if (declaredFunctions.size > 0) {
+    declaredFunctions.forEach(fnName => {
+      // Look for function calls with extra character typos (e.g. ONX(...) when ON(...) is defined but ONX is not)
+      const typoPattern = new RegExp(`\\b(${fnName}[X-Z_])\\s*\\(`, 'g');
+      for (const match of text.matchAll(typoPattern)) {
+        const calledName = match[1];
+        if (!declaredFunctions.has(calledName)) {
+          text = text.replace(new RegExp(`\\b${calledName}\\s*\\(`, 'g'), `${fnName}(`);
+          issuesFixed += 1;
+        }
+      }
+    });
+  }
+
+  // 7. Clean empty trailing lines / consecutive blank lines
   text = text.replace(/\n{3,}/g, '\n\n').trim();
 
   return {
