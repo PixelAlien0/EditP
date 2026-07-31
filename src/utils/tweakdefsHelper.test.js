@@ -31,6 +31,15 @@ describe('nested clone generation', () => {
     expect(lua).not.toContain('UnitDefs[n] = table.copy(UnitDefs[s])');
   });
 
+  it('supports exportEnglishOnly mode in clone definitions', () => {
+    const defaultLua = generateClonesBlockLua(nestedClones);
+    expect(defaultLua).toContain('local l = {"en", "de", "fr", "es", "it", "ru", "zh", "cs", "hr", "lt"}');
+
+    const compactLua = generateClonesBlockLua(nestedClones, [], { exportEnglishOnly: true });
+    expect(compactLua).toContain('local l = {"en"}');
+    expect(compactLua).not.toContain('"de"');
+  });
+
   it('compiles clone and build-menu blocks into generated Lua', () => {
     const lua = compileTweakDefsLua({
       currentTweakDefsLua: 'return {}',

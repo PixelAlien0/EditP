@@ -522,10 +522,15 @@ export function sortClonesDependency(clones) {
   return result;
 }
 
-export function generateClonesBlockLua(clones, weaponLibrary = []) {
+export function generateClonesBlockLua(clones, weaponLibrary = [], options = {}) {
   const sorted = sortClonesDependency(clones);
   if (sorted.length === 0) return '';
   
+  const exportEnglishOnly = Boolean(options?.exportEnglishOnly);
+  const langArray = exportEnglishOnly
+    ? '{"en"}'
+    : '{"en", "de", "fr", "es", "it", "ru", "zh", "cs", "hr", "lt"}';
+
   const helpers = [
     `  local function clone_copy(value)`,
     `    if type(value) ~= "table" then return value end`,
@@ -539,7 +544,7 @@ export function generateClonesBlockLua(clones, weaponLibrary = []) {
     `  local function clone_set_name(u, name, tooltip)`,
     `    if not u.customparams then u.customparams = {} end`,
     `    local c = u.customparams`,
-    `    local l = {"en", "de", "fr", "es", "it", "ru", "zh", "cs", "hr", "lt"}`,
+    `    local l = ${langArray}`,
     `    for _, lang in ipairs(l) do`,
     `      c["i18n_" .. lang .. "_humanname"] = name`,
     `      c["i18n_" .. lang .. "_tooltip"] = tooltip`,
@@ -897,7 +902,7 @@ export function compileTweakDefsLua({
   const includeCloneDefinitions = compileFlags?.includeClones ?? true;
   const orderedClones = sortClonesDependency(customUnitClones || []);
   const clonesBlock = includeCloneDefinitions
-    ? generateClonesBlockLua(orderedClones, weaponLibrary)
+    ? generateClonesBlockLua(orderedClones, weaponLibrary, { exportEnglishOnly: compileFlags?.exportEnglishOnly })
     : '';
   
   const menuConfig = { disabledUnitIds, unitBuildOptions };
