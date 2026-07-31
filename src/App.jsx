@@ -706,8 +706,13 @@ export default function App() {
     return (unit) =>
       unit.id.toLowerCase().includes(lowerQuery) ||
       unit.name.toLowerCase().includes(lowerQuery) ||
-      unit.desc.toLowerCase().includes(lowerQuery);
+      unit.desc.toLowerCase().includes(lowerQuery) ||
+      (Array.isArray(unit.tags) && unit.tags.some(tag => tag.toLowerCase().includes(lowerQuery)));
   }, [searchQuery, defaultsDb, resolveCloneRootId]);
+
+  // Category domains for classification filtering
+  const TYPE_CATEGORIES = useMemo(() => new Set(['bots', 'vehicles', 'aircraft', 'ships', 'hovercraft', 'factories', 'defenses', 'buildings']), []);
+  const TIER_CATEGORIES = useMemo(() => new Set(['t1', 't2', 't3', 't4']), []);
 
   // Filter list
   const filteredUnits = useMemo(() => {
@@ -717,8 +722,19 @@ export default function App() {
         return false;
       }
       if (selectedCats.length > 0) {
-        const hasAllCats = selectedCats.every(cat => unit.tags.includes(cat));
-        if (!hasAllCats) return false;
+        const selectedTypes = selectedCats.filter(c => TYPE_CATEGORIES.has(c));
+        const selectedTiers = selectedCats.filter(c => TIER_CATEGORIES.has(c));
+        const selectedOther = selectedCats.filter(c => !TYPE_CATEGORIES.has(c) && !TIER_CATEGORIES.has(c));
+
+        if (selectedTypes.length > 0 && !selectedTypes.some(cat => unit.tags.includes(cat))) {
+          return false;
+        }
+        if (selectedTiers.length > 0 && !selectedTiers.some(cat => unit.tags.includes(cat))) {
+          return false;
+        }
+        if (selectedOther.length > 0 && !selectedOther.every(cat => unit.tags.includes(cat))) {
+          return false;
+        }
       }
       if (showModifiedOnly) {
         const hasTweaks = Boolean(tweaks[unit.id] && Object.keys(tweaks[unit.id]).length > 0);
@@ -728,7 +744,7 @@ export default function App() {
       }
       return queryFilterFn(unit);
     });
-  }, [activeCollectionUnitIds, allUnitsList, selectedFaction, selectedCats, queryFilterFn, showModifiedOnly, tweaks, unitDescriptions, disabledUnitIds]);
+  }, [activeCollectionUnitIds, allUnitsList, selectedFaction, selectedCats, TYPE_CATEGORIES, TIER_CATEGORIES, queryFilterFn, showModifiedOnly, tweaks, unitDescriptions, disabledUnitIds]);
 
   const bulkTargetUnits = useMemo(() => filteredUnits.filter(unit => {
     const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
@@ -747,8 +763,10 @@ export default function App() {
 
   // Selection defaults
   useEffect(() => {
-    if (filteredUnits.length > 0 && !selectedUnitId) {
-      setSelectedUnitId(filteredUnits[0].id);
+    if (filteredUnits.length > 0) {
+      if (!selectedUnitId || !filteredUnits.some(u => u.id === selectedUnitId)) {
+        setSelectedUnitId(filteredUnits[0].id);
+      }
     }
   }, [filteredUnits, selectedUnitId]);
 
