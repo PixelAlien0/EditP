@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { analyzeTweakPackage, MAX_TWEAK_PACKAGE_BYTES, parseTweakPackageInput, repairAndSanitizeTweakPackage } from '../utils/tweakPackage.js';
+import { buildCompatibilityPreflight } from '../utils/compatibilityPreflight.js';
 import {
   filterLobbySetupCategories,
   LOBBY_SETUP_CATEGORIES,
@@ -214,6 +215,14 @@ export default function TweakPackageLabPage({
     const legacyFields = modules.filter(module => module.originalFieldName && !/\d+$/.test(module.originalFieldName));
     return { requirements, duplicateFields, legacyFields };
   }, [modules]);
+  const preflightReport = useMemo(() => buildCompatibilityPreflight({
+    tweakModules: modules,
+    packageAnalysis,
+    compiledModules,
+    supportingWeaponDefs,
+    knownUnitIds: Array.isArray(knownUnitIds) ? knownUnitIds : [],
+  }), [modules, packageAnalysis, compiledModules, supportingWeaponDefs, knownUnitIds]);
+
   const selected = modules.find(module => module.id === selectedId) || modules[0] || null;
   const selectedAnalysis = selected ? analyses.get(selected.id) : null;
   const selectedReport = selected ? packageAnalysis.moduleReports.find(report => report.moduleId === selected.id) : null;
@@ -748,6 +757,36 @@ export default function TweakPackageLabPage({
                     <span>{finding.confidence}</span>
                     <div><strong>{finding.title}</strong><small>{finding.detail}</small></div>
                     {finding.line > 0 && <code>Ln {finding.line}</code>}
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {preflightReport.items.length > 0 && (
+            <section className="tweak-analysis-section">
+              <h4>Preflight Checklist & Typo Scanner ({preflightReport.items.length})</h4>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {preflightReport.items.map(item => (
+                  <article key={item.id} className={`tweak-preflight-item is-${item.level}`} style={{ padding: '8px', border: '1px solid var(--color-border-subtle)', borderRadius: '4px', background: 'var(--color-surface-muted)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                      <strong style={{ fontSize: '11px', color: item.level === 'warning' ? 'var(--color-warning)' : item.level === 'blocker' ? 'var(--color-danger)' : 'var(--color-text-strong)' }}>
+                        {item.level === 'pass' ? '✓' : item.level === 'warning' ? '⚠' : '✕'} {item.title}
+                      </strong>
+                      {item.action?.replacement && selected && (
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          onClick={() => {
+                            if (!selected?.rawLua) return;
+                            const updated = (selected.rawLua || '').replaceAll(item.action.target, item.action.replacement);
+                            onUpdateModule(selected.id, { rawLua: updated });
+                            onToast?.(`Fixed "${item.action.target}" → "${item.action.replacement}" in ${selected.label}.`);
+                          }}
+                        >{item.action.label}</Button>
+                      )}
+                    </div>
+                    <small style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: 'var(--color-text-muted)' }}>{item.detail}</small>
                   </article>
                 ))}
               </div>

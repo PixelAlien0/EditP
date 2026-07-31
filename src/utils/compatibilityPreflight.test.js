@@ -173,4 +173,32 @@ describe('buildCompatibilityPreflight', () => {
       expect.objectContaining({ id: 'support-duplicate-armflea:child', level: 'blocker' }),
     ]));
   });
+
+  it('detects UnitDef typos using fuzzy Levenshtein distance and suggests corrections', () => {
+    const module = {
+      id: 'typo-mod',
+      label: 'Typo Source',
+      enabled: true,
+      converted: false,
+      rawLua: `a['oor_doomt3'] = nil`,
+    };
+    const result = buildCompatibilityPreflight({
+      compiledModules: compiled(),
+      tweakModules: [module],
+      packageAnalysis: packageAnalysis('typo-mod'),
+      knownUnitIds: ['cordoomt3', 'armflea'],
+    });
+
+    expect(result.items).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'fuzzy-typo-typo-mod-oor_doomt3',
+        level: 'warning',
+        title: expect.stringContaining('UnitDef Typo "oor_doomt3"'),
+        action: expect.objectContaining({
+          target: 'oor_doomt3',
+          replacement: 'cordoomt3',
+        }),
+      }),
+    ]));
+  });
 });

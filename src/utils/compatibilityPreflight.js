@@ -36,6 +36,43 @@ function stableItems(items) {
   ));
 }
 
+export function levenshteinDistance(a, b) {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const matrix = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1));
+  for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return matrix[a.length][b.length];
+}
+
+export function findBestFuzzyMatch(target, candidatesSet, maxDist = 3) {
+  const normTarget = String(target).toLowerCase();
+  let bestCandidate = null;
+  let minDistance = Infinity;
+
+  for (const cand of candidatesSet) {
+    const normCand = String(cand).toLowerCase();
+    if (Math.abs(normCand.length - normTarget.length) > maxDist) continue;
+    const dist = levenshteinDistance(normTarget, normCand);
+    if (dist <= maxDist && dist < minDistance) {
+      minDistance = dist;
+      bestCandidate = cand;
+    }
+  }
+  return bestCandidate ? { candidate: bestCandidate, distance: minDistance } : null;
+}
+
 export function buildCompatibilityPreflight({
   validationIssues = [],
   compiledModules,
@@ -217,6 +254,52 @@ export function buildCompatibilityPreflight({
       action: { type: 'tweak-lab', label: 'Review assets' },
     });
   });
+
+  // Fuzzy UnitDef Typo Spell-Checker & Un-guarded Nil-Indexing Analysis
+  if (knownIds.size > 0) {
+    activeModules.forEach(module => {
+      const code = module.rawLua || '';
+      if (!code) return;
+      const label = module.label || 'Module';
+
+      // 1. Scan for string literals in Lua code (e.g. 'oor_doomt3', 'raptor_turret_basic_t3s_v1')
+      const literalMatches = unique([...code.matchAll(/['"]([a-z0-9_]{4,35})['"]/gi)].map(m => m[1].toLowerCase()));
+      literalMatches.forEach(literal => {
+        // Skip common keywords / non-unit strings
+        if (['deflector', 'forti', 'gantry', 'subfolder', 'unitgroup', 'buildert3', 'nanotct2', 'nanotct3'].includes(literal)) return;
+
+        if (!knownIds.has(literal)) {
+          const match = findBestFuzzyMatch(literal, knownIds, 3);
+          if (match && match.candidate !== literal) {
+            add({
+              id: `fuzzy-typo-${module.id}-${literal}`,
+              group: 'modules',
+              level: 'warning',
+              title: `${label} · UnitDef Typo "${literal}"`,
+              detail: `The unit ID "${literal}" was not found in BAR catalog. Did you mean "${match.candidate}"?`,
+              action: { type: 'tweak-lab', label: `Fix "${literal}" → "${match.candidate}"`, target: literal, replacement: match.candidate },
+            });
+          }
+        }
+      });
+
+      // 2. Scan for un-guarded nil indexing patterns like a['key'] = b(a['other_key'], ...)
+      const unguardedAccess = [...code.matchAll(/([a-zA-Z0-9_]+)\[['"]([a-zA-Z0-9_]+)['"]\]\s*=/g)];
+      unguardedAccess.forEach(match => {
+        const [, varName, key] = match;
+        if (!knownIds.has(key) && !code.includes(`if ${varName}[`)) {
+          add({
+            id: `nil-risk-${module.id}-${key}`,
+            group: 'modules',
+            level: 'warning',
+            title: `${label} · Crash Risk (Un-guarded nil index "${key}")`,
+            detail: `Code accesses ${varName}['${key}'] without verifying if the unit exists. If '${key}' is missing, this causes an immediate game crash.`,
+            action: { type: 'tweak-lab', label: 'Inspect source' },
+          });
+        }
+      });
+    });
+  }
 
   const activeCycles = (packageAnalysis?.cycles || []).filter(cycle => cycle.every(moduleId => activeIds.has(moduleId)));
   activeCycles.forEach((cycle, index) => add({
