@@ -484,7 +484,7 @@ export default function TweakPackageLabPage({
           {modules.length === 0 ? (
             <EmptyState title="No package loaded" description="Import BAR lobby commands or raw Lua to inspect how the package is structured." />
           ) : (
-            <div className="tweak-module-list" style={{ display: 'grid', gap: '8px' }}>
+            <div className="tweak-lab-module-list">
               {modules.map(module => (
                 <ModuleCard
                   key={module.id}
@@ -501,11 +501,11 @@ export default function TweakPackageLabPage({
             </div>
           )}
 
-          <details className="tweak-support-library" style={{ marginTop: '12px' }}>
+          <details className="tweak-support-library">
             <summary>
               <span><b>Add Module / Paste</b><small>Import files or paste lobby commands</small></span>
             </summary>
-            <div style={{ display: 'grid', gap: '8px', padding: '10px 0' }}>
+            <div className="tweak-lab-paste-card">
               <label className="tweak-lab-kind-select">
                 <span>Raw input type</span>
                 <select value={rawKind} onChange={event => setRawKind(event.target.value)}>
@@ -522,7 +522,7 @@ export default function TweakPackageLabPage({
                 onChange={event => setPasteValue(event.target.value)}
                 placeholder="Paste !bset commands or raw Lua…"
                 rows={4}
-                style={{ width: '100%', padding: '8px', fontSize: '11px', fontFamily: 'var(--font-mono)' }}
+                className="tweak-lab-paste-input"
               />
               <Button variant="primary" size="sm" disabled={!pasteValue.trim()} onClick={() => importText(pasteValue)}>Import text</Button>
               {(packageDiagnostics.requirements.length > 0 || packageDiagnostics.duplicateFields.length > 0 || packageDiagnostics.legacyFields.length > 0) && (
@@ -548,8 +548,8 @@ export default function TweakPackageLabPage({
                   <Type variant="eyebrow" className="workflow-eyebrow">{selected.kind.toUpperCase()} MODULE</Type>
                   <Type as="h3" variant="section-title">{selected.label}</Type>
                 </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <select aria-label="Module loading stage" value={selected.stage} onChange={event => onUpdateModule(selected.id, { stage: event.target.value })} style={{ padding: '4px 8px', fontSize: '11px', borderRadius: '4px' }}>
+                <div className="tweak-workbench-actions">
+                  <select aria-label="Module loading stage" value={selected.stage} onChange={event => onUpdateModule(selected.id, { stage: event.target.value })} className="tweak-workbench-stage-select">
                     <option value="before-editor">Before editor</option>
                     <option value="after-editor">After editor</option>
                   </select>
@@ -576,9 +576,9 @@ export default function TweakPackageLabPage({
                 </div>
               </div>
 
-              <label className="tweak-module-attribution" style={{ display: 'grid', gap: '4px', marginBottom: '8px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>Attribution / source note</span>
-                <input value={selected.attribution || ''} onChange={event => onUpdateModule(selected.id, { attribution: event.target.value })} placeholder="Optional author or source note" style={{ padding: '6px 8px', fontSize: '11px', borderRadius: '4px', border: '1px solid var(--color-border)' }} />
+              <label className="tweak-workbench-attribution">
+                <span>Attribution / source note</span>
+                <input value={selected.attribution || ''} onChange={event => onUpdateModule(selected.id, { attribution: event.target.value })} placeholder="Optional author or source note" />
               </label>
 
               {/* TAB BAR */}
@@ -607,22 +607,18 @@ export default function TweakPackageLabPage({
 
               {/* TAB CONTENTS */}
               {workspaceTab === 'source' && (
-                <div style={{ display: 'grid', gap: '8px', height: '100%' }}>
+                <div className="tweak-workbench-tab-content">
                   <textarea
                     value={selected.rawLua}
                     onChange={event => onUpdateModule(selected.id, { rawLua: event.target.value })}
                     spellCheck="false"
-                    style={{
-                      width: '100%', minHeight: '380px', padding: '12px',
-                      background: 'var(--color-code-canvas)', color: 'var(--color-text-on-dark)',
-                      fontFamily: 'var(--font-mono)', fontSize: '11px', lineHeight: '1.5', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)'
-                    }}
+                    className="tweak-workbench-editor"
                   />
                 </div>
               )}
 
               {workspaceTab === 'units' && (
-                <div style={{ display: 'grid', gap: '12px' }}>
+                <div className="tweak-workbench-tab-content">
                   <div className="tweak-analysis-metrics">
                     <div><span>Creates</span><strong>{selectedAnalysis?.createdUnits.length || 0}</strong></div>
                     <div><span>References</span><strong>{selectedAnalysis?.referencedUnits.length || 0}</strong></div>
@@ -644,19 +640,19 @@ export default function TweakPackageLabPage({
               )}
 
               {workspaceTab === 'support' && (
-                <div style={{ display: 'grid', gap: '12px' }}>
+                <div className="tweak-workbench-tab-content">
                   {selectedAnalysis?.supportingWeaponDefs.length > 0 && (
                     <section className="tweak-analysis-section tweak-support-candidates">
                       <div className="tweak-analysis-section__heading">
                         <h4>Project WeaponDefs candidates</h4>
                         <Button size="sm" onClick={() => onAddSupportingWeaponDefs(selectedAnalysis.supportingWeaponDefs)}>Add all {selectedAnalysis.supportingWeaponDefs.length}</Button>
                       </div>
-                      <div style={{ display: 'grid', gap: '6px' }}>
+                      <div className="tweak-lab-module-list">
                         {selectedAnalysis.supportingWeaponDefs.map(definition => {
                           const destination = `${definition.ownerUnitId}:${definition.key}`.toLowerCase();
                           const exists = supportingDestinations.has(destination);
                           return (
-                            <article key={definition.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', border: '1px solid var(--color-border-subtle)', borderRadius: '4px' }}>
+                            <article key={definition.id} className="tweak-support-candidate-card">
                               <span><strong>{definition.key.toUpperCase()}</strong> ({definition.ownerUnitId} · {definition.role})</span>
                               <Button size="sm" disabled={exists} onClick={() => onAddSupportingWeaponDefs([definition])}>{exists ? 'In library' : 'Add'}</Button>
                             </article>
