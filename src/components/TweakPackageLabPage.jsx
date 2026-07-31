@@ -195,7 +195,7 @@ export default function TweakPackageLabPage({
   const [newSupportOwner, setNewSupportOwner] = useState('');
   const [newSupportKey, setNewSupportKey] = useState('');
   const [inspectorFullscreen, setInspectorFullscreen] = useState(false);
-  const [inspectorView, setInspectorView] = useState('summary');
+  const [workspaceTab, setWorkspaceTab] = useState('source');
   const [bundlePreview, setBundlePreview] = useState(null);
   const [bundleSelection, setBundleSelection] = useState({});
   const packageAnalysis = useMemo(
