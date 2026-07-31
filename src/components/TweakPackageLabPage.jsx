@@ -362,8 +362,6 @@ export default function TweakPackageLabPage({
     ? `${compiledModules.defs.required}/9 Definitions · ${compiledModules.units.required}/9 Units`
     : '0/9 Definitions · 0/9 Units';
 
-  const [workspaceTab, setWorkspaceTab] = useState('source');
-
   return (
     <PageShell
       className="tweak-package-lab"
@@ -402,6 +400,82 @@ export default function TweakPackageLabPage({
           <Button size="sm" onClick={onClearLobbySetup}>Remove setup</Button>
         </section>
       )}
+
+      {/* PACKAGE ARCHITECTURE & DEPENDENCY AUDIT BANNER */}
+      {modules.length > 0 && (
+        <section className="tweak-package-audit" aria-label="Package dependency audit">
+          <div className="tweak-package-audit__heading">
+            <div><Type variant="eyebrow" className="workflow-eyebrow">Package architecture</Type><Type as="h3" variant="section-title">Dependencies and reusable recipes</Type></div>
+            <div className="tweak-package-audit__actions">
+              <span className={packageAnalysis.blockingIssues.length ? 'is-error' : ''}>
+                {packageAnalysis.blockingIssues.length
+                  ? `${packageAnalysis.blockingIssues.length} active blocker${packageAnalysis.blockingIssues.length === 1 ? '' : 's'}`
+                  : reviewCount ? `${reviewCount} to review` : 'Preflight clear'}
+              </span>
+              {packageAnalysis.orderingIssues.length > 0 && (
+                <Button
+                  size="sm"
+                  disabled={!packageAnalysis.canAutoOrder}
+                  onClick={applyRecommendedOrder}
+                  title={packageAnalysis.canAutoOrder ? 'Move providers before the modules that reference them' : 'Resolve dependency cycles or compiler-lane conflicts first'}
+                >Apply safe order</Button>
+              )}
+            </div>
+          </div>
+          <div className="tweak-package-audit__metrics">
+            <div><span>Modules</span><strong>{modules.length}</strong></div>
+            <div><span>Exact findings</span><strong>{packageAnalysis.confidenceCounts.exact}</strong></div>
+            <div><span>Probable</span><strong>{packageAnalysis.confidenceCounts.probable}</strong></div>
+            <div><span>Dynamic</span><strong>{packageAnalysis.confidenceCounts.dynamic}</strong></div>
+            <div><span>Module links</span><strong>{packageAnalysis.edges.length}</strong></div>
+            <div><span>Unresolved IDs</span><strong>{packageAnalysis.unresolved.length}</strong></div>
+            <div><span>Definition conflicts</span><strong>{packageAnalysis.collisions.length}</strong></div>
+            <div><span>Type mismatches</span><strong>{packageAnalysis.typeIssues.length}</strong></div>
+            <div><span>Risk locations</span><strong>{packageAnalysis.runtimeRiskCount}</strong></div>
+            <div><span>Unknown params</span><strong>{packageAnalysis.unknownCustomParameters.length}</strong></div>
+          </div>
+          {(packageAnalysis.unresolved.length > 0 || packageAnalysis.collisions.length > 0 || packageAnalysis.orderingIssues.length > 0 || packageAnalysis.cycles.length > 0 || packageAnalysis.typeIssues.length > 0) && (
+            <div className="tweak-package-audit__issues">
+              {packageAnalysis.unresolved.slice(0, 4).map(item => <p key={`unresolved-${item.moduleId}-${item.unitId}`}><b>External ID</b>{moduleLabel(item.moduleId)} references <code>{item.unitId}</code>{item.line ? ` near line ${item.line}` : ''}. Confirm the required BAR unit pack or provider module.</p>)}
+              {packageAnalysis.collisions.slice(0, 4).map(item => <p key={`collision-${item.unitId}`}><b>Collision</b><code>{item.unitId}</code> is created by {item.moduleIds.map(moduleLabel).join(' and ')}.</p>)}
+              {packageAnalysis.orderingIssues.slice(0, 4).map(edge => <p key={`order-${edge.from}-${edge.to}`}><b>Load order</b>{moduleLabel(edge.from)} needs {moduleLabel(edge.to)} first for <code>{edge.unitIds.join(', ')}</code>.</p>)}
+              {packageAnalysis.boundaryIssues.slice(0, 2).map(edge => <p key={`boundary-${edge.from}-${edge.to}`}><b>Compiler lane</b>{edge.message}</p>)}
+              {packageAnalysis.typeIssues.slice(0, 3).map(issue => <p key={`type-${issue.moduleId}-${issue.line}-${issue.field}`}><b>Value type</b>{moduleLabel(issue.moduleId)}, line {issue.line}: {issue.field} expects {issue.expectedType}.</p>)}
+              {packageAnalysis.cycles.slice(0, 2).map(cycle => <p key={`cycle-${cycle.join('-')}`}><b>Dependency cycle</b>{cycle.map(moduleLabel).join(' → ')}.</p>)}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* SUPPORTING WEAPONDEF LIBRARY ACCORDION */}
+      <details className="tweak-support-library" open={supportingWeaponDefs.length > 0}>
+        <summary>
+          <span><b>Supporting WeaponDef library</b><small>Auxiliary, cluster-child, and unmounted definitions compiled into their owning UnitDefs.</small></span>
+          <strong>{supportingWeaponDefs.length}</strong>
+        </summary>
+        <div className="tweak-support-library__body">
+          <div className="tweak-support-create">
+            <div><b>Create auxiliary WeaponDef</b><small>Start with a safe literal definition and edit its fields as JSON.</small></div>
+            <label><span>Owner UnitDef</span><input value={newSupportOwner} onChange={event => setNewSupportOwner(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="armflea" /></label>
+            <label><span>WeaponDef key</span><input value={newSupportKey} onChange={event => setNewSupportKey(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="cluster_child" /></label>
+            <Button
+              size="sm"
+              disabled={!newSupportOwner || !newSupportKey || supportingDestinations.has(`${newSupportOwner}:${newSupportKey}`)}
+              onClick={createSupportingWeaponDef}
+            >Create</Button>
+          </div>
+          {supportingWeaponDefs.length === 0 ? (
+            <p>Convert a recognized literal module or add one of its auxiliary WeaponDefs from the module inspector.</p>
+          ) : supportingWeaponDefs.map(definition => (
+            <SupportingWeaponDefCard
+              key={definition.id}
+              definition={definition}
+              onUpdate={onUpdateSupportingWeaponDef}
+              onRemove={onRemoveSupportingWeaponDef}
+            />
+          ))}
+        </div>
+      </details>
 
       <div className="tweak-lab-grid">
         {/* PANEL 1: NAVIGATOR (Left) */}
@@ -451,6 +525,14 @@ export default function TweakPackageLabPage({
                 style={{ width: '100%', padding: '8px', fontSize: '11px', fontFamily: 'var(--font-mono)' }}
               />
               <Button variant="primary" size="sm" disabled={!pasteValue.trim()} onClick={() => importText(pasteValue)}>Import text</Button>
+              {(packageDiagnostics.requirements.length > 0 || packageDiagnostics.duplicateFields.length > 0 || packageDiagnostics.legacyFields.length > 0) && (
+                <section className="tweak-lab-package-diagnostics" aria-label="Imported package compatibility">
+                  <strong>Package compatibility</strong>
+                  {packageDiagnostics.requirements.includes('forceallunits') && <p><span>Manual dependency</span>Enable <b>Force-load all units</b> in the BAR lobby.</p>}
+                  {packageDiagnostics.duplicateFields.map(([field, count]) => <p key={field}><span>Field repaired</span>{field} appeared {count} times.</p>)}
+                  {packageDiagnostics.legacyFields.length > 0 && <p><span>Legacy fields</span>{packageDiagnostics.legacyFields.length} unnumbered field(s) normalized.</p>}
+                </section>
+              )}
             </div>
           </details>
         </aside>
@@ -466,7 +548,11 @@ export default function TweakPackageLabPage({
                   <Type variant="eyebrow" className="workflow-eyebrow">{selected.kind.toUpperCase()} MODULE</Type>
                   <Type as="h3" variant="section-title">{selected.label}</Type>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <select aria-label="Module loading stage" value={selected.stage} onChange={event => onUpdateModule(selected.id, { stage: event.target.value })} style={{ padding: '4px 8px', fontSize: '11px', borderRadius: '4px' }}>
+                    <option value="before-editor">Before editor</option>
+                    <option value="after-editor">After editor</option>
+                  </select>
                   <Button
                     variant="secondary"
                     size="sm"
@@ -489,6 +575,11 @@ export default function TweakPackageLabPage({
                   >{selected.converted ? 'Converted' : 'Apply recognized changes'}</Button>
                 </div>
               </div>
+
+              <label className="tweak-module-attribution" style={{ display: 'grid', gap: '4px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>Attribution / source note</span>
+                <input value={selected.attribution || ''} onChange={event => onUpdateModule(selected.id, { attribution: event.target.value })} placeholder="Optional author or source note" style={{ padding: '6px 8px', fontSize: '11px', borderRadius: '4px', border: '1px solid var(--color-border)' }} />
+              </label>
 
               {/* TAB BAR */}
               <nav className="tweak-workbench-tabs">
@@ -542,25 +633,50 @@ export default function TweakPackageLabPage({
                     <h4>Recognized unit definitions</h4>
                     <p>{selectedAnalysis?.createdUnits.join(', ') || 'No literal clone or unit definitions found.'}</p>
                   </section>
+                  <section className="tweak-analysis-section">
+                    <h4>Custom parameters</h4>
+                    <p>{selectedAnalysis?.customParameters.join(', ') || 'No custom parameters found.'}</p>
+                    {selectedAnalysis?.unknownCustomParameters.length > 0 && (
+                      <small className="tweak-custom-params-unknown">Inspection-only: {selectedAnalysis.unknownCustomParameters.join(', ')}</small>
+                    )}
+                  </section>
                 </div>
               )}
 
               {workspaceTab === 'support' && (
                 <div style={{ display: 'grid', gap: '12px' }}>
-                  <div className="tweak-support-create">
-                    <div><b>Create auxiliary WeaponDef</b><small>Start with a safe literal definition.</small></div>
-                    <label><span>Owner UnitDef</span><input value={newSupportOwner} onChange={event => setNewSupportOwner(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="armflea" /></label>
-                    <label><span>WeaponDef key</span><input value={newSupportKey} onChange={event => setNewSupportKey(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="cluster_child" /></label>
-                    <Button size="sm" disabled={!newSupportOwner || !newSupportKey || supportingDestinations.has(`${newSupportOwner}:${newSupportKey}`)} onClick={createSupportingWeaponDef}>Create</Button>
-                  </div>
-                  {supportingWeaponDefs.map(definition => (
-                    <SupportingWeaponDefCard
-                      key={definition.id}
-                      definition={definition}
-                      onUpdate={onUpdateSupportingWeaponDef}
-                      onRemove={onRemoveSupportingWeaponDef}
-                    />
-                  ))}
+                  {selectedAnalysis?.supportingWeaponDefs.length > 0 && (
+                    <section className="tweak-analysis-section tweak-support-candidates">
+                      <div className="tweak-analysis-section__heading">
+                        <h4>Project WeaponDefs candidates</h4>
+                        <Button size="sm" onClick={() => onAddSupportingWeaponDefs(selectedAnalysis.supportingWeaponDefs)}>Add all {selectedAnalysis.supportingWeaponDefs.length}</Button>
+                      </div>
+                      <div style={{ display: 'grid', gap: '6px' }}>
+                        {selectedAnalysis.supportingWeaponDefs.map(definition => {
+                          const destination = `${definition.ownerUnitId}:${definition.key}`.toLowerCase();
+                          const exists = supportingDestinations.has(destination);
+                          return (
+                            <article key={definition.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', border: '1px solid var(--color-border-subtle)', borderRadius: '4px' }}>
+                              <span><strong>{definition.key.toUpperCase()}</strong> ({definition.ownerUnitId} · {definition.role})</span>
+                              <Button size="sm" disabled={exists} onClick={() => onAddSupportingWeaponDefs([definition])}>{exists ? 'In library' : 'Add'}</Button>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
+                  {selectedReport?.assetReferences.length > 0 && (
+                    <section className="tweak-analysis-section">
+                      <h4>External asset references ({selectedReport.assetReferences.length})</h4>
+                      <div className="tweak-asset-list">
+                        {selectedReport.assetReferences.slice(0, 12).map((reference, index) => (
+                          <div key={`${reference.line}-${reference.field}-${reference.value}-${index}`}>
+                            <span>{reference.kind} · line {reference.line}</span><code>{reference.value}</code>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
                 </div>
               )}
 
@@ -569,13 +685,26 @@ export default function TweakPackageLabPage({
                   {selectedAnalysis?.helpers.length > 0 ? (
                     <div className="tweak-helper-list">
                       {selectedAnalysis.helpers.map(helper => (
-                        <div key={helper.name}>
+                        <div key={helper.name} style={{ padding: '8px', border: '1px solid var(--color-border-subtle)', borderRadius: '4px' }}>
                           <code>{helper.name}(...)</code>
-                          <span>{helper.mode} · {helper.callCount} calls</span>
+                          <span>{helper.mode === 'clone-factory' ? 'Clone factory' : 'Definition factory'} · {helper.callCount} calls</span>
                         </div>
                       ))}
                     </div>
                   ) : <p>No community helper functions recognized in this module.</p>}
+                  {selectedAnalysis?.recipes.length > 0 && (
+                    <section className="tweak-analysis-section">
+                      <h4>Recognized helper recipes ({selectedAnalysis.recipes.length})</h4>
+                      <div className="tweak-recipe-calls">
+                        {selectedAnalysis.recipes.slice(0, 12).map((recipe, index) => (
+                          <div key={`${recipe.helperName}-${recipe.newId}-${index}`}>
+                            <code>{recipe.newId}</code>
+                            <span>{recipe.sourceId ? `from ${recipe.sourceId}` : recipe.mode}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
                 </div>
               )}
             </>
@@ -583,8 +712,17 @@ export default function TweakPackageLabPage({
         </main>
 
         {/* PANEL 3: PREFLIGHT INSPECTOR (Right) */}
-        <aside className="tweak-lab-inspector" aria-label="Preflight Inspector">
-          <div className="tweak-lab-section-heading"><span>Preflight Inspector</span></div>
+        <aside className={`tweak-lab-inspector ${inspectorFullscreen ? 'is-fullscreen' : ''}`} aria-label="Preflight Inspector">
+          <div className="tweak-lab-section-heading">
+            <span>Preflight Inspector</span>
+            {selected && (
+              <Button
+                size="sm"
+                variant={inspectorFullscreen ? 'primary' : 'secondary'}
+                onClick={() => setInspectorFullscreen(val => !val)}
+              >{inspectorFullscreen ? 'Restore view' : '↗ Full screen'}</Button>
+            )}
+          </div>
           {packageAnalysis.blockingIssues.length > 0 ? (
             <div className="tweak-inspector-diagnostics-empty" style={{ borderColor: 'var(--color-danger)' }}>
               <span style={{ color: 'var(--color-danger)' }}>✕</span>
@@ -600,25 +738,49 @@ export default function TweakPackageLabPage({
           {selectedAnalysis?.findings.length > 0 && (
             <section className="tweak-analyzer-v2">
               <h4>Analyzer Findings ({selectedAnalysis.findings.length})</h4>
+              <div className="tweak-analyzer-confidence" style={{ display: 'flex', gap: '8px', fontSize: '10px', marginBottom: '8px' }}>
+                <span className="is-exact"><b>{selectedAnalysis.confidenceCounts.exact}</b> Exact</span>
+                <span className="is-probable"><b>{selectedAnalysis.confidenceCounts.probable}</b> Probable</span>
+                <span className="is-dynamic"><b>{selectedAnalysis.confidenceCounts.dynamic}</b> Dynamic</span>
+              </div>
               <div className="tweak-analyzer-findings">
                 {selectedAnalysis.findings.slice(0, 8).map(finding => (
                   <article className={`is-${finding.confidence}`} key={finding.id}>
                     <span>{finding.confidence}</span>
                     <div><strong>{finding.title}</strong><small>{finding.detail}</small></div>
+                    {finding.line > 0 && <code>Ln {finding.line}</code>}
                   </article>
                 ))}
               </div>
             </section>
           )}
 
-          {packageAnalysis.typeIssues.length > 0 && (
+          {(selectedReport?.typeIssues.length > 0 || selectedReport?.runtimeRisks.length > 0) && (
+            <section className="tweak-analysis-section tweak-preflight-section">
+              <h4>Runtime Preflight Notices</h4>
+              <div className="tweak-preflight-list">
+                {selectedReport.typeIssues.map(issue => (
+                  <div key={`type-${issue.line}-${issue.field}`} className="is-warning">
+                    <b>Line {issue.line} · Type</b>
+                    <span>{issue.message}</span>
+                  </div>
+                ))}
+                {selectedReport.runtimeRisks.map(risk => (
+                  <div key={risk.code} className={`is-${risk.level}`}>
+                    <b>{risk.count}× · {risk.code}</b>
+                    <span>{risk.message} Lines {risk.lines.slice(0, 6).join(', ')}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {selectedReport && (
             <section className="tweak-analysis-section">
-              <h4>Type Warnings ({packageAnalysis.typeIssues.length})</h4>
-              {packageAnalysis.typeIssues.slice(0, 4).map(issue => (
-                <p key={`type-${issue.moduleId}-${issue.line}-${issue.field}`} style={{ fontSize: '10px' }}>
-                  Line {issue.line}: {issue.field} expects {issue.expectedType}.
-                </p>
-              ))}
+              <h4>Module Relationships</h4>
+              {selectedReport.dependencies.map(edge => <p key={`dependency-${edge.to}`}><b>Needs</b> {moduleLabel(edge.to)} <code>{edge.unitIds.join(', ')}</code></p>)}
+              {selectedReport.dependents.map(edge => <p key={`dependent-${edge.from}`}><b>Used by</b> {moduleLabel(edge.from)} <code>{edge.unitIds.join(', ')}</code></p>)}
+              {selectedReport.unresolved.map(item => <p key={`unresolved-${item.unitId}`} style={{ color: 'var(--color-warning)' }}><b>External</b> <code>{item.unitId}</code></p>)}
             </section>
           )}
         </aside>
