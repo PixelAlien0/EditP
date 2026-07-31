@@ -140,14 +140,14 @@ export default function App() {
     setTweaks, setClones, setDisabledUnitIds,
     setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setSupportingWeaponDefs, setUnitCollections, setTweakModules, setLobbySetup,
     setProjectName, setProjectAuthor, setProjectDesc,
-    setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setExportEnglishOnly,
+    setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setExportEnglishOnly, setCompactLuaFormatting,
     transactProject, applyProjectSnapshot, hydrateProjectStore,
     undoProject, redoProject, historyPastCount, historyFutureCount,
   } = useProjectStore();
   const {
     tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
     presets, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules, lobbySetup, projectName, projectAuthor, projectDesc,
-    includeTweaks, includeClones, includeRosters, includeHeader, exportEnglishOnly,
+    includeTweaks, includeClones, includeRosters, includeHeader, exportEnglishOnly, compactLuaFormatting,
   } = projectStore;
 
   const techTierOverrideSignature = useMemo(() => JSON.stringify(
@@ -994,6 +994,7 @@ export default function App() {
     tweakModules,
     base64Options,
     exportEnglishOnly,
+    compactLuaFormatting,
   });
   const limitRisk = compiledLobbyModules.overflow
     ? 'error'
@@ -1813,11 +1814,13 @@ export default function App() {
             includeRosters={includeRosters}
             includeHeader={includeHeader}
             exportEnglishOnly={exportEnglishOnly}
+            compactLuaFormatting={compactLuaFormatting}
             setIncludeTweaks={setIncludeTweaks}
             setIncludeClones={setIncludeClones}
             setIncludeRosters={setIncludeRosters}
             setIncludeHeader={setIncludeHeader}
             setExportEnglishOnly={setExportEnglishOnly}
+            setCompactLuaFormatting={setCompactLuaFormatting}
             activeOutputTab={activeOutputTab}
             setActiveOutputTab={setActiveOutputTab}
             activeCompiledOutput={activeCompiledOutput}

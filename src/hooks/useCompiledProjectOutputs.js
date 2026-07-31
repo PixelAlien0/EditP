@@ -70,6 +70,7 @@ export function useCompiledProjectOutputs({
   tweakModules,
   base64Options,
   exportEnglishOnly = false,
+  compactLuaFormatting = false,
 }) {
   const generatedTweakUnitsLua = useMemo(() => {
     if (!includeTweaks) return '{\n}';
@@ -257,7 +258,7 @@ export function useCompiledProjectOutputs({
     disabledUnitIds,
     unitBuildOptions: activeFactoryRosters,
     projectMeta: includeHeader ? { name: projectName, author: projectAuthor, desc: projectDesc } : null,
-    compileFlags: { includeClones, includeRosters },
+    compileFlags: { includeClones, includeRosters, exportEnglishOnly, compactLuaFormatting },
     weaponLibrary,
     deathExplosionTweaks,
     supportingWeaponDefs,
@@ -266,8 +267,10 @@ export function useCompiledProjectOutputs({
     activeFactoryRosters,
     buildMenuSteps,
     clones,
+    compactLuaFormatting,
     deathExplosionTweaks,
     disabledUnitIds,
+    exportEnglishOnly,
     includeClones,
     includeHeader,
     includeRosters,

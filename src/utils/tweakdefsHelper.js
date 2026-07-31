@@ -28,8 +28,10 @@ function compareCanonicalText(left, right) {
   return leftText < rightText ? -1 : leftText > rightText ? 1 : 0;
 }
 
-export function generateUnitTweaksBlockLua(tweaks = {}) {
+export function generateUnitTweaksBlockLua(tweaks = {}, options = {}) {
   if (!tweaks || typeof tweaks !== 'object') return '';
+  const compact = Boolean(options?.compactLuaFormatting);
+
   const entries = Object.entries(tweaks)
     .filter(([unitId, unitTweaks]) => {
       return unitId && unitTweaks && typeof unitTweaks === 'object' && Object.keys(unitTweaks).length > 0;
@@ -43,7 +45,9 @@ export function generateUnitTweaksBlockLua(tweaks = {}) {
   const luaLines = [];
   entries.forEach(([unitId, unitTweaks]) => {
     const cleanUnitId = unitId.trim().toLowerCase();
+    const weaponTweaksBySlot = new Map();
     const sets = [];
+
     Object.entries(unitTweaks)
       .sort(([leftKey], [rightKey]) => compareCanonicalText(leftKey, rightKey))
       .forEach(([key, val]) => {
@@ -57,18 +61,37 @@ export function generateUnitTweaksBlockLua(tweaks = {}) {
             if (rawParam === 'velocity') param = 'weaponvelocity';
             else if (rawParam === 'reload') param = 'reloadtime';
             else if (rawParam === 'aoe') param = 'areaofeffect';
+            
             const valExpr = typeof val === 'boolean'
               ? (val ? 'true' : 'false')
-              : (typeof val === 'number' ? val : JSON.stringify(val));
-            sets.push(`    if u.weapons and u.weapons[${slotNum}] and u.weapons[${slotNum}].def then
+              : (typeof val === 'number' ? val : (compact && !isNaN(val) && String(val).trim() !== '' ? val : JSON.stringify(val)));
+
+            if (compact) {
+              if (!weaponTweaksBySlot.has(slotNum)) weaponTweaksBySlot.set(slotNum, []);
+              weaponTweaksBySlot.get(slotNum).push({ param, valExpr });
+            } else {
+              sets.push(`    if u.weapons and u.weapons[${slotNum}] and u.weapons[${slotNum}].def then
       local wKey = string.lower(u.weapons[${slotNum}].def)
       if u.weapondefs and u.weapondefs[wKey] then
         u.weapondefs[wKey].${param} = ${valExpr}
       end
     end`);
+            }
           }
         }
       });
+
+    if (compact) {
+      weaponTweaksBySlot.forEach((params, slotNum) => {
+        const paramAssignments = params.map(p => `        w.${p.param} = ${p.valExpr}`).join('\n');
+        sets.push(`    if u.weapons and u.weapons[${slotNum}] and u.weapons[${slotNum}].def then
+      local w = u.weapondefs and u.weapondefs[string.lower(u.weapons[${slotNum}].def)]
+      if w then
+${paramAssignments}
+      end
+    end`);
+      });
+    }
 
     if (sets.length > 0) {
       luaLines.push(`  local u = UnitDefs and UnitDefs[${JSON.stringify(cleanUnitId)}]
@@ -673,15 +696,52 @@ export function generateSingleBuilderDeltaLua(step) {
   ].join('\n');
 }
 
-export function generateBuildMenuBlockLua(steps) {
+export function generateBuildMenuBlockLua(steps, options = {}) {
+  const compact = Boolean(options?.compactLuaFormatting);
   const activeSteps = steps
-    .filter(s => s.builderId.trim() && (s.add.some(x => x.trim().length > 0) || s.remove.some(x => x.trim().length > 0)))
+    .filter(s => s.builderId.trim() && (s.add.some(x => x.trim().length > 0) || s.remove.some(x => x.trim().length > 0) || (s.order && s.order.length > 0)))
     .sort((left, right) => compareCanonicalText(
       left.builderId.trim().toLowerCase(),
       right.builderId.trim().toLowerCase(),
     ));
   if (activeSteps.length === 0) return '';
-  
+
+  if (compact) {
+    const helperFunc = `local function editp_modify_bo(builderId, addList, removeList)
+  local ud = UnitDefs and UnitDefs[builderId]
+  if ud and type(ud.buildoptions) == "table" then
+    local removeMap = {}
+    if removeList then for _, r in ipairs(removeList) do removeMap[r] = true end end
+    local seen = {}
+    local newBo = {}
+    for _, u in ipairs(ud.buildoptions) do
+      if type(u) == "string" then
+        local ul = string.lower(u)
+        if not removeMap[ul] then table.insert(newBo, u) seen[ul] = true end
+      end
+    end
+    if addList then
+      for _, u in ipairs(addList) do
+        if type(u) == "string" then
+          local ul = string.lower(u)
+          if not seen[ul] then table.insert(newBo, u) seen[ul] = true end
+        end
+      end
+    end
+    ud.buildoptions = newBo
+  end
+end`;
+    const calls = activeSteps.map(step => {
+      const builderId = step.builderId.trim().toLowerCase();
+      const addList = step.add.map(a => a.trim().toLowerCase()).filter(Boolean);
+      const removeList = step.remove.map(r => r.trim().toLowerCase()).filter(Boolean);
+      const addStr = addList.length > 0 ? `{${addList.map(x => JSON.stringify(x)).join(', ')}}` : 'nil';
+      const remStr = removeList.length > 0 ? `{${removeList.map(x => JSON.stringify(x)).join(', ')}}` : 'nil';
+      return `editp_modify_bo(${JSON.stringify(builderId)}, ${addStr}, ${remStr})`;
+    });
+    return `${helperFunc}\n${calls.join('\n')}`;
+  }
+
   const stepCodes = activeSteps.map(generateSingleBuilderDeltaLua).filter(Boolean);
   return stepCodes.join('\n\n');
 }
@@ -915,12 +975,12 @@ export function compileTweakDefsLua({
     menuConfig
   );
   const buildMenuBlock = (compileFlags?.includeRosters ?? true)
-    ? generateBuildMenuBlockLua(updatedSteps)
+    ? generateBuildMenuBlockLua(updatedSteps, { compactLuaFormatting: compileFlags?.compactLuaFormatting })
     : '';
   const deathProfileBlock = generateDeathProfilesBlockLua(deathExplosionTweaks);
   const supportingWeaponDefsBlock = generateSupportingWeaponDefsBlockLua(supportingWeaponDefs);
   const carrierLinkagesBlock = generateCarrierLinkagesBlockLua(tweaks);
-  const unitTweaksBlock = generateUnitTweaksBlockLua(tweaks);
+  const unitTweaksBlock = generateUnitTweaksBlockLua(tweaks, { compactLuaFormatting: compileFlags?.compactLuaFormatting });
   
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);

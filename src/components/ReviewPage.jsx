@@ -18,8 +18,8 @@ export default function ReviewPage({
   modifiedUnitIds, tweaks, clones, buildMenuSteps, disabledUnitIds, validationIssues,
   projectChangeCount, unitNames, projectName, projectAuthor, projectDesc,
   setProjectName, setProjectAuthor, setProjectDesc,
-  includeTweaks, includeClones, includeRosters, includeHeader, exportEnglishOnly = false,
-  setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setExportEnglishOnly,
+  includeTweaks, includeClones, includeRosters, includeHeader, exportEnglishOnly = false, compactLuaFormatting = false,
+  setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setExportEnglishOnly, setCompactLuaFormatting,
   activeOutputTab, setActiveOutputTab, activeCompiledOutput, activeCompiledOutputFallback,
   tweakDefsB64, tweakUnitsB64,
   totalBytesUsed, lobbyByteLimit,
@@ -194,6 +194,7 @@ export default function ReviewPage({
               <SwitchField label="Build menus" checked={includeRosters} onChange={event => setIncludeRosters(event.target.checked)} />
               <SwitchField label="Header comments" checked={includeHeader} onChange={event => setIncludeHeader(event.target.checked)} />
               <SwitchField label="English-only tooltips (Compact)" checked={exportEnglishOnly} onChange={event => setExportEnglishOnly && setExportEnglishOnly(event.target.checked)} title="Omit multi-language tooltip duplicates (de, fr, es, etc.) to significantly reduce payload size for large mods." />
+              <SwitchField label="Grouped Lua output (Compact Code)" checked={compactLuaFormatting} onChange={event => setCompactLuaFormatting && setCompactLuaFormatting(event.target.checked)} title="Group weapon slot parameter tweaks and roster helpers to dramatically reduce Lua payload character count." />
             </div>
           </details>
 

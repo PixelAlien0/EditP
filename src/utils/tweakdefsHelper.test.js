@@ -6,6 +6,7 @@ import {
   generateCarrierLinkagesBlockLua,
   generateBuildMenuBlockLua,
   generateClonesBlockLua,
+  generateUnitTweaksBlockLua,
   sortClonesDependency,
   traceAncestor
 } from './tweakdefsHelper.js';
@@ -38,6 +39,29 @@ describe('nested clone generation', () => {
     const compactLua = generateClonesBlockLua(nestedClones, [], { exportEnglishOnly: true });
     expect(compactLua).toContain('local l = {"en"}');
     expect(compactLua).not.toContain('"de"');
+  });
+
+  it('groups weapon slot tweaks and roster helpers when compactLuaFormatting is active', () => {
+    const tweaks = {
+      armflash: {
+        weapon_slot_1_damage: '70',
+        weapon_slot_1_reload: '8',
+      }
+    };
+    const verboseLua = generateUnitTweaksBlockLua(tweaks);
+    expect(verboseLua).toContain('u.weapondefs[wKey].damage = "70"');
+    expect(verboseLua).toContain('u.weapondefs[wKey].reloadtime = "8"');
+
+    const compactLua = generateUnitTweaksBlockLua(tweaks, { compactLuaFormatting: true });
+    expect(compactLua).toContain('w.damage = 70');
+    expect(compactLua).toContain('w.reloadtime = 8');
+
+    const rosterLua = generateBuildMenuBlockLua(
+      [{ builderId: 'armlab', add: ['armflash_clone'], remove: ['armflash'] }],
+      { compactLuaFormatting: true }
+    );
+    expect(rosterLua).toContain('local function editp_modify_bo');
+    expect(rosterLua).toContain('editp_modify_bo("armlab", {"armflash_clone"}, {"armflash"})');
   });
 
   it('compiles clone and build-menu blocks into generated Lua', () => {
