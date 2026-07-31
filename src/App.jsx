@@ -2308,90 +2308,88 @@ export default function App() {
         </Suspense>
       )}
 
-      <CloneCreatorDialog
-        open={showClonePanel}
-        baseId={cloneBaseId}
-        baseName={selectedUnit?.name}
-        baseIconUrl={getProjectUnitIconUrl(cloneBaseId)}
-        baseFaction={selectedUnit?.faction}
-        baseTier={selectedUnit?.tags?.find(tag => /^t[1-4]$/.test(tag))}
-        newId={cloneNewId}
-        name={cloneName}
-        description={cloneDesc}
-        builders={cloneBuilders}
-        autoAssignBuilders={cloneAutoAssignBuilders}
-        onNewIdChange={setCloneNewId}
-        onNameChange={setCloneName}
-        onDescriptionChange={setCloneDesc}
-        onBuildersChange={setCloneBuilders}
-        onAutoAssignChange={enabled => {
-          setCloneAutoAssignBuilders(enabled);
-          setCloneBuilders(enabled ? getAutomaticCloneBuilders(cloneBaseId) : []);
-        }}
-        onSubmit={handleCreateClone}
-        onClose={() => setShowClonePanel(false)}
-      />
+      <AppDialogs
+        creditsOpen={showCreditsModal}
+        chatOpen={showChatModal}
+        commandPaletteOpen={showCommandPalette}
+        checkpointsOpen={showCheckpointsModal}
+        chat={chat}
+        commands={appCommands}
+        projectDocument={projectDocument}
+        onCloseCredits={() => setShowCreditsModal(false)}
+        onCloseChat={() => setShowChatModal(false)}
+        onCloseCommandPalette={() => setShowCommandPalette(false)}
+        onCloseCheckpoints={() => setShowCheckpointsModal(false)}
+        onRestoreCheckpoint={handleRestoreCheckpoint}
+        onNotice={showToast}
 
-      {MUTATOR_TOOLS_ENABLED && showBulkPanel && <Suspense fallback={null}><LazyBatchAdjustDialog
-        open={showBulkPanel}
-        onClose={() => setShowBulkPanel(false)}
-        parameterGroups={BULK_PARAMETER_GROUPS}
-        statKey={bulkStatKey}
-        onStatKeyChange={setBulkStatKey}
-        mode={bulkMode}
-        onModeChange={setBulkMode}
-        value={bulkPercent}
-        onValueChange={setBulkPercent}
-        targetUnits={bulkTargetUnits}
-        scopeLabel={activeCollection ? `Collection · ${activeCollection.name}` : 'Current filters'}
-        onApply={handleApplyBulk}
-      /></Suspense>}
-      {MUTATOR_TOOLS_ENABLED && showFormulaMutator && <Suspense fallback={null}><LazyFormulaMutatorDialog
-        open={showFormulaMutator}
-        onClose={() => setShowFormulaMutator(false)}
-        units={allUnitsList}
+        showClonePanel={showClonePanel}
+        cloneBaseId={cloneBaseId}
         selectedUnit={selectedUnit}
+        getProjectUnitIconUrl={getProjectUnitIconUrl}
+        cloneNewId={cloneNewId}
+        cloneName={cloneName}
+        cloneDesc={cloneDesc}
+        cloneBuilders={cloneBuilders}
+        cloneAutoAssignBuilders={cloneAutoAssignBuilders}
+        setCloneNewId={setCloneNewId}
+        setCloneName={setCloneName}
+        setCloneDesc={setCloneDesc}
+        setCloneBuilders={setCloneBuilders}
+        setCloneAutoAssignBuilders={setCloneAutoAssignBuilders}
+        getAutomaticCloneBuilders={getAutomaticCloneBuilders}
+        handleCreateClone={handleCreateClone}
+        setShowClonePanel={setShowClonePanel}
+
+        mutatorToolsEnabled={MUTATOR_TOOLS_ENABLED}
+        showBulkPanel={showBulkPanel}
+        setShowBulkPanel={setShowBulkPanel}
+        bulkParameterGroups={BULK_PARAMETER_GROUPS}
+        bulkStatKey={bulkStatKey}
+        setBulkStatKey={setBulkStatKey}
+        bulkMode={bulkMode}
+        setBulkMode={setBulkMode}
+        bulkPercent={bulkPercent}
+        setBulkPercent={setBulkPercent}
+        bulkTargetUnits={bulkTargetUnits}
         activeCollection={activeCollection}
+        handleApplyBulk={handleApplyBulk}
+
+        showFormulaMutator={showFormulaMutator}
+        setShowFormulaMutator={setShowFormulaMutator}
+        allUnitsList={allUnitsList}
         filteredUnits={filteredUnits}
         defaultsDb={defaultsDb}
         tweaks={tweaks}
-        onApplyFormula={handleApplyFormula}
-      /></Suspense>}
-      {showCarrierWorkbench && <Suspense fallback={null}><LazyCarrierDroneWorkbenchDialog
-        open={showCarrierWorkbench}
-        onClose={() => setShowCarrierWorkbench(false)}
-        units={allUnitsList}
+        handleApplyFormula={handleApplyFormula}
+
+        showCarrierWorkbench={showCarrierWorkbench}
+        setShowCarrierWorkbench={setShowCarrierWorkbench}
         clones={clones}
-        selectedUnit={selectedUnit}
-        initialWeaponSlot={activeWeaponSlotTab}
-        defaultsDb={defaultsDb}
-        tweaks={tweaks}
-        onApplyLinkage={handleApplyCarrierLinkage}
-        onCreateClone={handleQuickCreateCloneFromWorkbench}
-      /></Suspense>}
-      {showSummaryModal && <Suspense fallback={null}><LazySummaryExplorerDialog
-        open={showSummaryModal}
-        activeTab={activeSummaryTab}
-        onTabChange={setActiveSummaryTab}
-        onClose={() => setShowSummaryModal(false)}
-        tweaks={tweaks}
-        clones={clones}
+        activeWeaponSlotTab={activeWeaponSlotTab}
+        handleApplyCarrierLinkage={handleApplyCarrierLinkage}
+        handleQuickCreateCloneFromWorkbench={handleQuickCreateCloneFromWorkbench}
+
+        showSummaryModal={showSummaryModal}
+        setShowSummaryModal={setShowSummaryModal}
+        activeSummaryTab={activeSummaryTab}
+        setActiveSummaryTab={setActiveSummaryTab}
         disabledUnitIds={disabledUnitIds}
         unitDescriptions={unitDescriptions}
         buildMenuSteps={buildMenuSteps}
         buildMenuPacks={buildMenuPacks}
-        unitNames={unitsDb.names}
-        onResetUnitEdits={handleResetSummaryUnitEdits}
-        onResetAllUnitEdits={handleResetAllSummaryUnitEdits}
-        onDeleteClone={handleDeleteSummaryClone}
-        onDeleteAllClones={handleDeleteAllSummaryClones}
-        onRevertRoster={handleRevertSummaryRoster}
-        onResetAllRosters={handleResetAllSummaryRosters}
-        onDisableBuildMenuPack={handleDisableSummaryBuildMenuPack}
-        onRestoreUnit={handleRestoreSummaryUnit}
-        onRestoreAllUnits={handleRestoreAllSummaryUnits}
-        onResetAllChanges={handleResetAllProjectChanges}
-      /></Suspense>}
+        unitsDbNames={unitsDb.names}
+        handleResetSummaryUnitEdits={handleResetSummaryUnitEdits}
+        handleResetAllSummaryUnitEdits={handleResetAllSummaryUnitEdits}
+        handleDeleteSummaryClone={handleDeleteSummaryClone}
+        handleDeleteAllSummaryClones={handleDeleteAllSummaryClones}
+        handleRevertSummaryRoster={handleRevertSummaryRoster}
+        handleResetAllSummaryRosters={handleResetAllSummaryRosters}
+        handleDisableSummaryBuildMenuPack={handleDisableSummaryBuildMenuPack}
+        handleRestoreSummaryUnit={handleRestoreSummaryUnit}
+        handleRestoreAllSummaryUnits={handleRestoreAllSummaryUnits}
+        handleResetAllProjectChanges={handleResetAllProjectChanges}
+      />
     </div>
   );
 }
