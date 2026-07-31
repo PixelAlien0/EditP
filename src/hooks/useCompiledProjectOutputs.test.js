@@ -57,7 +57,21 @@ describe('useCompiledProjectOutputs', () => {
 
     expect(result.current.generatedTweakUnitsLua).toContain('description = "Fast raider with a custom role."');
     expect(result.current.generatedTweakUnitsLua).toContain('i18n_en_tooltip = "Fast raider with a custom role."');
+    expect(result.current.generatedTweakUnitsLua).toContain('i18n_de_tooltip = "Fast raider with a custom role."');
     expect(result.current.tweakUnitsB64).not.toBe('');
+  });
+
+  it('supports English-only compact export mode by omitting non-English tooltip duplicates', () => {
+    const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
+      tweaks: {},
+      unitDescriptions: { armflash: 'Fast raider with a custom role.' },
+      exportEnglishOnly: true,
+    })));
+
+    expect(result.current.generatedTweakUnitsLua).toContain('description = "Fast raider with a custom role."');
+    expect(result.current.generatedTweakUnitsLua).toContain('i18n_en_tooltip = "Fast raider with a custom role."');
+    expect(result.current.generatedTweakUnitsLua).not.toContain('i18n_de_tooltip');
+    expect(result.current.generatedTweakUnitsLua).not.toContain('i18n_zh_tooltip');
   });
 
   it('compiles legacy weapon fields through their canonical BAR targets', () => {

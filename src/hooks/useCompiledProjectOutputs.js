@@ -69,6 +69,7 @@ export function useCompiledProjectOutputs({
   supportingWeaponDefs,
   tweakModules,
   base64Options,
+  exportEnglishOnly = false,
 }) {
   const generatedTweakUnitsLua = useMemo(() => {
     if (!includeTweaks) return '{\n}';
@@ -189,9 +190,10 @@ export function useCompiledProjectOutputs({
       const description = unitDescriptions[unitId];
       if (typeof description === 'string' && description.trim()) {
         unitPatch.description = description.trim();
-        [
-          'en', 'de', 'fr', 'es', 'it', 'ru', 'zh', 'cs', 'hr', 'lt',
-        ].forEach(language => {
+        const tooltipLanguages = exportEnglishOnly
+          ? ['en']
+          : ['en', 'de', 'fr', 'es', 'it', 'ru', 'zh', 'cs', 'hr', 'lt'];
+        tooltipLanguages.forEach(language => {
           setNestedValue(unitPatch, `customparams.i18n_${language}_tooltip`, description.trim());
         });
       }
@@ -209,6 +211,7 @@ export function useCompiledProjectOutputs({
   }, [
     allUnitsList,
     defaultsDb,
+    exportEnglishOnly,
     getInheritedCloneWeaponSwaps,
     includeTweaks,
     resolveCloneRootId,

@@ -140,14 +140,14 @@ export default function App() {
     setTweaks, setClones, setDisabledUnitIds,
     setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setSupportingWeaponDefs, setUnitCollections, setTweakModules, setLobbySetup,
     setProjectName, setProjectAuthor, setProjectDesc,
-    setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader,
+    setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setExportEnglishOnly,
     transactProject, applyProjectSnapshot, hydrateProjectStore,
     undoProject, redoProject, historyPastCount, historyFutureCount,
   } = useProjectStore();
   const {
     tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
     presets, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules, lobbySetup, projectName, projectAuthor, projectDesc,
-    includeTweaks, includeClones, includeRosters, includeHeader,
+    includeTweaks, includeClones, includeRosters, includeHeader, exportEnglishOnly,
   } = projectStore;
 
   const techTierOverrideSignature = useMemo(() => JSON.stringify(
@@ -993,6 +993,7 @@ export default function App() {
     supportingWeaponDefs,
     tweakModules,
     base64Options,
+    exportEnglishOnly,
   });
   const limitRisk = compiledLobbyModules.overflow
     ? 'error'
@@ -1811,10 +1812,12 @@ export default function App() {
             includeClones={includeClones}
             includeRosters={includeRosters}
             includeHeader={includeHeader}
+            exportEnglishOnly={exportEnglishOnly}
             setIncludeTweaks={setIncludeTweaks}
             setIncludeClones={setIncludeClones}
             setIncludeRosters={setIncludeRosters}
             setIncludeHeader={setIncludeHeader}
+            setExportEnglishOnly={setExportEnglishOnly}
             activeOutputTab={activeOutputTab}
             setActiveOutputTab={setActiveOutputTab}
             activeCompiledOutput={activeCompiledOutput}

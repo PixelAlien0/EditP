@@ -31,6 +31,7 @@ export const PROJECT_STORE_DEFAULTS = Object.freeze({
   includeClones: true,
   includeRosters: true,
   includeHeader: true,
+  exportEnglishOnly: false,
 });
 
 export const PROJECT_HISTORY_LIMIT = 50;
