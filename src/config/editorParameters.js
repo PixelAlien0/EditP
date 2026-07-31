@@ -543,8 +543,8 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
       { key: 'startingdronecount', label: 'Initial Units per Type', type: 'string' },
       { key: 'spawn_metal_cost', label: 'Metal Cost per Type', type: 'string' },
       { key: 'spawn_energy_cost', label: 'Energy Cost per Type', type: 'string' },
-      { key: 'controlradius', label: 'Control Radius', type: 'number' },
-      { key: 'engagementrange', label: 'Engagement Range', type: 'number' },
+      { key: 'controlradius', label: 'Control Radius (single or space-separated)', type: 'string' },
+      { key: 'engagementrange', label: 'Engagement Range (single or space-separated)', type: 'string' },
       { key: 'manualdrones', label: 'Allow Direct Player Control', type: 'tri-state' },
       {
         key: 'carrierdeaththroe',

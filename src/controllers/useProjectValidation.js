@@ -144,8 +144,18 @@ export function getValidationWarning(key, value) {
   if (isKey('max_range_reduction') && (number < 0 || number > 1)) {
     return { level: 'error', message: 'Sector depth must be between 0 and 1' };
   }
-  if ((isKey('controlradius') || isKey('decayrate')) && number < 0) {
-    return { level: 'error', message: 'Value cannot be negative' };
+  if ((isKey('controlradius') || isKey('engagementrange') || isKey('decayrate'))) {
+    const rawStr = String(value).trim();
+    if (rawStr.includes(' ')) {
+      const nums = rawStr.split(/\s+/).map(v => parseFloat(v));
+      if (nums.some(n => Number.isNaN(n) || n < 0)) {
+        return { level: 'error', message: 'Value cannot be negative' };
+      }
+      return null;
+    }
+    if (number < 0) {
+      return { level: 'error', message: 'Value cannot be negative' };
+    }
   }
   return null;
 }
