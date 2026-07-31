@@ -1,7 +1,7 @@
 import categoriesDb from '../data/unit-categories.json';
 
 const Ee = {
-  leggatet3: ['buildings']
+  leggatet3: ['defenses', 't3']
 };
 
 const Be = ['t4', 't3', 'boss'];
