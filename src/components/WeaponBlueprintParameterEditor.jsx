@@ -152,7 +152,7 @@ function ParameterGroup({
   defaultOpen = false,
 }) {
   return (
-    <details className="weapon-lab-parameter-group" defaultOpen={defaultOpen}>
+    <details className="weapon-lab-parameter-group" open={defaultOpen}>
       <summary>
         <div>
           <strong>{group.title}</strong>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { analyzeTweakPackage, MAX_TWEAK_PACKAGE_BYTES, parseTweakPackageInput } from '../utils/tweakPackage.js';
+import { analyzeTweakPackage, MAX_TWEAK_PACKAGE_BYTES, parseTweakPackageInput, repairAndSanitizeTweakPackage } from '../utils/tweakPackage.js';
 import {
   filterLobbySetupCategories,
   LOBBY_SETUP_CATEGORIES,
@@ -717,12 +717,25 @@ export default function TweakPackageLabPage({
                 </section>
               )}
               <section className="tweak-analysis-section tweak-conversions-section inspector-summary-panel">
-                <div className="tweak-analysis-section__heading"><h4>Safe conversions</h4><span>{selectedAnalysis.conversions.length}</span></div>
-                <p>Converts literal clones, complete unit tables, weapon slots, supporting WeaponDefs, build-menu operations, and supported scalar parameters. Asset and script changes remain raw.</p>
-                <Button
-                  disabled={selected.enabled || selected.converted || selectedAnalysis.conversions.length === 0 || Boolean(selectedAnalysis.parseError)}
-                  onClick={() => onApplyConversions(selected, selectedAnalysis.conversions)}
-                >{selected.converted ? 'Converted' : 'Apply recognized changes'}</Button>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <Button
+                    disabled={selected.enabled || selected.converted || selectedAnalysis.conversions.length === 0 || Boolean(selectedAnalysis.parseError)}
+                    onClick={() => onApplyConversions(selected, selectedAnalysis.conversions)}
+                  >{selected.converted ? 'Converted' : 'Apply recognized changes'}</Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      if (!selected?.rawLua) return;
+                      const { sanitizedSource, issuesFixed } = repairAndSanitizeTweakPackage(selected.rawLua);
+                      if (issuesFixed === 0) {
+                        onToast?.('Module is already clean! No inline comments or malformed string booleans found.');
+                        return;
+                      }
+                      onUpdateModule(selected.id, { rawLua: sanitizedSource });
+                      onToast?.(`Auto-sanitized & repaired ${issuesFixed} issue${issuesFixed === 1 ? '' : 's'} (stripped comments, normalized string booleans, cleaned empty slots).`);
+                    }}
+                  >Auto-Sanitize & Repair</Button>
+                </div>
               </section>
               <details className="tweak-source-preview inspector-source-panel" open={inspectorFullscreen && inspectorView === 'source' ? true : undefined}>
                 <summary>Decoded Lua source</summary>

@@ -1507,3 +1507,41 @@ export function analyzeTweakPackage(modules, options = {}) {
     recipes: moduleList.flatMap(module => analyses.get(module.id).recipes.map(recipe => ({ ...recipe, moduleId: module.id }))),
   };
 }
+
+export function repairAndSanitizeTweakPackage(sourceText) {
+  if (!sourceText || typeof sourceText !== 'string') {
+    return { sanitizedSource: '', issuesFixed: 0 };
+  }
+
+  let issuesFixed = 0;
+  let text = sourceText;
+
+  // 1. Remove dangerous inline comments (-- ...)
+  const commentMatches = (text.match(/--.*$/gm) || []).length;
+  if (commentMatches > 0) {
+    text = text.replace(/--.*$/gm, '');
+    issuesFixed += commentMatches;
+  }
+
+  // 2. Normalize string booleans ("true" -> true, "false" -> false)
+  const boolMatches = (text.match(/=\s*"(true|false)"/gi) || []).length;
+  if (boolMatches > 0) {
+    text = text.replace(/=\s*"(true|false)"/gi, '= $1');
+    issuesFixed += boolMatches;
+  }
+
+  // 3. Remove empty buildoptions array slots ([X] = "")
+  const emptyBuildOptions = (text.match(/\[\d+\]\s*=\s*""\s*,?/g) || []).length;
+  if (emptyBuildOptions > 0) {
+    text = text.replace(/\[\d+\]\s*=\s*""\s*,?\n?/g, '');
+    issuesFixed += emptyBuildOptions;
+  }
+
+  // 4. Clean empty trailing lines / consecutive blank lines
+  text = text.replace(/\n{3,}/g, '\n\n').trim();
+
+  return {
+    sanitizedSource: text,
+    issuesFixed,
+  };
+}
