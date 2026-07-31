@@ -1570,7 +1570,22 @@ export function repairAndSanitizeTweakPackage(sourceText) {
     });
   }
 
-  // 7. Clean empty trailing lines / consecutive blank lines
+  // 7. Property & Method Typo Repairs (e.g. seelfdestructas -> selfdestructas, cantbetranspVVted -> cantbetransported)
+  const propTypoReplacements = [
+    [/\bseelfdestructas\b/gi, 'selfdestructas'],
+    [/\bcantbetransp[A-Z0-9]*ted\b/gi, 'cantbetransported'],
+    [/\braptor_turret_basic_t3s_v1\b/gi, 'raptor_turret_basic_t3_v1'],
+    [/\boor_doomt3\b/gi, 'cordoomt3']
+  ];
+  for (const [pattern, replacement] of propTypoReplacements) {
+    const matches = (text.match(pattern) || []).length;
+    if (matches > 0) {
+      text = text.replace(pattern, replacement);
+      issuesFixed += matches;
+    }
+  }
+
+  // 8. Clean empty trailing lines / consecutive blank lines
   text = text.replace(/\n{3,}/g, '\n\n').trim();
 
   return {

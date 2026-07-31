@@ -54,4 +54,19 @@ ONX(true)
     expect(sanitizedSource).toContain('ON(true)');
     expect(issuesFixed).toBe(1);
   });
+
+  it('repairs property and UnitDef key typos (e.g. seelfdestructas -> selfdestructas, oor_doomt3 -> cordoomt3)', () => {
+    const raw = `
+a.seelfdestructas = ''
+a.cantbetranspVVted = false
+a['oor_doomt3'] = nil
+UnitDefs['raptor_turret_basic_t3s_v1'] = nil
+`;
+    const { sanitizedSource, issuesFixed } = repairAndSanitizeTweakPackage(raw);
+    expect(sanitizedSource).toContain("a.selfdestructas = ''");
+    expect(sanitizedSource).toContain('a.cantbetransported = false');
+    expect(sanitizedSource).toContain("a['cordoomt3'] = nil");
+    expect(sanitizedSource).toContain("UnitDefs['raptor_turret_basic_t3_v1'] = nil");
+    expect(issuesFixed).toBe(4);
+  });
 });
