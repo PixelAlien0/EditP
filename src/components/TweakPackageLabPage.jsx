@@ -401,86 +401,13 @@ export default function TweakPackageLabPage({
         </section>
       )}
 
-      {/* PACKAGE ARCHITECTURE & DEPENDENCY AUDIT ACCORDION */}
-      {modules.length > 0 && (
-        <details className="tweak-package-audit" aria-label="Package dependency audit">
-          <summary className="tweak-package-audit__heading">
-            <div><Type variant="eyebrow" className="workflow-eyebrow">Package architecture</Type><Type as="h3" variant="section-title">Dependencies and reusable recipes</Type></div>
-            <div className="tweak-package-audit__actions">
-              <span className={packageAnalysis.blockingIssues.length ? 'is-error' : ''}>
-                {packageAnalysis.blockingIssues.length
-                  ? `${packageAnalysis.blockingIssues.length} active blocker${packageAnalysis.blockingIssues.length === 1 ? '' : 's'}`
-                  : reviewCount ? `${reviewCount} to review` : 'Preflight clear'}
-              </span>
-              {packageAnalysis.orderingIssues.length > 0 && (
-                <Button
-                  size="sm"
-                  disabled={!packageAnalysis.canAutoOrder}
-                  onClick={applyRecommendedOrder}
-                  title={packageAnalysis.canAutoOrder ? 'Move providers before the modules that reference them' : 'Resolve dependency cycles or compiler-lane conflicts first'}
-                >Apply safe order</Button>
-              )}
-            </div>
-          </summary>
-          <div className="tweak-package-audit__metrics" style={{ marginTop: '12px' }}>
-            <div><span>Modules</span><strong>{modules.length}</strong></div>
-            <div><span>Exact findings</span><strong>{packageAnalysis.confidenceCounts.exact}</strong></div>
-            <div><span>Probable</span><strong>{packageAnalysis.confidenceCounts.probable}</strong></div>
-            <div><span>Dynamic</span><strong>{packageAnalysis.confidenceCounts.dynamic}</strong></div>
-            <div><span>Module links</span><strong>{packageAnalysis.edges.length}</strong></div>
-            <div><span>Unresolved IDs</span><strong>{packageAnalysis.unresolved.length}</strong></div>
-            <div><span>Definition conflicts</span><strong>{packageAnalysis.collisions.length}</strong></div>
-            <div><span>Type mismatches</span><strong>{packageAnalysis.typeIssues.length}</strong></div>
-            <div><span>Risk locations</span><strong>{packageAnalysis.runtimeRiskCount}</strong></div>
-            <div><span>Unknown params</span><strong>{packageAnalysis.unknownCustomParameters.length}</strong></div>
-          </div>
-          {(packageAnalysis.unresolved.length > 0 || packageAnalysis.collisions.length > 0 || packageAnalysis.orderingIssues.length > 0 || packageAnalysis.cycles.length > 0 || packageAnalysis.typeIssues.length > 0) && (
-            <div className="tweak-package-audit__issues" style={{ marginTop: '8px' }}>
-              {packageAnalysis.unresolved.slice(0, 4).map(item => <p key={`unresolved-${item.moduleId}-${item.unitId}`}><b>External ID</b>{moduleLabel(item.moduleId)} references <code>{item.unitId}</code>{item.line ? ` near line ${item.line}` : ''}. Confirm the required BAR unit pack or provider module.</p>)}
-              {packageAnalysis.collisions.slice(0, 4).map(item => <p key={`collision-${item.unitId}`}><b>Collision</b><code>{item.unitId}</code> is created by {item.moduleIds.map(moduleLabel).join(' and ')}.</p>)}
-              {packageAnalysis.orderingIssues.slice(0, 4).map(edge => <p key={`order-${edge.from}-${edge.to}`}><b>Load order</b>{moduleLabel(edge.from)} needs {moduleLabel(edge.to)} first for <code>{edge.unitIds.join(', ')}</code>.</p>)}
-              {packageAnalysis.boundaryIssues.slice(0, 2).map(edge => <p key={`boundary-${edge.from}-${edge.to}`}><b>Compiler lane</b>{edge.message}</p>)}
-              {packageAnalysis.typeIssues.slice(0, 3).map(issue => <p key={`type-${issue.moduleId}-${issue.line}-${issue.field}`}><b>Value type</b>{moduleLabel(issue.moduleId)}, line {issue.line}: {issue.field} expects {issue.expectedType}.</p>)}
-              {packageAnalysis.cycles.slice(0, 2).map(cycle => <p key={`cycle-${cycle.join('-')}`}><b>Dependency cycle</b>{cycle.map(moduleLabel).join(' → ')}.</p>)}
-            </div>
-          )}
-        </details>
-      )}
-
-      {/* SUPPORTING WEAPONDEF LIBRARY ACCORDION */}
-      <details className="tweak-support-library">
-        <summary>
-          <span><b>Supporting WeaponDef library</b><small>Auxiliary, cluster-child, and unmounted definitions compiled into their owning UnitDefs.</small></span>
-          <strong>{supportingWeaponDefs.length}</strong>
-        </summary>
-        <div className="tweak-support-library__body">
-          <div className="tweak-support-create">
-            <div><b>Create auxiliary WeaponDef</b><small>Start with a safe literal definition and edit its fields as JSON.</small></div>
-            <label><span>Owner UnitDef</span><input value={newSupportOwner} onChange={event => setNewSupportOwner(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="armflea" /></label>
-            <label><span>WeaponDef key</span><input value={newSupportKey} onChange={event => setNewSupportKey(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="cluster_child" /></label>
-            <Button
-              size="sm"
-              disabled={!newSupportOwner || !newSupportKey || supportingDestinations.has(`${newSupportOwner}:${newSupportKey}`)}
-              onClick={createSupportingWeaponDef}
-            >Create</Button>
-          </div>
-          {supportingWeaponDefs.length === 0 ? (
-            <p>Convert a recognized literal module or add one of its auxiliary WeaponDefs from the module inspector.</p>
-          ) : supportingWeaponDefs.map(definition => (
-            <SupportingWeaponDefCard
-              key={definition.id}
-              definition={definition}
-              onUpdate={onUpdateSupportingWeaponDef}
-              onRemove={onRemoveSupportingWeaponDef}
-            />
-          ))}
-        </div>
-      </details>
-
       <div className="tweak-lab-grid">
         {/* PANEL 1: NAVIGATOR (Left) */}
         <aside className="tweak-lab-navigator" aria-label="Package Navigator">
-          <div className="tweak-lab-section-heading"><span>Modules</span><strong>{modules.length}</strong></div>
+          <div className="tweak-lab-section-heading">
+            <span>Package Modules</span>
+            <strong>{modules.length}</strong>
+          </div>
           {modules.length === 0 ? (
             <EmptyState title="No package loaded" description="Import BAR lobby commands or raw Lua to inspect how the package is structured." />
           ) : (
