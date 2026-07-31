@@ -820,10 +820,12 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
           .filter(Boolean);
 
         const deathBehavior = String(unitTweaks['customparams.carrierdeaththroe'] || 'death').toLowerCase();
-        const rawMaxUnits = String(unitTweaks['customparams.maxunits'] || unitTweaks['customparams.droneammo'] || '4');
+        const rawDroneAmmo = unitTweaks['customparams.droneammo'];
+        const rawMaxUnits = String(unitTweaks['customparams.maxunits'] || rawDroneAmmo || '4');
         const maxUnitsList = rawMaxUnits.trim().split(/\s+/).map(v => parseInt(v, 10)).filter(v => !isNaN(v) && v > 0);
         const totalMaxUnits = maxUnitsList.reduce((sum, v) => sum + v, 0) || 4;
         const maxUnitsStr = maxUnitsList.length > 0 ? maxUnitsList.join(' ') : rawMaxUnits;
+        const droneAmmoStr = rawDroneAmmo !== undefined ? String(rawDroneAmmo) : maxUnitsStr;
 
         const rawStartingCount = String(unitTweaks['customparams.startingdronecount'] || '0');
         const startingCountList = rawStartingCount.trim().split(/\s+/).map(v => parseInt(v, 10)).filter(v => !isNaN(v) && v >= 0);
@@ -855,7 +857,8 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
             ? deathBehavior
             : 'death',
           dockingEnabled,
-          droneAmmo: totalMaxUnits,
+          droneAmmo: droneAmmoStr,
+          droneAmmoStr,
           maxUnits: maxUnitsStr,
           maxUnitsStr,
           totalMaxUnits,
@@ -911,7 +914,7 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       wDef.customparams = wDef.customparams or {}
       wDef.customparams.carried_unit = table.concat(entry.allChildren, " ")
       wDef.customparams.maxunits = maxUnitsStr
-      wDef.customparams.droneammo = maxUnitsStr
+      wDef.customparams.droneammo = tostring(entry.droneAmmoStr or entry.maxUnitsStr)
       wDef.customparams.stockpilelimit = tostring(entry.totalMaxUnits or entry.maxUnits)
       wDef.customparams.startingdronecount = startingCountStr
       wDef.customparams.spawnrate = intervalStr
