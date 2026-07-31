@@ -820,9 +820,15 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
           .filter(Boolean);
 
         const deathBehavior = String(unitTweaks['customparams.carrierdeaththroe'] || 'death').toLowerCase();
-        const droneAmmo = Number(unitTweaks['customparams.droneammo'] || unitTweaks['customparams.maxunits'] || 4);
-        const maxUnits = Number(unitTweaks['customparams.maxunits'] || droneAmmo || 4);
-        const startingDroneCount = Number(unitTweaks['customparams.startingdronecount'] || 0);
+        const rawMaxUnits = String(unitTweaks['customparams.maxunits'] || unitTweaks['customparams.droneammo'] || '4');
+        const maxUnitsList = rawMaxUnits.trim().split(/\s+/).map(v => parseInt(v, 10)).filter(v => !isNaN(v) && v > 0);
+        const totalMaxUnits = maxUnitsList.reduce((sum, v) => sum + v, 0) || 4;
+        const maxUnitsStr = maxUnitsList.length > 0 ? maxUnitsList.join(' ') : rawMaxUnits;
+
+        const rawStartingCount = String(unitTweaks['customparams.startingdronecount'] || '0');
+        const startingCountList = rawStartingCount.trim().split(/\s+/).map(v => parseInt(v, 10)).filter(v => !isNaN(v) && v >= 0);
+        const startingCountStr = startingCountList.length > 0 ? startingCountList.join(' ') : rawStartingCount;
+
         const manualDroneValue = unitTweaks['customparams.manualdrones'];
         const manualDrones = manualDroneValue !== undefined
           && !['false', '0', 'off', 'no'].includes(String(manualDroneValue).trim().toLowerCase());
@@ -849,9 +855,12 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
             ? deathBehavior
             : 'death',
           dockingEnabled,
-          droneAmmo: Number.isFinite(droneAmmo) ? droneAmmo : 4,
-          maxUnits: Number.isFinite(maxUnits) ? maxUnits : 4,
-          startingDroneCount: Number.isFinite(startingDroneCount) ? startingDroneCount : 0,
+          droneAmmo: totalMaxUnits,
+          maxUnits: maxUnitsStr,
+          maxUnitsStr,
+          totalMaxUnits,
+          startingDroneCount: startingCountStr,
+          startingCountStr,
           manualDrones,
           droneAirTime,
           spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
@@ -902,8 +911,8 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       wDef.customparams = wDef.customparams or {}
       wDef.customparams.carried_unit = table.concat(entry.allChildren, " ")
       wDef.customparams.maxunits = maxUnitsStr
-      wDef.customparams.droneammo = countStr
-      wDef.customparams.stockpilelimit = maxUnitsStr
+      wDef.customparams.droneammo = maxUnitsStr
+      wDef.customparams.stockpilelimit = tostring(entry.totalMaxUnits or entry.maxUnits)
       wDef.customparams.startingdronecount = startingCountStr
       wDef.customparams.spawnrate = intervalStr
       wDef.customparams.metalcost = metalStr
