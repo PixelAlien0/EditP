@@ -355,16 +355,14 @@ export default function TweakPackageLabPage({
       slotResetFields: bundleSelection.modules ? filteredSetup.slotResetFields : [],
     };
     onImportLobbyBundle({ modules: importedModules, lobbySetup: nextSetup });
-    if (importedModules.length) setSelectedId(importedModules[0].id);
-    setPasteValue('');
-    setBundlePreview(null);
-    setBundleSelection({});
     onToast(`Imported ${importedModules.length} disabled module${importedModules.length === 1 ? '' : 's'} and ${nextSetup.commands.length} lobby command${nextSetup.commands.length === 1 ? '' : 's'}.`);
   };
 
   const slotSummary = compiledModules
     ? `${compiledModules.defs.required}/9 Definitions · ${compiledModules.units.required}/9 Units`
     : '0/9 Definitions · 0/9 Units';
+
+  const [workspaceTab, setWorkspaceTab] = useState('source');
 
   return (
     <PageShell
@@ -405,344 +403,223 @@ export default function TweakPackageLabPage({
         </section>
       )}
 
-      {modules.length > 0 && (
-        <section className="tweak-package-audit" aria-label="Package dependency audit">
-          <div className="tweak-package-audit__heading">
-            <div><Type variant="eyebrow" className="workflow-eyebrow">Package architecture</Type><Type as="h3" variant="section-title">Dependencies and reusable recipes</Type></div>
-            <div className="tweak-package-audit__actions">
-              <span className={packageAnalysis.blockingIssues.length ? 'is-error' : ''}>
-                {packageAnalysis.blockingIssues.length
-                  ? `${packageAnalysis.blockingIssues.length} active blocker${packageAnalysis.blockingIssues.length === 1 ? '' : 's'}`
-                  : reviewCount ? `${reviewCount} to review` : 'Preflight clear'}
-              </span>
-              {packageAnalysis.orderingIssues.length > 0 && (
-                <Button
-                  size="sm"
-                  disabled={!packageAnalysis.canAutoOrder}
-                  onClick={applyRecommendedOrder}
-                  title={packageAnalysis.canAutoOrder ? 'Move providers before the modules that reference them' : 'Resolve dependency cycles or compiler-lane conflicts first'}
-                >Apply safe order</Button>
-              )}
-            </div>
-          </div>
-          <div className="tweak-package-audit__metrics">
-            <div><span>Modules</span><strong>{modules.length}</strong></div>
-            <div><span>Exact findings</span><strong>{packageAnalysis.confidenceCounts.exact}</strong></div>
-            <div><span>Probable</span><strong>{packageAnalysis.confidenceCounts.probable}</strong></div>
-            <div><span>Dynamic</span><strong>{packageAnalysis.confidenceCounts.dynamic}</strong></div>
-            <div><span>Module links</span><strong>{packageAnalysis.edges.length}</strong></div>
-            <div><span>Unresolved IDs</span><strong>{packageAnalysis.unresolved.length}</strong></div>
-            <div><span>Definition conflicts</span><strong>{packageAnalysis.collisions.length}</strong></div>
-            <div><span>Type mismatches</span><strong>{packageAnalysis.typeIssues.length}</strong></div>
-            <div><span>Risk locations</span><strong>{packageAnalysis.runtimeRiskCount}</strong></div>
-            <div><span>Unknown params</span><strong>{packageAnalysis.unknownCustomParameters.length}</strong></div>
-          </div>
-          {(packageAnalysis.unresolved.length > 0 || packageAnalysis.collisions.length > 0 || packageAnalysis.orderingIssues.length > 0 || packageAnalysis.cycles.length > 0 || packageAnalysis.typeIssues.length > 0) && (
-            <div className="tweak-package-audit__issues">
-              {packageAnalysis.unresolved.slice(0, 4).map(item => <p key={`unresolved-${item.moduleId}-${item.unitId}`}><b>External ID</b>{moduleLabel(item.moduleId)} references <code>{item.unitId}</code>{item.line ? ` near line ${item.line}` : ''}. Confirm the required BAR unit pack or provider module.</p>)}
-              {packageAnalysis.collisions.slice(0, 4).map(item => <p key={`collision-${item.unitId}`}><b>Collision</b><code>{item.unitId}</code> is created by {item.moduleIds.map(moduleLabel).join(' and ')}.</p>)}
-              {packageAnalysis.orderingIssues.slice(0, 4).map(edge => <p key={`order-${edge.from}-${edge.to}`}><b>Load order</b>{moduleLabel(edge.from)} needs {moduleLabel(edge.to)} first for <code>{edge.unitIds.join(', ')}</code>.</p>)}
-              {packageAnalysis.boundaryIssues.slice(0, 2).map(edge => <p key={`boundary-${edge.from}-${edge.to}`}><b>Compiler lane</b>{edge.message}</p>)}
-              {packageAnalysis.typeIssues.slice(0, 3).map(issue => <p key={`type-${issue.moduleId}-${issue.line}-${issue.field}`}><b>Value type</b>{moduleLabel(issue.moduleId)}, line {issue.line}: {issue.field} expects {issue.expectedType}.</p>)}
-              {packageAnalysis.cycles.slice(0, 2).map(cycle => <p key={`cycle-${cycle.join('-')}`}><b>Dependency cycle</b>{cycle.map(moduleLabel).join(' → ')}.</p>)}
-            </div>
-          )}
-        </section>
-      )}
-
-      <details className="tweak-support-library" open={supportingWeaponDefs.length > 0}>
-        <summary>
-          <span><b>Supporting WeaponDef library</b><small>Auxiliary, cluster-child, and unmounted definitions compiled into their owning UnitDefs.</small></span>
-          <strong>{supportingWeaponDefs.length}</strong>
-        </summary>
-        <div className="tweak-support-library__body">
-          <div className="tweak-support-create">
-            <div><b>Create auxiliary WeaponDef</b><small>Start with a safe literal definition and edit its fields as JSON.</small></div>
-            <label><span>Owner UnitDef</span><input value={newSupportOwner} onChange={event => setNewSupportOwner(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="armflea" /></label>
-            <label><span>WeaponDef key</span><input value={newSupportKey} onChange={event => setNewSupportKey(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="cluster_child" /></label>
-            <Button
-              size="sm"
-              disabled={!newSupportOwner || !newSupportKey || supportingDestinations.has(`${newSupportOwner}:${newSupportKey}`)}
-              onClick={createSupportingWeaponDef}
-            >Create</Button>
-          </div>
-          {supportingWeaponDefs.length === 0 ? (
-            <p>Convert a recognized literal module or add one of its auxiliary WeaponDefs from the module inspector.</p>
-          ) : supportingWeaponDefs.map(definition => (
-            <SupportingWeaponDefCard
-              key={definition.id}
-              definition={definition}
-              onUpdate={onUpdateSupportingWeaponDef}
-              onRemove={onRemoveSupportingWeaponDef}
-            />
-          ))}
-        </div>
-      </details>
-
       <div className="tweak-lab-grid">
-        <aside className="tweak-lab-import">
-          <div className="tweak-lab-section-heading"><span>Package sources</span><strong>{modules.length}</strong></div>
-          <label className="tweak-lab-kind-select">
-            <span>Raw input type</span>
-            <select value={rawKind} onChange={event => setRawKind(event.target.value)}>
-              <option value="defs">Definitions</option>
-              <option value="units">Units</option>
-            </select>
-          </label>
-          <label className="tweak-lab-file-button">
-            <span>Import files</span>
-            <input type="file" accept=".txt,.lua,text/plain" multiple onChange={importFiles} />
-          </label>
-          <textarea
-            value={pasteValue}
-            onChange={event => setPasteValue(event.target.value)}
-            placeholder="Paste !bset commands, Base64, or raw Lua…"
-            aria-label="Tweak package input"
-          />
-          <Button variant="primary" disabled={!pasteValue.trim()} onClick={() => importText(pasteValue)}>Inspect pasted input</Button>
-          <p className="tweak-lab-safety-note">Imports are read-only and disabled by default. Nothing is executed in your browser.</p>
-          {(packageDiagnostics.requirements.length > 0 || packageDiagnostics.duplicateFields.length > 0 || packageDiagnostics.legacyFields.length > 0) && (
-            <section className="tweak-lab-package-diagnostics" aria-label="Imported package compatibility">
-              <strong>Package compatibility</strong>
-              {packageDiagnostics.requirements.includes('forceallunits') && <p><span>Manual dependency</span>Enable <b>Force-load all units</b> in the BAR lobby. The editor will not write this lobby option.</p>}
-              {packageDiagnostics.duplicateFields.map(([field, count]) => <p key={field}><span>Field repaired</span>{field} appeared {count} times. Modules will receive unique numbered slots during export.</p>)}
-              {packageDiagnostics.legacyFields.length > 0 && <p><span>Legacy fields</span>{packageDiagnostics.legacyFields.length} unnumbered field{packageDiagnostics.legacyFields.length === 1 ? '' : 's'} will be normalized into the 1–9 slot system.</p>}
-            </section>
-          )}
-        </aside>
-
-        <section className="tweak-lab-modules" aria-label="Imported tweak modules">
-          <div className="tweak-lab-section-heading"><span>Imported modules</span><strong>{modules.length}</strong></div>
+        {/* PANEL 1: NAVIGATOR (Left) */}
+        <aside className="tweak-lab-navigator" aria-label="Package Navigator">
+          <div className="tweak-lab-section-heading"><span>Modules</span><strong>{modules.length}</strong></div>
           {modules.length === 0 ? (
             <EmptyState title="No package loaded" description="Import BAR lobby commands or raw Lua to inspect how the package is structured." />
-          ) : modules.map(module => (
-            <ModuleCard
-              key={module.id}
-              module={module}
-              selected={selected?.id === module.id}
-              analysis={analyses.get(module.id)}
-              report={packageAnalysis.moduleReports.find(report => report.moduleId === module.id)}
-              onSelect={() => setSelectedId(module.id)}
-              onUpdate={patch => onUpdateModule(module.id, patch)}
-              onMove={direction => onMoveModule(module.id, direction)}
-              onRemove={() => onRemoveModule(module.id)}
-            />
-          ))}
-        </section>
+          ) : (
+            <div className="tweak-module-list" style={{ display: 'grid', gap: '8px' }}>
+              {modules.map(module => (
+                <ModuleCard
+                  key={module.id}
+                  module={module}
+                  selected={selected?.id === module.id}
+                  analysis={analyses.get(module.id)}
+                  report={packageAnalysis.moduleReports.find(report => report.moduleId === module.id)}
+                  onSelect={() => setSelectedId(module.id)}
+                  onUpdate={patch => onUpdateModule(module.id, patch)}
+                  onMove={direction => onMoveModule(module.id, direction)}
+                  onRemove={() => onRemoveModule(module.id)}
+                />
+              ))}
+            </div>
+          )}
 
-        <aside className={`tweak-lab-inspector ${inspectorFullscreen ? 'is-fullscreen' : ''}`} aria-label="Module inspection">
+          <details className="tweak-support-library" style={{ marginTop: '12px' }}>
+            <summary>
+              <span><b>Add Module / Paste</b><small>Import files or paste lobby commands</small></span>
+            </summary>
+            <div style={{ display: 'grid', gap: '8px', padding: '10px 0' }}>
+              <label className="tweak-lab-kind-select">
+                <span>Raw input type</span>
+                <select value={rawKind} onChange={event => setRawKind(event.target.value)}>
+                  <option value="defs">Definitions</option>
+                  <option value="units">Units</option>
+                </select>
+              </label>
+              <label className="tweak-lab-file-button">
+                <span>Import files</span>
+                <input type="file" accept=".txt,.lua,text/plain" multiple onChange={importFiles} />
+              </label>
+              <textarea
+                value={pasteValue}
+                onChange={event => setPasteValue(event.target.value)}
+                placeholder="Paste !bset commands or raw Lua…"
+                rows={4}
+                style={{ width: '100%', padding: '8px', fontSize: '11px', fontFamily: 'var(--font-mono)' }}
+              />
+              <Button variant="primary" size="sm" disabled={!pasteValue.trim()} onClick={() => importText(pasteValue)}>Import text</Button>
+            </div>
+          </details>
+        </aside>
+
+        {/* PANEL 2: WORKSPACE (Center) */}
+        <main className="tweak-lab-workspace" aria-label="Module Workspace">
           {!selected ? (
-            <EmptyState compact title="Select a module" description="Module analysis and safe conversions appear here." />
+            <EmptyState compact title="Select a module" description="Module workbench, source editor, and safe conversions appear here." />
           ) : (
             <>
-              <div className="tweak-lab-inspector__heading">
-                <div><Type variant="eyebrow" className="workflow-eyebrow">Module inspection</Type><Type as="h3" variant="section-title">{selected.label}</Type></div>
-                <div className="tweak-lab-inspector__actions">
-                  <select aria-label="Module loading stage" value={selected.stage} onChange={event => onUpdateModule(selected.id, { stage: event.target.value })}>
-                    <option value="before-editor">Before editor</option>
-                    <option value="after-editor">After editor</option>
-                  </select>
-                  <Button
-                    size="sm"
-                    variant={inspectorFullscreen ? 'primary' : 'secondary'}
-                    className="tweak-lab-inspector__fullscreen"
-                    aria-pressed={inspectorFullscreen}
-                    onClick={() => {
-                      setInspectorFullscreen(value => {
-                        if (!value) setInspectorView('summary');
-                        return !value;
-                      });
-                    }}
-                    title={inspectorFullscreen ? 'Restore the three-column workbench (Escape)' : 'Expand module inspection to the full viewport'}
-                  >
-                    <span aria-hidden="true">{inspectorFullscreen ? '↙' : '↗'}</span>
-                    {inspectorFullscreen ? 'Restore view' : 'Full screen'}
-                  </Button>
+              <div className="tweak-workbench-toolbar">
+                <div>
+                  <Type variant="eyebrow" className="workflow-eyebrow">{selected.kind.toUpperCase()} MODULE</Type>
+                  <Type as="h3" variant="section-title">{selected.label}</Type>
                 </div>
-              </div>
-              <label className="tweak-module-attribution">
-                <span>Attribution / source note</span>
-                <input value={selected.attribution || ''} onChange={event => onUpdateModule(selected.id, { attribution: event.target.value })} placeholder="Optional author or source" />
-              </label>
-              <nav className="tweak-lab-inspector__views" aria-label="Module inspection view">
-                <button type="button" className={inspectorView === 'summary' ? 'is-active' : ''} aria-pressed={inspectorView === 'summary'} onClick={() => setInspectorView('summary')}>
-                  <span>Summary</span><small>Structure and conversion</small>
-                </button>
-                <button type="button" className={inspectorView === 'diagnostics' ? 'is-active' : ''} aria-pressed={inspectorView === 'diagnostics'} onClick={() => setInspectorView('diagnostics')}>
-                  <span>Diagnostics</span><small>{selectedDiagnosticCount} notices</small>
-                </button>
-                <button type="button" className={inspectorView === 'source' ? 'is-active' : ''} aria-pressed={inspectorView === 'source'} onClick={() => setInspectorView('source')}>
-                  <span>Source</span><small>{selectedAnalysis.decodedBytes.toLocaleString()} bytes</small>
-                </button>
-              </nav>
-              <div className={`tweak-lab-inspector__content is-view-${inspectorView}`}>
-              <div className="tweak-analysis-metrics">
-                <div><span>Creates</span><strong>{selectedAnalysis.createdUnits.length}</strong></div>
-                <div><span>References</span><strong>{selectedAnalysis.referencedUnits.length}</strong></div>
-                <div><span>Weapons</span><strong>{selectedAnalysis.weaponChanges}</strong></div>
-                <div><span>Build menu</span><strong>{selectedAnalysis.buildMenuOperations}</strong></div>
-              </div>
-              <section className="tweak-analyzer-v2 inspector-summary-panel inspector-diagnostics-panel" aria-label="Analyzer V2 findings">
-                <div className="tweak-analysis-section__heading">
-                  <div><Type variant="eyebrow" className="workflow-eyebrow">Static structure</Type><Type as="h4" variant="subsection-title">Analyzer V2 findings</Type></div>
-                  <strong>{selectedAnalysis.findings.length}</strong>
-                </div>
-                <div className="tweak-analyzer-confidence" aria-label="Finding confidence">
-                  <span className="is-exact"><b>{selectedAnalysis.confidenceCounts.exact}</b> Exact</span>
-                  <span className="is-probable"><b>{selectedAnalysis.confidenceCounts.probable}</b> Probable</span>
-                  <span className="is-dynamic"><b>{selectedAnalysis.confidenceCounts.dynamic}</b> Dynamic</span>
-                </div>
-                {selectedAnalysis.findings.length > 0 ? (
-                  <div className="tweak-analyzer-findings">
-                    {selectedAnalysis.findings.slice(0, 12).map(finding => (
-                      <article className={`is-${finding.confidence}`} key={finding.id}>
-                        <span>{finding.confidence}</span>
-                        <div><strong>{finding.title}</strong><small>{finding.detail}</small></div>
-                        {finding.line > 0 && <code>Ln {finding.line}</code>}
-                      </article>
-                    ))}
-                    {selectedAnalysis.findings.length > 12 && <p>+{selectedAnalysis.findings.length - 12} additional structural findings</p>}
-                  </div>
-                ) : <p className="tweak-analyzer-empty">No structural operations were recognized. Review the decoded source as dynamic Lua.</p>}
-              </section>
-              {selectedDiagnosticCount === 0 && !selectedReport?.assetReferences.length && (
-                <div className="tweak-inspector-diagnostics-empty inspector-diagnostics-panel">
-                  <span aria-hidden="true">✓</span>
-                  <div><strong>Static preflight clear</strong><small>No type, runtime, dependency, or asset notices were detected for this module.</small></div>
-                </div>
-              )}
-              {selectedAnalysis.literalUnitTables > 0 && <p className="tweak-literal-summary">Literal table recognized: <strong>{selectedAnalysis.literalUnitTables}</strong> unit patches and <strong>{selectedAnalysis.literalWeaponDefinitions}</strong> WeaponDefs are available for structured conversion.</p>}
-              {selectedAnalysis.supportingWeaponDefs.length > 0 && (
-                <section className="tweak-analysis-section tweak-support-candidates inspector-summary-panel">
-                  <div className="tweak-analysis-section__heading"><h4>Project WeaponDefs</h4><Button size="sm" onClick={() => onAddSupportingWeaponDefs(selectedAnalysis.supportingWeaponDefs)}>Add all {selectedAnalysis.supportingWeaponDefs.length}</Button></div>
-                  <p>Complete literal definitions, their mount slots, and auxiliary dependencies can be preserved without enabling the source module.</p>
-                  <div>
-                    {selectedAnalysis.supportingWeaponDefs.map(definition => {
-                      const destination = `${definition.ownerUnitId}:${definition.key}`.toLowerCase();
-                      const exists = supportingDestinations.has(destination);
-                      return (
-                        <article key={definition.id}>
-                          <span><strong>{definition.key.toUpperCase()}</strong><small>{definition.ownerUnitId} · {definition.role}</small></span>
-                          <Button size="sm" disabled={exists} onClick={() => onAddSupportingWeaponDefs([definition])}>{exists ? 'In library' : 'Add'}</Button>
-                        </article>
-                      );
-                    })}
-                  </div>
-                </section>
-              )}
-              {selectedAnalysis.warnings.length > 0 && (
-                <div className="tweak-analysis-warnings inspector-diagnostics-panel">
-                  {selectedAnalysis.warnings.map(warning => <p key={`${warning.code}-${warning.message}`} className={`is-${warning.level}`}><strong>{warning.code}</strong>{warning.message}</p>)}
-                </div>
-              )}
-              {(selectedReport?.typeIssues.length > 0 || selectedReport?.runtimeRisks.length > 0) && (
-                <section className="tweak-analysis-section tweak-preflight-section inspector-diagnostics-panel">
-                  <div className="tweak-analysis-section__heading"><h4>Runtime preflight</h4><span>{selectedReport.typeIssues.length + selectedReport.runtimeRisks.length}</span></div>
-                  <p>Static checks for literal value types and table access patterns that commonly produce BAR console errors.</p>
-                  <div className="tweak-preflight-list">
-                    {selectedReport.typeIssues.map(issue => (
-                      <div key={`type-${issue.line}-${issue.field}`} className="is-warning">
-                        <b>Line {issue.line} · Type</b>
-                        <span>{issue.message}</span>
-                      </div>
-                    ))}
-                    {selectedReport.runtimeRisks.map(risk => (
-                      <div key={risk.code} className={`is-${risk.level}`}>
-                        <b>{risk.count}× · {risk.code}</b>
-                        <span>{risk.message} Lines {risk.lines.slice(0, 6).join(', ')}{risk.lines.length > 6 ? '…' : ''}</span>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-              <section className="tweak-analysis-section tweak-definitions-section inspector-summary-panel">
-                <h4>Recognized definitions</h4>
-                <p>{selectedAnalysis.createdUnits.join(', ') || 'No literal clone definitions found.'}</p>
-              </section>
-              <section className="tweak-analysis-section tweak-custom-params-section inspector-summary-panel">
-                <h4>Custom parameters</h4>
-                <p>{selectedAnalysis.customParameters.join(', ') || 'No custom parameters found.'}</p>
-                {selectedAnalysis.unknownCustomParameters.length > 0 && (
-                  <small className="tweak-custom-params-unknown">Inspection-only: {selectedAnalysis.unknownCustomParameters.join(', ')}</small>
-                )}
-              </section>
-              {selectedAnalysis.helpers.length > 0 && (
-                <section className="tweak-analysis-section tweak-helper-recipes inspector-summary-panel">
-                  <div className="tweak-analysis-section__heading"><h4>Reusable helper recipes</h4><span>{selectedAnalysis.recipes.length}</span></div>
-                  <p>Community helper functions are described statically. Computed recipe code remains raw and is never executed by the editor.</p>
-                  <div className="tweak-helper-list">
-                    {selectedAnalysis.helpers.map(helper => (
-                      <div key={helper.name}>
-                        <code>{helper.name}(...)</code>
-                        <span>{helper.mode === 'clone-factory' ? 'Clone factory' : 'Definition factory'} · {helper.callCount} literal call{helper.callCount === 1 ? '' : 's'}</span>
-                        <small>{[helper.computed && 'computed logic', helper.touchesWeapons && 'weapon changes', helper.touchesAssets && 'asset changes'].filter(Boolean).join(' · ') || 'literal structure'}</small>
-                      </div>
-                    ))}
-                  </div>
-                  {selectedAnalysis.recipes.length > 0 && (
-                    <div className="tweak-recipe-calls" aria-label="Recognized helper recipe calls">
-                      {selectedAnalysis.recipes.slice(0, 12).map((recipe, index) => (
-                        <div key={`${recipe.helperName}-${recipe.newId}-${index}`}>
-                          <code>{recipe.newId}</code>
-                          <span>{recipe.sourceId ? `from ${recipe.sourceId}` : recipe.mode}</span>
-                          <small>{recipe.helperName}{recipe.displayName ? ` · ${recipe.displayName}` : ''}</small>
-                        </div>
-                      ))}
-                      {selectedAnalysis.recipes.length > 12 && <p>+{selectedAnalysis.recipes.length - 12} additional recipe calls</p>}
-                    </div>
-                  )}
-                </section>
-              )}
-              {selectedReport && (
-                <section className="tweak-analysis-section tweak-module-relationships inspector-summary-panel inspector-diagnostics-panel">
-                  <div className="tweak-analysis-section__heading"><h4>Module relationships</h4><span>{selectedReport.dependencies.length}</span></div>
-                  {selectedReport.dependencies.map(edge => <p key={`dependency-${edge.to}`}><b>Needs</b>{moduleLabel(edge.to)} <code>{edge.unitIds.join(', ')}</code></p>)}
-                  {selectedReport.dependents.map(edge => <p key={`dependent-${edge.from}`}><b>Used by</b>{moduleLabel(edge.from)} <code>{edge.unitIds.join(', ')}</code></p>)}
-                  {selectedReport.unresolved.slice(0, 8).map(item => <p key={`unresolved-${item.unitId}`} className="is-unresolved"><b>External or missing</b><code>{item.unitId}{item.line ? ` · line ${item.line}` : ''}</code></p>)}
-                  {!selectedReport.dependencies.length && !selectedReport.dependents.length && !selectedReport.unresolved.length && <p className="is-empty">No cross-module unit dependencies detected.</p>}
-                </section>
-              )}
-              {selectedReport?.assetReferences.length > 0 && (
-                <section className="tweak-analysis-section tweak-assets-section inspector-diagnostics-panel">
-                  <div className="tweak-analysis-section__heading"><h4>External asset references</h4><span>{selectedReport.assetReferences.length}</span></div>
-                  <p>BAR assets may be reused by lobby tweaks, but imported paths remain unverified until checked against the matching game version.</p>
-                  <div className="tweak-asset-list">
-                    {selectedReport.assetReferences.slice(0, 12).map((reference, index) => (
-                      <div key={`${reference.line}-${reference.field}-${reference.value}-${index}`}>
-                        <span>{reference.kind} · line {reference.line}</span><code>{reference.value}</code>
-                      </div>
-                    ))}
-                    {selectedReport.assetReferences.length > 12 && <small>+{selectedReport.assetReferences.length - 12} more references</small>}
-                  </div>
-                </section>
-              )}
-              <section className="tweak-analysis-section tweak-conversions-section inspector-summary-panel">
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <Button
-                    disabled={selected.enabled || selected.converted || selectedAnalysis.conversions.length === 0 || Boolean(selectedAnalysis.parseError)}
-                    onClick={() => onApplyConversions(selected, selectedAnalysis.conversions)}
-                  >{selected.converted ? 'Converted' : 'Apply recognized changes'}</Button>
+                <div style={{ display: 'flex', gap: '8px' }}>
                   <Button
                     variant="secondary"
+                    size="sm"
                     onClick={() => {
                       if (!selected?.rawLua) return;
                       const { sanitizedSource, issuesFixed } = repairAndSanitizeTweakPackage(selected.rawLua);
                       if (issuesFixed === 0) {
-                        onToast?.('Module is already clean! No inline comments or malformed string booleans found.');
+                        onToast?.('Module is clean! No syntax typos or inline comments found.');
                         return;
                       }
                       onUpdateModule(selected.id, { rawLua: sanitizedSource });
-                      onToast?.(`Auto-sanitized & repaired ${issuesFixed} issue${issuesFixed === 1 ? '' : 's'} (stripped comments, normalized string booleans, cleaned empty slots).`);
+                      onToast?.(`Auto-sanitized & repaired ${issuesFixed} issue${issuesFixed === 1 ? '' : 's'}.`);
                     }}
                   >Auto-Sanitize & Repair</Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    disabled={selected.enabled || selected.converted || !selectedAnalysis || selectedAnalysis.conversions.length === 0 || Boolean(selectedAnalysis.parseError)}
+                    onClick={() => onApplyConversions(selected, selectedAnalysis.conversions)}
+                  >{selected.converted ? 'Converted' : 'Apply recognized changes'}</Button>
                 </div>
-              </section>
-              <details className="tweak-source-preview inspector-source-panel" open={inspectorFullscreen && inspectorView === 'source' ? true : undefined}>
-                <summary>Decoded Lua source</summary>
-                <pre>{selected.rawLua}</pre>
-              </details>
               </div>
+
+              {/* TAB BAR */}
+              <nav className="tweak-workbench-tabs">
+                <button
+                  type="button"
+                  className={`tweak-workbench-tab ${workspaceTab === 'source' ? 'is-active' : ''}`}
+                  onClick={() => setWorkspaceTab('source')}
+                >Source & Repair</button>
+                <button
+                  type="button"
+                  className={`tweak-workbench-tab ${workspaceTab === 'units' ? 'is-active' : ''}`}
+                  onClick={() => setWorkspaceTab('units')}
+                >Recognized Units ({selectedAnalysis?.createdUnits.length || 0})</button>
+                <button
+                  type="button"
+                  className={`tweak-workbench-tab ${workspaceTab === 'support' ? 'is-active' : ''}`}
+                  onClick={() => setWorkspaceTab('support')}
+                >Supporting WeaponDefs ({selectedAnalysis?.supportingWeaponDefs.length || 0})</button>
+                <button
+                  type="button"
+                  className={`tweak-workbench-tab ${workspaceTab === 'helpers' ? 'is-active' : ''}`}
+                  onClick={() => setWorkspaceTab('helpers')}
+                >Helper Recipes ({selectedAnalysis?.recipes.length || 0})</button>
+              </nav>
+
+              {/* TAB CONTENTS */}
+              {workspaceTab === 'source' && (
+                <div style={{ display: 'grid', gap: '8px', height: '100%' }}>
+                  <textarea
+                    value={selected.rawLua}
+                    onChange={event => onUpdateModule(selected.id, { rawLua: event.target.value })}
+                    spellCheck="false"
+                    style={{
+                      width: '100%', minHeight: '380px', padding: '12px',
+                      background: 'var(--color-code-canvas)', color: 'var(--color-text-on-dark)',
+                      fontFamily: 'var(--font-mono)', fontSize: '11px', lineHeight: '1.5', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)'
+                    }}
+                  />
+                </div>
+              )}
+
+              {workspaceTab === 'units' && (
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  <div className="tweak-analysis-metrics">
+                    <div><span>Creates</span><strong>{selectedAnalysis?.createdUnits.length || 0}</strong></div>
+                    <div><span>References</span><strong>{selectedAnalysis?.referencedUnits.length || 0}</strong></div>
+                    <div><span>Weapons</span><strong>{selectedAnalysis?.weaponChanges || 0}</strong></div>
+                    <div><span>Build menu</span><strong>{selectedAnalysis?.buildMenuOperations || 0}</strong></div>
+                  </div>
+                  <section className="tweak-analysis-section">
+                    <h4>Recognized unit definitions</h4>
+                    <p>{selectedAnalysis?.createdUnits.join(', ') || 'No literal clone or unit definitions found.'}</p>
+                  </section>
+                </div>
+              )}
+
+              {workspaceTab === 'support' && (
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  <div className="tweak-support-create">
+                    <div><b>Create auxiliary WeaponDef</b><small>Start with a safe literal definition.</small></div>
+                    <label><span>Owner UnitDef</span><input value={newSupportOwner} onChange={event => setNewSupportOwner(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="armflea" /></label>
+                    <label><span>WeaponDef key</span><input value={newSupportKey} onChange={event => setNewSupportKey(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="cluster_child" /></label>
+                    <Button size="sm" disabled={!newSupportOwner || !newSupportKey || supportingDestinations.has(`${newSupportOwner}:${newSupportKey}`)} onClick={createSupportingWeaponDef}>Create</Button>
+                  </div>
+                  {supportingWeaponDefs.map(definition => (
+                    <SupportingWeaponDefCard
+                      key={definition.id}
+                      definition={definition}
+                      onUpdate={onUpdateSupportingWeaponDef}
+                      onRemove={onRemoveSupportingWeaponDef}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {workspaceTab === 'helpers' && (
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  {selectedAnalysis?.helpers.length > 0 ? (
+                    <div className="tweak-helper-list">
+                      {selectedAnalysis.helpers.map(helper => (
+                        <div key={helper.name}>
+                          <code>{helper.name}(...)</code>
+                          <span>{helper.mode} · {helper.callCount} calls</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : <p>No community helper functions recognized in this module.</p>}
+                </div>
+              )}
             </>
+          )}
+        </main>
+
+        {/* PANEL 3: PREFLIGHT INSPECTOR (Right) */}
+        <aside className="tweak-lab-inspector" aria-label="Preflight Inspector">
+          <div className="tweak-lab-section-heading"><span>Preflight Inspector</span></div>
+          {packageAnalysis.blockingIssues.length > 0 ? (
+            <div className="tweak-inspector-diagnostics-empty" style={{ borderColor: 'var(--color-danger)' }}>
+              <span style={{ color: 'var(--color-danger)' }}>✕</span>
+              <div><strong>{packageAnalysis.blockingIssues.length} Blocker Issue(s)</strong><small>Syntax or load-order conflicts need repair before game launch.</small></div>
+            </div>
+          ) : (
+            <div className="tweak-inspector-diagnostics-empty">
+              <span aria-hidden="true">✓</span>
+              <div><strong>Preflight clear</strong><small>No syntax or blocking dependency issues detected.</small></div>
+            </div>
+          )}
+
+          {selectedAnalysis?.findings.length > 0 && (
+            <section className="tweak-analyzer-v2">
+              <h4>Analyzer Findings ({selectedAnalysis.findings.length})</h4>
+              <div className="tweak-analyzer-findings">
+                {selectedAnalysis.findings.slice(0, 8).map(finding => (
+                  <article className={`is-${finding.confidence}`} key={finding.id}>
+                    <span>{finding.confidence}</span>
+                    <div><strong>{finding.title}</strong><small>{finding.detail}</small></div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {packageAnalysis.typeIssues.length > 0 && (
+            <section className="tweak-analysis-section">
+              <h4>Type Warnings ({packageAnalysis.typeIssues.length})</h4>
+              {packageAnalysis.typeIssues.slice(0, 4).map(issue => (
+                <p key={`type-${issue.moduleId}-${issue.line}-${issue.field}`} style={{ fontSize: '10px' }}>
+                  Line {issue.line}: {issue.field} expects {issue.expectedType}.
+                </p>
+              ))}
+            </section>
           )}
         </aside>
       </div>
