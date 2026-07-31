@@ -401,10 +401,10 @@ export default function TweakPackageLabPage({
         </section>
       )}
 
-      {/* PACKAGE ARCHITECTURE & DEPENDENCY AUDIT BANNER */}
+      {/* PACKAGE ARCHITECTURE & DEPENDENCY AUDIT ACCORDION */}
       {modules.length > 0 && (
-        <section className="tweak-package-audit" aria-label="Package dependency audit">
-          <div className="tweak-package-audit__heading">
+        <details className="tweak-package-audit" aria-label="Package dependency audit">
+          <summary className="tweak-package-audit__heading">
             <div><Type variant="eyebrow" className="workflow-eyebrow">Package architecture</Type><Type as="h3" variant="section-title">Dependencies and reusable recipes</Type></div>
             <div className="tweak-package-audit__actions">
               <span className={packageAnalysis.blockingIssues.length ? 'is-error' : ''}>
@@ -421,8 +421,8 @@ export default function TweakPackageLabPage({
                 >Apply safe order</Button>
               )}
             </div>
-          </div>
-          <div className="tweak-package-audit__metrics">
+          </summary>
+          <div className="tweak-package-audit__metrics" style={{ marginTop: '12px' }}>
             <div><span>Modules</span><strong>{modules.length}</strong></div>
             <div><span>Exact findings</span><strong>{packageAnalysis.confidenceCounts.exact}</strong></div>
             <div><span>Probable</span><strong>{packageAnalysis.confidenceCounts.probable}</strong></div>
@@ -435,7 +435,7 @@ export default function TweakPackageLabPage({
             <div><span>Unknown params</span><strong>{packageAnalysis.unknownCustomParameters.length}</strong></div>
           </div>
           {(packageAnalysis.unresolved.length > 0 || packageAnalysis.collisions.length > 0 || packageAnalysis.orderingIssues.length > 0 || packageAnalysis.cycles.length > 0 || packageAnalysis.typeIssues.length > 0) && (
-            <div className="tweak-package-audit__issues">
+            <div className="tweak-package-audit__issues" style={{ marginTop: '8px' }}>
               {packageAnalysis.unresolved.slice(0, 4).map(item => <p key={`unresolved-${item.moduleId}-${item.unitId}`}><b>External ID</b>{moduleLabel(item.moduleId)} references <code>{item.unitId}</code>{item.line ? ` near line ${item.line}` : ''}. Confirm the required BAR unit pack or provider module.</p>)}
               {packageAnalysis.collisions.slice(0, 4).map(item => <p key={`collision-${item.unitId}`}><b>Collision</b><code>{item.unitId}</code> is created by {item.moduleIds.map(moduleLabel).join(' and ')}.</p>)}
               {packageAnalysis.orderingIssues.slice(0, 4).map(edge => <p key={`order-${edge.from}-${edge.to}`}><b>Load order</b>{moduleLabel(edge.from)} needs {moduleLabel(edge.to)} first for <code>{edge.unitIds.join(', ')}</code>.</p>)}
@@ -444,11 +444,11 @@ export default function TweakPackageLabPage({
               {packageAnalysis.cycles.slice(0, 2).map(cycle => <p key={`cycle-${cycle.join('-')}`}><b>Dependency cycle</b>{cycle.map(moduleLabel).join(' → ')}.</p>)}
             </div>
           )}
-        </section>
+        </details>
       )}
 
       {/* SUPPORTING WEAPONDEF LIBRARY ACCORDION */}
-      <details className="tweak-support-library" open={supportingWeaponDefs.length > 0}>
+      <details className="tweak-support-library">
         <summary>
           <span><b>Supporting WeaponDef library</b><small>Auxiliary, cluster-child, and unmounted definitions compiled into their owning UnitDefs.</small></span>
           <strong>{supportingWeaponDefs.length}</strong>

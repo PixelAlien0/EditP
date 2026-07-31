@@ -232,7 +232,10 @@
   background: var(--color-surface-raised);
 }
 
-.tweak-package-audit { flex: 0 0 auto; padding: var(--space-3) var(--space-5); display: grid; grid-template-columns: minmax(240px, .72fr) minmax(480px, 1.8fr); gap: var(--space-3) var(--space-5); border-bottom: 1px solid var(--color-border-subtle); background: var(--color-surface-muted); }
+.tweak-package-audit { flex: 0 0 auto; border-bottom: 1px solid var(--color-border-subtle); background: var(--color-surface-muted); }
+.tweak-package-audit > summary { padding: 8px var(--space-5); cursor: pointer; list-style: none; }
+.tweak-package-audit > summary::-webkit-details-marker { display: none; }
+.tweak-package-audit[open] { padding-bottom: var(--space-3); }
 .tweak-package-audit__heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .tweak-package-audit__heading h3 { margin: 2px 0 0; font: 600 var(--font-size-md)/1.15 var(--font-display); }
 .tweak-package-audit__actions { display: flex; align-items: center; gap: var(--space-2); }
