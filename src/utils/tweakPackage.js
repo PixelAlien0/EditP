@@ -1523,11 +1523,26 @@ export function repairAndSanitizeTweakPackage(sourceText) {
     issuesFixed += commentMatches;
   }
 
-  // 2. Normalize string booleans ("true" -> true, "false" -> false)
+  // 2. Normalize string booleans ("true" -> true, "false" -> false) and numeric booleans (0 -> false, 1 -> true)
   const boolMatches = (text.match(/=\s*"(true|false)"/gi) || []).length;
   if (boolMatches > 0) {
     text = text.replace(/=\s*"(true|false)"/gi, '= $1');
     issuesFixed += boolMatches;
+  }
+  const weaponBoolFields = ['collidefriendly', 'collidefeature', 'avoidfeature', 'avoidfriendly', 'impactonly', 'noselfdamage', 'turret', 'tracks'];
+  for (const field of weaponBoolFields) {
+    const falsePattern = new RegExp(`\\b${field}\\s*=\\s*0\\b`, 'gi');
+    const truePattern = new RegExp(`\\b${field}\\s*=\\s*1\\b`, 'gi');
+    const falseMatches = (text.match(falsePattern) || []).length;
+    const trueMatches = (text.match(truePattern) || []).length;
+    if (falseMatches > 0) {
+      text = text.replace(falsePattern, `${field} = false`);
+      issuesFixed += falseMatches;
+    }
+    if (trueMatches > 0) {
+      text = text.replace(truePattern, `${field} = true`);
+      issuesFixed += trueMatches;
+    }
   }
 
   // 3. Remove empty buildoptions array slots ([X] = "")
