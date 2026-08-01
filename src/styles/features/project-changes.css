@@ -133,11 +133,18 @@
 .export-flags > div {
   justify-content: space-between;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .expert-toggle-row .ui-switch,
 .export-flags .ui-switch {
   flex: 0 0 var(--control-target-min);
+}
+
+.expert-toggle-row > span:first-child,
+.export-flags > div > span:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .code-scroll-area {
@@ -439,18 +446,6 @@
 
 .expert-toggle-row + .expert-toggle-row {
   border-top: 1px solid var(--color-border-subtle);
-}
-
-.expert-toggle-row input[type="checkbox"] {
-  width: 34px;
-  height: 19px;
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface-muted);
-}
-
-.expert-toggle-row input[type="checkbox"]:checked {
-  border-color: var(--sakura);
-  background: var(--sakura);
 }
 
 .compiled-output-section {

@@ -18,6 +18,7 @@ export const Switch = forwardRef(function Switch({
       <input
         ref={ref}
         id={inputId}
+        className="ui-switch-input"
         type="checkbox"
         role="switch"
         checked={checked}

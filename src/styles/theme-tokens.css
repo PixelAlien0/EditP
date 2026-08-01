@@ -88,6 +88,10 @@
   --control-height-md: 38px;
   --control-height-lg: 44px;
   --control-target-min: 32px;
+  --control-switch-track-width: 30px;
+  --control-switch-track-height: 18px;
+  --control-switch-thumb-size: 12px;
+  --control-switch-travel: 12px;
   --icon-size-sm: 16px;
   --icon-size-md: 20px;
   --icon-size-xs: 12px;

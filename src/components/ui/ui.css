@@ -55,7 +55,7 @@
 .ui-icon-button:focus-visible,
 .ui-tab:focus-visible,
 .ui-control:focus-visible,
-.ui-switch input:focus-visible + .ui-switch-track {
+.ui-switch-input:focus-visible + .ui-switch-track {
   outline: 2px solid var(--color-accent-strong) !important;
   outline-offset: 2px !important;
   box-shadow: var(--shadow-focus) !important;
@@ -90,10 +90,10 @@
   cursor: pointer;
 }
 
-.ui-switch input { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+.ui-switch-input { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
 .ui-switch-track {
-  width: 32px;
-  height: 18px;
+  width: var(--control-switch-track-width);
+  height: var(--control-switch-track-height);
   padding: 2px;
   display: flex;
   align-items: center;
@@ -103,11 +103,11 @@
   background: var(--color-surface-muted);
   transition: background-color var(--motion-fast), border-color var(--motion-fast);
 }
-.ui-switch-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--color-text-muted); transition: transform var(--motion-fast), background-color var(--motion-fast); }
-.ui-switch input:checked + .ui-switch-track { border-color: var(--color-accent-strong); background: var(--color-accent-soft); }
-.ui-switch input:checked + .ui-switch-track .ui-switch-thumb { transform: translateX(14px); background: var(--color-accent-strong); }
+.ui-switch-thumb { width: var(--control-switch-thumb-size); height: var(--control-switch-thumb-size); border-radius: 50%; background: var(--color-text-muted); transition: transform var(--motion-fast), background-color var(--motion-fast); }
+.ui-switch-input:checked + .ui-switch-track { border-color: var(--color-accent-strong); background: var(--color-accent-soft); }
+.ui-switch-input:checked + .ui-switch-track .ui-switch-thumb { transform: translateX(var(--control-switch-travel)); background: var(--color-accent-strong); }
 .ui-switch.is-disabled { opacity: .5; cursor: not-allowed; }
-.ui-switch-field { width: 100%; padding: var(--space-2) 0; justify-content: flex-start; }
+.ui-switch-field { width: 100%; padding: var(--space-2) 0; flex: 1 1 auto; justify-content: flex-start; }
 .ui-switch-field__copy { min-width: 0; display: flex; flex-direction: column; gap: 2px; order: -1; flex: 1; }
 .ui-switch-field__copy strong { color: var(--color-text-strong); font-size: var(--font-size-xs); font-weight: 700; }
 .ui-switch-field__copy small { color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: var(--line-height-ui); }
@@ -437,7 +437,7 @@
   border-radius: 50%;
   animation: ui-spin 0.6s linear infinite;
 }
-input[type="checkbox"] {
+input[type="checkbox"]:not(.ui-switch-input) {
   flex: 0 0 auto;
   transition: background 0.2s ease, border-color 0.2s ease;
   outline: none;
@@ -493,7 +493,7 @@ input[type="checkbox"] {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
-input[type="checkbox"] {
+input[type="checkbox"]:not(.ui-switch-input) {
   position: relative;
   width: 34px;
   height: 20px;
@@ -505,7 +505,7 @@ input[type="checkbox"] {
   appearance: none;
   cursor: pointer;
 }
-input[type="checkbox"]::after {
+input[type="checkbox"]:not(.ui-switch-input)::after {
   content: "";
   position: absolute;
   top: 3px;
@@ -517,16 +517,16 @@ input[type="checkbox"]::after {
   box-shadow: var(--shadow-selection);
   transition: left var(--motion-fast);
 }
-input[type="checkbox"]:checked {
+input[type="checkbox"]:not(.ui-switch-input):checked {
   border-color: var(--color-accent);
   background: var(--color-accent);
 }
-input[type="checkbox"]:checked::after {
+input[type="checkbox"]:not(.ui-switch-input):checked::after {
   left: 17px;
   background: var(--color-text-inverse);
 }
 button:focus-visible,
-input:focus-visible,
+input:not(.ui-switch-input):focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 [role="button"]:focus-visible {
