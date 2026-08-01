@@ -530,15 +530,26 @@ export default function TweakPackageLabPage({
           ) : (
             <>
               <div className="tweak-workbench-toolbar">
-                <div>
+                <div className="tweak-workbench-identity">
                   <Type variant="eyebrow" className="workflow-eyebrow">{selected.kind.toUpperCase()} MODULE</Type>
                   <Type as="h3" variant="section-title">{selected.label}</Type>
+                  <small>{selectedAnalysis?.decodedBytes.toLocaleString() || 0} decoded bytes · {selectedAnalysis?.conversions.length || 0} safe conversions</small>
                 </div>
-                <div className="tweak-workbench-actions">
+                <label className="tweak-workbench-stage">
+                  <span>Load order</span>
                   <select aria-label="Module loading stage" value={selected.stage} onChange={event => onUpdateModule(selected.id, { stage: event.target.value })} className="tweak-workbench-stage-select">
                     <option value="before-editor">Before editor</option>
                     <option value="after-editor">After editor</option>
                   </select>
+                </label>
+              </div>
+
+              <div className="tweak-workbench-command-row">
+                <label className="tweak-workbench-attribution">
+                  <span>Attribution / source note</span>
+                  <input value={selected.attribution || ''} onChange={event => onUpdateModule(selected.id, { attribution: event.target.value })} placeholder="Optional author or source note" />
+                </label>
+                <div className="tweak-workbench-actions">
                   <Button
                     variant="secondary"
                     size="sm"
@@ -562,49 +573,57 @@ export default function TweakPackageLabPage({
                 </div>
               </div>
 
-              <label className="tweak-workbench-attribution">
-                <span>Attribution / source note</span>
-                <input value={selected.attribution || ''} onChange={event => onUpdateModule(selected.id, { attribution: event.target.value })} placeholder="Optional author or source note" />
-              </label>
-
               {/* TAB BAR */}
-              <nav className="tweak-workbench-tabs">
+              <nav className="tweak-workbench-tabs" role="tablist" aria-label="Module workspace views">
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={workspaceTab === 'source'}
+                  aria-controls="tweak-workbench-panel-source"
                   className={`tweak-workbench-tab ${workspaceTab === 'source' ? 'is-active' : ''}`}
                   onClick={() => setWorkspaceTab('source')}
-                >Source & Repair</button>
+                ><span>Source</span><small>Lua</small></button>
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={workspaceTab === 'units'}
+                  aria-controls="tweak-workbench-panel-units"
                   className={`tweak-workbench-tab ${workspaceTab === 'units' ? 'is-active' : ''}`}
                   onClick={() => setWorkspaceTab('units')}
-                >Recognized Units ({selectedAnalysis?.createdUnits.length || 0})</button>
+                ><span>Units</span><small>{selectedAnalysis?.createdUnits.length || 0}</small></button>
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={workspaceTab === 'support'}
+                  aria-controls="tweak-workbench-panel-support"
                   className={`tweak-workbench-tab ${workspaceTab === 'support' ? 'is-active' : ''}`}
                   onClick={() => setWorkspaceTab('support')}
-                >Supporting WeaponDefs ({selectedAnalysis?.supportingWeaponDefs.length || 0})</button>
+                ><span>WeaponDefs</span><small>{selectedAnalysis?.supportingWeaponDefs.length || 0}</small></button>
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={workspaceTab === 'helpers'}
+                  aria-controls="tweak-workbench-panel-helpers"
                   className={`tweak-workbench-tab ${workspaceTab === 'helpers' ? 'is-active' : ''}`}
                   onClick={() => setWorkspaceTab('helpers')}
-                >Helper Recipes ({selectedAnalysis?.recipes.length || 0})</button>
+                ><span>Recipes</span><small>{selectedAnalysis?.recipes.length || 0}</small></button>
               </nav>
 
               {/* TAB CONTENTS */}
               {workspaceTab === 'source' && (
-                <div className="tweak-workbench-tab-content">
+                <div className="tweak-workbench-tab-content is-source" id="tweak-workbench-panel-source" role="tabpanel">
                   <textarea
                     value={selected.rawLua}
                     onChange={event => onUpdateModule(selected.id, { rawLua: event.target.value })}
                     spellCheck="false"
+                    aria-label={`Lua source for ${selected.label}`}
                     className="tweak-workbench-editor"
                   />
                 </div>
               )}
 
               {workspaceTab === 'units' && (
-                <div className="tweak-workbench-tab-content">
+                <div className="tweak-workbench-tab-content" id="tweak-workbench-panel-units" role="tabpanel">
                   <div className="tweak-analysis-metrics">
                     <div><span>Creates</span><strong>{selectedAnalysis?.createdUnits.length || 0}</strong></div>
                     <div><span>References</span><strong>{selectedAnalysis?.referencedUnits.length || 0}</strong></div>
@@ -626,7 +645,7 @@ export default function TweakPackageLabPage({
               )}
 
               {workspaceTab === 'support' && (
-                <div className="tweak-workbench-tab-content">
+                <div className="tweak-workbench-tab-content" id="tweak-workbench-panel-support" role="tabpanel">
                   {selectedAnalysis?.supportingWeaponDefs.length > 0 && (
                     <section className="tweak-analysis-section tweak-support-candidates">
                       <div className="tweak-analysis-section__heading">
@@ -663,7 +682,7 @@ export default function TweakPackageLabPage({
               )}
 
               {workspaceTab === 'helpers' && (
-                <div className="tweak-helper-panel">
+                <div className="tweak-workbench-tab-content tweak-helper-panel" id="tweak-workbench-panel-helpers" role="tabpanel">
                   {selectedAnalysis?.helpers.length > 0 ? (
                     <div className="tweak-helper-list">
                       {selectedAnalysis.helpers.map(helper => (
