@@ -45,10 +45,10 @@ function fieldLabel(key) {
 }
 
 function resultStatus(contract, problems) {
-  if (problems.some(problem => problem.kind === 'conflict')) return 'conflicting';
-  if (problems.some(problem => problem.kind === 'missing')) return 'incomplete';
+  const blockingProblems = problems.filter(problem => problem.level === 'error');
+  if (blockingProblems.some(problem => problem.kind === 'conflict')) return 'conflicting';
+  if (blockingProblems.some(problem => problem.kind === 'missing' || problem.kind === 'invalid')) return 'incomplete';
   if (problems.some(problem => problem.kind === 'unknown')) return 'unknown';
-  if (problems.length > 0) return 'incomplete';
   return contract.maturity === 'experimental' ? 'experimental' : 'ready';
 }
 
@@ -108,12 +108,6 @@ function validateExplosionSpawner(values, context, problems) {
       message: 'Multiple spawned UnitDefs require a selection mode: random, random_locked, or sequential.',
     });
   }
-  if (hasValue(values.carried_unit)) {
-    problems.push({
-      kind: 'conflict', level: 'error', key: 'spawns_name',
-      message: 'Explosion spawning and carrier spawning are configured on the same weapon. Use separate weapon slots.',
-    });
-  }
 }
 
 function validateCarrier(values, context, problems) {
@@ -121,8 +115,8 @@ function validateCarrier(values, context, problems) {
   const carriedUnits = valueList(values.carried_unit);
   if (hasValue(values.spawns_name)) {
     problems.push({
-      kind: 'conflict', level: 'error', key: 'carried_unit',
-      message: 'Carrier spawning and explosion spawning are configured on the same weapon. Use separate weapon slots.',
+      kind: 'advisory', level: 'warning', key: 'carried_unit',
+      message: 'Carrier and explosion spawning share this weapon slot. BAR can run both contracts, but verify the combined lifecycle in-game.',
     });
   }
   const missingRecommended = context.contract.recommendedKeys.filter(key => !hasValue(values[key]));
@@ -167,21 +161,9 @@ function validateCluster(values, context, problems) {
   }
 }
 
-function validateSectorFire(values, _context, problems) {
+function validateSectorFire(values) {
   const mode = cleanId(values.speceffect);
-  const hasSectorParameters = hasValue(values.spread_angle) || hasValue(values.max_range_reduction);
-  if (hasSectorParameters && mode !== 'sector_fire') {
-    problems.push({
-      kind: 'conflict', level: 'error', key: 'speceffect',
-      message: 'Sector angle or depth is set, but Behavior Mode is not sector_fire.',
-    });
-  }
-  if (mode && mode !== 'sector_fire') {
-    problems.push({
-      kind: 'conflict', level: 'error', key: 'speceffect',
-      message: `This registry entry only validates sector_fire, not "${values.speceffect}".`,
-    });
-  }
+  if (mode !== 'sector_fire') return;
 }
 
 function validateInterception(values, _context, problems) {
@@ -255,9 +237,12 @@ function effectiveWeaponValues(contract, slotNumber, defaults, patch) {
 }
 
 function contractIsActive(contract, values, patch, slotNumber = null) {
-  return contract.triggerKeys.some(key => {
+  return (contract.activationKeys || contract.triggerKeys).some(key => {
     const patchKey = slotNumber === null ? key : `weapon_slot_${slotNumber}_${key}`;
-    return Object.prototype.hasOwnProperty.call(patch, patchKey) || hasActiveValue(values[key]);
+    const value = Object.prototype.hasOwnProperty.call(patch, patchKey)
+      ? patch[patchKey]
+      : values[key];
+    return hasActiveValue(value);
   });
 }
 
@@ -294,9 +279,11 @@ export function evaluateGadgetContracts({
     WEAPON_CONTRACTS.forEach(contract => {
       const values = effectiveWeaponValues(contract, slotNumber, defaults, patch);
       if (contract.id === 'sector-fire') {
-        const active = cleanId(values.speceffect) === 'sector_fire'
-          || hasValue(values.spread_angle)
-          || hasValue(values.max_range_reduction);
+        // spread_angle and max_range_reduction are not unique activation
+        // markers. Ordinary weapons and copied WeaponDefs can carry them while
+        // using a different special behavior. BAR only enters this gadget's
+        // sector path when speceffect explicitly selects sector_fire.
+        const active = cleanId(values.speceffect) === 'sector_fire';
         if (!active) return;
       } else if (!contractIsActive(contract, values, patch, slotNumber)) return;
       const problems = [];

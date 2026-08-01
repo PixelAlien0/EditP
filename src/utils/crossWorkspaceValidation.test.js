@@ -41,6 +41,16 @@ describe('cross-workspace project validation', () => {
     ]));
   });
 
+  it('does not require spawned helper clones to have a production path', () => {
+    const result = validate({
+      clones: [{ baseId: 'armflash', newId: 'flash_shell', displayName: 'Flash Shell', builderIds: [] }],
+      tweaks: {
+        armflash: { weapon_slot_1_spawns_name: 'flash_shell' },
+      },
+    });
+    expect(result.some(entry => entry.id === 'cross-workspace-clone-flash_shell-unassigned')).toBe(false);
+  });
+
   it('detects stale Build Menu references and contradictory operations', () => {
     const result = validate({
       buildMenuSteps: [{

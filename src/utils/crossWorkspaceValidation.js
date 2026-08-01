@@ -149,6 +149,16 @@ export function buildCrossWorkspaceValidation({
   const cloneMap = new Map(clones.map(clone => [cleanId(clone.newId), clone]));
   const disabledIds = new Set(disabledUnitIds.map(cleanId));
   const rosterBuildersByUnit = new Map();
+  const spawnedUnitIds = new Set();
+
+  Object.values(tweaks || {}).forEach(patch => {
+    Object.entries(patch || {}).forEach(([key, value]) => {
+      if (key === 'customparams.carried_unit'
+        || /^weapon_slot_\d+_(?:spawns_name|carried_unit)$/.test(key)) {
+        idList(value).forEach(unitId => spawnedUnitIds.add(unitId));
+      }
+    });
+  });
 
   buildMenuSteps.forEach(step => {
     const builderId = cleanId(step.builderId);
@@ -171,7 +181,9 @@ export function buildCrossWorkspaceValidation({
         action: { type: 'unit', unitId: cloneId, label: 'Open clone' },
       }));
     }
-    if (declaredBuilders.length === 0 && rosterBuilders.length === 0) {
+    if (declaredBuilders.length === 0
+      && rosterBuilders.length === 0
+      && !spawnedUnitIds.has(cloneId)) {
       issues.push(issue({
         id: `clone-${cloneId}-unassigned`, unitId: cloneId, unitName: cloneName,
         key: 'builder_assignments', title: `${cloneName} · no production path`,

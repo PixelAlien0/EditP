@@ -28,7 +28,7 @@ describe('BAR gadget contract validation', () => {
   it('detects an incomplete multiple-unit explosion spawner', () => {
     const [result] = evaluate({ slot: { spawns_name: 'armflea armfav' } });
     expect(result.contractId).toBe('explosion-spawner');
-    expect(result.status).toBe('incomplete');
+    expect(result.status).toBe('ready');
     expect(result.problems).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'spawns_mode', level: 'warning' }),
     ]));
@@ -57,16 +57,59 @@ describe('BAR gadget contract validation', () => {
     ]));
   });
 
-  it('detects both valid and conflicting sector-fire setups', () => {
+  it('detects sector fire only when the BAR behavior mode activates it', () => {
     const valid = evaluate({
       slot: { speceffect: 'sector_fire', spread_angle: 20, max_range_reduction: 0.5 },
     }).find(result => result.contractId === 'sector-fire');
     expect(valid.status).toBe('ready');
 
-    const conflicting = evaluate({
+    const ordinary = evaluate({
       slot: { speceffect: 'cruise', spread_angle: 20, max_range_reduction: 0.5 },
     }).find(result => result.contractId === 'sector-fire');
-    expect(conflicting.status).toBe('conflicting');
+    expect(ordinary).toBeUndefined();
+  });
+
+  it('does not activate contracts from empty or disabled copied fields', () => {
+    const results = evaluate({
+      patch: {
+        weapon_slot_1_spawns_name: '',
+        weapon_slot_1_carried_unit: false,
+        weapon_slot_1_interceptor: 0,
+      },
+    });
+    expect(results).toHaveLength(0);
+  });
+
+  it('does not infer a spawner contract from optional tuning fields alone', () => {
+    const results = evaluate({
+      slot: {
+        spawns_surface: 'LAND',
+        spawnrate: 5,
+        maxunits: 4,
+        controlradius: 900,
+      },
+    });
+    expect(results.some(result => result.contractId === 'explosion-spawner')).toBe(false);
+    expect(results.some(result => result.contractId === 'carrier-spawner')).toBe(false);
+  });
+
+  it('keeps a combined carrier and explosion slot exportable with an advisory', () => {
+    const results = evaluate({
+      slot: {
+        spawns_name: 'armflea',
+        carried_unit: 'armfav',
+        spawnrate: 5,
+        maxunits: 4,
+        controlradius: 900,
+      },
+    });
+    const carrier = results.find(result => result.contractId === 'carrier-spawner');
+    expect(carrier.status).toBe('experimental');
+    expect(carrier.problems).toContainEqual(expect.objectContaining({
+      kind: 'advisory',
+      level: 'warning',
+    }));
+    expect(gadgetContractResultsToIssues(results).some(issue => issue.level === 'error')).toBe(false);
   });
 
   it('requires positive coverage for an interceptor weapon', () => {

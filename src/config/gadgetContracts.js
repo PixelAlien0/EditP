@@ -28,6 +28,7 @@ export const GADGET_CONTRACT_REGISTRY = Object.freeze([
       'spawns_name', 'spawns_surface', 'spawns_mode', 'spawns_expire',
       'spawns_ceg', 'spawns_stun', 'spawn_blocked_by_shield',
     ]),
+    activationKeys: Object.freeze(['spawns_name']),
     requiredKeys: Object.freeze(['spawns_name']),
     source: source('luarules/gadgets/unit_explosion_spawner.lua'),
   }),
@@ -46,6 +47,7 @@ export const GADGET_CONTRACT_REGISTRY = Object.freeze([
       'droneminimumidleradius', 'droneairtime', 'dronedocktime', 'droneammo',
       'spawn_metal_cost', 'spawn_energy_cost',
     ]),
+    activationKeys: Object.freeze(['carried_unit']),
     requiredKeys: Object.freeze(['carried_unit']),
     recommendedKeys: Object.freeze(['spawnrate', 'maxunits', 'controlradius']),
     source: source('luarules/gadgets/unit_carrier_spawner.lua'),
@@ -105,4 +107,3 @@ export const GADGET_CONTRACT_BY_ID = new Map(
 export function getGadgetContract(contractId) {
   return GADGET_CONTRACT_BY_ID.get(contractId) || null;
 }
-
