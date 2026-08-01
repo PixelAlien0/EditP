@@ -8,7 +8,6 @@ const writeChanges = process.argv.includes('--write')
 const stylesheetOrder = [
   'src/styles/theme-tokens.css',
   'src/index.css',
-  'src/styles/features/dark-mode.css',
   'src/styles/features/batch-adjust.css',
   'src/styles/features/clone-creator.css',
   'src/styles/features/build-menu.css',
@@ -143,14 +142,6 @@ const legacyOwnershipMigrations = [
       '.clone-identity-card',
       '.comparison-mode-',
       '.unit-override-badge',
-      '.reset-unit-btn',
-    ],
-  },
-  {
-    document: 'src/styles/features/dark-mode.css',
-    selectors: [
-      '.weapon-lab-page',
-      '.unit-profile-card',
       '.reset-unit-btn',
     ],
   },
