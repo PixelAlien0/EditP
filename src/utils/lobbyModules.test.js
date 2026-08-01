@@ -155,7 +155,8 @@ describe('numbered lobby module compilation', () => {
     const compiled = compileLobbyModules({
       tweakModules: [],
       generatedTweakDefsLua: [
-        '-- Mod Name: Canonical block test',
+        '--Canonical block test',
+        '-- Author: BAR Editor',
         '-- Generated with BAR Editor',
         '-- EDITP_CLONES_BEGIN',
         'do',
@@ -170,7 +171,7 @@ describe('numbered lobby module compilation', () => {
 
     expect(compiled.defs.required).toBe(1);
     expect(compiled.defs.slots[0].blockCount).toBe(2);
-    expect(compiled.defs.slots[0].lua).toContain('-- Mod Name: Canonical block test');
+    expect(compiled.defs.slots[0].lua).toContain('--Canonical block test');
     expect(compiled.defs.slots[0].lua).toContain('-- EDITP_CLONES_BEGIN');
   });
 

@@ -90,6 +90,29 @@ describe('nested clone generation', () => {
     expect(lua).not.toContain('weapon_slot_1_damage');
   });
 
+  it('emits the project name as BARs first title comment without stacking generated headers', () => {
+    const input = {
+      customUnitClones: [],
+      buildMenuWizardSteps: [],
+      disabledUnitIds: [],
+      unitBuildOptions: {},
+      projectMeta: {
+        name: 'MOTHER  ARQUENESS',
+        author: '[Grump]SunlessK',
+        desc: 'Defense project',
+      },
+      compileFlags: { includeClones: true, includeRosters: true },
+    };
+    const first = compileTweakDefsLua({ ...input, currentTweakDefsLua: 'local retained = true' });
+    const recompiled = compileTweakDefsLua({ ...input, currentTweakDefsLua: first });
+
+    expect(first).toMatch(/^--MOTHER ARQUENESS\n-- Author: \[Grump\]SunlessK/);
+    expect(first).not.toContain('-- Mod Name:');
+    expect(recompiled.match(/^--MOTHER ARQUENESS$/gm)).toHaveLength(1);
+    expect(recompiled.match(/^-- Author:/gm)).toHaveLength(1);
+    expect(recompiled).toContain('local retained = true');
+  });
+
   it('compiles clone and build-menu blocks into generated Lua', () => {
     const lua = compileTweakDefsLua({
       currentTweakDefsLua: 'return {}',
@@ -351,6 +374,8 @@ describe('nested clone generation', () => {
     });
 
     expect(first).toBe(second);
+    expect(first).toMatch(/^--Stable Project\n-- Author: Tester\n-- Description: Repeatable output/);
+    expect(first).not.toContain('-- Mod Name:');
     expect(first).toContain('-- Generated with BAR Editor');
     expect(first).not.toMatch(/Generated with BAR Editor on \d{4}-\d{2}-\d{2}/);
   });

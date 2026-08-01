@@ -23,6 +23,14 @@ function escapeLuaString(str) {
   return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
+function cleanHeaderValue(value, fallback = '') {
+  const normalized = String(value ?? '')
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return normalized || fallback;
+}
+
 function compareCanonicalText(left, right) {
   const leftText = String(left ?? '');
   const rightText = String(right ?? '');
@@ -967,8 +975,9 @@ export function compileTweakDefsLua({
   tweaks = {},
 }) {
   const normalizedCurrentLua = String(currentTweakDefsLua || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
-  // Strip out any existing comments or headers that start with "-- Mod Name:" to avoid piling up duplicate headers
+  // Remove both legacy and current generated headers before rebuilding them.
   const strippedText = normalizedCurrentLua
+    .replace(/^--[^\n]*\n(?=-- Author:)/, '')
     .replace(/^-- Mod Name:.*[\r\n]*/gm, '')
     .replace(/^-- Author:.*[\r\n]*/gm, '')
     .replace(/^-- Description:.*[\r\n]*/gm, '')
@@ -1025,10 +1034,11 @@ export function compileTweakDefsLua({
   if (deathProfileBlock.length > 0) parts.push(deathProfileBlock);
   const headerLines = [];
   if (projectMeta) {
+    const projectTitle = cleanHeaderValue(projectMeta.name, 'BAR Editor Mod');
     headerLines.push(
-      `-- Mod Name: ${projectMeta.name || 'BAR Editor Mod'}`,
-      `-- Author: ${projectMeta.author || 'BAR Editor'}`,
-      `-- Description: ${projectMeta.desc || ''}`,
+      `--${projectTitle}`,
+      `-- Author: ${cleanHeaderValue(projectMeta.author, 'BAR Editor')}`,
+      `-- Description: ${cleanHeaderValue(projectMeta.desc)}`,
       `-- Generated with BAR Editor`,
       `-- ----------------------------------------------------`
     );
