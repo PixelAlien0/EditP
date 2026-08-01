@@ -23,6 +23,7 @@ const stylesheetOrder = [
   'src/styles/features/preset-gallery.css',
   'src/styles/features/editor-context.css',
   'src/styles/features/editor-workbench.css',
+  'src/styles/features/weapon-borrow.css',
   'src/styles/features/carrier-drone-workbench.css',
   'src/components/ui/ui.css',
 ]
@@ -216,6 +217,24 @@ canonicalHeaderDocument?.root.walkDecls((declaration) => {
   declaration.important = false
   canonicalHeaderDocument.removed += 1
 })
+
+// These features now have one canonical owner and their earlier index.css
+// generations are removed above. Their importance flags were migration
+// scaffolding rather than part of the component contract.
+const canonicalFeatureOwners = new Set([
+  'src/styles/features/build-menu.css',
+  'src/styles/features/editor-context.css',
+  'src/styles/features/weapon-borrow.css',
+])
+documents
+  .filter(document => canonicalFeatureOwners.has(document.relativePath))
+  .forEach(document => {
+    document.root.walkDecls((declaration) => {
+      if (!declaration.important) return
+      declaration.important = false
+      document.removed += 1
+    })
+  })
 
 function atRuleContext(node) {
   const context = []

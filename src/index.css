@@ -257,36 +257,6 @@ input[type="checkbox"] {
   transition: background 0.2s ease, border-color 0.2s ease;
   outline: none;
 }
-.custom-params-section {
-  background: var(--bg-1);
-  border: 1px solid var(--b0);
-  border-radius: 3px;
-  padding: 12px 14px;
-  margin-bottom: var(--sp-sm);
-}
-.btn-remove {
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  color: var(--t2);
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-.btn-remove:hover {
-  border-color: rgba(185, 90, 90, 0.25);
-  color: #c47070;
-}
-.panel-card {
-  background: var(--bg-2);
-  border: 1px solid var(--b1);
-  border-top: 2px solid var(--b-a);
-  border-radius: 3px;
-  padding: var(--sp-lg);
-}
 .modal-container,
 .modal-content,
 .floating-panel {
@@ -1770,21 +1740,6 @@ textarea:focus-visible,
   background: var(--paper-clean) !important;
   color: var(--ink) !important;
   box-shadow: var(--shadow-float) !important;
-}
-.modal-header,
-.clone-panel-header,
-.bulk-panel-header,
-.random-panel-header {
-  border-bottom-color: #d8cfc5 !important;
-  background: #f8f4ee !important;
-}
-.modal-header h2,
-.modal-header h3,
-.clone-panel-header h3,
-.bulk-panel-header h3,
-.random-panel-header h3 {
-  color: var(--ink-strong) !important;
-  font-family: var(--font-display) !important;
 }
 .preset-save-copy > span {
   color: var(--sakura-deep) !important;

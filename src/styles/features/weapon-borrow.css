@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: var(--color-overlay) !important;
+  background: var(--color-overlay);
   backdrop-filter: blur(8px);
 }
 
@@ -10,32 +10,32 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  width: min(1120px, calc(100vw - 32px)) !important;
-  max-width: 1120px !important;
-  height: min(760px, calc(100vh - 32px)) !important;
-  max-height: 760px !important;
+  width: min(1120px, calc(100vw - 32px));
+  max-width: 1120px;
+  height: min(760px, calc(100vh - 32px));
+  max-height: 760px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transform: translate(-50%, -50%);
-  border: 1px solid var(--color-border-strong) !important;
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
-  background: var(--color-surface-raised) !important;
-  color: var(--color-text) !important;
-  box-shadow: var(--shadow-float) !important;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  box-shadow: var(--shadow-float);
 }
 
 .weapon-swap-overlay .weapon-swap-header {
   min-height: 76px;
-  padding: var(--space-3) var(--space-4) !important;
+  padding: var(--space-3) var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
   flex: 0 0 auto;
-  border: 0 !important;
-  border-bottom: 1px solid var(--color-border) !important;
-  background: var(--color-surface) !important;
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
   cursor: move;
   user-select: none;
 }
@@ -86,14 +86,14 @@
 
 .weapon-swap-slot {
   min-height: 24px;
-  padding: 4px var(--space-2) !important;
+  padding: 4px var(--space-2);
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  border: 1px solid var(--color-border-accent-muted) !important;
+  border: 1px solid var(--color-border-accent-muted);
   border-radius: var(--radius-pill);
-  background: var(--color-accent-soft) !important;
-  color: var(--color-accent-strong) !important;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
   font: 700 9px/1 var(--font-mono);
   letter-spacing: .05em;
   text-transform: uppercase;
@@ -101,15 +101,15 @@
 
 .weapon-swap-close {
   min-height: var(--control-height-md);
-  padding: 0 var(--space-3) !important;
+  padding: 0 var(--space-3);
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   flex: 0 0 auto;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--radius-sm) !important;
-  background: var(--color-surface-raised) !important;
-  color: var(--color-text) !important;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
   font: 700 var(--font-size-xs)/1 var(--font-ui);
   cursor: pointer;
 }
@@ -121,9 +121,9 @@
 }
 
 .weapon-swap-close:hover {
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-surface-hover) !important;
-  color: var(--color-text-strong) !important;
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
 }
 
 .weapon-swap-body {
@@ -137,15 +137,15 @@
 .weapon-swap-overlay .weapon-swap-library {
   min-width: 0;
   min-height: 0;
-  padding: var(--space-4) !important;
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-3) !important;
+  gap: var(--space-3);
   overflow: hidden;
-  border: 0 !important;
-  border-right: 1px solid var(--color-border) !important;
-  background: var(--color-surface) !important;
-  box-shadow: none !important;
+  border: 0;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: none;
   backdrop-filter: none;
 }
 
@@ -161,40 +161,40 @@
 
 .weapon-swap-factions {
   padding: 3px;
-  display: grid !important;
+  display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 3px;
-  overflow: visible !important;
-  border: 1px solid var(--color-border) !important;
+  overflow: visible;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-subtle) !important;
+  background: var(--color-surface-subtle);
 }
 
 .weapon-swap-factions button,
 .weapon-swap-type-filters button {
   min-width: 0;
   min-height: 30px;
-  padding: 5px var(--space-2) !important;
-  border: 1px solid transparent !important;
+  padding: 5px var(--space-2);
+  border: 1px solid transparent;
   border-radius: var(--radius-xs);
-  background: transparent !important;
-  color: var(--color-text-muted) !important;
+  background: transparent;
+  color: var(--color-text-muted);
   font: 700 9px/1 var(--font-ui);
   cursor: pointer;
 }
 
 .weapon-swap-factions button:hover:not(.active),
 .weapon-swap-type-filters button:hover:not(.active) {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface-hover) !important;
-  color: var(--color-text-strong) !important;
+  border-color: var(--color-border);
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
 }
 
 .weapon-swap-factions button.active,
 .weapon-swap-type-filters button.active {
-  border-color: var(--color-border-accent-muted) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-accent-strong) !important;
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
 }
 
 .weapon-swap-search-field {
@@ -211,34 +211,34 @@
 
 .weapon-swap-overlay .weapon-swap-search {
   width: 100%;
-  min-height: var(--control-height-md) !important;
-  padding: 8px 10px !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--radius-sm) !important;
-  background: var(--color-surface-raised) !important;
-  color: var(--color-text-strong) !important;
+  min-height: var(--control-height-md);
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text-strong);
   font: 500 var(--font-size-sm)/var(--line-height-ui) var(--font-ui);
   backdrop-filter: none;
 }
 
 .weapon-swap-search:focus {
-  border-color: var(--color-accent-strong) !important;
+  border-color: var(--color-accent-strong);
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 1px;
 }
 
 .weapon-swap-overlay .weapon-swap-unit-list {
   min-height: 0;
-  padding: var(--space-1) !important;
+  padding: var(--space-1);
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: 3px;
   overflow-y: auto;
-  border: 1px solid var(--color-border) !important;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-subtle) !important;
-  box-shadow: none !important;
+  background: var(--color-surface-subtle);
+  box-shadow: none;
   backdrop-filter: none;
 }
 
@@ -246,28 +246,28 @@
   width: 100%;
   min-height: 52px;
   margin: 0;
-  padding: 7px var(--space-2) !important;
+  padding: 7px var(--space-2);
   display: flex;
   align-items: center;
   gap: var(--space-2);
   flex: 0 0 auto;
-  border: 1px solid transparent !important;
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  background: transparent !important;
+  background: transparent;
   color: var(--color-text);
   cursor: pointer;
   text-align: left;
 }
 
 .weapon-swap-unit:hover {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface-hover) !important;
+  border-color: var(--color-border);
+  background: var(--color-surface-hover);
   transform: none;
 }
 
 .weapon-swap-unit.active {
-  border-color: var(--color-border-accent-muted) !important;
-  background: var(--color-accent-soft) !important;
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-accent-soft);
   box-shadow: inset 3px 0 0 var(--color-accent-strong);
 }
 
@@ -284,14 +284,14 @@
 .weapon-swap-overlay .weapon-swap-source-icon {
   overflow: hidden;
   flex: 0 0 auto;
-  border: 1px solid var(--color-border) !important;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-muted) !important;
+  background: var(--color-surface-muted);
 }
 
 .weapon-swap-unit-icon {
-  width: 36px !important;
-  height: 36px !important;
+  width: 36px;
+  height: 36px;
 }
 
 .weapon-swap-unit-icon img,
@@ -326,8 +326,8 @@
 }
 
 .weapon-swap-faction-dot {
-  width: 6px !important;
-  height: 6px !important;
+  width: 6px;
+  height: 6px;
   flex: 0 0 auto;
   border-radius: 50%;
   opacity: .8;
@@ -336,13 +336,13 @@
 .weapon-swap-overlay .weapon-swap-stage {
   min-width: 0;
   min-height: 0;
-  padding: var(--space-4) !important;
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 0 !important;
-  background: var(--color-canvas) !important;
-  box-shadow: none !important;
+  border: 0;
+  background: var(--color-canvas);
+  box-shadow: none;
   backdrop-filter: none;
 }
 
@@ -351,21 +351,21 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--space-3) !important;
+  gap: var(--space-3);
   overflow: hidden;
 }
 
 .weapon-swap-overlay .weapon-swap-source {
-  padding: var(--space-3) var(--space-4) !important;
+  padding: var(--space-3) var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4) !important;
+  gap: var(--space-4);
   flex: 0 0 auto;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--radius-md) !important;
-  background: var(--color-surface-raised) !important;
-  box-shadow: none !important;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: none;
   backdrop-filter: none;
 }
 
@@ -377,8 +377,8 @@
 }
 
 .weapon-swap-source-icon {
-  width: 44px !important;
-  height: 44px !important;
+  width: 44px;
+  height: 44px;
 }
 
 .weapon-swap-source-copy {
@@ -396,10 +396,10 @@
 
 .weapon-swap-source-copy h4 {
   overflow: hidden;
-  color: var(--color-text-strong) !important;
-  font: 560 var(--font-size-lg)/1.1 var(--font-display) !important;
+  color: var(--color-text-strong);
+  font: 560 var(--font-size-lg)/1.1 var(--font-display);
   text-overflow: ellipsis;
-  text-transform: none !important;
+  text-transform: none;
   white-space: nowrap;
 }
 
@@ -415,45 +415,45 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--space-1) !important;
+  gap: var(--space-1);
   flex-wrap: wrap;
 }
 
 .weapon-swap-type-filters button {
   min-height: 28px;
-  padding-inline: 9px !important;
+  padding-inline: 9px;
   white-space: nowrap;
 }
 
 .weapon-swap-overlay .weapon-swap-weapons {
   min-height: 0;
-  padding: 1px 4px var(--space-2) 1px !important;
+  padding: 1px 4px var(--space-2) 1px;
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--space-2) !important;
+  gap: var(--space-2);
   overflow-y: auto;
 }
 
 .weapon-swap-overlay .weapon-swap-weapon {
   min-width: 0;
-  padding: var(--space-3) !important;
+  padding: var(--space-3);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3);
   flex: 0 0 auto;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--radius-md) !important;
-  background: var(--color-surface-raised) !important;
-  box-shadow: none !important;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: none;
   backdrop-filter: none;
   transition: border-color var(--motion-fast), background-color var(--motion-fast);
 }
 
 .weapon-swap-weapon:hover {
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-surface-hover) !important;
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
   transform: none;
 }
 
@@ -496,20 +496,20 @@
 .weapon-swap-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(82px, 1fr));
-  gap: var(--space-2) !important;
+  gap: var(--space-2);
 }
 
 .weapon-swap-overlay .weapon-swap-metric {
   min-height: 50px;
-  padding: 7px var(--space-2) !important;
+  padding: 7px var(--space-2);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: 2px var(--space-1);
-  border: 1px solid var(--color-border) !important;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-subtle) !important;
-  box-shadow: none !important;
+  background: var(--color-surface-subtle);
+  box-shadow: none;
 }
 
 .weapon-swap-metric-label {
@@ -540,19 +540,19 @@
 .weapon-swap-overlay .weapon-swap-borrow {
   min-width: 126px;
   min-height: var(--control-height-md);
-  padding: 0 var(--space-3) !important;
+  padding: 0 var(--space-3);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  border: 1px solid var(--color-border-accent-muted) !important;
-  border-radius: var(--radius-sm) !important;
-  background: var(--color-surface-accent-subtle) !important;
-  color: var(--color-accent-strong) !important;
-  font: 700 var(--font-size-xs)/1.2 var(--font-ui) !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  box-shadow: none !important;
+  border: 1px solid var(--color-border-accent-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
+  font: 700 var(--font-size-xs)/1.2 var(--font-ui);
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: none;
   cursor: pointer;
 }
 
@@ -567,24 +567,24 @@
 }
 
 .weapon-swap-borrow:hover {
-  border-color: var(--color-accent-strong) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text-strong) !important;
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+  color: var(--color-text-strong);
 }
 
 .weapon-swap-overlay .weapon-swap-welcome,
 .weapon-swap-overlay .weapon-swap-empty {
   min-height: 220px;
-  padding: var(--space-6) !important;
+  padding: var(--space-6);
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 1;
   flex-direction: column;
   gap: var(--space-2);
-  border: 1px dashed var(--color-border-strong) !important;
-  border-radius: var(--radius-md) !important;
-  background: var(--color-surface-subtle) !important;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
   color: var(--color-text-muted);
   text-align: center;
   backdrop-filter: none;
@@ -614,10 +614,10 @@
 
 @media (max-width: 900px) {
   .weapon-swap-overlay .weapon-borrow-dialog {
-    width: calc(100vw - 16px) !important;
-    max-width: none !important;
-    height: calc(100vh - 16px) !important;
-    max-height: none !important;
+    width: calc(100vw - 16px);
+    max-width: none;
+    height: calc(100vh - 16px);
+    max-height: none;
   }
 
   .weapon-swap-body {
@@ -653,19 +653,19 @@
   }
 
   .weapon-swap-overlay .weapon-swap-library {
-    padding: var(--space-3) !important;
-    border-right: 0 !important;
-    border-bottom: 1px solid var(--color-border) !important;
+    padding: var(--space-3);
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .weapon-swap-library-heading { display: none; }
-  .weapon-swap-overlay .weapon-swap-stage { padding: var(--space-3) !important; }
-  .weapon-swap-source { display: none !important; }
+  .weapon-swap-overlay .weapon-swap-stage { padding: var(--space-3); }
+  .weapon-swap-source { display: none; }
   .weapon-swap-metrics { grid-template-columns: repeat(3, minmax(68px, 1fr)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .weapon-swap-overlay * { transition: none !important; }
+  .weapon-swap-overlay * { transition: none; }
 }
 
 .weapon-swap-mode-tabs {

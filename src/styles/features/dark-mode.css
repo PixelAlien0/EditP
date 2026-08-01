@@ -43,12 +43,6 @@
   box-shadow: none !important;
 }
 
-[data-theme="dark"] .unit-dossier-title,
-[data-theme="dark"] .editor-section-tabs .workspace-tab-btn,
-[data-theme="dark"] .editor-section-tabs .workspace-tab-btn.active {
-  color: var(--color-text-strong) !important;
-}
-
 [data-theme="dark"] .search-input,
 [data-theme="dark"] .form-input,
 [data-theme="dark"] input,
@@ -152,7 +146,6 @@ html[data-theme="dark"] {
 [data-theme="dark"] .main-layout,
 [data-theme="dark"] .editor-scroll-area,
 [data-theme="dark"] .review-workspace,
-[data-theme="dark"] .designer-page,
 [data-theme="dark"] .preset-gallery-page {
   background: var(--color-canvas) !important;
   color: var(--color-text) !important;
@@ -365,36 +358,17 @@ html[data-theme="dark"] {
   color: var(--color-text-on-dark) !important;
 }
 
-/* Review, designer, preset gallery */
+/* Review and preset gallery */
 [data-theme="dark"] .preset-gallery-page .preset-card,
-[data-theme="dark"] .preset-gallery-page .preset-save-panel,
-[data-theme="dark"] .designer-page .designer-panel-header,
-[data-theme="dark"] .designer-page .build-menu-slot {
+[data-theme="dark"] .preset-gallery-page .preset-save-panel {
   border-color: var(--color-border) !important;
   background: var(--color-surface-raised) !important;
   color: var(--color-text) !important;
   box-shadow: none !important;
 }
 
-[data-theme="dark"] .designer-page .designer-panel,
-[data-theme="dark"] .designer-page .designer-panel-scroll,
-[data-theme="dark"] .designer-page .designer-roster-canvas {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface) !important;
-}
-
-[data-theme="dark"] .designer-page .designer-modal-content {
-  background: var(--color-border) !important;
-}
-
-[data-theme="dark"] .designer-page .designer-roster-canvas .designer-panel-scroll,
 [data-theme="dark"] .preset-gallery-page .preset-gallery-content {
   background: var(--color-canvas) !important;
-}
-
-[data-theme="dark"] .designer-page .build-menu-slot.removed {
-  border-color: var(--color-border) !important;
-  background: var(--color-disabled-surface) !important;
 }
 
 /* Dialogs and experimental tools */
