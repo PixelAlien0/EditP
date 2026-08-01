@@ -4,7 +4,11 @@ import {
   getBuildMenuPackSource,
 } from '../data/build-menu-packs.js';
 import { getFactionOfUnit } from '../utils/categories.js';
-import { createProducerCatalog, PRODUCER_KIND } from '../utils/producerCatalog.js';
+import {
+  addCloneProducerRosters,
+  createProducerCatalog,
+  PRODUCER_KIND,
+} from '../utils/producerCatalog.js';
 
 export function useFactoryRosterController({
   factoryRosters,
@@ -24,13 +28,17 @@ export function useFactoryRosterController({
   const [availableSearchQuery, setAvailableSearchQuery] = useState('');
   const [factorySearchQuery, setFactorySearchQuery] = useState('');
 
-  const activeFactoryRosters = useMemo(
+  const baseFactoryRosters = useMemo(
     () => buildEffectiveFactoryRosters(factoryRosters, buildMenuPacks),
     [buildMenuPacks, factoryRosters]
   );
+  const activeFactoryRosters = useMemo(
+    () => addCloneProducerRosters(baseFactoryRosters, clones),
+    [baseFactoryRosters, clones]
+  );
   const producerCatalog = useMemo(
-    () => createProducerCatalog(activeFactoryRosters, unitsDbNames, defaultsDb),
-    [activeFactoryRosters, defaultsDb, unitsDbNames]
+    () => createProducerCatalog(activeFactoryRosters, unitsDbNames, defaultsDb, allUnitsList),
+    [activeFactoryRosters, allUnitsList, defaultsDb, unitsDbNames]
   );
   const selectedProducer = useMemo(
     () => producerCatalog.find(producer => producer.id === selectedFactoryId) || null,
@@ -74,7 +82,7 @@ export function useFactoryRosterController({
       id,
       name: unitsDbNames[id] || id,
       status: removedSet.has(id.toLowerCase()) ? 'removed' : 'default',
-      sourcePack: getBuildMenuPackSource(selectedFactoryId, id, buildMenuPacks),
+      sourcePack: getBuildMenuPackSource(selectedProducer?.sourceId || selectedFactoryId, id, buildMenuPacks),
     }));
 
     addedList.forEach(id => {
@@ -109,6 +117,7 @@ export function useFactoryRosterController({
     buildMenuSteps,
     clones,
     selectedFactoryId,
+    selectedProducer,
     unitsDbNames,
   ]);
 
@@ -116,7 +125,7 @@ export function useFactoryRosterController({
     const rosterStatuses = new Map(
       activeRosterItems.map(item => [item.id.toLowerCase(), item.status])
     );
-    const factoryFaction = getFactionOfUnit(selectedFactoryId);
+    const factoryFaction = selectedProducer?.faction || getFactionOfUnit(selectedFactoryId);
     const query = availableSearchQuery.trim().toLowerCase();
 
     return allUnitsList
@@ -144,6 +153,7 @@ export function useFactoryRosterController({
     availableFactionFilter,
     availableSearchQuery,
     selectedFactoryId,
+    selectedProducer,
   ]);
 
   const factoryIsModified = factoryId => {

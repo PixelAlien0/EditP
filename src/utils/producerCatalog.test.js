@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { createProducerCatalog, PRODUCER_KIND } from './producerCatalog.js';
+import {
+  addCloneProducerRosters,
+  createProducerCatalog,
+  PRODUCER_KIND,
+} from './producerCatalog.js';
 
 describe('producer catalog', () => {
   it('separates static factories from mobile builders', () => {
@@ -36,5 +40,47 @@ describe('producer catalog', () => {
     );
 
     expect(producer).toMatchObject({ tier: 'T1.5', rosterSize: 2 });
+  });
+
+  it('adds cloned factories and nested factory clones with inherited rosters', () => {
+    const rosters = addCloneProducerRosters(
+      { armavp: ['armbull', 'armmart'] },
+      [
+        { baseId: 'armavp', newId: 'tactical_assault_facility' },
+        { baseId: 'tactical_assault_facility', newId: 'forward_assault_facility' },
+        { baseId: 'armflash', newId: 'not_a_producer' },
+      ]
+    );
+
+    expect(rosters.tactical_assault_facility).toEqual(['armbull', 'armmart']);
+    expect(rosters.forward_assault_facility).toEqual(['armbull', 'armmart']);
+    expect(rosters.not_a_producer).toBeUndefined();
+  });
+
+  it('uses clone identity and source metadata in the producer catalog', () => {
+    const [producer] = createProducerCatalog(
+      { tactical_assault_facility: ['armbull', 'armmart'] },
+      {},
+      { armavp: { 'customparams.techlevel': 2 } },
+      [{
+        id: 'tactical_assault_facility',
+        name: 'Tactical Assault Facility',
+        isClone: true,
+        rootBaseId: 'armavp',
+        faction: 'arm',
+        techTier: 'T3',
+      }]
+    );
+
+    expect(producer).toMatchObject({
+      id: 'tactical_assault_facility',
+      name: 'Tactical Assault Facility',
+      kind: PRODUCER_KIND.FACTORY,
+      faction: 'arm',
+      tier: 'T3',
+      rosterSize: 2,
+      isClone: true,
+      sourceId: 'armavp',
+    });
   });
 });

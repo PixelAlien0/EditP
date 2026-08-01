@@ -132,6 +132,43 @@ describe('BAR runtime compatibility harness', () => {
     expect(result.execution.map(item => item.kind)).toEqual(['defs', 'units']);
   });
 
+  it('edits the inherited build menu of a cloned factory producer', () => {
+    const compiled = generatedPackage({
+      clones: [{
+        baseId: 'armavp',
+        newId: 'tactical_assault_facility',
+        displayName: 'Tactical Assault Facility',
+        builderIds: [],
+      }],
+      buildMenuSteps: [{
+        builderId: 'tactical_assault_facility',
+        add: ['armflash'],
+        remove: ['armmart'],
+      }],
+    });
+    const result = executeCompiledBarModules(compiled, {
+      unitDefs: {
+        armavp: {
+          name: 'Advanced Vehicle Plant',
+          buildoptions: ['armbull', 'armmart'],
+        },
+        armbull: { name: 'Bull' },
+        armmart: { name: 'Martyr' },
+        armflash: baseArmflash,
+      },
+    });
+
+    assertRuntimeCompatibility(result, {
+      unitsExist: ['tactical_assault_facility'],
+      buildMenus: {
+        tactical_assault_facility: {
+          includes: ['armbull', 'armflash'],
+          excludes: ['armmart'],
+        },
+      },
+    });
+  });
+
   it('applies weapon edits, supporting definitions, and isolated death profiles', () => {
     const compiled = generatedPackage({
       clones: [{

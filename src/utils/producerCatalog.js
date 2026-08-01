@@ -24,6 +24,40 @@ function getProducerTier(unitDefaults = {}) {
   return `T${numericTier}`;
 }
 
+function cleanId(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+export function addCloneProducerRosters(rosters = {}, clones = []) {
+  const result = Object.fromEntries(
+    Object.entries(rosters).map(([producerId, roster]) => [
+      cleanId(producerId),
+      Array.isArray(roster) ? [...roster] : [],
+    ])
+  );
+  const pending = clones
+    .map(clone => ({
+      baseId: cleanId(clone?.baseId),
+      newId: cleanId(clone?.newId),
+    }))
+    .filter(clone => clone.baseId && clone.newId)
+    .sort((left, right) => left.newId.localeCompare(right.newId));
+
+  for (let pass = 0; pass < pending.length; pass += 1) {
+    let added = false;
+    pending.forEach(clone => {
+      if (Object.hasOwn(result, clone.newId)) return;
+      const inheritedRoster = result[clone.baseId];
+      if (!Array.isArray(inheritedRoster)) return;
+      result[clone.newId] = [...inheritedRoster];
+      added = true;
+    });
+    if (!added) break;
+  }
+
+  return result;
+}
+
 /**
  * Build the user-facing producer catalog from BAR build-option owners.
  *
@@ -32,21 +66,29 @@ function getProducerTier(unitDefaults = {}) {
  * editor catalog misleading. A human-facing name is therefore the admission
  * rule for this UI catalog.
  */
-export function createProducerCatalog(rosters = {}, names = {}, defaults = {}) {
+export function createProducerCatalog(rosters = {}, names = {}, defaults = {}, units = []) {
+  const unitsById = new Map(
+    units.map(unit => [cleanId(unit?.id), unit]).filter(([id]) => id)
+  );
   return Object.keys(rosters)
     .flatMap(id => {
-      const name = typeof names[id] === 'string' ? names[id].trim() : '';
-      if (!name || name.toLowerCase() === id.toLowerCase()) return [];
+      const unit = unitsById.get(cleanId(id));
+      const name = String(unit?.name || names[id] || '').trim();
+      if (!name || (!unit?.isClone && name.toLowerCase() === id.toLowerCase())) return [];
 
-      const kind = getProducerKind(defaults[id]);
+      const sourceId = cleanId(unit?.rootBaseId || unit?.baseId || id);
+      const unitDefaults = defaults[id] || defaults[sourceId] || {};
+      const kind = getProducerKind(unitDefaults);
       return [{
         id,
         name,
         kind,
         kindLabel: kind === PRODUCER_KIND.FACTORY ? 'Factory' : 'Builder',
-        faction: getFactionOfUnit(id),
-        tier: getProducerTier(defaults[id]),
+        faction: unit?.faction || getFactionOfUnit(sourceId),
+        tier: unit?.techTier || getProducerTier(unitDefaults),
         rosterSize: Array.isArray(rosters[id]) ? rosters[id].length : 0,
+        isClone: Boolean(unit?.isClone),
+        sourceId,
       }];
     })
     .sort((left, right) => (

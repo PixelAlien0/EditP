@@ -174,7 +174,7 @@ export default function DesignerPage({
                     aria-pressed={active}
                   >
                     <div className="designer-unit-pic designer-unit-pic--factory">
-                      <UnitArtwork unitId={producer.id} alt="" />
+                      <UnitArtwork src={getUnitIconUrl(producer.id)} alt="" />
                     </div>
                     <div className="designer-unit-info">
                       <span className="designer-unit-name">{producer.name}</span>
@@ -185,6 +185,7 @@ export default function DesignerPage({
                         </span>
                         <span className={`designer-producer-kind designer-producer-kind--${producer.kind}`}>{producer.kindLabel}</span>
                         <span className="designer-producer-tier">{producer.tier}</span>
+                        {producer.isClone && <span className="designer-item-status designer-item-status--clone">Clone</span>}
                         {isFactoryModified(producer.id) && <span className="designer-item-status designer-item-status--modified">Modified</span>}
                       </div>
                     </div>
