@@ -406,51 +406,18 @@ export default function TweakPackageLabPage({
       )}
 
       <div className="tweak-lab-command-deck">
-      {/* PACKAGE ARCHITECTURE & DEPENDENCY AUDIT ACCORDION */}
-      {modules.length > 0 && (
-        <details className="tweak-package-audit" aria-label="Package dependency audit">
-          <summary className="tweak-package-audit__heading">
-            <div><Type variant="eyebrow" className="workflow-eyebrow">Package architecture</Type><Type as="h3" variant="section-title">Dependencies and reusable recipes</Type></div>
-            <div className="tweak-package-audit__actions">
-              <span className={packageAnalysis.blockingIssues.length ? 'is-error' : ''}>
-                {packageAnalysis.blockingIssues.length
-                  ? `${packageAnalysis.blockingIssues.length} active blocker${packageAnalysis.blockingIssues.length === 1 ? '' : 's'}`
-                  : reviewCount ? `${reviewCount} to review` : 'Preflight clear'}
-              </span>
-              {packageAnalysis.orderingIssues.length > 0 && (
-                <Button
-                  size="sm"
-                  disabled={!packageAnalysis.canAutoOrder}
-                  onClick={applyRecommendedOrder}
-                  title={packageAnalysis.canAutoOrder ? 'Move providers before the modules that reference them' : 'Resolve dependency cycles or compiler-lane conflicts first'}
-                >Apply safe order</Button>
-              )}
-            </div>
-          </summary>
-          <div className="tweak-package-summary__metrics">
-            <div><span>Modules</span><strong>{modules.length}</strong></div>
-            <div><span>Exact findings</span><strong>{packageAnalysis.confidenceCounts.exact}</strong></div>
-            <div><span>Probable</span><strong>{packageAnalysis.confidenceCounts.probable}</strong></div>
-            <div><span>Dynamic</span><strong>{packageAnalysis.confidenceCounts.dynamic}</strong></div>
-            <div><span>Module links</span><strong>{packageAnalysis.edges.length}</strong></div>
-            <div><span>Unresolved IDs</span><strong>{packageAnalysis.unresolved.length}</strong></div>
-            <div><span>Definition conflicts</span><strong>{packageAnalysis.collisions.length}</strong></div>
-            <div><span>Type mismatches</span><strong>{packageAnalysis.typeIssues.length}</strong></div>
-            <div><span>Risk locations</span><strong>{packageAnalysis.runtimeRiskCount}</strong></div>
-            <div><span>Unknown params</span><strong>{packageAnalysis.unknownCustomParameters.length}</strong></div>
-          </div>
-          {(packageAnalysis.unresolved.length > 0 || packageAnalysis.collisions.length > 0 || packageAnalysis.orderingIssues.length > 0 || packageAnalysis.cycles.length > 0 || packageAnalysis.typeIssues.length > 0) && (
-            <div className="tweak-package-summary__issues">
-              {packageAnalysis.unresolved.slice(0, 4).map(item => <p key={`unresolved-${item.moduleId}-${item.unitId}`}><b>External ID</b>{moduleLabel(item.moduleId)} references <code>{item.unitId}</code>{item.line ? ` near line ${item.line}` : ''}. Confirm the required BAR unit pack or provider module.</p>)}
-              {packageAnalysis.collisions.slice(0, 4).map(item => <p key={`collision-${item.unitId}`}><b>Collision</b><code>{item.unitId}</code> is created by {item.moduleIds.map(moduleLabel).join(' and ')}.</p>)}
-              {packageAnalysis.orderingIssues.slice(0, 4).map(edge => <p key={`order-${edge.from}-${edge.to}`}><b>Load order</b>{moduleLabel(edge.from)} needs {moduleLabel(edge.to)} first for <code>{edge.unitIds.join(', ')}</code>.</p>)}
-              {packageAnalysis.boundaryIssues.slice(0, 2).map(edge => <p key={`boundary-${edge.from}-${edge.to}`}><b>Compiler lane</b>{edge.message}</p>)}
-              {packageAnalysis.typeIssues.slice(0, 3).map(issue => <p key={`type-${issue.moduleId}-${issue.line}-${issue.field}`}><b>Value type</b>{moduleLabel(issue.moduleId)}, line {issue.line}: {issue.field} expects {issue.expectedType}.</p>)}
-              {packageAnalysis.cycles.slice(0, 2).map(cycle => <p key={`cycle-${cycle.join('-')}`}><b>Dependency cycle</b>{cycle.map(moduleLabel).join(' → ')}.</p>)}
-            </div>
-          )}
-        </details>
-      )}
+      <section className="tweak-package-command" aria-label="Package architecture summary">
+        <button type="button" className="tweak-package-command__identity" onClick={() => setInspectorTab('package')}>
+          <span><Type variant="eyebrow" className="workflow-eyebrow">Package architecture</Type><b>{modules.length ? `${modules.length} module${modules.length === 1 ? '' : 's'} loaded` : 'No package loaded'}</b></span>
+          <em aria-hidden="true">Review →</em>
+        </button>
+        <div className="tweak-package-command__metrics">
+          <button type="button" onClick={() => setInspectorTab('preflight')}><span>Health</span><strong className={packageAnalysis.blockingIssues.length ? 'is-error' : reviewCount ? 'is-warning' : 'is-clear'}>{packageAnalysis.blockingIssues.length ? `${packageAnalysis.blockingIssues.length} blocked` : reviewCount ? `${reviewCount} notices` : 'Clear'}</strong></button>
+          <button type="button" onClick={() => setInspectorTab('package')}><span>Links</span><strong>{packageAnalysis.edges.length}</strong></button>
+          <span><small>Compiler lanes</small><strong>{compiledModules?.defs.required || 0}/9 · {compiledModules?.units.required || 0}/9</strong></span>
+        </div>
+        {packageAnalysis.orderingIssues.length > 0 && <Button size="sm" disabled={!packageAnalysis.canAutoOrder} onClick={applyRecommendedOrder}>Apply safe order</Button>}
+      </section>
 
       <button type="button" className="tweak-support-library-shortcut" onClick={() => setInspectorTab('library')}>
         <span><b>Supporting WeaponDefs</b><small>Manage auxiliary and cluster-child definitions in the Insight Desk.</small></span>
@@ -713,9 +680,13 @@ export default function TweakPackageLabPage({
         </main>
 
         {/* PANEL 3: PREFLIGHT INSPECTOR (Right) */}
-        <aside className={`tweak-lab-inspector ${inspectorFullscreen ? 'is-fullscreen' : ''}`} aria-label="Preflight Inspector">
-          <div className="tweak-lab-section-heading">
-            <span>Preflight Inspector</span>
+        <aside className={`tweak-lab-inspector ${inspectorFullscreen ? 'is-fullscreen' : ''}`} aria-label="Package insight desk">
+          <header className="tweak-inspector-header">
+            <div>
+              <Type variant="eyebrow" className="workflow-eyebrow">Contextual analysis</Type>
+              <Type as="h2" variant="section-title">Insight desk</Type>
+              <small>{selected ? `Reviewing ${selected.label}` : 'Select a module to inspect its compatibility.'}</small>
+            </div>
             {selected && (
               <Button
                 size="sm"
@@ -723,22 +694,22 @@ export default function TweakPackageLabPage({
                 onClick={() => setInspectorFullscreen(val => !val)}
               >{inspectorFullscreen ? 'Restore view' : '↗ Full screen'}</Button>
             )}
-          </div>
+          </header>
           <nav className="tweak-inspector-tabs" aria-label="Inspector views" role="tablist">
-            <button type="button" role="tab" aria-selected={inspectorTab === 'preflight'} className={inspectorTab === 'preflight' ? 'is-active' : ''} onClick={() => setInspectorTab('preflight')}>Preflight <span>{preflightReport.items.length}</span></button>
-            <button type="button" role="tab" aria-selected={inspectorTab === 'package'} className={inspectorTab === 'package' ? 'is-active' : ''} onClick={() => setInspectorTab('package')}>Package <span>{reviewCount}</span></button>
-            <button type="button" role="tab" aria-selected={inspectorTab === 'library'} className={inspectorTab === 'library' ? 'is-active' : ''} onClick={() => setInspectorTab('library')}>WeaponDefs <span>{supportingWeaponDefs.length}</span></button>
+            <button type="button" role="tab" aria-selected={inspectorTab === 'preflight'} className={inspectorTab === 'preflight' ? 'is-active' : ''} onClick={() => setInspectorTab('preflight')}><span>Preflight</span><strong>{preflightReport.items.length}</strong></button>
+            <button type="button" role="tab" aria-selected={inspectorTab === 'package'} className={inspectorTab === 'package' ? 'is-active' : ''} onClick={() => setInspectorTab('package')}><span>Package</span><strong>{reviewCount}</strong></button>
+            <button type="button" role="tab" aria-selected={inspectorTab === 'library'} className={inspectorTab === 'library' ? 'is-active' : ''} onClick={() => setInspectorTab('library')}><span>WeaponDefs</span><strong>{supportingWeaponDefs.length}</strong></button>
           </nav>
           <div className={`tweak-inspector-view ${inspectorTab === 'preflight' ? 'is-active' : ''}`}>
           {packageAnalysis.blockingIssues.length > 0 ? (
             <div className="tweak-inspector-diagnostics-empty is-error">
-              <span>✕</span>
-              <div><strong>{packageAnalysis.blockingIssues.length} Blocker Issue(s)</strong><small>Syntax or load-order conflicts need repair before game launch.</small></div>
+              <span aria-hidden="true">✕</span>
+              <div><small>Validation status</small><strong>{packageAnalysis.blockingIssues.length} blocking issue{packageAnalysis.blockingIssues.length === 1 ? '' : 's'}</strong><p>Repair syntax or load-order conflicts before preparing lobby output.</p></div>
             </div>
           ) : (
             <div className="tweak-inspector-diagnostics-empty">
               <span aria-hidden="true">✓</span>
-              <div><strong>Preflight clear</strong><small>No syntax or blocking dependency issues detected.</small></div>
+              <div><small>Validation status</small><strong>Preflight clear</strong><p>No syntax or blocking dependency issues were detected.</p></div>
             </div>
           )}
 
