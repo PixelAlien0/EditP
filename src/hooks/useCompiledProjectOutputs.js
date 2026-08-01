@@ -6,6 +6,7 @@ import { ensureSafeCarrierWeaponPatch } from '../utils/carrierRuntimeSafety.js';
 import { buildLobbyCommands, compileLobbyModules } from '../utils/lobbyModules.js';
 import { encodeLobbyBase64, serializeLuaTable } from '../utils/tweakSerializer.js';
 import { compileTweakDefsLua } from '../utils/tweakdefsHelper.js';
+import { getWeaponBlueprintDefinitionKey } from '../utils/weaponBlueprint.js';
 
 function setNestedValue(object, path, value) {
   const keys = path.split('.');
@@ -95,7 +96,17 @@ export function useCompiledProjectOutputs({
         const donorSlot = donorDefaults?.weaponSlots?.find(candidate => (
           candidate.defKey === swap.sourceWeaponDefKey.toLowerCase()
         ));
-        return donorSlot ? { ...donorSlot, slot: slot.slot } : slot;
+        if (!donorSlot) return slot;
+        const blueprint = swap.libraryWeaponId
+          ? weaponLibrary.find(item => item.id === swap.libraryWeaponId)
+          : null;
+        return {
+          ...donorSlot,
+          defKey: blueprint
+            ? getWeaponBlueprintDefinitionKey(blueprint)
+            : donorSlot.defKey,
+          slot: slot.slot,
+        };
       });
     };
 
@@ -218,6 +229,7 @@ export function useCompiledProjectOutputs({
     resolveCloneRootId,
     tweaks,
     unitDescriptions,
+    weaponLibrary,
   ]);
 
   const deathExplosionTweaks = useMemo(() => {

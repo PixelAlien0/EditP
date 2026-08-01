@@ -1,5 +1,6 @@
 import { serializeLuaTable } from './tweakSerializer.js';
 import { getWeaponParameterDefinition } from '../config/weaponParameters.js';
+import { getWeaponBlueprintDefinitionKey } from './weaponBlueprint.js';
 
 export const BUILDMENU_BEGIN = '-- EDITP_BUILDMENU_BEGIN';
 export const BUILDMENU_END = '-- EDITP_BUILDMENU_END';
@@ -344,7 +345,7 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
         const blueprint = swap.libraryWeaponId
           ? weaponLibrary.find(item => item.id === swap.libraryWeaponId)
           : null;
-        const targetWep = blueprint ? `editp_${blueprint.id.replace(/[^a-z0-9_]/gi, '_').toLowerCase()}` : srcWep;
+        const targetWep = blueprint ? getWeaponBlueprintDefinitionKey(blueprint) : srcWep;
         lines.push(`    clone_swap_weapon(u, ${slotNum}, ${JSON.stringify(srcUnit)}, ${JSON.stringify(srcWep)}, ${JSON.stringify(targetWep)})`);
         if (blueprint) {
           lines.push(...generateWeaponBlueprintOverridesLua(blueprint, targetWep, slotNum));

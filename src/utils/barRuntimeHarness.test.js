@@ -198,6 +198,100 @@ describe('BAR runtime compatibility harness', () => {
     });
   });
 
+  it('keeps Weapon Lab clones mounted and targets their generated WeaponDef with later edits', () => {
+    const blueprint = {
+      id: 'weapon_madsam_copy',
+      name: 'MADSAM copy',
+      sourceUnitId: 'cormadsam',
+      sourceWeaponDefKey: 'madsam_missile',
+      sourceValues: {},
+      overrides: {},
+    };
+    const weaponSwap = {
+      sourceUnitId: 'cormadsam',
+      sourceWeaponDefKey: 'madsam_missile',
+      libraryWeaponId: blueprint.id,
+    };
+    const { result: compiledOutput } = renderHook(() => useCompiledProjectOutputs({
+      tweaks: {
+        allmdt2: {
+          weapon_slot_1_interceptor: 2,
+          weapon_slot_1_targetable: 0,
+          weapon_slot_1_coverage: 500,
+          weapon_slot_1_range: 500,
+        },
+      },
+      allUnitsList: [
+        { id: 'allmdt2', name: 'Missile Defense', isClone: true },
+        { id: 'cormadsam', name: 'MADSAM', isClone: false },
+      ],
+      clones: [{
+        baseId: 'legapopupdef',
+        newId: 'allmdt2',
+        displayName: 'Missile Defense',
+        builderIds: [],
+        weaponSwaps: { 1: weaponSwap },
+      }],
+      defaultsDb: {
+        legapopupdef: { weaponSlots: [{ slot: 1, defKey: 'advanced_riot_cannon' }] },
+        cormadsam: { weaponSlots: [{ slot: 1, defKey: 'madsam_missile', range: 840 }] },
+      },
+      explosionProfiles: {},
+      resolveCloneRootId: unitId => unitId === 'allmdt2' ? 'legapopupdef' : unitId,
+      getInheritedCloneWeaponSwaps: unitId => unitId === 'allmdt2' ? { 1: weaponSwap } : {},
+      includeTweaks: true,
+      includeClones: true,
+      includeRosters: true,
+      includeHeader: false,
+      tweakDefsLua: '',
+      buildMenuSteps: [],
+      disabledUnitIds: [],
+      activeFactoryRosters: {},
+      projectName: 'MADSAM runtime regression',
+      projectAuthor: '',
+      projectDesc: '',
+      unitDescriptions: {},
+      weaponLibrary: [blueprint],
+      supportingWeaponDefs: [],
+      tweakModules: [],
+      base64Options: { padding: false },
+    }));
+
+    const runtime = executeCompiledBarModules(compiledOutput.current.compiledLobbyModules, {
+      unitDefs: {
+        legapopupdef: {
+          weapons: [{ def: 'ADVANCED_RIOT_CANNON' }],
+          weapondefs: { advanced_riot_cannon: { range: 600, damage: { default: 120 } } },
+        },
+        cormadsam: {
+          weapons: [{ def: 'MADSAM_MISSILE', onlytargetcategory: 'VTOL' }],
+          weapondefs: {
+            madsam_missile: {
+              range: 840,
+              weaponvelocity: 1250,
+              tracks: true,
+              damage: { default: 0, vtol: 76 },
+            },
+          },
+        },
+      },
+    });
+
+    assertRuntimeCompatibility(runtime, {
+      unitsExist: ['allmdt2'],
+      paths: [
+        { path: 'allmdt2.weapons.0.def', equals: 'EDITP_WEAPON_MADSAM_COPY' },
+        { path: 'allmdt2.weapons.0.onlytargetcategory', equals: 'VTOL' },
+        { path: 'allmdt2.weapondefs.editp_weapon_madsam_copy.interceptor', equals: 2 },
+        { path: 'allmdt2.weapondefs.editp_weapon_madsam_copy.targetable', equals: 0 },
+        { path: 'allmdt2.weapondefs.editp_weapon_madsam_copy.coverage', equals: 500 },
+        { path: 'allmdt2.weapondefs.editp_weapon_madsam_copy.range', equals: 500 },
+        { path: 'allmdt2.weapondefs.editp_weapon_madsam_copy.tracks', equals: true },
+      ],
+    });
+    expect(runtime.unitDefs.allmdt2.weapondefs.madsam_missile).toBeUndefined();
+  });
+
   it('materializes multi-drone carrier metadata on the selected WeaponDef', () => {
     const compiled = generatedPackage({
       tweaks: {

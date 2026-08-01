@@ -120,4 +120,63 @@ describe('useCompiledProjectOutputs', () => {
     expect(result.current.generatedTweakUnitsLua).toContain('interceptedbyshieldtype = 4');
     expect(result.current.generatedTweakUnitsLua).not.toContain('onlytargetcategory = "VTOL"');
   });
+
+  it('targets the generated WeaponDef when a saved Weapon Lab blueprint is equipped', () => {
+    const blueprint = {
+      id: 'weapon_madsam_copy',
+      name: 'MADSAM copy',
+      sourceUnitId: 'cormadsam',
+      sourceWeaponDefKey: 'madsam_missile',
+      sourceValues: {},
+      overrides: {},
+    };
+    const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
+      tweaks: {
+        allmdt2: {
+          weapon_slot_1_interceptor: 2,
+          weapon_slot_1_targetable: 0,
+          weapon_slot_1_coverage: 500,
+          weapon_slot_1_range: 500,
+        },
+      },
+      allUnitsList: [
+        { id: 'allmdt2', name: 'Missile Defense', isClone: true },
+        { id: 'cormadsam', name: 'MADSAM', isClone: false },
+      ],
+      clones: [{
+        baseId: 'legapopupdef',
+        newId: 'allmdt2',
+        displayName: 'Missile Defense',
+        builderIds: [],
+        weaponSwaps: {
+          1: {
+            sourceUnitId: 'cormadsam',
+            sourceWeaponDefKey: 'madsam_missile',
+            libraryWeaponId: blueprint.id,
+          },
+        },
+      }],
+      defaultsDb: {
+        legapopupdef: { weaponSlots: [{ slot: 1, defKey: 'advanced_riot_cannon' }] },
+        cormadsam: { weaponSlots: [{ slot: 1, defKey: 'madsam_missile', range: 840 }] },
+      },
+      resolveCloneRootId: unitId => unitId === 'allmdt2' ? 'legapopupdef' : unitId,
+      getInheritedCloneWeaponSwaps: unitId => unitId === 'allmdt2'
+        ? {
+            1: {
+              sourceUnitId: 'cormadsam',
+              sourceWeaponDefKey: 'madsam_missile',
+              libraryWeaponId: blueprint.id,
+            },
+          }
+        : {},
+      weaponLibrary: [blueprint],
+    })));
+
+    expect(result.current.generatedTweakDefsLua).toContain('editp_weapon_madsam_copy');
+    expect(result.current.generatedTweakUnitsLua).toContain('editp_weapon_madsam_copy');
+    expect(result.current.generatedTweakUnitsLua).not.toContain('madsam_missile');
+    expect(result.current.generatedTweakUnitsLua).toContain('interceptor = 2');
+    expect(result.current.generatedTweakUnitsLua).toContain('coverage = 500');
+  });
 });

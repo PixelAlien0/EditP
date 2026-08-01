@@ -60,6 +60,14 @@ function cleanId(value) {
     .toLowerCase();
 }
 
+export function getWeaponBlueprintDefinitionKey(blueprintOrId) {
+  const rawId = typeof blueprintOrId === 'object'
+    ? blueprintOrId?.id
+    : blueprintOrId;
+  const blueprintId = cleanId(rawId);
+  return blueprintId ? `editp_${blueprintId}` : '';
+}
+
 function readSlotValue(slot, key) {
   if (!slot) return '';
   const aliases = {
