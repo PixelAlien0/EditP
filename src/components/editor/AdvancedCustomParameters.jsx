@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Button } from '../ui.jsx';
+import { Button, ParameterStatus } from '../ui.jsx';
 import {
   CUSTOM_PARAMETER_BY_KEY,
   CUSTOM_PARAMETER_CATALOG,
@@ -22,7 +22,7 @@ function getValueType(value, catalogEntry) {
   return 'string';
 }
 
-export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, onChange }) {
+export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, inheritedFromClone = false, onChange }) {
   const [catalogKey, setCatalogKey] = useState('');
   const [customKey, setCustomKey] = useState('');
   const [draftType, setDraftType] = useState('string');
@@ -83,7 +83,12 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, o
                 <div className="advanced-custom-parameter__identity">
                   <strong>{parameter.definition?.label || parameter.shortKey}</strong>
                   <code>{parameter.shortKey}</code>
-                  <span>{parameter.modified ? 'Edited' : 'Inherited'} · {parameter.definition?.owner || 'Unverified custom key'}</span>
+                  <ParameterStatus
+                    modified={parameter.modified}
+                    source={!inheritedFromClone && Object.prototype.hasOwnProperty.call(defaults, parameter.tweakKey) ? 'bar' : 'inherited'}
+                    capabilityIds={parameter.definition?.owner === 'BAR gadget' ? ['bar-gadget'] : []}
+                    external={!parameter.definition || parameter.definition.owner === 'Package-specific'}
+                  />
                 </div>
                 <div className="advanced-custom-parameter__editor">
                   {type === 'boolean' ? (

@@ -11,6 +11,7 @@ import {
 } from '../../config/editorParameters.js';
 import {
   getApplicableWeaponParameters,
+  getWeaponParameterDefinition,
   getSpecialProjectileBehavior,
   getSpecialProjectileParameters,
   SPECIAL_PROJECTILE_PARAMETER_KEYS,
@@ -19,7 +20,7 @@ import {
   WEAPON_CORE_PARAMETERS,
   WEAPON_TARGET_MASK_PARAMETERS,
 } from '../../config/weaponParameters.js';
-import { Button, SectionHeader, Switch, StatCard } from '../ui.jsx';
+import { Button, ParameterStatus, SectionHeader, Switch, StatCard } from '../ui.jsx';
 import EditorShell from './EditorShell.jsx';
 import UnitLibraryPane from './UnitLibraryPane.jsx';
 import VirtualizedUnitList from './VirtualizedUnitList.jsx';
@@ -151,6 +152,46 @@ export default function EditUnitsWorkspace({ context }) {
     + selectedCats.length
     + (showModifiedOnly ? 1 : 0)
   );
+  const inspectorParameterStatus = (() => {
+    if (!selectedUnit || !activeRelationshipKey) return null;
+    const parameterKey = activeRelationshipKey.replace(/^weapon_slot_\d+_/, '');
+    const isWeaponParameter = activeParamTab === 'weapons';
+    const parameter = isWeaponParameter
+      ? getWeaponParameterDefinition(parameterKey)
+      : STAT_KEYS.find(item => item.key === parameterKey);
+    if (!parameter) return null;
+
+    const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
+    const defaults = selectedUnitDefaults || defaultsDb[baseId] || {};
+    if (!isWeaponParameter) {
+      const resolution = resolveUnitParameterDefault(parameter, defaults);
+      return {
+        modified: Object.prototype.hasOwnProperty.call(tweaks[selectedUnit.id] || {}, parameter.key),
+        source: !selectedUnit.isClone && resolution.source === 'unit' ? 'bar' : 'inherited',
+        capabilityIds: parameter.capabilities,
+        generated: parameter.output === 'tweakdefs',
+      };
+    }
+
+    const slots = defaults.weaponSlots || [];
+    const slot = slots.find(item => item.slot === activeWeaponSlotTab) || slots[0];
+    const tweakKey = slot ? `weapon_slot_${slot.slot}_${parameter.key}` : '';
+    const cloneInfo = selectedUnit.isClone
+      ? clones.find(clone => clone.newId.toLowerCase() === selectedUnit.id.toLowerCase())
+      : null;
+    const swap = cloneInfo && slot
+      ? getInheritedCloneWeaponSwaps(selectedUnit.id)?.[String(slot.slot)]
+      : null;
+    return {
+      modified: Boolean(tweakKey && Object.prototype.hasOwnProperty.call(tweaks[selectedUnit.id] || {}, tweakKey)),
+      source: swap || (!selectedUnit.isClone && slot && Object.prototype.hasOwnProperty.call(slot, parameter.key))
+        ? 'bar'
+        : 'inherited',
+      capabilityIds: parameter.capabilities,
+      generated: Boolean(swap?.libraryWeaponId),
+      external: Boolean(swap?.sourceUnitId && !defaultsDb[resolveCloneRootId(swap.sourceUnitId)]),
+    };
+  })();
   return (
       <EditorShell
         layout={workspaceLayout.layout}
@@ -676,9 +717,12 @@ export default function EditUnitsWorkspace({ context }) {
                                       {diffPercent >= 0 ? '+' : ''}{diffPercent}%
                                     </span>
                                   )}
-                                  <span className={`parameter-card-state ${isModified ? 'is-edited' : defaultResolution.source.startsWith('engine') ? 'is-engine' : 'is-inherited'}`}>
-                                    {isModified ? 'Edited' : defaultResolution.source.startsWith('engine') ? 'Engine' : 'Inherited'}
-                                  </span>
+                                  <ParameterStatus
+                                    modified={isModified}
+                                    source={!selectedUnit.isClone && defaultResolution.source === 'unit' ? 'bar' : 'inherited'}
+                                    capabilityIds={stat.capabilities}
+                                    generated={stat.output === 'tweakdefs'}
+                                  />
                                 </span>
                               </div>
 
@@ -742,6 +786,7 @@ export default function EditUnitsWorkspace({ context }) {
                       <AdvancedCustomParameters
                         defaults={defaults}
                         tweaks={tweaks[selectedUnit.id] || {}}
+                        inheritedFromClone={selectedUnit.isClone}
                         onChange={(key, value) => handleStatChange(selectedUnit.id, key, value)}
                       />
                     </div>
@@ -816,9 +861,12 @@ export default function EditUnitsWorkspace({ context }) {
                                       {diffPercent >= 0 ? '+' : ''}{diffPercent}%
                                     </span>
                                   )}
-                                  <span className={`parameter-card-state ${isModified ? 'is-edited' : defaultResolution.source.startsWith('engine') ? 'is-engine' : 'is-inherited'}`}>
-                                    {isModified ? 'Edited' : defaultResolution.source.startsWith('engine') ? 'Engine' : 'Inherited'}
-                                  </span>
+                                  <ParameterStatus
+                                    modified={isModified}
+                                    source={!selectedUnit.isClone && defaultResolution.source === 'unit' ? 'bar' : 'inherited'}
+                                    capabilityIds={stat.capabilities}
+                                    generated={stat.output === 'tweakdefs'}
+                                  />
                                 </span>
                               </div>
 
@@ -1053,9 +1101,12 @@ export default function EditUnitsWorkspace({ context }) {
                                           {diffPercent >= 0 ? '+' : ''}{diffPercent}%
                                         </span>
                                       )}
-                                      <span className={`parameter-card-state ${isModified ? 'is-edited' : 'is-inherited'}`}>
-                                        {isModified ? 'Edited' : 'Inherited'}
-                                      </span>
+                                      <ParameterStatus
+                                        modified={isModified}
+                                        source={swap || (!selectedUnit.isClone && Object.prototype.hasOwnProperty.call(slot, param.key)) ? 'bar' : 'inherited'}
+                                        capabilityIds={param.capabilities}
+                                        generated={Boolean(swap?.libraryWeaponId)}
+                                      />
                                     </span>
                                   </div>
                                   <div className="stat-card-input-wrapper">
@@ -1249,9 +1300,12 @@ export default function EditUnitsWorkspace({ context }) {
                                           </span>
                                           <span className="parameter-card-status">
                                             {param.danger && <span className="stat-card-diff diff-negative">Caution</span>}
-                                            <span className={`parameter-card-state ${isModified ? 'is-edited' : 'is-inherited'}`}>
-                                              {isModified ? 'Edited' : 'Inherited'}
-                                            </span>
+                                            <ParameterStatus
+                                              modified={isModified}
+                                              source={swap || (!selectedUnit.isClone && Object.prototype.hasOwnProperty.call(slot, param.key)) ? 'bar' : 'inherited'}
+                                              capabilityIds={param.capabilities}
+                                              generated={Boolean(swap?.libraryWeaponId)}
+                                            />
                                           </span>
                                         </div>
                                         <div className="stat-card-input-wrapper">
@@ -1374,6 +1428,11 @@ export default function EditUnitsWorkspace({ context }) {
                                             workspaceLayout.setRightCollapsed(false);
                                           }} /></span>
                                           <span className="target-filter-helper">{cf.description}</span>
+                                          <ParameterStatus
+                                            modified={isModified}
+                                            source={swap || (!selectedUnit.isClone && Object.prototype.hasOwnProperty.call(slot, cf.key)) ? 'bar' : 'inherited'}
+                                            generated={Boolean(swap?.libraryWeaponId)}
+                                          />
                                         </div>
                                         <div className="target-filter-groups">
                                           {TARGET_CATEGORY_GROUPS.map(group => (
@@ -1462,6 +1521,9 @@ export default function EditUnitsWorkspace({ context }) {
                   <p>{activeRelationshipKey
                     ? getParameterHelp(activeRelationshipKey, getRelationshipLabel(activeRelationshipKey))
                     : 'Open a help control or select a relationship to inspect its behavior and connected values.'}</p>
+                  {inspectorParameterStatus && (
+                    <ParameterStatus {...inspectorParameterStatus} detailed />
+                  )}
                 </section>
                 <ParameterGuide section={activeParamTab} />
                 <ParameterRelationshipPanel

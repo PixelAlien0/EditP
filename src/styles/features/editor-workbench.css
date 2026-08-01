@@ -882,7 +882,6 @@
   gap: 4px;
 }
 
-.parameter-card-state,
 .editor-workspace .stat-card-diff {
   min-height: 18px;
   padding: 3px 5px;
@@ -898,14 +897,11 @@
   white-space: nowrap;
 }
 
-.parameter-card-state.is-edited,
 .editor-workspace .stat-card-diff {
   border-color: var(--color-border-accent-muted);
   background: var(--color-surface-accent-subtle);
   color: var(--color-accent-strong);
 }
-
-.parameter-card-state.is-engine { color: var(--color-text); }
 
 .editor-workspace .stat-card-diff.diff-negative {
   border-color: color-mix(in srgb, var(--color-danger) 38%, var(--color-border));

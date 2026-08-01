@@ -3,6 +3,7 @@ export { Button, IconButton, ButtonGroup, FileButton } from './Button.jsx';
 export { Switch, SwitchField } from './Switch.jsx';
 export { Field, TextField, TextAreaField, SelectField } from './Field.jsx';
 export { Badge, StatusBadge } from './Badge.jsx';
+export { ParameterStatus } from './ParameterStatus.jsx';
 export { Tabs } from './Tabs.jsx';
 export { Type, Eyebrow, TechnicalText } from './Typography.jsx';
 export { SectionHeader, PageHeader, PageShell, Card, StatCard, Divider } from './Layout.jsx';

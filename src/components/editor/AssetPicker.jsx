@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Button, Dialog, IconButton } from '../ui.jsx';
+import { Button, Dialog, IconButton, ParameterStatus } from '../ui.jsx';
 import SoundPreviewButton from '../ui/SoundPreviewButton.jsx';
 import {
   ASSET_TYPE_LABELS,
@@ -75,7 +75,13 @@ export default function AssetPicker({ assetType, label, value = '', placeholder 
         {isSoundBrowser && value && <SoundPreviewButton soundName={value} compact />}
         <Button variant="secondary" className="asset-picker__browse" onClick={() => { setPage(0); setOpen(true); }}>Browse</Button>
       </div>
-      {value && <span className={`asset-picker__status ${known ? 'is-known' : 'is-unverified'}`}>{known ? 'BAR asset' : 'Custom / unverified'}</span>}
+      {value && (
+        <ParameterStatus
+          className="asset-picker__status"
+          source={known ? 'bar' : 'external'}
+          external={!known}
+        />
+      )}
       <Dialog
         open={open}
         onClose={() => setOpen(false)}

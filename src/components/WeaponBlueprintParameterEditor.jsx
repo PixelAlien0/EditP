@@ -14,7 +14,7 @@ import {
   getWeaponBlueprintOverrides,
   getWeaponBlueprintSourceValues,
 } from '../utils/weaponBlueprint.js';
-import { Badge, Button } from './ui.jsx';
+import { Badge, Button, ParameterStatus } from './ui.jsx';
 import AssetPicker from './editor/AssetPicker.jsx';
 
 function groupCoreParameters(parameters) {
@@ -128,7 +128,12 @@ function ParameterControl({ parameter, sourceValues, overrideValues, effectiveVa
     ].filter(Boolean).join(' ')}>
       <div className="weapon-lab-parameter__heading">
         <span>{parameter.label}</span>
-        <Badge tone={modified ? 'accent' : 'neutral'} size="sm">{modified ? 'Edited' : 'Source'}</Badge>
+        <ParameterStatus
+          modified={modified}
+          source={Object.prototype.hasOwnProperty.call(sourceValues, parameter.key) ? 'bar' : 'inherited'}
+          capabilityIds={parameter.capabilities}
+          generated
+        />
       </div>
       {control}
       <div className="weapon-lab-parameter__footer">
@@ -177,7 +182,7 @@ function ParameterGroup({
   );
 }
 
-function TargetMaskGroup({ overrideValues, effectiveValues, onChange }) {
+function TargetMaskGroup({ sourceValues, overrideValues, effectiveValues, onChange }) {
   return (
     <details className="weapon-lab-parameter-group weapon-lab-target-masks">
       <summary>
@@ -200,7 +205,14 @@ function TargetMaskGroup({ overrideValues, effectiveValues, onChange }) {
                   <strong>{parameter.label}</strong>
                   <small>{parameter.description}</small>
                 </div>
-                {modified && <Button size="sm" variant="ghost" onClick={() => onChange(parameter.key, undefined)}>Reset</Button>}
+                <div className="weapon-lab-target-mask__status">
+                  <ParameterStatus
+                    modified={modified}
+                    source={Object.prototype.hasOwnProperty.call(sourceValues, parameter.key) ? 'bar' : 'inherited'}
+                    generated
+                  />
+                  {modified && <Button size="sm" variant="ghost" onClick={() => onChange(parameter.key, undefined)}>Reset</Button>}
+                </div>
               </header>
               <input
                 className="ui-control"
@@ -332,6 +344,7 @@ export default function WeaponBlueprintParameterEditor({ blueprint, onChange }) 
           />
         ))}
         <TargetMaskGroup
+          sourceValues={sourceValues}
           overrideValues={overrideValues}
           effectiveValues={effectiveValues}
           onChange={onChange}

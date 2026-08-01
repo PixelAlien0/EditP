@@ -174,6 +174,34 @@
   letter-spacing: .045em;
   text-transform: uppercase;
 }
+.ui-parameter-status {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+}
+.ui-parameter-status__badges {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.ui-parameter-status__badges .ui-badge {
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+.ui-parameter-status.is-detailed {
+  width: 100%;
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
+}
+.ui-parameter-status.is-detailed > small {
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-xs)/var(--line-height-body) var(--font-ui);
+}
 
 .ui-tabs { min-width: 0; display: flex; align-items: stretch; overflow-x: auto; border-bottom: 1px solid var(--color-border); scrollbar-width: none; }
 .ui-tabs::-webkit-scrollbar { display: none; }

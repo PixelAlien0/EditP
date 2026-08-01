@@ -964,6 +964,12 @@
   gap: var(--space-3);
 }
 
+.weapon-lab-target-mask__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .weapon-lab-target-mask > header small {
   color: var(--color-text-muted);
 }
