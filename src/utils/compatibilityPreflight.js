@@ -5,8 +5,9 @@ const GROUP_META = Object.freeze({
   delivery: { label: 'Lobby delivery', order: 1 },
   modules: { label: 'Imported modules', order: 2 },
   dependencies: { label: 'Dependencies', order: 3 },
-  workspaces: { label: 'Cross-workspace links', order: 4 },
-  assets: { label: 'Assets & runtime', order: 5 },
+  contracts: { label: 'BAR runtime contracts', order: 4 },
+  workspaces: { label: 'Cross-workspace links', order: 5 },
+  assets: { label: 'Assets & runtime', order: 6 },
 });
 
 function unique(values) {
@@ -83,6 +84,7 @@ export function buildCompatibilityPreflight({
   lobbySetup,
   supportingWeaponDefs = [],
   knownUnitIds = [],
+  gadgetContractResults = [],
 } = {}) {
   const items = [];
   const add = (item) => items.push({ action: null, detail: '', ...item });
@@ -102,6 +104,23 @@ export function buildCompatibilityPreflight({
       detail: issue.message,
       action: issue.action || (issue.unitId && issue.unitId !== 'project' ? { type: 'unit', unitId: issue.unitId, label: 'Open unit' } : null),
     }));
+  }
+
+  const completeContracts = gadgetContractResults.filter(result => result.problems.length === 0);
+  completeContracts.forEach(result => add({
+    id: `contract-${result.id}`,
+    group: 'contracts',
+    level: result.status === 'experimental' ? 'info' : 'pass',
+    title: `${result.unitName} · ${result.label}`,
+    detail: `${result.slotNumber === null ? 'Unit contract' : `Weapon slot ${result.slotNumber}`} matches registry v${result.source.commit.slice(0, 8)} for the pinned BAR snapshot${result.status === 'experimental' ? '; runtime behavior remains experimental' : ''}.`,
+    action: { type: 'unit', unitId: result.unitId, label: 'Open unit' },
+  }));
+  if (gadgetContractResults.length === 0) {
+    add({
+      id: 'contracts-none', group: 'contracts', level: 'pass',
+      title: 'No structured BAR gadget contracts detected',
+      detail: 'The current edited project does not activate a registered spawner, carrier, cluster, sector-fire, interception, or converter contract.',
+    });
   }
 
   const deliveryGroups = [

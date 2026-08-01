@@ -44,6 +44,7 @@ import {
 import AssetPicker from './AssetPicker.jsx';
 import AdvancedCustomParameters from './AdvancedCustomParameters.jsx';
 import UnitDescriptionEditor from './UnitDescriptionEditor.jsx';
+import GadgetContractSummary from './GadgetContractSummary.jsx';
 
 const LazyBehaviorInterceptorEditor = lazy(() => import('./BehaviorInterceptorEditor.jsx'));
 
@@ -94,6 +95,7 @@ export default function EditUnitsWorkspace({ context }) {
     projectName,
     resolveCloneRootId,
     scopedValidationIssues,
+    selectedGadgetContracts,
     searchQuery,
     selectedCats,
     selectedFaction,
@@ -1525,6 +1527,7 @@ export default function EditUnitsWorkspace({ context }) {
                     <ParameterStatus {...inspectorParameterStatus} detailed />
                   )}
                 </section>
+                <GadgetContractSummary results={selectedGadgetContracts} />
                 <ParameterGuide section={activeParamTab} />
                 <ParameterRelationshipPanel
                   section={activeParamTab}

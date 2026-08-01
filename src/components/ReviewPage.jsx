@@ -16,6 +16,7 @@ const EXPORT_TABS = [
 
 export default function ReviewPage({
   modifiedUnitIds, tweaks, clones, buildMenuSteps, disabledUnitIds, validationIssues,
+  gadgetContractResults,
   projectChangeCount, unitNames, projectName, projectAuthor, projectDesc,
   setProjectName, setProjectAuthor, setProjectDesc,
   includeTweaks, includeClones, includeRosters, includeHeader, exportEnglishOnly = false, compactLuaFormatting = false,
@@ -56,7 +57,8 @@ export default function ReviewPage({
     lobbySetup,
     supportingWeaponDefs,
     knownUnitIds,
-  }), [compiledLobbyModules, compilerValidation, knownUnitIds, lobbySetup, packageAnalysis, supportingWeaponDefs, tweakModules, validationIssues]);
+    gadgetContractResults,
+  }), [compiledLobbyModules, compilerValidation, gadgetContractResults, knownUnitIds, lobbySetup, packageAnalysis, supportingWeaponDefs, tweakModules, validationIssues]);
   const openSummary = tab => onOpenSummary(tab);
   const copyOutput = async () => {
     try {

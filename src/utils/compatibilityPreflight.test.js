@@ -37,6 +37,28 @@ function packageAnalysis(moduleId = 'module-a', overrides = {}) {
 }
 
 describe('buildCompatibilityPreflight', () => {
+  it('shows validated BAR runtime contracts in their own preflight group', () => {
+    const result = buildCompatibilityPreflight({
+      compiledModules: compiled(),
+      gadgetContractResults: [{
+        id: 'armcarry:carrier-spawner:1',
+        contractId: 'carrier-spawner',
+        label: 'Carrier and deployed units',
+        unitId: 'armcarry',
+        unitName: 'Aircraft Carrier',
+        slotNumber: 1,
+        status: 'experimental',
+        problems: [],
+        source: { commit: 'e34440077024d3b122b89d07a314a2df7b1b181d' },
+      }],
+    });
+
+    expect(result.groups.find(group => group.id === 'contracts')?.items)
+      .toEqual(expect.arrayContaining([
+        expect.objectContaining({ title: 'Aircraft Carrier · Carrier and deployed units', level: 'info' }),
+      ]));
+  });
+
   it('marks a structured package within both nine-slot limits as ready', () => {
     const result = buildCompatibilityPreflight({ compiledModules: compiled() });
 

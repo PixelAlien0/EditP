@@ -4,6 +4,10 @@ import {
   isSupportedSpecialProjectileBehavior,
 } from '../config/specialProjectileBehaviors.js';
 import { buildCrossWorkspaceValidation } from '../utils/crossWorkspaceValidation.js';
+import {
+  evaluateGadgetContracts,
+  gadgetContractResultsToIssues,
+} from '../utils/gadgetContractValidation.js';
 
 export function getValidationWarning(key, value) {
   if (value === undefined || value === '') return null;
@@ -178,7 +182,51 @@ export function useProjectValidation({
   includeClones,
   includeRosters,
   activeCollectionUnitIds,
+  selectedUnitId,
 }) {
+  const gadgetContractContext = useMemo(() => ({
+    knownUnitIds: new Set([
+      ...allUnitsList.map(unit => String(unit.id || '').toLowerCase()),
+      ...clones.map(clone => String(clone.newId || '').toLowerCase()),
+    ].filter(Boolean)),
+    knownWeaponDefs: new Set(
+      Object.values(defaultsDb)
+        .flatMap(unit => unit?.weaponSlots || [])
+        .map(slot => String(slot.defKey || '').toLowerCase())
+        .filter(Boolean)
+    ),
+    supportingWeaponDefs: new Set(
+      supportingWeaponDefs
+        .filter(definition => definition.enabled !== false)
+        .map(definition => `${definition.ownerUnitId}:${definition.key}`.toLowerCase())
+    ),
+  }), [allUnitsList, clones, defaultsDb, supportingWeaponDefs]);
+
+  const gadgetContractResults = useMemo(() => Object.entries(tweaks).flatMap(([unitId, patch]) => (
+    evaluateGadgetContracts({
+      unitId,
+      unitName: unitNames[unitId]
+        || clones.find(clone => clone.newId.toLowerCase() === unitId.toLowerCase())?.displayName
+        || unitId,
+      defaults: defaultsDb[resolveCloneRootId(unitId)] || {},
+      patch,
+      ...gadgetContractContext,
+    })
+  )), [clones, defaultsDb, gadgetContractContext, resolveCloneRootId, tweaks, unitNames]);
+
+  const selectedGadgetContracts = useMemo(() => {
+    if (!selectedUnitId) return [];
+    return evaluateGadgetContracts({
+      unitId: selectedUnitId,
+      unitName: unitNames[selectedUnitId]
+        || clones.find(clone => clone.newId.toLowerCase() === selectedUnitId.toLowerCase())?.displayName
+        || selectedUnitId,
+      defaults: defaultsDb[resolveCloneRootId(selectedUnitId)] || {},
+      patch: tweaks[selectedUnitId] || {},
+      ...gadgetContractContext,
+    });
+  }, [clones, defaultsDb, gadgetContractContext, resolveCloneRootId, selectedUnitId, tweaks, unitNames]);
+
   const validationIssues = useMemo(() => {
     const issues = [];
     const knownUnitIds = new Set(allUnitsList.map(unit => unit.id.toLowerCase()));
@@ -345,6 +393,7 @@ export function useProjectValidation({
         message: `${compiledLobbyModules.units.required} Units slots required; BAR provides 9.`,
       });
     }
+    issues.push(...gadgetContractResultsToIssues(gadgetContractResults));
     issues.push(...buildCrossWorkspaceValidation({
       tweaks,
       clones,
@@ -369,6 +418,7 @@ export function useProjectValidation({
     compiledLobbyModules,
     defaultsDb,
     disabledUnitIds,
+    gadgetContractResults,
     includeClones,
     includeRosters,
     includeTweaks,
@@ -386,5 +436,10 @@ export function useProjectValidation({
     [activeCollectionUnitIds, validationIssues]
   );
 
-  return { validationIssues, scopedValidationIssues };
+  return {
+    validationIssues,
+    scopedValidationIssues,
+    gadgetContractResults,
+    selectedGadgetContracts,
+  };
 }

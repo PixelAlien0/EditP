@@ -1334,7 +1334,12 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleUndo, handleRedo, setShowClonePanel]);
 
-  const { validationIssues, scopedValidationIssues } = useProjectValidation({
+  const {
+    validationIssues,
+    scopedValidationIssues,
+    gadgetContractResults,
+    selectedGadgetContracts,
+  } = useProjectValidation({
     tweaks,
     clones,
     unitNames: unitsDb.names,
@@ -1351,6 +1356,7 @@ export default function App() {
     includeClones,
     includeRosters,
     activeCollectionUnitIds,
+    selectedUnitId,
   });
 
   const handleApplyFormula = useCallback((updates) => {
@@ -1702,6 +1708,7 @@ export default function App() {
             projectName,
             resolveCloneRootId,
             scopedValidationIssues,
+            selectedGadgetContracts,
             searchQuery,
             selectedCats,
             selectedFaction,
@@ -1817,6 +1824,7 @@ export default function App() {
             buildMenuSteps={buildMenuSteps}
             disabledUnitIds={disabledUnitIds}
             validationIssues={validationIssues}
+            gadgetContractResults={gadgetContractResults}
             projectChangeCount={projectChangeCount}
             unitNames={unitsDb.names}
             projectName={projectName}
