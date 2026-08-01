@@ -32,8 +32,10 @@ describe('tweak package import', () => {
     expect(analysis.conversions).toEqual(expect.arrayContaining([
       expect.objectContaining({ type: 'clone', baseId: 'armflea', newId: 'editp_test' }),
       expect.objectContaining({ type: 'build-add', builderId: 'armlab', unitId: 'editp_test' }),
-      expect.objectContaining({ type: 'unit-parameter', key: 'customparams.spawnrate', value: 8 }),
     ]));
+    expect(analysis.conversions).not.toContainEqual(expect.objectContaining({
+      type: 'unit-parameter', key: 'customparams.spawnrate',
+    }));
     expect(analysis.warnings.map(item => item.code)).toContain('global-loop');
     expect(analysis.warnings.map(item => item.code)).toContain('dynamic-id');
   });
@@ -115,7 +117,6 @@ describe('tweak package import', () => {
     expect(analysis.conversions).toEqual(expect.arrayContaining([
       expect.objectContaining({ type: 'unit-parameter', unitId: 'editp_ship', key: 'health', value: 900 }),
       expect.objectContaining({ type: 'unit-parameter', unitId: 'editp_ship', key: 'maxvelocity', value: 2.5 }),
-      expect.objectContaining({ type: 'unit-parameter', unitId: 'editp_ship', key: 'customparams.carried_unit', value: 'editp_drone' }),
       expect.objectContaining({ type: 'build-roster', builderId: 'editp_ship', unitIds: ['editp_drone', 'armflea'] }),
       expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'damage', value: 42 }),
       expect.objectContaining({ type: 'weapon-parameter', unitId: 'editp_ship', slot: 1, key: 'reload', value: 0.7 }),
@@ -349,7 +350,6 @@ describe('tweak package import', () => {
     expect(analysis.typeIssues).toEqual(expect.arrayContaining([
       expect.objectContaining({ field: 'health', expectedType: 'number', actualType: 'string', suggestion: '900' }),
       expect.objectContaining({ field: 'canattack', expectedType: 'boolean', actualType: 'string', suggestion: 'true' }),
-      expect.objectContaining({ field: 'enabledocking', expectedType: 'boolean', actualType: 'number', suggestion: 'true' }),
       expect.objectContaining({ field: 'paralyzer', expectedType: 'boolean', actualType: 'string', suggestion: 'false' }),
     ]));
     expect(analysis.runtimeRisks).toEqual(expect.arrayContaining([
@@ -359,6 +359,21 @@ describe('tweak package import', () => {
     ]));
     expect(analysis.assetReferences).toContainEqual(expect.objectContaining({
       field: 'objectname', kind: 'model', value: 'Units/example.s3o', status: 'unverified',
+    }));
+  });
+
+  it('uses the canonical weapon catalog for direct WeaponDef value types', () => {
+    const module = parseTweakPackageInput(`
+      UnitDefs["editp_test"].weapondefs.laser.weapontype = "BeamLaser"
+      UnitDefs["editp_test"].weapondefs.laser.soundstart = "lasrfir1"
+      UnitDefs["editp_test"].weapondefs.laser.range = "900"
+    `, { kind: 'defs' }).modules[0];
+    const analysis = analyzeTweakModule(module);
+
+    expect(analysis.typeIssues).not.toContainEqual(expect.objectContaining({ field: 'weapontype' }));
+    expect(analysis.typeIssues).not.toContainEqual(expect.objectContaining({ field: 'soundstart' }));
+    expect(analysis.typeIssues).toContainEqual(expect.objectContaining({
+      field: 'range', expectedType: 'number', actualType: 'string', suggestion: '900',
     }));
   });
 

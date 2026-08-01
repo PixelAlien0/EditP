@@ -150,6 +150,8 @@ export default function CarrierDroneWorkbenchDialog({
   const [droneDockTimeText, setDroneDockTimeText] = useState(initialConfig.droneDockTimeText || '');
   const [droneAmmoText, setDroneAmmoText] = useState(initialConfig.droneAmmoText || '0');
   const [minimumIdleRadius, setMinimumIdleRadius] = useState(initialConfig.minimumIdleRadius ?? 160);
+  const [controlRadius, setControlRadius] = useState(initialConfig.controlRadius ?? '');
+  const [engagementRange, setEngagementRange] = useState(initialConfig.engagementRange ?? '');
   const [spawnInterval, setSpawnInterval] = useState(initialConfig.spawnInterval || 5);
   const [returnHp, setReturnHp] = useState(initialConfig.returnHp || 25);
   const parentConfig = useMemo(
@@ -232,6 +234,8 @@ export default function CarrierDroneWorkbenchDialog({
     setDroneDockTimeText(cfg.droneDockTimeText || '');
     setDroneAmmoText(cfg.droneAmmoText || '0');
     setMinimumIdleRadius(cfg.minimumIdleRadius ?? 160);
+    setControlRadius(cfg.controlRadius ?? '');
+    setEngagementRange(cfg.engagementRange ?? '');
     setSpawnInterval(cfg.spawnInterval || 1);
     setReturnHp(cfg.returnHp ?? 0);
     setCarrierDeathBehavior(cfg.carrierDeathBehavior || 'death');
@@ -257,6 +261,8 @@ export default function CarrierDroneWorkbenchDialog({
     setDroneDockTimeText(cfg.droneDockTimeText || '');
     setDroneAmmoText(cfg.droneAmmoText || '0');
     setMinimumIdleRadius(cfg.minimumIdleRadius ?? 160);
+    setControlRadius(cfg.controlRadius ?? '');
+    setEngagementRange(cfg.engagementRange ?? '');
     setSpawnInterval(cfg.spawnInterval || 1);
     setReturnHp(cfg.returnHp ?? 0);
     setCarrierDeathBehavior(cfg.carrierDeathBehavior || 'death');
@@ -281,6 +287,8 @@ export default function CarrierDroneWorkbenchDialog({
       // rosters cannot reliably undock one attached reserve per unit type.
       dockingEnabled: dockingEnabled && !multiTypeDirectControl,
       minimumIdleRadius,
+      controlRadius,
+      engagementRange,
       maxUnitsText: maxUnits,
       startingDroneCountText: startingDroneCount,
       spawnMetalText: spawnMetal,
@@ -695,6 +703,34 @@ export default function CarrierDroneWorkbenchDialog({
                   )}
                 />
                 <small>Keeps carrier-directed units from stacking at the carrier while idle. Recommended: 160.</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-control-radius">Carrier Control Radius</label>
+                <input
+                  id="input-control-radius"
+                  type="number"
+                  className="form-input"
+                  min="0"
+                  value={controlRadius}
+                  onChange={event => setControlRadius(event.target.value)}
+                  placeholder="Unlimited when inherited"
+                />
+                <small>Single shared recall radius. BAR does not support one value per deployed type.</small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="input-engagement-range">Carrier Engagement Range</label>
+                <input
+                  id="input-engagement-range"
+                  type="number"
+                  className="form-input"
+                  min="0"
+                  value={engagementRange}
+                  onChange={event => setEngagementRange(event.target.value)}
+                  placeholder="Unlimited when inherited"
+                />
+                <small>Single shared range in which deployed units adopt the carrier's combat target.</small>
               </div>
 
               <div className="form-group">

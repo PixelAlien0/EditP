@@ -23,6 +23,21 @@ function buildFreeDeploymentSections(count) {
   return Array.from({ length: count }, () => ' ').join(',');
 }
 
+function normalizeNumericList(value, count, fallback, { min = 0, integer = false } = {}) {
+  const values = splitValues(value)
+    .map(item => Number(item))
+    .filter(Number.isFinite)
+    .map(item => Math.max(min, integer ? Math.round(item) : item))
+    .map(String);
+  return alignValues(values, count, String(fallback)).join(' ');
+}
+
+function normalizeScalar(value, fallback, { min = 0 } = {}) {
+  const firstValue = splitValues(value)[0];
+  const number = Number(firstValue);
+  return Number.isFinite(number) ? Math.max(min, number) : fallback;
+}
+
 export function ensureSafeCarrierWeaponPatch(weaponPatch = {}, inheritedSlot = {}) {
   const customParams = weaponPatch.customparams || {};
   const carriedUnit = customParams.carried_unit ?? inheritedSlot.carried_unit;
@@ -36,6 +51,70 @@ export function ensureSafeCarrierWeaponPatch(weaponPatch = {}, inheritedSlot = {
   const droneAmmo = customParams.droneammo ?? inheritedSlot.droneammo;
   const safeCustomParams = { ...customParams };
   let changed = false;
+
+  const spawnRate = normalizeScalar(
+    customParams.spawnrate ?? inheritedSlot.spawnrate,
+    1,
+    { min: Number.EPSILON },
+  );
+  if (spawnRate !== customParams.spawnrate) {
+    safeCustomParams.spawnrate = spawnRate;
+    changed = true;
+  }
+
+  for (const key of ['controlradius', 'engagementrange']) {
+    const source = customParams[key] ?? inheritedSlot[key];
+    if (source === undefined || source === null || source === '') continue;
+    const normalized = normalizeScalar(source, 0, { min: 0 });
+    if (normalized !== customParams[key]) {
+      safeCustomParams[key] = normalized;
+      changed = true;
+    }
+  }
+
+  for (const key of ['manualdrones', 'enabledocking']) {
+    const source = customParams[key] ?? inheritedSlot[key];
+    if (source === undefined || source === null || source === '') continue;
+    const normalized = isEnabled(source) ? 1 : 0;
+    if (normalized !== customParams[key]) {
+      safeCustomParams[key] = normalized;
+      changed = true;
+    }
+  }
+
+  const maxUnits = normalizeNumericList(
+    customParams.maxunits ?? inheritedSlot.maxunits,
+    carriedUnits.length,
+    1,
+    { min: 1, integer: true },
+  );
+  if (maxUnits !== String(customParams.maxunits ?? '')) {
+    safeCustomParams.maxunits = carriedUnits.length === 1 ? Number(maxUnits) : maxUnits;
+    changed = true;
+  }
+
+  const startingCounts = normalizeNumericList(
+    customParams.startingdronecount ?? inheritedSlot.startingdronecount,
+    carriedUnits.length,
+    0,
+    { min: 0, integer: true },
+  );
+  if (startingCounts !== String(customParams.startingdronecount ?? '')) {
+    safeCustomParams.startingdronecount = carriedUnits.length === 1
+      ? Number(startingCounts)
+      : startingCounts;
+    changed = true;
+  }
+
+  const droneTypes = alignValues(
+    splitValues(customParams.dronetype ?? inheritedSlot.dronetype),
+    carriedUnits.length,
+    'default',
+  ).join(' ');
+  if (droneTypes !== String(customParams.dronetype ?? '')) {
+    safeCustomParams.dronetype = droneTypes;
+    changed = true;
+  }
 
   // BAR only supplies one default ammo entry. Its carrier gadget indexes this
   // list by carried-unit type, so every type must receive an explicit value.
@@ -73,15 +152,6 @@ export function ensureSafeCarrierWeaponPatch(weaponPatch = {}, inheritedSlot = {
     }
     changed = safeCustomParams.dockingpieces !== customParams.dockingpieces || changed;
 
-    const manualDrones = customParams.manualdrones ?? inheritedSlot.manualdrones;
-    if (isEnabled(manualDrones) && isEnabled(dockingEnabled)) {
-      // Direct-control multi-type rosters cannot issue automatic undock/idle
-      // orders reliably in BAR. Free deployment avoids one attached reserve
-      // being left behind for each carried-unit type.
-      safeCustomParams.enabledocking = false;
-      safeCustomParams.dockingpieces = buildFreeDeploymentSections(carriedUnits.length);
-      changed = true;
-    }
   } else {
     const dockingEnabled = customParams.enabledocking ?? inheritedSlot.enabledocking;
     if (!isEnabled(dockingEnabled)) {

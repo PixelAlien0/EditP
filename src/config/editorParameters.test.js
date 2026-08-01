@@ -86,8 +86,10 @@ describe('editor parameter configuration', () => {
     expect(WEAPON_SLOT_PATHS.docktohealthreshold).toBe('customparams.docktohealthreshold');
     expect(WEAPON_SLOT_PATHS.startingdronecount).toBe('customparams.startingdronecount');
     expect(WEAPON_SLOT_PATHS.droneammo).toBe('customparams.droneammo');
-    expect(WEAPON_SLOT_BOOLEAN_PARAMS.has('enabledocking')).toBe(true);
-    expect(WEAPON_SLOT_BOOLEAN_PARAMS.has('manualdrones')).toBe(true);
+    expect(WEAPON_SLOT_BOOLEAN_PARAMS.has('enabledocking')).toBe(false);
+    expect(WEAPON_SLOT_BOOLEAN_PARAMS.has('manualdrones')).toBe(false);
+    expect(getWeaponParameterDefinition('enabledocking')?.valueType).toBe('number');
+    expect(getWeaponParameterDefinition('manualdrones')?.valueType).toBe('number');
     expect(WEAPON_SLOT_PATHS.spawns_height).toBeUndefined();
     expect(WEAPON_SLOT_PATHS.is_controllable).toBeUndefined();
   });

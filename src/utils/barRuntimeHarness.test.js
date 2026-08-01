@@ -148,6 +148,11 @@ describe('BAR runtime compatibility harness', () => {
           weapon_slot_1_range: 525,
         },
       },
+      units: {
+        editp_weapons: {
+          weapondefs: { laser: { range: 525 } },
+        },
+      },
       supportingWeaponDefs: [{
         id: 'runtime-cluster',
         ownerUnitId: 'editp_weapons',
@@ -233,11 +238,11 @@ describe('BAR runtime compatibility harness', () => {
     assertRuntimeCompatibility(result, {
       paths: [
         { path: 'editp_carrier.weapondefs.dronegun.customparams.carried_unit', equals: 'armdrone corvamp armflea' },
-        { path: 'editp_carrier.weapondefs.dronegun.customparams.maxunits', equals: '8' },
-        { path: 'editp_carrier.weapondefs.dronegun.customparams.startingdronecount', equals: '3' },
-        { path: 'editp_carrier.weapondefs.dronegun.customparams.droneammo', equals: '6' },
+        { path: 'editp_carrier.weapondefs.dronegun.customparams.maxunits', equals: '8 8 8' },
+        { path: 'editp_carrier.weapondefs.dronegun.customparams.startingdronecount', equals: '3 3 3' },
+        { path: 'editp_carrier.weapondefs.dronegun.customparams.droneammo', equals: '6 6 6' },
         { path: 'editp_carrier.weapondefs.dronegun.customparams.spawnrate', equals: '4' },
-        { path: 'editp_carrier.weapondefs.dronegun.customparams.enabledocking', equals: false },
+        { path: 'editp_carrier.weapondefs.dronegun.customparams.enabledocking', equals: '0' },
         { path: 'editp_carrier.weapondefs.dronegun.customparams.manualdrones', equals: '1' },
         { path: 'editp_carrier.weapondefs.dronegun.customparams.carrierdeaththroe', equals: 'release' },
         { path: 'editp_carrier.weapondefs.dronegun.customparams.spawns_surface', equals: 'LAND' },

@@ -11,14 +11,10 @@ export const MAX_TWEAK_MODULE_BYTES = 1024 * 1024;
 export const MAX_TWEAK_PACKAGE_BYTES = 5 * 1024 * 1024;
 
 const FIELD_PATTERN = /^tweak(defs|units)(\d+)?$/i;
-const SUPPORTED_UNIT_CUSTOM_PARAMS = new Set([
-  'carried_unit', 'spawnrate', 'maxunits', 'controlradius', 'manualdrones', 'enabledocking',
-  'decayrate', 'deathdecayrate', 'carrierdeaththroe', 'metalcost', 'energycost',
-  'spawns_name', 'spawns_surface', 'dronetype', 'startingdronecount', 'engagementrange',
-  'dockingpieces', 'dockingradius', 'dockinghelperspeed', 'dockingarmor', 'dockinghealrate',
-  'docktohealthreshold', 'attackformationspread', 'attackformationoffset', 'holdfireradius',
-  'droneminimumidleradius', 'droneairtime', 'dronedocktime', 'droneammo',
-]);
+// Carrier and projectile-spawner parameters belong to WeaponDef.customparams.
+// UnitDef.customparams with the same names may be consumed by arbitrary mod
+// code, so the analyzer reports them but never converts them into editor fields.
+const SUPPORTED_UNIT_CUSTOM_PARAMS = new Set();
 const weaponCustomParameters = WEAPON_PARAMETER_CATALOG.filter(parameter => (
   parameter.path.startsWith('customparams.')
 ));
@@ -55,6 +51,15 @@ const DIRECT_WEAPON_FIELDS = new Set([
   'sizedecay', 'sizegrowth', 'alphadecay', 'stages', 'tilelength', 'scrollspeed',
   'dyndamageexp', 'dyndamagemin', 'dyndamagerange',
 ]);
+const DIRECT_WEAPON_EXPECTED_TYPES = new Map();
+WEAPON_PARAMETER_CATALOG.forEach(parameter => {
+  if (parameter.compileTarget !== 'weapondef' || parameter.path.includes('.')) return;
+  const key = parameter.path.toLowerCase();
+  const expected = parameter.acceptedTypes || [parameter.valueType];
+  const current = DIRECT_WEAPON_EXPECTED_TYPES.get(key);
+  if (!current) DIRECT_WEAPON_EXPECTED_TYPES.set(key, expected);
+  else if (JSON.stringify(current) !== JSON.stringify(expected)) DIRECT_WEAPON_EXPECTED_TYPES.set(key, null);
+});
 const UNIT_FIELD_TO_EDITOR_KEY = new Map();
 const UNIT_CUSTOM_TO_EDITOR_KEY = new Map();
 STAT_KEYS.forEach(parameter => {
@@ -114,7 +119,8 @@ WEAPON_SLOT_STRING_PARAMS.forEach(field => addGenericExpectation(field, 'string'
 ADDITIONAL_ENGINE_BOOLEAN_FIELDS.forEach(field => addGenericExpectation(field, 'boolean'));
 DIRECT_WEAPON_FIELDS.forEach(field => addGenericExpectation(
   field,
-  ASSET_FIELD_KINDS[field] ? 'string' : 'number'
+  DIRECT_WEAPON_EXPECTED_TYPES.get(field)
+    || (ASSET_FIELD_KINDS[field] ? 'string' : 'number')
 ));
 const UNSUPPORTED_LITERAL = Symbol('unsupported-lua-literal');
 
@@ -962,10 +968,11 @@ function collectTypeIssues(source) {
   }
   for (const match of source.matchAll(/\.weapondefs(?:\s*\[\s*["']([a-z0-9_]+)["']\s*\]|\.([a-z0-9_]+))\.([a-z0-9_]+)\s*=\s*([^,;\n]+)/gi)) {
     const field = match[3].toLowerCase();
-    const expectedType = WEAPON_SLOT_BOOLEAN_PARAMS.has(field)
-      ? 'boolean'
-      : WEAPON_SLOT_STRING_PARAMS.has(field) || ASSET_FIELD_KINDS[field] ? 'string'
-        : DIRECT_WEAPON_FIELDS.has(field) ? 'number' : null;
+    const expectedType = DIRECT_WEAPON_EXPECTED_TYPES.get(field)
+      || (WEAPON_SLOT_BOOLEAN_PARAMS.has(field)
+        ? 'boolean'
+        : WEAPON_SLOT_STRING_PARAMS.has(field) || ASSET_FIELD_KINDS[field] ? 'string'
+          : DIRECT_WEAPON_FIELDS.has(field) ? 'number' : null);
     addIssue(match, field, scalarFromLua(match[4]), expectedType, `WeaponDef ${(match[1] || match[2]).toLowerCase()}`);
   }
   for (const match of source.matchAll(/\b([a-z_][a-z0-9_]*)\s*=\s*([^,;\n}]+)/gi)) {
@@ -1513,95 +1520,31 @@ export function repairAndSanitizeTweakPackage(sourceText) {
     return { sanitizedSource: '', issuesFixed: 0 };
   }
 
+  // This operation is intentionally syntax-agnostic and semantics-preserving.
+  // Lua comments, quoted values, sparse arrays, identifiers, and function calls
+  // are user code; guessing how to "repair" them can silently change a mod.
   let issuesFixed = 0;
   let text = sourceText;
 
-  // 1. Remove dangerous inline comments (-- ...)
-  const commentMatches = (text.match(/--.*$/gm) || []).length;
-  if (commentMatches > 0) {
-    text = text.replace(/--.*$/gm, '');
-    issuesFixed += commentMatches;
+  if (text.charCodeAt(0) === 0xFEFF) {
+    text = text.slice(1);
+    issuesFixed += 1;
   }
 
-  // 2. Normalize string booleans ("true" -> true, "false" -> false) and numeric booleans (0 -> false, 1 -> true)
-  const boolMatches = (text.match(/=\s*"(true|false)"/gi) || []).length;
-  if (boolMatches > 0) {
-    text = text.replace(/=\s*"(true|false)"/gi, '= $1');
-    issuesFixed += boolMatches;
-  }
-  const weaponBoolFields = ['collidefriendly', 'collidefeature', 'avoidfeature', 'avoidfriendly', 'impactonly', 'noselfdamage', 'turret', 'tracks'];
-  for (const field of weaponBoolFields) {
-    const falsePattern = new RegExp(`\\b${field}\\s*=\\s*0\\b`, 'gi');
-    const truePattern = new RegExp(`\\b${field}\\s*=\\s*1\\b`, 'gi');
-    const falseMatches = (text.match(falsePattern) || []).length;
-    const trueMatches = (text.match(truePattern) || []).length;
-    if (falseMatches > 0) {
-      text = text.replace(falsePattern, `${field} = false`);
-      issuesFixed += falseMatches;
-    }
-    if (trueMatches > 0) {
-      text = text.replace(truePattern, `${field} = true`);
-      issuesFixed += trueMatches;
-    }
-  }
+  const normalizedLines = text.replace(/\r\n?/g, '\n');
+  if (normalizedLines !== text) issuesFixed += 1;
+  text = normalizedLines;
 
-  // 3. Remove empty buildoptions array slots ([X] = "")
-  const emptyBuildOptions = (text.match(/\[\d+\]\s*=\s*""\s*,?/g) || []).length;
-  if (emptyBuildOptions > 0) {
-    text = text.replace(/\[\d+\]\s*=\s*""\s*,?\n?/g, '');
-    issuesFixed += emptyBuildOptions;
-  }
+  const lines = text.split('\n');
+  const trimmedLines = lines.map(line => line.replace(/[ \t]+$/g, ''));
+  issuesFixed += trimmedLines.reduce((count, line, index) => (
+    count + (line !== lines[index] ? 1 : 0)
+  ), 0);
+  text = trimmedLines.join('\n');
 
-  // 4. Smart Lua Syntax Repair: Function signature parameter list typos (e.g. function FOO(a,b,cIa.field= -> function FOO(a,b,c) a.field=)
-  const fnTypoMatches = (text.match(/function\s+[A-Za-z0-9_]+\s*\([^)]*?[I|][a-zA-Z0-9_]+\./gi) || []).length;
-  if (fnTypoMatches > 0) {
-    text = text.replace(/(function\s+[A-Za-z0-9_]+\s*\([^)]*?)[I|]([a-zA-Z0-9_]+\.)/gi, '$1) $2');
-    issuesFixed += fnTypoMatches;
-  }
-
-  // 5. Smart Lua Syntax Repair: Unclosed string literal arguments in helper calls (e.g. NAME("Epic Unit) -> NAME("Epic Unit"))
-  const unclosedStringMatches = (text.match(/\b[A-Za-z_][A-Za-z0-9_]*\s*\(\s*"[^"\r\n)]+\s*\)/g) || [])
-    .filter(match => !/".*"/.test(match)).length;
-  if (unclosedStringMatches > 0) {
-    text = text.replace(/(\b[A-Za-z_][A-Za-z0-9_]*\s*\(\s*"[^"\r\n)]+)(\s*\))/g, (match, prefix, suffix) => {
-      return prefix.endsWith('"') ? match : `${prefix}"${suffix}`;
-    });
-    issuesFixed += unclosedStringMatches;
-  }
-
-  // 6. Smart Lua Syntax Repair: Mismatched/typo helper function calls
-  const declaredFunctions = new Set([...text.matchAll(/function\s+([A-Za-z0-9_]+)\s*\(/g)].map(m => m[1]));
-  if (declaredFunctions.size > 0) {
-    declaredFunctions.forEach(fnName => {
-      // Look for function calls with extra character typos (e.g. ONX(...) when ON(...) is defined but ONX is not)
-      const typoPattern = new RegExp(`\\b(${fnName}[X-Z_])\\s*\\(`, 'g');
-      for (const match of text.matchAll(typoPattern)) {
-        const calledName = match[1];
-        if (!declaredFunctions.has(calledName)) {
-          text = text.replace(new RegExp(`\\b${calledName}\\s*\\(`, 'g'), `${fnName}(`);
-          issuesFixed += 1;
-        }
-      }
-    });
-  }
-
-  // 7. Property & Method Typo Repairs (e.g. seelfdestructas -> selfdestructas, cantbetranspVVted -> cantbetransported)
-  const propTypoReplacements = [
-    [/\bseelfdestructas\b/gi, 'selfdestructas'],
-    [/\bcantbetransp[A-Z0-9]*ted\b/gi, 'cantbetransported'],
-    [/\braptor_turret_basic_t3s_v1\b/gi, 'raptor_turret_basic_t3_v1'],
-    [/\boor_doomt3\b/gi, 'cordoomt3']
-  ];
-  for (const [pattern, replacement] of propTypoReplacements) {
-    const matches = (text.match(pattern) || []).length;
-    if (matches > 0) {
-      text = text.replace(pattern, replacement);
-      issuesFixed += matches;
-    }
-  }
-
-  // 8. Clean empty trailing lines / consecutive blank lines
-  text = text.replace(/\n{3,}/g, '\n\n').trim();
+  const withoutTrailingWhitespace = text.replace(/\s+$/g, '');
+  if (withoutTrailingWhitespace !== text) issuesFixed += 1;
+  text = withoutTrailingWhitespace;
 
   return {
     sanitizedSource: text,

@@ -22,8 +22,6 @@ const SCALAR_LIST_KEYS = new Set([
   'startingdronecount',
   'spawn_metal_cost',
   'spawn_energy_cost',
-  'controlradius',
-  'engagementrange',
   'droneairtime',
   'dronedocktime',
   'droneammo',

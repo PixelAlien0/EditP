@@ -729,7 +729,7 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
   await expect(output).toContainText('maxunits = "13 5"');
   await expect(output).toContainText('energycost = "700 1400"');
   await expect(output).toContainText('droneammo = "2 6"');
-  await expect(output).toContainText('enabledocking = false');
+  await expect(output).toContainText('enabledocking = 0');
   await expect(output).toContainText('droneminimumidleradius = 180');
   await expect(output).toContainText('dockingpieces = " , "');
   await expect(output).toContainText('docktohealthreshold = 70');

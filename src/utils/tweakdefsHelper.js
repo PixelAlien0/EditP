@@ -28,6 +28,9 @@ function compareCanonicalText(left, right) {
   return leftText < rightText ? -1 : leftText > rightText ? 1 : 0;
 }
 
+// Legacy inspection helper. Project weapon/unit patches are canonically emitted
+// by useCompiledProjectOutputs as tweakunits and must never be added to
+// Definitions Lua as well.
 export function generateUnitTweaksBlockLua(tweaks = {}, options = {}) {
   if (!tweaks || typeof tweaks !== 'object') return '';
   const compact = Boolean(options?.compactLuaFormatting);
@@ -707,9 +710,13 @@ export function generateBuildMenuBlockLua(steps, options = {}) {
   if (activeSteps.length === 0) return '';
 
   if (compact) {
-    const helperFunc = `local function editp_modify_bo(builderId, addList, removeList)
+    const helperFunc = `local function editp_modify_bo(builderId, addList, removeList, orderedList)
   local ud = UnitDefs and UnitDefs[builderId]
   if ud and type(ud.buildoptions) == "table" then
+    if orderedList then
+      ud.buildoptions = orderedList
+      return
+    end
     local removeMap = {}
     if removeList then for _, r in ipairs(removeList) do removeMap[r] = true end end
     local seen = {}
@@ -735,9 +742,11 @@ end`;
       const builderId = step.builderId.trim().toLowerCase();
       const addList = step.add.map(a => a.trim().toLowerCase()).filter(Boolean);
       const removeList = step.remove.map(r => r.trim().toLowerCase()).filter(Boolean);
+      const orderList = (step.order || []).map(id => id.trim().toLowerCase()).filter(Boolean);
       const addStr = addList.length > 0 ? `{${addList.map(x => JSON.stringify(x)).join(', ')}}` : 'nil';
       const remStr = removeList.length > 0 ? `{${removeList.map(x => JSON.stringify(x)).join(', ')}}` : 'nil';
-      return `editp_modify_bo(${JSON.stringify(builderId)}, ${addStr}, ${remStr})`;
+      const orderStr = orderList.length > 0 ? `{${orderList.map(x => JSON.stringify(x)).join(', ')}}` : 'nil';
+      return `editp_modify_bo(${JSON.stringify(builderId)}, ${addStr}, ${remStr}, ${orderStr})`;
     });
     return `${helperFunc}\n${calls.join('\n')}`;
   }
@@ -818,18 +827,30 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
           .split(/[\s,]+/)
           .map(s => s.trim().toLowerCase())
           .filter(Boolean);
+        const payloadCount = Math.max(1, allChildren.length);
+        const alignNumericValues = (rawValue, fallback, minimum = 0) => {
+          const parsed = String(rawValue ?? '')
+            .trim()
+            .split(/\s+/)
+            .map(value => Number(value))
+            .filter(Number.isFinite)
+            .map(value => Math.max(minimum, Math.round(value)));
+          return Array.from({ length: payloadCount }, (_, index) => (
+            parsed[index] ?? parsed[parsed.length - 1] ?? fallback
+          ));
+        };
 
         const deathBehavior = String(unitTweaks['customparams.carrierdeaththroe'] || 'death').toLowerCase();
         const rawDroneAmmo = unitTweaks['customparams.droneammo'];
-        const rawMaxUnits = String(unitTweaks['customparams.maxunits'] || rawDroneAmmo || '4');
-        const maxUnitsList = rawMaxUnits.trim().split(/\s+/).map(v => parseInt(v, 10)).filter(v => !isNaN(v) && v > 0);
-        const totalMaxUnits = maxUnitsList.reduce((sum, v) => sum + v, 0) || 4;
-        const maxUnitsStr = maxUnitsList.length > 0 ? maxUnitsList.join(' ') : rawMaxUnits;
-        const droneAmmoStr = rawDroneAmmo !== undefined ? String(rawDroneAmmo) : maxUnitsStr;
+        const maxUnitsList = alignNumericValues(unitTweaks['customparams.maxunits'], 1, 1);
+        const maxUnitsStr = maxUnitsList.join(' ');
+        const droneAmmoStr = alignNumericValues(rawDroneAmmo, 0, 0).join(' ');
 
-        const rawStartingCount = String(unitTweaks['customparams.startingdronecount'] || '0');
-        const startingCountList = rawStartingCount.trim().split(/\s+/).map(v => parseInt(v, 10)).filter(v => !isNaN(v) && v >= 0);
-        const startingCountStr = startingCountList.length > 0 ? startingCountList.join(' ') : rawStartingCount;
+        const startingCountStr = alignNumericValues(
+          unitTweaks['customparams.startingdronecount'],
+          0,
+          0,
+        ).map((value, index) => Math.min(value, maxUnitsList[index])).join(' ');
 
         const manualDroneValue = unitTweaks['customparams.manualdrones'];
         const manualDrones = manualDroneValue !== undefined
@@ -861,7 +882,6 @@ export function generateCarrierLinkagesBlockLua(tweaksOrEntries = {}) {
           droneAmmoStr,
           maxUnits: maxUnitsStr,
           maxUnitsStr,
-          totalMaxUnits,
           startingDroneCount: startingCountStr,
           startingCountStr,
           manualDrones,
@@ -903,7 +923,6 @@ end
 for _, entry in ipairs(editp_carrier_linkages.entries) do
   local u = UnitDefs and UnitDefs[entry.unitId]
   if u then
-    local countStr = tostring(entry.droneAmmo)
     local maxUnitsStr = tostring(entry.maxUnits)
     local startingCountStr = tostring(entry.startingDroneCount)
     local intervalStr = tostring(entry.spawnInterval)
@@ -915,7 +934,6 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       wDef.customparams.carried_unit = table.concat(entry.allChildren, " ")
       wDef.customparams.maxunits = maxUnitsStr
       wDef.customparams.droneammo = tostring(entry.droneAmmoStr or entry.maxUnitsStr)
-      wDef.customparams.stockpilelimit = tostring(entry.totalMaxUnits or entry.maxUnits)
       wDef.customparams.startingdronecount = startingCountStr
       wDef.customparams.spawnrate = intervalStr
       wDef.customparams.metalcost = metalStr
@@ -923,7 +941,7 @@ for _, entry in ipairs(editp_carrier_linkages.entries) do
       wDef.customparams.carrierdeaththroe = entry.deathBehavior
       wDef.customparams.manualdrones = entry.manualDrones and "1" or nil
       wDef.customparams.droneairtime = entry.droneAirTime and tostring(entry.droneAirTime) or nil
-      wDef.customparams.enabledocking = entry.dockingEnabled
+      wDef.customparams.enabledocking = entry.dockingEnabled and "1" or "0"
       wDef.customparams.docktohealthreshold = entry.dockToHealThreshold
       if entry.spawnsSurface and entry.spawnsSurface ~= "" then
         wDef.customparams.spawns_surface = entry.spawnsSurface
@@ -992,14 +1010,12 @@ export function compileTweakDefsLua({
   const deathProfileBlock = generateDeathProfilesBlockLua(deathExplosionTweaks);
   const supportingWeaponDefsBlock = generateSupportingWeaponDefsBlockLua(supportingWeaponDefs);
   const carrierLinkagesBlock = generateCarrierLinkagesBlockLua(tweaks);
-  const unitTweaksBlock = generateUnitTweaksBlockLua(tweaks, { compactLuaFormatting: compileFlags?.compactLuaFormatting });
   
   const parts = [];
   if (cleanBody.length > 0) parts.push(cleanBody);
   if (clonesBlock.length > 0) {
     parts.push(`${CLONES_BEGIN}\ndo\n${clonesBlock}\nend\n${CLONES_END}`);
   }
-  if (unitTweaksBlock.length > 0) parts.push(unitTweaksBlock);
   if (carrierLinkagesBlock.length > 0) parts.push(carrierLinkagesBlock);
   if (supportingWeaponDefsBlock.length > 0) parts.push(supportingWeaponDefsBlock);
   if (buildMenuBlock.length > 0) {

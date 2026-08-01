@@ -194,7 +194,7 @@ export default function ReviewPage({
               <SwitchField label="Build menus" checked={includeRosters} onChange={event => setIncludeRosters(event.target.checked)} />
               <SwitchField label="Header comments" checked={includeHeader} onChange={event => setIncludeHeader(event.target.checked)} />
               <SwitchField label="English-only tooltips (Compact)" checked={exportEnglishOnly} onChange={event => setExportEnglishOnly && setExportEnglishOnly(event.target.checked)} title="Omit multi-language tooltip duplicates (de, fr, es, etc.) to significantly reduce payload size for large mods." />
-              <SwitchField label="Grouped Lua output (Compact Code)" checked={compactLuaFormatting} onChange={event => setCompactLuaFormatting && setCompactLuaFormatting(event.target.checked)} title="Group weapon slot parameter tweaks and roster helpers to dramatically reduce Lua payload character count." />
+              <SwitchField label="Compact build-menu Lua" checked={compactLuaFormatting} onChange={event => setCompactLuaFormatting && setCompactLuaFormatting(event.target.checked)} title="Use the smaller, equivalence-tested helper form for generated factory roster edits. Unit and weapon patches remain in Units Lua." />
             </div>
           </details>
 

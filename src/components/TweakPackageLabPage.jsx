@@ -236,16 +236,6 @@ export default function TweakPackageLabPage({
     + packageAnalysis.confidenceCounts.probable
     + packageAnalysis.confidenceCounts.dynamic
     + packageAnalysis.unknownCustomParameters.length;
-  const selectedDiagnosticCount = selectedAnalysis
-    ? selectedAnalysis.warnings.length
-      + selectedAnalysis.typeIssues.length
-      + selectedAnalysis.runtimeRisks.length
-      + selectedAnalysis.findings.filter(finding => finding.confidence !== 'exact').length
-      + selectedAnalysis.unknownCustomParameters.length
-      + (selectedReport?.unresolved.length || 0)
-      + (selectedReport?.collisions.length || 0)
-    : 0;
-
   useEffect(() => {
     if (!inspectorFullscreen) return undefined;
     const previousOverflow = document.body.style.overflow;
@@ -572,13 +562,13 @@ export default function TweakPackageLabPage({
                       if (!selected?.rawLua) return;
                       const { sanitizedSource, issuesFixed } = repairAndSanitizeTweakPackage(selected.rawLua);
                       if (issuesFixed === 0) {
-                        onToast?.('Module is clean! No syntax typos or inline comments found.');
+                        onToast?.('Source formatting is already normalized.');
                         return;
                       }
                       onUpdateModule(selected.id, { rawLua: sanitizedSource });
-                      onToast?.(`Auto-sanitized & repaired ${issuesFixed} issue${issuesFixed === 1 ? '' : 's'}.`);
+                      onToast?.(`Normalized ${issuesFixed} non-semantic formatting item${issuesFixed === 1 ? '' : 's'}.`);
                     }}
-                  >Auto-Sanitize & Repair</Button>
+                  >Normalize source</Button>
                   <Button
                     variant="primary"
                     size="sm"

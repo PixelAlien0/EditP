@@ -8,7 +8,8 @@ import {
   generateClonesBlockLua,
   generateUnitTweaksBlockLua,
   sortClonesDependency,
-  traceAncestor
+  traceAncestor,
+  UNIT_TWEAKS_BEGIN,
 } from './tweakdefsHelper.js';
 
 const nestedClones = [
@@ -41,7 +42,7 @@ describe('nested clone generation', () => {
     expect(compactLua).not.toContain('"de"');
   });
 
-  it('groups weapon slot tweaks and roster helpers when compactLuaFormatting is active', () => {
+  it('keeps the legacy weapon tweak inspector deterministic and compacts roster helpers', () => {
     const tweaks = {
       armflash: {
         weapon_slot_1_damage: '70',
@@ -61,7 +62,32 @@ describe('nested clone generation', () => {
       { compactLuaFormatting: true }
     );
     expect(rosterLua).toContain('local function editp_modify_bo');
-    expect(rosterLua).toContain('editp_modify_bo("armlab", {"armflash_clone"}, {"armflash"})');
+    expect(rosterLua).toContain('editp_modify_bo("armlab", {"armflash_clone"}, {"armflash"}, nil)');
+  });
+
+  it('preserves exact roster ordering in compact output', () => {
+    const rosterLua = generateBuildMenuBlockLua(
+      [{ builderId: 'armlab', add: ['armrock'], remove: ['armflash'], order: ['armck', 'armrock'] }],
+      { compactLuaFormatting: true },
+    );
+
+    expect(rosterLua).toContain('editp_modify_bo("armlab", {"armrock"}, {"armflash"}, {"armck", "armrock"})');
+    expect(rosterLua).toContain('ud.buildoptions = orderedList');
+  });
+
+  it('never duplicates canonical Units weapon patches into Definitions Lua', () => {
+    const lua = compileTweakDefsLua({
+      currentTweakDefsLua: '',
+      customUnitClones: [],
+      buildMenuWizardSteps: [],
+      disabledUnitIds: [],
+      unitBuildOptions: {},
+      compileFlags: { includeClones: true, includeRosters: true, compactLuaFormatting: true },
+      tweaks: { armflash: { weapon_slot_1_damage: '70' } },
+    });
+
+    expect(lua).not.toContain(UNIT_TWEAKS_BEGIN);
+    expect(lua).not.toContain('weapon_slot_1_damage');
   });
 
   it('compiles clone and build-menu blocks into generated Lua', () => {
@@ -222,6 +248,8 @@ describe('nested clone generation', () => {
     expect(lua).toContain('wDef.customparams.carried_unit = table.concat(entry.allChildren, " ")');
     expect(lua).toContain('wDef.customparams.docktohealthreshold = entry.dockToHealThreshold');
     expect(lua).toContain('wDef.customparams.manualdrones = entry.manualDrones and "1" or nil');
+    expect(lua).toContain('wDef.customparams.enabledocking = entry.dockingEnabled and "1" or "0"');
+    expect(lua).not.toContain('wDef.customparams.stockpilelimit');
     expect(lua).toContain('wDef.customparams.droneairtime = entry.droneAirTime and tostring(entry.droneAirTime) or nil');
     expect(lua).not.toContain('wDef.stockpile = true');
     expect(lua).not.toContain('for _, wDef in pairs(u.weapondefs)');

@@ -4,74 +4,6 @@
  */
 import { SAFE_ORPHAN_DRONE_AIRTIME_SECONDS } from './carrierRuntimeSafety.js';
 
-export const CARRIER_ARCHETYPES = [
-  {
-    id: 'armada_carrier',
-    name: 'Armada Tactical Carrier',
-    faction: 'arm',
-    parentUnitId: 'armcarrier',
-    childUnitId: 'armantiodrone',
-    capacity: 6,
-    spawnInterval: 5,
-    metalCost: 120,
-    energyCost: 1500,
-    returnHpPercent: 25,
-    description: 'Armada naval warship equipped with rapid-response interceptor drones.',
-  },
-  {
-    id: 'cortex_swarm',
-    name: 'Cortex Swarm Warship',
-    faction: 'cor',
-    parentUnitId: 'corcarrier',
-    childUnitId: 'corantiodrone',
-    capacity: 8,
-    spawnInterval: 4,
-    metalCost: 100,
-    energyCost: 1200,
-    returnHpPercent: 20,
-    description: 'Cortex assault carrier deploying heavy drone swarm strikes.',
-  },
-  {
-    id: 'legion_kaiser',
-    name: 'Legion Kaiser Battleship',
-    faction: 'leg',
-    parentUnitId: 'legvcarry',
-    childUnitId: 'legdrone',
-    capacity: 10,
-    spawnInterval: 3,
-    metalCost: 180,
-    energyCost: 2000,
-    returnHpPercent: 30,
-    description: 'Flagship dreadnought deploying long-range fighter drones.',
-  },
-  {
-    id: 'orbital_carrier',
-    name: 'Orbital Drone Platform',
-    faction: 'arm',
-    parentUnitId: 'armosat',
-    childUnitId: 'armodrone',
-    capacity: 4,
-    spawnInterval: 6,
-    metalCost: 250,
-    energyCost: 3000,
-    returnHpPercent: 40,
-    description: 'High-altitude satellite platform launching space-combat drones.',
-  },
-  {
-    id: 'rampart_geothermal',
-    name: 'Rampart Geothermal Platform',
-    faction: 'leg',
-    parentUnitId: 'legrampart',
-    childUnitId: 'legbasicassistdrone',
-    capacity: 20,
-    spawnInterval: 4,
-    metalCost: 90,
-    energyCost: 1000,
-    returnHpPercent: 0,
-    description: 'Geothermal defence structure launching independent controllable combat drones.',
-  },
-];
-
 function readCarrierBoolean(value, fallback = false) {
   if (value === undefined || value === null || value === '') return fallback;
   return !['false', '0', 'off', 'no'].includes(String(value).trim().toLowerCase());
@@ -220,7 +152,7 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
     || unitId.includes('hive')
     || unitId.includes('spawner');
 
-  const maxUnitsValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'maxunits', 'droneammo') ?? 4;
+  const maxUnitsValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'maxunits') ?? 4;
   const startingDroneCountValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'startingdronecount') ?? 0;
   const spawnMetalValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_metal_cost', 'metalcost') ?? 100;
   const spawnEnergyValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'spawn_energy_cost', 'energycost') ?? 1000;
@@ -236,6 +168,8 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
     carrierWeaponSlot,
     'droneminimumidleradius'
   );
+  const controlRadiusValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'controlradius');
+  const engagementRangeValue = getCarrierValue(unitTweaks, defaults, carrierWeaponSlot, 'engagementrange');
   const maxUnits = Number(splitSpaceList(maxUnitsValue)[0] ?? 4);
   const spawnMetal = Number(splitSpaceList(spawnMetalValue)[0] ?? 100);
   const spawnEnergy = Number(splitSpaceList(spawnEnergyValue)[0] ?? 1000);
@@ -279,8 +213,9 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
     })),
     maxUnits: Number.isFinite(maxUnits) && maxUnits > 0 ? maxUnits : 4,
     maxUnitsText: String(maxUnitsValue),
-    // Retained for callers saved against the earlier, incorrectly named API.
-    droneAmmo: Number.isFinite(maxUnits) && maxUnits > 0 ? maxUnits : 4,
+    droneAmmo: Number.isFinite(Number(splitSpaceList(droneAmmoValue)[0]))
+      ? Number(splitSpaceList(droneAmmoValue)[0])
+      : 0,
     startingDroneCount: Number.isFinite(startingDroneCount) && startingDroneCount >= 0
       ? startingDroneCount
       : 0,
@@ -296,6 +231,12 @@ export function getCarrierLinkageConfig(unitId, tweaks = {}, defaultsDb = {}, re
     minimumIdleRadius: Number.isFinite(Number(minimumIdleRadiusValue))
       ? Math.max(0, Number(minimumIdleRadiusValue))
       : 160,
+    controlRadius: Number.isFinite(Number(splitSpaceList(controlRadiusValue)[0]))
+      ? Math.max(0, Number(splitSpaceList(controlRadiusValue)[0]))
+      : null,
+    engagementRange: Number.isFinite(Number(splitSpaceList(engagementRangeValue)[0]))
+      ? Math.max(0, Number(splitSpaceList(engagementRangeValue)[0]))
+      : null,
     carrierDeathBehavior,
     spawnMetal: Number.isFinite(spawnMetal) ? spawnMetal : 100,
     spawnMetalText: String(spawnMetalValue),
@@ -426,9 +367,16 @@ export function buildCarrierLinkageTweaks(config) {
       : buildFreeDeploymentSections(payloadCount),
     [slotKey('spawnrate')]: intervalStr,
     [slotKey('carrierdeaththroe')]: carrierDeathBehavior,
-    [slotKey('manualdrones')]: manualControl ? 'true' : 'false',
-    [slotKey('enabledocking')]: dockingEnabled ? 'true' : 'false',
+    // The BAR gadget reads these with tonumber(), so Lua booleans are invalid.
+    [slotKey('manualdrones')]: manualControl ? '1' : '0',
+    [slotKey('enabledocking')]: dockingEnabled ? '1' : '0',
     [slotKey('droneminimumidleradius')]: String(minimumIdleRadius),
+    [slotKey('controlradius')]: config.controlRadius === null || config.controlRadius === undefined || config.controlRadius === ''
+      ? undefined
+      : String(Math.max(0, Number(config.controlRadius) || 0)),
+    [slotKey('engagementrange')]: config.engagementRange === null || config.engagementRange === undefined || config.engagementRange === ''
+      ? undefined
+      : String(Math.max(0, Number(config.engagementRange) || 0)),
     [slotKey('droneairtime')]: droneAirTimes?.join(' '),
     [slotKey('dronedocktime')]: droneDockTimes?.join(' '),
     [slotKey('droneammo')]: droneAmmo.join(' '),

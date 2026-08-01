@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildCarrierLinkageTweaks,
-  CARRIER_ARCHETYPES,
   getCarrierLinkageConfig,
 } from './carrierDroneLinkage.js';
 import {
@@ -10,16 +9,11 @@ import {
 } from './carrierRuntimeSafety.js';
 
 describe('carrierDroneLinkage', () => {
-  it('exposes preset carrier archetypes', () => {
-    expect(CARRIER_ARCHETYPES.length).toBeGreaterThanOrEqual(4);
-    expect(CARRIER_ARCHETYPES[0].parentUnitId).toBe('armcarrier');
-    expect(CARRIER_ARCHETYPES[0].childUnitId).toBe('armantiodrone');
-  });
-
   it('extracts default linkage config correctly', () => {
     const config = getCarrierLinkageConfig('armcarrier');
     expect(config.parentUnitId).toBe('armcarrier');
-    expect(config.droneAmmo).toBe(4);
+    expect(config.maxUnits).toBe(4);
+    expect(config.droneAmmo).toBe(0);
   });
 
   it('extracts existing tweaks correctly', () => {
@@ -32,6 +26,7 @@ describe('carrierDroneLinkage', () => {
     };
     const config = getCarrierLinkageConfig('armcarrier', tweaks);
     expect(config.carriedUnit).toBe('armodrone');
+    expect(config.maxUnits).toBe(4);
     expect(config.droneAmmo).toBe(12);
     expect(config.spawnMetal).toBe(150);
   });
@@ -97,9 +92,11 @@ describe('carrierDroneLinkage', () => {
       'weapon_slot_2_dockingpieces': ' ',
       'weapon_slot_2_spawnrate': '4',
       'weapon_slot_2_carrierdeaththroe': 'control',
-      'weapon_slot_2_manualdrones': 'true',
-      'weapon_slot_2_enabledocking': 'false',
+      'weapon_slot_2_manualdrones': '1',
+      'weapon_slot_2_enabledocking': '0',
       'weapon_slot_2_droneminimumidleradius': '160',
+      'weapon_slot_2_controlradius': undefined,
+      'weapon_slot_2_engagementrange': undefined,
       'weapon_slot_2_droneairtime': String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS),
       'weapon_slot_2_dronedocktime': undefined,
       'weapon_slot_2_droneammo': '0',
@@ -200,7 +197,7 @@ describe('carrierDroneLinkage', () => {
       dockingEnabled: false,
     });
 
-    expect(result.weapon_slot_1_manualdrones).toBe('true');
+    expect(result.weapon_slot_1_manualdrones).toBe('1');
     expect(result.weapon_slot_1_carrierdeaththroe).toBe('control');
     expect(result.weapon_slot_1_droneairtime).toBe(String(SAFE_ORPHAN_DRONE_AIRTIME_SECONDS));
     expect(result.weapon_slot_1_startingdronecount).toBe('0');
@@ -214,7 +211,7 @@ describe('carrierDroneLinkage', () => {
       carrierDeathBehavior: 'death',
     });
 
-    expect(result.weapon_slot_1_manualdrones).toBe('false');
+    expect(result.weapon_slot_1_manualdrones).toBe('0');
     expect(result.weapon_slot_1_droneairtime).toBeUndefined();
   });
 
@@ -233,6 +230,8 @@ describe('carrierDroneLinkage', () => {
       droneAmmoText: '0 4',
       carrierDeathBehavior: 'control',
       dockingEnabled: true,
+      controlRadius: 1200,
+      engagementRange: 850,
     });
 
     expect(result.weapon_slot_1_carried_unit).toBe('armdrone corvamp legdrone');
@@ -245,6 +244,8 @@ describe('carrierDroneLinkage', () => {
     expect(result.weapon_slot_1_droneairtime).toBe('60 90 90');
     expect(result.weapon_slot_1_dronedocktime).toBe('2 2 2');
     expect(result.weapon_slot_1_droneammo).toBe('0 4 4');
+    expect(result.weapon_slot_1_controlradius).toBe('1200');
+    expect(result.weapon_slot_1_engagementrange).toBe('850');
   });
 
   it('emits empty indexed docking sections for free deployment', () => {
@@ -298,9 +299,10 @@ describe('carrierDroneLinkage', () => {
       {}
     );
 
-    expect(patch.customparams.dockingpieces).toBe(' , ');
+    expect(patch.customparams.dockingpieces).toBe('2 3,2 3');
     expect(patch.customparams.droneammo).toBe('0 0');
-    expect(patch.customparams.enabledocking).toBe(false);
+    expect(patch.customparams.enabledocking).toBe(1);
+    expect(patch.customparams.manualdrones).toBe(1);
   });
 
   it('removes physical docking pieces from free-deployment compiler patches', () => {
@@ -332,7 +334,25 @@ describe('carrierDroneLinkage', () => {
     );
 
     expect(patch.customparams.dockingpieces).toBe('2 3,2 3');
-    expect(patch.customparams.enabledocking).toBe(true);
+    expect(patch.customparams.enabledocking).toBe(1);
+  });
+
+  it('repairs legacy list-valued scalar fields and required carrier defaults', () => {
+    const patch = ensureSafeCarrierWeaponPatch({
+      customparams: {
+        carried_unit: 'armdrone corvamp',
+        controlradius: '900 1200',
+        engagementrange: '600 800',
+        spawnrate: '',
+      },
+    });
+
+    expect(patch.customparams.controlradius).toBe(900);
+    expect(patch.customparams.engagementrange).toBe(600);
+    expect(patch.customparams.spawnrate).toBe(1);
+    expect(patch.customparams.maxunits).toBe('1 1');
+    expect(patch.customparams.startingdronecount).toBe('0 0');
+    expect(patch.customparams.dronetype).toBe('default default');
   });
 
   it('clears carried_unit in ground mode and builds comma-separated multi-unit roster', () => {

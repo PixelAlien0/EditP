@@ -143,7 +143,7 @@ export function useCompiledProjectOutputs({
           } else if (parameterDefinition?.valueType === 'string') {
             typedValue = value ? String(value) : '';
           } else {
-            typedValue = Number.parseFloat(value);
+            typedValue = typeof value === 'boolean' ? (value ? 1 : 0) : Number.parseFloat(value);
             if (Number.isNaN(typedValue)) return;
           }
           setNestedValue(unitPatch, `weapondefs.${slot.defKey.toLowerCase()}.${path}`, typedValue);
