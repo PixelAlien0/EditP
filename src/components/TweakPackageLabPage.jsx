@@ -452,35 +452,11 @@ export default function TweakPackageLabPage({
         </details>
       )}
 
-      {/* SUPPORTING WEAPONDEF LIBRARY ACCORDION */}
-      <details className="tweak-support-library-overview">
-        <summary>
-          <span><b>Supporting WeaponDef library</b><small>Auxiliary, cluster-child, and unmounted definitions compiled into their owning UnitDefs.</small></span>
-          <strong>{supportingWeaponDefs.length}</strong>
-        </summary>
-        <div className="tweak-support-library__body">
-          <div className="tweak-support-create">
-            <div><b>Create auxiliary WeaponDef</b><small>Start with a safe literal definition and edit its fields as JSON.</small></div>
-            <label><span>Owner UnitDef</span><input value={newSupportOwner} onChange={event => setNewSupportOwner(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="armflea" /></label>
-            <label><span>WeaponDef key</span><input value={newSupportKey} onChange={event => setNewSupportKey(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="cluster_child" /></label>
-            <Button
-              size="sm"
-              disabled={!newSupportOwner || !newSupportKey || supportingDestinations.has(`${newSupportOwner}:${newSupportKey}`)}
-              onClick={createSupportingWeaponDef}
-            >Create</Button>
-          </div>
-          {supportingWeaponDefs.length === 0 ? (
-            <p>Convert a recognized literal module or add one of its auxiliary WeaponDefs from the module inspector.</p>
-          ) : supportingWeaponDefs.map(definition => (
-            <SupportingWeaponDefCard
-              key={definition.id}
-              definition={definition}
-              onUpdate={onUpdateSupportingWeaponDef}
-              onRemove={onRemoveSupportingWeaponDef}
-            />
-          ))}
-        </div>
-      </details>
+      <button type="button" className="tweak-support-library-shortcut" onClick={() => setInspectorTab('library')}>
+        <span><b>Supporting WeaponDefs</b><small>Manage auxiliary and cluster-child definitions in the Insight Desk.</small></span>
+        <strong>{supportingWeaponDefs.length}</strong>
+        <em aria-hidden="true">→</em>
+      </button>
       </div>
 
       <div className="tweak-lab-grid">
