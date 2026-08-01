@@ -2338,7 +2338,7 @@ export default function App() {
 
       {/* Preset Gallery Page — lazy loaded on entry */}
       {showPresetGallery && activeWorkspace === 'preset-gallery' && (
-        <Suspense fallback={<main className="preset-gallery-page preset-gallery-loading"><span>Loading experiment library…</span></main>}>
+        <Suspense fallback={<main className="workspace-loading"><span>Loading experiment library…</span></main>}>
           <LazyPresetGalleryPage
             presets={presets}
             projectName={projectName}

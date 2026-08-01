@@ -560,3 +560,46 @@
     transition: none;
   }
 }
+
+.workflow-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1320px) {
+  .header-actions .btn-action {
+    padding-inline: 9px;
+    font-size: 9px;
+  }
+}
+
+.brand-kicker {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1100px) {
+  .brand-kicker {
+    display: none;
+  }
+}
+
+@media (max-width: 1080px) {
+  .header-actions>.btn-action:first-of-type {
+    display: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  .brand-kicker {
+    display: none;
+  }
+}
+
+/*  End canonical header ownership  */

@@ -58,7 +58,7 @@ The editor implements multiple defensive layers to prevent engine crashes, data 
 1. **Cascade Hierarchy**:
    ```text
    src/styles/theme-tokens.css
-     └── src/index.css (Legacy migration layer)
+     └── src/styles/base.css (Global document and application foundations)
            └── src/styles/features/*.css (Feature layout owners)
                  └── src/components/ui/ui.css (Reusable UI controls — loaded LAST)
    ```

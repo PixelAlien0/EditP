@@ -7,7 +7,7 @@
 - **Theme Tokens Only**: Use CSS variables from `src/styles/theme-tokens.css`. Never introduce hardcoded hex/RGB colors in feature CSS or inline JSX styles.
 
 ## 2. CSS Ownership Rules
-- **Cascade Hierarchy**: `theme-tokens.css` -> `index.css` -> `features/*.css` -> `components/ui/ui.css` (loads last).
+- **Cascade Hierarchy**: `theme-tokens.css` -> `base.css` -> `features/*.css` -> `components/ui/ui.css` (loads last).
 - **Single File Ownership**: Ensure every CSS selector has a single canonical file owner (0 collisions allowed). Run `npm run audit-css` to verify.
 - **No `!important`**: Do not add new `!important` flags.
 

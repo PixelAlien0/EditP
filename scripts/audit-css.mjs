@@ -5,7 +5,7 @@ import postcss from 'postcss';
 const root = path.resolve('src');
 const files = [
   path.join(root, 'styles/theme-tokens.css'),
-  path.join(root, 'index.css'),
+  path.join(root, 'styles/base.css'),
   ...fs.readdirSync(path.join(root, 'styles/features')).sort().map(file => path.join(root, 'styles/features', file)),
   path.join(root, 'components/ui/ui.css')
 ];
@@ -54,10 +54,8 @@ console.log(`\nTotal: ${files.length} files, ${totalBytes} bytes, ${totalImporta
 console.log(`Selectors owned by more than one file: ${crossOwned.length}`);
 crossOwned.slice(0, 20).forEach(([selectorKey, owners]) => console.log(`- ${selectorLabels.get(selectorKey)}: ${[...owners].join(', ')}`));
 
-// Weapon Laboratory is a canonical lazy feature owner rather than another
-// index.css override layer; reserve its dossier UI without relaxing either
-// specificity-debt limit below.
-const budgets = { bytes: 473000, important: 2175, crossOwned: 138 };
+// Canonical ownership is strict: a selector belongs to exactly one stylesheet.
+const budgets = { bytes: 473000, important: 150, crossOwned: 0 };
 const failures = [
   totalBytes > budgets.bytes && `CSS size ${totalBytes} exceeds ${budgets.bytes} bytes`,
   totalImportant > budgets.important && `${totalImportant} !important declarations exceed ${budgets.important}`,

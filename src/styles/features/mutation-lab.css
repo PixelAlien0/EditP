@@ -1,0 +1,334 @@
+
+.mutation-domain-option {
+  display: flex;
+  align-items: center;
+}
+.mutation-domain-grid .mutation-domain-option {
+  position: relative;
+  min-height: 62px;
+  padding: 9px 10px;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+.mutation-domain-grid .mutation-domain-option:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+}
+.mutation-domain-grid .mutation-domain-option.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.mutation-domain-grid .mutation-domain-option > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mutation-domain-grid .mutation-domain-option strong { color: var(--color-text-strong); font-size: var(--font-size-xs); }
+.mutation-domain-grid .mutation-domain-option small { color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.mutation-lab-modal {
+  backdrop-filter: none;
+}
+.mutation-lab-header {
+  border-bottom-color: var(--color-border);
+}
+.mutation-lab-header h3 {
+  font-family: var(--font-display);
+}
+.mutation-lab-body,
+.mutation-lab-actions {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+.mutation-lab-section,
+.mutation-choice-grid button,
+.mutation-intensity-row button,
+.mutation-domain-grid label {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+.mutation-lab-section-heading strong,
+.mutation-choice-grid strong,
+.mutation-intensity-row strong,
+.mutation-domain-grid strong {
+  color: var(--color-text-strong);
+}
+.mutation-lab-section-heading small,
+.mutation-choice-grid span,
+.mutation-intensity-row span,
+.mutation-domain-grid small,
+.mutation-lab-actions > span {
+  color: var(--color-text-muted);
+}
+.mutation-lab-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: var(--color-overlay);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.mutation-lab-modal {
+  width: min(760px, 100%);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+}
+.mutation-lab-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 22px 17px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+}
+.mutation-lab-header>div>span {
+  color: var(--color-success);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+.mutation-lab-header h3 {
+  margin: 5px 0 3px;
+  color: var(--color-text-strong);
+  font-size: 18px;
+  font-weight: 580;
+}
+.mutation-lab-header p {
+  max-width: 510px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+.mutation-lab-close,
+.mutation-cancel,
+.mutation-apply {
+  min-height: 34px;
+  padding: 7px 11px;
+  border-radius: 5px;
+  font-family: var(--font-ui);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.mutation-lab-close,
+.mutation-cancel {
+  border: 1px solid var(--color-border);
+}
+.mutation-lab-body {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 17px 22px;
+}
+.mutation-lab-section {
+  padding: 12px 13px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-surface);
+}
+.mutation-lab-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 10px;
+}
+.mutation-lab-section-heading>span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--color-success) 38%, var(--color-border));
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface-raised));
+  color: var(--color-success);
+  font-family: var(--font-mono);
+  font-size: 7px;
+}
+.mutation-lab-section-heading div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mutation-lab-section-heading strong {
+  color: var(--color-text-strong);
+  font-size: 10px;
+  font-weight: 600;
+}
+.mutation-lab-section-heading small {
+  color: var(--color-text-muted);
+  font-size: 8px;
+}
+.mutation-choice-grid,
+.mutation-intensity-row,
+.mutation-domain-grid {
+  display: grid;
+  gap: 7px;
+}
+.mutation-choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.mutation-intensity-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.mutation-domain-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.mutation-choice-grid button,
+.mutation-intensity-row button,
+.mutation-domain-grid label {
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 9px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+.mutation-choice-grid button:hover,
+.mutation-intensity-row button:hover,
+.mutation-domain-grid label:hover {
+  border-color: var(--color-border-strong);
+}
+.mutation-choice-grid button.active,
+.mutation-intensity-row button.active,
+.mutation-domain-grid label.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  box-shadow: var(--shadow-selection);
+}
+.mutation-choice-grid strong,
+.mutation-intensity-row strong,
+.mutation-domain-grid strong {
+  font-size: 9px;
+  font-weight: 650;
+}
+.mutation-choice-grid span,
+.mutation-intensity-row span,
+.mutation-domain-grid small {
+  color: var(--color-text-muted);
+  font-size: 7px;
+  line-height: 1.35;
+}
+.mutation-domain-grid label {
+  position: relative;
+  min-height: 62px;
+  padding-left: 31px;
+}
+.mutation-domain-grid input[type="checkbox"] {
+  position: absolute;
+  top: 12px;
+  left: 9px;
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+}
+.mutation-domain-grid input[type="checkbox"]::after {
+  top: 3px;
+  left: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+}
+.mutation-domain-grid input[type="checkbox"]:checked::after {
+  left: 3px;
+}
+.mutation-lab-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 22px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+}
+.mutation-lab-actions>span {
+  color: var(--color-text-muted);
+  font-size: 8px;
+}
+.mutation-lab-actions>div {
+  display: flex;
+  gap: 7px;
+}
+@media (max-width: 680px) {
+  .mutation-choice-grid,
+.mutation-intensity-row,
+.mutation-domain-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 680px) {
+  .mutation-lab-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+@media (max-width: 680px) {
+  .mutation-lab-actions>div button {
+    flex: 1;
+  }
+}
+.mutation-lab-modal {
+  background: var(--color-surface-raised);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+.mutation-apply {
+  min-height: 36px;
+  padding: 8px 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--color-border-accent-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
+  box-shadow: none;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  cursor: pointer;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
+}
+.mutation-apply:hover {
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+  color: var(--color-text-strong);
+  opacity: 1;
+  transform: none;
+}
+.mutation-cancel,
+.mutation-lab-close {
+  border-color: var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+.mutation-cancel:hover,
+.mutation-lab-close:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
+}
+/*  End canonical mutation ownership  */

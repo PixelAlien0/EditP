@@ -1,0 +1,76 @@
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+html {
+  width: 100%;
+  height: 100%;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  display: flex;
+  min-width: 320px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+#root {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+  width: 100vw;
+  overflow: hidden;
+}
+.main-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+.main-layout {
+  position: relative;
+  z-index: 0;
+}
+html,
+body,
+#root,
+.app-container {
+  background: var(--paper-canvas);
+  color: var(--ink);
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: var(--color-scrollbar);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-hover);
+  background-clip: padding-box;
+}
+.main-layout {
+  background: var(--paper-canvas);
+}
+/*  End canonical base ownership  */

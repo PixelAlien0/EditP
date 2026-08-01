@@ -1,4 +1,6 @@
 import { Button, Switch } from './ui.jsx';
+import '../styles/features/mutation-lab.css';
+import '../styles/features/mutation-lab.css';
 
 const INTENSITY_OPTIONS = Object.freeze([
   { id: 'cautious', label: 'Cautious', note: '±10%' },
@@ -117,3 +119,4 @@ export default function MutationLabDialog({
     </div>
   );
 }
+import '../styles/features/mutation-lab.css'

@@ -437,3 +437,214 @@
   border-radius: 50%;
   animation: ui-spin 0.6s linear infinite;
 }
+input[type="checkbox"] {
+  flex: 0 0 auto;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  outline: none;
+}
+.modal-container,
+.modal-content,
+.floating-panel {
+  background: var(--bg-2);
+  border: 1px solid var(--b1);
+  border-radius: 3px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.form-group label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.form-select,
+.form-input {
+  background: var(--bg-0);
+  border: 1px solid var(--b1);
+  border-radius: 2px;
+  padding: 7px 10px;
+  color: var(--t0);
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+.form-select:focus,
+.form-input:focus {
+  outline: none;
+  border-color: var(--b-a);
+}
+.btn-action:active {
+  transform: translateY(1px);
+}
+.btn-secondary {
+  border: 1px solid var(--b1);
+}
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 9px 16px;
+  font-weight: 700;
+  font-size: 9px;
+  z-index: 100;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+input[type="checkbox"] {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  margin: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  box-shadow: var(--shadow-selection);
+  appearance: none;
+  cursor: pointer;
+}
+input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-selection);
+  transition: left var(--motion-fast);
+}
+input[type="checkbox"]:checked {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+input[type="checkbox"]:checked::after {
+  left: 17px;
+  background: var(--color-text-inverse);
+}
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--b-a);
+  outline-offset: 2px;
+}
+.btn-action,
+.form-input,
+.form-select {
+  min-height: 38px;
+  font-size: 11px;
+}
+.copy-output-button {
+  min-height: 27px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-ui);
+  font-size: 8px;
+  font-weight: 650;
+  cursor: pointer;
+}
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--ink-strong);
+}
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-ui);
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--sakura);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.modal-container,
+.modal-content,
+.random-panel {
+  border-color: var(--color-border-muted);
+  background: var(--paper-clean);
+  color: var(--ink);
+  box-shadow: var(--shadow-float);
+}
+.toast {
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-code-raised);
+  color: var(--color-text-on-dark);
+  box-shadow: var(--shadow-float);
+}
+.btn-action {
+  min-height: 36px;
+  padding: 8px 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--color-border-accent-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
+  box-shadow: none;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  cursor: pointer;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
+}
+.btn-action:hover {
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+  color: var(--color-text-strong);
+  opacity: 1;
+  transform: none;
+}
+.btn-action.btn-secondary,
+.btn-secondary,
+.copy-output-button {
+  border-color: var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+.btn-action.btn-secondary:hover,
+.btn-secondary:hover,
+.copy-output-button:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
+}
+.btn-action:disabled,
+.btn-secondary:disabled,
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+.text-button {
+  min-height: auto;
+  padding: 4px 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-accent-strong);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.text-button:hover {
+  border-bottom-color: var(--color-accent);
+  color: var(--color-accent-strong);
+}
+/*  End canonical ui ownership  */
