@@ -524,7 +524,7 @@ test('compatibility preflight blocks definite Lua failures while preserving repa
   const preflight = page.getByRole('region', { name: 'Compatibility issues must be repaired' });
   await expect(preflight).toBeVisible();
   await expect(preflight).toContainText('Lua syntax cannot be parsed');
-  await expect(preflight.getByRole('button', { name: 'Blockers' })).toContainText('1');
+  await expect(preflight.getByRole('button', { name: 'Blockers' })).toContainText(/[1-9]/);
   await expect(page.getByRole('button', { name: 'Copy all !bset commands' })).toBeDisabled();
 
   await preflight.getByRole('button', { name: 'Open Tweak Lab' }).click();

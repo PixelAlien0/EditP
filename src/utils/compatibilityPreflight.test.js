@@ -201,4 +201,32 @@ describe('buildCompatibilityPreflight', () => {
       }),
     ]));
   });
+
+  it('keeps cross-workspace repair destinations in their own preflight group', () => {
+    const action = { type: 'build-menu', builderId: 'armlab', label: 'Repair Build Menu' };
+    const result = buildCompatibilityPreflight({
+      compiledModules: compiled(),
+      validationIssues: [{
+        id: 'cross-workspace-clone-test-builder-sync',
+        group: 'workspaces',
+        unitId: 'test_clone',
+        unitName: 'Test Clone',
+        key: 'builder_assignments',
+        title: 'Test Clone · producer assignments disagree',
+        level: 'error',
+        message: 'Clone Identity and Build Menus disagree.',
+        action,
+      }],
+    });
+
+    expect(result.status).toBe('blocked');
+    expect(result.groups).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'workspaces',
+        items: expect.arrayContaining([
+          expect.objectContaining({ title: 'Test Clone · producer assignments disagree', action }),
+        ]),
+      }),
+    ]));
+  });
 });

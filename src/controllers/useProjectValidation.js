@@ -3,6 +3,7 @@ import {
   getSpecialProjectileBehavior,
   isSupportedSpecialProjectileBehavior,
 } from '../config/specialProjectileBehaviors.js';
+import { buildCrossWorkspaceValidation } from '../utils/crossWorkspaceValidation.js';
 
 export function getValidationWarning(key, value) {
   if (value === undefined || value === '') return null;
@@ -169,6 +170,13 @@ export function useProjectValidation({
   defaultsDb,
   resolveCloneRootId,
   supportingWeaponDefs,
+  buildMenuSteps,
+  activeFactoryRosters,
+  weaponLibrary,
+  disabledUnitIds,
+  includeTweaks,
+  includeClones,
+  includeRosters,
   activeCollectionUnitIds,
 }) {
   const validationIssues = useMemo(() => {
@@ -337,16 +345,38 @@ export function useProjectValidation({
         message: `${compiledLobbyModules.units.required} Units slots required; BAR provides 9.`,
       });
     }
+    issues.push(...buildCrossWorkspaceValidation({
+      tweaks,
+      clones,
+      buildMenuSteps,
+      activeFactoryRosters,
+      weaponLibrary,
+      supportingWeaponDefs,
+      allUnitsList,
+      defaultsDb,
+      disabledUnitIds,
+      includeTweaks,
+      includeClones,
+      includeRosters,
+      resolveCloneRootId,
+    }));
     return issues;
   }, [
+    activeFactoryRosters,
     allUnitsList,
+    buildMenuSteps,
     clones,
     compiledLobbyModules,
     defaultsDb,
+    disabledUnitIds,
+    includeClones,
+    includeRosters,
+    includeTweaks,
     resolveCloneRootId,
     supportingWeaponDefs,
     tweaks,
     unitNames,
+    weaponLibrary,
   ]);
 
   const scopedValidationIssues = useMemo(

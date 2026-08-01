@@ -5,7 +5,8 @@ const GROUP_META = Object.freeze({
   delivery: { label: 'Lobby delivery', order: 1 },
   modules: { label: 'Imported modules', order: 2 },
   dependencies: { label: 'Dependencies', order: 3 },
-  assets: { label: 'Assets & runtime', order: 4 },
+  workspaces: { label: 'Cross-workspace links', order: 4 },
+  assets: { label: 'Assets & runtime', order: 5 },
 });
 
 function unique(values) {
@@ -95,11 +96,11 @@ export function buildCompatibilityPreflight({
   } else {
     projectIssues.forEach((issue, index) => add({
       id: `project-${issue.unitId || 'project'}-${issue.key || index}-${index}`,
-      group: 'project',
-      level: issue.level === 'error' ? 'blocker' : 'warning',
-      title: `${issue.unitName || issue.unitId || 'Project'} · ${String(issue.key || 'validation').replaceAll('_', ' ')}`,
+      group: issue.group && GROUP_META[issue.group] ? issue.group : 'project',
+      level: issue.level === 'error' ? 'blocker' : issue.level === 'info' ? 'info' : 'warning',
+      title: issue.title || `${issue.unitName || issue.unitId || 'Project'} · ${String(issue.key || 'validation').replaceAll('_', ' ')}`,
       detail: issue.message,
-      action: issue.unitId && issue.unitId !== 'project' ? { type: 'unit', unitId: issue.unitId, label: 'Open unit' } : null,
+      action: issue.action || (issue.unitId && issue.unitId !== 'project' ? { type: 'unit', unitId: issue.unitId, label: 'Open unit' } : null),
     }));
   }
 

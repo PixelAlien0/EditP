@@ -26,7 +26,7 @@ export default function ReviewPage({
   compiledLobbyModules, lobbyCommands,
   tweakModules = [], lobbySetup = null, supportingWeaponDefs = [], knownUnitIds = [],
   collectionScope,
-  onBack, onExport, onOpenSummary, onEditUnit, onOpenTweakLab, onToast
+  onBack, onExport, onOpenSummary, onEditUnit, onOpenTweakLab, onOpenBuildMenus, onOpenWeaponLab, onToast
 }) {
   const [selectedSlotField, setSelectedSlotField] = useState('');
   const [slotPreviewMode, setSlotPreviewMode] = useState('command');
@@ -85,8 +85,15 @@ export default function ReviewPage({
     }
   };
   const handleCompatibilityAction = action => {
-    if (action.type === 'unit' && action.unitId) onEditUnit(action.unitId);
-    if (action.type === 'tweak-lab') onOpenTweakLab();
+    if (action.type === 'unit' && action.unitId) onEditUnit?.(action.unitId);
+    if (action.type === 'tweak-lab') onOpenTweakLab?.();
+    if (action.type === 'build-menu') onOpenBuildMenus?.(action.builderId);
+    if (action.type === 'weapon-lab') onOpenWeaponLab?.(action.blueprintId);
+    if (action.type === 'review-settings') {
+      const settings = document.querySelector('.export-console-config');
+      if (settings instanceof HTMLDetailsElement) settings.open = true;
+      settings?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (

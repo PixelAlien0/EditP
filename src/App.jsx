@@ -830,10 +830,19 @@ export default function App() {
     [allUnitsList, defaultsDb]
   );
 
-  const openWeaponLab = () => {
+  const openWeaponLab = (blueprintId = null) => {
     if (!WEAPON_LAB_ENABLED) {
       showToast('Weapon Laboratory is temporarily unavailable.');
       return;
+    }
+    if (typeof blueprintId === 'string') {
+      const blueprint = weaponLibrary.find(item => item.id === blueprintId);
+      if (blueprint) {
+        setWeaponBlueprintDraft(normalizeWeaponBlueprint(blueprint, { createId: false }));
+        setShowWeaponLab(true);
+        setActiveWorkspace('weapon-lab');
+        return;
+      }
     }
     const activeSlot = selectedUnitDefaults?.weaponSlots?.find(slot => slot.slot === activeWeaponSlotTab)
       || selectedUnitDefaults?.weaponSlots?.[0];
@@ -1334,6 +1343,13 @@ export default function App() {
     defaultsDb,
     resolveCloneRootId,
     supportingWeaponDefs,
+    buildMenuSteps,
+    activeFactoryRosters,
+    weaponLibrary,
+    disabledUnitIds,
+    includeTweaks,
+    includeClones,
+    includeRosters,
     activeCollectionUnitIds,
   });
 
@@ -1841,6 +1857,12 @@ export default function App() {
             onOpenSummary={tab => { setActiveSummaryTab(tab); setShowSummaryModal(true); }}
             onEditUnit={id => { setSelectedUnitId(id); setActiveWorkspace('edit'); }}
             onOpenTweakLab={() => setActiveWorkspace('tweak-lab')}
+            onOpenBuildMenus={builderId => {
+              if (builderId) setSelectedFactoryId(builderId);
+              setShowDesignerPanel(true);
+              setActiveWorkspace('designer');
+            }}
+            onOpenWeaponLab={openWeaponLab}
             onToast={showToast}
           />
         </Suspense>
