@@ -226,29 +226,6 @@ body {
   stroke: var(--t2);
   opacity: 0.35;
 }
-.workspace-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  padding: 6px var(--sp-lg);
-  background: var(--bg-1);
-  border-bottom: 1px solid var(--b0);
-  flex-shrink: 0;
-}
-.workspace-tab-btn {
-  min-height: 42px;
-  padding: 9px 12px;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.workspace-tab-btn:hover {
-  border-color: var(--b0);
-}
-.workspace-tab-btn.active {
-  border-color: var(--b-a);
-}
 .editor-grid {
   display: grid;
 }
@@ -296,13 +273,6 @@ input[type="checkbox"] {
 }
 .btn-secondary {
   border: 1px solid var(--b1);
-}
-.code-pane {
-  width: 340px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  flex-shrink: 0;
 }
 .code-scroll-area {
   flex: 1;
@@ -858,22 +828,6 @@ select:focus-visible,
   position: absolute;
   inset: 0 0 auto;
   will-change: transform;
-}
-.workspace-tab-btn {
-  flex-direction: column;
-  gap: 2px;
-  text-transform: none;
-  letter-spacing: 0;
-}
-.workspace-tab-btn>span {
-  font-size: 11px;
-  font-weight: 700;
-}
-.workspace-tab-btn>small {
-  color: inherit;
-  font-size: 9px;
-  font-weight: 500;
-  opacity: 0.66;
 }
 .workflow-eyebrow {
   display: block;
@@ -1721,16 +1675,6 @@ textarea:focus-visible,
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
-.code-pane {
-  border-left: 1px solid #d8cfc5 !important;
-  background: #f8f4ee !important;
-  box-shadow: none !important;
-}
-.code-pane pre,
-.code-output {
-  background: #302d2b !important;
-  color: #eee6da !important;
-}
 .modal-container,
 .modal-content,
 .clone-panel,
@@ -2088,28 +2032,6 @@ button:disabled {
   border-color: var(--color-danger) !important;
   background: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface-raised)) !important;
   color: var(--color-danger) !important;
-}
-.workspace-tab-btn {
-  position: relative;
-  border: 0 !important;
-  border-bottom: 2px solid transparent !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: var(--color-text-muted) !important;
-  box-shadow: none !important;
-  font-family: var(--font-ui) !important;
-  font-weight: 600 !important;
-  cursor: pointer;
-  transition: border-color var(--motion-fast), color var(--motion-fast), background-color var(--motion-fast) !important;
-}
-.workspace-tab-btn:hover {
-  background: var(--color-surface-hover) !important;
-  color: var(--color-text-strong) !important;
-}
-.workspace-tab-btn.active {
-  border-bottom-color: var(--color-accent) !important;
-  background: transparent !important;
-  color: var(--color-text-strong) !important;
 }
 .text-button {
   min-height: auto;

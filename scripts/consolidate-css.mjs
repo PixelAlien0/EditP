@@ -80,6 +80,12 @@ const legacyOwnershipMigrations = [
       '.editor-workspace',
       '.editor-scroll-area',
       '.editor-section-tabs',
+      '.workspace-tabs',
+      '.workspace-tab-btn',
+      // The only remaining code pane is the Edit Units inspector. Its old
+      // hardcoded light surface prevented the token-driven collapsed rail
+      // from inheriting dark mode without another force flag.
+      '.code-pane',
       '.unit-source-badge',
       '.clone-badge',
       '[data-theme="dark"] .weapon-substitution',
@@ -235,6 +241,48 @@ documents
       document.removed += 1
     })
   })
+
+// The Edit Units workbench still contains normal declarations whose cascade
+// position is intentional. Scope only the declarations that previously used
+// !important: raising every selector would also promote dormant presentation
+// rules above the established responsive component styles.
+const workbenchDocument = documents.find(
+  (entry) => entry.relativePath === 'src/styles/features/editor-workbench.css',
+)
+
+function scopeWorkbenchSelector(selector) {
+  if (selector.includes('.main-layout.editor-shell')) return selector
+  if (selector.startsWith('.editor-shell')) {
+    return selector.replace('.editor-shell', '.main-layout.editor-shell')
+  }
+  if (selector.startsWith('[data-theme=')) {
+    const splitAt = selector.indexOf(']') + 1
+    return `${selector.slice(0, splitAt)} .main-layout.editor-shell ${selector.slice(splitAt).trim()}`
+  }
+  if (selector.startsWith('.density-compact ')) {
+    return selector.replace('.density-compact ', '.main-layout.editor-shell.density-compact ')
+  }
+  if (selector.startsWith('.density-comfortable ')) {
+    return selector.replace('.density-comfortable ', '.main-layout.editor-shell.density-comfortable ')
+  }
+  return `.main-layout.editor-shell ${selector}`
+}
+
+workbenchDocument?.root.walkRules((rule) => {
+  const forcedDeclarations = rule.nodes.filter(
+    (node) => node.type === 'decl' && node.important,
+  )
+  if (forcedDeclarations.length === 0) return
+
+  const scopedRule = rule.clone({
+    selector: rule.selectors.map(scopeWorkbenchSelector).join(',\n'),
+    nodes: forcedDeclarations.map((declaration) => declaration.clone({ important: false })),
+  })
+  rule.after(scopedRule)
+  forcedDeclarations.forEach((declaration) => declaration.remove())
+  if (rule.nodes.every((node) => node.type === 'comment')) rule.remove()
+  workbenchDocument.removed += forcedDeclarations.length
+})
 
 function atRuleContext(node) {
   const context = []
