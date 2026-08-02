@@ -184,6 +184,17 @@ export function useCompiledProjectOutputs({
           if (typeof value === 'string' && /^-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(value.trim())) typedValue = Number(value);
           else if (value === 'true' || value === 'false') typedValue = value === 'true';
           setNestedValue(unitPatch, `customparams.${customKey}`, typedValue);
+
+          const lowerKey = customKey.toLowerCase();
+          if (lowerKey === 'canfly') unitPatch.canfly = Boolean(typedValue);
+          else if (lowerKey === 'movetype') unitPatch.movetype = String(typedValue);
+          else if (lowerKey === 'cruisealtitude' || lowerKey === 'cruisealt') {
+            unitPatch.cruisealtitude = Number(typedValue);
+            unitPatch.cruiseAltitude = Number(typedValue);
+          } else if (lowerKey === 'verticalspeed') unitPatch.verticalspeed = Number(typedValue);
+          else if (lowerKey === 'airhoverfactor') unitPatch.airhoverfactor = Number(typedValue);
+          else if (lowerKey === 'hoverattack') unitPatch.hoverAttack = Boolean(typedValue);
+
           return;
         }
         if (!config || config.output === 'tweakdefs') return;

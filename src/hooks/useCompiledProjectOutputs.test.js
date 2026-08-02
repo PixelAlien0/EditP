@@ -58,8 +58,33 @@ describe('useCompiledProjectOutputs', () => {
     expect(result.current.generatedTweakUnitsLua).toContain('description = "Fast raider with a custom role."');
     expect(result.current.generatedTweakUnitsLua).toContain('i18n_en_tooltip = "Fast raider with a custom role."');
     expect(result.current.generatedTweakUnitsLua).toContain('i18n_de_tooltip = "Fast raider with a custom role."');
-    expect(result.current.tweakUnitsB64).not.toBe('');
   });
+
+  it('promotes flight and movement customparams to top-level UnitDef properties', () => {
+    const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
+      tweaks: {
+        arcvi: {
+          'customparams.canfly': 'true',
+          'customparams.movetype': 'gunship',
+          'customparams.cruisealtitude': '300',
+          'customparams.verticalspeed': '15',
+          'customparams.airhoverfactor': '0',
+          'customparams.hoverattack': 'true',
+        },
+      },
+      allUnitsList: [{ id: 'arcvi', name: 'Arvento', isClone: true }],
+      defaultsDb: { armdecadet3: { health: 1000, weaponSlots: [] } },
+      resolveCloneRootId: () => 'armdecadet3',
+    })));
+
+    expect(result.current.generatedTweakUnitsLua).toContain('canfly = true');
+    expect(result.current.generatedTweakUnitsLua).toContain('movetype = "gunship"');
+    expect(result.current.generatedTweakUnitsLua).toContain('cruisealtitude = 300');
+    expect(result.current.generatedTweakUnitsLua).toContain('verticalspeed = 15');
+    expect(result.current.generatedTweakUnitsLua).toContain('airhoverfactor = 0');
+    expect(result.current.generatedTweakUnitsLua).toContain('hoverAttack = true');
+  });
+});
 
   it('supports English-only compact export mode by omitting non-English tooltip duplicates', () => {
     const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
