@@ -191,6 +191,8 @@ describe('nested clone generation', () => {
       overrides: {
         damage: 240,
         reload: 2,
+        shieldradius: 900,
+        shieldpower: 8000,
         tracks: true,
         turnrate: 42000,
         soundstart: 'custom_fire',
@@ -222,6 +224,10 @@ describe('nested clone generation', () => {
     expect(equipped).toContain('w.tracks = true');
     expect(equipped).toContain('w.turnrate = 42000');
     expect(equipped).toContain('w.soundstart = "custom_fire"');
+    expect(equipped).toContain('w.shield.radius = 900');
+    expect(equipped).toContain('w.shield.power = 8000');
+    expect(equipped).toContain('u.customparams.shield_radius = 900');
+    expect(equipped).toContain('u.customparams.shield_power = 8000');
     expect(equipped).toContain('w.customparams.cluster_number = 6');
     expect(equipped).toContain('m.onlytargetcategory = "SURFACE"');
     expect(equipped).toContain('m.maxangledif = 35');

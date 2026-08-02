@@ -158,6 +158,12 @@ export function useCompiledProjectOutputs({
             if (Number.isNaN(typedValue)) return;
           }
           setNestedValue(unitPatch, `weapondefs.${slot.defKey.toLowerCase()}.${path}`, typedValue);
+          // BAR's shield gadgets do not derive their rendered/coverage sphere
+          // from the engine WeaponDef. They cache matching UnitDef customParams
+          // at load time, so both values must move together.
+          if (parameterDefinition?.unitMirrorPath) {
+            setNestedValue(unitPatch, parameterDefinition.unitMirrorPath, typedValue);
+          }
           return;
         }
 

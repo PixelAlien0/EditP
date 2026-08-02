@@ -121,6 +121,29 @@ describe('useCompiledProjectOutputs', () => {
     expect(result.current.generatedTweakUnitsLua).not.toContain('onlytargetcategory = "VTOL"');
   });
 
+  it('keeps Recoil shield geometry and BAR shield gadget metadata synchronized', () => {
+    const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
+      tweaks: {
+        armgate: {
+          weapon_slot_1_shieldradius: '900',
+          weapon_slot_1_shieldpower: '8000',
+        },
+      },
+      allUnitsList: [{ id: 'armgate', name: 'Keeper', isClone: false }],
+      defaultsDb: {
+        armgate: {
+          weaponSlots: [{ slot: 1, defKey: 'repulsor', shieldradius: 550, shieldpower: 6175 }],
+        },
+      },
+    })));
+
+    expect(result.current.generatedTweakUnitsLua).toContain('shield = {');
+    expect(result.current.generatedTweakUnitsLua).toContain('radius = 900');
+    expect(result.current.generatedTweakUnitsLua).toContain('power = 8000');
+    expect(result.current.generatedTweakUnitsLua).toContain('shield_radius = 900');
+    expect(result.current.generatedTweakUnitsLua).toContain('shield_power = 8000');
+  });
+
   it('targets the generated WeaponDef when a saved Weapon Lab blueprint is equipped', () => {
     const blueprint = {
       id: 'weapon_madsam_copy',

@@ -262,6 +262,7 @@ export function generateWeaponBlueprintOverridesLua(blueprint, weaponDefKey, slo
   const overrides = blueprint?.overrides || {};
   const weaponLines = [];
   const mountLines = [];
+  const unitMirrorLines = [];
   Object.entries(overrides)
     .map(([rawKey, value]) => [rawKey === 'cegtag' ? 'cegTag' : rawKey, value])
     .sort(([leftKey], [rightKey]) => compareCanonicalText(leftKey, rightKey))
@@ -274,9 +275,12 @@ export function generateWeaponBlueprintOverridesLua(blueprint, weaponDefKey, slo
       const assignments = generateNestedAssignment(target, parameter.path, value);
       if (target === 'm') mountLines.push(...assignments);
       else weaponLines.push(...assignments);
+      if (parameter.unitMirrorPath) {
+        unitMirrorLines.push(...generateNestedAssignment('u', parameter.unitMirrorPath, value));
+      }
     });
 
-  if (weaponLines.length === 0 && mountLines.length === 0) return [];
+  if (weaponLines.length === 0 && mountLines.length === 0 && unitMirrorLines.length === 0) return [];
   const lines = [];
   if (weaponLines.length > 0) {
     lines.push(
@@ -294,6 +298,7 @@ export function generateWeaponBlueprintOverridesLua(blueprint, weaponDefKey, slo
       `    end`,
     );
   }
+  lines.push(...unitMirrorLines);
   return [
     ...lines,
   ];
