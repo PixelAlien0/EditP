@@ -187,6 +187,7 @@ export function useCompiledProjectOutputs({
 
           const lowerKey = customKey.toLowerCase();
           if (lowerKey === 'canfly') unitPatch.canfly = Boolean(typedValue);
+          else if (lowerKey === 'canmove') unitPatch.canmove = Boolean(typedValue);
           else if (lowerKey === 'movetype') unitPatch.movetype = String(typedValue);
           else if (lowerKey === 'cruisealtitude' || lowerKey === 'cruisealt') {
             unitPatch.cruisealtitude = Number(typedValue);
@@ -194,6 +195,10 @@ export function useCompiledProjectOutputs({
           } else if (lowerKey === 'verticalspeed') unitPatch.verticalspeed = Number(typedValue);
           else if (lowerKey === 'airhoverfactor') unitPatch.airhoverfactor = Number(typedValue);
           else if (lowerKey === 'hoverattack') unitPatch.hoverAttack = Boolean(typedValue);
+          else if (lowerKey === 'maxvelocity' || lowerKey === 'speed') {
+            unitPatch.maxvelocity = Number(typedValue);
+            unitPatch.speed = Number(typedValue);
+          }
 
           return;
         }
