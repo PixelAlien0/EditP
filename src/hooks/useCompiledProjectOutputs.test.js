@@ -84,7 +84,6 @@ describe('useCompiledProjectOutputs', () => {
     expect(result.current.generatedTweakUnitsLua).toContain('airhoverfactor = 0');
     expect(result.current.generatedTweakUnitsLua).toContain('hoverAttack = true');
   });
-});
 
   it('supports English-only compact export mode by omitting non-English tooltip duplicates', () => {
     const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
