@@ -37,6 +37,18 @@ describe('numbered lobby module compilation', () => {
     expect(buildLobbyCommands(compiled)).toBe('');
   });
 
+  it('ignores legacy padded-export preferences and always emits unpadded slots', () => {
+    const compiled = compileLobbyModules({
+      tweakModules: [],
+      generatedTweakDefsLua: 'local compatibility = true',
+      generatedTweakUnitsLua: '',
+      base64Options: { padding: true },
+    });
+
+    expect(compiled.base64Padding).toBe(false);
+    expect(compiled.defs.slots[0].encoded).not.toMatch(/=$/);
+  });
+
   it('orders imported before, generated, then imported after', () => {
     const compiled = compileLobbyModules({
       tweakModules: [moduleOf('defs', 2, 'after-editor'), moduleOf('defs', 1, 'before-editor')],

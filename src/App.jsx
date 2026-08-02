@@ -208,7 +208,6 @@ export default function App() {
     return getUnitIconUrl(resolveCloneRootId(unitId));
   }, [resolveCloneRootId, tweaks]);
 
-  const [base64Options, setBase64Options] = useState({ padding: false });
   const tweakDefsLua = '';
   const [toast, setToast] = useState({ show: false, message: '' });
 
@@ -1001,7 +1000,6 @@ export default function App() {
     weaponLibrary,
     supportingWeaponDefs,
     tweakModules,
-    base64Options,
     exportEnglishOnly,
     compactLuaFormatting,
   });
@@ -1673,7 +1671,6 @@ export default function App() {
             activeRelationshipKey,
             activeWeaponSlotTab,
             allUnitsList,
-            base64Options,
             buildMenuSteps,
             clearUnitFilters,
             clones,
@@ -1725,7 +1722,6 @@ export default function App() {
             setActiveSwapSlotNum,
             setActiveWeaponSlotTab,
             setActiveWorkspace,
-            setBase64Options,
             setClones,
             setComparisonMode,
             setDisabledUnitIds,

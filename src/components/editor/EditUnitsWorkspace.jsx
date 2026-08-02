@@ -60,7 +60,6 @@ export default function EditUnitsWorkspace({ context }) {
     activeRelationshipKey,
     activeWeaponSlotTab,
     allUnitsList,
-    base64Options,
     buildMenuSteps,
     clearUnitFilters,
     clones,
@@ -112,7 +111,6 @@ export default function EditUnitsWorkspace({ context }) {
     setActiveSwapSlotNum,
     setActiveWeaponSlotTab,
     setActiveWorkspace,
-    setBase64Options,
     setClones,
     setComparisonMode,
     setDisabledUnitIds,
@@ -1872,15 +1870,12 @@ export default function EditUnitsWorkspace({ context }) {
                   <div className="expert-settings-card base64-options-card">
                     <div className="expert-toggle-row">
                       <span>Lobby-safe encoding</span>
-                      <span className="expert-setting-status" title="Required so BAR start scripts preserve the generated Lua">Required</span>
-                    </div>
-                    <div className="expert-toggle-row">
-                      <span>Padding</span>
-                      <Switch
-                        label="Include Base64 padding"
-                        checked={base64Options.padding}
-                        onChange={e => setBase64Options(prev => ({ ...prev, padding: e.target.checked }))}
-                      />
+                      <span
+                        className="expert-setting-status"
+                        title="BAR lobby commands always use URL-safe Base64 without trailing padding"
+                      >
+                        URL-safe · unpadded
+                      </span>
                     </div>
                   </div>
                 </div>

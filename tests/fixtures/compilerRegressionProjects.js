@@ -112,7 +112,6 @@ export const COMPILER_REGRESSION_FIXTURES = Object.freeze([
         '-- EDITP_CLONES_END',
       ].join('\n'),
       generatedTweakUnitsLua: '{ editp_fixture_mixed = { health = 840, metalcost = 125, }, }',
-      base64Options: { padding: true },
     },
     expected: {
       defsSlots: 3,
@@ -125,7 +124,7 @@ export const COMPILER_REGRESSION_FIXTURES = Object.freeze([
         'unit-patch',
         'imported-module',
       ],
-      commandSha256: 'da1e022c4d0c7cb3e3502c0f058595a6a8662d3002196300264b0a201f2e2b1f',
+      commandSha256: '8a8e821a2133dff581a56f3d0b31249c97a118222a63da9ff328cebce48edcfb',
     },
   },
 ]);

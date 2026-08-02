@@ -69,7 +69,6 @@ export function useCompiledProjectOutputs({
   weaponLibrary,
   supportingWeaponDefs,
   tweakModules,
-  base64Options,
   exportEnglishOnly = false,
   compactLuaFormatting = false,
 }) {
@@ -302,19 +301,18 @@ export function useCompiledProjectOutputs({
   ]);
 
   const tweakUnitsB64 = useMemo(
-    () => generatedTweakUnitsLua === '{\n}' ? '' : encodeLobbyBase64(`${generatedTweakUnitsLua} `, base64Options),
-    [base64Options, generatedTweakUnitsLua],
+    () => generatedTweakUnitsLua === '{\n}' ? '' : encodeLobbyBase64(`${generatedTweakUnitsLua} `),
+    [generatedTweakUnitsLua],
   );
   const tweakDefsB64 = useMemo(
-    () => generatedTweakDefsLua.trim() ? encodeLobbyBase64(`${generatedTweakDefsLua} `, base64Options) : '',
-    [base64Options, generatedTweakDefsLua],
+    () => generatedTweakDefsLua.trim() ? encodeLobbyBase64(`${generatedTweakDefsLua} `) : '',
+    [generatedTweakDefsLua],
   );
   const compiledLobbyModules = useMemo(() => compileLobbyModules({
     tweakModules,
     generatedTweakDefsLua,
     generatedTweakUnitsLua,
-    base64Options,
-  }), [base64Options, generatedTweakDefsLua, generatedTweakUnitsLua, tweakModules]);
+  }), [generatedTweakDefsLua, generatedTweakUnitsLua, tweakModules]);
   const lobbyCommands = useMemo(() => buildLobbyCommands(compiledLobbyModules), [compiledLobbyModules]);
 
   return {

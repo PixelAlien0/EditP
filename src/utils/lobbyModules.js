@@ -547,7 +547,9 @@ function finalizeSlots(blocks, kind, maximum, padding) {
 export function compileLobbyModules(projectState, options = {}) {
   const maxDefsSlots = options.maxDefsSlots ?? MAX_DEFS_SLOTS;
   const maxUnitsSlots = options.maxUnitsSlots ?? MAX_UNITS_SLOTS;
-  const base64Padding = projectState.base64Options?.padding ?? false;
+  // BAR lobby fields use one canonical encoding. Padding is intentionally
+  // disabled even when an older project document contains base64Options.
+  const base64Padding = false;
   const compactionOptions = {
     compactGenerated: options.compactGenerated !== false,
     padding: base64Padding,
