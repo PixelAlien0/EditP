@@ -198,6 +198,12 @@ export function useCompiledProjectOutputs({
           else if (lowerKey === 'maxvelocity' || lowerKey === 'speed') {
             unitPatch.maxvelocity = Number(typedValue);
             unitPatch.speed = Number(typedValue);
+          } else if (lowerKey === 'builddistance' || lowerKey === 'builddist') {
+            unitPatch.builddistance = Number(typedValue);
+            unitPatch.buildDistance = Number(typedValue);
+          } else if (lowerKey === 'workertime') {
+            unitPatch.workertime = Number(typedValue);
+            unitPatch.workerTime = Number(typedValue);
           }
 
           return;
