@@ -65,6 +65,28 @@ describe('nested clone generation', () => {
     expect(rosterLua).toContain('editp_modify_bo("armlab", {"armflash_clone"}, {"armflash"}, nil)');
   });
 
+  it('preserves exact Scavenger visual sources and clone visual dependencies', () => {
+    const lua = generateClonesBlockLua([{
+      baseId: 'SCAV_ARMAFUST3',
+      newId: 'scav_epic_fusion_clone',
+      displayName: 'Scavenger Epic Fusion Clone',
+      builderIds: [],
+      weaponSwaps: {
+        1: {
+          sourceUnitId: 'SCAV_LEGGATET3',
+          sourceWeaponDefKey: 'repulsor',
+        },
+      },
+    }]);
+
+    expect(lua).toContain('local s = "scav_armafust3"');
+    expect(lua).toContain('clone_preserve_visuals(u, UnitDefs[s])');
+    expect(lua).toContain('"objectname", "script", "buildpic", "icontype"');
+    expect(lua).toContain('"sfxtypes", "sounds", "featuredefs", "corpse"');
+    expect(lua).toContain('clone_swap_weapon(u, 1, "scav_leggatet3", "repulsor", "repulsor")');
+    expect(lua).not.toContain('local s = "armafust3"');
+  });
+
   it('preserves exact roster ordering in compact output', () => {
     const rosterLua = generateBuildMenuBlockLua(
       [{ builderId: 'armlab', add: ['armrock'], remove: ['armflash'], order: ['armck', 'armrock'] }],

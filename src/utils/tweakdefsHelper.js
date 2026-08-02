@@ -305,13 +305,9 @@ export function generateWeaponBlueprintOverridesLua(blueprint, weaponDefKey, slo
 }
 
 export function generateSingleCloneLua(clone, weaponLibrary = []) {
-  let baseId = clone.baseId.trim();
+  const baseId = clone.baseId.trim().toLowerCase();
   const newId = clone.newId.trim().toLowerCase();
   if (!baseId || !newId) return '';
-
-  if (baseId.startsWith('scav_')) {
-    baseId = baseId.slice(5);
-  }
 
   const r = JSON.stringify(baseId);
   const i = JSON.stringify(newId);
@@ -324,6 +320,7 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
     `    local u = UnitDefs[n]`,
     `    if UnitDefNames then UnitDefNames[n] = u end`,
     `    clone_clean(u)`,
+    `    clone_preserve_visuals(u, UnitDefs[s])`,
     `    local srcBo = UnitDefs[s].buildoptions`,
     `    if type(srcBo) == "table" then`,
     `      local bo = {}`,
@@ -350,9 +347,7 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
     Object.entries(clone.weaponSwaps)
       .sort(([leftSlot], [rightSlot]) => Number(leftSlot) - Number(rightSlot) || compareCanonicalText(leftSlot, rightSlot))
       .forEach(([slotNum, swap]) => {
-      let srcUnit = swap.sourceUnitId.trim().toLowerCase();
-      // strip scav_ prefix for weapon source too
-      if (srcUnit.startsWith('scav_')) srcUnit = srcUnit.slice(5);
+      const srcUnit = swap.sourceUnitId.trim().toLowerCase();
       const srcWep = swap.sourceWeaponDefKey.trim().toLowerCase();
       if (srcUnit && srcWep) {
         const blueprint = swap.libraryWeaponId
@@ -598,6 +593,19 @@ export function generateClonesBlockLua(clones, weaponLibrary = [], options = {})
     `      u.customparams.raptorbuildmeta = nil`,
     `      u.customparams.unitgroup = nil`,
     `      u.customparams.subfolder = nil`,
+    `    end`,
+    `  end`,
+    ``,
+    `  local function clone_preserve_visuals(u, source)`,
+    `    local fields = {`,
+    `      "objectname", "script", "buildpic", "icontype",`,
+    `      "sfxtypes", "sounds", "featuredefs", "corpse",`,
+    `      "explodeas", "selfdestructas", "weapondefs", "weapons"`,
+    `    }`,
+    `    for _, field in ipairs(fields) do`,
+    `      if source[field] ~= nil then`,
+    `        u[field] = clone_copy(source[field])`,
+    `      end`,
     `    end`,
     `  end`,
     ``,

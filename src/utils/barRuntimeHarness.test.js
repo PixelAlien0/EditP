@@ -86,6 +86,74 @@ function compileAdvancedMechanicsFixture(fixture) {
 }
 
 describe('BAR runtime compatibility harness', () => {
+  it('preserves shield-orb and advanced/epic-fusion visual dependencies on clones', () => {
+    const visualSources = {
+      armgate: {
+        objectname: 'Units/ARMGATE.s3o',
+        script: 'Units/ARMGATE.cob',
+        buildpic: 'ARMGATE.DDS',
+        sfxtypes: { explosiongenerators: ['custom:shield_orb'] },
+        sounds: { select: ['arm-bld-shield'] },
+        corpse: 'DEAD',
+        featuredefs: { dead: { object: 'Units/armgate_dead.s3o' } },
+        weapons: [{ def: 'REPULSOR' }],
+        weapondefs: { repulsor: { shield: { radius: 550, power: 6175 } } },
+        customparams: { normaltex: 'unittextures/Arm_normal.dds', unitgroup: 'util' },
+      },
+      armafust3: {
+        objectname: 'Units/ARMAFUST3.s3o',
+        script: 'Units/ARMAFUS.cob',
+        buildpic: 'ARMAFUS.DDS',
+        customparams: { normaltex: 'unittextures/Arm_normal.dds', unitgroup: 'energy' },
+      },
+      corafust3: {
+        objectname: 'Units/CORAFUST3.s3o',
+        script: 'Units/CORAFUS.cob',
+        buildpic: 'CORAFUS.DDS',
+        customparams: { normaltex: 'unittextures/cor_normal.dds', unitgroup: 'energy' },
+      },
+      legafust3: {
+        objectname: 'Units/LEGAFUST3.s3o',
+        script: 'Units/LEGAFUS.cob',
+        buildpic: 'LEGAFUS.DDS',
+        customparams: { normaltex: 'unittextures/leg_normal.dds', unitgroup: 'energy' },
+      },
+      scav_armafust3: {
+        objectname: 'Units/SCAV_ARMAFUST3.s3o',
+        script: 'Units/SCAV_ARMAFUS.cob',
+        buildpic: 'scavengers/ARMAFUS.DDS',
+        customparams: { normaltex: 'unittextures/scav_normal.dds', unitgroup: 'energy' },
+      },
+    };
+    const clonePairs = [
+      ['armgate', 'keeper_orb_clone'],
+      ['armafust3', 'arm_epic_fusion_clone'],
+      ['corafust3', 'cor_epic_fusion_clone'],
+      ['legafust3', 'leg_epic_fusion_clone'],
+      ['scav_armafust3', 'scav_epic_fusion_clone'],
+    ];
+    const compiled = generatedPackage({
+      clones: clonePairs.map(([baseId, newId]) => ({ baseId, newId, displayName: newId, builderIds: [] })),
+    });
+    const result = executeCompiledBarModules(compiled, { unitDefs: visualSources });
+
+    assertRuntimeCompatibility(result, {
+      unitsExist: clonePairs.map(([, newId]) => newId),
+      paths: [
+        { path: 'keeper_orb_clone.objectname', equals: 'Units/ARMGATE.s3o' },
+        { path: 'keeper_orb_clone.script', equals: 'Units/ARMGATE.cob' },
+        { path: 'keeper_orb_clone.weapondefs.repulsor.shield.radius', equals: 550 },
+        { path: 'keeper_orb_clone.sfxtypes.explosiongenerators.0', equals: 'custom:shield_orb' },
+        { path: 'arm_epic_fusion_clone.objectname', equals: 'Units/ARMAFUST3.s3o' },
+        { path: 'arm_epic_fusion_clone.script', equals: 'Units/ARMAFUS.cob' },
+        { path: 'cor_epic_fusion_clone.objectname', equals: 'Units/CORAFUST3.s3o' },
+        { path: 'leg_epic_fusion_clone.objectname', equals: 'Units/LEGAFUST3.s3o' },
+        { path: 'scav_epic_fusion_clone.objectname', equals: 'Units/SCAV_ARMAFUST3.s3o' },
+        { path: 'scav_epic_fusion_clone.script', equals: 'Units/SCAV_ARMAFUS.cob' },
+      ],
+    });
+  });
+
   it('executes nested clones, Units patches, and build-menu placement', () => {
     const compiled = generatedPackage({
       clones: [
