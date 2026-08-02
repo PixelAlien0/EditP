@@ -186,9 +186,13 @@ export function useCompiledProjectOutputs({
           setNestedValue(unitPatch, `customparams.${customKey}`, typedValue);
 
           const lowerKey = customKey.toLowerCase();
-          if (lowerKey === 'canfly') unitPatch.canfly = Boolean(typedValue);
+          if (lowerKey === 'canfly') {
+            unitPatch.canfly = Boolean(typedValue);
+            if (typedValue === true) unitPatch.canmove = true;
+          }
           else if (lowerKey === 'canmove') {
             if (typedValue === false) {
+              unitPatch.canmove = true;
               unitPatch.maxvelocity = 0;
               unitPatch.speed = 0;
             } else {
