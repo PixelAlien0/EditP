@@ -16,7 +16,7 @@ function alignValues(values, count, fallback) {
 
 function isEnabled(value) {
   if (value === undefined || value === null || value === '') return false;
-  return !['false', '0', 'off', 'no'].includes(String(value).trim().toLowerCase());
+  return !['false', '0', 'off', 'no', 'disabled'].includes(String(value).trim().toLowerCase());
 }
 
 function buildFreeDeploymentSections(count) {
