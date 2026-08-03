@@ -181,8 +181,16 @@ export function useCompiledProjectOutputs({
           const customKey = key.slice('customparams.'.length);
           if (!isValidCustomParameterKey(customKey)) return;
           let typedValue = value;
-          if (typeof value === 'string' && /^-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(value.trim())) typedValue = Number(value);
-          else if (value === 'true' || value === 'false') typedValue = value === 'true';
+          if (typeof value === 'string') {
+            const stripped = value.replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+            if (/^-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(stripped.trim())) {
+              typedValue = Number(stripped.trim());
+            } else if (stripped === 'true' || stripped === 'false') {
+              typedValue = stripped === 'true';
+            } else {
+              typedValue = stripped;
+            }
+          }
           setNestedValue(unitPatch, `customparams.${customKey}`, typedValue);
 
           const lowerKey = customKey.toLowerCase();
@@ -195,9 +203,11 @@ export function useCompiledProjectOutputs({
           else if (lowerKey === 'airhoverfactor') unitPatch.airhoverfactor = Number(typedValue);
           else if (lowerKey === 'hoverattack') unitPatch.hoverAttack = Boolean(typedValue);
           else if (lowerKey === 'nochasecategory') {
-            unitPatch.nochasecategory = String(typedValue).replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+            unitPatch.nochasecategory = String(typedValue);
           } else if (lowerKey === 'badtargetcategory') {
-            unitPatch.badtargetcategory = String(typedValue).replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+            unitPatch.badtargetcategory = String(typedValue);
+          } else if (lowerKey === 'noautorange') {
+            unitPatch.noautorange = Boolean(typedValue);
           }
 
           return;
