@@ -195,6 +195,7 @@ export function useCompiledProjectOutputs({
 
           const lowerKey = customKey.toLowerCase();
           if (lowerKey === 'canfly') unitPatch.canfly = Boolean(typedValue);
+          else if (lowerKey === 'canmove') unitPatch.canmove = Boolean(typedValue);
           else if (lowerKey === 'movetype') unitPatch.movetype = String(typedValue);
           else if (lowerKey === 'cruisealtitude' || lowerKey === 'cruisealt') {
             unitPatch.cruisealtitude = Number(typedValue);
