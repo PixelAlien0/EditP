@@ -209,6 +209,16 @@ export function useCompiledProjectOutputs({
             unitPatch.badtargetcategory = String(typedValue);
           } else if (lowerKey === 'noautorange') {
             unitPatch.noautorange = Boolean(typedValue);
+          } else if (lowerKey === 'pitchtolerance' || lowerKey === 'tolerance') {
+            const numVal = Number(typedValue);
+            if (!Number.isNaN(numVal)) {
+              getActiveWeaponSlots(unitId).forEach(slot => {
+                const weaponKey = String(slot.defKey || '').toLowerCase();
+                if (weaponKey) {
+                  setNestedValue(unitPatch, `weapondefs.${weaponKey}.${lowerKey}`, numVal);
+                }
+              });
+            }
           }
 
           return;
