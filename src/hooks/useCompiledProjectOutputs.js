@@ -200,6 +200,7 @@ export function useCompiledProjectOutputs({
             unitPatch.cruisealtitude = Number(typedValue);
             unitPatch.cruiseAltitude = Number(typedValue);
           } else if (lowerKey === 'verticalspeed') unitPatch.verticalspeed = Number(typedValue);
+          else if (lowerKey === 'upright') unitPatch.upright = Boolean(typedValue);
           else if (lowerKey === 'airhoverfactor') unitPatch.airhoverfactor = Number(typedValue);
           else if (lowerKey === 'hoverattack') unitPatch.hoverAttack = Boolean(typedValue);
           else if (lowerKey === 'nochasecategory') {
