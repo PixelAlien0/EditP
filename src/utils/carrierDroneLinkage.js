@@ -6,7 +6,7 @@ import { SAFE_ORPHAN_DRONE_AIRTIME_SECONDS } from './carrierRuntimeSafety.js';
 
 function readCarrierBoolean(value, fallback = false) {
   if (value === undefined || value === null || value === '') return fallback;
-  return !['false', '0', 'off', 'no'].includes(String(value).trim().toLowerCase());
+  return !['false', '0', 'off', 'no', 'disabled'].includes(String(value).trim().toLowerCase());
 }
 
 const LEGACY_CARRIER_TWEAK_KEYS = Object.freeze([
