@@ -170,6 +170,7 @@ const ADDITIONAL_PARAMETER_HELP = Object.freeze({
   cancapture: 'Enables capture orders where the loaded game supports capture.',
   canassist: 'Allows the unit to assist allied construction, repair, and related builder work.',
   canbeassisted: 'Allows other builders to assist this unit while it is constructing or working.',
+  builder: 'Enables the engine builder subsystem for this unit. Required for static construction turrets and builders to use workertime.',
   maxreversevelocity: 'Maximum reverse movement speed. Zero prevents meaningful reverse travel.',
   turninplace: 'Allows the unit to rotate without moving forward.',
   turninplaceanglelimit: 'Angle threshold before the unit chooses to turn in place rather than continue moving.',
