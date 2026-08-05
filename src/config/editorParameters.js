@@ -523,7 +523,7 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
     description: 'Create units when this projectile explodes. These values are read by BAR’s Unit Explosion Spawner gadget.',
     params: [
       { key: 'spawns_name', label: 'Spawned Unit IDs', type: 'string' },
-      { key: 'spawns_surface', label: 'Allowed Surface', type: 'string', options: ['', 'LAND', 'SEA'] },
+      { key: 'spawns_surface', label: 'Allowed Surface', type: 'string', options: ['', 'LAND', 'SEA', 'WATER', 'SUB', 'BOTH'] },
       { key: 'spawns_mode', label: 'Multiple-Unit Selection', type: 'string', options: ['', 'random', 'random_locked', 'sequential'] },
       { key: 'spawns_expire', label: 'Spawn Lifetime (seconds)', type: 'number' },
       { key: 'spawns_ceg', label: 'Additional Spawn CEG', type: 'string' },
@@ -537,7 +537,7 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
     description: 'Deploy and control carried units through BAR’s carrier weapon contract.',
     params: [
       { key: 'carried_unit', label: 'Carried Unit IDs (space-separated)', type: 'string' },
-      { key: 'dronetype', label: 'Drone Types (per unit type)', type: 'string' },
+      { key: 'dronetype', label: 'Drone Types (per unit type)', type: 'string', options: ['', 'default', 'sub', 'sea', 'air', 'land'] },
       { key: 'spawnrate', label: 'Spawn Interval (seconds)', type: 'number' },
       { key: 'maxunits', label: 'Maximum Active Units per Type', type: 'string' },
       { key: 'startingdronecount', label: 'Initial Units per Type', type: 'string' },
