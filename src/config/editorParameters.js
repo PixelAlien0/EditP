@@ -18,7 +18,7 @@ const STAT_PRESENTATION = Object.freeze({
   energystorage: { group: 'Storage & utility', unit: 'energy' },
   cloakcost: { group: 'Storage & utility', unit: 'energy/s' },
   cloakcostmoving: { group: 'Storage & utility', unit: 'energy/s' },
-  builddistance: { group: 'Storage & utility', unit: 'elmos' },
+  builddistance: { group: 'Builder capabilities', unit: 'elmos' },
   'customparams.techlevel': { group: 'Classification', unit: 'tier' },
   'customparams.energyconv_capacity': { group: 'Production', unit: 'energy' },
   'customparams.energyconv_efficiency': { group: 'Production', unit: 'ratio' },
