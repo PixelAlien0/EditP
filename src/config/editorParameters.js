@@ -69,6 +69,8 @@ const STAT_PRESENTATION = Object.freeze({
   radardistancejam: { group: 'Sensors', unit: 'elmos' },
   sonardistancejam: { group: 'Sensors', unit: 'elmos' },
   seismicdistance: { group: 'Sensors', unit: 'elmos' },
+  builddistance: { group: 'Builder capabilities', unit: 'elmos', alwaysRelevant: true },
+  builder: { group: 'Builder capabilities', alwaysRelevant: true },
   repairspeed: { group: 'Builder capabilities', unit: 'work/s' },
   reclaimspeed: { group: 'Builder capabilities', unit: 'work/s' },
   resurrectspeed: { group: 'Builder capabilities', unit: 'work/s' },
