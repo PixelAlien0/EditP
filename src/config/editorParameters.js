@@ -265,7 +265,7 @@ export const STAT_KEYS = Object.freeze([
   { key: 'energystorage', label: 'Energy Storage', icon: '[ES]', type: 'number' },
   { key: 'cloakcost', label: 'Cloak Cost', icon: '[CLK]', type: 'number' },
   { key: 'cloakcostmoving', label: 'Cloak Move', icon: '[CLKM]', type: 'number' },
-  { key: 'builddistance', label: 'Build Range', icon: '[RNG]', type: 'number' },
+  { key: 'builddistance', label: 'Build Range', icon: '[RNG]', type: 'number', alwaysRelevant: true },
   { key: 'autoheal', label: 'Regen Rate', icon: '[REG]', type: 'number' },
   { key: 'customparams.techlevel', label: 'Tech Tier', icon: '[TCH]', type: 'number', nestedIn: 'customparams', patchKey: 'techlevel' },
   { key: 'customparams.energyconv_capacity', label: 'Conv. Capacity', icon: '[CAP]', type: 'number', nestedIn: 'customparams', patchKey: 'energyconv_capacity' },
@@ -314,7 +314,7 @@ export const STAT_KEYS = Object.freeze([
   { key: 'cancapture', label: 'Can Capture', icon: '[CAP]', type: 'boolean', patchKey: 'canCapture' },
   { key: 'canassist', label: 'Can Assist', icon: '[AST]', type: 'boolean', patchKey: 'canAssist' },
   { key: 'canbeassisted', label: 'Can Be Assisted', icon: '[BAS]', type: 'boolean', patchKey: 'canBeAssisted' },
-  { key: 'builder', label: 'Is Builder Capability', icon: '[BLD]', type: 'boolean' },
+  { key: 'builder', label: 'Is Builder Capability', icon: '[BLD]', type: 'boolean', alwaysRelevant: true },
   { key: 'maxreversevelocity', label: 'Reverse Speed', icon: '[REV]', type: 'number', patchKey: 'rSpeed' },
   { key: 'turninplace', label: 'Turn in Place', icon: '[TIP]', type: 'boolean', patchKey: 'turnInPlace' },
   { key: 'turninplaceanglelimit', label: 'Turn-in-Place Angle', icon: '[TIA]', type: 'number', patchKey: 'turnInPlaceAngleLimit' },
@@ -383,10 +383,21 @@ export function getApplicableUnitParameters(parameters, defaults = {}, tweaks = 
   const { showAll = false, activeKey = null } = options;
   if (showAll) return parameters;
 
+  const isBuilderUnit = Boolean(
+    tweaks.builder
+    || defaults.builder
+    || (tweaks.workertime !== undefined ? Number(tweaks.workertime) > 0 : Number(defaults.workertime) > 0)
+    || tweaks.canrepair
+    || defaults.canrepair
+    || tweaks.canassist
+    || defaults.canassist
+  );
+
   return parameters.filter(parameter => (
     parameter.featured
     || parameter.alwaysRelevant
     || parameter.key === activeKey
+    || (isBuilderUnit && ['builddistance', 'builder', 'repairspeed', 'reclaimspeed', 'terraformspeed', 'canrepair', 'canreclaim', 'canassist'].includes(parameter.key))
     || Object.prototype.hasOwnProperty.call(defaults, parameter.key)
     || Object.prototype.hasOwnProperty.call(tweaks, parameter.key)
   ));
