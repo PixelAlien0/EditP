@@ -591,7 +591,6 @@ export function generateClonesBlockLua(clones, weaponLibrary = [], options = {})
     `    if u.maxthisunit then u.maxthisunit = nil end`,
     `    if u.customparams then`,
     `      u.customparams.raptorbuildmeta = nil`,
-    `      u.customparams.unitgroup = nil`,
     `      u.customparams.subfolder = nil`,
     `    end`,
     `  end`,
