@@ -201,22 +201,24 @@ export default function DesignerPage({
           </div>
 
           <div className="designer-panel designer-roster-canvas">
-            <div className="designer-panel-header">
-              <Type variant="eyebrow" className="designer-panel-kicker">Production sequence</Type>
-              <Type variant="section-title" className="designer-panel-title">
-                {factoryName}
-                {isFactoryModified(factoryId) && (
-                  <button type="button" className="designer-reset-factory" onClick={onResetProducer}>
-                    Reset producer
-                  </button>
-                )}
-              </Type>
-              <Type as="div" variant="description" className="designer-panel-description">
-                <span>Drag units to reorder the build menu. Removed slots remain visible until restored.</span>
-                <span className="designer-sequence-summary">
-                  {activeSlotCount} active · {baseSlotCount} roster references · {addedSlotCount} custom
-                </span>
-              </Type>
+            <div className="designer-panel-header designer-panel-header--roster">
+              <div className="designer-panel-header__main">
+                <Type variant="eyebrow" className="designer-panel-kicker">Production sequence</Type>
+                <Type variant="section-title" className="designer-panel-title">
+                  {factoryName}
+                  {isFactoryModified(factoryId) && (
+                    <button type="button" className="designer-reset-factory" onClick={onResetProducer}>
+                      Reset producer
+                    </button>
+                  )}
+                </Type>
+                <Type as="div" variant="description" className="designer-panel-description">
+                  <span>Drag units to reorder the build menu. Removed slots remain visible until restored.</span>
+                  <span className="designer-sequence-summary">
+                    {activeSlotCount} active · {baseSlotCount} roster references · {addedSlotCount} custom
+                  </span>
+                </Type>
+              </div>
               <div className="designer-unitgroup-guide">
                 <span className="designer-unitgroup-guide__title">BAR Tab Placement Guide (<code>customparams.unitgroup</code>):</span>
                 <div className="designer-unitgroup-guide__badges">
