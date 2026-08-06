@@ -6,13 +6,13 @@
   "sourceCommit": "e34440077024d3b122b89d07a314a2df7b1b181d",
   "sourceDate": "2026-07-22T08:53:15Z",
   "counts": {
-    "units": 1780,
-    "descriptions": 1780,
-    "defaults": 1780,
-    "categories": 1780,
+    "units": 1782,
+    "descriptions": 1782,
+    "defaults": 1782,
+    "categories": 1782,
     "rosters": 170,
     "explosions": 133,
-    "artwork": 1780,
+    "artwork": 1782,
     "tacticalIcons": 990,
     "assetReferences": 3962
   },
