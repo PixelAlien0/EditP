@@ -13,7 +13,7 @@
   "scavDecoyCommanderNameTag": "Scav Decoy",
   "names": {
     "armscavengerbossv2": "Epic Commander - Final Boss",
-    "armscavengerbossv2_epic": "Epic Mech",
+    "armscavengerbossv2_epic": "Epic Commander - Final Boss (Epic)",
     "legsplab": "Offshore Seaplane Platform",
     "legspcon": "Construction Seaplane",
     "legspsurfacegunship": "Enyo",
@@ -1796,8 +1796,8 @@
     "armcomnew": "armcomnew"
   },
   "descriptions": {
-    "armscavengerbossv2": "Ultimate Scavenger Final Boss Mech",
-    "armscavengerbossv2_epic": "30-Million HP Scavenger Final Boss Mech",
+    "armscavengerbossv2": "Scavenger Mode Final Boss Mech (Normal)",
+    "armscavengerbossv2_epic": "Scavenger Mode Final Boss Mech (Epic 2M HP)",
     "legsplab": "Constructs Seaplanes",
     "legspcon": "Tech 1 Constructor",
     "legspsurfacegunship": "Riot Cannon Seaplane Gunship",
