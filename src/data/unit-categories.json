@@ -7991,5 +7991,13 @@
   ],
   "legnanotcbase": [
     "t1"
+  ],
+  "armscavengerbossv2": [
+    "bots",
+    "t4"
+  ],
+  "armscavengerbossv2_epic": [
+    "bots",
+    "t4"
   ]
 }
