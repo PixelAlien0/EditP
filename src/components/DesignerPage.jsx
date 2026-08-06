@@ -217,6 +217,31 @@ export default function DesignerPage({
                   {activeSlotCount} active · {baseSlotCount} roster references · {addedSlotCount} custom
                 </span>
               </Type>
+              <div className="designer-unitgroup-guide">
+                <span className="designer-unitgroup-guide__title">BAR Tab Placement Guide (<code>customparams.unitgroup</code>):</span>
+                <div className="designer-unitgroup-guide__badges">
+                  <span className="designer-unitgroup-badge designer-unitgroup-badge--econ" title="Economy Tab (Z): unitgroup = 'metal' / 'energy'">
+                    <span className="designer-unitgroup-key">Z</span>
+                    <strong className="designer-unitgroup-name">Economy</strong>
+                    <code>unitgroup = "metal"</code>
+                  </span>
+                  <span className="designer-unitgroup-badge designer-unitgroup-badge--combat" title="Combat Tab (X): unitgroup = 'weapon' / 'defense'">
+                    <span className="designer-unitgroup-key">X</span>
+                    <strong className="designer-unitgroup-name">Combat</strong>
+                    <code>unitgroup = "weapon"</code>
+                  </span>
+                  <span className="designer-unitgroup-badge designer-unitgroup-badge--utility" title="Utility Tab (C): unitgroup = 'utility' / 'radar'">
+                    <span className="designer-unitgroup-key">C</span>
+                    <strong className="designer-unitgroup-name">Utility</strong>
+                    <code>unitgroup = "utility"</code>
+                  </span>
+                  <span className="designer-unitgroup-badge designer-unitgroup-badge--build" title="Build Tab (V): unitgroup = 'builder' / 'plant'">
+                    <span className="designer-unitgroup-key">V</span>
+                    <strong className="designer-unitgroup-name">Build</strong>
+                    <code>unitgroup = "builder"</code>
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="designer-panel-scroll designer-roster-scroll">

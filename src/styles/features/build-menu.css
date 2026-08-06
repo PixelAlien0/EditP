@@ -245,10 +245,88 @@
 }
 
 .designer-page .designer-roster-canvas .designer-panel-header {
-  min-height: 104px;
+  min-height: 148px;
   padding-inline: clamp(24px, 2vw, 34px);
   align-content: center;
   background: var(--color-surface);
+}
+
+.designer-unitgroup-guide {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.designer-unitgroup-guide__title {
+  color: var(--color-text-muted);
+  font: 600 11px/1.2 var(--font-sans);
+}
+
+.designer-unitgroup-guide__title code {
+  color: var(--color-accent);
+  font: 11px/1 var(--font-mono);
+}
+
+.designer-unitgroup-guide__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.designer-unitgroup-badge {
+  padding: 3px 8px 3px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
+  font-size: 11px;
+}
+
+.designer-unitgroup-key {
+  width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  background: var(--color-surface-hover);
+  color: var(--color-text-strong);
+  font: 800 10px/1 var(--font-mono);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.designer-unitgroup-badge--econ .designer-unitgroup-key {
+  background: rgba(234, 179, 8, 0.25);
+  color: #facc15;
+}
+
+.designer-unitgroup-badge--combat .designer-unitgroup-key {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.designer-unitgroup-badge--utility .designer-unitgroup-key {
+  background: rgba(59, 130, 246, 0.25);
+  color: #60a5fa;
+}
+
+.designer-unitgroup-badge--build .designer-unitgroup-key {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+
+.designer-unitgroup-name {
+  color: var(--color-text-strong);
+  font-weight: 650;
+}
+
+.designer-unitgroup-badge code {
+  color: var(--color-text-muted);
+  font: 10px/1 var(--font-mono);
 }
 
 .designer-page .designer-panel-title {
