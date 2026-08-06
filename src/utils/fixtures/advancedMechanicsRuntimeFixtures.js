@@ -11,7 +11,7 @@ export const ADVANCED_MECHANICS_RUNTIME_FIXTURES = Object.freeze([
     tweaks: {
       editp_carrier: {
         weapon_slot_1_carried_unit: 'armdrone corvamp armflea',
-        weapon_slot_1_dronetype: 'air land scout',
+        weapon_slot_1_dronetype: 'default bomber nano',
         weapon_slot_1_maxunits: '4 3 2',
         weapon_slot_1_startingdronecount: '1 0 1',
         weapon_slot_1_spawn_metal_cost: '20 40 10',
@@ -38,7 +38,7 @@ export const ADVANCED_MECHANICS_RUNTIME_FIXTURES = Object.freeze([
     expectations: {
       paths: [
         { path: 'editp_carrier.weapondefs.dronecontroller.customparams.carried_unit', equals: 'armdrone corvamp armflea' },
-        { path: 'editp_carrier.weapondefs.dronecontroller.customparams.dronetype', equals: 'air land scout' },
+        { path: 'editp_carrier.weapondefs.dronecontroller.customparams.dronetype', equals: 'default bomber nano' },
         { path: 'editp_carrier.weapondefs.dronecontroller.customparams.maxunits', equals: '4 3 2' },
         { path: 'editp_carrier.weapondefs.dronecontroller.customparams.startingdronecount', equals: '1 0 1' },
         { path: 'editp_carrier.weapondefs.dronecontroller.customparams.metalcost', equals: '20 40 10' },

@@ -264,7 +264,7 @@ const ADDITIONAL_PARAMETER_HELP = Object.freeze({
   shieldenergyuse: 'Shield energy consumed when it intercepts or affects a projectile.',
   shieldrechargedelay: 'Delay before shield regeneration resumes after an interception.',
   shieldintercepttype: 'Bitmask of projectile interceptor channels this shield can affect. It must match the projectile targetable mask.',
-  dronetype: 'Drone navigation mode per carried unit type (e.g., sub, sea, air, land, default). Set to sub for submarine/underwater spawning from submerged structures.',
+  dronetype: 'Drone behavior mode per carried unit type. Valid BAR options: default (gunship/combat), nano (repair/build), bomber (bombing run), turret (stationary defender), printer (construction builder).',
   spawns_surface: 'Allowed surface environment for unit spawning (LAND, SEA, WATER, SUB, BOTH). Set to SUB or WATER for underwater/naval spawning.',
 });
 

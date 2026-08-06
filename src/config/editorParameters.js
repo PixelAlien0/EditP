@@ -550,7 +550,7 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
     description: 'Deploy and control carried units through BAR’s carrier weapon contract.',
     params: [
       { key: 'carried_unit', label: 'Carried Unit IDs (space-separated)', type: 'string' },
-      { key: 'dronetype', label: 'Drone Types (per unit type)', type: 'string', options: ['', 'default', 'sub', 'sea', 'air', 'land'] },
+      { key: 'dronetype', label: 'Drone Types (per unit type)', type: 'string', options: ['', 'default', 'nano', 'bomber', 'turret', 'printer'] },
       { key: 'spawnrate', label: 'Spawn Interval (seconds)', type: 'number' },
       { key: 'maxunits', label: 'Maximum Active Units per Type', type: 'string' },
       { key: 'startingdronecount', label: 'Initial Units per Type', type: 'string' },
