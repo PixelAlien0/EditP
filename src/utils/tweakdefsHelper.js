@@ -629,7 +629,7 @@ export function generateClonesBlockLua(clones, weaponLibrary = [], options = {})
     `        for k, v in pairs(UnitDefs[srcUnit].weapons[srcSlotIdx]) do`,
     `          if k ~= "def" then`,
     `            if type(v) == "table" then`,
-    `              u.weapons[slotNum][k] = table.copy(v)`,
+    `              u.weapons[slotNum][k] = clone_copy(v)`,
     `            else`,
     `              u.weapons[slotNum][k] = v`,
     `            end`,
