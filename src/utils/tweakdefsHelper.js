@@ -322,15 +322,15 @@ export function generateSingleCloneLua(clone, weaponLibrary = []) {
     `    clone_clean(u)`,
     `    clone_preserve_visuals(u, UnitDefs[s])`,
     `    local srcBo = UnitDefs[s].buildoptions`,
+    `    local bo = {}`,
     `    if type(srcBo) == "table" then`,
-    `      local bo = {}`,
     `      for _, x in ipairs(srcBo) do`,
     `        if type(x) == "string" then`,
     `          bo[#bo + 1] = x`,
     `        end`,
     `      end`,
-    `      u.buildoptions = bo`,
-    `    end`
+    `    end`,
+    `    u.buildoptions = bo`
   ];
   
   const displayName = clone.displayName?.trim();
@@ -678,7 +678,8 @@ export function generateSingleBuilderDeltaLua(step) {
   if (step.order && step.order.length > 0) {
     const listLua = step.order.map(id => `    ${JSON.stringify(id)},`).join('\n');
     return [
-      `if ${targetStr} and type(${targetStr}.buildoptions) == "table" then`,
+      `if ${targetStr} then`,
+      `  if type(${targetStr}.buildoptions) ~= "table" then ${targetStr}.buildoptions = {} end`,
       `  ${targetStr}.buildoptions = {`,
       listLua,
       `  }`,
@@ -690,8 +691,9 @@ export function generateSingleBuilderDeltaLua(step) {
   const addArr = step.add.map(a => a.trim()).filter(Boolean);
   
   return [
-    `if ${targetStr} and type(${targetStr}.buildoptions) == "table" then`,
+    `if ${targetStr} then`,
     `  local ud = ${targetStr}`,
+    `  if type(ud.buildoptions) ~= "table" then ud.buildoptions = {} end`,
     `  local bo = ud.buildoptions`,
     `  ${generateRemoveTableLua(removeSet)}`,
     `  ${generateAddListLua(addArr)}`,
@@ -733,7 +735,8 @@ export function generateBuildMenuBlockLua(steps, options = {}) {
   if (compact) {
     const helperFunc = `local function editp_modify_bo(builderId, addList, removeList, orderedList)
   local ud = UnitDefs and UnitDefs[builderId]
-  if ud and type(ud.buildoptions) == "table" then
+  if ud then
+    if type(ud.buildoptions) ~= "table" then ud.buildoptions = {} end
     if orderedList then
       ud.buildoptions = orderedList
       return
