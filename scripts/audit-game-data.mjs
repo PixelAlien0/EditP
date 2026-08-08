@@ -57,7 +57,7 @@ for (const difficulty of Object.keys(SCAVENGER_BOSS_DIFFICULTIES)) {
   if (!expectedIds.has(unitId)) errors.push(`Snapshot is missing generated BAR UnitDef ${unitId}.`);
 }
 
-for (const key of ['artwork', 'tacticalIcons', 'assets']) {
+for (const key of ['artwork', 'tacticalIcons', 'assets', 'customParameters']) {
   if (datasets[key]?.sourceCommit !== manifest.sourceCommit) {
     errors.push(`${key} source commit ${datasets[key]?.sourceCommit || 'unknown'} differs from ${manifest.sourceCommit}.`);
   }
@@ -104,6 +104,7 @@ console.log(`  Units/defaults/categories/artwork: ${counts.units}/${counts.defau
 console.log(`  Factory rosters: ${counts.rosters}`);
 console.log(`  Tactical icons: ${counts.tacticalIcons}`);
 console.log(`  Validated asset references: ${counts.assetReferences}`);
+console.log(`  Discovered custom parameters: ${counts.customParameters}`);
 
 if (errors.length) {
   console.error(`\nAudit failed with ${errors.length} issue${errors.length === 1 ? '' : 's'}:`);

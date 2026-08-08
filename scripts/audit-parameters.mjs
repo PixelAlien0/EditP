@@ -11,7 +11,12 @@ import {
   WEAPON_SLOT_PATHS,
   WEAPON_SLOT_STRING_PARAMS,
 } from '../src/config/weaponParameters.js';
-import { CUSTOM_PARAMETER_CATALOG } from '../src/config/customParameters.js';
+import {
+  CUSTOM_PARAMETER_CATALOG,
+  CUSTOM_PARAMETER_DISCOVERY,
+  CUSTOM_PARAMETER_REGISTRY,
+} from '../src/config/customParameters.js';
+import gameDataManifest from '../src/data/game-data-manifest.json' with { type: 'json' };
 import { UNIT_BEHAVIOR_CONTROLS } from '../src/config/behaviorInterceptor.js';
 import { getParameterHelp } from '../src/config/parameterGuidance.js';
 
@@ -118,6 +123,7 @@ export function auditParameterCompleteness({
 
   const duplicateUnitKeys = duplicates(statKeys);
   const duplicateCustomKeys = duplicates(customKeys);
+  const duplicateRegistryIds = duplicates(CUSTOM_PARAMETER_REGISTRY.map(parameter => parameter.id));
   const duplicateWeaponKeys = duplicates(WEAPON_PARAMETER_CATALOG.map(parameter => parameter.key));
   const invalidUnitMetadata = STAT_KEYS
     .filter(parameter => (
@@ -135,6 +141,24 @@ export function auditParameterCompleteness({
       || !['number', 'boolean', 'string'].includes(parameter.type)
     ))
     .map(parameter => parameter.key || '(missing key)');
+  const invalidRegistryMetadata = CUSTOM_PARAMETER_REGISTRY
+    .filter(parameter => (
+      !parameter.id
+      || !parameter.key
+      || !parameter.scope
+      || !parameter.label
+      || !parameter.owner
+      || !parameter.description
+      || !['number', 'boolean', 'string'].includes(parameter.type)
+    ))
+    .map(parameter => parameter.id || parameter.key || '(missing id)');
+  const discoveryCommitMismatch = CUSTOM_PARAMETER_DISCOVERY.sourceCommit !== gameDataManifest.sourceCommit
+    ? [`${CUSTOM_PARAMETER_DISCOVERY.sourceCommit || 'missing'} != ${gameDataManifest.sourceCommit}`]
+    : [];
+  const registryObservedCount = CUSTOM_PARAMETER_REGISTRY.filter(parameter => parameter.observed).length;
+  const discoveryCoverageMismatch = registryObservedCount !== CUSTOM_PARAMETER_DISCOVERY.counts.totalParameters
+    ? [`registry ${registryObservedCount}, discovery ${CUSTOM_PARAMETER_DISCOVERY.counts.totalParameters}`]
+    : [];
   const invalidWeaponMetadata = WEAPON_PARAMETER_CATALOG
     .filter(parameter => (
       !parameter.key
@@ -215,9 +239,13 @@ export function auditParameterCompleteness({
   [
     ['duplicate unit parameter keys', duplicateUnitKeys],
     ['duplicate custom-parameter keys', duplicateCustomKeys],
+    ['duplicate custom-parameter registry IDs', duplicateRegistryIds],
     ['duplicate rendered weapon keys', duplicateWeaponKeys],
     ['invalid unit parameter metadata', invalidUnitMetadata],
     ['invalid custom-parameter metadata', invalidCustomMetadata],
+    ['invalid custom-parameter registry metadata', invalidRegistryMetadata],
+    ['custom-parameter discovery commit mismatch', discoveryCommitMismatch],
+    ['custom-parameter discovery coverage mismatch', discoveryCoverageMismatch],
     ['invalid weapon parameter metadata', invalidWeaponMetadata],
     ['snapshot unit fields without editor coverage', uncoveredUnitSnapshotFields],
     ['snapshot weapon fields without editor coverage', uncoveredWeaponSnapshotFields],
@@ -249,6 +277,8 @@ export function auditParameterCompleteness({
       units: snapshot.units.length,
       unitParameters: STAT_KEYS.length,
       customParameters: CUSTOM_PARAMETER_CATALOG.length,
+      customParameterRegistry: CUSTOM_PARAMETER_REGISTRY.length,
+      discoveredCustomParameters: CUSTOM_PARAMETER_DISCOVERY.counts.totalParameters,
       renderedWeaponParameters: weaponCatalog.coveredKeys.size,
       snapshotUnitFields: unitSnapshotFields.length,
       snapshotWeaponFields: weaponSnapshotFields.length,

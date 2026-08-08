@@ -11,6 +11,24 @@ export const CAPABILITY_DEFINITIONS = Object.freeze({
     tone: 'info',
     description: 'Requires behavior supplied by a BAR LuaRules gadget.',
   }),
+  'bar-data': Object.freeze({
+    label: 'Observed in BAR data',
+    shortLabel: 'BAR data',
+    tone: 'neutral',
+    description: 'This key is present in the pinned BAR definition snapshot.',
+  }),
+  'unverified-contract': Object.freeze({
+    label: 'Unverified runtime contract',
+    shortLabel: 'Unverified',
+    tone: 'warning',
+    description: 'The key is observed in BAR data, but its runtime consumer has not been registered in the editor.',
+  }),
+  'external-package': Object.freeze({
+    label: 'External package contract',
+    shortLabel: 'External',
+    tone: 'warning',
+    description: 'This key only works when the loaded game or mod package explicitly consumes it.',
+  }),
   'editor-generated': Object.freeze({
     label: 'Editor generated',
     shortLabel: 'Generated',

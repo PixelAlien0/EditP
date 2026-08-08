@@ -56,6 +56,7 @@ try {
 
   runNode('sync_github_data.js', environment);
   runNode('scripts/sync-parameter-defaults.mjs', environment);
+  runNode('scripts/sync-custom-parameter-registry.mjs', environment);
   runNode('scripts/sync-explosion-profiles.mjs', environment);
   runNode('scripts/sync-asset-manifest.mjs', environment);
   runNode('scripts/sync-tactical-icons.mjs', environment);

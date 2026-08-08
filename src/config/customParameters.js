@@ -1,57 +1,181 @@
+import discovery from '../data/custom-parameter-discovery.json' with { type: 'json' };
+import { WEAPON_PARAMETER_CATALOG } from './weaponParameters.js';
+
+export const CUSTOM_PARAMETER_REGISTRY_VERSION = 2;
 export const CUSTOM_PARAMETER_KEY_PATTERN = /^[a-z_][a-z0-9_]*$/;
 
-export const CUSTOM_PARAMETER_CATALOG = Object.freeze([
+const curatedUnitParameters = [
   {
-    key: 'armordef', label: 'Armor Definition', type: 'string', owner: 'Package-specific',
+    key: 'armordef', label: 'Armor Definition', type: 'string', owner: 'Package-specific', maturity: 'external',
     description: 'Optional armor-table identifier. Only has an effect when the loaded game or package consumes this key.'
   },
   {
-    key: 'restrictions_exclusion', label: 'Restriction Exclusion', type: 'string', owner: 'BAR gadget',
+    key: 'restrictions_exclusion', label: 'Restriction Exclusion', type: 'string', owner: 'BAR gadget', maturity: 'stable',
     description: 'Exempts this unit from a named BAR unit-restriction group, for example _noantinuke_.'
   },
   {
-    key: 'crashable', label: 'Crashable', type: 'boolean', owner: 'BAR gadget',
+    key: 'crashable', label: 'Crashable', type: 'boolean', owner: 'BAR gadget', maturity: 'stable',
     description: 'Controls whether BAR aircraft-crash handling may turn the unit into a crashing wreck.'
   },
   {
-    key: 'fall_damage_multiplier', label: 'Fall Damage Multiplier', type: 'number', owner: 'BAR gadget',
+    key: 'fall_damage_multiplier', label: 'Fall Damage Multiplier', type: 'number', owner: 'BAR gadget', maturity: 'stable', min: 0,
     description: 'Multiplies damage applied by BAR fall-impact handling. Zero disables that additional damage.'
   },
   {
-    key: 'water_fall_damage_multiplier', label: 'Water Fall Damage Multiplier', type: 'number', owner: 'BAR gadget',
+    key: 'water_fall_damage_multiplier', label: 'Water Fall Damage Multiplier', type: 'number', owner: 'BAR gadget', maturity: 'stable', min: 0,
     description: 'Multiplies BAR fall-impact damage when the landing occurs in water.'
   },
   {
-    key: 'unitgroup', label: 'Unit Group', type: 'string', owner: 'BAR convention',
+    key: 'unitgroup', label: 'Unit Group', type: 'string', owner: 'BAR convention', maturity: 'stable',
     description: 'BAR role classification used by UI, targeting, restrictions, and supporting gadgets.'
   },
   {
-    key: 'ignore_noair', label: 'Ignore No-Air Restriction', type: 'boolean', owner: 'Package-specific',
+    key: 'ignore_noair', label: 'Ignore No-Air Restriction', type: 'boolean', owner: 'Package-specific', maturity: 'external',
     description: 'Package convention for bypassing a no-air restriction. It requires code that explicitly reads the key.'
   },
   {
-    key: 'attacksafetydistance', label: 'Attack Safety Distance', type: 'number', owner: 'BAR gadget',
+    key: 'attacksafetydistance', label: 'Attack Safety Distance', type: 'number', owner: 'BAR gadget', maturity: 'stable', min: 0, unit: 'elmos',
     description: 'Minimum safety distance used by BAR attack behavior for units whose own attack may be dangerous.'
   },
   {
-    key: 'overrange_distance', label: 'Overrange Distance', type: 'number', owner: 'BAR gadget',
+    key: 'overrange_distance', label: 'Overrange Distance', type: 'number', owner: 'BAR gadget', maturity: 'stable', min: 0, unit: 'elmos',
     description: 'Extra distance consumed by BAR overrange projectile behavior. This does not replace the WeaponDef range.'
   },
   {
-    key: 'paralyzemultiplier', label: 'Paralyze Multiplier', type: 'number', owner: 'BAR gadget',
+    key: 'paralyzemultiplier', label: 'Paralyze Multiplier', type: 'number', owner: 'BAR gadget', maturity: 'stable', min: 0,
     description: 'BAR-specific multiplier for paralysis received or applied by supporting EMP logic.'
   },
   {
-    key: 'removestop', label: 'Remove Stop Command', type: 'boolean', owner: 'BAR UI convention',
+    key: 'removestop', label: 'Remove Stop Command', type: 'boolean', owner: 'BAR UI convention', maturity: 'stable',
     description: 'Asks BAR command UI logic to hide the Stop command for this unit.'
   },
   {
-    key: 'maxrange', label: 'Reported Maximum Range', type: 'number', owner: 'BAR UI convention',
+    key: 'maxrange', label: 'Reported Maximum Range', type: 'number', owner: 'BAR UI convention', maturity: 'stable', min: 0, unit: 'elmos',
     description: 'Range hint used by BAR presentation and supporting logic. It does not change a WeaponDef range by itself.'
   }
-]);
+];
 
+function titleFromKey(key) {
+  return String(key || '')
+    .split('_')
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function inferredType(observation) {
+  const types = new Set(observation?.valueTypes || []);
+  if (types.size === 1 && types.has('boolean')) return 'boolean';
+  if (types.size === 1 && types.has('number')) return 'number';
+  return 'string';
+}
+
+function observationMap(scope) {
+  return new Map((discovery.parameters?.[scope] || []).map(parameter => [parameter.key, parameter]));
+}
+
+const unitObservations = observationMap('unit');
+const weaponObservations = observationMap('weapon');
+
+function enrichDefinition(definition, scope, observation) {
+  const observed = Boolean(observation);
+  return Object.freeze({
+    ...definition,
+    id: `${scope}:${definition.key}`,
+    scope,
+    path: `customparams.${definition.key}`,
+    status: definition.status || (observed ? 'documented' : 'supported'),
+    capabilities: Object.freeze(definition.capabilities || [
+      definition.owner === 'Package-specific' ? 'external-package' : 'bar-data',
+    ]),
+    sourceCommit: discovery.sourceCommit,
+    observed,
+    occurrences: observation?.occurrences || 0,
+    observedTypes: Object.freeze(observation?.valueTypes || []),
+    sampleValues: Object.freeze(observation?.sampleValues || []),
+    sampleUnitIds: Object.freeze(observation?.sampleUnitIds || []),
+    sampleWeaponDefs: Object.freeze(observation?.sampleWeaponDefs || []),
+    sourcePaths: Object.freeze(observation?.sourcePaths || []),
+  });
+}
+
+function discoveredDefinition(observation, scope) {
+  return enrichDefinition({
+    key: observation.key,
+    label: titleFromKey(observation.key),
+    type: inferredType(observation),
+    owner: 'Observed BAR definition',
+    maturity: 'observed',
+    status: 'discovered',
+    capabilities: ['bar-data', 'unverified-contract'],
+    description: `Observed in ${observation.occurrences} BAR definition${observation.occurrences === 1 ? '' : 's'}. The editor preserves this key, but its runtime consumer has not been registered yet.`,
+  }, scope, observation);
+}
+
+const curatedUnitByKey = new Map(curatedUnitParameters.map(parameter => [parameter.key, parameter]));
+const unitRegistry = [
+  ...curatedUnitParameters.map(parameter => enrichDefinition(parameter, 'unit', unitObservations.get(parameter.key))),
+  ...[...unitObservations.values()]
+    .filter(observation => !curatedUnitByKey.has(observation.key))
+    .map(observation => discoveredDefinition(observation, 'unit')),
+].sort((left, right) => left.label.localeCompare(right.label, 'en'));
+
+const weaponDefinitions = new Map();
+for (const parameter of WEAPON_PARAMETER_CATALOG) {
+  if (!String(parameter.path || '').startsWith('customparams.')) continue;
+  const rawKey = parameter.path.slice('customparams.'.length).toLowerCase();
+  if (weaponDefinitions.has(rawKey)) continue;
+  weaponDefinitions.set(rawKey, {
+    key: rawKey,
+    editorKey: parameter.key,
+    label: parameter.label,
+    type: parameter.valueType === 'boolean' ? 'boolean' : parameter.valueType === 'number' ? 'number' : 'string',
+    owner: 'BAR gadget',
+    maturity: parameter.capabilities?.includes('experimental') ? 'experimental' : 'supported',
+    capabilities: parameter.capabilities || ['bar-gadget'],
+    description: parameter.description || `${parameter.label} is compiled into the WeaponDef custom-parameter table.`,
+  });
+}
+
+const weaponRegistry = [
+  ...[...weaponDefinitions.values()].map(parameter => enrichDefinition(parameter, 'weapon', weaponObservations.get(parameter.key))),
+  ...[...weaponObservations.values()]
+    .filter(observation => !weaponDefinitions.has(observation.key))
+    .map(observation => discoveredDefinition(observation, 'weapon')),
+].sort((left, right) => left.label.localeCompare(right.label, 'en'));
+
+export const CUSTOM_PARAMETER_DISCOVERY = Object.freeze({
+  version: discovery.version,
+  sourceRepository: discovery.sourceRepository,
+  sourceCommit: discovery.sourceCommit,
+  counts: Object.freeze({ ...discovery.counts }),
+});
+
+export const CUSTOM_PARAMETER_REGISTRY = Object.freeze([...unitRegistry, ...weaponRegistry]);
+export const CUSTOM_PARAMETER_REGISTRY_BY_ID = new Map(
+  CUSTOM_PARAMETER_REGISTRY.map(parameter => [parameter.id, parameter]),
+);
+
+// Compatibility surface for the existing UnitDef custom-parameter editor.
+export const CUSTOM_PARAMETER_CATALOG = Object.freeze(unitRegistry);
 export const CUSTOM_PARAMETER_BY_KEY = new Map(CUSTOM_PARAMETER_CATALOG.map(parameter => [parameter.key, parameter]));
+
+export function getCustomParameterDefinition(key, scope = 'unit') {
+  return CUSTOM_PARAMETER_REGISTRY_BY_ID.get(`${scope}:${normalizeCustomParameterKey(key)}`) || null;
+}
+
+export function getCustomParameterObservation(key, scope = 'unit') {
+  const definition = getCustomParameterDefinition(key, scope);
+  if (!definition?.observed) return null;
+  return {
+    occurrences: definition.occurrences,
+    observedTypes: definition.observedTypes,
+    sampleValues: definition.sampleValues,
+    sampleUnitIds: definition.sampleUnitIds,
+    sampleWeaponDefs: definition.sampleWeaponDefs,
+    sourcePaths: definition.sourcePaths,
+  };
+}
 
 export function normalizeCustomParameterKey(value) {
   return String(value || '').trim().toLowerCase();
@@ -62,7 +186,11 @@ export function isValidCustomParameterKey(value) {
 }
 
 export function coerceCustomParameterValue(value, type) {
-  if (type === 'boolean') return value === true || value === 'true';
+  if (type === 'boolean') {
+    if (value === true || value === 1 || value === '1' || String(value).toLowerCase() === 'true') return true;
+    if (value === false || value === 0 || value === '0' || String(value).toLowerCase() === 'false') return false;
+    return undefined;
+  }
   if (type === 'number') {
     const number = Number(value);
     return Number.isFinite(number) ? number : undefined;

@@ -1,0 +1,4517 @@
+{
+  "version": 1,
+  "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
+  "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
+  "counts": {
+    "scannedUnitFiles": 983,
+    "unitParameters": 122,
+    "weaponParameters": 92,
+    "totalParameters": 214
+  },
+  "parameters": {
+    "unit": [
+      {
+        "key": "airfactory",
+        "occurrences": 15,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armaap",
+          "armap",
+          "armhaapuw"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandFactories/armaap.lua"
+        ]
+      },
+      {
+        "key": "area_mex_def",
+        "occurrences": 25,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "armmex",
+          "cormex",
+          "cormoho"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl10",
+          "armcomlvl2",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Constructors/legack.lua"
+        ]
+      },
+      {
+        "key": "area_mext15_def",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "legmext15"
+        ],
+        "sampleUnitIds": [
+          "legck",
+          "legcv"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Constructors/legck.lua"
+        ]
+      },
+      {
+        "key": "area_ondeath_ceg",
+        "occurrences": 5,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "acid-area-150-repeat",
+          "acid-area-75-repeat"
+        ],
+        "sampleUnitIds": [
+          "raptor_allterrain_arty_acid_t2_v1",
+          "raptor_allterrain_arty_acid_t4_v1",
+          "raptor_allterrain_swarmer_acid_t2_v1"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
+        ]
+      },
+      {
+        "key": "area_ondeath_damage",
+        "occurrences": 5,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "100",
+          "40"
+        ],
+        "sampleUnitIds": [
+          "raptor_allterrain_arty_acid_t2_v1",
+          "raptor_allterrain_arty_acid_t4_v1",
+          "raptor_allterrain_swarmer_acid_t2_v1"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
+        ]
+      },
+      {
+        "key": "area_ondeath_damageceg",
+        "occurrences": 5,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "acid-damage-gen"
+        ],
+        "sampleUnitIds": [
+          "raptor_allterrain_arty_acid_t2_v1",
+          "raptor_allterrain_arty_acid_t4_v1",
+          "raptor_allterrain_swarmer_acid_t2_v1"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
+        ]
+      },
+      {
+        "key": "area_ondeath_range",
+        "occurrences": 5,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "150",
+          "75"
+        ],
+        "sampleUnitIds": [
+          "raptor_allterrain_arty_acid_t2_v1",
+          "raptor_allterrain_arty_acid_t4_v1",
+          "raptor_allterrain_swarmer_acid_t2_v1"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
+        ]
+      },
+      {
+        "key": "area_ondeath_resistance",
+        "occurrences": 5,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "_RAPTORACID_"
+        ],
+        "sampleUnitIds": [
+          "raptor_allterrain_arty_acid_t2_v1",
+          "raptor_allterrain_arty_acid_t4_v1",
+          "raptor_allterrain_swarmer_acid_t2_v1"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
+        ]
+      },
+      {
+        "key": "area_ondeath_time",
+        "occurrences": 5,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10"
+        ],
+        "sampleUnitIds": [
+          "raptor_allterrain_arty_acid_t2_v1",
+          "raptor_allterrain_arty_acid_t4_v1",
+          "raptor_allterrain_swarmer_acid_t2_v1"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
+        ]
+      },
+      {
+        "key": "attacksafetydistance",
+        "occurrences": 15,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "20000",
+          "300",
+          "3000"
+        ],
+        "sampleUnitIds": [
+          "armfig",
+          "armhawk",
+          "armliche"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armfig.lua"
+        ]
+      },
+      {
+        "key": "basename",
+        "occurrences": 43,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "base",
+          "body"
+        ],
+        "sampleUnitIds": [
+          "armart",
+          "armbull",
+          "armcroc"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmVehicles/armart.lua"
+        ]
+      },
+      {
+        "key": "buildinggrounddecalalpha",
+        "occurrences": 2,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0.5"
+        ],
+        "sampleUnitIds": [
+          "corgol",
+          "legbar"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corgol.lua"
+        ]
+      },
+      {
+        "key": "buildinggrounddecaldecayspeed",
+        "occurrences": 263,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0.01",
+          "30"
+        ],
+        "sampleUnitIds": [
+          "armaap",
+          "armadvsol",
+          "armafus"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "buildinggrounddecalsizex",
+        "occurrences": 263,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10",
+          "11",
+          "11.25"
+        ],
+        "sampleUnitIds": [
+          "armaap",
+          "armadvsol",
+          "armafus"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "buildinggrounddecalsizey",
+        "occurrences": 263,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10",
+          "11",
+          "11.25"
+        ],
+        "sampleUnitIds": [
+          "armaap",
+          "armadvsol",
+          "armafus"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "buildinggrounddecaltype",
+        "occurrences": 263,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "decals/armaap_aoplane.dds",
+          "decals/armadvsol_aoplane.dds",
+          "decals/armafus_aoplane.dds"
+        ],
+        "sampleUnitIds": [
+          "armaap",
+          "armadvsol",
+          "armafus"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "canareaattack",
+        "occurrences": 9,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armart",
+          "armbotrail",
+          "armbrtha"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armbrtha.lua"
+        ]
+      },
+      {
+        "key": "cannon1name",
+        "occurrences": 3,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "barrel",
+          "gun"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "leghelios",
+          "leglht"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "cannot_capture_territory",
+        "occurrences": 15,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armeyes",
+          "armfmine3",
+          "armmine1"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandUtil/armeyes.lua"
+        ]
+      },
+      {
+        "key": "childreninheritxp",
+        "occurrences": 33,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "BOTCANNON",
+          "DRONE",
+          "DRONE BOTCANNON"
+        ],
+        "sampleUnitIds": [
+          "armbotrail",
+          "armcomlvl10",
+          "armcomlvl2"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "cobkickbackrestorespeed",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "10"
+        ],
+        "sampleUnitIds": [
+          "corwolv"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/corwolv.lua"
+        ]
+      },
+      {
+        "key": "combatradius",
+        "occurrences": 25,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0",
+          "600"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl2",
+          "armcomlvl3",
+          "armcomlvl4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/legcom.lua"
+        ]
+      },
+      {
+        "key": "crashable",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0"
+        ],
+        "sampleUnitIds": [
+          "armatlas",
+          "armdfly",
+          "armhvytrans"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armatlas.lua"
+        ]
+      },
+      {
+        "key": "customrange",
+        "occurrences": 6,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "400",
+          "435",
+          "465"
+        ],
+        "sampleUnitIds": [
+          "armbanth",
+          "corjugg",
+          "corkorg"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmGantry/armbanth.lua"
+        ]
+      },
+      {
+        "key": "cvbuildable",
+        "occurrences": 32,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armageo",
+          "armamex",
+          "armgeo"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armshockwave.lua"
+        ]
+      },
+      {
+        "key": "decoration",
+        "occurrences": 17,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "chip",
+          "dbg_sphere",
+          "dbg_sphere_fullmetal"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/chip.lua"
+        ]
+      },
+      {
+        "key": "decoyfor",
+        "occurrences": 16,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "armcom",
+          "armdrag",
+          "armfort"
+        ],
+        "sampleUnitIds": [
+          "armclaw",
+          "armdecom",
+          "armdf"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBots/T2/armdecom.lua"
+        ]
+      },
+      {
+        "key": "detonaterange",
+        "occurrences": 12,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "64"
+        ],
+        "sampleUnitIds": [
+          "armfmine3",
+          "armmine1",
+          "armmine2"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandUtil/armmine1.lua"
+        ]
+      },
+      {
+        "key": "distance_stun_multiplier",
+        "occurrences": 27,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl10",
+          "armcomlvl2",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ]
+      },
+      {
+        "key": "driftratio",
+        "occurrences": 3,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "0.25",
+          "0.6"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "leghelios",
+          "leglht"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "drone",
+        "occurrences": 9,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armdrone",
+          "armdroneold",
+          "armtdrone"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armdrone.lua"
+        ]
+      },
+      {
+        "key": "effigy",
+        "occurrences": 27,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "comeffigylvl1",
+          "comeffigylvl2",
+          "comeffigylvl3"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl10",
+          "armcomlvl2",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ]
+      },
+      {
+        "key": "effigy_offset",
+        "occurrences": 27,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl10",
+          "armcomlvl2",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ]
+      },
+      {
+        "key": "energyconv_capacity",
+        "occurrences": 15,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "600",
+          "6000",
+          "70"
+        ],
+        "sampleUnitIds": [
+          "armfmkr",
+          "armmakr",
+          "armmmkr"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandEconomy/armmakr.lua"
+        ]
+      },
+      {
+        "key": "energyconv_efficiency",
+        "occurrences": 15,
+        "valueTypes": [
+          "dynamic",
+          "number"
+        ],
+        "sampleValues": [
+          "0.01429",
+          "0.01724",
+          "0.02"
+        ],
+        "sampleUnitIds": [
+          "armfmkr",
+          "armmakr",
+          "armmmkr"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandEconomy/armmakr.lua"
+        ]
+      },
+      {
+        "key": "energymultiplier",
+        "occurrences": 3,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10"
+        ],
+        "sampleUnitIds": [
+          "armwint2",
+          "corwint2",
+          "legwint2"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Scavengers/Buildings/Economy/armwint2.lua"
+        ]
+      },
+      {
+        "key": "evocomlvl",
+        "occurrences": 27,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10",
+          "2",
+          "3"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl10",
+          "armcomlvl2",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ]
+      },
+      {
+        "key": "evolution_condition",
+        "occurrences": 24,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "timer"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl2",
+          "armcomlvl3",
+          "armcomlvl4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ]
+      },
+      {
+        "key": "evolution_health_transfer",
+        "occurrences": 24,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "percentage"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl2",
+          "armcomlvl3",
+          "armcomlvl4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ]
+      },
+      {
+        "key": "evolution_power_multiplier",
+        "occurrences": 24,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl2",
+          "armcomlvl3",
+          "armcomlvl4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ]
+      },
+      {
+        "key": "evolution_power_threshold",
+        "occurrences": 24,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "105000",
+          "22000",
+          "260000"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl2",
+          "armcomlvl3",
+          "armcomlvl4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ]
+      },
+      {
+        "key": "evolution_target",
+        "occurrences": 24,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "armcomlvl10",
+          "armcomlvl3",
+          "armcomlvl4"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl2",
+          "armcomlvl3",
+          "armcomlvl4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ]
+      },
+      {
+        "key": "evolution_timer",
+        "occurrences": 24,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "99999"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl2",
+          "armcomlvl3",
+          "armcomlvl4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ]
+      },
+      {
+        "key": "faction",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "NONE"
+        ],
+        "sampleUnitIds": [
+          "volcano_projectile_unit"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/volcano_projectile_unit.lua"
+        ]
+      },
+      {
+        "key": "fall_damage_multiplier",
+        "occurrences": 33,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0",
+          "5"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl10",
+          "armcomlvl2",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorBots/T2/cormando.lua"
+        ]
+      },
+      {
+        "key": "fighter",
+        "occurrences": 13,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armfig",
+          "armhawk",
+          "armsfig"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armfig.lua"
+        ]
+      },
+      {
+        "key": "firestateoncloak",
+        "occurrences": 42,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0"
+        ],
+        "sampleUnitIds": [
+          "armcom",
+          "armcomcon",
+          "armcomlvl10"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBots/T2/armdecom.lua"
+        ]
+      },
+      {
+        "key": "firingceg",
+        "occurrences": 43,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "barrelshot-large",
+          "barrelshot-medium",
+          "barrelshot-small"
+        ],
+        "sampleUnitIds": [
+          "armbrawl",
+          "armbull",
+          "armcroc"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/T2/armbrawl.lua"
+        ]
+      },
+      {
+        "key": "flare1name",
+        "occurrences": 3,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "flare"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "leghelios",
+          "leglht"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "flashlightmin",
+        "occurrences": 4,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0.8"
+        ],
+        "sampleUnitIds": [
+          "cormmkr",
+          "cormmkrt3",
+          "legadveconv"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorBuildings/LandEconomy/cormmkr.lua"
+        ]
+      },
+      {
+        "key": "flyingcarrier",
+        "occurrences": 1,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "legspcarrier"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/SeaPlanes/legspcarrier.lua"
+        ]
+      },
+      {
+        "key": "geothermal",
+        "occurrences": 15,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armageo",
+          "armgeo",
+          "armgmm"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandEconomy/armageo.lua"
+        ]
+      },
+      {
+        "key": "i18nfromunit",
+        "occurrences": 6,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "armcom",
+          "armmar",
+          "armscavengerbossv2"
+        ],
+        "sampleUnitIds": [
+          "armcomcon",
+          "armprowl",
+          "corcomcon"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/armcomcon.lua"
+        ]
+      },
+      {
+        "key": "inheritxpratemultiplier",
+        "occurrences": 33,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0.1",
+          "0.25",
+          "0.5"
+        ],
+        "sampleUnitIds": [
+          "armbotrail",
+          "armcomlvl10",
+          "armcomlvl2"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "instantselfd",
+        "occurrences": 20,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armfmine3",
+          "armmine1",
+          "armmine2"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBots/T2/armvader.lua"
+        ]
+      },
+      {
+        "key": "is_volcano_launcher",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "volcano_projectile_unit"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/volcano_projectile_unit.lua"
+        ]
+      },
+      {
+        "key": "isairbase",
+        "occurrences": 9,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armcarry",
+          "corcarry",
+          "lootdroppod_gold"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmShips/T2/armcarry.lua"
+        ]
+      },
+      {
+        "key": "iscommander",
+        "occurrences": 38,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armcom",
+          "armcomcon",
+          "armcomlvl10"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/armcom.lua"
+        ]
+      },
+      {
+        "key": "isdecoycommander",
+        "occurrences": 3,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armdecom",
+          "cordecom",
+          "legdecom"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBots/T2/armdecom.lua"
+        ]
+      },
+      {
+        "key": "iseffigy",
+        "occurrences": 1,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/evocom/comeffigy.lua"
+        ]
+      },
+      {
+        "key": "ispvefinalboss",
+        "occurrences": 7,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "health",
+          "raptor_queen_easy",
+          "raptor_queen_epic"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Queens/raptor_queen_easy.lua"
+        ]
+      },
+      {
+        "key": "kickback",
+        "occurrences": 42,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "-0.4",
+          "-0.65",
+          "-12"
+        ],
+        "sampleUnitIds": [
+          "armart",
+          "armbull",
+          "armcroc"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmVehicles/armart.lua"
+        ]
+      },
+      {
+        "key": "legacyname",
+        "occurrences": 4,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "Gaat Gun",
+          "Pack0"
+        ],
+        "sampleUnitIds": [
+          "armferret",
+          "corhlt",
+          "legfhive"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armferret.lua"
+        ]
+      },
+      {
+        "key": "lumamult",
+        "occurrences": 10,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "0.7",
+          "1.2",
+          "1.3"
+        ],
+        "sampleUnitIds": [
+          "armfav",
+          "armliche",
+          "armlichet4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/T2/armliche.lua"
+        ]
+      },
+      {
+        "key": "maxrange",
+        "occurrences": 50,
+        "valueTypes": [
+          "number",
+          "string"
+        ],
+        "sampleValues": [
+          "10",
+          "1125",
+          "1300"
+        ],
+        "sampleUnitIds": [
+          "armmar",
+          "armmship",
+          "armpt"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmGantry/armmar.lua"
+        ]
+      },
+      {
+        "key": "metal_extractor",
+        "occurrences": 17,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1",
+          "4"
+        ],
+        "sampleUnitIds": [
+          "armamex",
+          "armmex",
+          "armmoho"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armshockwave.lua"
+        ]
+      },
+      {
+        "key": "mine",
+        "occurrences": 12,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armfmine3",
+          "armmine1",
+          "armmine2"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandUtil/armmine1.lua"
+        ]
+      },
+      {
+        "key": "minesweeper",
+        "occurrences": 8,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "450",
+          "600"
+        ],
+        "sampleUnitIds": [
+          "armhacs",
+          "armmls",
+          "armmlv"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmShips/T2/armhacs.lua"
+        ]
+      },
+      {
+        "key": "minimum_respawn_stun",
+        "occurrences": 27,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "5"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl10",
+          "armcomlvl2",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ]
+      },
+      {
+        "key": "model_author",
+        "occurrences": 928,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "Beherith",
+          "Beherith, Hornet",
+          "Beherith, PtaQ"
+        ],
+        "sampleUnitIds": [
+          "armaak",
+          "armaap",
+          "armaas"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armatlas.lua"
+        ]
+      },
+      {
+        "key": "neutral_when_closed",
+        "occurrences": 6,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armclaw",
+          "armlwall",
+          "cormaw"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armclaw.lua"
+        ]
+      },
+      {
+        "key": "nohealthbars",
+        "occurrences": 29,
+        "valueTypes": [
+          "boolean",
+          "number"
+        ],
+        "sampleValues": [
+          "1",
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armdrone",
+          "armtdrone",
+          "chip"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armdrone.lua"
+        ]
+      },
+      {
+        "key": "nopvebuilder",
+        "occurrences": 1,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "cormandot4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Scavengers/Bots/cormandot4.lua"
+        ]
+      },
+      {
+        "key": "normalmaps",
+        "occurrences": 120,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "yes"
+        ],
+        "sampleUnitIds": [
+          "raptor_6legged_l",
+          "raptor_air_bomber_acid_t2_v1",
+          "raptor_air_bomber_basic_t1_v1"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Acid/raptor_air_bomber_acid_t2_v1.lua"
+        ]
+      },
+      {
+        "key": "normaltex",
+        "occurrences": 945,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "unittextures/arm_normal.dds",
+          "unittextures/Arm_normal.dds",
+          "unittextures/blank_normal.dds"
+        ],
+        "sampleUnitIds": [
+          "armaak",
+          "armaap",
+          "armaas"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armatlas.lua"
+        ]
+      },
+      {
+        "key": "objectify",
+        "occurrences": 11,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armdrag",
+          "armfdrag",
+          "armfort"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandUtil/armdrag.lua"
+        ]
+      },
+      {
+        "key": "off_on_stun",
+        "occurrences": 9,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armaser",
+          "armjam",
+          "armsjam"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBots/T2/armaser.lua"
+        ]
+      },
+      {
+        "key": "onoffname",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "dreadshot",
+          "siege"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "cortrem"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "paralyzemultiplier",
+        "occurrences": 136,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0",
+          "0.001",
+          "0.01"
+        ],
+        "sampleUnitIds": [
+          "armatlas",
+          "armbanth",
+          "armcom"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armatlas.lua"
+        ]
+      },
+      {
+        "key": "paratrooper",
+        "occurrences": 11,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "cormando",
+          "cormandot4",
+          "legcomt2off"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorBots/T2/cormando.lua"
+        ]
+      },
+      {
+        "key": "parentsinheritxp",
+        "occurrences": 33,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "BOTCANNON",
+          "DRONE",
+          "MOBILEBUILT DRONE BOTCANNON"
+        ],
+        "sampleUnitIds": [
+          "armbotrail",
+          "armcomlvl10",
+          "armcomlvl2"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "rangexpscale",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0.6"
+        ],
+        "sampleUnitIds": [
+          "armmav"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBots/T2/armmav.lua"
+        ]
+      },
+      {
+        "key": "reactive_armor_health",
+        "occurrences": 3,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "300",
+          "400",
+          "750"
+        ],
+        "sampleUnitIds": [
+          "legamph",
+          "legkark",
+          "legshot"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Bots/legkark.lua"
+        ]
+      },
+      {
+        "key": "reactive_armor_restore",
+        "occurrences": 3,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "15",
+          "17",
+          "20"
+        ],
+        "sampleUnitIds": [
+          "legamph",
+          "legkark",
+          "legshot"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Bots/legkark.lua"
+        ]
+      },
+      {
+        "key": "removestop",
+        "occurrences": 162,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armadvsol",
+          "armafus",
+          "armafust3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamd.lua"
+        ]
+      },
+      {
+        "key": "removewait",
+        "occurrences": 264,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armadvsol",
+          "armafus",
+          "armafust3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "respawn_announcement",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "A Commander Effigy was sacrificed."
+        ],
+        "sampleUnitIds": [
+          "legcomlvl10"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ]
+      },
+      {
+        "key": "restoretime",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "3000"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "leghelios"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "restrictions_exclusion",
+        "occurrences": 5,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "_noantinuke_",
+          "_nosea_"
+        ],
+        "sampleUnitIds": [
+          "armantiship",
+          "corantiship",
+          "leganavyantinukecarrier"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmShips/T2/armantiship.lua"
+        ]
+      },
+      {
+        "key": "restrictions_inclusion",
+        "occurrences": 43,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "_noair_",
+          "_nofusion_",
+          "_nolrpc_"
+        ],
+        "sampleUnitIds": [
+          "armaap",
+          "armafus",
+          "armafust3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armbrtha.lua"
+        ]
+      },
+      {
+        "key": "rockrestorespeed",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "corwolv"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/corwolv.lua"
+        ]
+      },
+      {
+        "key": "rockspeed",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "2"
+        ],
+        "sampleUnitIds": [
+          "corwolv"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/corwolv.lua"
+        ]
+      },
+      {
+        "key": "rockstrength",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "0",
+          "5.5"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "leghelios"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "scav_swap_override_captured",
+        "occurrences": 3,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "delete",
+          "legmohocon",
+          "null"
+        ],
+        "sampleUnitIds": [
+          "legmohocon",
+          "legmohoconct",
+          "legmohoconin"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Economy/legmohocon.lua"
+        ]
+      },
+      {
+        "key": "scav_swap_override_created",
+        "occurrences": 3,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "delete",
+          "null"
+        ],
+        "sampleUnitIds": [
+          "legmohocon",
+          "legmohoconct",
+          "legmohoconin"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Economy/legmohocon.lua"
+        ]
+      },
+      {
+        "key": "selectable_as_combat_unit",
+        "occurrences": 10,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armawac",
+          "armpeep",
+          "armsehak"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armpeep.lua"
+        ]
+      },
+      {
+        "key": "selectionscalemult",
+        "occurrences": 3,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "legdtr",
+          "leginfestor",
+          "legperdition"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Bots/T2 Bots/leginfestor.lua"
+        ]
+      },
+      {
+        "key": "shield_color_mult",
+        "occurrences": 18,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0.8",
+          "25"
+        ],
+        "sampleUnitIds": [
+          "armfgate",
+          "armgate",
+          "armgatet3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandUtil/armgate.lua"
+        ]
+      },
+      {
+        "key": "shield_power",
+        "occurrences": 18,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10450",
+          "13300",
+          "1900"
+        ],
+        "sampleUnitIds": [
+          "armfgate",
+          "armgate",
+          "armgatet3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandUtil/armgate.lua"
+        ]
+      },
+      {
+        "key": "shield_radius",
+        "occurrences": 18,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "100",
+          "150",
+          "550"
+        ],
+        "sampleUnitIds": [
+          "armfgate",
+          "armgate",
+          "armgatet3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandUtil/armgate.lua"
+        ]
+      },
+      {
+        "key": "sleevename",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "sleeve",
+          "turret"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "leghelios"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "solar",
+        "occurrences": 6,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armadvsol",
+          "armsolar",
+          "coradvsol"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandEconomy/armadvsol.lua"
+        ]
+      },
+      {
+        "key": "speedfactoratdepth",
+        "occurrences": 2,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10",
+          "15"
+        ],
+        "sampleUnitIds": [
+          "legamph",
+          "leganavybattleship"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Bots/T2 Bots/legamph.lua"
+        ]
+      },
+      {
+        "key": "speedfactorinwater",
+        "occurrences": 3,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1.3",
+          "2.6"
+        ],
+        "sampleUnitIds": [
+          "legamph",
+          "leganavybattleship",
+          "legfloat"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Bots/T2 Bots/legamph.lua"
+        ]
+      },
+      {
+        "key": "standardextractor",
+        "occurrences": 21,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armageo",
+          "armgeo",
+          "armmex"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandEconomy/armageo.lua"
+        ]
+      },
+      {
+        "key": "subfolder",
+        "occurrences": 962,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "ArmAircraft",
+          "ArmAircraft/T2",
+          "ArmBots"
+        ],
+        "sampleUnitIds": [
+          "armaak",
+          "armaap",
+          "armaas"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armatlas.lua"
+        ]
+      },
+      {
+        "key": "techlevel",
+        "occurrences": 448,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1.5",
+          "2",
+          "3"
+        ],
+        "sampleUnitIds": [
+          "armaak",
+          "armaap",
+          "armaas"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/T2/armaca.lua"
+        ]
+      },
+      {
+        "key": "trackwidth",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "27"
+        ],
+        "sampleUnitIds": [
+          "coreter"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/coreter.lua"
+        ]
+      },
+      {
+        "key": "treeshader",
+        "occurrences": 38,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "yes"
+        ],
+        "sampleUnitIds": [
+          "raptor_air_fighter_basic_t1_v1",
+          "raptor_air_fighter_basic_t2_v1",
+          "raptor_air_fighter_basic_t2_v2"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Fighter/raptor_air_fighter_basic_t1_v1.lua"
+        ]
+      },
+      {
+        "key": "turretname",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "gun",
+          "turret"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "leghelios"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "unitgroup",
+        "occurrences": 782,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "aa",
+          "antinuke",
+          "builder"
+        ],
+        "sampleUnitIds": [
+          "armaak",
+          "armaap",
+          "armaas"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmAircraft/armca.lua"
+        ]
+      },
+      {
+        "key": "usebuildinggrounddecal",
+        "occurrences": 264,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "false",
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armaap",
+          "armadvsol",
+          "armafus"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "useskinning",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "yes"
+        ],
+        "sampleUnitIds": [
+          "raptorartillery"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/raptors/Arty/raptorartillery.lua"
+        ]
+      },
+      {
+        "key": "virtualunit",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "corvacct"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corvacct.lua"
+        ]
+      },
+      {
+        "key": "water_fall_damage_multiplier",
+        "occurrences": 2,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0"
+        ],
+        "sampleUnitIds": [
+          "cormando",
+          "cormandot4"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorBots/T2/cormando.lua"
+        ]
+      },
+      {
+        "key": "weapon1turretx",
+        "occurrences": 56,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "125",
+          "130",
+          "192.5"
+        ],
+        "sampleUnitIds": [
+          "armart",
+          "armassimilator",
+          "armbull"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBots/armpw.lua"
+        ]
+      },
+      {
+        "key": "weapon1turrety",
+        "occurrences": 56,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "105",
+          "110",
+          "125"
+        ],
+        "sampleUnitIds": [
+          "armart",
+          "armassimilator",
+          "armbull"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBots/armpw.lua"
+        ]
+      },
+      {
+        "key": "workertimeboost",
+        "occurrences": 18,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "2",
+          "3",
+          "3.5"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl10",
+          "armcomlvl2",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ]
+      },
+      {
+        "key": "wpn1turretx",
+        "occurrences": 2,
+        "valueTypes": [
+          "number",
+          "string"
+        ],
+        "sampleValues": [
+          "1",
+          "192.5"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "leghelios"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "wpn1turrety",
+        "occurrences": 2,
+        "valueTypes": [
+          "number",
+          "string"
+        ],
+        "sampleValues": [
+          "1",
+          "192.5"
+        ],
+        "sampleUnitIds": [
+          "corsiegebreaker",
+          "leghelios"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/CorVehicles/T2/corsiegebreaker.lua"
+        ]
+      },
+      {
+        "key": "wtboostunittype",
+        "occurrences": 18,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "MOBILE",
+          "TURRET",
+          "TURRET MOBILE"
+        ],
+        "sampleUnitIds": [
+          "armcomlvl10",
+          "armcomlvl2",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ]
+      },
+      {
+        "key": "yardmap",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "ooooooo ooooooo ooooooo ooooooo ooooooo ooooooo"
+        ],
+        "sampleUnitIds": [
+          "armemp"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armemp.lua"
+        ]
+      }
+    ],
+    "weapon": [
+      {
+        "key": "area_onhit_ceg",
+        "occurrences": 20,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "acid-area-150-repeat",
+          "acid-area-75-repeat",
+          "fire-area-150-repeat"
+        ],
+        "sampleUnitIds": [
+          "health",
+          "leegmech",
+          "legbar"
+        ],
+        "sampleWeaponDefs": [
+          "acidbomb",
+          "acidgoo",
+          "acidspit"
+        ],
+        "sourcePaths": [
+          "units/Legion/Air/T2 Air/legnap.lua"
+        ]
+      },
+      {
+        "key": "area_onhit_damage",
+        "occurrences": 20,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "100",
+          "120",
+          "20"
+        ],
+        "sampleUnitIds": [
+          "health",
+          "leegmech",
+          "legbar"
+        ],
+        "sampleWeaponDefs": [
+          "acidbomb",
+          "acidgoo",
+          "acidspit"
+        ],
+        "sourcePaths": [
+          "units/Legion/Air/T2 Air/legnap.lua"
+        ]
+      },
+      {
+        "key": "area_onhit_damageceg",
+        "occurrences": 20,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "acid-damage-gen",
+          "burnflamel-gen",
+          "burnflamexl-gen"
+        ],
+        "sampleUnitIds": [
+          "health",
+          "leegmech",
+          "legbar"
+        ],
+        "sampleWeaponDefs": [
+          "acidbomb",
+          "acidgoo",
+          "acidspit"
+        ],
+        "sourcePaths": [
+          "units/Legion/Air/T2 Air/legnap.lua"
+        ]
+      },
+      {
+        "key": "area_onhit_range",
+        "occurrences": 20,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "150",
+          "60",
+          "75"
+        ],
+        "sampleUnitIds": [
+          "health",
+          "leegmech",
+          "legbar"
+        ],
+        "sampleWeaponDefs": [
+          "acidbomb",
+          "acidgoo",
+          "acidspit"
+        ],
+        "sourcePaths": [
+          "units/Legion/Air/T2 Air/legnap.lua"
+        ]
+      },
+      {
+        "key": "area_onhit_resistance",
+        "occurrences": 20,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "_RAPTORACID_",
+          "fire"
+        ],
+        "sampleUnitIds": [
+          "health",
+          "leegmech",
+          "legbar"
+        ],
+        "sampleWeaponDefs": [
+          "acidbomb",
+          "acidgoo",
+          "acidspit"
+        ],
+        "sourcePaths": [
+          "units/Legion/Air/T2 Air/legnap.lua"
+        ]
+      },
+      {
+        "key": "area_onhit_time",
+        "occurrences": 20,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10",
+          "12",
+          "15"
+        ],
+        "sampleUnitIds": [
+          "health",
+          "leegmech",
+          "legbar"
+        ],
+        "sampleWeaponDefs": [
+          "acidbomb",
+          "acidgoo",
+          "acidspit"
+        ],
+        "sourcePaths": [
+          "units/Legion/Air/T2 Air/legnap.lua"
+        ]
+      },
+      {
+        "key": "attackformationoffset",
+        "occurrences": 6,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "30"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "plasma"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "attackformationspread",
+        "occurrences": 6,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "120",
+          "200"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "plasma"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "bogus",
+        "occurrences": 69,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armaas",
+          "armah",
+          "armamb"
+        ],
+        "sampleWeaponDefs": [
+          "aimhull",
+          "banthfootstep",
+          "bigfootstep"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/armjeth.lua"
+        ]
+      },
+      {
+        "key": "carried_unit",
+        "occurrences": 14,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "armdrone",
+          "armtdrone",
+          "cordrone"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "carrierdeaththroe",
+        "occurrences": 14,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "release"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "cegtag",
+        "occurrences": 3,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "missiletrailcorroyspecial"
+        ],
+        "sampleUnitIds": [
+          "armlun",
+          "armmship",
+          "cormship"
+        ],
+        "sampleWeaponDefs": [
+          "cannon",
+          "rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmGantry/armlun.lua"
+        ]
+      },
+      {
+        "key": "cluster_def",
+        "occurrences": 13,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "cluster_munition",
+          "cluster_munition_main",
+          "cluster_munition_secondary"
+        ],
+        "sampleUnitIds": [
+          "legacluster",
+          "legamcluster",
+          "leganavyartyship"
+        ],
+        "sampleWeaponDefs": [
+          "cluster_artillery",
+          "leg_cluster_artillery_cannon",
+          "leg_cluster_artillery_cannon_2"
+        ],
+        "sourcePaths": [
+          "units/Legion/Defenses/legacluster.lua"
+        ]
+      },
+      {
+        "key": "cluster_number",
+        "occurrences": 13,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "4",
+          "5",
+          "6"
+        ],
+        "sampleUnitIds": [
+          "legacluster",
+          "legamcluster",
+          "leganavyartyship"
+        ],
+        "sampleWeaponDefs": [
+          "cluster_artillery",
+          "leg_cluster_artillery_cannon",
+          "leg_cluster_artillery_cannon_2"
+        ],
+        "sourcePaths": [
+          "units/Legion/Defenses/legacluster.lua"
+        ]
+      },
+      {
+        "key": "cobdockparam",
+        "occurrences": 3,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "legfhive",
+          "leghive",
+          "legvcarry"
+        ],
+        "sampleWeaponDefs": [
+          "plasma",
+          "targeting"
+        ],
+        "sourcePaths": [
+          "units/Legion/Defenses/leghive.lua"
+        ]
+      },
+      {
+        "key": "cobundockparam",
+        "occurrences": 3,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "legfhive",
+          "leghive",
+          "legvcarry"
+        ],
+        "sampleWeaponDefs": [
+          "plasma",
+          "targeting"
+        ],
+        "sourcePaths": [
+          "units/Legion/Defenses/leghive.lua"
+        ]
+      },
+      {
+        "key": "commanders",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1025"
+        ],
+        "sampleUnitIds": [
+          "armsnipe"
+        ],
+        "sampleWeaponDefs": [
+          "old_armsnipe_weapon"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armsnipe.lua"
+        ]
+      },
+      {
+        "key": "controlradius",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1000",
+          "1100",
+          "1200"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "cruise_max_height",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "20"
+        ],
+        "sampleUnitIds": [
+          "armsptk",
+          "legeshotgunmech"
+        ],
+        "sampleWeaponDefs": [
+          "adv_rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armsptk.lua"
+        ]
+      },
+      {
+        "key": "cruise_min_height",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "15"
+        ],
+        "sampleUnitIds": [
+          "armsptk",
+          "legeshotgunmech"
+        ],
+        "sampleWeaponDefs": [
+          "adv_rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armsptk.lua"
+        ]
+      },
+      {
+        "key": "deathdecayrate",
+        "occurrences": 8,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "20",
+          "4",
+          "50"
+        ],
+        "sampleUnitIds": [
+          "leganavyantinukecarrier",
+          "legeallterrainmech",
+          "legfhive"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/Legion/Defenses/leghive.lua"
+        ]
+      },
+      {
+        "key": "decayrate",
+        "occurrences": 6,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "2",
+          "3",
+          "6"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "plasma"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "def",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "armlun_cannonuw"
+        ],
+        "sampleUnitIds": [
+          "armlun"
+        ],
+        "sampleWeaponDefs": [
+          "cannon"
+        ],
+        "sourcePaths": [
+          "units/ArmGantry/armlun.lua"
+        ]
+      },
+      {
+        "key": "default",
+        "occurrences": 2,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "2500",
+          "370"
+        ],
+        "sampleUnitIds": [
+          "armlun",
+          "armsnipe"
+        ],
+        "sampleWeaponDefs": [
+          "cannonuw",
+          "old_armsnipe_weapon"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armsnipe.lua"
+        ]
+      },
+      {
+        "key": "dockingarmor",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0.2"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "dockinghealrate",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "20",
+          "24",
+          "256"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "dockinghelperspeed",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "5"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "dockingpieces",
+        "occurrences": 14,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "10 11 12",
+          "10 11 12 13 14",
+          "11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "dockingradius",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "300",
+          "80"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "docktohealthreshold",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "33",
+          "50",
+          "55"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "droneairtime",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "30",
+          "60",
+          "90"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "droneammo",
+        "occurrences": 11,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "12",
+          "3",
+          "40"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "leg_drone_controller",
+          "plasma"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "dronedocktime",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "2",
+          "3"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "dronesusestockpile",
+        "occurrences": 12,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "enabledocking",
+        "occurrences": 14,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "energycost",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1000",
+          "500",
+          "600"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "engagementrange",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1000",
+          "1050",
+          "1100"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "exclude_preaim",
+        "occurrences": 54,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armamb",
+          "armanavaldefturret",
+          "armclaw"
+        ],
+        "sampleWeaponDefs": [
+          "arm_lightlaser",
+          "arm_medium_gauss_cannon",
+          "armada_medium_gauss_cannon"
+        ],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "guidance_lost_radius",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "100"
+        ],
+        "sampleUnitIds": [
+          "legmed"
+        ],
+        "sampleWeaponDefs": [
+          "legmed_missile"
+        ],
+        "sourcePaths": [
+          "units/Legion/Vehicles/T2 Vehicles/legmed.lua"
+        ]
+      },
+      {
+        "key": "junotype",
+        "occurrences": 4,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "base",
+          "mini"
+        ],
+        "sampleUnitIds": [
+          "armjuno",
+          "corjuno",
+          "legcib"
+        ],
+        "sampleWeaponDefs": [
+          "juno_pulse",
+          "juno_pulse_mini"
+        ],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armjuno.lua"
+        ]
+      },
+      {
+        "key": "lockon_dist",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "150"
+        ],
+        "sampleUnitIds": [
+          "armsptk",
+          "legeshotgunmech"
+        ],
+        "sampleWeaponDefs": [
+          "adv_rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armsptk.lua"
+        ]
+      },
+      {
+        "key": "max_range_reduction",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "0.30"
+        ],
+        "sampleUnitIds": [
+          "cortrem"
+        ],
+        "sampleWeaponDefs": [
+          "tremor_spread_fire"
+        ],
+        "sourcePaths": [
+          "units/CorVehicles/T2/cortrem.lua"
+        ]
+      },
+      {
+        "key": "maxunits",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10",
+          "16",
+          "2"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "metalcost",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "15",
+          "25",
+          "30"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "model",
+        "occurrences": 3,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "airbomb",
+          "airbombt2"
+        ],
+        "sampleUnitIds": [
+          "armlun",
+          "armmship",
+          "cormship"
+        ],
+        "sampleWeaponDefs": [
+          "cannon",
+          "rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmGantry/armlun.lua"
+        ]
+      },
+      {
+        "key": "noattackrangearc",
+        "occurrences": 48,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armbats",
+          "armdecade",
+          "armdecadet3"
+        ],
+        "sampleWeaponDefs": [
+          "aimhull",
+          "arm_bats",
+          "armmg_weapon"
+        ],
+        "sourcePaths": [
+          "units/ArmGantry/armthor.lua"
+        ]
+      },
+      {
+        "key": "nodecal",
+        "occurrences": 7,
+        "valueTypes": [
+          "boolean",
+          "number"
+        ],
+        "sampleValues": [
+          "1",
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armbanth",
+          "corjugg",
+          "corkorg"
+        ],
+        "sampleWeaponDefs": [
+          "banthfootstep",
+          "bigfootstep",
+          "juggfootstep"
+        ],
+        "sourcePaths": [
+          "units/ArmGantry/armbanth.lua"
+        ]
+      },
+      {
+        "key": "noexplosionlight",
+        "occurrences": 10,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armbanth",
+          "corcan",
+          "corjugg"
+        ],
+        "sampleWeaponDefs": [
+          "banthfootstep",
+          "bigfootstep",
+          "canhvylaserroar"
+        ],
+        "sourcePaths": [
+          "units/ArmGantry/armbanth.lua"
+        ]
+      },
+      {
+        "key": "nofire",
+        "occurrences": 18,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armjuno",
+          "corjuno",
+          "corkorg"
+        ],
+        "sampleWeaponDefs": [
+          "acidbomb",
+          "acidspit",
+          "crawl_dummy"
+        ],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armjuno.lua"
+        ]
+      },
+      {
+        "key": "nohealthbars",
+        "occurrences": 2,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "critter_penguinbro",
+          "critter_penguinking"
+        ],
+        "sampleWeaponDefs": [
+          "eyelaser"
+        ],
+        "sourcePaths": [
+          "units/other/critters/critter_penguinbro.lua"
+        ]
+      },
+      {
+        "key": "norangering",
+        "occurrences": 28,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armaas",
+          "armamb",
+          "armcom"
+        ],
+        "sampleWeaponDefs": [
+          "adv_decklaser",
+          "aimhull",
+          "arm_pidr"
+        ],
+        "sourcePaths": [
+          "units/ArmAircraft/armdrone.lua"
+        ]
+      },
+      {
+        "key": "nuclear",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "armliche",
+          "armlichet4",
+          "armseadragon"
+        ],
+        "sampleWeaponDefs": [
+          "arm_pidr",
+          "arm_pidrbomb",
+          "cortron_weapon"
+        ],
+        "sourcePaths": [
+          "units/ArmAircraft/T2/armliche.lua"
+        ]
+      },
+      {
+        "key": "number",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "6",
+          "8"
+        ],
+        "sampleUnitIds": [
+          "armmship",
+          "cormship"
+        ],
+        "sampleWeaponDefs": [
+          "rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armmship.lua"
+        ]
+      },
+      {
+        "key": "overpenetrate",
+        "occurrences": 11,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "leegmech",
+          "legadvaabot",
+          "leganavyflagship"
+        ],
+        "sampleWeaponDefs": [
+          "aa_railgun",
+          "leg_experimental_railgun",
+          "piledriver"
+        ],
+        "sourcePaths": [
+          "units/Legion/Bots/T2 Bots/legadvaabot.lua"
+        ]
+      },
+      {
+        "key": "overrange_distance",
+        "occurrences": 47,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1001",
+          "1093",
+          "1150"
+        ],
+        "sampleUnitIds": [
+          "armbanth",
+          "armcomlvl10",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [
+          "adv_rocket",
+          "aimhull",
+          "arm_bot_rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/armrock.lua"
+        ]
+      },
+      {
+        "key": "place_target_on_ground",
+        "occurrences": 5,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armseadragon",
+          "armsilo",
+          "cordesolator"
+        ],
+        "sampleWeaponDefs": [
+          "crblmssl",
+          "legicbm",
+          "nuclear_missile"
+        ],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armsilo.lua"
+        ]
+      },
+      {
+        "key": "preaim_range",
+        "occurrences": 2,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1050",
+          "650"
+        ],
+        "sampleUnitIds": [
+          "legadvaabot",
+          "legeshotgunmech"
+        ],
+        "sampleWeaponDefs": [
+          "aimhull",
+          "leg_t2_microflak_mobile"
+        ],
+        "sourcePaths": [
+          "units/Legion/Bots/T2 Bots/legadvaabot.lua"
+        ]
+      },
+      {
+        "key": "projectile_destruction_method",
+        "occurrences": 47,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "descend",
+          "explode"
+        ],
+        "sampleUnitIds": [
+          "armbanth",
+          "armcomlvl10",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [
+          "adv_rocket",
+          "aimhull",
+          "arm_bot_rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/armrock.lua"
+        ]
+      },
+      {
+        "key": "pvenukecontroller",
+        "occurrences": 4,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "raptor_turret_acid_t4_v2",
+          "raptor_turret_basic_t4_v2",
+          "raptor_turret_brood_t4_v2"
+        ],
+        "sampleWeaponDefs": [
+          "acidspit",
+          "bloodyeggs",
+          "raptorparalyzerbig"
+        ],
+        "sourcePaths": [
+          "units/other/raptors/Structures/raptor_turret_acid_t4_v2.lua"
+        ]
+      },
+      {
+        "key": "scavforcecommandfire",
+        "occurrences": 4,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armseadragon",
+          "cordesolator"
+        ],
+        "sampleWeaponDefs": [
+          "crblmssl",
+          "nuclear_launch",
+          "sdmssl"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armseadragon.lua"
+        ]
+      },
+      {
+        "key": "shield_aoe_penetration",
+        "occurrences": 8,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armemp",
+          "armjuno",
+          "armsilo"
+        ],
+        "sampleWeaponDefs": [
+          "armemp_weapon",
+          "cortron_weapon",
+          "crblmssl"
+        ],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armemp.lua"
+        ]
+      },
+      {
+        "key": "smart_backup",
+        "occurrences": 8,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armamb",
+          "armguard",
+          "armvang"
+        ],
+        "sampleWeaponDefs": [
+          "armamb_gun_high",
+          "cortoast_gun_high",
+          "plasma_high"
+        ],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "smart_priority",
+        "occurrences": 8,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armamb",
+          "armguard",
+          "armvang"
+        ],
+        "sampleWeaponDefs": [
+          "armamb_gun",
+          "cortoast_gun",
+          "plasma"
+        ],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "smart_trajectory_checker",
+        "occurrences": 8,
+        "valueTypes": [
+          "boolean"
+        ],
+        "sampleValues": [
+          "true"
+        ],
+        "sampleUnitIds": [
+          "armamb",
+          "armguard",
+          "armvang"
+        ],
+        "sampleWeaponDefs": [
+          "smart_trajectory_dummy"
+        ],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ]
+      },
+      {
+        "key": "sound_volume_multiplier",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "2.5"
+        ],
+        "sampleUnitIds": [
+          "corkorg"
+        ],
+        "sampleWeaponDefs": [
+          "corkorg_laser"
+        ],
+        "sourcePaths": [
+          "units/CorGantry/corkorg.lua"
+        ]
+      },
+      {
+        "key": "spark_ceg",
+        "occurrences": 14,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "genericshellexplosion-splash-large-lightning",
+          "genericshellexplosion-splash-lightning"
+        ],
+        "sampleUnitIds": [
+          "armclaw",
+          "armcomlvl10",
+          "armcomlvl5"
+        ],
+        "sampleWeaponDefs": [
+          "dclaw",
+          "lightning",
+          "shortgun"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armzeus.lua"
+        ]
+      },
+      {
+        "key": "spark_forkdamage",
+        "occurrences": 14,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "0.25",
+          "0.3",
+          "0.33"
+        ],
+        "sampleUnitIds": [
+          "armclaw",
+          "armcomlvl10",
+          "armcomlvl5"
+        ],
+        "sampleWeaponDefs": [
+          "dclaw",
+          "lightning",
+          "shortgun"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armzeus.lua"
+        ]
+      },
+      {
+        "key": "spark_maxunits",
+        "occurrences": 14,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "12",
+          "2",
+          "3"
+        ],
+        "sampleUnitIds": [
+          "armclaw",
+          "armcomlvl10",
+          "armcomlvl5"
+        ],
+        "sampleWeaponDefs": [
+          "dclaw",
+          "lightning",
+          "shortgun"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armzeus.lua"
+        ]
+      },
+      {
+        "key": "spark_range",
+        "occurrences": 14,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "100",
+          "125",
+          "60"
+        ],
+        "sampleUnitIds": [
+          "armclaw",
+          "armcomlvl10",
+          "armcomlvl5"
+        ],
+        "sampleWeaponDefs": [
+          "dclaw",
+          "lightning",
+          "shortgun"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armzeus.lua"
+        ]
+      },
+      {
+        "key": "spawnrate",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10",
+          "12",
+          "15"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "spawns_ceg",
+        "occurrences": 3,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "scav-spawnexplo-medium"
+        ],
+        "sampleUnitIds": [],
+        "sampleWeaponDefs": [
+          "landturretspawner",
+          "landunitspawner",
+          "waterspawner"
+        ],
+        "sourcePaths": [
+          "units/Scavengers/Other/scavmists.lua"
+        ]
+      },
+      {
+        "key": "spawns_expire",
+        "occurrences": 10,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "10",
+          "25",
+          "60"
+        ],
+        "sampleUnitIds": [
+          "legcomlvl10",
+          "legcomlvl3",
+          "legcomlvl4"
+        ],
+        "sampleWeaponDefs": [
+          "botcannon",
+          "landturretspawner",
+          "martyrbomb"
+        ],
+        "sourcePaths": [
+          "units/Legion/Air/legkam.lua"
+        ]
+      },
+      {
+        "key": "spawns_mode",
+        "occurrences": 12,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "random"
+        ],
+        "sampleUnitIds": [
+          "health",
+          "legcomlvl10",
+          "legcomlvl3"
+        ],
+        "sampleWeaponDefs": [
+          "botcannon",
+          "landturretspawner",
+          "landunitspawner"
+        ],
+        "sourcePaths": [
+          "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ]
+      },
+      {
+        "key": "spawns_name",
+        "occurrences": 25,
+        "valueTypes": [
+          "dynamic",
+          "string"
+        ],
+        "sampleValues": [
+          "armpw",
+          "babylegdrone babyleggob babyleglob babyleglob babyleglob babyleglob babyleglob babyleglob babyleglob babyleglob babylegl",
+          "babyleggob babyleggob babyleggob babyleggob babyleggob babyleggob babyleggob babyleggob babyleggob babyleggob babyleggob"
+        ],
+        "sampleUnitIds": [
+          "armbotrail",
+          "cords",
+          "health"
+        ],
+        "sampleWeaponDefs": [
+          "arm_botrail",
+          "bloodyeggs",
+          "botcannon"
+        ],
+        "sourcePaths": [
+          "units/Legion/Air/legkam.lua"
+        ]
+      },
+      {
+        "key": "spawns_stun",
+        "occurrences": 3,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [],
+        "sampleWeaponDefs": [
+          "landturretspawner",
+          "landunitspawner",
+          "waterspawner"
+        ],
+        "sourcePaths": [
+          "units/Scavengers/Other/scavmists.lua"
+        ]
+      },
+      {
+        "key": "spawns_surface",
+        "occurrences": 35,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "LAND",
+          "LAND SEA",
+          "SEA"
+        ],
+        "sampleUnitIds": [
+          "armbotrail",
+          "armdronecarry",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "arm_botrail",
+          "bloodyeggs",
+          "botcannon"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "speceffect",
+        "occurrences": 16,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "cruise",
+          "guidance",
+          "retarget"
+        ],
+        "sampleUnitIds": [
+          "armlance",
+          "armmship",
+          "armseap"
+        ],
+        "sampleWeaponDefs": [
+          "adv_rocket",
+          "armair_torpedo",
+          "armseap_weapon1"
+        ],
+        "sourcePaths": [
+          "units/ArmAircraft/T2/armlance.lua"
+        ]
+      },
+      {
+        "key": "speceffect_def",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "armmship_rocket_split",
+          "cormship_rocket_split"
+        ],
+        "sampleUnitIds": [
+          "armmship",
+          "cormship"
+        ],
+        "sampleWeaponDefs": [
+          "rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armmship.lua"
+        ]
+      },
+      {
+        "key": "splitexplosionceg",
+        "occurrences": 2,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "genericshellexplosion-medium"
+        ],
+        "sampleUnitIds": [
+          "armmship",
+          "cormship"
+        ],
+        "sampleWeaponDefs": [
+          "rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armmship.lua"
+        ]
+      },
+      {
+        "key": "spread_angle",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "22"
+        ],
+        "sampleUnitIds": [
+          "cortrem"
+        ],
+        "sampleWeaponDefs": [
+          "tremor_spread_fire"
+        ],
+        "sourcePaths": [
+          "units/CorVehicles/T2/cortrem.lua"
+        ]
+      },
+      {
+        "key": "startingdronecount",
+        "occurrences": 14,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0",
+          "1",
+          "2"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "stockpileenergy",
+        "occurrences": 12,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1000",
+          "500",
+          "600"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "stockpilelimit",
+        "occurrences": 60,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1",
+          "10",
+          "16"
+        ],
+        "sampleUnitIds": [
+          "armamd",
+          "armantiship",
+          "armbotrail"
+        ],
+        "sampleWeaponDefs": [
+          "amd_rocket",
+          "arm_advsam",
+          "arm_botrail"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armscab.lua"
+        ]
+      },
+      {
+        "key": "stockpilemetal",
+        "occurrences": 12,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "15",
+          "25",
+          "30"
+        ],
+        "sampleUnitIds": [
+          "armdronecarry",
+          "armdronecarryland",
+          "armtrident"
+        ],
+        "sampleWeaponDefs": [
+          "drone_control_matrix",
+          "drone_controller",
+          "leg_drone_controller"
+        ],
+        "sourcePaths": [
+          "units/ArmShips/T2/armdronecarry.lua"
+        ]
+      },
+      {
+        "key": "subs",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "370"
+        ],
+        "sampleUnitIds": [
+          "armlun"
+        ],
+        "sampleWeaponDefs": [
+          "cannonuw"
+        ],
+        "sourcePaths": [
+          "units/ArmGantry/armlun.lua"
+        ]
+      },
+      {
+        "key": "sweepfire",
+        "occurrences": 5,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "4",
+          "4.5",
+          "7"
+        ],
+        "sampleUnitIds": [
+          "legaheattank",
+          "legamph",
+          "legbastion"
+        ],
+        "sampleWeaponDefs": [
+          "heat_ray",
+          "skybeam",
+          "t2heatray"
+        ],
+        "sourcePaths": [
+          "units/Legion/Air/T2 Air/legphoenix.lua"
+        ]
+      },
+      {
+        "key": "tracking_turn_radius",
+        "occurrences": 9,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "2000",
+          "400",
+          "500"
+        ],
+        "sampleUnitIds": [
+          "armlance",
+          "armseap",
+          "armtdrone"
+        ],
+        "sampleWeaponDefs": [
+          "armair_torpedo",
+          "armseap_weapon1",
+          "atdronewep"
+        ],
+        "sourcePaths": [
+          "units/ArmAircraft/T2/armlance.lua"
+        ]
+      },
+      {
+        "key": "vtol",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "60"
+        ],
+        "sampleUnitIds": [
+          "armlun"
+        ],
+        "sampleWeaponDefs": [
+          "cannonuw"
+        ],
+        "sourcePaths": [
+          "units/ArmGantry/armlun.lua"
+        ]
+      },
+      {
+        "key": "water_splash",
+        "occurrences": 25,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "0"
+        ],
+        "sampleUnitIds": [
+          "armjuno",
+          "corjuno",
+          "corsb"
+        ],
+        "sampleWeaponDefs": [
+          "acidbomb",
+          "acidspit",
+          "aimhull"
+        ],
+        "sourcePaths": [
+          "units/ArmBuildings/LandDefenceOffence/armjuno.lua"
+        ]
+      },
+      {
+        "key": "water_splash_ceg",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "splash-gigantic"
+        ],
+        "sampleUnitIds": [
+          "cortron"
+        ],
+        "sampleWeaponDefs": [
+          "cortron_weapon"
+        ],
+        "sourcePaths": [
+          "units/CorBuildings/LandDefenceOffence/cortron.lua"
+        ]
+      },
+      {
+        "key": "weapons_group",
+        "occurrences": 225,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1",
+          "2"
+        ],
+        "sampleUnitIds": [
+          "armamb",
+          "armcom",
+          "armcomcon"
+        ],
+        "sampleWeaponDefs": [
+          "aa_missile",
+          "aa_railgun",
+          "adv_rocket"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armdecom.lua"
+        ]
+      },
+      {
+        "key": "weapons_role",
+        "occurrences": 81,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "secondary"
+        ],
+        "sampleUnitIds": [
+          "armamph",
+          "armcomlvl10",
+          "armcomlvl3"
+        ],
+        "sampleWeaponDefs": [
+          "aa_gun",
+          "aa_missile",
+          "aa_missiles"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/T2/armamph.lua"
+        ]
+      }
+    ]
+  }
+}

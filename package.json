@@ -19,6 +19,7 @@
     "audit-game-data": "node scripts/audit-game-data.mjs",
     "sync-unitpics": "node scripts/sync-unitpics.mjs",
     "sync-parameters": "node scripts/sync-parameter-defaults.mjs",
+    "sync-custom-parameters": "node scripts/sync-custom-parameter-registry.mjs",
     "sync-explosions": "node scripts/sync-explosion-profiles.mjs",
     "sync-assets": "node scripts/sync-asset-manifest.mjs",
     "sync-tactical-icons": "node scripts/sync-tactical-icons.mjs",

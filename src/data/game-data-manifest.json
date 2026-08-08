@@ -14,7 +14,8 @@
     "explosions": 133,
     "artwork": 1788,
     "tacticalIcons": 990,
-    "assetReferences": 3963
+    "assetReferences": 3963,
+    "customParameters": 214
   },
   "files": {
     "units": {
@@ -56,6 +57,11 @@
       "path": "src/data/bar-asset-manifest.json",
       "schemaVersion": 1,
       "sha256": "c41314b4a68430bb9d84fc151804f362cb239506734a80017c7035d6e44728c8"
+    },
+    "customParameters": {
+      "path": "src/data/custom-parameter-discovery.json",
+      "schemaVersion": 1,
+      "sha256": "010bfe5fa2aa1333189a1105e00a92ad237bbcdbe4150e74a7f3bbf978b32d31"
     }
   }
 }

@@ -17,6 +17,7 @@ export const SNAPSHOT_PATHS = Object.freeze({
   artwork: path.join(DATA_DIRECTORY, 'unitpic-manifest.json'),
   tacticalIcons: path.join(DATA_DIRECTORY, 'tactical-icon-manifest.json'),
   assets: path.join(DATA_DIRECTORY, 'bar-asset-manifest.json'),
+  customParameters: path.join(DATA_DIRECTORY, 'custom-parameter-discovery.json'),
 });
 
 export function readJson(filePath) {
@@ -117,6 +118,7 @@ export function getDatasetCounts(datasets) {
     artwork: Object.keys(datasets.artwork?.units || {}).length,
     tacticalIcons: Object.keys(tacticalIcons).length,
     assetReferences,
+    customParameters: Number(datasets.customParameters?.counts?.totalParameters || 0),
   };
 }
 

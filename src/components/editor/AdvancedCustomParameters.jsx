@@ -3,6 +3,7 @@ import { Button, ParameterStatus } from '../ui.jsx';
 import {
   CUSTOM_PARAMETER_BY_KEY,
   CUSTOM_PARAMETER_CATALOG,
+  CUSTOM_PARAMETER_DISCOVERY,
   coerceCustomParameterValue,
   isValidCustomParameterKey,
   normalizeCustomParameterKey
@@ -43,7 +44,11 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
   }, [defaults, tweaks]);
 
   const activeKeys = new Set(active.map(parameter => parameter.shortKey));
-  const available = CUSTOM_PARAMETER_CATALOG.filter(parameter => !activeKeys.has(parameter.key));
+  const available = CUSTOM_PARAMETER_CATALOG.filter(parameter => (
+    !activeKeys.has(parameter.key) && !CORE_CUSTOM_KEYS.has(parameter.key)
+  ));
+  const documentedAvailable = available.filter(parameter => parameter.status !== 'discovered');
+  const discoveredAvailable = available.filter(parameter => parameter.status === 'discovered');
   const isCustom = catalogKey === '__custom__';
   const selectedKey = isCustom ? normalizeCustomParameterKey(customKey) : catalogKey;
   const definition = CUSTOM_PARAMETER_BY_KEY.get(selectedKey);
@@ -69,9 +74,12 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
         <div>
           <span>Extensible definition data</span>
           <h3 id="advanced-custom-parameters-title">Advanced custom parameters</h3>
-          <p>These keys are consumed by BAR gadgets or optional packages, not by Recoil automatically.</p>
+          <p>Documented contracts and keys discovered automatically from the pinned BAR definition snapshot.</p>
         </div>
-        <span className="advanced-custom-parameters__count">{active.filter(parameter => parameter.modified).length} overrides</span>
+        <div className="advanced-custom-parameters__summary">
+          <span className="advanced-custom-parameters__count">{active.filter(parameter => parameter.modified).length} overrides</span>
+          <span className="advanced-custom-parameters__count">{CUSTOM_PARAMETER_DISCOVERY.counts.unitParameters} observed keys</span>
+        </div>
       </header>
 
       {active.length > 0 && (
@@ -83,10 +91,13 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
                 <div className="advanced-custom-parameter__identity">
                   <strong>{parameter.definition?.label || parameter.shortKey}</strong>
                   <code>{parameter.shortKey}</code>
+                  <span className={`advanced-custom-parameter__status is-${parameter.definition?.status || 'custom'}`}>
+                    {parameter.definition?.status === 'discovered' ? 'Observed' : parameter.definition ? 'Documented' : 'Custom'}
+                  </span>
                   <ParameterStatus
                     modified={parameter.modified}
                     source={!inheritedFromClone && Object.prototype.hasOwnProperty.call(defaults, parameter.tweakKey) ? 'bar' : 'inherited'}
-                    capabilityIds={parameter.definition?.owner === 'BAR gadget' ? ['bar-gadget'] : []}
+                    capabilityIds={parameter.definition?.capabilities || []}
                     external={!parameter.definition || parameter.definition.owner === 'Package-specific'}
                   />
                 </div>
@@ -105,6 +116,8 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
                     <input
                       className="stat-card-input"
                       type={type === 'number' ? 'number' : 'text'}
+                      min={parameter.definition?.min}
+                      max={parameter.definition?.max}
                       aria-label={`${parameter.definition?.label || parameter.shortKey} value`}
                       value={parameter.value}
                       onChange={event => onChange(parameter.tweakKey, event.target.value)}
@@ -112,7 +125,10 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
                   )}
                   <Button variant="quiet" disabled={!parameter.modified} onClick={() => onChange(parameter.tweakKey, undefined)}>{parameter.modified ? 'Reset' : 'Inherited'}</Button>
                 </div>
-                <p>{parameter.definition?.description || 'Custom package key. Confirm that the loaded game code consumes it before relying on the value.'}</p>
+                <p>
+                  {parameter.definition?.description || 'Custom package key. Confirm that the loaded game code consumes it before relying on the value.'}
+                  {parameter.definition?.observed && ` Observed ${parameter.definition.occurrences} time${parameter.definition.occurrences === 1 ? '' : 's'} in the current BAR source.`}
+                </p>
               </div>
             );
           })}
@@ -124,7 +140,16 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
           <span>Parameter</span>
           <select aria-label="Custom parameter catalog" value={catalogKey} onChange={event => { setCatalogKey(event.target.value); setDraftValue(''); }}>
             <option value="">Choose a supported key…</option>
-            {available.map(parameter => <option key={parameter.key} value={parameter.key}>{parameter.label}</option>)}
+            {documentedAvailable.length > 0 && (
+              <optgroup label="Documented contracts">
+                {documentedAvailable.map(parameter => <option key={parameter.key} value={parameter.key}>{parameter.label}</option>)}
+              </optgroup>
+            )}
+            {discoveredAvailable.length > 0 && (
+              <optgroup label="Observed in current BAR source">
+                {discoveredAvailable.map(parameter => <option key={parameter.key} value={parameter.key}>{parameter.label}</option>)}
+              </optgroup>
+            )}
             <option value="__custom__">Custom package key…</option>
           </select>
         </label>
@@ -156,6 +181,8 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
               <input
                 aria-label="Initial value"
                 type={selectedType === 'number' ? 'number' : 'text'}
+                min={definition?.min}
+                max={definition?.max}
                 value={draftValue}
                 placeholder={selectedType === 'number' ? '0' : 'Value required'}
                 onChange={event => setDraftValue(event.target.value)}
@@ -165,7 +192,12 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
         )}
         <Button variant="secondary" disabled={!canAdd} onClick={addParameter}>Add parameter</Button>
       </div>
-      {definition && <p className="advanced-custom-parameters__note"><strong>{definition.owner}:</strong> {definition.description}</p>}
+      {definition && (
+        <p className="advanced-custom-parameters__note">
+          <strong>{definition.owner}:</strong> {definition.description}
+          {definition.observed && ` Observed ${definition.occurrences} time${definition.occurrences === 1 ? '' : 's'} across the pinned BAR source.`}
+        </p>
+      )}
       {isCustom && selectedKey && !isValidCustomParameterKey(selectedKey) && <p className="advanced-custom-parameters__error">Use lowercase letters, numbers, and underscores; the first character must be a letter or underscore.</p>}
     </section>
   );

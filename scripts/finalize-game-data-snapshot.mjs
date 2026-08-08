@@ -86,7 +86,7 @@ datasets.artwork.stats = {
   unresolvedSourceCount: placeholders.length,
 };
 
-for (const key of ['artwork', 'tacticalIcons', 'assets']) {
+for (const key of ['artwork', 'tacticalIcons', 'assets', 'customParameters']) {
   const manifestCommit = datasets[key]?.sourceCommit;
   if (manifestCommit !== sourceCommit) {
     throw new Error(`${key} was generated from ${manifestCommit || 'an unknown commit'}, not ${sourceCommit}.`);
