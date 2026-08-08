@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "sourceCommit": "e34440077024d3b122b89d07a314a2df7b1b181d",
-  "sourceDate": "2026-07-22T08:53:15Z",
+  "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
+  "sourceDate": "2026-08-07T22:17:17Z",
   "settings": {
     "size": 192,
     "format": "webp",
@@ -11,17 +11,17 @@
     "fit": "contain"
   },
   "stats": {
-    "unitCount": 1786,
+    "unitCount": 1788,
     "sourceCount": 1448,
     "uniqueAssetCount": 1419,
     "assetBytes": 14844446,
-    "unresolvedSourceCount": 8,
+    "unresolvedSourceCount": 16,
     "failedSourceCount": 0,
-    "scavengerUnitCount": 809,
+    "scavengerUnitCount": 810,
     "scavengerResolvedCount": 806,
     "scavengerInheritedCount": 18,
     "scavengerUniqueAssetCount": 747,
-    "scavengerPlaceholderCount": 3
+    "scavengerPlaceholderCount": 4
   },
   "units": {
     "armaak": "/unitpics/assets/ea17f38980b4e08bd769.webp",
@@ -225,6 +225,12 @@
     "armsat": "/unitpics/assets/97df0d8839a28d766c8f.webp",
     "armsb": "/unitpics/assets/ffc4d77e0ff728e37c63.webp",
     "armscab": "/unitpics/assets/acb3309b10b19b7e66b7.webp",
+    "armscavengerbossv2_easy": "/logo.svg",
+    "armscavengerbossv2_epic": "/logo.svg",
+    "armscavengerbossv2_hard": "/logo.svg",
+    "armscavengerbossv2_normal": "/logo.svg",
+    "armscavengerbossv2_veryeasy": "/logo.svg",
+    "armscavengerbossv2_veryhard": "/logo.svg",
     "armsd": "/unitpics/assets/99bc61f1eb474e19e311.webp",
     "armseadragon": "/unitpics/assets/39af73808f0a0a0cef81.webp",
     "armseap": "/unitpics/assets/4e563d300e7e4e908bde.webp",
@@ -1208,6 +1214,7 @@
     "scav_armyork": "/unitpics/assets/f07aba5ffb2c830c8cfc.webp",
     "scav_armzapper": "/unitpics/assets/b4c0bdfd6a4074c3169a.webp",
     "scav_armzeus": "/unitpics/assets/8d6f944d09679a45840c.webp",
+    "scav_ceg_test_projectile_unit": "/logo.svg",
     "scav_chip": "/unitpics/assets/cbfcdf55d3c16d139d37.webp",
     "scav_coraak": "/unitpics/assets/776a1acd9dad99965cd4.webp",
     "scav_coraap": "/unitpics/assets/fcb8bd7b6466e4fbd571.webp",
@@ -1794,6 +1801,7 @@
     "armminebomber": "/unitpics/assets/bd256b0cf86252f72136.webp",
     "armcomcon": "/unitpics/assets/284b191dbc9e8b42d5e5.webp",
     "corcomcon": "/unitpics/assets/92f146ac58187cdde35e.webp",
+    "ceg_test_projectile_unit": "/logo.svg",
     "raptorartillery": "/unitpics/assets/cbc2b15501ffa8bf4f90.webp",
     "raptor_worm_green": "/logo.svg",
     "raptor_6legged_l": "/unitpics/assets/0cfd44e1c82367f812bf.webp",
@@ -1803,13 +1811,7 @@
     "raptor_air_gunship_emp_t2_v1": "/unitpics/assets/6526211be4357d877e7c.webp",
     "raptor_air_gunship_fire_t2_v1": "/unitpics/assets/6526211be4357d877e7c.webp",
     "volcano_projectile_unit": "/logo.svg",
-    "armcomnew": "/unitpics/assets/284b191dbc9e8b42d5e5.webp",
-    "armscavengerbossv2_epic": "/unitpics/assets/d7a0f186975befd4ca14.webp",
-    "armscavengerbossv2_veryeasy": "/unitpics/assets/d7a0f186975befd4ca14.webp",
-    "armscavengerbossv2_easy": "/unitpics/assets/d7a0f186975befd4ca14.webp",
-    "armscavengerbossv2_normal": "/unitpics/assets/d7a0f186975befd4ca14.webp",
-    "armscavengerbossv2_hard": "/unitpics/assets/d7a0f186975befd4ca14.webp",
-    "armscavengerbossv2_veryhard": "/unitpics/assets/d7a0f186975befd4ca14.webp"
+    "armcomnew": "/unitpics/assets/284b191dbc9e8b42d5e5.webp"
   },
   "pictures": {
     "LEGESTOR.dds": "/unitpics/assets/2ad8fc90bc7f2f78cab3.webp",
@@ -3262,12 +3264,20 @@
     "scavfort.dds": "/unitpics/assets/f64a505c380f7522ddcd.webp"
   },
   "placeholders": [
+    "armscavengerbossv2_easy",
+    "armscavengerbossv2_epic",
+    "armscavengerbossv2_hard",
+    "armscavengerbossv2_normal",
+    "armscavengerbossv2_veryeasy",
+    "armscavengerbossv2_veryhard",
     "legmohobp",
     "raptor_turret_burrow_t2_v1",
+    "scav_ceg_test_projectile_unit",
     "scav_legmohobp",
     "scav_legmohobpct",
     "scav_volcano_projectile_unit",
     "legmohobpct",
+    "ceg_test_projectile_unit",
     "raptor_worm_green",
     "volcano_projectile_unit"
   ]

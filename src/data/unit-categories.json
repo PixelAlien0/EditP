@@ -3131,6 +3131,9 @@
     "aircraft",
     "t2"
   ],
+  "ceg_test_projectile_unit": [
+    "t1"
+  ],
   "chip": [
     "t1"
   ],
@@ -7673,6 +7676,10 @@
   "scav_armsat": [
     "aircraft",
     "t2",
+    "scavenger"
+  ],
+  "scav_ceg_test_projectile_unit": [
+    "t1",
     "scavenger"
   ],
   "scav_chip": [

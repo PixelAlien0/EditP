@@ -17,11 +17,11 @@ describe('special-unit defaults', () => {
   it('preserves legacy-key stats and the complete Apollyon loadout', () => {
     expect(units.names.legapollyon).toBe('Apollyon');
     expect(unitDefaults.legapollyon).toMatchObject({
-      metalcost: 9000,
-      energycost: 240000,
+      metalcost: 15000,
+      energycost: 300000,
       buildtime: 320000,
       health: 56000,
-      maxvelocity: 48,
+      maxvelocity: 38,
       acceleration: 0.02,
       brakerate: 0.04,
     });
@@ -57,8 +57,8 @@ describe('special-unit defaults', () => {
       expect(unitDefaults[unitId]?.weaponSlots?.[0]).toMatchObject({
         defKey: 'tremor_spread_fire',
         speceffect: 'sector_fire',
-        spread_angle: 22,
-        max_range_reduction: 0.3,
+        spread_angle: '22',
+        max_range_reduction: '0.30',
       });
     }
   });

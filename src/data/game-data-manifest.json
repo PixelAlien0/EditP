@@ -1,36 +1,36 @@
 {
   "version": 1,
   "schemaVersion": 1,
-  "snapshotId": "bar-e34440077024",
+  "snapshotId": "bar-e03f8af274ad",
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
-  "sourceCommit": "e34440077024d3b122b89d07a314a2df7b1b181d",
-  "sourceDate": "2026-07-22T08:53:15Z",
+  "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
+  "sourceDate": "2026-08-07T22:17:17Z",
   "counts": {
-    "units": 1786,
-    "descriptions": 1786,
-    "defaults": 1786,
-    "categories": 1786,
+    "units": 1788,
+    "descriptions": 1788,
+    "defaults": 1788,
+    "categories": 1788,
     "rosters": 170,
     "explosions": 133,
-    "artwork": 1786,
+    "artwork": 1788,
     "tacticalIcons": 990,
-    "assetReferences": 3962
+    "assetReferences": 3963
   },
   "files": {
     "units": {
       "path": "src/data/units.json",
       "schemaVersion": 1,
-      "sha256": "e16da77287f41e66245ce3b5af31f0522defe072a2414b362fec91babeb54ab0"
+      "sha256": "41a37cfbdd1a150fa80ec19545fbfffff87bb4658f14e5bc60b3583c12eb46a6"
     },
     "defaults": {
       "path": "src/data/unit-defaults.json",
       "schemaVersion": 1,
-      "sha256": "0fb9c92c22b5fcad9de5203bf1c762c1540726a86f12a49e0dfd3a5e4f994267"
+      "sha256": "f145c1a3803dd2ee6021f7e4d208c5483886b12c9daebca50308225e74ab5260"
     },
     "categories": {
       "path": "src/data/unit-categories.json",
       "schemaVersion": 1,
-      "sha256": "2dfc859315da92540270b87ad0e6b663c76036a550c5d56055b955f1efa671d5"
+      "sha256": "bd5211bee1ef7568bf75bca4da4b79e13e39df83380a8031c97d685b78a6a7f1"
     },
     "rosters": {
       "path": "src/data/factory-rosters.json",
@@ -40,22 +40,22 @@
     "explosions": {
       "path": "src/data/explosion-profiles.json",
       "schemaVersion": 1,
-      "sha256": "b3593d002155d9ca0705f4a3fee30152ecc8a278bd8139fab072821f046b0624"
+      "sha256": "26c17855c6e1d3d251867e1854114e534a96209a9a6bc01c23e6c0274eac2ceb"
     },
     "artwork": {
       "path": "src/data/unitpic-manifest.json",
       "schemaVersion": 1,
-      "sha256": "c0b0b493e21298f8e36cc083a46341dc583ffb371135f517d9b2a8349656603a"
+      "sha256": "c1176bf107ba8131f221dba19c0ca409c280e8b177fdba75f78565e06a0639d1"
     },
     "tacticalIcons": {
       "path": "src/data/tactical-icon-manifest.json",
       "schemaVersion": 1,
-      "sha256": "173d2e5318beeb04ff6eeaa30df69462277cff369350d3340f1734da1239c16a"
+      "sha256": "b4728b3b1963c65dc3881536a6790e6f51dd4d42bf53937b450e9f36db964874"
     },
     "assets": {
       "path": "src/data/bar-asset-manifest.json",
       "schemaVersion": 1,
-      "sha256": "a134246b7876136f41be33843fde2ff83abe3665592523049018a3a4b6fe5c2f"
+      "sha256": "c41314b4a68430bb9d84fc151804f362cb239506734a80017c7035d6e44728c8"
     }
   }
 }

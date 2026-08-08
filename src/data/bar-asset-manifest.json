@@ -1,7 +1,7 @@
 {
   "version": 1,
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
-  "sourceCommit": "e34440077024d3b122b89d07a314a2df7b1b181d",
+  "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
   "categories": {
     "unitModel": [
       "chip.s3o",
@@ -3502,6 +3502,7 @@
       "legsmallrocket.s3o",
       "legtorpedo.s3o",
       "legtorpedomini.s3o",
+      "Objects3D/empty.s3o",
       "Raptors/greyrock2.s3o",
       "Raptors/raptoregg_l_blue.s3o",
       "Raptors/raptoregg_l_darkgreen.s3o",
