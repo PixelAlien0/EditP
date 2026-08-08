@@ -7,6 +7,7 @@ import { buildLobbyCommands, compileLobbyModules } from '../utils/lobbyModules.j
 import { encodeLobbyBase64, serializeLuaTable } from '../utils/tweakSerializer.js';
 import { compileTweakDefsLua } from '../utils/tweakdefsHelper.js';
 import { getWeaponBlueprintDefinitionKey } from '../utils/weaponBlueprint.js';
+import { LOBBY_SLOT_LIMIT_CHARACTERS } from '../utils/byteBudget.js';
 
 function setNestedValue(object, path, value) {
   const keys = path.split('.');
@@ -364,6 +365,6 @@ export function useCompiledProjectOutputs({
     compiledLobbyModules,
     lobbyCommands,
     totalBytesUsed: compiledLobbyModules.aggregateBytes,
-    lobbyByteLimit: 12000,
+    lobbyByteLimit: LOBBY_SLOT_LIMIT_CHARACTERS,
   };
 }

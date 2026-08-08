@@ -1,5 +1,10 @@
 const LEVEL_ORDER = Object.freeze({ blocker: 0, warning: 1, info: 2, pass: 3 });
 
+import {
+  GENERATED_SLOT_TARGET_BYTES,
+  LOBBY_SLOT_LIMIT_CHARACTERS,
+} from './byteBudget.js';
+
 const GROUP_META = Object.freeze({
   project: { label: 'Project values', order: 0 },
   delivery: { label: 'Lobby delivery', order: 1 },
@@ -129,11 +134,20 @@ export function buildCompatibilityPreflight({
   ];
   deliveryGroups.forEach(([key, label]) => {
     const group = compiledModules?.[key] || { required: 0, maximum: 9, overflow: false, slots: [] };
-    if (group.overflow) {
+    const slotOverflow = group.slotOverflow
+      ?? group.required > (group.maximum || 9);
+    if (slotOverflow) {
       add({
         id: `delivery-${key}-overflow`, group: 'delivery', level: 'blocker',
         title: `${label} exceed BAR's numbered fields`,
         detail: `${group.required} slots are required, but BAR provides exactly ${group.maximum || 9}. Disable modules or reduce generated blocks before copying commands.`,
+        action: { type: 'tweak-lab', label: 'Review modules' },
+      });
+    } else if (group.sizeOverflow) {
+      add({
+        id: `delivery-${key}-size-overflow`, group: 'delivery', level: 'blocker',
+        title: `${label} exceed the multiplayer field limit`,
+        detail: `${group.oversizedModules.map(module => `${module.label} (${module.encodedBytes.toLocaleString()} chars)`).join(', ')} exceed the ${LOBBY_SLOT_LIMIT_CHARACTERS.toLocaleString()}-character limit and cannot be copied safely.`,
         action: { type: 'tweak-lab', label: 'Review modules' },
       });
     } else {
@@ -147,12 +161,12 @@ export function buildCompatibilityPreflight({
       });
     }
   });
-  const advisorySlots = (compiledModules?.slots || []).filter(slot => slot.compatibility === 'advisory');
-  if (advisorySlots.length) {
+  const nearLimitSlots = (compiledModules?.slots || []).filter(slot => slot.compatibility === 'near-limit');
+  if (nearLimitSlots.length) {
     add({
-      id: 'delivery-size-advisory', group: 'delivery', level: 'warning',
-      title: `${advisorySlots.length} large lobby ${advisorySlots.length === 1 ? 'field' : 'fields'}`,
-      detail: `${advisorySlots.map(slot => `${slot.fieldName} (${slot.encodedBytes.toLocaleString()} B)`).join(', ')} exceed the editor’s 12,000-character legacy advisory. BAR does not publish this as a hard limit; test the lobby path you plan to use.`,
+      id: 'delivery-size-warning', group: 'delivery', level: 'warning',
+      title: `${nearLimitSlots.length} lobby ${nearLimitSlots.length === 1 ? 'field is' : 'fields are'} using the safety reserve`,
+      detail: `${nearLimitSlots.map(slot => `${slot.fieldName} (${slot.encodedBytes.toLocaleString()} chars)`).join(', ')} exceed the ${GENERATED_SLOT_TARGET_BYTES.toLocaleString()}-character packing target but remain within the ${LOBBY_SLOT_LIMIT_CHARACTERS.toLocaleString()}-character multiplayer limit.`,
     });
   }
   if (!compiledModules?.overflow && (compiledModules?.slots || []).length > 0) {

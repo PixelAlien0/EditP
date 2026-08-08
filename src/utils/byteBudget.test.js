@@ -34,24 +34,25 @@ describe('byte budget inspector analysis', () => {
       compiled.units.required,
     ]);
     expect(report.slots.every(slot => (
-      slot.advisoryHeadroom === 12000 - slot.encodedBytes
+      slot.limitHeadroom === 16384 - slot.encodedBytes
     ))).toBe(true);
     expect(report.contributors.every(contributor => contributor.estimatedEncodedBytes > 0)).toBe(true);
   });
 
-  it('identifies oversized atomic imports without treating the advisory as a hard limit', () => {
+  it('blocks oversized atomic imports at the multiplayer field limit', () => {
     const compiled = compileLobbyModules({
-      tweakModules: [importedModule('large', `local payload = "${'x'.repeat(9500)}"`)],
+      tweakModules: [importedModule('large', `local payload = "${'x'.repeat(13000)}"`)],
       generatedTweakDefsLua: '',
       generatedTweakUnitsLua: '',
       base64Options: { padding: false },
     });
     const report = buildByteBudgetReport(compiled);
 
-    expect(compiled.overflow).toBe(false);
-    expect(report.status).toBe('advisory');
-    expect(report.slots[0].status).toBe('advisory');
-    expect(report.suggestions.some(suggestion => suggestion.title.includes('legacy advisory'))).toBe(true);
+    expect(compiled.overflow).toBe(true);
+    expect(compiled.defs.sizeOverflow).toBe(true);
+    expect(report.status).toBe('blocked');
+    expect(report.slots[0].status).toBe('blocked');
+    expect(report.suggestions.some(suggestion => suggestion.title.includes('multiplayer limit'))).toBe(true);
     expect(report.suggestions.some(suggestion => suggestion.title.includes('Module large'))).toBe(true);
   });
 

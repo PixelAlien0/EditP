@@ -1,7 +1,7 @@
 import { encodeLobbyBase64 } from './tweakSerializer.js';
 import {
   GENERATED_SLOT_TARGET_BYTES,
-  LOBBY_SLOT_ADVISORY_BYTES,
+  LOBBY_SLOT_LIMIT_CHARACTERS,
 } from './byteBudget.js';
 import { compactLuaIfEquivalent } from './luaCompaction.js';
 import {
@@ -498,11 +498,16 @@ export function buildCanonicalCompilerBlocks(projectState = {}) {
 
 function finalizeSlots(blocks, kind, maximum, padding) {
   const required = blocks.length;
-  const overflow = required > maximum;
+  const slotOverflow = required > maximum;
   const prepared = blocks.map(block => {
     const encoded = encodeLobbyBase64(`${block.lua} `, { padding });
     return { ...block, encoded, encodedBytes: encoded.length };
   });
+  const oversizedModules = prepared.filter(block => (
+    block.encodedBytes > LOBBY_SLOT_LIMIT_CHARACTERS
+  ));
+  const sizeOverflow = oversizedModules.length > 0;
+  const overflow = slotOverflow || sizeOverflow;
   const slots = prepared.slice(0, maximum).map((block, index) => {
     const encoded = block.encoded;
     const fieldName = `tweak${kind}${index + 1}`;
@@ -511,7 +516,11 @@ function finalizeSlots(blocks, kind, maximum, padding) {
       index: index + 1,
       fieldName,
       encoded,
-      compatibility: encoded.length > LOBBY_SLOT_ADVISORY_BYTES ? 'advisory' : 'ok',
+      compatibility: encoded.length > LOBBY_SLOT_LIMIT_CHARACTERS
+        ? 'blocked'
+        : encoded.length >= GENERATED_SLOT_TARGET_BYTES
+          ? 'near-limit'
+          : 'ok',
       command: `!bset ${fieldName} ${encoded}`,
     };
   });
@@ -530,6 +539,11 @@ function finalizeSlots(blocks, kind, maximum, padding) {
     required,
     maximum,
     overflow,
+    slotOverflow,
+    sizeOverflow,
+    oversizedModules: oversizedModules.map(({ id, label, encodedBytes, source }) => ({
+      id, label, encodedBytes, source,
+    })),
     largestModules,
     totalEncodedBytes: prepared.reduce((total, block) => total + block.encodedBytes, 0),
     compaction: {

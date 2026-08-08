@@ -89,6 +89,25 @@ describe('canonical compiler semantic validation', () => {
     ]));
   });
 
+  it('blocks encoded lobby fields above 16,384 characters', () => {
+    const compiled = compileLobbyModules({
+      tweakModules: [{
+        id: 'oversized-defs', kind: 'defs', stage: 'before-editor', order: 0,
+        label: 'Oversized definitions',
+        rawLua: `local payload = "${'x'.repeat(13000)}"`,
+        enabled: true, converted: false,
+      }],
+      generatedTweakDefsLua: '',
+      generatedTweakUnitsLua: '',
+    });
+
+    const validation = validateCompiledLobbyModules(compiled);
+    expect(validation.canExport).toBe(false);
+    expect(validation.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'lobby-field-size-limit', level: 'blocker' }),
+    ]));
+  });
+
   it('detects payload tampering, duplicate coverage, and inconsistent metadata', () => {
     const compiled = compileLobbyModules(COMPILER_REGRESSION_FIXTURES[0].projectState);
     const tampered = structuredClone(compiled);

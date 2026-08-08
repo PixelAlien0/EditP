@@ -4,6 +4,7 @@ import {
   buildLobbyCommands,
   COMPILER_BLOCK_SCHEMA_VERSION,
   compileLobbyModules,
+  GENERATED_SLOT_TARGET,
 } from './lobbyModules.js';
 import luaparse from 'luaparse';
 import { serializeLuaTable } from './tweakSerializer.js';
@@ -34,6 +35,26 @@ describe('numbered lobby module compilation', () => {
     expect(compiled.units.required).toBe(10);
     expect(compiled.units.slots).toHaveLength(9);
     expect(compiled.overflow).toBe(true);
+    expect(buildLobbyCommands(compiled)).toBe('');
+  });
+
+  it('blocks an atomic field above the 16,384-character multiplayer limit', () => {
+    const compiled = compileLobbyModules({
+      tweakModules: [{
+        ...moduleOf('defs', 1),
+        rawLua: `local payload = "${'x'.repeat(13000)}"`,
+      }],
+      generatedTweakDefsLua: '',
+      generatedTweakUnitsLua: '',
+    });
+
+    expect(compiled.defs).toMatchObject({
+      slotOverflow: false,
+      sizeOverflow: true,
+      overflow: true,
+    });
+    expect(compiled.defs.oversizedModules).toHaveLength(1);
+    expect(compiled.defs.slots[0].compatibility).toBe('blocked');
     expect(buildLobbyCommands(compiled)).toBe('');
   });
 
@@ -73,14 +94,16 @@ describe('numbered lobby module compilation', () => {
     compiled.units.slots.forEach(slot => expect(() => luaparse.parse(`return ${slot.lua}`)).not.toThrow());
   });
 
-  it('separates large generated definition feature blocks at canonical markers', () => {
+  it('compacts and packs generated definition features below the safe target', () => {
     const cloneBlock = `do\n  local function clone_copy(value) return value end\n${'  local clone_value = true -- padding\n'.repeat(180)}  do\n    local nested = true\n  end\nend`;
     const menuBlock = `-- EDITP_BUILDMENU_BEGIN\n${'local menu_value = true -- padding\n'.repeat(180)}-- EDITP_BUILDMENU_END`;
     const compiled = compileLobbyModules({
       tweakModules: [], generatedTweakDefsLua: `${cloneBlock}\n${menuBlock}`, generatedTweakUnitsLua: '',
       base64Options: { padding: false },
     });
-    expect(compiled.defs.required).toBe(2);
+    expect(compiled.defs.required).toBe(1);
+    expect(compiled.defs.slots[0].executionBlockCount).toBe(2);
+    expect(compiled.defs.slots[0].encodedBytes).toBeLessThanOrEqual(GENERATED_SLOT_TARGET);
     compiled.defs.slots.forEach(slot => expect(() => luaparse.parse(slot.lua)).not.toThrow());
   });
 

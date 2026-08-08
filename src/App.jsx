@@ -1005,7 +1005,7 @@ export default function App() {
   });
   const limitRisk = compiledLobbyModules.overflow
     ? 'error'
-    : compiledLobbyModules.slots.some(slot => slot.compatibility === 'advisory') ? 'warning' : 'ok';
+    : compiledLobbyModules.slots.some(slot => slot.compatibility === 'near-limit') ? 'warning' : 'ok';
 
   // Toggle Category selection
   const handleCatClick = (cat) => {

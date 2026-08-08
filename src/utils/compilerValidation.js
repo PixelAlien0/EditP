@@ -1,5 +1,6 @@
 import luaparse from 'luaparse';
 import { encodeLobbyBase64 } from './tweakSerializer.js';
+import { LOBBY_SLOT_LIMIT_CHARACTERS } from './byteBudget.js';
 
 const textEncoder = new TextEncoder();
 
@@ -246,6 +247,14 @@ function validateSlots(compiledModules, canonicalIds, deduplicationGroups, add) 
     const expectedEncoded = encodeLobbyBase64(`${normalizedLua} `, { padding: compiledModules?.base64Padding ?? false });
     if (slot.encoded !== expectedEncoded || slot.encodedBytes !== expectedEncoded.length) {
       add({ ...context, code: 'encoded-payload-mismatch', level: 'blocker', message: `${slot.fieldName} Base64 does not match its canonical Lua source.` });
+    }
+    if (expectedEncoded.length > LOBBY_SLOT_LIMIT_CHARACTERS) {
+      add({
+        ...context,
+        code: 'lobby-field-size-limit',
+        level: 'blocker',
+        message: `${slot.fieldName} is ${expectedEncoded.length.toLocaleString()} encoded characters; multiplayer lobby fields allow at most ${LOBBY_SLOT_LIMIT_CHARACTERS.toLocaleString()}.`,
+      });
     }
     if (slot.command !== `!bset ${slot.fieldName} ${slot.encoded}`) {
       add({ ...context, code: 'command-mismatch', level: 'blocker', message: `${slot.fieldName} command does not match its encoded payload.` });

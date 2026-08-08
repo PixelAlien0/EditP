@@ -5,6 +5,10 @@ import ByteBudgetInspector from './ByteBudgetInspector.jsx';
 import { analyzeTweakPackage } from '../utils/tweakPackage.js';
 import { buildCompatibilityPreflight } from '../utils/compatibilityPreflight.js';
 import { validateCompiledLobbyModules } from '../utils/compilerValidation.js';
+import {
+  GENERATED_SLOT_TARGET_BYTES,
+  LOBBY_SLOT_LIMIT_CHARACTERS,
+} from '../utils/byteBudget.js';
 import '../styles/features/review-export.css';
 
 const EXPORT_TABS = [
@@ -32,6 +36,8 @@ export default function ReviewPage({
   const [selectedSlotField, setSelectedSlotField] = useState('');
   const [slotPreviewMode, setSlotPreviewMode] = useState('command');
   const lobbySlots = compiledLobbyModules?.slots || [];
+  const legacyDefsWithinLimit = !tweakDefsB64 || tweakDefsB64.length <= LOBBY_SLOT_LIMIT_CHARACTERS;
+  const legacyUnitsWithinLimit = !tweakUnitsB64 || tweakUnitsB64.length <= LOBBY_SLOT_LIMIT_CHARACTERS;
   const selectedLobbySlot = lobbySlots.find(slot => slot.fieldName === selectedSlotField) || lobbySlots[0] || null;
   const selectedSlotOutput = selectedLobbySlot
     ? slotPreviewMode === 'lua'
@@ -185,7 +191,7 @@ export default function ReviewPage({
               </span>
               <div className="export-console-health__metrics">
                 <span><small>Slots</small><strong>{lobbySlots.length} / 18</strong></span>
-                <span><small>Payload</small><strong>{totalBytesUsed.toLocaleString()} B</strong></span>
+                <span><small>Payload</small><strong>{totalBytesUsed.toLocaleString()} chars</strong></span>
               </div>
             </div>
           </header>
@@ -202,9 +208,33 @@ export default function ReviewPage({
               <SwitchField label="Custom units" checked={includeClones} onChange={event => setIncludeClones(event.target.checked)} />
               <SwitchField label="Build menus" checked={includeRosters} onChange={event => setIncludeRosters(event.target.checked)} />
               <SwitchField label="Header comments" checked={includeHeader} onChange={event => setIncludeHeader(event.target.checked)} />
-              <SwitchField label="English-only tooltips (Compact)" checked={exportEnglishOnly} onChange={event => setExportEnglishOnly && setExportEnglishOnly(event.target.checked)} title="Omit multi-language tooltip duplicates (de, fr, es, etc.) to significantly reduce payload size for large mods." />
-              <SwitchField label="Compact build-menu Lua" checked={compactLuaFormatting} onChange={event => setCompactLuaFormatting && setCompactLuaFormatting(event.target.checked)} title="Use the smaller, equivalence-tested helper form for generated factory roster edits. Unit and weapon patches remain in Units Lua." />
             </div>
+            <section className="export-delivery-optimizations" aria-labelledby="delivery-optimization-title">
+              <header>
+                <div>
+                  <Type variant="eyebrow" className="workflow-eyebrow">Safe delivery</Type>
+                  <Type as="h4" variant="subsection-title" id="delivery-optimization-title">Payload optimization</Type>
+                </div>
+                <span>{LOBBY_SLOT_LIMIT_CHARACTERS.toLocaleString()} max / field</span>
+              </header>
+              <div className="export-optimization-grid">
+                <SwitchField
+                  className="export-optimization-card"
+                  label="English-only tooltips"
+                  description="Removes duplicated translated tooltip strings. Gameplay values are unchanged."
+                  checked={exportEnglishOnly}
+                  onChange={event => setExportEnglishOnly && setExportEnglishOnly(event.target.checked)}
+                />
+                <SwitchField
+                  className="export-optimization-card"
+                  label="Compact generated build menus"
+                  description="Uses the smaller deterministic helper covered by compiler and BAR-runtime regression fixtures."
+                  checked={compactLuaFormatting}
+                  onChange={event => setCompactLuaFormatting && setCompactLuaFormatting(event.target.checked)}
+                />
+              </div>
+              <p>Generated fields target {GENERATED_SLOT_TARGET_BYTES.toLocaleString()} characters, keeping a 1,024-character reserve below the multiplayer limit. Oversized or unverifiable output is blocked, never truncated.</p>
+            </section>
           </details>
 
           <section className="modular-lobby-package" aria-labelledby="lobby-export-guide-title">
@@ -239,8 +269,10 @@ export default function ReviewPage({
 
             {compiledLobbyModules?.overflow && (
               <div className="lobby-slot-overflow" role="alert">
-                <strong>Package exceeds the available BAR fields.</strong>
-                <span>Disable imported modules or reduce generated sections before copying commands.</span>
+                <strong>Package cannot be delivered safely.</strong>
+                <span>{compiledLobbyModules.defs.sizeOverflow || compiledLobbyModules.units.sizeOverflow
+                  ? `At least one encoded field exceeds the ${LOBBY_SLOT_LIMIT_CHARACTERS.toLocaleString()}-character multiplayer limit.`
+                  : 'The package requires more than the nine available fields in one lane.'} Disable an imported module or reduce a complete generated section; output is never silently truncated.</span>
                 {[...(compiledLobbyModules.defs.overflow ? compiledLobbyModules.defs.largestModules : []), ...(compiledLobbyModules.units.overflow ? compiledLobbyModules.units.largestModules : [])]
                   .slice(0, 3)
                   .map(module => <small key={`${module.id}-${module.label}`}>{module.label} · {module.encodedBytes.toLocaleString()} bytes{module.source === 'imported' ? ' · disable from Tweak Package Lab' : ''}</small>)}
@@ -261,7 +293,7 @@ export default function ReviewPage({
                         onClick={() => setSelectedSlotField(slot.fieldName)}
                       >
                         <strong>{slot.fieldName}</strong>
-                        <small>{slot.encodedBytes.toLocaleString()} B</small>
+                        <small>{slot.encodedBytes.toLocaleString()} chars</small>
                       </button>
                     ))}
                     {!lobbySlots.some(slot => slot.kind === kind) && <em>No generated slots</em>}
@@ -278,7 +310,13 @@ export default function ReviewPage({
                         <h5>{selectedLobbySlot.fieldName}</h5>
                         <p>{selectedLobbySlot.label}</p>
                       </div>
-                      <span className={`slot-compatibility is-${selectedLobbySlot.compatibility}`}>{selectedLobbySlot.compatibility === 'advisory' ? 'Size advisory' : 'Compatible'}</span>
+                      <span className={`slot-compatibility is-${selectedLobbySlot.compatibility}`}>
+                        {selectedLobbySlot.compatibility === 'blocked'
+                          ? 'Over multiplayer limit'
+                          : selectedLobbySlot.compatibility === 'near-limit'
+                            ? 'Using safety reserve'
+                            : 'Compatible'}
+                      </span>
                     </div>
                     <div className="lobby-slot-viewer__toolbar">
                       <div role="group" aria-label="Slot preview format">
@@ -302,15 +340,21 @@ export default function ReviewPage({
           <details className="legacy-compiler-panel">
             <summary>
               <span><strong>Legacy combined compiler</strong><small>Compatibility inspection only</small></span>
-              <em>{lobbyByteLimit.toLocaleString()} byte advisory</em>
+              <em>{lobbyByteLimit.toLocaleString()} chars per field</em>
             </summary>
             <div className="legacy-compiler-panel__body">
               <p>The numbered package above is the recommended export. Use this view only for older workflows expecting one combined Definitions and Units payload.</p>
+              {(!legacyDefsWithinLimit || !legacyUnitsWithinLimit) && (
+                <div className="lobby-slot-overflow" role="alert">
+                  <strong>Combined legacy payload exceeds the multiplayer limit.</strong>
+                  <span>Use the safely packed numbered lobby package above. Oversized legacy Base64 copying is disabled.</span>
+                </div>
+              )}
               <Tabs className="export-output-tabs" size="sm" label="Legacy generated output format" items={EXPORT_TABS} value={activeOutputTab} onChange={setActiveOutputTab} />
               <pre className="export-code-preview">{activeCompiledOutput || activeCompiledOutputFallback}</pre>
               <div className="legacy-lobby-quick-actions" aria-label="Legacy combined payloads">
-                <Button size="sm" onClick={() => copyLobbyValue('Tweak Defs', tweakDefsB64)} disabled={!tweakDefsB64 || !compatibilityReport.canCopyLobbyCommands}>Copy Defs Base64</Button>
-                <Button size="sm" onClick={() => copyLobbyValue('Tweak Units', tweakUnitsB64)} disabled={!tweakUnitsB64 || !compatibilityReport.canCopyLobbyCommands}>Copy Units Base64</Button>
+                <Button size="sm" onClick={() => copyLobbyValue('Tweak Defs', tweakDefsB64)} disabled={!tweakDefsB64 || !legacyDefsWithinLimit || !compatibilityReport.canCopyLobbyCommands}>Copy Defs Base64</Button>
+                <Button size="sm" onClick={() => copyLobbyValue('Tweak Units', tweakUnitsB64)} disabled={!tweakUnitsB64 || !legacyUnitsWithinLimit || !compatibilityReport.canCopyLobbyCommands}>Copy Units Base64</Button>
                 <Button size="sm" onClick={copyOutput} disabled={!compatibilityReport.canCopyLobbyCommands}>Copy current output</Button>
               </div>
             </div>

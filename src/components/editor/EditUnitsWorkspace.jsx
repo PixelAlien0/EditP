@@ -1864,9 +1864,9 @@ export default function EditUnitsWorkspace({ context }) {
                   )}
 
                   <div className={`lobby-limit-indicator ${limitRisk}`}>
-                    Byte Budget: {totalBytesUsed} / {lobbyByteLimit} bytes
-                    {limitRisk === 'error' && <span> [LIMIT EXCEEDED]</span>}
-                    {limitRisk === 'warning' && <span> [APPROACHING LIMIT]</span>}
+                    Lobby payload: {totalBytesUsed.toLocaleString()} chars · {lobbyByteLimit.toLocaleString()} max per field
+                    {limitRisk === 'error' && <span> [EXPORT BLOCKED]</span>}
+                    {limitRisk === 'warning' && <span> [USING SAFETY RESERVE]</span>}
                     {limitRisk === 'ok' && <span> [SAFE]</span>}
                   </div>
 

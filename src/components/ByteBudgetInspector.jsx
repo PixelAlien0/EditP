@@ -10,7 +10,6 @@ const INSPECTOR_TABS = [
 
 const STATUS_LABELS = {
   blocked: 'Blocked',
-  advisory: 'Size advisory',
   attention: 'Watch budget',
   healthy: 'Healthy',
 };
@@ -22,14 +21,14 @@ function SlotRows({ report }) {
   return report.slots.map(slot => (
     <div
       key={slot.fieldName}
-      className={`validation-row ${slot.status === 'advisory' ? 'error' : slot.status === 'near' ? 'warning' : ''}`}
+      className={`validation-row ${slot.status === 'blocked' ? 'error' : slot.status === 'near' ? 'warning' : ''}`}
     >
       <span>{slot.fieldName}</span>
       <code>{slot.executionBlockCount} executed · {slot.utilization.toFixed(0)}%</code>
       <strong>
-        {slot.encodedBytes.toLocaleString()} chars · {slot.advisoryHeadroom >= 0
-          ? `${slot.advisoryHeadroom.toLocaleString()} advisory headroom`
-          : `${Math.abs(slot.advisoryHeadroom).toLocaleString()} over advisory`}
+        {slot.encodedBytes.toLocaleString()} chars · {slot.limitHeadroom >= 0
+          ? `${slot.limitHeadroom.toLocaleString()} limit headroom`
+          : `${Math.abs(slot.limitHeadroom).toLocaleString()} over limit`}
       </strong>
     </div>
   ));
@@ -123,13 +122,13 @@ export default function ByteBudgetInspector({ compiledModules }) {
           {activeView === 'actions' && <ActionRows report={report} />}
         </div>
         <p>
-          Generated slots target {report.options.targetBytes.toLocaleString()} encoded characters. The {report.options.advisoryBytes.toLocaleString()}-character figure is a legacy advisory, not an official BAR hard limit.
+          Generated slots target {report.options.targetBytes.toLocaleString()} encoded characters and preserve a safety reserve below the enforced {report.options.limitBytes.toLocaleString()}-character multiplayer field limit.
           {deduplication?.removedBlockCount > 0
             ? ` Exact safe deduplication currently saves ${deduplication.encodedBytesSaved.toLocaleString()} characters (${dedupPercent.toFixed(1)}%).`
             : ' No byte-identical compiler blocks are currently eligible for safe deduplication.'}
           {compaction?.appliedSlotCount > 0
             ? ` Equivalence-guarded compaction saves another ${compaction.encodedBytesSaved.toLocaleString()} characters across ${compaction.appliedSlotCount} generated ${compaction.appliedSlotCount === 1 ? 'slot' : 'slots'}.`
-            : ''}
+            : ''} Imported modules remain byte-for-byte unchanged; any atomic module above the limit blocks export instead of being truncated or rewritten.
         </p>
       </div>
     </details>

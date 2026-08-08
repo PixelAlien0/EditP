@@ -1,7 +1,9 @@
 import { encodeLobbyBase64 } from './tweakSerializer.js';
 
-export const GENERATED_SLOT_TARGET_BYTES = 10000;
-export const LOBBY_SLOT_ADVISORY_BYTES = 12000;
+export const LOBBY_SLOT_LIMIT_CHARACTERS = 16384;
+export const LOBBY_SLOT_SAFETY_MARGIN_CHARACTERS = 1024;
+export const GENERATED_SLOT_TARGET_BYTES = LOBBY_SLOT_LIMIT_CHARACTERS
+  - LOBBY_SLOT_SAFETY_MARGIN_CHARACTERS;
 
 const textEncoder = new TextEncoder();
 
@@ -11,8 +13,8 @@ function compareText(left, right) {
   return leftText < rightText ? -1 : leftText > rightText ? 1 : 0;
 }
 
-function slotStatus(encodedBytes, targetBytes, advisoryBytes) {
-  if (encodedBytes > advisoryBytes) return 'advisory';
+function slotStatus(encodedBytes, targetBytes, limitBytes) {
+  if (encodedBytes > limitBytes) return 'blocked';
   if (encodedBytes >= targetBytes) return 'near';
   return 'healthy';
 }
@@ -22,7 +24,7 @@ function analyzeLane(kind, lane, options) {
   const maximum = Number(lane?.maximum) || options.maximumSlots;
   const encodedBytes = Number(lane?.totalEncodedBytes) || 0;
   const remainingSlots = Math.max(0, maximum - required);
-  const capacityBytes = maximum * options.advisoryBytes;
+  const capacityBytes = maximum * options.limitBytes;
   return {
     kind,
     label: kind === 'defs' ? 'Definitions' : 'Units',
@@ -33,7 +35,7 @@ function analyzeLane(kind, lane, options) {
     overflow: Boolean(lane?.overflow),
     encodedBytes,
     capacityBytes,
-    advisoryHeadroom: capacityBytes - encodedBytes,
+    limitHeadroom: capacityBytes - encodedBytes,
     utilization: capacityBytes ? Math.min(100, (encodedBytes / capacityBytes) * 100) : 0,
   };
 }
@@ -51,9 +53,9 @@ function analyzeSlots(compiledModules, options) {
       encodedBytes,
       rawBytes,
       targetHeadroom: options.targetBytes - encodedBytes,
-      advisoryHeadroom: options.advisoryBytes - encodedBytes,
-      utilization: Math.min(100, (encodedBytes / options.advisoryBytes) * 100),
-      status: slotStatus(encodedBytes, options.targetBytes, options.advisoryBytes),
+      limitHeadroom: options.limitBytes - encodedBytes,
+      utilization: Math.min(100, (encodedBytes / options.limitBytes) * 100),
+      status: slotStatus(encodedBytes, options.targetBytes, options.limitBytes),
       blockCount: Number(slot.blockCount) || 0,
       executionBlockCount: Number(slot.executionBlockCount) || 0,
       deduplicatedBlockCount: Number(slot.deduplicatedBlockCount) || 0,
@@ -97,7 +99,7 @@ function analyzeContributors(compiledModules, slots, options) {
 function buildSuggestions(compiledModules, lanes, slots, contributors, options) {
   const suggestions = [];
 
-  lanes.filter(lane => lane.overflow).forEach(lane => {
+  lanes.filter(lane => lane.overflowBy > 0).forEach(lane => {
     suggestions.push({
       level: 'error',
       title: `${lane.label} needs ${lane.overflowBy} fewer ${lane.overflowBy === 1 ? 'slot' : 'slots'}`,
@@ -105,12 +107,12 @@ function buildSuggestions(compiledModules, lanes, slots, contributors, options) 
     });
   });
 
-  const oversizedSlots = slots.filter(slot => slot.status === 'advisory');
+  const oversizedSlots = slots.filter(slot => slot.status === 'blocked');
   if (oversizedSlots.length) {
     suggestions.push({
-      level: 'warning',
-      title: `${oversizedSlots.length} ${oversizedSlots.length === 1 ? 'slot exceeds' : 'slots exceed'} the legacy advisory`,
-      detail: `${oversizedSlots.map(slot => slot.fieldName).join(', ')} exceed ${options.advisoryBytes.toLocaleString()} encoded characters. Inspect their largest contributors before lobby testing.`,
+      level: 'error',
+      title: `${oversizedSlots.length} ${oversizedSlots.length === 1 ? 'field exceeds' : 'fields exceed'} the multiplayer limit`,
+      detail: `${oversizedSlots.map(slot => slot.fieldName).join(', ')} exceed ${options.limitBytes.toLocaleString()} encoded characters. Export is blocked until the source is reduced or safely split.`,
     });
   }
 
@@ -173,7 +175,9 @@ function buildSuggestions(compiledModules, lanes, slots, contributors, options) 
 export function buildByteBudgetReport(compiledModules, configuration = {}) {
   const options = {
     targetBytes: configuration.targetBytes ?? GENERATED_SLOT_TARGET_BYTES,
-    advisoryBytes: configuration.advisoryBytes ?? LOBBY_SLOT_ADVISORY_BYTES,
+    limitBytes: configuration.limitBytes
+      ?? configuration.advisoryBytes
+      ?? LOBBY_SLOT_LIMIT_CHARACTERS,
     maximumSlots: configuration.maximumSlots ?? 9,
   };
   const lanes = [
@@ -184,17 +188,15 @@ export function buildByteBudgetReport(compiledModules, configuration = {}) {
   const contributors = analyzeContributors(compiledModules, slots, options);
   const encodedBytes = lanes.reduce((total, lane) => total + lane.encodedBytes, 0);
   const rawBytes = contributors.reduce((total, contributor) => total + contributor.rawBytes, 0);
-  const maximumAdvisoryBytes = lanes.reduce((total, lane) => total + lane.capacityBytes, 0);
-  const hasAdvisory = slots.some(slot => slot.status === 'advisory');
+  const maximumLimitBytes = lanes.reduce((total, lane) => total + lane.capacityBytes, 0);
+  const hasOversizedSlot = slots.some(slot => slot.status === 'blocked');
   const hasPressure = slots.some(slot => slot.status === 'near')
     || lanes.some(lane => lane.remainingSlots <= 1 && lane.required > 0);
-  const status = compiledModules?.overflow
+  const status = compiledModules?.overflow || hasOversizedSlot
     ? 'blocked'
-    : hasAdvisory
-      ? 'advisory'
-      : hasPressure
-        ? 'attention'
-        : 'healthy';
+    : hasPressure
+      ? 'attention'
+      : 'healthy';
 
   return {
     status,
@@ -202,10 +204,10 @@ export function buildByteBudgetReport(compiledModules, configuration = {}) {
     aggregate: {
       encodedBytes,
       rawBytes,
-      maximumAdvisoryBytes,
-      advisoryHeadroom: maximumAdvisoryBytes - encodedBytes,
-      utilization: maximumAdvisoryBytes
-        ? Math.min(100, (encodedBytes / maximumAdvisoryBytes) * 100)
+      maximumLimitBytes,
+      limitHeadroom: maximumLimitBytes - encodedBytes,
+      utilization: maximumLimitBytes
+        ? Math.min(100, (encodedBytes / maximumLimitBytes) * 100)
         : 0,
       slotsUsed: lanes.reduce((total, lane) => total + Math.min(lane.required, lane.maximum), 0),
       slotsRequired: lanes.reduce((total, lane) => total + lane.required, 0),
