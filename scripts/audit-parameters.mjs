@@ -168,6 +168,26 @@ export function auditParameterCompleteness({
       || !Array.isArray(parameter.promotion.runtimeFixtureIds)
     ))
     .map(parameter => parameter.id || parameter.key || '(missing id)');
+  const invalidConsumerMetadata = CUSTOM_PARAMETER_REGISTRY
+    .filter(parameter => (
+      !Number.isInteger(parameter.consumerCount)
+      || parameter.consumerCount < 0
+      || !Number.isInteger(parameter.writerCount)
+      || parameter.writerCount < 0
+      || !Array.isArray(parameter.consumerLayers)
+      || !Array.isArray(parameter.consumerEvidence)
+      || parameter.consumerEvidence.some(evidence => (
+        !evidence.path
+        || !evidence.layer
+        || !['high', 'medium'].includes(evidence.confidence)
+        || !Number.isInteger(evidence.line)
+        || evidence.line < 1
+        || typeof evidence.access !== 'string'
+        || evidence.access.length === 0
+      ))
+      || (parameter.consumerCount > 0 && parameter.consumerEvidence.length === 0)
+    ))
+    .map(parameter => parameter.id);
   const missingRuntimeEvidence = Object.keys(CUSTOM_PARAMETER_RUNTIME_EVIDENCE)
     .filter(key => !CUSTOM_PARAMETER_REGISTRY.some(parameter => (
       parameter.scope === 'weapon'
@@ -189,6 +209,13 @@ export function auditParameterCompleteness({
   const registryObservedCount = CUSTOM_PARAMETER_REGISTRY.filter(parameter => parameter.observed).length;
   const discoveryCoverageMismatch = registryObservedCount !== CUSTOM_PARAMETER_DISCOVERY.counts.totalParameters
     ? [`registry ${registryObservedCount}, discovery ${CUSTOM_PARAMETER_DISCOVERY.counts.totalParameters}`]
+    : [];
+  const registryConsumerCount = CUSTOM_PARAMETER_REGISTRY.filter(parameter => parameter.consumerCount > 0).length;
+  const expectedConsumerCount = (CUSTOM_PARAMETER_DISCOVERY.counts.unitParametersWithConsumers || 0)
+    + (CUSTOM_PARAMETER_DISCOVERY.counts.weaponParametersWithConsumers || 0)
+    + (CUSTOM_PARAMETER_DISCOVERY.counts.consumerOnlyParameters || 0);
+  const consumerCoverageMismatch = registryConsumerCount !== expectedConsumerCount
+    ? [`registry ${registryConsumerCount}, discovery ${expectedConsumerCount}`]
     : [];
   const invalidWeaponMetadata = WEAPON_PARAMETER_CATALOG
     .filter(parameter => (
@@ -276,10 +303,12 @@ export function auditParameterCompleteness({
     ['invalid custom-parameter metadata', invalidCustomMetadata],
     ['invalid custom-parameter registry metadata', invalidRegistryMetadata],
     ['invalid custom-parameter promotion metadata', invalidPromotionMetadata],
+    ['invalid automatic consumer evidence', invalidConsumerMetadata],
     ['runtime evidence without a promoted weapon contract', missingRuntimeEvidence],
     ['custom-parameter promotions with incomplete evidence chains', brokenPromotionChains],
     ['custom-parameter discovery commit mismatch', discoveryCommitMismatch],
     ['custom-parameter discovery coverage mismatch', discoveryCoverageMismatch],
+    ['custom-parameter consumer coverage mismatch', consumerCoverageMismatch],
     ['invalid weapon parameter metadata', invalidWeaponMetadata],
     ['snapshot unit fields without editor coverage', uncoveredUnitSnapshotFields],
     ['snapshot weapon fields without editor coverage', uncoveredWeaponSnapshotFields],
@@ -313,6 +342,8 @@ export function auditParameterCompleteness({
       customParameters: CUSTOM_PARAMETER_CATALOG.length,
       customParameterRegistry: CUSTOM_PARAMETER_REGISTRY.length,
       discoveredCustomParameters: CUSTOM_PARAMETER_DISCOVERY.counts.totalParameters,
+      discoveredCustomParameterConsumers: registryConsumerCount,
+      consumerOnlyCustomParameters: CUSTOM_PARAMETER_DISCOVERY.counts.consumerOnlyParameters || 0,
       customParameterPromotion: Object.fromEntries(CUSTOM_PARAMETER_PROMOTION_ORDER.map(stageId => [
         stageId,
         CUSTOM_PARAMETER_REGISTRY.filter(parameter => parameter.promotion.id === stageId).length,
@@ -334,6 +365,7 @@ function printReport(report) {
   console.log(`  Snapshot units: ${counts.units}`);
   console.log(`  Unit parameter metadata: ${counts.unitParameters}`);
   console.log(`  Advanced custom parameters: ${counts.customParameters}`);
+  console.log(`  Automatic consumers: ${counts.discoveredCustomParameterConsumers} keys (${counts.consumerOnlyCustomParameters} consumer-only)`);
   console.log(`  Contract promotion: ${CUSTOM_PARAMETER_PROMOTION_ORDER.map(stageId => `${stageId} ${counts.customParameterPromotion[stageId]}`).join(' / ')}`);
   console.log(`  Editable weapon controls: ${counts.renderedWeaponParameters}`);
   console.log(`  Snapshot fields: ${counts.snapshotUnitFields} unit / ${counts.snapshotWeaponFields} weapon`);

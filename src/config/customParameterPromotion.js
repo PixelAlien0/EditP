@@ -3,7 +3,7 @@ export const CUSTOM_PARAMETER_PROMOTION_VERSION = 1;
 export const CUSTOM_PARAMETER_PROMOTION_STAGES = Object.freeze({
   observed: Object.freeze({
     id: 'observed', rank: 0, label: 'Observed', shortLabel: 'Observed', tone: 'neutral',
-    description: 'The key occurs in the pinned BAR definition snapshot. Its runtime meaning is not yet confirmed.',
+    description: 'The key is declared by or read from the pinned BAR source. Its runtime meaning is not yet confirmed.',
   }),
   reviewed: Object.freeze({
     id: 'reviewed', rank: 1, label: 'Reviewed', shortLabel: 'Reviewed', tone: 'info',
@@ -102,12 +102,15 @@ export function buildCustomParameterPromotion({
     })),
     ...evidence,
   ];
+  const hasDiscoveredConsumer = evidenceItems.some(item => item.kind === 'consumer-discovery');
 
   return Object.freeze({
     ...stage,
     evidence: Object.freeze(evidenceItems.map(item => Object.freeze(item))),
     runtimeFixtureIds: Object.freeze([...runtimeFixtureIds]),
-    nextRequirement: nextRequirement[stageId],
+    nextRequirement: stageId === 'observed' && hasDiscoveredConsumer
+      ? 'Confirm the discovered BAR consumer, value semantics, constraints, and editing safety.'
+      : nextRequirement[stageId],
   });
 }
 

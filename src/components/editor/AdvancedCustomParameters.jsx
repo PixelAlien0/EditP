@@ -63,6 +63,7 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
     return counts;
   }, {});
   const supportedCount = CUSTOM_PARAMETER_CATALOG.filter(parameter => parameter.promotion.rank >= 3).length;
+  const consumerBackedCount = CUSTOM_PARAMETER_CATALOG.filter(parameter => parameter.consumerCount > 0).length;
   const isCustom = catalogKey === '__custom__';
   const selectedKey = isCustom ? normalizeCustomParameterKey(customKey) : catalogKey;
   const definition = CUSTOM_PARAMETER_BY_KEY.get(selectedKey);
@@ -93,6 +94,7 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
         <div className="advanced-custom-parameters__summary">
           <span className="advanced-custom-parameters__count">{active.filter(parameter => parameter.modified).length} overrides</span>
           <span className="advanced-custom-parameters__count">{CUSTOM_PARAMETER_DISCOVERY.counts.unitParameters} observed keys</span>
+          <span className="advanced-custom-parameters__count">{consumerBackedCount} consumer-backed</span>
           <span className="advanced-custom-parameters__count">{supportedCount} supported</span>
         </div>
       </header>
@@ -160,6 +162,11 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
                 {parameter.definition?.promotion && (
                   <div className="advanced-custom-parameter__evidence">
                     <span>{parameter.definition.promotion.description}</span>
+                    {parameter.definition.consumerEvidence.length > 0 && (
+                      <span className="advanced-custom-parameter__consumer" title={parameter.definition.consumerEvidence.map(item => item.path).join('\n')}>
+                        Consumer evidence: {parameter.definition.consumerCount} {parameter.definition.consumerCount === 1 ? 'read' : 'reads'} across {parameter.definition.consumerEvidence.length} {parameter.definition.consumerEvidence.length === 1 ? 'source' : 'sources'} · {parameter.definition.consumerEvidence[0].path}
+                      </span>
+                    )}
                     <span>Next: {parameter.definition.promotion.nextRequirement}</span>
                   </div>
                 )}
@@ -228,6 +235,7 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
           <span className="advanced-custom-parameters__promotion-note">
             <strong>{definition.promotion.label}:</strong> {definition.promotion.description}
             {definition.contractIds.length > 0 && ` Linked contract${definition.contractIds.length === 1 ? '' : 's'}: ${definition.contractIds.join(', ')}.`}
+            {definition.consumerEvidence.length > 0 && ` Automatic consumer discovery found ${definition.consumerCount} source ${definition.consumerCount === 1 ? 'read' : 'reads'}; first evidence: ${definition.consumerEvidence[0].path}${definition.consumerEvidence[0].line ? `:${definition.consumerEvidence[0].line}` : ''}.`}
             {definition.promotion.runtimeFixtureIds.length > 0 && ` Runtime evidence: ${definition.promotion.runtimeFixtureIds.join(', ')}.`}
             {' '}Next: {definition.promotion.nextRequirement}
           </span>

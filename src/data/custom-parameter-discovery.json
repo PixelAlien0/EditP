@@ -1,12 +1,17 @@
 {
-  "version": 1,
+  "version": 2,
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
   "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
   "counts": {
     "scannedUnitFiles": 983,
     "unitParameters": 122,
     "weaponParameters": 92,
-    "totalParameters": 214
+    "totalParameters": 214,
+    "scannedConsumerFiles": 947,
+    "unitParametersWithConsumers": 80,
+    "weaponParametersWithConsumers": 77,
+    "unresolvedConsumerKeys": 30,
+    "consumerOnlyParameters": 104
   },
   "parameters": {
     "unit": [
@@ -27,6 +32,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandFactories/armaap.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/cmd_fac_holdposition.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 24,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -48,7 +67,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Constructors/legack.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "area_mext15_def",
@@ -66,7 +89,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Constructors/legck.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "area_ondeath_ceg",
@@ -86,7 +113,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "area_ondeath_damage",
@@ -106,7 +137,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "area_ondeath_damageceg",
@@ -125,7 +160,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "area_ondeath_range",
@@ -145,7 +184,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "area_ondeath_resistance",
@@ -164,7 +207,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "area_ondeath_time",
@@ -183,7 +230,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Acid/raptor_allterrain_arty_acid_t2_v1.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "attacksafetydistance",
@@ -204,6 +255,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armfig.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_air_attacksafetydistance.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 28,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -224,7 +289,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmVehicles/armart.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "buildinggrounddecalalpha",
@@ -242,6 +311,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corgol.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 115,
+            "access": "UD.customParams"
+          }
         ]
       },
       {
@@ -262,7 +345,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "buildinggrounddecalsizex",
@@ -283,6 +370,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 113,
+            "access": "UD.customParams"
+          }
         ]
       },
       {
@@ -304,6 +405,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 114,
+            "access": "UD.customParams"
+          }
         ]
       },
       {
@@ -325,6 +440,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 105,
+            "access": "UD.customParams"
+          }
         ]
       },
       {
@@ -344,6 +473,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armbrtha.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_areaattack.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 35,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -364,7 +507,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "cannot_capture_territory",
@@ -383,6 +530,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandUtil/armeyes.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/game_territorial_domination.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 127,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -404,6 +565,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_inherit_creation_xp.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 48,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -421,7 +596,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/corwolv.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "combatradius",
@@ -441,6 +620,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/legcom.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 373,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -460,6 +654,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armatlas.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_crashing_aircraft.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 52,
+            "access": "UnitDef.customParams"
+          }
         ]
       },
       {
@@ -481,7 +689,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmGantry/armbanth.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "cvbuildable",
@@ -500,7 +712,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armshockwave.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "decoration",
@@ -519,6 +735,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/chip.lua"
+        ],
+        "consumerCount": 10,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cmd_build_bugger_off.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 57,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -540,6 +771,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBots/T2/armdecom.lua"
+        ],
+        "consumerCount": 13,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cmd_dev_helpers.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 2463,
+            "access": "cp"
+          }
         ]
       },
       {
@@ -559,6 +805,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandUtil/armmine1.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget",
+          "source"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_nonblocking_mines.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 23,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -578,7 +839,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl10.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 1,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "driftratio",
@@ -598,7 +863,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "drone",
@@ -617,6 +886,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armdrone.lua"
+        ],
+        "consumerCount": 7,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/game_apm_broadcast.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 31,
+            "access": "uDef.customParams"
+          }
         ]
       },
       {
@@ -638,7 +922,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl10.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 2,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "effigy_offset",
@@ -657,7 +945,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl10.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 1,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "energyconv_capacity",
@@ -678,6 +970,22 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandEconomy/armmakr.lua"
+        ],
+        "consumerCount": 21,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 286,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -700,6 +1008,22 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandEconomy/armmakr.lua"
+        ],
+        "consumerCount": 11,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 286,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -719,6 +1043,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Scavengers/Buildings/Economy/armwint2.lua"
+        ],
+        "consumerCount": 6,
+        "writerCount": 4,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 631,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -740,6 +1079,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_info.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 391,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -759,6 +1112,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ],
+        "consumerCount": 12,
+        "writerCount": 2,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 375,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -778,6 +1146,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 377,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -797,6 +1180,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 379,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -818,6 +1216,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 380,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -839,6 +1252,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ],
+        "consumerCount": 5,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 372,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -858,6 +1286,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl2.lua"
+        ],
+        "consumerCount": 8,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 381,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -875,7 +1318,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/volcano_projectile_unit.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "fall_damage_multiplier",
@@ -895,6 +1342,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorBots/T2/cormando.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_collision_damage_behavior.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 90,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -914,6 +1375,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armfig.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/unit_set_fighters_fly.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 35,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -933,6 +1408,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBots/T2/armdecom.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/unit_cloak_firestate.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 37,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -954,6 +1443,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/T2/armbrawl.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/scavengers/unitdef_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 37,
+            "access": "uDef.customParams"
+          }
         ]
       },
       {
@@ -973,7 +1476,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "flashlightmin",
@@ -992,7 +1499,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorBuildings/LandEconomy/cormmkr.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "flyingcarrier",
@@ -1009,6 +1520,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/SeaPlanes/legspcarrier.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cmd_dev_helpers.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 2317,
+            "access": "cp"
+          }
         ]
       },
       {
@@ -1028,6 +1554,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandEconomy/armageo.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/gfx_energy_explosion_particles_gl4.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 1288,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -1049,6 +1590,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/armcomcon.lua"
+        ],
+        "consumerCount": 8,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/i18nhelpers.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 13,
+            "access": "proxyUnitDef.customParams"
+          }
         ]
       },
       {
@@ -1070,6 +1625,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_inherit_creation_xp.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 38,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -1089,6 +1658,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBots/T2/armvader.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_instant_self_destruct.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 26,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -1106,7 +1689,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/volcano_projectile_unit.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "isairbase",
@@ -1125,6 +1712,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmShips/T2/armcarry.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_transportee_hider.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 40,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1144,6 +1746,22 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/armcom.lua"
+        ],
+        "consumerCount": 46,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 442,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -1163,6 +1781,22 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBots/T2/armdecom.lua"
+        ],
+        "consumerCount": 5,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/scavengers/unitdef_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 169,
+            "access": "uDef.customParams"
+          }
         ]
       },
       {
@@ -1178,6 +1812,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/evocom/comeffigy.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 442,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -1197,7 +1846,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Queens/raptor_queen_easy.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "kickback",
@@ -1218,7 +1871,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmVehicles/armart.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "legacyname",
@@ -1238,7 +1895,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armferret.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "lumamult",
@@ -1259,7 +1920,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/T2/armliche.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "maxrange",
@@ -1281,6 +1946,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmGantry/armmar.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_custommaxranges.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 32,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1301,6 +1980,22 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armshockwave.lua"
+        ],
+        "consumerCount": 13,
+        "writerCount": 2,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 271,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -1320,6 +2015,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandUtil/armmine1.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cmd_mines_firestate.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 27,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1340,6 +2050,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmShips/T2/armhacs.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/ai_simpleai.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 136,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1359,7 +2083,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl10.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 1,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "model_author",
@@ -1380,7 +2108,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armatlas.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "neutral_when_closed",
@@ -1399,6 +2131,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armclaw.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_dragons_disguise.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 26,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -1420,6 +2166,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armdrone.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/api_unit_tracker_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 78,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1437,6 +2197,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Scavengers/Bots/cormandot4.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/pve_builder_controller.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 32,
+            "access": "data.customParams"
+          }
         ]
       },
       {
@@ -1456,7 +2230,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Acid/raptor_air_bomber_acid_t2_v1.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "normaltex",
@@ -1477,6 +2255,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armatlas.lua"
+        ],
+        "consumerCount": 5,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cus_gl4.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 929,
+            "access": "featureDef.customParams"
+          }
         ]
       },
       {
@@ -1496,6 +2288,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandUtil/armdrag.lua"
+        ],
+        "consumerCount": 14,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/ai_simpleai.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 144,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1515,6 +2322,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBots/T2/armaser.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_paralyze_on_off.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 25,
+            "access": "uDef.customParams"
+          }
         ]
       },
       {
@@ -1534,6 +2355,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cmd_onoffdesc.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 27,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -1555,6 +2391,22 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armatlas.lua"
+        ],
+        "consumerCount": 10,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 165,
+            "access": "uDef.customParams"
+          }
         ]
       },
       {
@@ -1574,6 +2426,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorBots/T2/cormando.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_transport_dies_load_dies.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 31,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -1595,6 +2461,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_inherit_creation_xp.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 44,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -1612,6 +2492,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBots/T2/armmav.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_xp_range_bonus.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 27,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1633,6 +2528,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Bots/legkark.lua"
+        ],
+        "consumerCount": 6,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_reactive_armor.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 44,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1654,6 +2564,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Bots/legkark.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_reactive_armor.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 44,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1673,6 +2598,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamd.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cmd_remove_stop.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 33,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -1692,6 +2631,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cmd_remove_wait.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 33,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -1709,7 +2663,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl10.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "restoretime",
@@ -1727,7 +2685,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "restrictions_exclusion",
@@ -1747,6 +2709,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmShips/T2/armantiship.lua"
+        ],
+        "consumerCount": 7,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform",
+          "shared-runtime"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "common/configs/unit_restrictions_config.lua",
+            "layer": "shared-runtime",
+            "confidence": "high",
+            "line": 23,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -1768,6 +2745,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armbrtha.lua"
+        ],
+        "consumerCount": 12,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 259,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -1785,7 +2776,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/corwolv.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "rockspeed",
@@ -1802,7 +2797,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/corwolv.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "rockstrength",
@@ -1821,7 +2820,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "scav_swap_override_captured",
@@ -1842,6 +2845,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Economy/legmohocon.lua"
+        ],
+        "consumerCount": 5,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/scav_spawner_defense.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 2386,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -1862,6 +2879,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Economy/legmohocon.lua"
+        ],
+        "consumerCount": 5,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/scav_spawner_defense.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 1688,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -1881,6 +2912,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armpeep.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/unit_smart_select.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 106,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -1900,6 +2945,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Bots/T2 Bots/leginfestor.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/unitdefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 131,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -1920,6 +2979,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandUtil/armgate.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/gfx_unit_shield_effects.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 627,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -1941,6 +3014,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandUtil/armgate.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 701,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -1962,6 +3050,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandUtil/armgate.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/gfx_unit_shield_effects.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 605,
+            "access": "ud.customParams"
+          }
         ]
       },
       {
@@ -1981,7 +3083,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "solar",
@@ -2000,6 +3106,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandEconomy/armadvsol.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/ai_simpleai.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 157,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -2019,6 +3139,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Bots/T2 Bots/legamph.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_waterspeedmultiplier.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 56,
+            "access": "params"
+          }
         ]
       },
       {
@@ -2039,6 +3173,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Bots/T2 Bots/legamph.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_waterspeedmultiplier.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 55,
+            "access": "params"
+          }
         ]
       },
       {
@@ -2058,6 +3207,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandEconomy/armageo.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/api_resource_spot_builder.lua",
+            "layer": "interface",
+            "confidence": "medium",
+            "line": 72,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -2079,6 +3242,22 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armatlas.lua"
+        ],
+        "consumerCount": 20,
+        "writerCount": 2,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 230,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -2100,6 +3279,22 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/T2/armaca.lua"
+        ],
+        "consumerCount": 21,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 227,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -2117,7 +3312,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/coreter.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "treeshader",
@@ -2136,6 +3335,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Fighter/raptor_air_fighter_basic_t1_v1.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cus_gl4.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 1022,
+            "access": "featureDef.customParams"
+          }
         ]
       },
       {
@@ -2155,7 +3368,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "unitgroup",
@@ -2176,6 +3393,22 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmAircraft/armca.lua"
+        ],
+        "consumerCount": 21,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 255,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -2196,6 +3429,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 105,
+            "access": "UD.customParams"
+          }
         ]
       },
       {
@@ -2213,6 +3460,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/other/raptors/Arty/raptorartillery.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cus_gl4.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 1118,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -2230,6 +3491,21 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corvacct.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_custom_weapons_cluster.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 218,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -2248,6 +3524,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorBots/T2/cormando.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_water_depth_damage.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 66,
+            "access": "unitDef.customParams"
+          }
         ]
       },
       {
@@ -2269,7 +3559,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBots/armpw.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "weapon1turrety",
@@ -2290,7 +3584,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBots/armpw.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "workertimeboost",
@@ -2311,6 +3609,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_workertime_boost.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 32,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -2331,7 +3643,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "wpn1turrety",
@@ -2351,7 +3667,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/CorVehicles/T2/corsiegebreaker.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "wtboostunittype",
@@ -2372,6 +3692,20 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_workertime_boost.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 32,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -2389,7 +3723,11 @@
         "sampleWeaponDefs": [],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armemp.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       }
     ],
     "weapon": [
@@ -2416,6 +3754,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Air/T2 Air/legnap.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gfx_decals_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 981,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -2441,6 +3793,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Air/T2 Air/legnap.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_info.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 342,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -2466,7 +3832,11 @@
         ],
         "sourcePaths": [
           "units/Legion/Air/T2 Air/legnap.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "area_onhit_range",
@@ -2491,7 +3861,11 @@
         ],
         "sourcePaths": [
           "units/Legion/Air/T2 Air/legnap.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "area_onhit_resistance",
@@ -2515,6 +3889,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Air/T2 Air/legnap.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gfx_decals_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 951,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -2540,6 +3928,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Air/T2 Air/legnap.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_info.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 343,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -2561,6 +3963,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 244,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -2583,6 +3999,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 243,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -2606,6 +4036,22 @@
         ],
         "sourcePaths": [
           "units/ArmBots/armjeth.lua"
+        ],
+        "consumerCount": 12,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 765,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -2631,6 +4077,22 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 11,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 769,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -2654,6 +4116,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 248,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -2676,7 +4152,11 @@
         ],
         "sourcePaths": [
           "units/ArmGantry/armlun.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "cluster_def",
@@ -2701,6 +4181,22 @@
         ],
         "sourcePaths": [
           "units/Legion/Defenses/legacluster.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 98,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -2726,6 +4222,22 @@
         ],
         "sourcePaths": [
           "units/Legion/Defenses/legacluster.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 100,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -2748,6 +4260,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Defenses/leghive.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 260,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -2770,6 +4296,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Defenses/leghive.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 261,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -2789,7 +4329,11 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armsnipe.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "controlradius",
@@ -2814,6 +4358,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 235,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -2834,7 +4392,11 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armsptk.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "cruise_min_height",
@@ -2854,7 +4416,11 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armsptk.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "deathdecayrate",
@@ -2879,6 +4445,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Defenses/leghive.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 246,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -2902,6 +4482,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 245,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -2921,6 +4515,20 @@
         ],
         "sourcePaths": [
           "units/ArmGantry/armlun.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_custom_weapons_behaviours.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 102,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -2943,7 +4551,11 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armsnipe.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "dockingarmor",
@@ -2966,6 +4578,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 241,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -2991,6 +4617,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 242,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3014,6 +4654,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 240,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3039,6 +4693,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 217,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3063,6 +4731,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 239,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3088,6 +4770,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 247,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3113,6 +4809,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 222,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3138,6 +4848,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 224,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3162,6 +4886,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 223,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3185,6 +4923,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 1,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 257,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3208,6 +4960,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 237,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3233,6 +4999,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 221,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3258,6 +5038,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 236,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3281,6 +5075,21 @@
         ],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 1033,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -3300,7 +5109,11 @@
         ],
         "sourcePaths": [
           "units/Legion/Vehicles/T2 Vehicles/legmed.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "junotype",
@@ -3323,6 +5136,20 @@
         ],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armjuno.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_attack_aoe.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 988,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3343,7 +5170,11 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armsptk.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "max_range_reduction",
@@ -3362,6 +5193,20 @@
         ],
         "sourcePaths": [
           "units/CorVehicles/T2/cortrem.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_attack_aoe.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 986,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3387,6 +5232,22 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 319,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3412,6 +5273,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 220,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -3435,7 +5310,11 @@
         ],
         "sourcePaths": [
           "units/ArmGantry/armlun.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "noattackrangearc",
@@ -3458,6 +5337,20 @@
         ],
         "sourcePaths": [
           "units/ArmGantry/armthor.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_attackrange_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 366,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3483,6 +5376,20 @@
         ],
         "sourcePaths": [
           "units/ArmGantry/armbanth.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gfx_decals_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 784,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3506,6 +5413,20 @@
         ],
         "sourcePaths": [
           "units/ArmGantry/armbanth.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/configs/deferredlightsgl4weaponsconfig.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 699,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3529,6 +5450,20 @@
         ],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armjuno.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/gfx_tree_feller.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 103,
+            "access": "wDefs.customParams"
+          }
         ]
       },
       {
@@ -3549,7 +5484,11 @@
         ],
         "sourcePaths": [
           "units/other/critters/critter_penguinbro.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "norangering",
@@ -3572,6 +5511,20 @@
         ],
         "sourcePaths": [
           "units/ArmAircraft/armdrone.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_attackrange_gl4.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 341,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3595,6 +5548,21 @@
         ],
         "sourcePaths": [
           "units/ArmAircraft/T2/armliche.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_target_on_the_move.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 104,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3616,6 +5584,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armmship.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_info.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 446,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3639,6 +5621,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Bots/T2 Bots/legadvaabot.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 136,
+            "access": "custom"
+          }
         ]
       },
       {
@@ -3664,6 +5660,22 @@
         ],
         "sourcePaths": [
           "units/ArmBots/armrock.lua"
+        ],
+        "consumerCount": 5,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 1227,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -3687,6 +5699,20 @@
         ],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armsilo.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/cmd_place_target_on_ground.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 25,
+            "access": "wDef.customParams"
+          }
         ]
       },
       {
@@ -3709,6 +5735,21 @@
         ],
         "sourcePaths": [
           "units/Legion/Bots/T2 Bots/legadvaabot.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "medium",
+            "line": 1033,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -3733,6 +5774,20 @@
         ],
         "sourcePaths": [
           "units/ArmBots/armrock.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_projectile_overrange.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 110,
+            "access": "customParams"
+          }
         ]
       },
       {
@@ -3756,6 +5811,20 @@
         ],
         "sourcePaths": [
           "units/other/raptors/Structures/raptor_turret_acid_t4_v2.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/pve_nuke_controller.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 46,
+            "access": "wDef.customParams"
+          }
         ]
       },
       {
@@ -3778,6 +5847,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armseadragon.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/scavengers/weapondef_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 12,
+            "access": "wDef.customParams"
+          }
         ]
       },
       {
@@ -3801,6 +5884,20 @@
         ],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armemp.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 1,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_shield_behaviour.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 187,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3824,6 +5921,20 @@
         ],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 124,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3847,6 +5958,20 @@
         ],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 113,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3868,6 +5993,20 @@
         ],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 127,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -3887,6 +6026,20 @@
         ],
         "sourcePaths": [
           "units/CorGantry/corkorg.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 818,
+            "access": "wd.customParams"
+          }
         ]
       },
       {
@@ -3911,6 +6064,20 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armzeus.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_lightning_splash_dmg.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 80,
+            "access": "wd.customParams"
+          }
         ]
       },
       {
@@ -3936,6 +6103,21 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armzeus.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_lightning_splash_dmg.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 77,
+            "access": "wd.customParams"
+          }
         ]
       },
       {
@@ -3961,6 +6143,20 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armzeus.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_lightning_splash_dmg.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 83,
+            "access": "wd.customParams"
+          }
         ]
       },
       {
@@ -3986,6 +6182,21 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armzeus.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_lightning_splash_dmg.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 84,
+            "access": "wd.customParams"
+          }
         ]
       },
       {
@@ -4011,6 +6222,21 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 315,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -4030,6 +6256,20 @@
         ],
         "sourcePaths": [
           "units/Scavengers/Other/scavmists.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_explosion_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 94,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -4055,6 +6295,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Air/legkam.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_explosion_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 90,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -4078,6 +6332,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl10.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_explosion_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 93,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -4104,6 +6372,21 @@
         ],
         "sourcePaths": [
           "units/Legion/Air/legkam.lua"
+        ],
+        "consumerCount": 7,
+        "writerCount": 2,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/scavengers/weapondef_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 64,
+            "access": "wDef.customParams"
+          }
         ]
       },
       {
@@ -4123,6 +6406,20 @@
         ],
         "sourcePaths": [
           "units/Scavengers/Other/scavmists.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_explosion_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 95,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -4148,6 +6445,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 229,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -4173,6 +6484,21 @@
         ],
         "sourcePaths": [
           "units/ArmAircraft/T2/armlance.lua"
+        ],
+        "consumerCount": 4,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_custom_weapons_behaviours.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 79,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -4194,6 +6520,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armmship.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_info.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 445,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -4214,7 +6554,11 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armmship.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "spread_angle",
@@ -4233,6 +6577,20 @@
         ],
         "sourcePaths": [
           "units/CorVehicles/T2/cortrem.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_attack_aoe.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 985,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -4258,6 +6616,21 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "definition-transform",
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 319,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -4283,6 +6656,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 1,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 259,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -4308,6 +6695,20 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armscab.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 1,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 256,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -4333,6 +6734,20 @@
         ],
         "sourcePaths": [
           "units/ArmShips/T2/armdronecarry.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 1,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/unit_carrier_spawner.lua",
+            "layer": "runtime-gadget",
+            "confidence": "high",
+            "line": 258,
+            "access": "wdcp"
+          }
         ]
       },
       {
@@ -4352,7 +6767,11 @@
         ],
         "sourcePaths": [
           "units/ArmGantry/armlun.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "sweepfire",
@@ -4377,6 +6796,20 @@
         ],
         "sourcePaths": [
           "units/Legion/Air/T2 Air/legphoenix.lua"
+        ],
+        "consumerCount": 3,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_info.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 486,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -4402,7 +6835,11 @@
         ],
         "sourcePaths": [
           "units/ArmAircraft/T2/armlance.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "vtol",
@@ -4421,7 +6858,11 @@
         ],
         "sourcePaths": [
           "units/ArmGantry/armlun.lua"
-        ]
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": []
       },
       {
         "key": "water_splash",
@@ -4444,6 +6885,20 @@
         ],
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armjuno.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/gfx_watersplash.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 101,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -4463,6 +6918,20 @@
         ],
         "sourcePaths": [
           "units/CorBuildings/LandDefenceOffence/cortron.lua"
+        ],
+        "consumerCount": 1,
+        "writerCount": 0,
+        "consumerLayers": [
+          "runtime-gadget"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luarules/gadgets/gfx_watersplash.lua",
+            "layer": "runtime-gadget",
+            "confidence": "medium",
+            "line": 111,
+            "access": "def.customParams"
+          }
         ]
       },
       {
@@ -4487,6 +6956,21 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armdecom.lua"
+        ],
+        "consumerCount": 5,
+        "writerCount": 1,
+        "consumerLayers": [
+          "definition-transform",
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
+            "confidence": "high",
+            "line": 749,
+            "access": "weaponDef.customParams"
+          }
         ]
       },
       {
@@ -4510,8 +6994,2224 @@
         ],
         "sourcePaths": [
           "units/ArmBots/T2/armamph.lua"
+        ],
+        "consumerCount": 2,
+        "writerCount": 0,
+        "consumerLayers": [
+          "interface"
+        ],
+        "consumerEvidence": [
+          {
+            "path": "luaui/widgets/gui_info.lua",
+            "layer": "interface",
+            "confidence": "high",
+            "line": 544,
+            "access": "weaponDef.customParams"
+          }
         ]
       }
     ]
-  }
+  },
+  "consumerOnly": [
+    {
+      "key": "areadamageresistance",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_area_timed_damage.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 612,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "armordef",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "definition-transform"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "gamedata/armordefs.lua",
+          "layer": "definition-transform",
+          "confidence": "high",
+          "line": 786,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "bulk_rating",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_custom_weapons_cluster.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 219,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "combattimer",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_evolution.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 369,
+          "access": "evolution"
+        }
+      ]
+    },
+    {
+      "key": "commander",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/widgets/cmd_startpos_tool.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 391,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "customparams",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_objectify.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 73,
+          "access": "coy"
+        }
+      ]
+    },
+    {
+      "key": "description_long",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/widgets/dbg_unit_csv_export.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 133,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "evolution_announcement",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 3,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_evolution.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 198,
+          "access": "evolution"
+        }
+      ]
+    },
+    {
+      "key": "evolution_announcement_size",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_evolution.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 201,
+          "access": "evolution"
+        }
+      ]
+    },
+    {
+      "key": "evolution_health_threshold",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_evolution.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 272,
+          "access": "evolution"
+        }
+      ]
+    },
+    {
+      "key": "evolution_power_enemy_multiplier",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_evolution.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 273,
+          "access": "udcp"
+        }
+      ]
+    },
+    {
+      "key": "evolution_xp_threshold",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_evolution.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 276,
+          "access": "evolution"
+        }
+      ]
+    },
+    {
+      "key": "fromunit",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/configs/buildmenu_sorting.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 857,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "id",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_custom_weapons_cluster.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 207,
+          "access": "decoyDef"
+        }
+      ]
+    },
+    {
+      "key": "is_commander",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/widgets/cmd_startpos_tool.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 391,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "isscavcommander",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 11,
+      "writerCount": 1,
+      "consumerLayers": [
+        "interface",
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/cmd_dev_helpers.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 2459,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "isscavdecoycommander",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 3,
+      "writerCount": 1,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/widgets/gui_pip.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 8306,
+          "access": "uDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "isscavenger",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 7,
+      "writerCount": 1,
+      "consumerLayers": [
+        "interface",
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_fire_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 1202,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "modoption_blocked",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/api_build_blocking.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 265,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "prap_foundling",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_playable_raptor_manager.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 20,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorcustomsquad",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2989,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadbehavior",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 6,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2999,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadbehaviorchance",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 7,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 3003,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadbehaviordistance",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 7,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 3004,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadforceair",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 3071,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadforcesurface",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 3071,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadmaxanger",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2996,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadminanger",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2995,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadrarity",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 3070,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadunitsamount",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2992,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "raptorsquadweight",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/raptor_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2997,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavcustomsquad",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2714,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadbehavior",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 10,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2724,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadbehaviorchance",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 7,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2728,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadbehaviordistance",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 7,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2729,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadforceair",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 4,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2798,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadforcesurface",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 4,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2798,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadmaxanger",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2721,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadminanger",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2720,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadrarity",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 4,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2797,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadsurface",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 6,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2794,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadunitsamount",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2717,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "scavsquadweight",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "source"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/configs/scav_spawn_defs.lua",
+          "layer": "source",
+          "confidence": "high",
+          "line": 2722,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "shield_emit_height",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_unit_shield_effects.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 625,
+          "access": "ud.customParams"
+        }
+      ]
+    },
+    {
+      "key": "shield_emit_offset",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_unit_shield_effects.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 625,
+          "access": "ud.customParams"
+        }
+      ]
+    },
+    {
+      "key": "smart_weapon_cmddesc",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 118,
+          "access": "unitDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "timecreated",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_evolution.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 339,
+          "access": "evolution"
+        }
+      ]
+    },
+    {
+      "key": "unittype",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/cmd_dev_helpers.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 2132,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "beam_corethickness_orig",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 2,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_beam_laser_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 196,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "beam_laserflaresize_orig",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 2,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_beam_laser_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 197,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "beam_thickness_orig",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 2,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_beam_laser_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 195,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "beamtime_damage_reduction_multiplier",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 3,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 155,
+          "access": "custom"
+        }
+      ]
+    },
+    {
+      "key": "buildcostenergy",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 221,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "buildcostmetal",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 220,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "cluster",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/widgets/gui_info.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 411,
+          "access": "weaponDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "dronebomberinterval",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 253,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "dronebomberminengagementrange",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 254,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "dronebombingoffset",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 252,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "dronebombingruns",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 251,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "droneminimumidleradius",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 250,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "dronesuesestockpile",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/widgets/gui_info.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 465,
+          "access": "weaponDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "dronetype",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 216,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "droneundocksequence",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 262,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "flame_keep_engine_gfx",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "definition-transform"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "gamedata/alldefs_post.lua",
+          "layer": "definition-transform",
+          "confidence": "high",
+          "line": 1111,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "flame_orig_areaofeffect",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 262,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "flame_orig_damage",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 264,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "flame_orig_intensity",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 254,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "flame_orig_range",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 260,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "flame_orig_sprayangle",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 263,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "flame_orig_velocity",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 261,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "holdfireradius",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 249,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "id",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/widgets/gui_info.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 572,
+          "access": "droneDef"
+        }
+      ]
+    },
+    {
+      "key": "lightning_branch_angle",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 214,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_branch_length",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 213,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_branches",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 208,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_color_b",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 176,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_color_g",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 175,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_color_r",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 174,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_core_color_b",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 180,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_core_color_g",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 179,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_core_color_r",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 178,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_glow",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 203,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_impact_size",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 226,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_jitter",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 198,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_no_render",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 170,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_segments",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 218,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_thickness",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 193,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "lightning_thickness_orig",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 182,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "manualdrones",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 255,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "nofriendlyfire",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_cloak.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 86,
+          "access": "wd.customParams"
+        }
+      ]
+    },
+    {
+      "key": "overpenetrate_falloff",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 144,
+          "access": "custom"
+        }
+      ]
+    },
+    {
+      "key": "overpenetrate_penalty",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 146,
+          "access": "custom"
+        }
+      ]
+    },
+    {
+      "key": "overpenetrate_slowing",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 145,
+          "access": "custom"
+        }
+      ]
+    },
+    {
+      "key": "plasma_size_orig",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 1,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/gfx_plasma_cannon_gl4.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 126,
+          "access": "cp"
+        }
+      ]
+    },
+    {
+      "key": "shield_damage",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 4,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 154,
+          "access": "custom"
+        }
+      ]
+    },
+    {
+      "key": "smart_misfire_frames",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 116,
+          "access": "weaponDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "soundhit_volume_multiplier",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "definition-transform"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "gamedata/alldefs_post.lua",
+          "layer": "definition-transform",
+          "confidence": "high",
+          "line": 832,
+          "access": "wd.customParams"
+        }
+      ]
+    },
+    {
+      "key": "soundhitwet_volume_multiplier",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "definition-transform"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "gamedata/alldefs_post.lua",
+          "layer": "definition-transform",
+          "confidence": "high",
+          "line": 839,
+          "access": "wd.customParams"
+        }
+      ]
+    },
+    {
+      "key": "soundstart_volume_multiplier",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "definition-transform"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "gamedata/alldefs_post.lua",
+          "layer": "definition-transform",
+          "confidence": "high",
+          "line": 825,
+          "access": "wd.customParams"
+        }
+      ]
+    },
+    {
+      "key": "spawn_blocked_by_shield",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 269,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "spawns_feature",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_carrier_spawner.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 228,
+          "access": "wdcp"
+        }
+      ]
+    },
+    {
+      "key": "unitexplosion",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 2,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/configs/deferredlightsgl4weaponsconfig.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 672,
+          "access": "weaponDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "waterweapon",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/widgets/gui_attackrange_gl4.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 320,
+          "access": "weaponDef.customParams"
+        }
+      ]
+    },
+    {
+      "key": "when",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_custom_weapons_behaviours.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 102,
+          "access": "weaponDef.customParams"
+        }
+      ]
+    }
+  ],
+  "unresolvedConsumers": [
+    {
+      "key": "__def",
+      "occurrences": 7,
+      "sourcePaths": [
+        "gamedata/post_save_to_customparams.lua",
+        "luaui/widgets/__defs_write.lua"
+      ]
+    },
+    {
+      "key": "bossstaggermultiplier",
+      "occurrences": 4,
+      "sourcePaths": [
+        "luarules/gadgets/raptor_spawner_defense.lua",
+        "luarules/gadgets/scav_spawner_defense.lua"
+      ]
+    },
+    {
+      "key": "buildsquare_yardmap",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luaui/widgets/gui_buildsquare_gl4.lua"
+      ]
+    },
+    {
+      "key": "category",
+      "occurrences": 6,
+      "sourcePaths": [
+        "luarules/gadgets/cmd_dev_helpers.lua",
+        "luarules/gadgets/feature_dead_explosion.lua",
+        "luaui/i18nhelpers.lua"
+      ]
+    },
+    {
+      "key": "cuspbr",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luarules/gadgets/cus_gl4.lua"
+      ]
+    },
+    {
+      "key": "decalinfo_alpha",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luaui/widgets/gui_ground_ao_plates_features_gl4.lua"
+      ]
+    },
+    {
+      "key": "decalinfo_sizex",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luaui/widgets/gui_ground_ao_plates_features_gl4.lua"
+      ]
+    },
+    {
+      "key": "decalinfo_sizez",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luaui/widgets/gui_ground_ao_plates_features_gl4.lua"
+      ]
+    },
+    {
+      "key": "decalinfo_texfile",
+      "occurrences": 2,
+      "sourcePaths": [
+        "luaui/widgets/gui_ground_ao_plates_features_gl4.lua"
+      ]
+    },
+    {
+      "key": "defend_never_hesitate",
+      "occurrences": 1,
+      "sourcePaths": [
+        "gamedata/alldefs_post.lua"
+      ]
+    },
+    {
+      "key": "evolution_announcement_size",
+      "occurrences": 1,
+      "sourcePaths": [
+        "gamedata/alldefs_post.lua"
+      ]
+    },
+    {
+      "key": "evolution_health_threshold",
+      "occurrences": 1,
+      "sourcePaths": [
+        "gamedata/alldefs_post.lua"
+      ]
+    },
+    {
+      "key": "evolution_power_enemy_multiplier",
+      "occurrences": 1,
+      "sourcePaths": [
+        "gamedata/alldefs_post.lua"
+      ]
+    },
+    {
+      "key": "fixed_stun_duration",
+      "occurrences": 2,
+      "sourcePaths": [
+        "luarules/gadgets/unit_paralyze_damage_limit.lua"
+      ]
+    },
+    {
+      "key": "fromunit",
+      "occurrences": 3,
+      "sourcePaths": [
+        "luarules/gadgets/feature_debris_physics.lua",
+        "luarules/gadgets/gfx_reclaim_shards.lua",
+        "luaui/widgets/gui_buildsquare_gl4.lua"
+      ]
+    },
+    {
+      "key": "i18nfrom",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luaui/i18nhelpers.lua"
+      ]
+    },
+    {
+      "key": "inheritcreationxpmultiplier",
+      "occurrences": 2,
+      "sourcePaths": [
+        "luarules/gadgets/unit_inherit_creation_xp.lua"
+      ]
+    },
+    {
+      "key": "isscavcommander",
+      "occurrences": 4,
+      "sourcePaths": [
+        "luaui/widgets/gui_com_nametags.lua",
+        "luaui/widgets/snd_notifications.lua"
+      ]
+    },
+    {
+      "key": "isscavdecoycommander",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luaui/widgets/gui_com_nametags.lua"
+      ]
+    },
+    {
+      "key": "isscavenger",
+      "occurrences": 3,
+      "sourcePaths": [
+        "luarules/gadgets/scav_spawner_defense.lua"
+      ]
+    },
+    {
+      "key": "leash_distance",
+      "occurrences": 3,
+      "sourcePaths": [
+        "luarules/gadgets/unit_projectile_overrange.lua"
+      ]
+    },
+    {
+      "key": "litelab",
+      "occurrences": 2,
+      "sourcePaths": [
+        "scripts/units/coralab.lua",
+        "scripts/units/corlab.lua"
+      ]
+    },
+    {
+      "key": "lua",
+      "occurrences": 3,
+      "sourcePaths": [
+        "gamedata/explosions_post.lua",
+        "gamedata/unitdefs_post.lua",
+        "gamedata/weapondefs_post.lua"
+      ]
+    },
+    {
+      "key": "no",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luarules/gadgets/unit_turretspeed.lua"
+      ]
+    },
+    {
+      "key": "nohealthbars",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luaui/widgets/gui_commands_fx.lua"
+      ]
+    },
+    {
+      "key": "paralyzetime_exception",
+      "occurrences": 2,
+      "sourcePaths": [
+        "luarules/gadgets/unit_paralyze_damage_limit.lua"
+      ]
+    },
+    {
+      "key": "respawn_condition",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luarules/gadgets/unit_respawning.lua"
+      ]
+    },
+    {
+      "key": "shield_damage",
+      "occurrences": 1,
+      "sourcePaths": [
+        "gamedata/alldefs_post.lua"
+      ]
+    },
+    {
+      "key": "wpnxturretx",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luarules/gadgets/unit_turretspeed.lua"
+      ]
+    },
+    {
+      "key": "wpnxturrety",
+      "occurrences": 1,
+      "sourcePaths": [
+        "luarules/gadgets/unit_turretspeed.lua"
+      ]
+    }
+  ]
 }

@@ -63,6 +63,14 @@ for (const key of ['artwork', 'tacticalIcons', 'assets', 'customParameters']) {
   }
 }
 
+if (datasets.customParameters?.version !== 2) {
+  errors.push(`Unsupported custom-parameter discovery schema ${datasets.customParameters?.version ?? 'missing'}.`);
+}
+if (!Array.isArray(datasets.customParameters?.consumerOnly)
+  || !Array.isArray(datasets.customParameters?.unresolvedConsumers)) {
+  errors.push('Custom-parameter discovery is missing automatic consumer evidence collections.');
+}
+
 for (const [producerId, roster] of Object.entries(datasets.rosters)) {
   if (!expectedIds.has(normalizeUnitId(producerId))) errors.push(`Roster owner does not exist: ${producerId}`);
   for (const unitId of roster || []) {
@@ -105,6 +113,8 @@ console.log(`  Factory rosters: ${counts.rosters}`);
 console.log(`  Tactical icons: ${counts.tacticalIcons}`);
 console.log(`  Validated asset references: ${counts.assetReferences}`);
 console.log(`  Discovered custom parameters: ${counts.customParameters}`);
+console.log(`  Consumer-backed parameters: ${(datasets.customParameters?.counts?.unitParametersWithConsumers || 0) + (datasets.customParameters?.counts?.weaponParametersWithConsumers || 0)}`);
+console.log(`  Consumer-only parameters: ${datasets.customParameters?.counts?.consumerOnlyParameters || 0}`);
 
 if (errors.length) {
   console.error(`\nAudit failed with ${errors.length} issue${errors.length === 1 ? '' : 's'}:`);

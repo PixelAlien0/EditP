@@ -5,9 +5,11 @@ import {
   buildCustomParameterPromotion,
   CUSTOM_PARAMETER_RUNTIME_EVIDENCE,
 } from './customParameterPromotion.js';
+import { normalizeCustomParameterKey } from './customParameterKey.js';
+
+export { CUSTOM_PARAMETER_KEY_PATTERN, isValidCustomParameterKey, normalizeCustomParameterKey } from './customParameterKey.js';
 
 export const CUSTOM_PARAMETER_REGISTRY_VERSION = 2;
-export const CUSTOM_PARAMETER_KEY_PATTERN = /^[a-z_][a-z0-9_]*$/;
 
 const curatedUnitParameters = [
   {
@@ -79,8 +81,16 @@ function observationMap(scope) {
   return new Map((discovery.parameters?.[scope] || []).map(parameter => [parameter.key, parameter]));
 }
 
+function consumerOnlyMap(scope) {
+  return new Map((discovery.consumerOnly || [])
+    .filter(parameter => parameter.scope === scope)
+    .map(parameter => [parameter.key, parameter]));
+}
+
 const unitObservations = observationMap('unit');
 const weaponObservations = observationMap('weapon');
+const unitConsumerOnly = consumerOnlyMap('unit');
+const weaponConsumerOnly = consumerOnlyMap('weapon');
 
 const contractByParameter = new Map();
 for (const contract of GADGET_CONTRACT_REGISTRY) {
@@ -93,8 +103,11 @@ for (const contract of GADGET_CONTRACT_REGISTRY) {
 }
 
 function enrichDefinition(definition, scope, observation) {
-  const observed = Boolean(observation);
+  const observed = Boolean(observation && observation.declared !== false);
   const contracts = contractByParameter.get(`${scope}:${definition.key}`) || [];
+  const consumerEvidence = Object.freeze((observation?.consumerEvidence || []).map(item => Object.freeze({
+    ...item,
+  })));
   const reviewed = Boolean(definition.reviewed || definition.curated || definition.editorSupported || contracts.length);
   const documented = Boolean(definition.documented || definition.curated || definition.editorSupported);
   const editorSupported = Boolean(definition.editorSupported);
@@ -112,7 +125,12 @@ function enrichDefinition(definition, scope, observation) {
       label: contract.label,
       contractId: contract.id,
       sourcePath: contract.source.path,
-    })),
+    })).concat(consumerEvidence.map(item => ({
+      kind: 'consumer-discovery',
+      label: `${item.layer}: ${item.path}`,
+      sourcePath: item.path,
+      confidence: item.confidence,
+    }))),
   });
   return Object.freeze({
     ...definition,
@@ -122,9 +140,12 @@ function enrichDefinition(definition, scope, observation) {
     status: promotion.id,
     promotion,
     contractIds: Object.freeze(contracts.map(contract => contract.id)),
-    capabilities: Object.freeze(definition.capabilities || [
-      definition.owner === 'Package-specific' ? 'external-package' : 'bar-data',
-    ]),
+    capabilities: Object.freeze([...new Set([
+      ...(definition.capabilities || [
+        definition.owner === 'Package-specific' ? 'external-package' : 'bar-data',
+      ]),
+      ...(consumerEvidence.length > 0 ? ['bar-consumer-discovered'] : []),
+    ])]),
     sourceCommit: discovery.sourceCommit,
     observed,
     occurrences: observation?.occurrences || 0,
@@ -133,10 +154,35 @@ function enrichDefinition(definition, scope, observation) {
     sampleUnitIds: Object.freeze(observation?.sampleUnitIds || []),
     sampleWeaponDefs: Object.freeze(observation?.sampleWeaponDefs || []),
     sourcePaths: Object.freeze(observation?.sourcePaths || []),
+    consumerCount: observation?.consumerCount || 0,
+    writerCount: observation?.writerCount || 0,
+    consumerLayers: Object.freeze(observation?.consumerLayers || []),
+    consumerEvidence,
+  });
+}
+
+function consumerOnlyDefinition(consumer, scope) {
+  return enrichDefinition({
+    key: consumer.key,
+    label: titleFromKey(consumer.key),
+    type: 'string',
+    owner: 'Detected BAR consumer',
+    maturity: 'observed',
+    capabilities: ['bar-consumer-discovered'],
+    description: `Read by ${consumer.consumerCount} statically detected BAR source ${consumer.consumerCount === 1 ? 'access' : 'accesses'}, but not declared by a UnitDef in the pinned snapshot. Confirm its expected value type and activation conditions before editing it.`,
+  }, scope, {
+    ...consumer,
+    occurrences: 0,
+    valueTypes: [],
+    sampleValues: [],
+    sampleUnitIds: [],
+    sampleWeaponDefs: [],
+    sourcePaths: [],
   });
 }
 
 function discoveredDefinition(observation, scope) {
+  const hasConsumer = (observation.consumerCount || 0) > 0;
   return enrichDefinition({
     key: observation.key,
     label: titleFromKey(observation.key),
@@ -144,8 +190,12 @@ function discoveredDefinition(observation, scope) {
     owner: 'Observed BAR definition',
     maturity: 'observed',
     status: 'discovered',
-    capabilities: ['bar-data', 'unverified-contract'],
-    description: `Observed in ${observation.occurrences} BAR definition${observation.occurrences === 1 ? '' : 's'}. The editor preserves this key, but its runtime consumer has not been registered yet.`,
+    capabilities: hasConsumer
+      ? ['bar-data', 'bar-consumer-discovered']
+      : ['bar-data', 'unverified-contract'],
+    description: hasConsumer
+      ? `Observed in ${observation.occurrences} BAR definition${observation.occurrences === 1 ? '' : 's'} and read by ${observation.consumerCount} statically detected BAR source ${observation.consumerCount === 1 ? 'access' : 'accesses'}. Its value semantics still require maintainer review.`
+      : `Observed in ${observation.occurrences} BAR definition${observation.occurrences === 1 ? '' : 's'}. The editor preserves this key, but its runtime consumer has not been registered yet.`,
   }, scope, observation);
 }
 
@@ -153,10 +203,13 @@ const curatedUnitByKey = new Map(curatedUnitParameters.map(parameter => [paramet
 const unitRegistry = [
   ...curatedUnitParameters.map(parameter => enrichDefinition({
     ...parameter, curated: true, editorSupported: true,
-  }, 'unit', unitObservations.get(parameter.key))),
+  }, 'unit', unitObservations.get(parameter.key) || unitConsumerOnly.get(parameter.key))),
   ...[...unitObservations.values()]
     .filter(observation => !curatedUnitByKey.has(observation.key))
     .map(observation => discoveredDefinition(observation, 'unit')),
+  ...[...unitConsumerOnly.values()]
+    .filter(consumer => !curatedUnitByKey.has(consumer.key) && !unitObservations.has(consumer.key))
+    .map(consumer => consumerOnlyDefinition(consumer, 'unit')),
 ].sort((left, right) => left.label.localeCompare(right.label, 'en'));
 
 const weaponDefinitions = new Map();
@@ -180,10 +233,17 @@ for (const parameter of WEAPON_PARAMETER_CATALOG) {
 }
 
 const weaponRegistry = [
-  ...[...weaponDefinitions.values()].map(parameter => enrichDefinition(parameter, 'weapon', weaponObservations.get(parameter.key))),
+  ...[...weaponDefinitions.values()].map(parameter => enrichDefinition(
+    parameter,
+    'weapon',
+    weaponObservations.get(parameter.key) || weaponConsumerOnly.get(parameter.key),
+  )),
   ...[...weaponObservations.values()]
     .filter(observation => !weaponDefinitions.has(observation.key))
     .map(observation => discoveredDefinition(observation, 'weapon')),
+  ...[...weaponConsumerOnly.values()]
+    .filter(consumer => !weaponDefinitions.has(consumer.key) && !weaponObservations.has(consumer.key))
+    .map(consumer => consumerOnlyDefinition(consumer, 'weapon')),
 ].sort((left, right) => left.label.localeCompare(right.label, 'en'));
 
 export const CUSTOM_PARAMETER_DISCOVERY = Object.freeze({
@@ -223,13 +283,10 @@ export function getCustomParameterPromotion(key, scope = 'unit') {
   return getCustomParameterDefinition(key, scope)?.promotion || null;
 }
 
-export function normalizeCustomParameterKey(value) {
-  return String(value || '').trim().toLowerCase();
+export function getCustomParameterConsumers(key, scope = 'unit') {
+  return getCustomParameterDefinition(key, scope)?.consumerEvidence || [];
 }
 
-export function isValidCustomParameterKey(value) {
-  return CUSTOM_PARAMETER_KEY_PATTERN.test(normalizeCustomParameterKey(value));
-}
 
 export function coerceCustomParameterValue(value, type) {
   if (type === 'boolean') {

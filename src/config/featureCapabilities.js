@@ -23,6 +23,12 @@ export const CAPABILITY_DEFINITIONS = Object.freeze({
     tone: 'warning',
     description: 'The key is observed in BAR data, but its runtime consumer has not been registered in the editor.',
   }),
+  'bar-consumer-discovered': Object.freeze({
+    label: 'BAR consumer discovered',
+    shortLabel: 'Consumer',
+    tone: 'info',
+    description: 'Static analysis found BAR source code that reads this key. Semantics still require maintainer review.',
+  }),
   'external-package': Object.freeze({
     label: 'External package contract',
     shortLabel: 'External',

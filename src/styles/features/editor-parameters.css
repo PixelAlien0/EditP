@@ -866,6 +866,15 @@
   color: var(--color-text-muted);
 }
 
+.advanced-custom-parameter__consumer {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--color-info);
+  font-family: var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .advanced-custom-parameters__composer {
   display: grid;
   grid-template-columns: minmax(220px, 1.35fr) minmax(150px, .8fr) minmax(120px, .55fr) minmax(180px, 1fr) auto;

@@ -6,6 +6,7 @@ import {
   CUSTOM_PARAMETER_REGISTRY,
   coerceCustomParameterValue,
   getCustomParameterDefinition,
+  getCustomParameterConsumers,
   getCustomParameterObservation,
   getCustomParameterPromotion,
   isValidCustomParameterKey,
@@ -40,6 +41,20 @@ describe('advanced custom parameter metadata', () => {
 
     const cluster = getCustomParameterDefinition('cluster_def', 'weapon');
     expect(cluster).toMatchObject({ scope: 'weapon', editorKey: 'cluster_def' });
+    expect(CUSTOM_PARAMETER_DISCOVERY.version).toBe(2);
+    expect(CUSTOM_PARAMETER_DISCOVERY.counts.unitParametersWithConsumers).toBeGreaterThan(0);
+    expect(CUSTOM_PARAMETER_DISCOVERY.counts.weaponParametersWithConsumers).toBeGreaterThan(0);
+
+    const consumerBacked = CUSTOM_PARAMETER_REGISTRY.filter(parameter => parameter.consumerCount > 0);
+    expect(consumerBacked.length).toBeGreaterThan(0);
+    for (const parameter of consumerBacked) {
+      expect(parameter.consumerEvidence.length).toBeGreaterThan(0);
+      expect(parameter.capabilities).toContain('bar-consumer-discovered');
+      expect(parameter.promotion.evidence.some(item => item.kind === 'consumer-discovery')).toBe(true);
+    }
+    expect(getCustomParameterConsumers('airfactory', 'unit')).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: 'luaui/widgets/cmd_fac_holdposition.lua', layer: 'interface' }),
+    ]));
   });
 
   it('promotes contracts only as far as their recorded evidence permits', () => {

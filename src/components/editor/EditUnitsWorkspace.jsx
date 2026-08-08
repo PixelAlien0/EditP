@@ -42,11 +42,11 @@ import {
   getRelationshipLabel,
 } from '../../config/parameterGuidance.js';
 import AssetPicker from './AssetPicker.jsx';
-import AdvancedCustomParameters from './AdvancedCustomParameters.jsx';
 import UnitDescriptionEditor from './UnitDescriptionEditor.jsx';
 import GadgetContractSummary from './GadgetContractSummary.jsx';
 
 const LazyBehaviorInterceptorEditor = lazy(() => import('./BehaviorInterceptorEditor.jsx'));
+const LazyAdvancedCustomParameters = lazy(() => import('./AdvancedCustomParameters.jsx'));
 
 export default function EditUnitsWorkspace({ context }) {
   const {
@@ -783,12 +783,14 @@ export default function EditUnitsWorkspace({ context }) {
                           );
                         }}
                       />
-                      <AdvancedCustomParameters
-                        defaults={defaults}
-                        tweaks={tweaks[selectedUnit.id] || {}}
-                        inheritedFromClone={selectedUnit.isClone}
-                        onChange={(key, value) => handleStatChange(selectedUnit.id, key, value)}
-                      />
+                      <Suspense fallback={<div className="feature-loading-state">Loading advanced custom parameters…</div>}>
+                        <LazyAdvancedCustomParameters
+                          defaults={defaults}
+                          tweaks={tweaks[selectedUnit.id] || {}}
+                          inheritedFromClone={selectedUnit.isClone}
+                          onChange={(key, value) => handleStatChange(selectedUnit.id, key, value)}
+                        />
+                      </Suspense>
                     </div>
                   )}
 

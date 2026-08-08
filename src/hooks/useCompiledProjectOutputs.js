@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { STAT_KEYS } from '../config/editorParameters.js';
 import { getWeaponParameterDefinition } from '../config/weaponParameters.js';
-import { isValidCustomParameterKey } from '../config/customParameters.js';
+import { isValidCustomParameterKey } from '../config/customParameterKey.js';
 import { ensureSafeCarrierWeaponPatch } from '../utils/carrierRuntimeSafety.js';
 import { buildLobbyCommands, compileLobbyModules } from '../utils/lobbyModules.js';
 import { encodeLobbyBase64, serializeLuaTable } from '../utils/tweakSerializer.js';
