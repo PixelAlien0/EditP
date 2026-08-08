@@ -8,6 +8,7 @@ import {
   readJson,
   sha256File,
 } from './game-data-snapshot.mjs';
+import { SCAVENGER_BOSS_DIFFICULTIES } from './dynamic-unit-families.mjs';
 
 const errors = [];
 const manifest = readJson(GAME_DATA_MANIFEST_PATH);
@@ -41,6 +42,20 @@ compareKeys('Descriptions', datasets.units.descriptions);
 compareKeys('Defaults', datasets.defaults);
 compareKeys('Categories', datasets.categories);
 compareKeys('Artwork', datasets.artwork.units);
+
+for (const [unitId, assetUrl] of Object.entries(datasets.artwork.units || {})) {
+  if (typeof assetUrl !== 'string' || !assetUrl.startsWith('/')) {
+    errors.push(`Artwork entry ${unitId} is not a local URL string.`);
+  }
+}
+
+if (expectedIds.has('armscavengerbossv2')) {
+  errors.push('Snapshot contains nonexistent generated-family base ID armscavengerbossv2.');
+}
+for (const difficulty of Object.keys(SCAVENGER_BOSS_DIFFICULTIES)) {
+  const unitId = `armscavengerbossv2_${difficulty}`;
+  if (!expectedIds.has(unitId)) errors.push(`Snapshot is missing generated BAR UnitDef ${unitId}.`);
+}
 
 for (const key of ['artwork', 'tacticalIcons', 'assets']) {
   if (datasets[key]?.sourceCommit !== manifest.sourceCommit) {

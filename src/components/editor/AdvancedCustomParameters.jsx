@@ -122,7 +122,7 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
       <div className="advanced-custom-parameters__composer">
         <label>
           <span>Parameter</span>
-          <select value={catalogKey} onChange={event => { setCatalogKey(event.target.value); setDraftValue(''); }}>
+          <select aria-label="Custom parameter catalog" value={catalogKey} onChange={event => { setCatalogKey(event.target.value); setDraftValue(''); }}>
             <option value="">Choose a supported key…</option>
             {available.map(parameter => <option key={parameter.key} value={parameter.key}>{parameter.label}</option>)}
             <option value="__custom__">Custom package key…</option>
@@ -131,13 +131,13 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
         {isCustom && (
           <label>
             <span>Key</span>
-            <input value={customKey} placeholder="lowercase_key" onChange={event => setCustomKey(event.target.value)} />
+            <input aria-label="Custom parameter key" value={customKey} placeholder="lowercase_key" onChange={event => setCustomKey(event.target.value)} />
           </label>
         )}
         {isCustom && (
           <label>
             <span>Type</span>
-            <select value={draftType} onChange={event => setDraftType(event.target.value)}>
+            <select aria-label="Custom parameter type" value={draftType} onChange={event => setDraftType(event.target.value)}>
               <option value="string">Text</option>
               <option value="number">Number</option>
               <option value="boolean">Boolean</option>
@@ -148,12 +148,13 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
           <label className="advanced-custom-parameters__value">
             <span>Initial value</span>
             {selectedType === 'boolean' ? (
-              <select value={draftValue} onChange={event => setDraftValue(event.target.value)}>
+              <select aria-label="Initial value" value={draftValue} onChange={event => setDraftValue(event.target.value)}>
                 <option value="">Disabled</option>
                 <option value="true">Enabled</option>
               </select>
             ) : (
               <input
+                aria-label="Initial value"
                 type={selectedType === 'number' ? 'number' : 'text'}
                 value={draftValue}
                 placeholder={selectedType === 'number' ? '0' : 'Value required'}

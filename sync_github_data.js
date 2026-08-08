@@ -2,6 +2,7 @@ import https from 'https';
 import fs from 'fs';
 import { pathToFileURL } from 'url';
 import { reconcileUnitCategories } from './scripts/game-data-snapshot.mjs';
+import { reconcileDynamicUnitFamilies } from './scripts/dynamic-unit-families.mjs';
 
 const SOURCE_REPOSITORY = 'beyond-all-reason/Beyond-All-Reason';
 const REQUESTED_SOURCE_REF = process.env.BAR_SOURCE_COMMIT || process.env.BAR_SOURCE_REF || 'master';
@@ -529,6 +530,18 @@ export async function run() {
     Object.entries(existingRosters).forEach(([id, roster]) => {
       if (!rostersDb[id]) rostersDb[id] = roster;
     });
+
+    const dynamicFamilyResult = reconcileDynamicUnitFamilies({
+      defaults: defaultsDb,
+      categories: categoriesDb,
+      names: unwrappedUnits.names,
+      descriptions: unwrappedUnits.descriptions,
+    });
+    if (dynamicFamilyResult.warning) {
+      console.warn(`Dynamic UnitDef reconciliation: ${dynamicFamilyResult.warning}`);
+    } else {
+      console.log(`Reconciled ${dynamicFamilyResult.repaired} generated UnitDefs.`);
+    }
 
     console.log('4. Writing databases...');
     fs.writeFileSync('src/data/units.json', JSON.stringify(unwrappedUnits, null, 2), 'utf8');

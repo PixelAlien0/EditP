@@ -81,8 +81,10 @@ describe('nested clone generation', () => {
 
     expect(lua).toContain('local s = "scav_armafust3"');
     expect(lua).toContain('clone_preserve_visuals(u, UnitDefs[s])');
+    expect(lua).toContain('clone_sync_shield_visuals(u)');
     expect(lua).toContain('"objectname", "script", "buildpic", "icontype"');
     expect(lua).toContain('"sfxtypes", "sounds", "featuredefs", "corpse"');
+    expect(lua).toContain('"shield_radius", "shield_power", "shield_color_mult"');
     expect(lua).toContain('clone_swap_weapon(u, 1, "scav_leggatet3", "repulsor", "repulsor")');
     expect(lua).not.toContain('local s = "armafust3"');
   });

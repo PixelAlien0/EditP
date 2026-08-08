@@ -12,7 +12,6 @@
   "scavCommanderNameTag": "Scav Commander",
   "scavDecoyCommanderNameTag": "Scav Decoy",
   "names": {
-    "armscavengerbossv2": "Epic Commander - Final Boss",
     "armscavengerbossv2_epic": "Epic Commander - Final Boss (Epic)",
     "legsplab": "Offshore Seaplane Platform",
     "legspcon": "Construction Seaplane",
@@ -1793,11 +1792,15 @@
     "raptor_air_gunship_emp_t2_v1": "raptor_air_gunship_emp_t2_v1",
     "raptor_air_gunship_fire_t2_v1": "raptor_air_gunship_fire_t2_v1",
     "volcano_projectile_unit": "volcano_projectile_unit",
-    "armcomnew": "armcomnew"
+    "armcomnew": "armcomnew",
+    "armscavengerbossv2_veryeasy": "Epic Commander - Final Boss (Very Easy)",
+    "armscavengerbossv2_easy": "Epic Commander - Final Boss (Easy)",
+    "armscavengerbossv2_normal": "Epic Commander - Final Boss (Normal)",
+    "armscavengerbossv2_hard": "Epic Commander - Final Boss (Hard)",
+    "armscavengerbossv2_veryhard": "Epic Commander - Final Boss (Very Hard)"
   },
   "descriptions": {
-    "armscavengerbossv2": "Scavenger Mode Final Boss Mech (Normal)",
-    "armscavengerbossv2_epic": "Scavenger Mode Final Boss Mech (Epic 2M HP)",
+    "armscavengerbossv2_epic": "Scavenger Mode Final Boss Mech (Epic)",
     "legsplab": "Constructs Seaplanes",
     "legspcon": "Tech 1 Constructor",
     "legspsurfacegunship": "Riot Cannon Seaplane Gunship",
@@ -3577,6 +3580,11 @@
     "raptor_air_gunship_emp_t2_v1": "",
     "raptor_air_gunship_fire_t2_v1": "",
     "volcano_projectile_unit": "",
-    "armcomnew": ""
+    "armcomnew": "",
+    "armscavengerbossv2_veryeasy": "Scavenger Mode Final Boss Mech (Very Easy)",
+    "armscavengerbossv2_easy": "Scavenger Mode Final Boss Mech (Easy)",
+    "armscavengerbossv2_normal": "Scavenger Mode Final Boss Mech (Normal)",
+    "armscavengerbossv2_hard": "Scavenger Mode Final Boss Mech (Hard)",
+    "armscavengerbossv2_veryhard": "Scavenger Mode Final Boss Mech (Very Hard)"
   }
 }

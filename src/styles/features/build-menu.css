@@ -1014,6 +1014,35 @@
   .designer-page .build-menu-grid {
     grid-template-columns: repeat(auto-fill, minmax(154px, 174px));
   }
+
+  .designer-page .designer-roster-canvas .designer-panel-header--roster {
+    min-height: 146px;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  .designer-page .designer-unitgroup-guide {
+    min-width: 0;
+    padding-top: var(--space-2);
+    align-items: flex-start;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .designer-page .designer-unitgroup-guide__badges {
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+
+  .designer-page .designer-unitgroup-badge {
+    min-width: 0;
+    flex: 1 1 0;
+  }
+
+  .designer-page .designer-unitgroup-badge code {
+    display: none;
+  }
 }
 
 @media (max-width: 1180px) {
@@ -1023,7 +1052,10 @@
   }
 
   .designer-page .designer-modal-content {
-    grid-template-columns: 250px minmax(500px, 1fr) 290px;
+    grid-template-columns:
+      clamp(210px, 22vw, 250px)
+      minmax(390px, 1fr)
+      clamp(240px, 25vw, 290px);
     overflow-x: auto;
   }
 

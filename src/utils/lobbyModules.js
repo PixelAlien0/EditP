@@ -332,7 +332,10 @@ function extractUnitId(lua, fallbackIndex) {
 
 function generatedCanonicalBlocks(kind, lua) {
   const normalizedLua = normalizeCompilerLua(lua);
-  if (!normalizedLua || (kind === 'units' && normalizedLua === '{}')) return [];
+  // The generated Units serializer formats an empty table as `{\n}`. Treat
+  // every whitespace-only table as empty so it cannot become a fabricated
+  // `entry-1` canonical block and falsely block lobby export.
+  if (!normalizedLua || (kind === 'units' && /^\{\s*\}$/.test(normalizedLua))) return [];
   if (kind === 'units') {
     return splitSerializedUnitTable(normalizedLua).map((blockLua, index) => {
       const unitId = extractUnitId(blockLua, index + 1);

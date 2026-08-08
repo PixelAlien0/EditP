@@ -12,7 +12,8 @@ export function setUnitArtworkManifest(manifest) {
 
 export function getUnitIconUrl(id) {
   if (!id) return '/logo.svg';
-  return unitpicUrls[id.toLowerCase()] || '/logo.svg';
+  const assetUrl = unitpicUrls[id.toLowerCase()];
+  return typeof assetUrl === 'string' && assetUrl.startsWith('/') ? assetUrl : '/logo.svg';
 }
 
 export function getBuildPictureOptions() {
@@ -22,5 +23,6 @@ export function getBuildPictureOptions() {
 export function getBuildPicturePreviewUrl(value) {
   const normalized = String(value || '').trim().replaceAll('\\', '/').toLowerCase();
   if (!normalized) return '';
-  return normalizedBuildPictureUrls.get(normalized) || '';
+  const assetUrl = normalizedBuildPictureUrls.get(normalized);
+  return typeof assetUrl === 'string' && assetUrl.startsWith('/') ? assetUrl : '';
 }

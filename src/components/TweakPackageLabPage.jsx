@@ -359,6 +359,8 @@ export default function TweakPackageLabPage({
       slotResetFields: bundleSelection.modules ? filteredSetup.slotResetFields : [],
     };
     onImportLobbyBundle({ modules: importedModules, lobbySetup: nextSetup });
+    setBundlePreview(null);
+    setBundleSelection({});
     onToast(`Imported ${importedModules.length} disabled module${importedModules.length === 1 ? '' : 's'} and ${nextSetup.commands.length} lobby command${nextSetup.commands.length === 1 ? '' : 's'}.`);
   };
 
@@ -600,6 +602,11 @@ export default function TweakPackageLabPage({
                   <section className="tweak-analysis-section">
                     <h4>Recognized unit definitions</h4>
                     <p>{selectedAnalysis?.createdUnits.join(', ') || 'No literal clone or unit definitions found.'}</p>
+                    {selectedAnalysis?.literalUnitTables > 0 && (
+                      <small>
+                        Literal table recognized: {selectedAnalysis.literalUnitTables} unit {selectedAnalysis.literalUnitTables === 1 ? 'patch' : 'patches'}.
+                      </small>
+                    )}
                   </section>
                   <section className="tweak-analysis-section">
                     <h4>Custom parameters</h4>
@@ -714,7 +721,7 @@ export default function TweakPackageLabPage({
           )}
 
           {selectedAnalysis?.findings.length > 0 && (
-            <section className="tweak-analyzer-v2">
+            <section className="tweak-analyzer-v2" role="region" aria-label="Analyzer V2 findings">
               <h4>Analyzer Findings ({selectedAnalysis.findings.length})</h4>
               <div className="tweak-analyzer-confidence">
                 <span className="is-exact"><b>{selectedAnalysis.confidenceCounts.exact}</b> Exact</span>
@@ -784,7 +791,7 @@ export default function TweakPackageLabPage({
           )}
 
           {selectedReport && (
-            <section className="tweak-analysis-section">
+            <section className="tweak-analysis-section tweak-module-relationships">
               <h4>Module Relationships</h4>
               {selectedReport.dependencies.map(edge => <p key={`dependency-${edge.to}`}><b>Needs</b> {moduleLabel(edge.to)} <code>{edge.unitIds.join(', ')}</code></p>)}
               {selectedReport.dependents.map(edge => <p key={`dependent-${edge.from}`}><b>Used by</b> {moduleLabel(edge.from)} <code>{edge.unitIds.join(', ')}</code></p>)}

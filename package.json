@@ -14,6 +14,7 @@
     "test:e2e:update": "playwright test --update-snapshots",
     "sync-game-data": "node scripts/sync-game-data-snapshot.mjs",
     "sync-game-data:core": "node sync_github_data.js",
+    "repair-dynamic-units": "node scripts/dynamic-unit-families.mjs",
     "finalize-game-data": "node scripts/finalize-game-data-snapshot.mjs --write",
     "audit-game-data": "node scripts/audit-game-data.mjs",
     "sync-unitpics": "node scripts/sync-unitpics.mjs",

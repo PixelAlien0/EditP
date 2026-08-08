@@ -11,7 +11,7 @@
     "fit": "contain"
   },
   "stats": {
-    "unitCount": 1782,
+    "unitCount": 1786,
     "sourceCount": 1448,
     "uniqueAssetCount": 1419,
     "assetBytes": 14844446,
@@ -1804,16 +1804,12 @@
     "raptor_air_gunship_fire_t2_v1": "/unitpics/assets/6526211be4357d877e7c.webp",
     "volcano_projectile_unit": "/logo.svg",
     "armcomnew": "/unitpics/assets/284b191dbc9e8b42d5e5.webp",
-    "armscavengerbossv2": {
-      "assetPath": "scavengers/corcrwt4.DDS",
-      "url": "https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/master/unitpics/scavengers/corcrwt4.DDS",
-      "resolved": true
-    },
-    "armscavengerbossv2_epic": {
-      "assetPath": "scavengers/corcrwt4.DDS",
-      "url": "https://raw.githubusercontent.com/Beyond-All-Reason/Beyond-All-Reason/master/unitpics/scavengers/corcrwt4.DDS",
-      "resolved": true
-    }
+    "armscavengerbossv2_epic": "/unitpics/assets/d7a0f186975befd4ca14.webp",
+    "armscavengerbossv2_veryeasy": "/unitpics/assets/d7a0f186975befd4ca14.webp",
+    "armscavengerbossv2_easy": "/unitpics/assets/d7a0f186975befd4ca14.webp",
+    "armscavengerbossv2_normal": "/unitpics/assets/d7a0f186975befd4ca14.webp",
+    "armscavengerbossv2_hard": "/unitpics/assets/d7a0f186975befd4ca14.webp",
+    "armscavengerbossv2_veryhard": "/unitpics/assets/d7a0f186975befd4ca14.webp"
   },
   "pictures": {
     "LEGESTOR.dds": "/unitpics/assets/2ad8fc90bc7f2f78cab3.webp",

@@ -88,6 +88,10 @@ for (const unitId of expectedUnitIds) {
     }
     continue;
   }
+  if (typeof assetUrl !== 'string') {
+    errors.push(`Manifest asset for ${unitId} must be a URL string, received ${typeof assetUrl}`);
+    continue;
+  }
   if (manifestPlaceholders.has(unitId)) errors.push(`Placeholder list incorrectly contains ${unitId}`);
   const match = assetUrl.match(/^\/unitpics\/assets\/([a-f0-9]{20}\.webp)$/);
   if (!match) {

@@ -1319,7 +1319,10 @@ export default function EditUnitsWorkspace({ context }) {
                                               <option value="true">Enabled</option>
                                               <option value="false">Disabled</option>
                                             </select>
-                                          ) : param.options ? (
+                                          ) : param.options && (
+                                            displayValue === ''
+                                            || param.options.some(option => String(option) === String(displayValue))
+                                          ) ? (
                                             <select
                                               className={`stat-card-input ${warning ? `is-${warning.level}` : ''}`}
                                               value={displayValue}

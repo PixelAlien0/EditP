@@ -1373,6 +1373,7 @@ export default function App() {
 
   const handleApplyCarrierLinkage = useCallback((parentUnitId, compiledTweaks) => {
     if (!parentUnitId || !compiledTweaks) return;
+    const targetSlot = Number(compiledTweaks.editp_carrier_slot);
     const linkedDrone = Object.entries(compiledTweaks).find(([key, value]) => (
       /^weapon_slot_\d+_carried_unit$/.test(key) && value
     ))?.[1];
@@ -1389,6 +1390,9 @@ export default function App() {
       next[parentUnitId] = existing;
       return next;
     });
+    if (Number.isFinite(targetSlot) && targetSlot > 0) {
+      setActiveWeaponSlotTab(targetSlot);
+    }
     showToast(`Linked carrier "${parentUnitId}" to deployed drone "${linkedDrone || 'selected unit'}".`);
   }, [setTweaks, showToast]);
 

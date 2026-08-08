@@ -8,6 +8,22 @@ describe('unit artwork manifest cache', () => {
     expect(getUnitIconUrl('unknown_unit')).toBe('/logo.svg');
   });
 
+  it('rejects malformed manifest records instead of leaking objects into image sources', () => {
+    setUnitArtworkManifest({
+      units: {
+        broken_unit: { assetPath: 'unitpics/broken.dds', resolved: true },
+        remote_unit: 'https://example.invalid/unit.webp',
+      },
+      pictures: {
+        'BROKEN.DDS': { assetPath: 'unitpics/broken.dds' },
+      },
+    });
+
+    expect(getUnitIconUrl('broken_unit')).toBe('/logo.svg');
+    expect(getUnitIconUrl('remote_unit')).toBe('/logo.svg');
+    expect(getBuildPicturePreviewUrl('BROKEN.DDS')).toBe('');
+  });
+
   it('keeps duplicate build-picture filenames distinct by BAR namespace', () => {
     setUnitArtworkManifest({
       units: {},

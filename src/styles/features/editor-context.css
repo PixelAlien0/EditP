@@ -338,10 +338,12 @@
 
 .editor-unit-actions {
   min-width: 238px;
+  height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  align-self: stretch;
+  align-self: center;
   justify-content: center;
   justify-self: end;
   gap: var(--space-1);

@@ -88,17 +88,21 @@ function compileAdvancedMechanicsFixture(fixture) {
 describe('BAR runtime compatibility harness', () => {
   it('preserves shield-orb and advanced/epic-fusion visual dependencies on clones', () => {
     const visualSources = {
-      armgate: {
-        objectname: 'Units/ARMGATE.s3o',
-        script: 'Units/ARMGATE.cob',
-        buildpic: 'ARMGATE.DDS',
-        sfxtypes: { explosiongenerators: ['custom:shield_orb'] },
-        sounds: { select: ['arm-bld-shield'] },
+      leggatet3: {
+        objectname: 'Units/LEGGATET3.s3o',
+        script: 'Units/LEGGATET3.cob',
+        buildpic: 'LEGGATET3.DDS',
         corpse: 'DEAD',
-        featuredefs: { dead: { object: 'Units/armgate_dead.s3o' } },
+        featuredefs: { dead: { object: 'Units/leggatet3_dead.s3o' } },
         weapons: [{ def: 'REPULSOR' }],
-        weapondefs: { repulsor: { shield: { radius: 550, power: 6175 } } },
-        customparams: { normaltex: 'unittextures/Arm_normal.dds', unitgroup: 'util' },
+        weapondefs: { repulsor: { shield: { radius: 710, power: 49400 } } },
+        customparams: {
+          normaltex: 'unittextures/leg_normal.dds',
+          unitgroup: 'util',
+          shield_color_mult: 25,
+          shield_emit_height: 4,
+          shield_emit_offset: -2,
+        },
       },
       armafust3: {
         objectname: 'Units/ARMAFUST3.s3o',
@@ -126,7 +130,7 @@ describe('BAR runtime compatibility harness', () => {
       },
     };
     const clonePairs = [
-      ['armgate', 'keeper_orb_clone'],
+      ['leggatet3', 'elysium_orb_clone'],
       ['armafust3', 'arm_epic_fusion_clone'],
       ['corafust3', 'cor_epic_fusion_clone'],
       ['legafust3', 'leg_epic_fusion_clone'],
@@ -140,10 +144,14 @@ describe('BAR runtime compatibility harness', () => {
     assertRuntimeCompatibility(result, {
       unitsExist: clonePairs.map(([, newId]) => newId),
       paths: [
-        { path: 'keeper_orb_clone.objectname', equals: 'Units/ARMGATE.s3o' },
-        { path: 'keeper_orb_clone.script', equals: 'Units/ARMGATE.cob' },
-        { path: 'keeper_orb_clone.weapondefs.repulsor.shield.radius', equals: 550 },
-        { path: 'keeper_orb_clone.sfxtypes.explosiongenerators.0', equals: 'custom:shield_orb' },
+        { path: 'elysium_orb_clone.objectname', equals: 'Units/LEGGATET3.s3o' },
+        { path: 'elysium_orb_clone.script', equals: 'Units/LEGGATET3.cob' },
+        { path: 'elysium_orb_clone.weapondefs.repulsor.shield.radius', equals: 710 },
+        { path: 'elysium_orb_clone.customparams.shield_radius', equals: 710 },
+        { path: 'elysium_orb_clone.customparams.shield_power', equals: 49400 },
+        { path: 'elysium_orb_clone.customparams.shield_color_mult', equals: 25 },
+        { path: 'elysium_orb_clone.customparams.shield_emit_height', equals: 4 },
+        { path: 'elysium_orb_clone.customparams.shield_emit_offset', equals: -2 },
         { path: 'arm_epic_fusion_clone.objectname', equals: 'Units/ARMAFUST3.s3o' },
         { path: 'arm_epic_fusion_clone.script', equals: 'Units/ARMAFUS.cob' },
         { path: 'cor_epic_fusion_clone.objectname', equals: 'Units/CORAFUST3.s3o' },

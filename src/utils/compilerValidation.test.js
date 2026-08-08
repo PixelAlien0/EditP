@@ -40,6 +40,30 @@ describe('canonical compiler semantic validation', () => {
     expect(validation.checkedSlotCount).toBe(18);
   });
 
+  it('does not fabricate a generated unit block for a formatted empty table', () => {
+    const compiled = compileLobbyModules({
+      tweakModules: [
+        {
+          id: 'valid-defs', kind: 'defs', stage: 'before-editor', order: 0,
+          label: 'Valid definitions',
+          rawLua: 'UnitDefs["editp_lab_test"] = table.copy(UnitDefs["armflea"], true)',
+          enabled: true, converted: false,
+        },
+      ],
+      generatedTweakDefsLua: '',
+      generatedTweakUnitsLua: '{\n}',
+    });
+
+    expect(compiled.canonicalBlocks.units).toEqual([]);
+    expect(compiled.units.required).toBe(0);
+    expect(validateCompiledLobbyModules(compiled)).toMatchObject({
+      status: 'ready',
+      isValid: true,
+      canExport: true,
+      counts: { blocker: 0 },
+    });
+  });
+
   it('blocks invalid Lua and a non-table Units payload', () => {
     const compiled = compileLobbyModules({
       tweakModules: [

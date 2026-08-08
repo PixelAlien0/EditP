@@ -6,13 +6,13 @@
   "sourceCommit": "e34440077024d3b122b89d07a314a2df7b1b181d",
   "sourceDate": "2026-07-22T08:53:15Z",
   "counts": {
-    "units": 1782,
-    "descriptions": 1782,
-    "defaults": 1782,
-    "categories": 1782,
+    "units": 1786,
+    "descriptions": 1786,
+    "defaults": 1786,
+    "categories": 1786,
     "rosters": 170,
     "explosions": 133,
-    "artwork": 1782,
+    "artwork": 1786,
     "tacticalIcons": 990,
     "assetReferences": 3962
   },
@@ -20,17 +20,17 @@
     "units": {
       "path": "src/data/units.json",
       "schemaVersion": 1,
-      "sha256": "08c3555bdb530848d0204bc136a83c57bc6af151eac20d7a844e7aea1e85a836"
+      "sha256": "e16da77287f41e66245ce3b5af31f0522defe072a2414b362fec91babeb54ab0"
     },
     "defaults": {
       "path": "src/data/unit-defaults.json",
       "schemaVersion": 1,
-      "sha256": "dfd13dad93f7bed2eb10a52135c67fd08a5be62bddb95d08540d4d2a8ab055bf"
+      "sha256": "0fb9c92c22b5fcad9de5203bf1c762c1540726a86f12a49e0dfd3a5e4f994267"
     },
     "categories": {
       "path": "src/data/unit-categories.json",
       "schemaVersion": 1,
-      "sha256": "8de523cc4dc107583365702a95495f01023533bf6408d4c298c7ba6cef51bdbc"
+      "sha256": "2dfc859315da92540270b87ad0e6b663c76036a550c5d56055b955f1efa671d5"
     },
     "rosters": {
       "path": "src/data/factory-rosters.json",
@@ -45,7 +45,7 @@
     "artwork": {
       "path": "src/data/unitpic-manifest.json",
       "schemaVersion": 1,
-      "sha256": "695066bb6f91f4bd4393665bd237e5243378b9e6ddceffbe5d519dd452cc985d"
+      "sha256": "c0b0b493e21298f8e36cc083a46341dc583ffb371135f517d9b2a8349656603a"
     },
     "tacticalIcons": {
       "path": "src/data/tactical-icon-manifest.json",
