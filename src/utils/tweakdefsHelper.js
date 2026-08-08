@@ -775,44 +775,46 @@ export function generateBuildMenuBlockLua(steps, options = {}) {
   if (activeSteps.length === 0) return '';
 
   if (compact) {
-    const helperFunc = `local function editp_modify_bo(builderId, addList, removeList, orderedList)
-  local ud = UnitDefs and UnitDefs[builderId]
-  if ud then
-    if type(ud.buildoptions) ~= "table" then ud.buildoptions = {} end
-    if orderedList then
-      ud.buildoptions = orderedList
-      return
-    end
-    local removeMap = {}
-    if removeList then for _, r in ipairs(removeList) do removeMap[r] = true end end
-    local seen = {}
-    local newBo = {}
-    for _, u in ipairs(ud.buildoptions) do
-      if type(u) == "string" then
-        local ul = string.lower(u)
-        if not removeMap[ul] then table.insert(newBo, u) seen[ul] = true end
-      end
-    end
-    if addList then
-      for _, u in ipairs(addList) do
-        if type(u) == "string" then
-          local ul = string.lower(u)
-          if not seen[ul] then table.insert(newBo, u) seen[ul] = true end
-        end
-      end
-    end
-    ud.buildoptions = newBo
+    // BAR UnitDef IDs cannot contain whitespace. Encoding lists as one compact
+    // string avoids repeating Lua quotes and commas for every roster entry;
+    // the helper reconstructs the exact ordered table at runtime.
+    const helperFunc = `local function editp_bo(i,a,r,o)
+  local u=UnitDefs and UnitDefs[i]
+  if not u then return end
+  if type(u.buildoptions)~="table" then u.buildoptions={} end
+  if o then
+    local t={}
+    for x in string.gmatch(o,"%S+") do t[#t+1]=x end
+    u.buildoptions=t
+    return
   end
+  local rm={}
+  if r then for x in string.gmatch(r,"%S+") do rm[x]=true end end
+  local seen={}
+  local out={}
+  for _,x in ipairs(u.buildoptions) do
+    if type(x)=="string" then
+      local k=string.lower(x)
+      if not rm[k] then out[#out+1]=x seen[k]=true end
+    end
+  end
+  if a then
+    for x in string.gmatch(a,"%S+") do
+      local k=string.lower(x)
+      if not seen[k] then out[#out+1]=x seen[k]=true end
+    end
+  end
+  u.buildoptions=out
 end`;
+    const encodeIdList = ids => ids.length > 0
+      ? JSON.stringify(ids.join(' '))
+      : 'nil';
     const calls = activeSteps.map(step => {
       const builderId = step.builderId.trim().toLowerCase();
       const addList = step.add.map(a => a.trim().toLowerCase()).filter(Boolean);
       const removeList = step.remove.map(r => r.trim().toLowerCase()).filter(Boolean);
       const orderList = (step.order || []).map(id => id.trim().toLowerCase()).filter(Boolean);
-      const addStr = addList.length > 0 ? `{${addList.map(x => JSON.stringify(x)).join(', ')}}` : 'nil';
-      const remStr = removeList.length > 0 ? `{${removeList.map(x => JSON.stringify(x)).join(', ')}}` : 'nil';
-      const orderStr = orderList.length > 0 ? `{${orderList.map(x => JSON.stringify(x)).join(', ')}}` : 'nil';
-      return `editp_modify_bo(${JSON.stringify(builderId)}, ${addStr}, ${remStr}, ${orderStr})`;
+      return `editp_bo(${JSON.stringify(builderId)},${encodeIdList(addList)},${encodeIdList(removeList)},${encodeIdList(orderList)})`;
     });
     return `${helperFunc}\n${calls.join('\n')}`;
   }

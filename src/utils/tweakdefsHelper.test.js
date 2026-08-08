@@ -61,8 +61,8 @@ describe('nested clone generation', () => {
       [{ builderId: 'armlab', add: ['armflash_clone'], remove: ['armflash'] }],
       { compactLuaFormatting: true }
     );
-    expect(rosterLua).toContain('local function editp_modify_bo');
-    expect(rosterLua).toContain('editp_modify_bo("armlab", {"armflash_clone"}, {"armflash"}, nil)');
+    expect(rosterLua).toContain('local function editp_bo');
+    expect(rosterLua).toContain('editp_bo("armlab","armflash_clone","armflash",nil)');
   });
 
   it('preserves exact Scavenger visual sources and clone visual dependencies', () => {
@@ -95,8 +95,8 @@ describe('nested clone generation', () => {
       { compactLuaFormatting: true },
     );
 
-    expect(rosterLua).toContain('editp_modify_bo("armlab", {"armrock"}, {"armflash"}, {"armck", "armrock"})');
-    expect(rosterLua).toContain('ud.buildoptions = orderedList');
+    expect(rosterLua).toContain('editp_bo("armlab","armrock","armflash","armck armrock")');
+    expect(rosterLua).toContain('u.buildoptions=t');
   });
 
   it('never duplicates canonical Units weapon patches into Definitions Lua', () => {

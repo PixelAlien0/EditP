@@ -245,6 +245,44 @@ describe('BAR runtime compatibility harness', () => {
     });
   });
 
+  it('reconstructs compact string-encoded build menus in exact order', () => {
+    const generatedTweakDefsLua = compileTweakDefsLua({
+      currentTweakDefsLua: '',
+      customUnitClones: [],
+      buildMenuWizardSteps: [{
+        builderId: 'armlab',
+        add: ['armrock'],
+        remove: ['armflash'],
+        order: ['armck', 'armrock', 'armham'],
+      }],
+      disabledUnitIds: [],
+      unitBuildOptions: {},
+      projectMeta: null,
+      compileFlags: {
+        includeClones: true,
+        includeRosters: true,
+        compactLuaFormatting: true,
+      },
+      weaponLibrary: [],
+      deathExplosionTweaks: [],
+      supportingWeaponDefs: [],
+      tweaks: {},
+    });
+    const compiled = compileLobbyModules({
+      tweakModules: [],
+      generatedTweakDefsLua,
+      generatedTweakUnitsLua: '{}',
+    });
+    const result = executeCompiledBarModules(compiled, {
+      unitDefs: {
+        armlab: { buildoptions: ['armflash', 'armham'] },
+        armck: {}, armrock: {}, armham: {},
+      },
+    });
+
+    expect(result.unitDefs.armlab.buildoptions).toEqual(['armck', 'armrock', 'armham']);
+  });
+
   it('applies weapon edits, supporting definitions, and isolated death profiles', () => {
     const compiled = generatedPackage({
       clones: [{
