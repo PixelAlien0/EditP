@@ -443,6 +443,7 @@ export default function App() {
     const snapshot = preset.snapshot || {};
     applyProjectSnapshot(snapshot);
     setShowPresetGallery(false);
+    setActiveWorkspace('edit');
     showToast(`Applied preset: ${preset.name}`);
   };
 

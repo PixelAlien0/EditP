@@ -66,6 +66,20 @@ test('main menu separates the active project, core workspaces, and specialist wo
   await expect(page.getByRole('heading', { name: 'Unified BAR Reference Library' })).toBeVisible();
 });
 
+test('applying a saved preset returns to the Edit Units workspace', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('region', { name: 'Research & package tools' }).getByRole('button', { name: /Preset Gallery/ }).click();
+  await expect(page.getByRole('heading', { name: 'Preset Gallery' })).toBeVisible();
+
+  await page.getByLabel('Preset name').fill('Navigation regression preset');
+  await page.getByRole('button', { name: 'Save current preset' }).click();
+  await page.getByRole('heading', { name: 'Navigation regression preset' }).locator('xpath=ancestor::article').getByRole('button', { name: 'Open preset' }).click();
+
+  await expect(page.locator('.editor-workspace')).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Edit Units/ })).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('heading', { name: 'Preset Gallery' })).toHaveCount(0);
+});
+
 test('main menu fits standard desktop viewports without nested scrolling', async ({ page }) => {
   for (const viewport of [
     { width: 1440, height: 900 },
