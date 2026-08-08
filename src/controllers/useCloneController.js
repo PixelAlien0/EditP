@@ -42,6 +42,46 @@ export function applyCloneBuilderAssignments(steps, cloneId, builderIds) {
   );
 }
 
+function normalizedIdSet(ids) {
+  return new Set(
+    [...(ids || [])]
+      .map(id => String(id || '').trim().toLowerCase())
+      .filter(Boolean)
+  );
+}
+
+export function removeDeletedCloneReferences(project, cloneIds) {
+  const deletedIds = normalizedIdSet(cloneIds);
+  if (deletedIds.size === 0) return {};
+  const keepId = id => !deletedIds.has(String(id || '').trim().toLowerCase());
+  const buildMenuSteps = (project.buildMenuSteps || [])
+    // A deleted clone may itself be a factory or builder. Its entire roster
+    // operation is no longer meaningful once that producer UnitDef is gone.
+    .filter(step => keepId(step.builderId))
+    .map(step => ({
+      ...step,
+      add: (step.add || []).filter(keepId),
+      remove: (step.remove || []).filter(keepId),
+      ...(Array.isArray(step.order)
+        ? { order: step.order.filter(keepId) }
+        : {}),
+    }))
+    .filter(step => (
+      step.add.length > 0
+      || step.remove.length > 0
+      || (step.order?.length || 0) > 0
+    ));
+
+  return {
+    buildMenuSteps,
+    disabledUnitIds: (project.disabledUnitIds || []).filter(keepId),
+    unitCollections: (project.unitCollections || []).map(collection => ({
+      ...collection,
+      unitIds: (collection.unitIds || []).filter(keepId),
+    })),
+  };
+}
+
 export function useCloneController({
   clones,
   tweaks,
@@ -258,8 +298,13 @@ export function useCloneController({
         .filter(item => item.newId.toLowerCase() !== cloneId)
         .map(item => {
           const promoted = promotedById.get(item.newId.toLowerCase());
-          if (!promoted) return item;
-          const rebased = { ...item, baseId: promoted.rootId };
+          const rebased = promoted
+            ? { ...item, baseId: promoted.rootId }
+            : { ...item };
+          rebased.builderIds = (rebased.builderIds || []).filter(
+            builderId => builderId.trim().toLowerCase() !== cloneId
+          );
+          if (!promoted) return rebased;
           if (Object.keys(promoted.weaponSwaps).length > 0) {
             rebased.weaponSwaps = promoted.weaponSwaps;
           } else {
@@ -275,18 +320,15 @@ export function useCloneController({
       promotedDescendants.forEach(promoted => {
         nextTweaks[promoted.id] = { ...promoted.tweaks };
       });
+      const referenceCleanup = removeDeletedCloneReferences(current, [cloneId]);
       return {
+        ...referenceCleanup,
         clones: nextClones,
         tweaks: nextTweaks,
         unitDescriptions: Object.fromEntries(
           Object.entries(current.unitDescriptions).filter(
             ([id]) => id.toLowerCase() !== cloneId
           )
-        ),
-        buildMenuSteps: applyCloneBuilderAssignments(
-          current.buildMenuSteps,
-          clone.newId,
-          []
         ),
       };
     });
@@ -306,6 +348,7 @@ export function useCloneController({
       clone => clone.newId.toLowerCase() === selectedUnitId?.toLowerCase()
     );
     transactProject(current => ({
+      ...removeDeletedCloneReferences(current, cloneIds),
       clones: [],
       tweaks: Object.fromEntries(
         Object.entries(current.tweaks).filter(
@@ -316,10 +359,6 @@ export function useCloneController({
         Object.entries(current.unitDescriptions).filter(
           ([id]) => !cloneIds.has(id.toLowerCase())
         )
-      ),
-      buildMenuSteps: clones.reduce(
-        (steps, clone) => applyCloneBuilderAssignments(steps, clone.newId, []),
-        current.buildMenuSteps
       ),
     }));
     if (selectedClone) setSelectedUnitId(selectedClone.baseId);
