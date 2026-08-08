@@ -263,6 +263,7 @@ export default function DesignerPage({
                 {rosterItems.map((item, index) => {
                   const added = item.status === 'added';
                   const removed = item.status === 'removed';
+                  const slotState = removed ? 'Removed' : added ? 'Custom' : 'Reference';
                   return (
                     <div
                       key={item.id}
@@ -293,18 +294,23 @@ export default function DesignerPage({
                         onReorderRoster(reorderedIds);
                       }}
                       className={`build-menu-slot ${added ? 'added' : ''} ${removed ? 'removed' : ''}`}
+                      role="group"
+                      aria-label={`${slotState} roster slot ${index + 1}: ${item.name}`}
                     >
-                      <span className="slot-index" aria-label={`Slot ${index + 1}`}>
-                        <small>Slot</small>{String(index + 1).padStart(2, '0')}
-                      </span>
+                      <div className="build-menu-slot__meta">
+                        <span className="slot-index" aria-label={`Slot ${index + 1}`}>Slot {String(index + 1).padStart(2, '0')}</span>
                       {!removed && <span className="slot-drag-handle" aria-hidden="true" title="Drag to reorder">⠿</span>}
-                      <span className={`slot-status slot-status--${item.status}`}>
-                        {removed ? 'Removed' : added ? 'Added' : 'Default'}
-                      </span>
-                      <UnitArtwork src={getUnitIconUrl(item.id)} alt="" className="build-menu-slot-image" />
+                        <span className={`slot-status slot-status--${item.status}`}>{slotState}</span>
+                      </div>
+                      <div className="build-menu-slot__art">
+                        <UnitArtwork src={getUnitIconUrl(item.id)} alt="" className="build-menu-slot-image" />
+                        {removed && <span className="build-menu-slot__art-state">Recoverable</span>}
+                      </div>
                       <div className="slot-overlay-actions">
-                        <span className="slot-unit-name" title={item.name}>{item.name}</span>
-                        <span className="slot-unit-id">{item.id}</span>
+                        <div className="slot-identity">
+                          <span className="slot-unit-name" title={item.name}>{item.name}</span>
+                          <span className="slot-unit-id">{item.id}</span>
+                        </div>
                         {item.sourcePack && (
                           <span className={`slot-pack-source slot-pack-source--${item.sourcePack}`}>
                             {item.sourcePack === 'extraUnits' ? 'Extra pack' : 'Scavenger pack'}

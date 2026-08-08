@@ -162,8 +162,8 @@ test('build menu producer catalog separates factories and builders', async ({ pa
   await page.getByRole('button', { name: /Build Menus/i }).click();
 
   const catalog = page.locator('.designer-factory-browser');
-  await expect(page.getByText(/producer rosters · \d+ unit placements/i).first()).toBeVisible();
-  await expect(page.locator('.designer-roster-canvas').getByText('Default').first()).toBeVisible();
+  await expect(page.getByLabel('Roster status')).toContainText(/Active\d+/i);
+  await expect(page.locator('.designer-roster-canvas').getByText('Reference').first()).toBeVisible();
   await expect(catalog.getByText('Groundhog', { exact: true })).toBeVisible();
   await expect(catalog.getByText('Bot Lab', { exact: true }).first()).toBeVisible();
   await expect(catalog.getByText('armsaap', { exact: true })).toHaveCount(0);

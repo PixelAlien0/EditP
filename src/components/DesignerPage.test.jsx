@@ -63,6 +63,8 @@ describe('DesignerPage', () => {
     expect(screen.getByText('Roster conditions')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Bot Lab armlab/i })).toHaveAttribute('aria-current', 'true');
     expect(screen.getByLabelText('Roster status')).toHaveTextContent('Custom1');
+    expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('Custom');
+    expect(screen.getByRole('button', { name: 'Remove Test Unit from Bot Lab' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add Other Unit' })).toBeEnabled();
   });
 
