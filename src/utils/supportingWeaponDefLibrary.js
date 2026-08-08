@@ -1,4 +1,77 @@
+import { WEAPON_EDITABLE_PARAMETER_CATALOG } from '../config/weaponParameters.js';
+
 const cleanId = value => String(value || '').trim().toLowerCase();
+
+const SOURCE_SLOT_OMIT_KEYS = new Set(['slot', 'defkey']);
+const WEAPONDEF_SOURCE_PARAMETERS = new Map(
+  WEAPON_EDITABLE_PARAMETER_CATALOG
+    .filter(parameter => parameter.compileTarget === 'weapondef')
+    .map(parameter => [cleanId(parameter.key), parameter]),
+);
+
+function setNestedValue(target, path, value) {
+  const segments = String(path || '').split('.').filter(Boolean);
+  if (!segments.length) return;
+  let cursor = target;
+  segments.slice(0, -1).forEach(segment => {
+    cursor[segment] ||= {};
+    cursor = cursor[segment];
+  });
+  cursor[segments.at(-1)] = structuredClone(value);
+}
+
+/**
+ * Convert one of the validated, mounted BAR weapon snapshots into a literal
+ * WeaponDef. The snapshot is deliberately copied rather than referenced: the
+ * new definition can safely live under a different UnitDef and be edited
+ * without changing BAR's original WeaponDef.
+ */
+export function createSupportingWeaponDefFromSource({ ownerUnitId, key, source }) {
+  const cleanOwner = cleanId(ownerUnitId);
+  const cleanKey = cleanId(key);
+  const sourceSlot = source?.slot && typeof source.slot === 'object' ? source.slot : {};
+  const definition = {};
+
+  Object.entries(sourceSlot).forEach(([rawKey, value]) => {
+    const normalizedKey = cleanId(rawKey);
+    if (!normalizedKey || SOURCE_SLOT_OMIT_KEYS.has(normalizedKey) || value === undefined) return;
+    const parameter = WEAPONDEF_SOURCE_PARAMETERS.get(normalizedKey);
+    if (parameter) {
+      setNestedValue(definition, parameter.path, value);
+      return;
+    }
+    // Target categories belong to a unit's weapon mount, rather than the
+    // reusable WeaponDef. They are intentionally not copied here.
+    if (WEAPON_EDITABLE_PARAMETER_CATALOG.some(candidate => (
+      cleanId(candidate.key) === normalizedKey && candidate.compileTarget === 'mount'
+    ))) return;
+    // The snapshot keeps these three compact aliases for editor presentation;
+    // WeaponDefs themselves use their engine-native field names.
+    const targetKey = normalizedKey === 'reload'
+      ? 'reloadtime'
+      : normalizedKey === 'velocity'
+        ? 'weaponvelocity'
+        : normalizedKey === 'aoe'
+          ? 'areaofeffect'
+          : rawKey;
+    definition[targetKey] = structuredClone(value);
+  });
+
+  return {
+    id: `support_source_${cleanOwner}_${cleanKey}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    ownerUnitId: cleanOwner,
+    key: cleanKey,
+    label: `${String(source?.sourceWeaponDefKey || cleanKey).toUpperCase()} copy`,
+    definition,
+    enabled: true,
+    mode: 'create-only',
+    role: 'auxiliary',
+    mountedSlots: [],
+    dependencies: [],
+    referencedBy: [],
+    sourceName: `BAR snapshot: ${source?.sourceUnitName || source?.sourceUnitId || 'unknown'} / ${String(source?.sourceWeaponDefKey || '').toUpperCase()}`,
+  };
+}
 
 export function getSupportingWeaponDefDestination(definition) {
   return `${cleanId(definition?.ownerUnitId)}:${cleanId(definition?.key)}`;

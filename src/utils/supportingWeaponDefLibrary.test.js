@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { analyzeSupportingWeaponDefLibrary, getSupportingWeaponDefDestination } from './supportingWeaponDefLibrary.js';
+import {
+  analyzeSupportingWeaponDefLibrary,
+  createSupportingWeaponDefFromSource,
+  getSupportingWeaponDefDestination,
+} from './supportingWeaponDefLibrary.js';
 
 const definition = (overrides = {}) => ({
   id: 'support-child',
@@ -15,6 +19,46 @@ const definition = (overrides = {}) => ({
 });
 
 describe('supporting WeaponDef library analysis', () => {
+  it('copies a BAR source into an isolated engine-native literal definition', () => {
+    const copied = createSupportingWeaponDefFromSource({
+      ownerUnitId: 'armflea',
+      key: 'plasma_copy',
+      source: {
+        sourceUnitId: 'armflash',
+        sourceUnitName: 'Flash',
+        sourceWeaponDefKey: 'plasma',
+        slot: {
+          slot: 1,
+          defKey: 'plasma',
+          damage: 100,
+          reload: 1.25,
+          velocity: 550,
+          aoe: 24,
+          tracks: true,
+          onlytargetcategory: 'SURFACE',
+          spawns_name: 'armflea',
+        },
+      },
+    });
+
+    expect(copied).toMatchObject({
+      ownerUnitId: 'armflea',
+      key: 'plasma_copy',
+      mode: 'create-only',
+      definition: {
+        damage: { default: 100 },
+        reloadtime: 1.25,
+        weaponvelocity: 550,
+        areaofeffect: 24,
+        tracks: true,
+        customparams: { spawns_name: 'armflea' },
+      },
+    });
+    expect(copied.definition).not.toHaveProperty('onlytargetcategory');
+    expect(copied.definition).not.toHaveProperty('slot');
+    expect(copied.definition).not.toHaveProperty('defKey');
+  });
+
   it('normalizes destinations and discovers definition, slot, and tweak consumers', () => {
     const definitions = [
       definition({ mountedSlots: [2] }),

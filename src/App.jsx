@@ -1855,6 +1855,7 @@ export default function App() {
             definitions={supportingWeaponDefs}
             knownUnits={allUnitsList}
             tweaks={tweaks}
+            sourceCatalog={weaponSourceCatalog}
             onAdd={handleAddSupportingWeaponDefs}
             onUpdate={handleUpdateSupportingWeaponDef}
             onRemove={handleRemoveSupportingWeaponDef}

@@ -58,10 +58,43 @@ describe('WeaponDefLibraryPage', () => {
 
     await user.type(within(catalog).getByLabelText('Owner UnitDef'), 'armflea');
     await user.type(within(catalog).getByLabelText('WeaponDef key'), 'cluster_child');
-    await user.click(within(catalog).getByRole('button', { name: 'Create definition' }));
+    await user.click(within(catalog).getByRole('button', { name: 'Create empty' }));
 
     expect(callbacks.onAdd).toHaveBeenCalledWith([
       expect.objectContaining({ ownerUnitId: 'armflea', key: 'cluster_child', enabled: true }),
+    ]);
+  });
+
+  it('copies a validated BAR weapon source into a supporting definition', async () => {
+    const user = userEvent.setup();
+    const callbacks = renderLibrary({
+      definitions: [],
+      sourceCatalog: [{
+        id: 'armflash:plasma',
+        sourceUnitId: 'armflash',
+        sourceUnitName: 'Flash',
+        sourceWeaponDefKey: 'plasma',
+        slot: { slot: 1, defKey: 'plasma', damage: 100, reload: 1.5, range: 450 },
+      }],
+    });
+    const catalog = screen.getByRole('complementary', { name: 'Supporting WeaponDef catalog' });
+
+    await user.type(within(catalog).getByLabelText('Owner UnitDef'), 'armflea');
+    await user.type(within(catalog).getByLabelText('BAR WeaponDef source'), 'plasma');
+    await user.click(within(catalog).getByRole('option', { name: /PLASMA.*Flash/i }));
+    await user.click(within(catalog).getByRole('button', { name: 'Copy BAR source' }));
+
+    expect(callbacks.onAdd).toHaveBeenCalledWith([
+      expect.objectContaining({
+        ownerUnitId: 'armflea',
+        key: 'plasma_copy',
+        mode: 'create-only',
+        definition: expect.objectContaining({
+          damage: { default: 100 },
+          reloadtime: 1.5,
+          range: 450,
+        }),
+      }),
     ]);
   });
 

@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { analyzeSupportingWeaponDefLibrary, getSupportingWeaponDefDestination } from '../utils/supportingWeaponDefLibrary.js';
+import {
+  analyzeSupportingWeaponDefLibrary,
+  createSupportingWeaponDefFromSource,
+  getSupportingWeaponDefDestination,
+} from '../utils/supportingWeaponDefLibrary.js';
 import { Button, EmptyState, PageShell, Switch, TextField, Type } from './ui.jsx';
 import '../styles/features/weapondef-library.css';
 
@@ -127,6 +131,7 @@ export default function WeaponDefLibraryPage({
   definitions = [],
   knownUnits = [],
   tweaks = {},
+  sourceCatalog = [],
   onAdd,
   onUpdate,
   onRemove,
@@ -140,6 +145,8 @@ export default function WeaponDefLibraryPage({
   const [selectedId, setSelectedId] = useState(definitions[0]?.id || '');
   const [newOwner, setNewOwner] = useState('');
   const [newKey, setNewKey] = useState('');
+  const [sourceQuery, setSourceQuery] = useState('');
+  const [selectedSourceId, setSelectedSourceId] = useState('');
   const analysis = useMemo(() => analyzeSupportingWeaponDefLibrary({
     definitions,
     knownUnitIds: knownUnits,
@@ -147,6 +154,21 @@ export default function WeaponDefLibraryPage({
   }), [definitions, knownUnits, tweaks]);
   const allDestinations = useMemo(() => new Set(definitions.map(getSupportingWeaponDefDestination)), [definitions]);
   const normalizedQuery = query.trim().toLowerCase();
+  const sourceMatches = useMemo(() => {
+    const normalizedSourceQuery = sourceQuery.trim().toLowerCase();
+    const matchingSources = normalizedSourceQuery
+      ? sourceCatalog.filter(source => [
+        source.sourceWeaponDefKey,
+        source.sourceUnitName,
+        source.sourceUnitId,
+      ].some(value => String(value || '').toLowerCase().includes(normalizedSourceQuery)))
+      : sourceCatalog;
+    return matchingSources.slice(0, 8);
+  }, [sourceCatalog, sourceQuery]);
+  const selectedSource = useMemo(
+    () => sourceCatalog.find(source => source.id === selectedSourceId) || null,
+    [selectedSourceId, sourceCatalog],
+  );
   const visibleEntries = analysis.entries.filter(entry => {
     const matchesQuery = !normalizedQuery || `${entry.label || ''} ${entry.ownerUnitId} ${entry.key} ${entry.role || ''}`.toLowerCase().includes(normalizedQuery);
     const matchesStatus = statusFilter === 'all'
@@ -171,6 +193,26 @@ export default function WeaponDefLibraryPage({
     onNotice?.(`Created ${key.toUpperCase()} for ${ownerUnitId}.`);
   };
 
+  const selectSource = source => {
+    setSelectedSourceId(source.id);
+    setSourceQuery(`${source.sourceWeaponDefKey} / ${source.sourceUnitName}`);
+    if (!newKey.trim()) setNewKey(`${source.sourceWeaponDefKey}_copy`);
+  };
+
+  const createFromSource = () => {
+    const ownerUnitId = newOwner.trim().toLowerCase();
+    const key = newKey.trim().toLowerCase();
+    if (!selectedSource || !ownerUnitId || !key || allDestinations.has(`${ownerUnitId}:${key}`)) return;
+    const definition = createSupportingWeaponDefFromSource({ ownerUnitId, key, source: selectedSource });
+    onAdd([definition]);
+    setSelectedId(definition.id);
+    setNewOwner('');
+    setNewKey('');
+    setSourceQuery('');
+    setSelectedSourceId('');
+    onNotice?.(`Copied ${selectedSource.sourceWeaponDefKey.toUpperCase()} into ${key.toUpperCase()} for ${ownerUnitId}.`);
+  };
+
   return (
     <PageShell
       className="weapondef-library-page"
@@ -191,9 +233,48 @@ export default function WeaponDefLibraryPage({
         <aside className="weapondef-catalog" aria-label="Supporting WeaponDef catalog">
           <header><Type variant="eyebrow">Project catalog</Type><Type as="h3" variant="section-title">Definitions</Type><p>One destination is an owner UnitDef plus a unique WeaponDef key.</p></header>
           <div className="weapondef-create">
+            <header className="weapondef-create__heading">
+              <strong>Create definition</strong>
+              <span>Start empty or copy a validated BAR WeaponDef.</span>
+            </header>
             <TextField label="Owner UnitDef" placeholder="armflea" value={newOwner} onChange={event => setNewOwner(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} />
             <TextField label="WeaponDef key" placeholder="cluster_child" value={newKey} onChange={event => setNewKey(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} />
-            <Button variant="primary" disabled={!newOwner || !newKey || allDestinations.has(`${newOwner}:${newKey}`)} onClick={createNewDefinition}>Create definition</Button>
+            <div className="weapondef-create__actions">
+              <Button variant="primary" disabled={!newOwner || !newKey || allDestinations.has(`${newOwner}:${newKey}`)} onClick={createNewDefinition}>Create empty</Button>
+              <Button disabled={!selectedSource || !newOwner || !newKey || allDestinations.has(`${newOwner}:${newKey}`)} onClick={createFromSource}>Copy BAR source</Button>
+            </div>
+            <div className="weapondef-source-picker">
+              <label>
+                <span>BAR WeaponDef source</span>
+                <input
+                  type="search"
+                  placeholder="Search weapon, unit, or definition ID..."
+                  value={sourceQuery}
+                  onChange={event => {
+                    setSourceQuery(event.target.value);
+                    if (selectedSource && event.target.value !== `${selectedSource.sourceWeaponDefKey} / ${selectedSource.sourceUnitName}`) setSelectedSourceId('');
+                  }}
+                />
+              </label>
+              {sourceQuery.trim() && (
+                <div className="weapondef-source-picker__results" role="listbox" aria-label="Matching BAR WeaponDefs">
+                  {sourceMatches.length ? sourceMatches.map(source => (
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={selectedSource?.id === source.id}
+                      key={source.id}
+                      className={selectedSource?.id === source.id ? 'is-selected' : ''}
+                      onClick={() => selectSource(source)}
+                    >
+                      <span><strong>{source.sourceWeaponDefKey.toUpperCase()}</strong><small>{source.sourceUnitName} / {source.sourceUnitId}</small></span>
+                      <em>Copy</em>
+                    </button>
+                  )) : <p>No BAR WeaponDefs match this search.</p>}
+                </div>
+              )}
+              {selectedSource && <p className="weapondef-source-picker__selection"><strong>Selected source:</strong> {selectedSource.sourceWeaponDefKey.toUpperCase()} from {selectedSource.sourceUnitName}. Its literal fields will be copied; the original BAR definition remains unchanged.</p>}
+            </div>
           </div>
           <div className="weapondef-catalog__filters">
             <label><span className="ui-visually-hidden">Search supporting WeaponDefs</span><input type="search" placeholder="Search owner, key, or role..." value={query} onChange={event => setQuery(event.target.value)} /></label>
