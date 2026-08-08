@@ -1,4 +1,4 @@
-import gameDataManifest from '../data/game-data-manifest.json';
+import gameDataManifest from '../data/game-data-manifest.json' with { type: 'json' };
 
 export const GADGET_CONTRACT_REGISTRY_VERSION = 1;
 

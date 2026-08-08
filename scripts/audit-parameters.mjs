@@ -16,6 +16,10 @@ import {
   CUSTOM_PARAMETER_DISCOVERY,
   CUSTOM_PARAMETER_REGISTRY,
 } from '../src/config/customParameters.js';
+import {
+  CUSTOM_PARAMETER_PROMOTION_ORDER,
+  CUSTOM_PARAMETER_RUNTIME_EVIDENCE,
+} from '../src/config/customParameterPromotion.js';
 import gameDataManifest from '../src/data/game-data-manifest.json' with { type: 'json' };
 import { UNIT_BEHAVIOR_CONTROLS } from '../src/config/behaviorInterceptor.js';
 import { getParameterHelp } from '../src/config/parameterGuidance.js';
@@ -152,6 +156,33 @@ export function auditParameterCompleteness({
       || !['number', 'boolean', 'string'].includes(parameter.type)
     ))
     .map(parameter => parameter.id || parameter.key || '(missing id)');
+  const invalidPromotionMetadata = CUSTOM_PARAMETER_REGISTRY
+    .filter(parameter => (
+      !parameter.promotion
+      || !CUSTOM_PARAMETER_PROMOTION_ORDER.includes(parameter.promotion.id)
+      || !Number.isInteger(parameter.promotion.rank)
+      || !parameter.promotion.label
+      || !parameter.promotion.description
+      || !parameter.promotion.nextRequirement
+      || !Array.isArray(parameter.promotion.evidence)
+      || !Array.isArray(parameter.promotion.runtimeFixtureIds)
+    ))
+    .map(parameter => parameter.id || parameter.key || '(missing id)');
+  const missingRuntimeEvidence = Object.keys(CUSTOM_PARAMETER_RUNTIME_EVIDENCE)
+    .filter(key => !CUSTOM_PARAMETER_REGISTRY.some(parameter => (
+      parameter.scope === 'weapon'
+      && parameter.key === key
+      && parameter.promotion.id === 'runtime-tested'
+    )));
+  const brokenPromotionChains = CUSTOM_PARAMETER_REGISTRY
+    .filter(parameter => {
+      const kinds = new Set(parameter.promotion.evidence.map(item => item.kind));
+      return (parameter.promotion.rank >= 1 && !kinds.has('review'))
+        || (parameter.promotion.rank >= 2 && !kinds.has('documentation'))
+        || (parameter.promotion.rank >= 3 && !kinds.has('editor'))
+        || (parameter.promotion.rank >= 4 && !kinds.has('runtime'));
+    })
+    .map(parameter => parameter.id);
   const discoveryCommitMismatch = CUSTOM_PARAMETER_DISCOVERY.sourceCommit !== gameDataManifest.sourceCommit
     ? [`${CUSTOM_PARAMETER_DISCOVERY.sourceCommit || 'missing'} != ${gameDataManifest.sourceCommit}`]
     : [];
@@ -244,6 +275,9 @@ export function auditParameterCompleteness({
     ['invalid unit parameter metadata', invalidUnitMetadata],
     ['invalid custom-parameter metadata', invalidCustomMetadata],
     ['invalid custom-parameter registry metadata', invalidRegistryMetadata],
+    ['invalid custom-parameter promotion metadata', invalidPromotionMetadata],
+    ['runtime evidence without a promoted weapon contract', missingRuntimeEvidence],
+    ['custom-parameter promotions with incomplete evidence chains', brokenPromotionChains],
     ['custom-parameter discovery commit mismatch', discoveryCommitMismatch],
     ['custom-parameter discovery coverage mismatch', discoveryCoverageMismatch],
     ['invalid weapon parameter metadata', invalidWeaponMetadata],
@@ -279,6 +313,10 @@ export function auditParameterCompleteness({
       customParameters: CUSTOM_PARAMETER_CATALOG.length,
       customParameterRegistry: CUSTOM_PARAMETER_REGISTRY.length,
       discoveredCustomParameters: CUSTOM_PARAMETER_DISCOVERY.counts.totalParameters,
+      customParameterPromotion: Object.fromEntries(CUSTOM_PARAMETER_PROMOTION_ORDER.map(stageId => [
+        stageId,
+        CUSTOM_PARAMETER_REGISTRY.filter(parameter => parameter.promotion.id === stageId).length,
+      ])),
       renderedWeaponParameters: weaponCatalog.coveredKeys.size,
       snapshotUnitFields: unitSnapshotFields.length,
       snapshotWeaponFields: weaponSnapshotFields.length,
@@ -296,6 +334,7 @@ function printReport(report) {
   console.log(`  Snapshot units: ${counts.units}`);
   console.log(`  Unit parameter metadata: ${counts.unitParameters}`);
   console.log(`  Advanced custom parameters: ${counts.customParameters}`);
+  console.log(`  Contract promotion: ${CUSTOM_PARAMETER_PROMOTION_ORDER.map(stageId => `${stageId} ${counts.customParameterPromotion[stageId]}`).join(' / ')}`);
   console.log(`  Editable weapon controls: ${counts.renderedWeaponParameters}`);
   console.log(`  Snapshot fields: ${counts.snapshotUnitFields} unit / ${counts.snapshotWeaponFields} weapon`);
   console.log(`  Secondary behavior/interceptor fields: ${counts.behaviorWeaponFields}`);

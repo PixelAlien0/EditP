@@ -1,5 +1,10 @@
 import discovery from '../data/custom-parameter-discovery.json' with { type: 'json' };
 import { WEAPON_PARAMETER_CATALOG } from './weaponParameters.js';
+import { GADGET_CONTRACT_REGISTRY } from './gadgetContracts.js';
+import {
+  buildCustomParameterPromotion,
+  CUSTOM_PARAMETER_RUNTIME_EVIDENCE,
+} from './customParameterPromotion.js';
 
 export const CUSTOM_PARAMETER_REGISTRY_VERSION = 2;
 export const CUSTOM_PARAMETER_KEY_PATTERN = /^[a-z_][a-z0-9_]*$/;
@@ -77,14 +82,46 @@ function observationMap(scope) {
 const unitObservations = observationMap('unit');
 const weaponObservations = observationMap('weapon');
 
+const contractByParameter = new Map();
+for (const contract of GADGET_CONTRACT_REGISTRY) {
+  for (const contractKey of contract.triggerKeys || []) {
+    const key = String(contractKey).replace(/^customparams\./, '').toLowerCase();
+    const id = `${contract.scope}:${key}`;
+    if (!contractByParameter.has(id)) contractByParameter.set(id, []);
+    contractByParameter.get(id).push(contract);
+  }
+}
+
 function enrichDefinition(definition, scope, observation) {
   const observed = Boolean(observation);
+  const contracts = contractByParameter.get(`${scope}:${definition.key}`) || [];
+  const reviewed = Boolean(definition.reviewed || definition.curated || definition.editorSupported || contracts.length);
+  const documented = Boolean(definition.documented || definition.curated || definition.editorSupported);
+  const editorSupported = Boolean(definition.editorSupported);
+  const runtimeFixtureIds = scope === 'weapon'
+    ? CUSTOM_PARAMETER_RUNTIME_EVIDENCE[definition.key] || []
+    : [];
+  const promotion = buildCustomParameterPromotion({
+    observed,
+    reviewed,
+    documented,
+    editorSupported,
+    runtimeFixtureIds,
+    evidence: contracts.map(contract => ({
+      kind: 'consumer',
+      label: contract.label,
+      contractId: contract.id,
+      sourcePath: contract.source.path,
+    })),
+  });
   return Object.freeze({
     ...definition,
     id: `${scope}:${definition.key}`,
     scope,
     path: `customparams.${definition.key}`,
-    status: definition.status || (observed ? 'documented' : 'supported'),
+    status: promotion.id,
+    promotion,
+    contractIds: Object.freeze(contracts.map(contract => contract.id)),
     capabilities: Object.freeze(definition.capabilities || [
       definition.owner === 'Package-specific' ? 'external-package' : 'bar-data',
     ]),
@@ -114,7 +151,9 @@ function discoveredDefinition(observation, scope) {
 
 const curatedUnitByKey = new Map(curatedUnitParameters.map(parameter => [parameter.key, parameter]));
 const unitRegistry = [
-  ...curatedUnitParameters.map(parameter => enrichDefinition(parameter, 'unit', unitObservations.get(parameter.key))),
+  ...curatedUnitParameters.map(parameter => enrichDefinition({
+    ...parameter, curated: true, editorSupported: true,
+  }, 'unit', unitObservations.get(parameter.key))),
   ...[...unitObservations.values()]
     .filter(observation => !curatedUnitByKey.has(observation.key))
     .map(observation => discoveredDefinition(observation, 'unit')),
@@ -132,6 +171,9 @@ for (const parameter of WEAPON_PARAMETER_CATALOG) {
     type: parameter.valueType === 'boolean' ? 'boolean' : parameter.valueType === 'number' ? 'number' : 'string',
     owner: 'BAR gadget',
     maturity: parameter.capabilities?.includes('experimental') ? 'experimental' : 'supported',
+    reviewed: true,
+    documented: true,
+    editorSupported: true,
     capabilities: parameter.capabilities || ['bar-gadget'],
     description: parameter.description || `${parameter.label} is compiled into the WeaponDef custom-parameter table.`,
   });
@@ -175,6 +217,10 @@ export function getCustomParameterObservation(key, scope = 'unit') {
     sampleWeaponDefs: definition.sampleWeaponDefs,
     sourcePaths: definition.sourcePaths,
   };
+}
+
+export function getCustomParameterPromotion(key, scope = 'unit') {
+  return getCustomParameterDefinition(key, scope)?.promotion || null;
 }
 
 export function normalizeCustomParameterKey(value) {

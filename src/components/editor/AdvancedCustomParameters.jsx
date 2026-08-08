@@ -8,6 +8,10 @@ import {
   isValidCustomParameterKey,
   normalizeCustomParameterKey
 } from '../../config/customParameters.js';
+import {
+  CUSTOM_PARAMETER_PROMOTION_ORDER,
+  CUSTOM_PARAMETER_PROMOTION_STAGES,
+} from '../../config/customParameterPromotion.js';
 
 const PREFIX = 'customparams.';
 const CORE_CUSTOM_KEYS = new Set([
@@ -47,8 +51,18 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
   const available = CUSTOM_PARAMETER_CATALOG.filter(parameter => (
     !activeKeys.has(parameter.key) && !CORE_CUSTOM_KEYS.has(parameter.key)
   ));
-  const documentedAvailable = available.filter(parameter => parameter.status !== 'discovered');
-  const discoveredAvailable = available.filter(parameter => parameter.status === 'discovered');
+  const availableByPromotion = [...CUSTOM_PARAMETER_PROMOTION_ORDER]
+    .reverse()
+    .map(stageId => ({
+      stage: CUSTOM_PARAMETER_PROMOTION_STAGES[stageId],
+      parameters: available.filter(parameter => parameter.promotion.id === stageId),
+    }))
+    .filter(group => group.parameters.length > 0);
+  const promotionCounts = CUSTOM_PARAMETER_CATALOG.reduce((counts, parameter) => {
+    counts[parameter.promotion.id] = (counts[parameter.promotion.id] || 0) + 1;
+    return counts;
+  }, {});
+  const supportedCount = CUSTOM_PARAMETER_CATALOG.filter(parameter => parameter.promotion.rank >= 3).length;
   const isCustom = catalogKey === '__custom__';
   const selectedKey = isCustom ? normalizeCustomParameterKey(customKey) : catalogKey;
   const definition = CUSTOM_PARAMETER_BY_KEY.get(selectedKey);
@@ -79,8 +93,22 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
         <div className="advanced-custom-parameters__summary">
           <span className="advanced-custom-parameters__count">{active.filter(parameter => parameter.modified).length} overrides</span>
           <span className="advanced-custom-parameters__count">{CUSTOM_PARAMETER_DISCOVERY.counts.unitParameters} observed keys</span>
+          <span className="advanced-custom-parameters__count">{supportedCount} supported</span>
         </div>
       </header>
+
+      <ol className="advanced-custom-parameters__promotion-rail" aria-label="Semantic contract promotion stages">
+        {CUSTOM_PARAMETER_PROMOTION_ORDER.map((stageId, index) => {
+          const stage = CUSTOM_PARAMETER_PROMOTION_STAGES[stageId];
+          return (
+            <li key={stageId} title={stage.description}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <strong>{stage.label}</strong>
+              <small>{promotionCounts[stageId] || 0}</small>
+            </li>
+          );
+        })}
+      </ol>
 
       {active.length > 0 && (
         <div className="advanced-custom-parameters__list">
@@ -91,8 +119,8 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
                 <div className="advanced-custom-parameter__identity">
                   <strong>{parameter.definition?.label || parameter.shortKey}</strong>
                   <code>{parameter.shortKey}</code>
-                  <span className={`advanced-custom-parameter__status is-${parameter.definition?.status || 'custom'}`}>
-                    {parameter.definition?.status === 'discovered' ? 'Observed' : parameter.definition ? 'Documented' : 'Custom'}
+                  <span className={`advanced-custom-parameter__status is-${parameter.definition?.promotion.id || 'custom'}`}>
+                    {parameter.definition?.promotion.shortLabel || 'Custom'}
                   </span>
                   <ParameterStatus
                     modified={parameter.modified}
@@ -129,6 +157,12 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
                   {parameter.definition?.description || 'Custom package key. Confirm that the loaded game code consumes it before relying on the value.'}
                   {parameter.definition?.observed && ` Observed ${parameter.definition.occurrences} time${parameter.definition.occurrences === 1 ? '' : 's'} in the current BAR source.`}
                 </p>
+                {parameter.definition?.promotion && (
+                  <div className="advanced-custom-parameter__evidence">
+                    <span>{parameter.definition.promotion.description}</span>
+                    <span>Next: {parameter.definition.promotion.nextRequirement}</span>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -139,17 +173,12 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
         <label>
           <span>Parameter</span>
           <select aria-label="Custom parameter catalog" value={catalogKey} onChange={event => { setCatalogKey(event.target.value); setDraftValue(''); }}>
-            <option value="">Choose a supported key…</option>
-            {documentedAvailable.length > 0 && (
-              <optgroup label="Documented contracts">
-                {documentedAvailable.map(parameter => <option key={parameter.key} value={parameter.key}>{parameter.label}</option>)}
+            <option value="">Choose a registered key…</option>
+            {availableByPromotion.map(group => (
+              <optgroup key={group.stage.id} label={`${group.stage.label} (${group.parameters.length})`}>
+                {group.parameters.map(parameter => <option key={parameter.key} value={parameter.key}>{parameter.label}</option>)}
               </optgroup>
-            )}
-            {discoveredAvailable.length > 0 && (
-              <optgroup label="Observed in current BAR source">
-                {discoveredAvailable.map(parameter => <option key={parameter.key} value={parameter.key}>{parameter.label}</option>)}
-              </optgroup>
-            )}
+            ))}
             <option value="__custom__">Custom package key…</option>
           </select>
         </label>
@@ -196,6 +225,12 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
         <p className="advanced-custom-parameters__note">
           <strong>{definition.owner}:</strong> {definition.description}
           {definition.observed && ` Observed ${definition.occurrences} time${definition.occurrences === 1 ? '' : 's'} across the pinned BAR source.`}
+          <span className="advanced-custom-parameters__promotion-note">
+            <strong>{definition.promotion.label}:</strong> {definition.promotion.description}
+            {definition.contractIds.length > 0 && ` Linked contract${definition.contractIds.length === 1 ? '' : 's'}: ${definition.contractIds.join(', ')}.`}
+            {definition.promotion.runtimeFixtureIds.length > 0 && ` Runtime evidence: ${definition.promotion.runtimeFixtureIds.join(', ')}.`}
+            {' '}Next: {definition.promotion.nextRequirement}
+          </span>
         </p>
       )}
       {isCustom && selectedKey && !isValidCustomParameterKey(selectedKey) && <p className="advanced-custom-parameters__error">Use lowercase letters, numbers, and underscores; the first character must be a letter or underscore.</p>}

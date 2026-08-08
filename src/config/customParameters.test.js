@@ -7,9 +7,16 @@ import {
   coerceCustomParameterValue,
   getCustomParameterDefinition,
   getCustomParameterObservation,
+  getCustomParameterPromotion,
   isValidCustomParameterKey,
   normalizeCustomParameterKey
 } from './customParameters.js';
+import {
+  CUSTOM_PARAMETER_PROMOTION_ORDER,
+  CUSTOM_PARAMETER_PROMOTION_VERSION,
+  CUSTOM_PARAMETER_RUNTIME_EVIDENCE,
+} from './customParameterPromotion.js';
+import { ADVANCED_MECHANICS_RUNTIME_FIXTURES } from '../utils/fixtures/advancedMechanicsRuntimeFixtures.js';
 
 describe('advanced custom parameter metadata', () => {
   it('defines unique, valid lowercase keys with an ownership label', () => {
@@ -33,6 +40,37 @@ describe('advanced custom parameter metadata', () => {
 
     const cluster = getCustomParameterDefinition('cluster_def', 'weapon');
     expect(cluster).toMatchObject({ scope: 'weapon', editorKey: 'cluster_def' });
+  });
+
+  it('promotes contracts only as far as their recorded evidence permits', () => {
+    expect(CUSTOM_PARAMETER_PROMOTION_VERSION).toBe(1);
+    expect(getCustomParameterPromotion('airfactory', 'unit')?.id).toBe('observed');
+    expect(getCustomParameterPromotion('energyconv_capacity', 'unit')?.id).toBe('reviewed');
+    expect(getCustomParameterPromotion('unitgroup', 'unit')?.id).toBe('editor-supported');
+    expect(getCustomParameterPromotion('cluster_def', 'weapon')?.id).toBe('runtime-tested');
+
+    for (const parameter of CUSTOM_PARAMETER_REGISTRY) {
+      expect(CUSTOM_PARAMETER_PROMOTION_ORDER).toContain(parameter.promotion.id);
+      expect(parameter.promotion.evidence).toBeInstanceOf(Array);
+      expect(parameter.promotion.nextRequirement).toBeTruthy();
+    }
+  });
+
+  it('backs every runtime-tested promotion with an exact harness assertion', () => {
+    const assertedKeysByFixture = new Map(ADVANCED_MECHANICS_RUNTIME_FIXTURES.map(fixture => [
+      fixture.id,
+      new Set((fixture.expectations?.paths || []).flatMap(assertion => {
+        const match = assertion.path.match(/\.customparams\.([a-z0-9_]+)$/i);
+        return match ? [match[1].toLowerCase()] : [];
+      })),
+    ]));
+
+    for (const [key, fixtureIds] of Object.entries(CUSTOM_PARAMETER_RUNTIME_EVIDENCE)) {
+      for (const fixtureId of fixtureIds) {
+        expect(assertedKeysByFixture.get(fixtureId), `missing runtime fixture ${fixtureId}`).toBeDefined();
+        expect(assertedKeysByFixture.get(fixtureId)?.has(key), `${fixtureId} does not assert ${key}`).toBe(true);
+      }
+    }
   });
 
   it('normalizes safe custom keys and rejects Lua paths or expressions', () => {
