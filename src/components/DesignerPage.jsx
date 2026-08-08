@@ -38,6 +38,7 @@ export default function DesignerPage({
   const removedItems = rosterItems.filter(item => item.status === 'removed');
   const baseSlotCount = rosterItems.filter(item => item.status !== 'added').length;
   const addedSlotCount = rosterItems.filter(item => item.status === 'added').length;
+  const enabledPackCount = Object.keys(packDefinitions).filter(packId => rosterPacks[packId]).length;
   const suggestedUnits = availableUnits.filter(unit => !unit.rosterStatus).slice(0, 3);
 
   return (
@@ -46,11 +47,11 @@ export default function DesignerPage({
       label="Factory Roster Designer"
       eyebrow="Production planning"
       title="Factory Roster Designer"
-      description="Compose, sequence, and validate factory build options."
+      description="Shape producer rosters, sequence build tabs, and validate every production path."
       capabilityId="workspace.build-menus"
       context={(
             <div className="designer-selected-factory">
-              <div className="designer-unit-pic"><img src={factoryIconUrl} alt="" /></div>
+              <div className="designer-unit-pic"><UnitArtwork src={factoryIconUrl} alt="" /></div>
               <div><small>Current producer</small><span>{factoryName}</span><code>{factoryId}</code></div>
             </div>
       )}
@@ -64,8 +65,9 @@ export default function DesignerPage({
         <section className="designer-roster-profiles" aria-labelledby="designer-roster-profiles-title">
           <div className="designer-roster-profiles__intro">
             <Type variant="eyebrow" className="designer-panel-kicker">Game setup</Type>
-            <Type as="strong" variant="subsection-title" id="designer-roster-profiles-title">Roster profile</Type>
-            <Type as="small" variant="description">Preview the same conditional build options enabled in a BAR lobby.</Type>
+            <Type as="strong" variant="subsection-title" id="designer-roster-profiles-title">Roster conditions</Type>
+            <Type as="small" variant="description">Mirror optional BAR lobby unit packs while you compose.</Type>
+            <span className="designer-roster-profiles__count">{enabledPackCount} active</span>
           </div>
           <div className="designer-roster-profiles__options">
             {Object.entries(packDefinitions).map(([packId, pack]) => {
@@ -88,7 +90,7 @@ export default function DesignerPage({
                     </span>
                     <small>{pack.description}</small>
                     <span className="designer-pack-option__impact">
-                      {affectedProducers} producer rosters · {addedOptions} unit placements
+                      {affectedProducers} producers · {addedOptions} placements
                     </span>
                   </span>
                 </Switch>
@@ -100,7 +102,10 @@ export default function DesignerPage({
           <div className="designer-panel designer-factory-browser">
             <div className="designer-panel-header">
               <Type variant="eyebrow" className="designer-panel-kicker">Producer catalog</Type>
-              <Type variant="section-title" className="designer-panel-title">Choose a producer <small>{producerCatalog.length}</small></Type>
+              <div className="designer-panel-heading">
+                <Type variant="section-title" className="designer-panel-title">Choose a producer</Type>
+                <span className="designer-panel-count">{producerCatalog.length}</span>
+              </div>
               <Type variant="technical" className="designer-producer-summary">
                 {producerCounts.factory} factories <span aria-hidden="true">·</span> {producerCounts.builder} builders
               </Type>
@@ -124,6 +129,7 @@ export default function DesignerPage({
                     key={id}
                     className={`faction-tab ${producerFaction === id ? 'active' : ''}`}
                     onClick={() => onProducerFactionChange(id)}
+                    aria-pressed={producerFaction === id}
                   >
                     {label}
                   </button>
@@ -172,6 +178,7 @@ export default function DesignerPage({
                     className={`designer-factory-item ${active ? 'active' : ''}`}
                     onClick={() => onSelectProducer(producer.id)}
                     aria-pressed={active}
+                    aria-current={active ? 'true' : undefined}
                   >
                     <div className="designer-unit-pic designer-unit-pic--factory">
                       <UnitArtwork src={getUnitIconUrl(producer.id)} alt="" />
@@ -204,23 +211,20 @@ export default function DesignerPage({
             <div className="designer-panel-header designer-panel-header--roster">
               <div className="designer-panel-header__main">
                 <Type variant="eyebrow" className="designer-panel-kicker">Production sequence</Type>
-                <Type variant="section-title" className="designer-panel-title">
-                  {factoryName}
+                <div className="designer-sequence-title-row">
+                  <Type variant="section-title" className="designer-panel-title">{factoryName}</Type>
                   {isFactoryModified(factoryId) && (
-                    <button type="button" className="designer-reset-factory" onClick={onResetProducer}>
-                      Reset producer
-                    </button>
+                    <Button size="sm" variant="danger" className="designer-reset-factory" onClick={onResetProducer}>
+                      Reset roster
+                    </Button>
                   )}
-                </Type>
+                </div>
                 <Type as="div" variant="description" className="designer-panel-description">
-                  <span>Drag units to reorder the build menu. Removed slots remain visible until restored.</span>
-                  <span className="designer-sequence-summary">
-                    {activeSlotCount} active · {baseSlotCount} roster references · {addedSlotCount} custom
-                  </span>
+                  Drag cards to reorder the in-game build menu. Removed references remain recoverable.
                 </Type>
               </div>
-              <div className="designer-unitgroup-guide">
-                <span className="designer-unitgroup-guide__title">BAR Tab Placement Guide (<code>customparams.unitgroup</code>):</span>
+              <details className="designer-unitgroup-guide">
+                <summary className="designer-unitgroup-guide__title">BAR tab placement guide</summary>
                 <div className="designer-unitgroup-guide__badges">
                   <span className="designer-unitgroup-badge designer-unitgroup-badge--econ" title="Economy Tab (Z): unitgroup = 'metal' / 'energy'">
                     <span className="designer-unitgroup-key">Z</span>
@@ -243,7 +247,15 @@ export default function DesignerPage({
                     <code>unitgroup = "builder"</code>
                   </span>
                 </div>
-              </div>
+              </details>
+            </div>
+
+            <div className="designer-sequence-toolbar" aria-label="Roster status">
+              <span><small>Active</small><strong>{activeSlotCount}</strong></span>
+              <span><small>References</small><strong>{baseSlotCount}</strong></span>
+              <span><small>Custom</small><strong>{addedSlotCount}</strong></span>
+              <span className={removedItems.length > 0 ? 'has-warning' : ''}><small>Removed</small><strong>{removedItems.length}</strong></span>
+              <p>Drag to sequence · changes compile into this producer’s <code>buildoptions</code>.</p>
             </div>
 
             <div className="designer-panel-scroll designer-roster-scroll">
@@ -340,13 +352,18 @@ export default function DesignerPage({
           <div className="designer-panel designer-unit-library">
             <div className="designer-panel-header">
               <Type variant="eyebrow" className="designer-panel-kicker">Unit library</Type>
-              <Type variant="section-title" className="designer-panel-title">Add production options <small>{availableUnits.length}</small></Type>
+              <div className="designer-panel-heading">
+                <Type variant="section-title" className="designer-panel-title">Add options</Type>
+                <span className="designer-panel-count">{availableUnits.length}</span>
+              </div>
+              <Type as="small" variant="description" className="designer-library-description">Search the full unit library, then add or restore a build choice.</Type>
               <input
                 type="text"
                 className="search-input"
                 placeholder="Search units to add..."
                 value={availableSearch}
                 onChange={event => onAvailableSearchChange(event.target.value)}
+                aria-label="Search units to add"
               />
               <div className="faction-tabs designer-faction-tabs designer-faction-tabs--three">
                 {[
@@ -359,6 +376,7 @@ export default function DesignerPage({
                     key={id}
                     className={`faction-tab ${availableFaction === id ? 'active' : ''}`}
                     onClick={() => onAvailableFactionChange(id)}
+                    aria-pressed={availableFaction === id}
                   >
                     {label}
                   </button>
