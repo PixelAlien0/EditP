@@ -1,4 +1,5 @@
 import { encodeLobbyBase64 } from './tweakSerializer.js';
+import luaparse from 'luaparse';
 import {
   GENERATED_SLOT_TARGET_BYTES,
   LOBBY_SLOT_LIMIT_CHARACTERS,
@@ -56,6 +57,13 @@ function normalizedDependencies(dependencies) {
 }
 
 function canonicalExecutionKey(block) {
+  const executionLua = block.source === 'generated'
+    ? compactLuaIfEquivalent(block.lua, {
+      kind: block.kind,
+      enabled: true,
+      padding: false,
+    }).lua.replace(/^(?:\s*--[^\n]*(?:\n|$))+/, '').trim()
+    : block.lua;
   return [
     block.kind,
     block.stage,
@@ -63,7 +71,7 @@ function canonicalExecutionKey(block) {
     block.category,
     block.sourceFeature,
     block.atomic ? 'atomic' : 'composable',
-    block.lua,
+    executionLua,
   ].join('\u001f');
 }
 
@@ -245,6 +253,24 @@ function splitSerializedUnitTable(lua) {
     : [source];
 }
 
+function recoverCompactedCloneEnd(source, markerStart) {
+  try {
+    const syntaxTree = luaparse.parse(source, {
+      luaVersion: '5.1',
+      comments: false,
+      ranges: true,
+    });
+    const codeStart = markerStart + CLONES_BEGIN.length;
+    const cloneScope = syntaxTree.body.find(statement => (
+      statement.type === 'DoStatement'
+      && statement.range?.[0] >= codeStart
+    ));
+    return cloneScope?.range?.[1] ?? -1;
+  } catch {
+    return -1;
+  }
+}
+
 function findMarkedSpans(source) {
   const spans = [];
   FEATURE_MARKERS.forEach(marker => {
@@ -254,7 +280,25 @@ function findMarkedSpans(source) {
       const start = source.indexOf(marker.begin, searchFrom);
       if (start < 0) break;
       const endStart = source.indexOf(marker.end, start + marker.begin.length);
-      if (endStart < 0) break;
+      const nextStart = source.indexOf(marker.begin, start + marker.begin.length);
+      const orphaned = endStart < 0 || (nextStart >= 0 && nextStart < endStart);
+      if (orphaned) {
+        const recoveredEnd = marker.category === 'clone-definitions'
+          ? recoverCompactedCloneEnd(source, start)
+          : -1;
+        if (recoveredEnd > start) {
+          occurrence += 1;
+          spans.push({
+            ...marker,
+            occurrence,
+            start,
+            end: recoveredEnd,
+            recoveredBoundary: true,
+          });
+        }
+        searchFrom = nextStart >= 0 ? nextStart : start + marker.begin.length;
+        continue;
+      }
       occurrence += 1;
       spans.push({
         ...marker,
@@ -431,10 +475,20 @@ function packGeneratedBlocks(blocks, kind, options) {
       current.compaction = compaction;
       current.blocks.push(block);
     } else {
+      // `compaction` describes `current + block` when a current slot exists.
+      // A new slot must be compiled from the incoming block alone; otherwise
+      // every block from the previous slot is duplicated into this field.
+      const isolatedCompaction = current
+        ? compactLuaIfEquivalent(block.lua, {
+          kind,
+          enabled: options.compactGenerated,
+          padding: options.padding,
+        })
+        : compaction;
       packed.push({
         sourceLua: block.lua,
-        lua: compaction.lua,
-        compaction,
+        lua: isolatedCompaction.lua,
+        compaction: isolatedCompaction,
         blocks: [block],
       });
     }

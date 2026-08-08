@@ -364,4 +364,61 @@ describe('numbered lobby module compilation', () => {
     ]);
     expect(compiled.deduplication.removedBlockCount).toBe(1);
   });
+
+  it('recovers clone boundaries after compacted output loses its closing marker', () => {
+    const clonePadding = Array.from(
+      { length: 320 },
+      (_, index) => `clone_padding[${index + 1}]=${index + 1}`,
+    ).join(' ');
+    const compactedClone = [
+      '-- EDITP_CLONES_BEGIN',
+      `do local function clone_copy(value)if type(value)~="table"then return value end local copy={}for key,child in pairs(value)do copy[key]=clone_copy(child)end return copy end local source=UnitDefs.armflash if source and not UnitDefs.editp_flash then UnitDefs.editp_flash=clone_copy(source)end local clone_padding={} ${clonePadding} end`,
+    ].join('\n');
+    const buildCalls = Array.from(
+      { length: 260 },
+      (_, index) => `editp_bo("armvp","editp_flash_${index + 1}")`,
+    ).join(' ');
+    const compactedBuildMenu = `local function editp_bo(id,unit)local u=UnitDefs[id]if u then u.buildoptions=u.buildoptions or{}u.buildoptions[#u.buildoptions+1]=unit end end ${buildCalls}`;
+    const compiled = compileLobbyModules({
+      tweakModules: [],
+      generatedTweakDefsLua: `${compactedClone} ${compactedBuildMenu}`,
+      generatedTweakUnitsLua: '',
+    });
+
+    expect(compiled.canonicalBlocks.defs.map(block => block.category)).toEqual([
+      'clone-definitions',
+      'custom-generated-source',
+    ]);
+    expect(compiled.canonicalBlocks.defs[0].lua).not.toContain('editp_bo');
+    expect(compiled.canonicalBlocks.defs[1].lua).toContain('editp_bo');
+    expect(compiled.defs.required).toBe(2);
+    expect(compiled.defs.overflow).toBe(false);
+    expect(compiled.defs.slots[0].lua).toContain('clone_copy');
+    expect(compiled.defs.slots[0].lua).not.toContain('editp_bo');
+    expect(compiled.defs.slots[1].lua).not.toContain('clone_copy');
+    expect(compiled.defs.slots[1].lua).toContain('editp_bo');
+  });
+
+  it('deduplicates formatting-equivalent generated clone blocks', () => {
+    const compacted = '-- EDITP_CLONES_BEGIN\ndo local function clone_copy(value)return value end clone_copy(true)end';
+    const marked = [
+      '-- EDITP_CLONES_BEGIN',
+      'do',
+      '  local function clone_copy(value)',
+      '    return value',
+      '  end',
+      '  clone_copy(true)',
+      'end',
+      '-- EDITP_CLONES_END',
+    ].join('\n');
+    const compiled = compileLobbyModules({
+      tweakModules: [],
+      generatedTweakDefsLua: `${compacted}\n${marked}`,
+      generatedTweakUnitsLua: '',
+    });
+
+    expect(compiled.canonicalBlocks.defs).toHaveLength(2);
+    expect(compiled.effectiveBlocks.defs).toHaveLength(1);
+    expect(compiled.deduplication.removedBlockCount).toBe(1);
+  });
 });
