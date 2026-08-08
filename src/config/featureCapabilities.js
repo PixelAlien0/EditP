@@ -102,6 +102,7 @@ export const FEATURE_CAPABILITIES = Object.freeze({
   'tool.carrier-workbench': Object.freeze(['bar-gadget', 'experimental']),
   'tool.preset-gallery': Object.freeze(['local-only']),
   'tool.tweak-package-lab': Object.freeze(['static-analysis']),
+  'tool.weapondef-library': Object.freeze(['editor-generated', 'validated-export']),
   'tool.reference-library': Object.freeze(['read-only']),
 });
 

@@ -34,6 +34,7 @@ export default function MainMenu({
   onCollections,
   onPresetGallery,
   onTweakLab,
+  onWeaponDefLibrary,
   onReferenceLibrary,
   onLoadProject,
   onSaveProject,
@@ -61,6 +62,7 @@ export default function MainMenu({
     { id: 'collections', code: 'COL', title: 'Collections', description: 'Organize reusable unit scopes.', capabilityId: 'workspace.collections', onSelect: onCollections },
     { id: 'presets', code: 'PRE', title: 'Preset Gallery', description: 'Save and apply project snapshots.', capabilityId: 'tool.preset-gallery', onSelect: onPresetGallery },
     { id: 'tweak-lab', code: 'LAB', title: 'Tweak Package Lab', description: 'Inspect community Lua safely.', capabilityId: 'tool.tweak-package-lab', onSelect: onTweakLab },
+    { id: 'weapondefs', code: 'WDF', title: 'WeaponDef Library', description: 'Build supporting weapon definitions.', capabilityId: 'tool.weapondef-library', onSelect: onWeaponDefLibrary },
     { id: 'reference', code: 'REF', title: 'BAR Reference Library', description: 'Search definitions and assets.', capabilityId: 'tool.reference-library', onSelect: onReferenceLibrary },
   ];
 

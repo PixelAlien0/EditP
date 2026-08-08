@@ -33,6 +33,7 @@ export default function AppHeader({
   onPresetGallery,
   onWeaponLab,
   onTweakLab,
+  onWeaponDefLibrary,
   onReferenceLibrary,
   onExport,
   onImport,
@@ -237,6 +238,9 @@ export default function AppHeader({
                 <span className="header-tools-menu__group-label">Packages &amp; references</span>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onTweakLab)}>
                   <span><span className="header-tool-title"><strong>Tweak Package Lab</strong><CapabilityLabels featureId="tool.tweak-package-lab" compact /></span><small>Inspect community Lua safely</small></span>
+                </button>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onWeaponDefLibrary)}>
+                  <span><span className="header-tool-title"><strong>WeaponDef Library</strong><CapabilityLabels featureId="tool.weapondef-library" compact /></span><small>Create and validate supporting definitions</small></span>
                 </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onReferenceLibrary)}>
                   <span><span className="header-tool-title"><strong>BAR Reference Library</strong><CapabilityLabels featureId="tool.reference-library" compact /></span><small>Search definitions and assets</small></span>

@@ -22,6 +22,7 @@ function renderHeader(overrides = {}) {
     onPresetGallery: vi.fn(),
     onWeaponLab: vi.fn(),
     onTweakLab: vi.fn(),
+    onWeaponDefLibrary: vi.fn(),
     onReferenceLibrary: vi.fn(),
     onExport: vi.fn(),
     onImport: vi.fn(),
@@ -84,6 +85,8 @@ describe('AppHeader', () => {
     expect(screen.getByRole('menuitem', { name: /batch adjust/i })).toHaveTextContent('Locked');
     expect(screen.getByRole('menuitem', { name: /carrier & drone studio/i })).toHaveTextContent('Gadget');
     expect(screen.getByRole('menuitem', { name: /carrier & drone studio/i })).toHaveTextContent('Experimental');
+    expect(screen.getByRole('menuitem', { name: /weapondef library/i })).toHaveTextContent('Generated');
+    expect(screen.getByRole('menuitem', { name: /weapondef library/i })).toHaveTextContent('Preflight');
     expect(screen.getByRole('menuitem', { name: /bar reference library/i })).toHaveTextContent('Reference');
   });
 });

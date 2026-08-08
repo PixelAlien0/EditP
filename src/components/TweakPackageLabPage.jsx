@@ -137,64 +137,14 @@ function ModuleCard({ module, selected, analysis, report, onSelect, onUpdate, on
   );
 }
 
-function SupportingWeaponDefCard({ definition, onUpdate, onRemove }) {
-  const [definitionDraft, setDefinitionDraft] = useState(() => JSON.stringify(definition.definition || {}, null, 2));
-  const [definitionError, setDefinitionError] = useState('');
-  useEffect(() => {
-    setDefinitionDraft(JSON.stringify(definition.definition || {}, null, 2));
-    setDefinitionError('');
-  }, [definition.id, definition.definition]);
-
-  const saveDefinition = () => {
-    try {
-      const parsed = JSON.parse(definitionDraft);
-      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Definition must be a JSON object.');
-      onUpdate(definition.id, { definition: parsed });
-      setDefinitionError('');
-    } catch (error) {
-      setDefinitionError(error.message);
-    }
-  };
-
-  return (
-    <article className="tweak-support-card">
-      <div className="tweak-support-card__heading">
-        <div><span>{definition.role === 'dependency' ? 'Referenced dependency' : definition.role === 'mounted' ? 'Mounted definition' : 'Auxiliary definition'}</span><strong>{definition.label || definition.key.toUpperCase()}</strong></div>
-        <Switch
-          label={`Compile supporting WeaponDef ${definition.key}`}
-          checked={definition.enabled !== false}
-          onChange={event => onUpdate(definition.id, { enabled: event.target.checked })}
-        />
-      </div>
-      <div className="tweak-support-card__fields">
-        <label><span>Owner UnitDef</span><input value={definition.ownerUnitId} onChange={event => onUpdate(definition.id, { ownerUnitId: event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })} /></label>
-        <label><span>WeaponDef key</span><input value={definition.key} onChange={event => onUpdate(definition.id, { key: event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })} /></label>
-        <label><span>Write mode</span><select value={definition.mode || 'replace'} onChange={event => onUpdate(definition.id, { mode: event.target.value })}><option value="replace">Replace existing</option><option value="create-only">Create only</option></select></label>
-      </div>
-      <details className="tweak-support-card__editor">
-        <summary>Edit literal fields</summary>
-        <textarea value={definitionDraft} onChange={event => setDefinitionDraft(event.target.value)} aria-label={`Literal fields for ${definition.key}`} spellCheck="false" />
-        <div><span className={definitionError ? 'is-error' : ''}>{definitionError || 'JSON only. Imported Lua is never executed.'}</span><Button size="sm" onClick={saveDefinition}>Save fields</Button></div>
-      </details>
-      <div className="tweak-support-card__meta">
-        <span>{Object.keys(definition.definition || {}).length} root fields</span>
-        <span>{definition.dependencies?.length ? `Needs ${definition.dependencies.join(', ')}` : 'No WeaponDef dependencies'}</span>
-        <button type="button" onClick={() => onRemove(definition.id)}>Remove</button>
-      </div>
-    </article>
-  );
-}
-
 export default function TweakPackageLabPage({
   modules, lobbySetup, supportingWeaponDefs = [], compiledModules, onAddModules, onImportLobbyBundle, onClearLobbySetup, onUpdateModule, onRemoveModule,
   onMoveModule, onReorderModules, onApplyConversions, onBack, onToast, knownUnitIds = [],
-  onAddSupportingWeaponDefs, onUpdateSupportingWeaponDef, onRemoveSupportingWeaponDef,
+  onAddSupportingWeaponDefs, onOpenSupportingWeaponDefs,
 }) {
   const [selectedId, setSelectedId] = useState(modules[0]?.id || null);
   const [pasteValue, setPasteValue] = useState('');
   const [rawKind, setRawKind] = useState('defs');
-  const [newSupportOwner, setNewSupportOwner] = useState('');
-  const [newSupportKey, setNewSupportKey] = useState('');
   const [inspectorFullscreen, setInspectorFullscreen] = useState(false);
   const [inspectorTab, setInspectorTab] = useState('preflight');
   const [workspaceTab, setWorkspaceTab] = useState('source');
@@ -254,30 +204,6 @@ export default function TweakPackageLabPage({
   useEffect(() => {
     if (!selected) setInspectorFullscreen(false);
   }, [selected]);
-
-  const createSupportingWeaponDef = () => {
-    const ownerUnitId = newSupportOwner.trim().toLowerCase();
-    const key = newSupportKey.trim().toLowerCase();
-    const destination = `${ownerUnitId}:${key}`;
-    if (!ownerUnitId || !key || supportingDestinations.has(destination)) return;
-    onAddSupportingWeaponDefs([{
-      id: `support_manual_${ownerUnitId}_${key}_${Date.now()}`,
-      ownerUnitId,
-      key,
-      label: key.toUpperCase(),
-      definition: { damage: { default: 0 } },
-      enabled: true,
-      mode: 'replace',
-      role: 'auxiliary',
-      mountedSlots: [],
-      dependencies: [],
-      referencedBy: [],
-      sourceName: 'Created in BAR Editor',
-    }]);
-    setNewSupportOwner('');
-    setNewSupportKey('');
-    onToast(`Created ${key.toUpperCase()} for ${ownerUnitId}.`);
-  };
 
   const applyRecommendedOrder = () => {
     if (!packageAnalysis.canAutoOrder || !packageAnalysis.orderingIssues.length) return;
@@ -421,8 +347,8 @@ export default function TweakPackageLabPage({
         {packageAnalysis.orderingIssues.length > 0 && <Button size="sm" disabled={!packageAnalysis.canAutoOrder} onClick={applyRecommendedOrder}>Apply safe order</Button>}
       </section>
 
-      <button type="button" className="tweak-support-library-shortcut" onClick={() => setInspectorTab('library')}>
-        <span><b>Supporting WeaponDefs</b><small>Manage auxiliary and cluster-child definitions in the Insight Desk.</small></span>
+      <button type="button" className="tweak-support-library-shortcut" onClick={onOpenSupportingWeaponDefs}>
+        <span><b>WeaponDef Library</b><small>Manage auxiliary and cluster-child definitions in their dedicated workspace.</small></span>
         <strong>{supportingWeaponDefs.length}</strong>
         <em aria-hidden="true">→</em>
       </button>
@@ -624,7 +550,7 @@ export default function TweakPackageLabPage({
                     <section className="tweak-analysis-section tweak-support-candidates">
                       <div className="tweak-analysis-section__heading">
                         <h4>Project WeaponDefs candidates</h4>
-                        <Button size="sm" onClick={() => { onAddSupportingWeaponDefs(selectedAnalysis.supportingWeaponDefs); setInspectorTab('library'); }}>Add all {selectedAnalysis.supportingWeaponDefs.length}</Button>
+                        <Button size="sm" onClick={() => { onAddSupportingWeaponDefs(selectedAnalysis.supportingWeaponDefs); onOpenSupportingWeaponDefs(); }}>Add all {selectedAnalysis.supportingWeaponDefs.length}</Button>
                       </div>
                       <div className="tweak-lab-module-list">
                         {selectedAnalysis.supportingWeaponDefs.map(definition => {
@@ -633,7 +559,7 @@ export default function TweakPackageLabPage({
                           return (
                             <article key={definition.id} className="tweak-support-candidate-card">
                               <span><strong>{definition.key.toUpperCase()}</strong> ({definition.ownerUnitId} · {definition.role})</span>
-                              <Button size="sm" disabled={exists} onClick={() => { onAddSupportingWeaponDefs([definition]); setInspectorTab('library'); }}>{exists ? 'In library' : 'Add'}</Button>
+                              <Button size="sm" disabled={exists} onClick={() => { onAddSupportingWeaponDefs([definition]); onOpenSupportingWeaponDefs(); }}>{exists ? 'In library' : 'Add'}</Button>
                             </article>
                           );
                         })}
@@ -829,23 +755,11 @@ export default function TweakPackageLabPage({
           </div>
 
           <div className={`tweak-inspector-view ${inspectorTab === 'library' ? 'is-active' : ''}`}>
-            <section className="tweak-support-library" aria-label="Supporting WeaponDef library">
-              <header>
-                <div><Type variant="eyebrow" className="workflow-eyebrow">Project library</Type><Type as="h3" variant="section-title">Supporting WeaponDefs</Type></div>
-                <strong>{supportingWeaponDefs.length}</strong>
-              </header>
-              <div className="tweak-support-library__body">
-                <div className="tweak-support-create">
-                  <div><b>Create auxiliary WeaponDef</b><small>Literal JSON definition owned by one UnitDef.</small></div>
-                  <label><span>Owner UnitDef</span><input value={newSupportOwner} onChange={event => setNewSupportOwner(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="armflea" /></label>
-                  <label><span>WeaponDef key</span><input value={newSupportKey} onChange={event => setNewSupportKey(event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} placeholder="cluster_child" /></label>
-                  <Button size="sm" disabled={!newSupportOwner || !newSupportKey || supportingDestinations.has(`${newSupportOwner}:${newSupportKey}`)} onClick={createSupportingWeaponDef}>Create</Button>
-                </div>
-                {supportingWeaponDefs.length === 0 ? <p>No supporting definitions have been added.</p> : supportingWeaponDefs.map(definition => (
-                  <SupportingWeaponDefCard key={definition.id} definition={definition} onUpdate={onUpdateSupportingWeaponDef} onRemove={onRemoveSupportingWeaponDef} />
-                ))}
-              </div>
-            </section>
+            <EmptyState
+              title={`${supportingWeaponDefs.length} Supporting WeaponDef${supportingWeaponDefs.length === 1 ? '' : 's'} in the project`}
+              description="Creation, dependency inspection, validation, duplication, and deletion now live in the dedicated WeaponDef Library."
+              action={<Button variant="primary" onClick={onOpenSupportingWeaponDefs}>Open WeaponDef Library</Button>}
+            />
           </div>
         </aside>
       </div>

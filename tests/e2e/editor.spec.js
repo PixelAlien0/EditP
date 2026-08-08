@@ -47,7 +47,7 @@ test('main menu separates the active project, core workspaces, and specialist wo
   await expect(page.locator('.main-menu__active-project')).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Core workspaces' }).getByRole('button')).toHaveCount(3);
   const tools = page.getByRole('region', { name: 'Research & package tools' });
-  await expect(tools.getByRole('button')).toHaveCount(4);
+  await expect(tools.getByRole('button')).toHaveCount(5);
   await expect(page.getByRole('button', { name: 'Save project' })).toBeVisible();
 
   await tools.getByRole('button', { name: /Collections/ }).click();
@@ -60,6 +60,10 @@ test('main menu separates the active project, core workspaces, and specialist wo
 
   await page.getByRole('region', { name: 'Research & package tools' }).getByRole('button', { name: /Tweak Package Lab/ }).click();
   await expect(page.getByRole('heading', { name: 'Tweak Package Lab' })).toBeVisible();
+  await page.locator('.app-header .header-brand').click();
+
+  await page.getByRole('region', { name: 'Research & package tools' }).getByRole('button', { name: /WeaponDef Library/ }).click();
+  await expect(page.getByRole('heading', { name: 'WeaponDef Library', exact: true })).toBeVisible();
   await page.locator('.app-header .header-brand').click();
 
   await page.getByRole('region', { name: 'Research & package tools' }).getByRole('button', { name: /BAR Reference Library/ }).click();
@@ -486,19 +490,18 @@ test('Tweak Package Lab preserves auxiliary WeaponDefs in the project library an
   const candidates = page.locator('.tweak-support-candidates');
   await expect(candidates).toContainText('CLUSTER_CHILD');
   await candidates.getByRole('button', { name: 'Add all 2' }).click();
-  const library = page.locator('.tweak-support-library');
+  await expect(page.getByRole('heading', { name: 'WeaponDef Library', exact: true })).toBeVisible();
+  const library = page.getByRole('complementary', { name: 'Supporting WeaponDef catalog' });
   await expect(library).toContainText('cluster_child');
-  const createRow = library.locator('.tweak-support-create');
-  await createRow.getByLabel('Owner UnitDef').fill('armflea');
-  await createRow.getByLabel('WeaponDef key').fill('manual_aux');
-  await createRow.getByRole('button', { name: 'Create' }).click();
-  const manualCard = library.locator('.tweak-support-card').filter({ hasText: 'MANUAL_AUX' });
-  await manualCard.getByText('Edit literal fields').click();
-  await manualCard.getByRole('textbox', { name: 'Literal fields for manual_aux' }).fill(JSON.stringify({
+  await library.getByLabel('Owner UnitDef').fill('armflea');
+  await library.getByLabel('WeaponDef key').fill('manual_aux');
+  await library.getByRole('button', { name: 'Create definition' }).click();
+  await expect(page.getByRole('heading', { name: 'MANUAL_AUX' })).toBeVisible();
+  await page.getByRole('textbox', { name: 'Literal fields for manual_aux' }).fill(JSON.stringify({
     areaofeffect: 48,
     damage: { default: 29 },
   }, null, 2));
-  await manualCard.getByRole('button', { name: 'Save fields' }).click();
+  await page.getByRole('button', { name: 'Save fields' }).click();
 
   await page.getByRole('button', { name: 'Back to editor' }).click();
   await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();

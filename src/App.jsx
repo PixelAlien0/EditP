@@ -57,6 +57,7 @@ const LazyReviewPage = lazy(() => import('./components/ReviewPage.jsx'));
 const LazyBatchAdjustDialog = lazy(() => import('./components/BatchAdjustDialog.jsx'));
 const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplorerDialog.jsx'));
 const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
+const LazyWeaponDefLibraryPage = lazy(() => import('./components/WeaponDefLibraryPage.jsx'));
 const LazyBarReferenceLibraryPage = lazy(() => import('./components/BarReferenceLibraryPage.jsx'));
 const LazyFormulaMutatorDialog = lazy(() => import('./components/FormulaMutatorDialog.jsx'));
 const LazyCarrierDroneWorkbenchDialog = lazy(() => import('./components/CarrierDroneWorkbenchDialog.jsx'));
@@ -334,6 +335,7 @@ export default function App() {
       || activeWorkspace === 'collections'
       || activeWorkspace === 'weapon-lab'
       || activeWorkspace === 'tweak-lab'
+      || activeWorkspace === 'weapondef-library'
       || activeWorkspace === 'reference-library'
     ) {
       return PRESENCE_ACTIVITY.TOOLS;
@@ -1246,6 +1248,7 @@ export default function App() {
       { id: 'workspace-review', kind: 'Workspace', label: 'Review & export', description: 'Validate and compile the current project.', priority: 27, onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('review'); } },
       { id: 'tool-presets', kind: 'Tool', label: 'Preset gallery', description: 'Save or apply reusable project snapshots.', onSelect: () => { setShowMainMenu(false); setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); } },
       { id: 'tool-tweak-package', kind: 'Tool', label: 'Tweak Package Lab', description: 'Inspect and package modular tweakdefs and tweakunits safely.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); } },
+      { id: 'tool-weapondef-library', kind: 'Tool', label: 'WeaponDef Library', description: 'Create, validate, and maintain supporting WeaponDefs.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('weapondef-library'); } },
       { id: 'tool-bar-reference-library', kind: 'Tool', label: 'BAR Reference Library', description: 'Search verified units, WeaponDefs, models, scripts, artwork, effects, sounds, and explosion profiles.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('reference-library'); } },
     ];
 
@@ -1577,6 +1580,12 @@ export default function App() {
             setActiveWorkspace('tweak-lab');
             setShowMainMenu(false);
           }}
+          onWeaponDefLibrary={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('weapondef-library');
+            setShowMainMenu(false);
+          }}
           onReferenceLibrary={() => {
             setShowDesignerPanel(false);
             setShowPresetGallery(false);
@@ -1665,6 +1674,12 @@ export default function App() {
           setShowDesignerPanel(false);
           setShowPresetGallery(false);
           setActiveWorkspace('tweak-lab');
+        }}
+        onWeaponDefLibrary={() => {
+          setShowMainMenu(false);
+          setShowDesignerPanel(false);
+          setShowPresetGallery(false);
+          setActiveWorkspace('weapondef-library');
         }}
         onReferenceLibrary={() => {
           setShowMainMenu(false);
@@ -1827,12 +1842,26 @@ export default function App() {
             onMoveModule={handleMoveTweakModule}
             onReorderModules={handleReorderTweakModules}
             onAddSupportingWeaponDefs={handleAddSupportingWeaponDefs}
-            onUpdateSupportingWeaponDef={handleUpdateSupportingWeaponDef}
-            onRemoveSupportingWeaponDef={handleRemoveSupportingWeaponDef}
+            onOpenSupportingWeaponDefs={() => setActiveWorkspace('weapondef-library')}
             onApplyConversions={handleApplyTweakConversions}
             knownUnitIds={knownTweakPackageUnitIds}
             onBack={() => setActiveWorkspace('edit')}
             onToast={showToast}
+          />
+        </Suspense>
+      ) : activeWorkspace === 'weapondef-library' ? (
+        <Suspense fallback={<main className="weapondef-library-page workspace-loading"><span>Preparing WeaponDef Libraryâ€¦</span></main>}>
+          <LazyWeaponDefLibraryPage
+            definitions={supportingWeaponDefs}
+            knownUnits={allUnitsList}
+            tweaks={tweaks}
+            onAdd={handleAddSupportingWeaponDefs}
+            onUpdate={handleUpdateSupportingWeaponDef}
+            onRemove={handleRemoveSupportingWeaponDef}
+            onOpenUnit={id => { setSelectedUnitId(id); setActiveWorkspace('edit'); }}
+            onOpenTweakLab={() => setActiveWorkspace('tweak-lab')}
+            onBack={() => setActiveWorkspace('edit')}
+            onNotice={showToast}
           />
         </Suspense>
       ) : activeWorkspace === 'reference-library' ? (
