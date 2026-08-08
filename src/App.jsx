@@ -45,6 +45,10 @@ import {
   generateWeaponVfxPackLua,
   normalizeWeaponBlueprint,
 } from './utils/weaponBlueprint.js';
+import {
+  analyzeProjectIntegrity,
+  repairProjectIntegrity,
+} from './utils/projectIntegrityDoctor.js';
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
 const LazyCollectionsPage = lazy(() => import('./components/CollectionsPage.jsx'));
@@ -1430,6 +1434,32 @@ export default function App() {
   } : null;
   const activeBuildMenuPackCount = Object.values(buildMenuPacks).filter(Boolean).length;
   const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount + tweakModules.length + supportingWeaponDefs.length + (lobbySetup.commands?.length || 0);
+  const integrityContext = useMemo(() => ({
+    allUnitsList,
+    activeFactoryRosters,
+    defaultsDb,
+    resolveCloneRootId,
+  }), [activeFactoryRosters, allUnitsList, defaultsDb, resolveCloneRootId]);
+  const integrityReport = useMemo(
+    () => analyzeProjectIntegrity({ project: projectStore, context: integrityContext }),
+    [integrityContext, projectStore]
+  );
+  const handleIntegrityRepair = useCallback((repairIds = []) => {
+    const result = repairProjectIntegrity(projectStore, integrityContext, repairIds);
+    if (result.applied.length === 0) {
+      showToast('No safe integrity repairs are currently available');
+      return;
+    }
+    transactProject({
+      buildMenuSteps: result.project.buildMenuSteps,
+      clones: result.project.clones,
+      disabledUnitIds: result.project.disabledUnitIds,
+      unitDescriptions: result.project.unitDescriptions,
+      supportingWeaponDefs: result.project.supportingWeaponDefs,
+    });
+    const remaining = result.after.findings.length;
+    showToast(`Project Doctor applied ${result.applied.length} safe ${result.applied.length === 1 ? 'repair' : 'repairs'}${remaining ? `; ${remaining} findings remain` : ''}`);
+  }, [integrityContext, projectStore, showToast, transactProject]);
   const selectedUnitOverrideEntries = Object.entries(tweaks[selectedUnit?.id] || {});
   const inspectorTabs = [
     { id: 'details', label: 'Details' },
@@ -1860,6 +1890,8 @@ export default function App() {
             supportingWeaponDefs={supportingWeaponDefs}
             knownUnitIds={knownTweakPackageUnitIds}
             collectionScope={collectionReviewScope}
+            integrityReport={integrityReport}
+            onRepairIntegrity={handleIntegrityRepair}
             onBack={() => setActiveWorkspace('edit')}
             onExport={handleExportConfig}
             onOpenSummary={tab => { setActiveSummaryTab(tab); setShowSummaryModal(true); }}

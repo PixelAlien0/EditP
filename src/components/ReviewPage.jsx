@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Button, EmptyState, PageShell, SwitchField, Tabs, TextAreaField, TextField, Type } from './ui.jsx';
 import CompatibilityPreflight from './CompatibilityPreflight.jsx';
+import ProjectIntegrityDoctor from './ProjectIntegrityDoctor.jsx';
 import ByteBudgetInspector from './ByteBudgetInspector.jsx';
 import { analyzeTweakPackage } from '../utils/tweakPackage.js';
 import { buildCompatibilityPreflight } from '../utils/compatibilityPreflight.js';
@@ -30,7 +31,7 @@ export default function ReviewPage({
   totalBytesUsed, lobbyByteLimit,
   compiledLobbyModules, lobbyCommands,
   tweakModules = [], lobbySetup = null, supportingWeaponDefs = [], knownUnitIds = [],
-  collectionScope,
+  collectionScope, integrityReport, onRepairIntegrity,
   onBack, onExport, onOpenSummary, onEditUnit, onOpenTweakLab, onOpenBuildMenus, onOpenWeaponLab, onToast
 }) {
   const [selectedSlotField, setSelectedSlotField] = useState('');
@@ -148,6 +149,12 @@ export default function ReviewPage({
               <p>Collection scope filters this summary and editor tools. Project export still includes every enabled subsystem.</p>
             </section>
           )}
+
+          <ProjectIntegrityDoctor
+            report={integrityReport}
+            onRepair={onRepairIntegrity}
+            onAction={handleCompatibilityAction}
+          />
 
           <CompatibilityPreflight report={compatibilityReport} onAction={handleCompatibilityAction} />
 
