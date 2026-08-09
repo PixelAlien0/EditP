@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ACESFilmicToneMapping,
+  AdditiveBlending,
   NoColorSpace,
   PCFShadowMap,
   RepeatWrapping,
@@ -19,14 +20,17 @@ import { Color } from 'three/src/math/Color.js';
 import { Vector2 } from 'three/src/math/Vector2.js';
 import { Vector3 } from 'three/src/math/Vector3.js';
 import { MeshStandardMaterial } from 'three/src/materials/MeshStandardMaterial.js';
+import { MeshBasicMaterial } from 'three/src/materials/MeshBasicMaterial.js';
 import { ShadowMaterial } from 'three/src/materials/ShadowMaterial.js';
 import { Mesh } from 'three/src/objects/Mesh.js';
 import { PlaneGeometry } from 'three/src/geometries/PlaneGeometry.js';
+import { SphereGeometry } from 'three/src/geometries/SphereGeometry.js';
 import { Scene } from 'three/src/scenes/Scene.js';
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { getBarModelEffectProfile, getBarModelNodeEffect } from '../config/barModelEffects.js';
 import { Button, Type } from './ui.jsx';
 import './BarModelViewer.css';
 
@@ -105,6 +109,69 @@ function tuneNativeMaterial(material) {
     );
   }
   material.needsUpdate = true;
+}
+
+function createEffectMaterial(effect) {
+  const color = new Color(effect.color);
+  return new MeshStandardMaterial({
+    color,
+    emissive: color,
+    emissiveIntensity: effect.emissiveIntensity,
+    transparent: true,
+    opacity: effect.opacity,
+    roughness: 0.24,
+    metalness: 0.04,
+    envMapIntensity: 0.18,
+    blending: AdditiveBlending,
+    depthWrite: false,
+  });
+}
+
+function registerEffectAnimation(effectAnimations, object, effect, phase = 0) {
+  effectAnimations.push({
+    object,
+    effect,
+    phase,
+    baseScale: object.scale.clone(),
+    baseRotationY: object.rotation.y,
+  });
+}
+
+function createProceduralEffect(root, bounds, effect, effectAnimations, phase) {
+  root.updateMatrixWorld(true);
+  const size = bounds.getSize(new Vector3());
+  const center = bounds.getCenter(new Vector3());
+  const maxDimension = Math.max(size.x, size.y, size.z);
+  const anchor = root.getObjectByName(effect.anchor);
+  const position = anchor
+    ? anchor.getWorldPosition(new Vector3())
+    : center.clone().add(new Vector3(0, size.y * 0.22, 0));
+  root.worldToLocal(position);
+
+  const radius = Math.max(maxDimension * effect.radiusFactor, 0.01);
+  const orb = new Mesh(
+    new SphereGeometry(radius, 24, 16),
+    createEffectMaterial(effect),
+  );
+  orb.name = `editp_effect_${effect.anchor || 'orb'}`;
+  orb.position.copy(position);
+  orb.renderOrder = 3;
+
+  const aura = new Mesh(
+    new SphereGeometry(radius * 1.16, 20, 14),
+    new MeshBasicMaterial({
+      color: new Color(effect.color),
+      transparent: true,
+      opacity: 0.12,
+      blending: AdditiveBlending,
+      depthWrite: false,
+    }),
+  );
+  aura.renderOrder = 2;
+  orb.add(aura);
+  root.add(orb);
+  registerEffectAnimation(effectAnimations, orb, effect, phase);
+  return orb;
 }
 
 function disposeMaterial(material) {
@@ -207,11 +274,19 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     let mixer = null;
     let previewAction = null;
     let textures = [];
+    let effectTime = 0;
+    const effectAnimations = [];
 
     const renderFrame = timestamp => {
       timer.update(timestamp);
       const delta = Math.min(timer.getDelta(), 0.05);
       if (mixer && previewAction && !previewAction.paused) mixer.update(delta);
+      effectTime += delta;
+      effectAnimations.forEach(({ object, effect, phase, baseScale, baseRotationY }) => {
+        const pulse = 1 + Math.sin((effectTime * effect.pulseSpeed) + phase) * effect.pulseAmount;
+        object.scale.copy(baseScale).multiplyScalar(pulse);
+        object.rotation.y = baseRotationY + (effectTime * effect.rotationSpeed);
+      });
       controls.update(delta);
       renderer.render(scene, camera);
       frameId = window.requestAnimationFrame(renderFrame);
@@ -262,11 +337,19 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
       root = gltf.scene;
       root.rotation.y = -0.48;
       let meshCount = 0;
+      const effectProfile = getBarModelEffectProfile(entry.modelPath);
       const replacedMaterials = new Set();
       root.traverse(node => {
         if (!node.isMesh) return;
         meshCount += 1;
-        if (material) {
+        const nodeEffect = getBarModelNodeEffect(effectProfile, node.name);
+        if (nodeEffect) {
+          if (Array.isArray(node.material)) node.material.forEach(entry => replacedMaterials.add(entry));
+          else if (node.material) replacedMaterials.add(node.material);
+          node.material = createEffectMaterial(nodeEffect);
+          node.renderOrder = 3;
+          registerEffectAnimation(effectAnimations, node, nodeEffect, effectAnimations.length * 0.85);
+        } else if (material) {
           if (Array.isArray(node.material)) node.material.forEach(entry => replacedMaterials.add(entry));
           else if (node.material) replacedMaterials.add(node.material);
           node.material = material;
@@ -279,6 +362,10 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
       replacedMaterials.forEach(entry => entry.dispose?.());
       scene.add(root);
 
+      const modelBounds = new Box3().setFromObject(root);
+      effectProfile?.proceduralEffects?.forEach((effect, index) => {
+        createProceduralEffect(root, modelBounds, effect, effectAnimations, index * 0.85);
+      });
       const bounds = new Box3().setFromObject(root);
       const center = bounds.getCenter(new Vector3());
       const size = bounds.getSize(new Vector3());
