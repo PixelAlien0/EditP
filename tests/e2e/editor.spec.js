@@ -284,10 +284,11 @@ test('BAR Reference Library unifies definitions, assets, reverse usage, and edit
   await expect(page.getByRole('heading', { name: 'Unified BAR Reference Library' })).toBeVisible();
   const library = page.locator('.bar-reference-library');
   await expect(library.getByText('references', { exact: true }).first()).toBeVisible();
+  const results = library.getByRole('list', { name: 'Matching BAR references' });
 
   const search = library.getByRole('searchbox', { name: 'Search the library' });
   await search.fill('armdfly_paralyzer');
-  const weapon = library.getByRole('option', { name: /^Abductor · Slot 1/ });
+  const weapon = results.getByRole('button', { name: /^Abductor · Slot 1/ });
   await expect(weapon).toBeVisible();
   await weapon.click();
   const inspector = library.getByRole('complementary', { name: 'Reference details' });
@@ -296,17 +297,17 @@ test('BAR Reference Library unifies definitions, assets, reverse usage, and edit
 
   await library.getByRole('button', { name: /Models/ }).click();
   await search.fill('Units/ARMDFLY.s3o');
-  await library.getByRole('option').filter({ hasText: 'Units/ARMDFLY.s3o' }).click();
+  await results.getByRole('button').filter({ hasText: 'Units/ARMDFLY.s3o' }).click();
   await expect(inspector.getByRole('region', { name: 'Used by definitions' })).toContainText('Abductor');
 
   await library.getByRole('button', { name: /Pictures/ }).click();
   await search.fill('legsrail.dds');
-  await expect(library.getByRole('option').first()).toBeVisible();
-  expect(await library.getByRole('option').count()).toBeGreaterThanOrEqual(2);
+  await expect(results.getByRole('button').first()).toBeVisible();
+  expect(await results.getByRole('button').count()).toBeGreaterThanOrEqual(2);
 
   await library.getByRole('button', { name: /Weapons/ }).click();
   await search.fill('armdfly_paralyzer');
-  await library.getByRole('option', { name: /^Abductor · Slot 1/ }).click();
+  await results.getByRole('button', { name: /^Abductor · Slot 1/ }).click();
   await inspector.getByRole('button', { name: 'Open unit editor' }).click();
   await expect(page.locator('.editor-unit-header')).toContainText('Abductor');
 });

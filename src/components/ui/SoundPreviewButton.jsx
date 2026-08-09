@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { getSoundAudioUrls } from '../../utils/barAssets.js';
+import { getSoundAudioUrls, loadAssetPreviewCatalog } from '../../utils/barAssets.js';
 
 export default function SoundPreviewButton({ soundName, compact = false, className = '' }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const audioRef = useRef(null);
+  const playbackAttemptRef = useRef(0);
 
   useEffect(() => {
     return () => {
+      playbackAttemptRef.current += 1;
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -18,9 +20,10 @@ export default function SoundPreviewButton({ soundName, compact = false, classNa
 
   if (!soundName || !String(soundName).trim()) return null;
 
-  const handleTogglePlay = (e) => {
+  const handleTogglePlay = async (e) => {
     e.stopPropagation();
-    if (isPlaying) {
+    if (isPlaying || isLoading) {
+      playbackAttemptRef.current += 1;
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
@@ -30,16 +33,30 @@ export default function SoundPreviewButton({ soundName, compact = false, classNa
       return;
     }
 
-    const urls = getSoundAudioUrls(soundName);
-    if (!urls.length) return;
-
     setIsLoading(true);
     setHasError(false);
+    const attempt = playbackAttemptRef.current + 1;
+    playbackAttemptRef.current = attempt;
+
+    try {
+      await loadAssetPreviewCatalog('sound');
+    } catch {
+      // Candidate URLs below still allow playback when the manifest cannot load.
+    }
+    if (playbackAttemptRef.current !== attempt) return;
+
+    const urls = getSoundAudioUrls(soundName);
+    if (!urls.length) {
+      setIsLoading(false);
+      setHasError(true);
+      return;
+    }
 
     let urlIndex = 0;
 
     const playNext = () => {
       if (urlIndex >= urls.length) {
+        if (playbackAttemptRef.current !== attempt) return;
         setIsLoading(false);
         setIsPlaying(false);
         setHasError(true);
@@ -51,6 +68,7 @@ export default function SoundPreviewButton({ soundName, compact = false, classNa
       audioRef.current = audio;
 
       audio.oncanplay = () => {
+        if (playbackAttemptRef.current !== attempt) return;
         setIsLoading(false);
         setIsPlaying(true);
         audio.play().catch(() => {
@@ -60,12 +78,14 @@ export default function SoundPreviewButton({ soundName, compact = false, classNa
       };
 
       audio.onended = () => {
+        if (playbackAttemptRef.current !== attempt) return;
         setIsPlaying(false);
         setIsLoading(false);
         audioRef.current = null;
       };
 
       audio.onerror = () => {
+        if (playbackAttemptRef.current !== attempt) return;
         urlIndex += 1;
         playNext();
       };
@@ -78,7 +98,9 @@ export default function SoundPreviewButton({ soundName, compact = false, classNa
     ? `Stop preview for ${soundName}`
     : isLoading
       ? `Loading audio for ${soundName}...`
-      : `Play sound preview for ${soundName}`;
+      : hasError
+        ? `Retry sound preview for ${soundName}`
+        : `Play sound preview for ${soundName}`;
 
   return (
     <button
@@ -87,7 +109,6 @@ export default function SoundPreviewButton({ soundName, compact = false, classNa
       onClick={handleTogglePlay}
       title={hasError ? `Audio file '${soundName}' not available on CDN` : label}
       aria-label={label}
-      disabled={hasError}
     >
       {isLoading ? (
         <span className="sound-preview-spinner" aria-hidden="true" />
@@ -100,7 +121,7 @@ export default function SoundPreviewButton({ soundName, compact = false, classNa
           <path d="M4.5 3.25v9.5l8-4.75-8-4.75z" fill="currentColor" />
         </svg>
       )}
-      {!compact && <span className="sound-preview-label">{isPlaying ? 'Stop' : 'Audio'}</span>}
+      {!compact && <span className="sound-preview-label">{isPlaying ? 'Stop sound' : hasError ? 'Retry sound' : 'Play sound'}</span>}
     </button>
   );
 }
