@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BarReferenceLibraryPage from './BarReferenceLibraryPage.jsx';
 
+vi.mock('./BarModelViewer.jsx', () => ({ default: () => <div>Interactive CORAK model</div> }));
+
 const audioInstances = [];
 
 class AudioStub {
@@ -90,5 +92,16 @@ describe('BarReferenceLibraryPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /Weapons/i }));
     fireEvent.click(screen.getByRole('button', { name: 'Open unit editor' }));
     expect(callbacks.onOpenUnit).toHaveBeenCalledWith('armtest');
+  });
+
+  it('offers the isolated CORAK model prototype from its unit reference', async () => {
+    const user = userEvent.setup();
+    renderLibrary({
+      units: [{ id: 'corak', name: 'Grunt', faction: 'core' }],
+      defaultsDb: { corak: { objectname: 'Units/CORAK.s3o', weaponSlots: [] } },
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Open 3D viewer' }));
+    expect(await screen.findByText('Interactive CORAK model')).toBeInTheDocument();
   });
 });

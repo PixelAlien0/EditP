@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, EmptyState, PageShell, Type } from './ui.jsx';
 import SoundPreviewButton from './ui/SoundPreviewButton.jsx';
 import UnitArtwork from './UnitArtwork.jsx';
@@ -10,6 +10,7 @@ import {
 import '../styles/features/bar-reference-library.css';
 
 const PAGE_SIZE = 80;
+const LazyBarModelViewer = lazy(() => import('./BarModelViewer.jsx'));
 
 const REFERENCE_GLYPHS = Object.freeze({
   weapon: 'W',
@@ -101,6 +102,8 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
   const canOpenUnit = Boolean(onOpenUnit && (item.category === 'unit' || item.ownerUnitId));
   const unitId = item.category === 'unit' ? item.value : item.ownerUnitId;
   const isSound = item.category === 'sound';
+  const modelPrototype = (item.category === 'unit' && item.value.toLowerCase() === 'corak')
+    || (item.category === 'unitModel' && item.value.replace(/\\/g, '/').toLowerCase().endsWith('/corak.s3o'));
 
   return (
     <aside className="bar-reference-inspector" aria-label="Reference details">
@@ -119,6 +122,8 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
         <Button variant="primary" size="sm" onClick={() => onCopy(item.value)}>Copy exact value</Button>
         {canOpenUnit && <Button size="sm" onClick={() => onOpenUnit(unitId)}>Open unit editor</Button>}
       </div>
+
+      {modelPrototype && <ReferenceModelPrototype />}
 
       <section className="bar-reference-inspector__facts" aria-label="Reference properties">
         <div className="bar-reference-inspector__section-heading">
@@ -161,6 +166,28 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
           : 'Copying a value does not add its underlying asset to generated tweaks.'}</span>
       </footer>
     </aside>
+  );
+}
+
+function ReferenceModelPrototype() {
+  const [open, setOpen] = useState(false);
+  return (
+    <section className="bar-reference-inspector__model" aria-label="3D model preview">
+      <div className="bar-reference-inspector__section-heading">
+        <div>
+          <span>3D model reference</span>
+          <small>CORAK proof of concept</small>
+        </div>
+        <Button size="sm" variant={open ? 'quiet' : 'secondary'} aria-expanded={open} onClick={() => setOpen(value => !value)}>
+          {open ? 'Close viewer' : 'Open 3D viewer'}
+        </Button>
+      </div>
+      {open && (
+        <Suspense fallback={<div className="bar-model-viewer__fallback" role="status">Loading the isolated 3D viewer…</div>}>
+          <LazyBarModelViewer />
+        </Suspense>
+      )}
+    </section>
   );
 }
 

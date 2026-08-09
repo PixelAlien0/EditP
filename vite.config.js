@@ -11,6 +11,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes('/node_modules/three/src/renderers/')) {
+            return 'reference-model-renderer'
+          }
+          if (id.includes('/node_modules/three/')) {
+            return 'reference-model-core'
+          }
           if (
             id.includes('/node_modules/react/')
             || id.includes('/node_modules/react-dom/')

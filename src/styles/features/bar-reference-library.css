@@ -432,6 +432,9 @@
   gap: var(--space-2);
 }
 
+.bar-reference-inspector__model { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+.bar-reference-inspector__model > .bar-reference-inspector__section-heading > div { min-width: 0; display: grid; gap: 3px; }
+
 .bar-reference-inspector__facts,
 .bar-reference-inspector__usage {
   margin-top: var(--space-5);

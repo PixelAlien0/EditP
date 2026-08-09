@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
+  "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
+  "unitId": "corak",
+  "model": "/bar-models/corak/corak.s3o",
+  "textures": {
+    "color": "/bar-models/corak/cor_color.webp",
+    "teamMask": "/bar-models/corak/cor_team.webp",
+    "emissive": "/bar-models/corak/cor_emissive.webp"
+  },
+  "textureSize": 1024,
+  "sourceHash": "3e5006a69b490fd73e992cf175d067dd87c1d87fa98aed59a2a113790dac31be"
+}
