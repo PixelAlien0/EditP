@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, EmptyState, PageShell, Type } from './ui.jsx';
+import { Badge, Button, EmptyState, PageShell, Type } from './ui.jsx';
 import SoundPreviewButton from './ui/SoundPreviewButton.jsx';
 import UnitArtwork from './UnitArtwork.jsx';
 import {
@@ -7,6 +7,7 @@ import {
   buildBarReferenceCatalog,
   filterBarReferences,
 } from '../utils/barReferenceLibrary.js';
+import { getBarModelEntryForReference } from '../utils/barModelLibrary.js';
 import '../styles/features/bar-reference-library.css';
 
 const PAGE_SIZE = 80;
@@ -59,6 +60,7 @@ function ReferenceGlyph({ item }) {
 }
 
 function ReferenceCard({ item, selected, onSelect }) {
+  const modelEntry = getBarModelEntryForReference(item);
   return (
     <article
       role="listitem"
@@ -77,6 +79,7 @@ function ReferenceCard({ item, selected, onSelect }) {
           <span>{item.description}</span>
         </span>
         <span className="bar-reference-card__signals">
+          {modelEntry && <Badge tone="success" size="sm" className="bar-reference-card__model-ready">3D ready</Badge>}
           <em>{item.usedBy?.length > 0 ? `${item.usedBy.length} uses` : 'Verified'}</em>
           <code>{item.value}</code>
         </span>
@@ -102,8 +105,7 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
   const canOpenUnit = Boolean(onOpenUnit && (item.category === 'unit' || item.ownerUnitId));
   const unitId = item.category === 'unit' ? item.value : item.ownerUnitId;
   const isSound = item.category === 'sound';
-  const modelPrototype = (item.category === 'unit' && item.value.toLowerCase() === 'corak')
-    || (item.category === 'unitModel' && item.value.replace(/\\/g, '/').toLowerCase().endsWith('/corak.s3o'));
+  const modelEntry = getBarModelEntryForReference(item);
 
   return (
     <aside className="bar-reference-inspector" aria-label="Reference details">
@@ -123,7 +125,7 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
         {canOpenUnit && <Button size="sm" onClick={() => onOpenUnit(unitId)}>Open unit editor</Button>}
       </div>
 
-      {modelPrototype && <ReferenceModelPrototype />}
+      {modelEntry && <ReferenceModelPreview entry={modelEntry} fallbackUrl={item.previewUrl} />}
 
       <section className="bar-reference-inspector__facts" aria-label="Reference properties">
         <div className="bar-reference-inspector__section-heading">
@@ -169,14 +171,14 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
   );
 }
 
-function ReferenceModelPrototype() {
+function ReferenceModelPreview({ entry, fallbackUrl }) {
   const [open, setOpen] = useState(false);
   return (
     <section className="bar-reference-inspector__model" aria-label="3D model preview">
       <div className="bar-reference-inspector__section-heading">
         <div>
           <span>3D model reference</span>
-          <small>Prepared GLB · PBR materials · motion</small>
+          <small>{entry.role} · Prepared GLB · Shared PBR materials</small>
         </div>
         <Button size="sm" variant={open ? 'quiet' : 'secondary'} aria-expanded={open} onClick={() => setOpen(value => !value)}>
           {open ? 'Close viewer' : 'Open 3D viewer'}
@@ -184,7 +186,7 @@ function ReferenceModelPrototype() {
       </div>
       {open && (
         <Suspense fallback={<div className="bar-model-viewer__fallback" role="status">Loading the isolated 3D viewer…</div>}>
-          <LazyBarModelViewer />
+          <LazyBarModelViewer key={entry.unitId} entry={entry} fallbackUrl={fallbackUrl} />
         </Suspense>
       )}
     </section>

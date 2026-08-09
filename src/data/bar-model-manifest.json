@@ -1,0 +1,219 @@
+{
+  "version": 3,
+  "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
+  "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
+  "settings": {
+    "textureSize": 512,
+    "maxModelBytes": 600000,
+    "maxLibraryBytes": 3000000
+  },
+  "coverage": {
+    "supported": 10,
+    "uniqueAssets": 25,
+    "totalBytes": 1909532
+  },
+  "entries": {
+    "corak": {
+      "unitId": "corak",
+      "name": "Grunt",
+      "role": "Bot",
+      "faction": "cor",
+      "modelPath": "Units/CORAK.s3o",
+      "model": "/bar-models/assets/a441c4d07122ccfbe07f.glb",
+      "textures": {
+        "color": "/bar-models/assets/60e0653daad4741dba22.webp",
+        "teamMask": "/bar-models/assets/e982a66a67e7401a5269.webp",
+        "emissive": "/bar-models/assets/e3029366e5bfb5913d3c.webp",
+        "pbr": "/bar-models/assets/a1eb18a2dba1933b472d.webp",
+        "normal": "/bar-models/assets/1a35d92807d6895f3187.webp",
+        "sourceHash": "59710dd3996694546386c3ac4751d0933074f0500b18adbba7c1db204321731a"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/corak.glb",
+      "modelBytes": 134312,
+      "contentHash": "a441c4d07122ccfbe07f2730e2835e09fca502c08056caf7282b05027a6efd4a"
+    },
+    "armfav": {
+      "unitId": "armfav",
+      "name": "Rover",
+      "role": "Vehicle",
+      "faction": "arm",
+      "modelPath": "Units/ARMFAV.s3o",
+      "model": "/bar-models/assets/f9623fa066c2492c09ae.glb",
+      "textures": {
+        "color": "/bar-models/assets/226094caeeb84266193f.webp",
+        "teamMask": "/bar-models/assets/d6cbd56a3012afb2d14c.webp",
+        "emissive": "/bar-models/assets/ed9949b3423814da0d60.webp",
+        "pbr": "/bar-models/assets/ed75173da0785223adf1.webp",
+        "normal": "/bar-models/assets/898950339ed77106dbe1.webp",
+        "sourceHash": "6771c426b62571fd0a3a94de7b54be5779fcb014d0ffdd6bc80aca061c0dba5c"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/armfav.glb",
+      "modelBytes": 93840,
+      "contentHash": "f9623fa066c2492c09ae2292d37058f6687795775bf78388d1472cf59aa73cdb"
+    },
+    "corfav": {
+      "unitId": "corfav",
+      "name": "Rascal",
+      "role": "Vehicle",
+      "faction": "cor",
+      "modelPath": "Units/CORFAV.s3o",
+      "model": "/bar-models/assets/0ee9ecfe3e39d8aae3bc.glb",
+      "textures": {
+        "color": "/bar-models/assets/60e0653daad4741dba22.webp",
+        "teamMask": "/bar-models/assets/e982a66a67e7401a5269.webp",
+        "emissive": "/bar-models/assets/e3029366e5bfb5913d3c.webp",
+        "pbr": "/bar-models/assets/a1eb18a2dba1933b472d.webp",
+        "normal": "/bar-models/assets/1a35d92807d6895f3187.webp",
+        "sourceHash": "59710dd3996694546386c3ac4751d0933074f0500b18adbba7c1db204321731a"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/corfav.glb",
+      "modelBytes": 104608,
+      "contentHash": "0ee9ecfe3e39d8aae3bc1a328d7a04b019ce54a6d6c2c3b0c605374b4507b0fc"
+    },
+    "armfig": {
+      "unitId": "armfig",
+      "name": "Falcon",
+      "role": "Aircraft",
+      "faction": "arm",
+      "modelPath": "Units/ARMFIG.s3o",
+      "model": "/bar-models/assets/6d82d4b231c4ef5891bc.glb",
+      "textures": {
+        "color": "/bar-models/assets/226094caeeb84266193f.webp",
+        "teamMask": "/bar-models/assets/d6cbd56a3012afb2d14c.webp",
+        "emissive": "/bar-models/assets/ed9949b3423814da0d60.webp",
+        "pbr": "/bar-models/assets/ed75173da0785223adf1.webp",
+        "normal": "/bar-models/assets/898950339ed77106dbe1.webp",
+        "sourceHash": "6771c426b62571fd0a3a94de7b54be5779fcb014d0ffdd6bc80aca061c0dba5c"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/armfig.glb",
+      "modelBytes": 39860,
+      "contentHash": "6d82d4b231c4ef5891bc4aeb1162c78fad37aa8e35825ef94f23555cfac4eb3c"
+    },
+    "armpt": {
+      "unitId": "armpt",
+      "name": "Skater",
+      "role": "Ship",
+      "faction": "arm",
+      "modelPath": "Units/ARMPT.s3o",
+      "model": "/bar-models/assets/31b6fe0e0c845532f7b0.glb",
+      "textures": {
+        "color": "/bar-models/assets/226094caeeb84266193f.webp",
+        "teamMask": "/bar-models/assets/d6cbd56a3012afb2d14c.webp",
+        "emissive": "/bar-models/assets/ed9949b3423814da0d60.webp",
+        "pbr": "/bar-models/assets/ed75173da0785223adf1.webp",
+        "normal": "/bar-models/assets/898950339ed77106dbe1.webp",
+        "sourceHash": "6771c426b62571fd0a3a94de7b54be5779fcb014d0ffdd6bc80aca061c0dba5c"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/armpt.glb",
+      "modelBytes": 76136,
+      "contentHash": "31b6fe0e0c845532f7b033355695b5c61667d3e0942abe57d38dc775f86940f2"
+    },
+    "corsub": {
+      "unitId": "corsub",
+      "name": "Orca",
+      "role": "Submarine",
+      "faction": "cor",
+      "modelPath": "Units/CORSUB.s3o",
+      "model": "/bar-models/assets/38c8cacecccf18725eaa.glb",
+      "textures": {
+        "color": "/bar-models/assets/60e0653daad4741dba22.webp",
+        "teamMask": "/bar-models/assets/e982a66a67e7401a5269.webp",
+        "emissive": "/bar-models/assets/e3029366e5bfb5913d3c.webp",
+        "pbr": "/bar-models/assets/a1eb18a2dba1933b472d.webp",
+        "normal": "/bar-models/assets/1a35d92807d6895f3187.webp",
+        "sourceHash": "59710dd3996694546386c3ac4751d0933074f0500b18adbba7c1db204321731a"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/corsub.glb",
+      "modelBytes": 37064,
+      "contentHash": "38c8cacecccf18725eaa5111c1c72f59f98df25ef24f76688d5bd342b6b52c32"
+    },
+    "armfus": {
+      "unitId": "armfus",
+      "name": "Fusion Reactor",
+      "role": "Building",
+      "faction": "arm",
+      "modelPath": "Units/ARMFUS.s3o",
+      "model": "/bar-models/assets/f9cd84b40d7a2870292d.glb",
+      "textures": {
+        "color": "/bar-models/assets/226094caeeb84266193f.webp",
+        "teamMask": "/bar-models/assets/d6cbd56a3012afb2d14c.webp",
+        "emissive": "/bar-models/assets/ed9949b3423814da0d60.webp",
+        "pbr": "/bar-models/assets/ed75173da0785223adf1.webp",
+        "normal": "/bar-models/assets/898950339ed77106dbe1.webp",
+        "sourceHash": "6771c426b62571fd0a3a94de7b54be5779fcb014d0ffdd6bc80aca061c0dba5c"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/armfus.glb",
+      "modelBytes": 163124,
+      "contentHash": "f9cd84b40d7a2870292d36e3364c3e1bd5aad22473a74313aca2ef7cd61f304d"
+    },
+    "armap": {
+      "unitId": "armap",
+      "name": "Aircraft Plant",
+      "role": "Factory",
+      "faction": "arm",
+      "modelPath": "Units/ARMAP.s3o",
+      "model": "/bar-models/assets/1110e1a857b1bf90b461.glb",
+      "textures": {
+        "color": "/bar-models/assets/226094caeeb84266193f.webp",
+        "teamMask": "/bar-models/assets/d6cbd56a3012afb2d14c.webp",
+        "emissive": "/bar-models/assets/ed9949b3423814da0d60.webp",
+        "pbr": "/bar-models/assets/ed75173da0785223adf1.webp",
+        "normal": "/bar-models/assets/898950339ed77106dbe1.webp",
+        "sourceHash": "6771c426b62571fd0a3a94de7b54be5779fcb014d0ffdd6bc80aca061c0dba5c"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/armap.glb",
+      "modelBytes": 117208,
+      "contentHash": "1110e1a857b1bf90b46145cea544c9a92085b76435184acc35e88559e10b549e"
+    },
+    "armcom": {
+      "unitId": "armcom",
+      "name": "Armada Commander",
+      "role": "Commander",
+      "faction": "arm",
+      "modelPath": "Units/ARMCOM.s3o",
+      "model": "/bar-models/assets/81acfebf393d0080ffbd.glb",
+      "textures": {
+        "color": "/bar-models/assets/226094caeeb84266193f.webp",
+        "teamMask": "/bar-models/assets/d6cbd56a3012afb2d14c.webp",
+        "emissive": "/bar-models/assets/ed9949b3423814da0d60.webp",
+        "pbr": "/bar-models/assets/ed75173da0785223adf1.webp",
+        "normal": "/bar-models/assets/898950339ed77106dbe1.webp",
+        "sourceHash": "6771c426b62571fd0a3a94de7b54be5779fcb014d0ffdd6bc80aca061c0dba5c"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/armcom.glb",
+      "modelBytes": 267824,
+      "contentHash": "81acfebf393d0080ffbd3291823495a5254237848ee93bffd2849dc0a58d690e"
+    },
+    "legcom": {
+      "unitId": "legcom",
+      "name": "Legion Commander",
+      "role": "Commander",
+      "faction": "leg",
+      "modelPath": "Units/LEGCOM.s3o",
+      "model": "/bar-models/assets/56933070cf06070d34d1.glb",
+      "textures": {
+        "color": "/bar-models/assets/a1e4de741c076dfbf360.webp",
+        "teamMask": "/bar-models/assets/2ed888244f6e4913e8d5.webp",
+        "emissive": "/bar-models/assets/68c5511ef8fd1bf586a5.webp",
+        "pbr": "/bar-models/assets/dccfa4216c7b016cab12.webp",
+        "normal": "/bar-models/assets/6285632051f9e4a75466.webp",
+        "sourceHash": "4545eb4546f7d148b68c54f6d923a9c29bad2d8428c1e547b6b6ebdd3b32b468"
+      },
+      "sourceUrl": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/legcom.glb",
+      "modelBytes": 447144,
+      "contentHash": "56933070cf06070d34d168f10c4b1dc5874a33f461ab1dea170d399f72f41afb"
+    }
+  },
+  "aliases": {
+    "units/corak.s3o": "corak",
+    "units/armfav.s3o": "armfav",
+    "units/corfav.s3o": "corfav",
+    "units/armfig.s3o": "armfig",
+    "units/armpt.s3o": "armpt",
+    "units/corsub.s3o": "corsub",
+    "units/armfus.s3o": "armfus",
+    "units/armap.s3o": "armap",
+    "units/armcom.s3o": "armcom",
+    "units/legcom.s3o": "legcom"
+  }
+}

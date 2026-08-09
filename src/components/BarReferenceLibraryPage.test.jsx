@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import BarReferenceLibraryPage from './BarReferenceLibraryPage.jsx';
 
-vi.mock('./BarModelViewer.jsx', () => ({ default: () => <div>Interactive CORAK model</div> }));
+vi.mock('./BarModelViewer.jsx', () => ({ default: ({ entry }) => <div>Interactive {entry.unitId} model</div> }));
 
 const audioInstances = [];
 
@@ -94,7 +94,7 @@ describe('BarReferenceLibraryPage', () => {
     expect(callbacks.onOpenUnit).toHaveBeenCalledWith('armtest');
   });
 
-  it('offers the isolated CORAK model prototype from its unit reference', async () => {
+  it('offers a manifest-backed model viewer from supported unit references', async () => {
     const user = userEvent.setup();
     renderLibrary({
       units: [{ id: 'corak', name: 'Grunt', faction: 'core' }],
@@ -102,6 +102,16 @@ describe('BarReferenceLibraryPage', () => {
     });
 
     await user.click(screen.getByRole('button', { name: 'Open 3D viewer' }));
-    expect(await screen.findByText('Interactive CORAK model')).toBeInTheDocument();
+    expect(await screen.findByText('Interactive corak model')).toBeInTheDocument();
+  });
+
+  it('marks other supported reference cards as 3D ready', () => {
+    renderLibrary({
+      units: [{ id: 'armfav', name: 'Rover', faction: 'arm' }],
+      defaultsDb: { armfav: { objectname: 'Units/ARMFAV.s3o', weaponSlots: [] } },
+    });
+
+    expect(screen.getAllByText('3D ready').length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'Open 3D viewer' })).toBeInTheDocument();
   });
 });

@@ -30,15 +30,6 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { Button, Type } from './ui.jsx';
 import './BarModelViewer.css';
 
-const MODEL_ASSETS = Object.freeze({
-  model: '/bar-models/corak/corak.glb',
-  color: '/bar-models/corak/cor_color.webp',
-  pbr: '/bar-models/corak/cor_pbr.webp',
-  normal: '/bar-models/corak/cor_normal.webp',
-  teamMask: '/bar-models/corak/cor_team.webp',
-  emissive: '/bar-models/corak/cor_emissive.webp',
-});
-
 const TEAM_COLORS = Object.freeze([
   { id: 'cortex', label: 'Cortex red', value: '#e53f46' },
   { id: 'blue', label: 'Alliance blue', value: '#2f72e6' },
@@ -104,7 +95,7 @@ function selectPreviewClip(animations) {
     ?? null;
 }
 
-export default function BarModelViewer() {
+export default function BarModelViewer({ entry, fallbackUrl = '' }) {
   const canvasRef = useRef(null);
   const stageRef = useRef(null);
   const viewerRef = useRef(null);
@@ -114,6 +105,7 @@ export default function BarModelViewer() {
   const [modelFacts, setModelFacts] = useState(null);
   const [isRotating, setIsRotating] = useState(true);
   const [isAnimating, setIsAnimating] = useState(true);
+  const teamColorRef = useRef(TEAM_COLORS[0].value);
 
   useEffect(() => {
     let cancelled = false;
@@ -122,14 +114,26 @@ export default function BarModelViewer() {
     const stage = stageRef.current;
     if (!canvas || !stage) return undefined;
 
-    const renderer = new WebGLRenderer({ canvas, alpha: false, antialias: true, powerPreference: 'high-performance' });
+    setStatus('loading');
+    setError('');
+    setModelFacts(null);
+    setIsAnimating(true);
+    let renderer;
+    try {
+      renderer = new WebGLRenderer({ canvas, alpha: false, antialias: true, powerPreference: 'high-performance' });
+    } catch {
+      setStatus('error');
+      setError('WebGL is unavailable on this device.');
+      return undefined;
+    }
     renderer.outputColorSpace = SRGBColorSpace;
     renderer.toneMapping = ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.3;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFShadowMap;
     renderer.setClearColor(0x070707, 1);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const compactDevice = window.matchMedia('(max-width: 760px)').matches;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, compactDevice ? 1.25 : 2));
 
     const scene = new Scene();
     const camera = new PerspectiveCamera(35, 1, 0.1, 2000);
@@ -164,7 +168,7 @@ export default function BarModelViewer() {
     const gltfLoader = new GLTFLoader();
     const timer = new Timer();
     timer.connect(document);
-    const teamUniform = { value: new Color(TEAM_COLORS[0].value) };
+    const teamUniform = { value: new Color(teamColorRef.current) };
     let frameId = 0;
     let root = null;
     let floor = null;
@@ -195,12 +199,12 @@ export default function BarModelViewer() {
     renderFrame();
 
     Promise.all([
-      gltfLoader.loadAsync(MODEL_ASSETS.model),
-      textureLoader.loadAsync(MODEL_ASSETS.color),
-      textureLoader.loadAsync(MODEL_ASSETS.pbr),
-      textureLoader.loadAsync(MODEL_ASSETS.normal),
-      textureLoader.loadAsync(MODEL_ASSETS.teamMask),
-      textureLoader.loadAsync(MODEL_ASSETS.emissive),
+      gltfLoader.loadAsync(entry.model),
+      textureLoader.loadAsync(entry.textures.color),
+      textureLoader.loadAsync(entry.textures.pbr),
+      textureLoader.loadAsync(entry.textures.normal),
+      textureLoader.loadAsync(entry.textures.teamMask),
+      textureLoader.loadAsync(entry.textures.emissive),
     ]).then(([gltf, colorMap, pbrMap, normalMap, teamMask, emissiveMap]) => {
       if (cancelled) return;
       textures = [
@@ -292,6 +296,7 @@ export default function BarModelViewer() {
         pieces: meshCount,
         animations: gltf.animations.length,
         material: 'GLB · PBR',
+        size: `${Math.max(1, Math.round(entry.modelBytes / 1024))} KB`,
       });
       setStatus('ready');
       resetView();
@@ -315,10 +320,11 @@ export default function BarModelViewer() {
       renderer.dispose();
       viewerRef.current = null;
     };
-  }, []);
+  }, [entry]);
 
   const selectTeamColor = value => {
     setTeamColor(value);
+    teamColorRef.current = value;
     viewerRef.current?.teamUniform.value.set(value);
   };
 
@@ -344,19 +350,24 @@ export default function BarModelViewer() {
   };
 
   return (
-    <section className="bar-model-viewer" aria-label="CORAK 3D model reference">
+    <section className="bar-model-viewer" aria-label={`${entry.name} 3D model reference`}>
       <header className="bar-model-viewer__header">
         <div>
           <Type variant="eyebrow">Interactive model reference</Type>
-          <Type as="h4" variant="subsection-title">CORAK · Grunt</Type>
+          <Type as="h4" variant="subsection-title">{entry.unitId.toUpperCase()} · {entry.name}</Type>
         </div>
         <span className="bar-model-viewer__prototype">GLB preview</span>
       </header>
 
       <div ref={stageRef} className="bar-model-viewer__stage">
-        <canvas ref={canvasRef} role="img" tabIndex="0" aria-label="Interactive 3D model of the BAR Grunt unit. Drag to orbit and use the mouse wheel to zoom." />
+        <canvas ref={canvasRef} role="img" tabIndex="0" aria-label={`Interactive 3D model of ${entry.name}. Drag to orbit and use the mouse wheel to zoom.`} />
         {status === 'loading' && <div className="bar-model-viewer__loading" role="status">Preparing the PBR model…</div>}
-        {status === 'error' && <div className="bar-model-viewer__error" role="alert">{error}</div>}
+        {status === 'error' && (
+          <div className="bar-model-viewer__error" role="alert">
+            {fallbackUrl && <img src={fallbackUrl} alt="" />}
+            <span>{error}</span>
+          </div>
+        )}
         <div className="bar-model-viewer__stage-actions">
           <Button size="sm" variant="quiet" disabled={status !== 'ready'} aria-pressed={isRotating} onClick={toggleRotation}>{isRotating ? 'Rotation on' : 'Rotation off'}</Button>
           <Button size="sm" variant="quiet" disabled={status !== 'ready' || !modelFacts?.animations} aria-pressed={isAnimating} onClick={toggleAnimation}>{isAnimating ? 'Motion on' : 'Motion off'}</Button>
@@ -390,10 +401,10 @@ export default function BarModelViewer() {
         <dl className="bar-model-viewer__facts">
           <div><dt>Mesh pieces</dt><dd>{modelFacts.pieces}</dd></div>
           <div><dt>Motion clips</dt><dd>{modelFacts.animations}</dd></div>
-          <div><dt>Rendering</dt><dd>{modelFacts.material}</dd></div>
+          <div><dt>Model payload</dt><dd>{modelFacts.size}</dd></div>
         </dl>
       )}
-      <footer>Official BAR viewer conversion · Optimized local material maps · Reference Library only</footer>
+      <footer>{entry.role} reference · {modelFacts?.material || 'GLB'} · Lazy local asset · Reference Library only</footer>
     </section>
   );
 }

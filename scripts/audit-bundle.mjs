@@ -34,7 +34,9 @@ const budgets = {
   // storage, and blueprint-dossier surfaces are bounded here while the much
   // more important initial CSS ceiling remains independently enforced above.
   totalCss: 393 * 1024,
-  dist: 25 * 1024 * 1024
+  coreDist: 25 * 1024 * 1024,
+  referenceModels: 3 * 1024 * 1024,
+  dist: 28 * 1024 * 1024
 };
 
 function directorySize(directory) {
@@ -44,13 +46,18 @@ function directorySize(directory) {
   }, 0);
 }
 
+const distBytes = directorySize(distDir);
+const referenceModelDir = path.join(distDir, 'bar-models');
+const referenceModelBytes = fs.existsSync(referenceModelDir) ? directorySize(referenceModelDir) : 0;
 const measurements = {
   entryJs: entry?.bytes || 0,
   entryGzip: entry ? gzipSync(fs.readFileSync(path.join(assetsDir, entry.name))).byteLength : 0,
   largestJs: largestJs?.bytes || 0,
   entryCss: entryCss?.bytes || 0,
   totalCss,
-  dist: directorySize(distDir)
+  coreDist: distBytes - referenceModelBytes,
+  referenceModels: referenceModelBytes,
+  dist: distBytes
 };
 
 const failures = Object.entries(measurements).filter(([key, value]) => value > budgets[key]);

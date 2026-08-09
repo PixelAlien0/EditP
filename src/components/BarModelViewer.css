@@ -66,7 +66,15 @@
   text-align: center;
 }
 
-.bar-model-viewer__error { border-color: var(--color-border-danger, var(--color-border-accent-muted)); color: var(--color-danger, var(--color-accent-strong)); }
+.bar-model-viewer__error {
+  display: grid;
+  place-items: center;
+  gap: var(--space-2);
+  border-color: var(--color-border-danger, var(--color-border-accent-muted));
+  color: var(--color-danger, var(--color-accent-strong));
+}
+
+.bar-model-viewer__error img { width: 72px; height: 72px; object-fit: cover; }
 .bar-model-viewer__stage-actions {
   position: absolute;
   top: var(--space-2);

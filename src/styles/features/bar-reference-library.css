@@ -304,8 +304,11 @@
   grid-column: 2;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-2);
+}
+
+.bar-reference-card__model-ready {
+  margin-right: auto;
 }
 
 .bar-reference-card__signals em {
@@ -316,6 +319,7 @@
 }
 
 .bar-reference-card__signals code {
+  margin-left: auto;
   overflow: hidden;
   color: var(--color-text-muted);
   font-size: 9px;
