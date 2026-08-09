@@ -19,6 +19,7 @@ import { Box3 } from 'three/src/math/Box3.js';
 import { Color } from 'three/src/math/Color.js';
 import { Vector2 } from 'three/src/math/Vector2.js';
 import { Vector3 } from 'three/src/math/Vector3.js';
+import { MeshLambertMaterial } from 'three/src/materials/MeshLambertMaterial.js';
 import { MeshStandardMaterial } from 'three/src/materials/MeshStandardMaterial.js';
 import { MeshBasicMaterial } from 'three/src/materials/MeshBasicMaterial.js';
 import { Mesh } from 'three/src/objects/Mesh.js';
@@ -410,11 +411,8 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
       keyLight.shadow.camera.far = maxDimension * 12;
       keyLight.shadow.camera.updateProjectionMatrix();
 
-      floorMaterial = new MeshStandardMaterial({
+      floorMaterial = new MeshLambertMaterial({
         color: new Color(groundColorRef.current),
-        roughness: 1,
-        metalness: 0,
-        envMapIntensity: 0.08,
       });
       floor = new Mesh(
         new PlaneGeometry(maxDimension * 5, maxDimension * 5),
