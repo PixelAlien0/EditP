@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ACESFilmicToneMapping,
   AdditiveBlending,
+  BasicShadowMap,
+  PCFSoftShadowMap,
   NoColorSpace,
-  PCFShadowMap,
   RepeatWrapping,
   SRGBColorSpace,
 } from 'three/src/constants.js';
@@ -217,12 +218,14 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
   const [error, setError] = useState('');
   const [teamColor, setTeamColor] = useState(TEAM_COLORS[0].value);
   const [groundColor, setGroundColor] = useState(GROUND_COLORS[0].value);
+  const [shadowQuality, setShadowQuality] = useState('compatibility');
   const [verticalOffset, setVerticalOffset] = useState(0);
   const [modelFacts, setModelFacts] = useState(null);
   const [isRotating, setIsRotating] = useState(true);
   const [isAnimating, setIsAnimating] = useState(true);
   const teamColorRef = useRef(TEAM_COLORS[0].value);
   const groundColorRef = useRef(GROUND_COLORS[0].value);
+  const shadowQualityRef = useRef('compatibility');
 
   useEffect(() => {
     let cancelled = false;
@@ -248,7 +251,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     renderer.toneMapping = ACESFilmicToneMapping;
     renderer.toneMappingExposure = STUDIO_LIGHTING.exposure;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFShadowMap;
+    renderer.shadowMap.type = shadowQualityRef.current === 'soft' ? PCFSoftShadowMap : BasicShadowMap;
     renderer.setClearColor(0x090807, 1);
     const compactDevice = window.matchMedia('(max-width: 760px)').matches;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, compactDevice ? 1.25 : 2));
@@ -498,6 +501,15 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     }
   };
 
+  const selectShadowQuality = value => {
+    setShadowQuality(value);
+    shadowQualityRef.current = value;
+    const renderer = viewerRef.current?.renderer;
+    if (!renderer) return;
+    renderer.shadowMap.type = value === 'soft' ? PCFSoftShadowMap : BasicShadowMap;
+    renderer.shadowMap.needsUpdate = true;
+  };
+
   const resetViewer = () => {
     selectVerticalOffset(0);
     viewerRef.current?.resetView();
@@ -604,6 +616,31 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
             onChange={event => selectVerticalOffset(event.target.value)}
           />
         </label>
+        <div className="bar-model-viewer__shadow-control" role="group" aria-label="Shadow quality">
+          <span>Shadows</span>
+          <div>
+            <button
+              type="button"
+              className={shadowQuality === 'compatibility' ? 'is-active' : ''}
+              aria-pressed={shadowQuality === 'compatibility'}
+              disabled={status !== 'ready'}
+              title="Stable hard-edged shadows with the broadest WebGL compatibility"
+              onClick={() => selectShadowQuality('compatibility')}
+            >
+              Compatible
+            </button>
+            <button
+              type="button"
+              className={shadowQuality === 'soft' ? 'is-active' : ''}
+              aria-pressed={shadowQuality === 'soft'}
+              disabled={status !== 'ready'}
+              title="Softer shadows; some graphics drivers may report a harmless WebGL warning"
+              onClick={() => selectShadowQuality('soft')}
+            >
+              Soft
+            </button>
+          </div>
+        </div>
         <p>{entry.textures ? 'Drag to orbit · Scroll to zoom' : 'Native material · Drag to orbit · Scroll to zoom'}</p>
       </div>
 

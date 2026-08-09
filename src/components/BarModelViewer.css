@@ -118,6 +118,33 @@
 .bar-model-viewer__axis-control output { color: var(--color-text-strong); font-variant-numeric: tabular-nums; }
 .bar-model-viewer__axis-control input { width: 100%; margin: 0; accent-color: var(--color-accent-strong); cursor: ew-resize; }
 .bar-model-viewer__axis-control input:disabled { cursor: default; opacity: 0.5; }
+.bar-model-viewer__shadow-control { display: grid; gap: 5px; }
+.bar-model-viewer__shadow-control > span { color: var(--color-text-muted); font: 650 8px/1 var(--font-mono); text-transform: uppercase; }
+.bar-model-viewer__shadow-control > div {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-recessed);
+}
+.bar-model-viewer__shadow-control button {
+  min-height: 26px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: 650 9px/1 var(--font-sans);
+  cursor: pointer;
+}
+.bar-model-viewer__shadow-control button:hover:not(:disabled) { color: var(--color-text-strong); }
+.bar-model-viewer__shadow-control button.is-active {
+  background: var(--color-surface-raised);
+  color: var(--color-text-strong);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+}
+.bar-model-viewer__shadow-control button:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+.bar-model-viewer__shadow-control button:disabled { cursor: default; opacity: 0.5; }
 .bar-model-viewer__controls p { margin: 0; color: var(--color-text-muted); font-size: 9px; text-align: right; text-wrap: pretty; }
 
 .bar-model-viewer__facts {
