@@ -17,6 +17,7 @@ test-results/
 playwright-report/
 playwright/.cache/
 Reference/private-originals/
+.qoder/
 
 # Editor directories and files
 .vscode/*

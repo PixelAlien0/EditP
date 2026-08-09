@@ -1,12 +1,13 @@
 import { lazy, Suspense, useState, useMemo, useEffect, useCallback } from 'react';
 import { BUILD_MENU_PACKS } from './data/build-menu-packs.js';
-import { getFactionOfUnit, getTechTierFromValue } from './utils/categories.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import { useTemporaryChat } from './hooks/useTemporaryChat.js';
 import { useProjectPersistence } from './hooks/useProjectPersistence.js';
 import { useWorkspaceLayout } from './hooks/useWorkspaceLayout.js';
+import { useEditorPreferences } from './hooks/useEditorPreferences.js';
 import { useCoreGameData } from './hooks/useCoreGameData.js';
 import { useCompiledProjectOutputs } from './hooks/useCompiledProjectOutputs.js';
+import { useProjectDerivedData } from './hooks/useProjectDerivedData.js';
 import { useProjectStore } from './state/useProjectStore.js';
 import { PRESENCE_ACTIVITY } from './config/presenceActivities.js';
 import {
@@ -18,9 +19,8 @@ import AppHeader from './components/AppHeader.jsx';
 import MainMenu from './components/MainMenu.jsx';
 import AppDialogs from './components/AppDialogs.jsx';
 import CloneCreatorDialog from './components/CloneCreatorDialog.jsx';
-import CustomWeaponBorrowPanel from './components/CustomWeaponBorrowPanel.jsx';
-import UnitArtwork from './components/UnitArtwork.jsx';
-import { getBuildPicturePreviewUrl, getUnitIconUrl } from './utils/unitArtwork.js';
+import WeaponSwapModal from './components/WeaponSwapModal.jsx';
+import { getUnitIconUrl } from './utils/unitArtwork.js';
 import { useFactoryRosterController } from './controllers/useFactoryRosterController.js';
 import {
   getValidationWarning,
@@ -29,75 +29,50 @@ import {
 import { useCloneController } from './controllers/useCloneController.js';
 import { useTweakPackageController } from './controllers/useTweakPackageController.js';
 import { useProjectFileController } from './controllers/useProjectFileController.js';
+import { useUnitCollectionsController } from './controllers/useUnitCollectionsController.js';
+import { useWeaponSwapController } from './controllers/useWeaponSwapController.js';
+import { useWeaponLabController } from './controllers/useWeaponLabController.js';
+import { useCarrierWorkbenchController } from './controllers/useCarrierWorkbenchController.js';
+import { useUnitEditActionsController } from './controllers/useUnitEditActionsController.js';
+import { usePresetController } from './controllers/usePresetController.js';
+import {
+  BULK_PARAMETER_GROUPS,
+  useMutatorToolsController,
+} from './controllers/useMutatorToolsController.js';
 import { Button } from './components/ui.jsx';
 import EditUnitsWorkspace from './components/editor/EditUnitsWorkspace.jsx';
 import { getRelationshipLabel } from './config/parameterGuidance.js';
 import { collectKnownTargetableMask } from './config/behaviorInterceptor.js';
 import {
-  createUnitCollection,
-  deleteCollectionAndPromoteChildren,
   getCollectionUnitIds,
 } from './project/unitCollections.js';
-import {
-  applyWeaponBlueprintToSlot,
-  createWeaponBlueprintDraft,
-  createWeaponSourceCatalog,
-  generateWeaponVfxPackLua,
-  normalizeWeaponBlueprint,
-} from './utils/weaponBlueprint.js';
-import {
-  analyzeProjectIntegrity,
-  repairProjectIntegrity,
-} from './utils/projectIntegrityDoctor.js';
+import { applyWeaponBlueprintToSlot } from './utils/weaponBlueprint.js';
+
+// Publish the experimental Weapon Laboratory workspace and its Tools entry.
+const WEAPON_LAB_ENABLED = true;
+// Keep these implementations in source control for repair, but do not emit
+// their JavaScript or CSS while every public entry point remains locked.
+const MUTATOR_TOOLS_ENABLED = false;
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
 const LazyCollectionsPage = lazy(() => import('./components/CollectionsPage.jsx'));
 const LazyPresetGalleryPage = lazy(() => import('./components/PresetGalleryPage.jsx'));
 const LazyReviewPage = lazy(() => import('./components/ReviewPage.jsx'));
-const LazyBatchAdjustDialog = lazy(() => import('./components/BatchAdjustDialog.jsx'));
+const LazyBatchAdjustDialog = MUTATOR_TOOLS_ENABLED
+  ? lazy(() => import('./components/BatchAdjustDialog.jsx'))
+  : null;
 const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplorerDialog.jsx'));
 const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
 const LazyWeaponDefLibraryPage = lazy(() => import('./components/WeaponDefLibraryPage.jsx'));
 const LazyBarReferenceLibraryPage = lazy(() => import('./components/BarReferenceLibraryPage.jsx'));
-const LazyFormulaMutatorDialog = lazy(() => import('./components/FormulaMutatorDialog.jsx'));
+const LazyFormulaMutatorDialog = MUTATOR_TOOLS_ENABLED
+  ? lazy(() => import('./components/FormulaMutatorDialog.jsx'))
+  : null;
 const LazyCarrierDroneWorkbenchDialog = lazy(() => import('./components/CarrierDroneWorkbenchDialog.jsx'));
-const LazyMutationLabDialog = lazy(() => import('./components/MutationLabDialog.jsx'));
+const LazyMutationLabDialog = MUTATOR_TOOLS_ENABLED
+  ? lazy(() => import('./components/MutationLabDialog.jsx'))
+  : null;
 const LazyWeaponLaboratoryPage = lazy(() => import('./components/WeaponLaboratoryPage.jsx'));
-
-// Publish the experimental Weapon Laboratory workspace and its Tools entry.
-const WEAPON_LAB_ENABLED = true;
-// Keep these implementations available for repair, but prevent broken bulk
-// mutation tools from changing project data through any public entry point.
-const MUTATOR_TOOLS_ENABLED = false;
-const BULK_PARAMETER_GROUPS = [
-  {
-    label: 'Common unit stats',
-    options: [
-      { value: 'health', label: 'Unit Health (HP)', description: 'Adjust the maximum durability of every eligible unit.' },
-      { value: 'metalcost', label: 'Metal Cost', description: 'Adjust the metal investment required to build each unit.' },
-      { value: 'energycost', label: 'Energy Cost', description: 'Adjust the energy investment required to build each unit.' },
-      { value: 'buildtime', label: 'Build Time', description: 'Adjust the build work required to complete each unit.' },
-      { value: 'maxvelocity', label: 'Max Velocity (Speed)', description: 'Adjust the maximum movement speed of eligible units.' },
-    ],
-  },
-  {
-    label: 'Weapon slots',
-    options: [
-      { value: 'all_weapons_damage', label: 'All Weapons Damage', description: 'Adjust every weapon slot’s base damage for each eligible unit.' },
-      { value: 'all_weapons_range', label: 'All Weapons Range', description: 'Adjust every weapon slot’s maximum range for each eligible unit.' },
-    ],
-  },
-  {
-    label: 'Additional numeric stats',
-    options: STAT_KEYS
-      .filter(stat => stat.type === 'number' && !['health', 'metalcost', 'energycost', 'buildtime', 'maxvelocity'].includes(stat.key))
-      .map(stat => ({
-        value: stat.key,
-        label: stat.label,
-        description: `Adjust ${stat.label.toLowerCase()} across every eligible unit.`,
-      })),
-  },
-];
 
 export default function App() {
   const {
@@ -114,31 +89,22 @@ export default function App() {
 
   const knownTargetableMask = useMemo(() => collectKnownTargetableMask(defaultsDb), [defaultsDb]);
 
+  const {
+    themeMode,
+    setThemeMode,
+    showAllUnitParams,
+    setShowAllUnitParams,
+    showAllWeaponParams,
+    setShowAllWeaponParams,
+  } = useEditorPreferences();
+
   const [showMainMenu, setShowMainMenu] = useState(true);
   const [activeWorkspace, setActiveWorkspace] = useState('edit');
-  const [themeMode, setThemeMode] = useState(() => {
-    try {
-      const savedTheme = localStorage.getItem('bmf_theme');
-      return savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
-    } catch {
-      return 'dark';
-    }
-  });
   const [selectedFaction, setSelectedFaction] = useState('all');
   const [selectedCats, setSelectedCats] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showModifiedOnly, setShowModifiedOnly] = useState(false);
-  const [activeCollectionId, setActiveCollectionId] = useState(null);
   const [selectedUnitId, setSelectedUnitId] = useState('armdfly');
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = themeMode;
-    try {
-      localStorage.setItem('bmf_theme', themeMode);
-    } catch {
-      // Preferences are optional when storage is unavailable.
-    }
-  }, [themeMode]);
 
   const {
     state: projectStore,
@@ -155,164 +121,42 @@ export default function App() {
     includeTweaks, includeClones, includeRosters, includeHeader, exportEnglishOnly, compactLuaFormatting,
   } = projectStore;
 
-  const techTierOverrideSignature = useMemo(() => JSON.stringify(
-    Object.entries(tweaks)
-      .flatMap(([unitId, unitTweaks]) => (
-        unitTweaks?.['customparams.techlevel'] === undefined
-          ? []
-          : [[unitId, unitTweaks['customparams.techlevel']]]
-      ))
-      .sort(([leftId], [rightId]) => leftId.localeCompare(rightId))
-  ), [tweaks]);
-  const techTierOverrides = useMemo(
-    () => new Map(JSON.parse(techTierOverrideSignature)),
-    [techTierOverrideSignature]
-  );
-  const getEffectiveTechTier = useCallback((unitId, baseId = unitId) => {
-    const override = techTierOverrides.get(unitId);
-    return override === undefined ? getTechTierOfUnit(baseId) : getTechTierFromValue(override);
-  }, [getTechTierOfUnit, techTierOverrides]);
-
-  const getCloneLineage = useCallback((unitId) => {
-    const lineage = [];
-    const visited = new Set();
-    let currentId = String(unitId || '').trim().toLowerCase();
-
-    while (currentId && !visited.has(currentId)) {
-      visited.add(currentId);
-      const clone = clones.find(item => item.newId?.trim().toLowerCase() === currentId);
-      if (!clone) break;
-      lineage.unshift(clone);
-      currentId = String(clone.baseId || '').trim().toLowerCase();
-    }
-
-    return { rootId: currentId, lineage };
-  }, [clones]);
-
-  const resolveCloneRootId = useCallback((unitId) => {
-    return getCloneLineage(unitId).rootId || String(unitId || '').trim().toLowerCase();
-  }, [getCloneLineage]);
-
-  const getInheritedCloneTweaks = useCallback((unitId) => {
-    const { lineage } = getCloneLineage(unitId);
-    return lineage.reduce((merged, clone) => {
-      const cloneId = clone.newId?.trim().toLowerCase();
-      return cloneId ? { ...merged, ...(tweaks[cloneId] || {}) } : merged;
-    }, {});
-  }, [getCloneLineage, tweaks]);
-
-  const getInheritedCloneWeaponSwaps = useCallback((unitId) => {
-    const { lineage } = getCloneLineage(unitId);
-    return lineage.reduce((merged, clone) => ({ ...merged, ...(clone.weaponSwaps || {}) }), {});
-  }, [getCloneLineage]);
-
-  const getProjectUnitIconUrl = useCallback((unitId) => {
-    const editedBuildPicture = tweaks[unitId]?.buildpic;
-    const editedPreview = getBuildPicturePreviewUrl(editedBuildPicture);
-    if (editedPreview) return editedPreview;
-    return getUnitIconUrl(resolveCloneRootId(unitId));
-  }, [resolveCloneRootId, tweaks]);
+  const {
+    getEffectiveTechTier,
+    getCloneLineage,
+    resolveCloneRootId,
+    getInheritedCloneWeaponSwaps,
+    getProjectUnitIconUrl,
+    allUnitsList,
+  } = useProjectDerivedData({
+    tweaks,
+    clones,
+    unitDescriptions,
+    defaultsDb,
+    unitsDb,
+    getTechTierOfUnit,
+    getTagsOfUnit,
+  });
 
   const tweakDefsLua = '';
   const [toast, setToast] = useState({ show: false, message: '' });
-
-  // Bulk Edit states
-  const [showBulkPanel, setShowBulkPanel] = useState(false);
-  const [showFormulaMutator, setShowFormulaMutator] = useState(false);
-  const [showCarrierWorkbench, setShowCarrierWorkbench] = useState(false);
-  const [showRandomPanel, setShowRandomPanel] = useState(false);
-  const [wipRandomPanelAcknowledged, setWipRandomPanelAcknowledged] = useState(false);
-  const [randomScope, setRandomScope] = useState('selected');
-  const [randomIntensity, setRandomIntensity] = useState('balanced');
-  const [randomDomains, setRandomDomains] = useState({ economy: true, durability: true, mobility: true, weapons: true });
-  const [bulkStatKey, setBulkStatKey] = useState('health');
-  const [bulkPercent, setBulkPercent] = useState('10');
-  const [bulkMode, setBulkMode] = useState('percent');
 
   // Build Menu Designer Modal states
   const [showDesignerPanel, setShowDesignerPanel] = useState(false);
 
   // Weapon Swap states
   const [showSwapModal, setShowSwapModal] = useState(false);
-  const [swapSearchQuery, setSwapSearchQuery] = useState('');
   const workspaceLayout = useWorkspaceLayout();
-  const [selectedSwapUnitId, setSelectedSwapUnitId] = useState(null);
-  const [selectedSwapBlueprintId, setSelectedSwapBlueprintId] = useState(null);
-  const [swapLibraryMode, setSwapLibraryMode] = useState('bar');
   const [activeSwapSlotNum, setActiveSwapSlotNum] = useState(1);
   const [activeWeaponSlotTab, setActiveWeaponSlotTab] = useState(1);
-  const [swapWeaponTypeFilter, setSwapWeaponTypeFilter] = useState('all');
-  const [swapUnitFactionFilter, setSwapUnitFactionFilter] = useState('all');
   const [activeParamTab, setActiveParamTab] = useState('structure');
   const [comparisonMode, setComparisonMode] = useState(false);
-  const [showAllUnitParams, setShowAllUnitParams] = useState(() => {
-    try {
-      return localStorage.getItem('editp_unit_parameter_view_v1') === 'all';
-    } catch {
-      return false;
-    }
-  });
-  const [showAllWeaponParams, setShowAllWeaponParams] = useState(() => {
-    try {
-      const savedPreference = localStorage.getItem('editp_weapon_parameter_view_v2');
-      return savedPreference === 'all';
-    } catch {
-      return false;
-    }
-  });
   const [activeRelationshipKey, setActiveRelationshipKey] = useState(null);
 
   useEffect(() => {
     setActiveRelationshipKey(null);
   }, [selectedUnitId, activeParamTab, activeWeaponSlotTab]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('editp_unit_parameter_view_v1', showAllUnitParams ? 'all' : 'relevant');
-    } catch {
-      // The preference remains available for this session when storage is blocked.
-    }
-  }, [showAllUnitParams]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('editp_weapon_parameter_view_v2', showAllWeaponParams ? 'all' : 'relevant');
-    } catch {
-      // The preference remains available for this session when storage is blocked.
-    }
-  }, [showAllWeaponParams]);
-
-  // Dragging logic for Weapon Swap window
-  const [swapPosition, setSwapPosition] = useState(null);
-  const [isDraggingSwap, setIsDraggingSwap] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (!isDraggingSwap) return;
-
-    const handleMouseMove = (e) => {
-      setSwapPosition({
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y
-      });
-    };
-
-    const handleMouseUp = () => {
-      setIsDraggingSwap(false);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDraggingSwap, dragOffset]);
-
-  // Summary Explorer states
-  const [showSummaryModal, setShowSummaryModal] = useState(false);
-  const [activeSummaryTab, setActiveSummaryTab] = useState('tweaks');
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
@@ -320,35 +164,7 @@ export default function App() {
   const temporaryChat = useTemporaryChat(showChatModal);
   const [chatReadAt, setChatReadAt] = useState(() => Date.now());
   const [showPresetGallery, setShowPresetGallery] = useState(false);
-  const [presetName, setPresetName] = useState('');
-  const [presetDescription, setPresetDescription] = useState('');
   const [showWeaponLab, setShowWeaponLab] = useState(false);
-  const [weaponBlueprintDraft, setWeaponBlueprintDraft] = useState(null);
-  const presenceActivity = useMemo(() => {
-    if (showMainMenu) return PRESENCE_ACTIVITY.MAIN_MENU;
-    if (
-      showBulkPanel
-      || showRandomPanel
-      || showPresetGallery
-      || (WEAPON_LAB_ENABLED && showWeaponLab)
-      || activeWorkspace === 'preset-gallery'
-      || activeWorkspace === 'collections'
-      || activeWorkspace === 'weapon-lab'
-      || activeWorkspace === 'tweak-lab'
-      || activeWorkspace === 'weapondef-library'
-      || activeWorkspace === 'reference-library'
-    ) {
-      return PRESENCE_ACTIVITY.TOOLS;
-    }
-    if (activeWorkspace === 'designer') return PRESENCE_ACTIVITY.BUILD_MENUS;
-    if (activeWorkspace === 'review') return PRESENCE_ACTIVITY.REVIEW_EXPORT;
-    return PRESENCE_ACTIVITY.EDIT_UNITS;
-  }, [activeWorkspace, showBulkPanel, showMainMenu, showPresetGallery, showRandomPanel, showWeaponLab]);
-  const {
-    count: onlineCount,
-    status: presenceStatus,
-    activityCounts: presenceActivityCounts
-  } = useOnlinePresence(presenceActivity);
   // Active Output tab
   const [activeOutputTab, setActiveOutputTab] = useState('tweakdefs_lua'); // 'tweakunits_lua' | 'tweakdefs_lua' | 'tweakunits_b64' | 'tweakdefs_b64'
 
@@ -404,95 +220,26 @@ export default function App() {
     onRejected: onProjectRejected,
   });
 
-  const createPresetSnapshot = () => ({
-    tweaks,
-    clones,
-    disabledUnitIds,
-    unitDescriptions,
-    buildMenuSteps,
-    buildMenuPacks,
-    weaponLibrary,
-    supportingWeaponDefs,
-    unitCollections,
-    tweakModules,
-    lobbySetup,
-    projectName,
-    projectAuthor,
-    projectDesc,
-    includeTweaks,
-    includeClones,
-    includeRosters,
-    includeHeader
-  });
-
-  const handleSavePreset = () => {
-    const name = presetName.trim() || `${projectName} preset`;
-    const snapshot = createPresetSnapshot();
-    const preset = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      name,
-      description: presetDescription.trim(),
-      createdAt: new Date().toISOString(),
-      snapshot
-    };
-    setPresets(prev => [preset, ...prev].slice(0, 30));
-    setPresetName('');
-    setPresetDescription('');
-    showToast(`Saved preset: ${name}`);
-  };
-
-  const handleApplyPreset = (preset) => {
-    const snapshot = preset.snapshot || {};
-    applyProjectSnapshot(snapshot);
+  const onPresetApplied = useCallback(() => {
     setShowPresetGallery(false);
     setActiveWorkspace('edit');
-    showToast(`Applied preset: ${preset.name}`);
-  };
+  }, []);
+  const {
+    presetName,
+    setPresetName,
+    presetDescription,
+    setPresetDescription,
+    handleSavePreset,
+    handleApplyPreset,
+    handleDeletePreset,
+  } = usePresetController({
+    projectStore,
+    setPresets,
+    applyProjectSnapshot,
+    showToast,
+    onApplied: onPresetApplied,
+  });
 
-  // Compile list of units (vanilla + clones)
-  const allUnitsList = useMemo(() => {
-    const list = Object.entries(unitsDb.names).filter(([id]) => Boolean(defaultsDb[id])).map(([id, name]) => {
-      const faction = getFactionOfUnit(id);
-      const techTier = getEffectiveTechTier(id);
-      const tags = [...getTagsOfUnit(id).filter(tag => !/^t[1-4]$/.test(tag)), techTier];
-      return {
-        id,
-        name,
-        desc: unitDescriptions[id] ?? unitsDb.descriptions[id] ?? '',
-        baseDesc: unitsDb.descriptions[id] ?? '',
-        faction,
-        tags,
-        techTier,
-        isClone: false
-      };
-    });
-
-    const cloneNames = new Map(clones.map(clone => [clone.newId.trim().toLowerCase(), clone.displayName || clone.newId]));
-    clones.forEach(c => {
-      const rootBaseId = resolveCloneRootId(c.newId);
-      const inheritedTier = getInheritedCloneTweaks(c.newId)['customparams.techlevel'];
-      const techTier = inheritedTier === undefined
-        ? getEffectiveTechTier(c.newId, rootBaseId)
-        : getTechTierFromValue(inheritedTier);
-      const parentId = c.baseId.trim().toLowerCase();
-      const inheritedDescription = c.description
-        ?? `Cloned from ${cloneNames.get(parentId) || unitsDb.names[parentId] || c.baseId}`;
-      list.push({
-        id: c.newId,
-        name: c.displayName || c.newId,
-        desc: unitDescriptions[c.newId] ?? inheritedDescription,
-        baseDesc: inheritedDescription,
-        faction: getFactionOfUnit(rootBaseId),
-        tags: [...getTagsOfUnit(rootBaseId).filter(tag => !/^t[1-4]$/.test(tag)), techTier],
-        techTier,
-        isClone: true,
-        baseId: c.baseId,
-        rootBaseId
-      });
-    });
-
-    return list.sort((a, b) => a.name.localeCompare(b.name));
-  }, [clones, defaultsDb, getEffectiveTechTier, getInheritedCloneTweaks, getTagsOfUnit, resolveCloneRootId, unitDescriptions, unitsDb.descriptions, unitsDb.names]);
   const {
     activeFactoryRosters,
     selectedProducer,
@@ -553,18 +300,23 @@ export default function App() {
     transactProject,
     showToast,
   });
-  const activeCollection = useMemo(
-    () => unitCollections.find(collection => collection.id === activeCollectionId) || null,
-    [activeCollectionId, unitCollections]
-  );
-  const activeCollectionUnitIds = useMemo(
-    () => activeCollection ? getCollectionUnitIds(unitCollections, activeCollection.id) : null,
-    [activeCollection, unitCollections]
-  );
-  const activeCollectionUnits = useMemo(
-    () => activeCollectionUnitIds ? allUnitsList.filter(unit => activeCollectionUnitIds.has(unit.id)) : allUnitsList,
-    [activeCollectionUnitIds, allUnitsList]
-  );
+  const {
+    activeCollectionId,
+    setActiveCollectionId,
+    activeCollection,
+    activeCollectionUnitIds,
+    activeCollectionUnits,
+    handleCreateCollection,
+    handleRenameCollection,
+    handleDeleteCollection,
+    handleToggleCollectionMembership,
+    handleCleanupCollection,
+  } = useUnitCollectionsController({
+    unitCollections,
+    setUnitCollections,
+    allUnitsList,
+    showToast,
+  });
   const {
     cloneBaseId,
     setCloneBaseId,
@@ -600,57 +352,6 @@ export default function App() {
     setSelectedUnitId,
     showToast,
   });
-
-  useEffect(() => {
-    if (activeCollectionId && !unitCollections.some(collection => collection.id === activeCollectionId)) {
-      setActiveCollectionId(null);
-    }
-  }, [activeCollectionId, unitCollections]);
-
-  const handleCreateCollection = useCallback((name, parentId = null) => {
-    const siblingCount = unitCollections.filter(collection => collection.parentId === parentId).length;
-    const collection = createUnitCollection(name, parentId, siblingCount);
-    setUnitCollections(previous => [...previous, collection]);
-    setActiveCollectionId(collection.id);
-    showToast(`Created collection: ${name}`);
-  }, [setUnitCollections, showToast, unitCollections]);
-
-  const handleRenameCollection = useCallback((collectionId, name) => {
-    setUnitCollections(previous => previous.map(collection => collection.id === collectionId
-      ? { ...collection, name: name.trim().slice(0, 80) || collection.name }
-      : collection));
-    showToast(`Renamed collection to ${name}`);
-  }, [setUnitCollections, showToast]);
-
-  const handleDeleteCollection = useCallback((collectionId) => {
-    const collection = unitCollections.find(item => item.id === collectionId);
-    setUnitCollections(previous => deleteCollectionAndPromoteChildren(previous, collectionId));
-    if (activeCollectionId === collectionId) setActiveCollectionId(collection?.parentId || null);
-    showToast(`Deleted collection${collection ? `: ${collection.name}` : ''}; units were not changed`);
-  }, [activeCollectionId, setUnitCollections, showToast, unitCollections]);
-
-  const handleToggleCollectionMembership = useCallback((collectionId, unitId) => {
-    if (!unitId) return;
-    setUnitCollections(previous => previous.map(collection => {
-      if (collection.id !== collectionId) return collection;
-      const isMember = collection.unitIds.includes(unitId);
-      return {
-        ...collection,
-        unitIds: isMember
-          ? collection.unitIds.filter(id => id !== unitId)
-          : [...collection.unitIds, unitId],
-      };
-    }));
-  }, [setUnitCollections]);
-
-  const handleCleanupCollection = useCallback((_collectionId, unresolvedIds) => {
-    const unresolved = new Set(unresolvedIds);
-    setUnitCollections(previous => previous.map(collection => ({
-      ...collection,
-      unitIds: collection.unitIds.filter(unitId => !unresolved.has(unitId)),
-    })));
-    showToast(`Removed ${unresolved.size} unresolved collection ${unresolved.size === 1 ? 'reference' : 'references'}`);
-  }, [setUnitCollections, showToast]);
 
   // Parse advanced search query (e.g. hp > 1000)
   const queryFilterFn = useMemo(() => {
@@ -757,13 +458,13 @@ export default function App() {
     return defaultsDb[baseId] !== undefined;
   }), [filteredUnits, defaultsDb, resolveCloneRootId]);
 
-  const clearUnitFilters = () => {
+  const clearUnitFilters = useCallback(() => {
     setSearchQuery('');
     setSelectedFaction('all');
     setSelectedCats([]);
     setShowModifiedOnly(false);
     setActiveCollectionId(null);
-  };
+  }, [setActiveCollectionId]);
 
   const hasActiveUnitFilters = Boolean(activeCollection || searchQuery.trim() || selectedFaction !== 'all' || selectedCats.length > 0 || showModifiedOnly);
 
@@ -779,6 +480,123 @@ export default function App() {
   const selectedUnit = useMemo(() => {
     return allUnitsList.find(u => u.id === selectedUnitId) || null;
   }, [allUnitsList, selectedUnitId]);
+
+  const {
+    swapSearchQuery, setSwapSearchQuery,
+    selectedSwapUnitId, setSelectedSwapUnitId,
+    selectedSwapBlueprintId, setSelectedSwapBlueprintId,
+    swapLibraryMode, setSwapLibraryMode,
+    swapWeaponTypeFilter, setSwapWeaponTypeFilter,
+    swapUnitFactionFilter, setSwapUnitFactionFilter,
+    swapPosition, setSwapPosition,
+    closeSwapModal,
+    handleSwapHeaderMouseDown,
+    handleBorrowWeapon,
+  } = useWeaponSwapController({
+    activeSwapSlotNum,
+    selectedUnit,
+    setClones,
+    setShowSwapModal,
+    showToast,
+  });
+
+  const {
+    showSummaryModal,
+    setShowSummaryModal,
+    activeSummaryTab,
+    setActiveSummaryTab,
+    handleStatChange,
+    handleResetUnit,
+    handleResetSummaryUnitEdits,
+    handleResetAllSummaryUnitEdits,
+    handleRevertSummaryRoster,
+    handleResetAllSummaryRosters,
+    handleDisableSummaryBuildMenuPack,
+    handleRestoreSummaryUnit,
+    handleRestoreAllSummaryUnits,
+    handleResetAllProjectChanges,
+    updateSelectedUnitDescription,
+    integrityReport,
+    handleIntegrityRepair,
+  } = useUnitEditActionsController({
+    transactProject,
+    setBuildMenuSteps,
+    setBuildMenuPacks,
+    setDisabledUnitIds,
+    clones,
+    selectedUnit,
+    selectedUnitId,
+    setSelectedUnitId,
+    setActiveRelationshipKey,
+    showToast,
+    projectStore,
+    allUnitsList,
+    activeFactoryRosters,
+    defaultsDb,
+    resolveCloneRootId,
+  });
+
+  const {
+    showBulkPanel,
+    setShowBulkPanel,
+    showFormulaMutator,
+    setShowFormulaMutator,
+    showRandomPanel,
+    setShowRandomPanel,
+    wipRandomPanelAcknowledged,
+    setWipRandomPanelAcknowledged,
+    randomScope,
+    setRandomScope,
+    randomIntensity,
+    setRandomIntensity,
+    randomDomains,
+    setRandomDomains,
+    bulkStatKey,
+    setBulkStatKey,
+    bulkPercent,
+    setBulkPercent,
+    bulkMode,
+    setBulkMode,
+    handleApplyBulk,
+    handleRandomAdjustments,
+    handleApplyFormula,
+  } = useMutatorToolsController({
+    defaultsDb,
+    tweaks,
+    bulkTargetUnits,
+    filteredUnits,
+    selectedUnit,
+    resolveCloneRootId,
+    transactProject,
+    setTweaks,
+    showToast,
+  });
+
+  const presenceActivity = useMemo(() => {
+    if (showMainMenu) return PRESENCE_ACTIVITY.MAIN_MENU;
+    if (
+      showBulkPanel
+      || showRandomPanel
+      || showPresetGallery
+      || (WEAPON_LAB_ENABLED && showWeaponLab)
+      || activeWorkspace === 'preset-gallery'
+      || activeWorkspace === 'collections'
+      || activeWorkspace === 'weapon-lab'
+      || activeWorkspace === 'tweak-lab'
+      || activeWorkspace === 'weapondef-library'
+      || activeWorkspace === 'reference-library'
+    ) {
+      return PRESENCE_ACTIVITY.TOOLS;
+    }
+    if (activeWorkspace === 'designer') return PRESENCE_ACTIVITY.BUILD_MENUS;
+    if (activeWorkspace === 'review') return PRESENCE_ACTIVITY.REVIEW_EXPORT;
+    return PRESENCE_ACTIVITY.EDIT_UNITS;
+  }, [activeWorkspace, showBulkPanel, showMainMenu, showPresetGallery, showRandomPanel, showWeaponLab]);
+  const {
+    count: onlineCount,
+    status: presenceStatus,
+    activityCounts: presenceActivityCounts
+  } = useOnlinePresence(presenceActivity);
 
   const selectedUnitDefaults = useMemo(() => {
     if (!selectedUnit) return null;
@@ -831,149 +649,42 @@ export default function App() {
     return defaults;
   }, [selectedUnit, clones, weaponLibrary, defaultsDb, getInheritedCloneWeaponSwaps, resolveCloneRootId]);
 
-  const weaponSourceCatalog = useMemo(
-    () => createWeaponSourceCatalog(allUnitsList, defaultsDb),
-    [allUnitsList, defaultsDb]
-  );
+  const {
+    weaponBlueprintDraft,
+    setWeaponBlueprintDraft,
+    weaponSourceCatalog,
+    openWeaponLab,
+    persistWeaponBlueprint,
+    cloneWeaponSourceToDraft,
+    equipWeaponBlueprint,
+    deleteWeaponBlueprint,
+    handleDownloadWeaponVfxPack,
+  } = useWeaponLabController({
+    weaponLabEnabled: WEAPON_LAB_ENABLED,
+    weaponLibrary,
+    setWeaponLibrary,
+    clones,
+    transactProject,
+    showToast,
+    selectedUnit,
+    selectedUnitDefaults,
+    resolveCloneRootId,
+    activeWeaponSlotTab,
+    allUnitsList,
+    defaultsDb,
+    setShowWeaponLab,
+    setActiveWorkspace,
+  });
 
-  const openWeaponLab = (blueprintId = null) => {
-    if (!WEAPON_LAB_ENABLED) {
-      showToast('Weapon Laboratory is temporarily unavailable.');
-      return;
-    }
-    if (typeof blueprintId === 'string') {
-      const blueprint = weaponLibrary.find(item => item.id === blueprintId);
-      if (blueprint) {
-        setWeaponBlueprintDraft(normalizeWeaponBlueprint(blueprint, { createId: false }));
-        setShowWeaponLab(true);
-        setActiveWorkspace('weapon-lab');
-        return;
-      }
-    }
-    const activeSlot = selectedUnitDefaults?.weaponSlots?.find(slot => slot.slot === activeWeaponSlotTab)
-      || selectedUnitDefaults?.weaponSlots?.[0];
-    const fallbackSource = weaponSourceCatalog[0];
-    if (!activeSlot && !fallbackSource) {
-      showToast('No BAR weapon sources are available in the current data snapshot.');
-      return;
-    }
-    const sourceUnitId = activeSlot && selectedUnit
-      ? selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id
-      : fallbackSource.sourceUnitId;
-    setWeaponBlueprintDraft(createWeaponBlueprintDraft({
-      sourceUnitId,
-      slot: activeSlot || fallbackSource.slot,
-    }));
-    setShowWeaponLab(true);
-    setActiveWorkspace('weapon-lab');
-  };
-
-  const persistWeaponBlueprint = (draft = weaponBlueprintDraft) => {
-    if (!draft?.sourceUnitId || !draft?.sourceWeaponDefKey) return null;
-    const blueprint = normalizeWeaponBlueprint(draft);
-    setWeaponLibrary(prev => {
-      const exists = prev.some(item => item.id === blueprint.id);
-      return exists ? prev.map(item => item.id === blueprint.id ? blueprint : item) : [blueprint, ...prev];
-    });
-    setWeaponBlueprintDraft(blueprint);
-    return blueprint;
-  };
-
-  const cloneWeaponSourceToDraft = source => {
-    const draft = createWeaponBlueprintDraft({
-      sourceUnitId: source.sourceUnitId,
-      slot: source.slot,
-    });
-    setWeaponBlueprintDraft(draft);
-    return draft;
-  };
-
-  const equipWeaponBlueprint = (blueprint, targetSlot = activeWeaponSlotTab) => {
-    if (!selectedUnit?.isClone) {
-      showToast('Weapon blueprints can be equipped on custom clone units only.');
-      return;
-    }
-    const slotNum = targetSlot || selectedUnitDefaults?.weaponSlots?.[0]?.slot;
-    if (!slotNum) return;
-    transactProject(current => ({
-      includeClones: true,
-      clones: current.clones.map(clone => {
-        if (clone.newId.toLowerCase() !== selectedUnit.id.toLowerCase()) return clone;
-        const weaponSwaps = { ...(clone.weaponSwaps || {}) };
-        weaponSwaps[String(slotNum)] = {
-          sourceUnitId: blueprint.sourceUnitId,
-          sourceWeaponDefKey: blueprint.sourceWeaponDefKey,
-          libraryWeaponId: blueprint.id
-        };
-        return { ...clone, weaponSwaps };
-      }),
-    }));
-    showToast(`Equipped ${blueprint.name} on slot ${slotNum}.`);
-  };
-
-  const deleteWeaponBlueprint = blueprintId => {
-    const usageCount = clones.reduce((count, clone) => (
-      count + Object.values(clone.weaponSwaps || {})
-        .filter(swap => swap.libraryWeaponId === blueprintId).length
-    ), 0);
-    if (usageCount > 0) {
-      showToast(`This custom weapon is equipped in ${usageCount} clone slot${usageCount === 1 ? '' : 's'}. Replace or restore those slots before deleting it.`);
-      return false;
-    }
-    setWeaponLibrary(previous => previous.filter(item => item.id !== blueprintId));
-    if (weaponBlueprintDraft?.id === blueprintId) openWeaponLab();
-    return true;
-  };
-
-  const handleDownloadWeaponVfxPack = (draft = null) => {
-    const savedBlueprint = draft ? persistWeaponBlueprint(draft) : null;
-    const exportLibrary = savedBlueprint
-      ? [savedBlueprint, ...weaponLibrary.filter(item => item.id !== savedBlueprint.id)]
-      : weaponLibrary;
-    const enabled = exportLibrary.filter(item => item.appearance?.vfxEnabled);
-    if (enabled.length === 0) {
-      showToast('Enable custom VFX on at least one saved weapon blueprint first.');
-      return;
-    }
-    const lua = generateWeaponVfxPackLua(enabled);
-    const blob = new Blob([lua], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'editp_weapon_effects.lua';
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-    URL.revokeObjectURL(url);
-    showToast(`Exported ${enabled.length} custom weapon VFX definitions.`);
-  };
-
-  // Update tweaked stat value
-  const handleStatChange = (unitId, statKey, value) => {
-    transactProject(current => {
-      const isClone = current.clones.some(
-        clone => clone.newId.toLowerCase() === unitId.toLowerCase()
-      );
-      const unitTweaks = { ...current.tweaks[unitId] };
-      if (value === '' || value === undefined) {
-        delete unitTweaks[statKey];
-      } else {
-        unitTweaks[statKey] = value;
-      }
-
-      const next = { ...current.tweaks };
-      if (Object.keys(unitTweaks).length === 0) {
-        delete next[unitId];
-      } else {
-        next[unitId] = unitTweaks;
-      }
-      return {
-        tweaks: next,
-        includeClones: isClone ? true : current.includeClones,
-        includeTweaks: isClone ? true : current.includeTweaks,
-      };
-    });
-  };
+  const {
+    showCarrierWorkbench,
+    setShowCarrierWorkbench,
+    handleApplyCarrierLinkage,
+  } = useCarrierWorkbenchController({
+    setTweaks,
+    setActiveWeaponSlotTab,
+    showToast,
+  });
 
   const {
     generatedTweakUnitsLua,
@@ -1015,7 +726,7 @@ export default function App() {
     : compiledLobbyModules.slots.some(slot => slot.compatibility === 'near-limit') ? 'warning' : 'ok';
 
   // Toggle Category selection
-  const handleCatClick = (cat) => {
+  const handleCatClick = useCallback((cat) => {
     setSelectedCats(prev => {
       if (prev.includes(cat)) {
         return prev.filter(c => c !== cat);
@@ -1023,216 +734,7 @@ export default function App() {
         return [...prev, cat];
       }
     });
-  };
-
-  // Reset tweaks
-  const handleResetUnit = (unitId) => {
-    transactProject(current => {
-      const next = { ...current.tweaks };
-      delete next[unitId];
-      return {
-        tweaks: next,
-        disabledUnitIds: current.disabledUnitIds.filter(id => id !== unitId),
-      };
-    });
-    showToast(`Reset stats for ${unitId}`);
-  };
-
-  const handleResetSummaryUnitEdits = (unitId) => {
-    transactProject(current => ({
-      tweaks: Object.fromEntries(Object.entries(current.tweaks).filter(([id]) => id.toLowerCase() !== unitId.toLowerCase())),
-      unitDescriptions: Object.fromEntries(Object.entries(current.unitDescriptions).filter(([id]) => id.toLowerCase() !== unitId.toLowerCase())),
-    }));
-    showToast(`Reset all edits for ${unitId}`);
-  };
-
-  const handleResetAllSummaryUnitEdits = () => {
-    transactProject({ tweaks: {}, unitDescriptions: {} });
-    setActiveRelationshipKey(null);
-    showToast('Reset all unit edits');
-  };
-
-  const handleRevertSummaryRoster = (builderId) => {
-    setBuildMenuSteps(prev => prev.filter(step => step.builderId.toLowerCase() !== builderId.toLowerCase()));
-    showToast(`Reverted build menu for ${builderId}`);
-  };
-
-  const handleResetAllSummaryRosters = () => {
-    transactProject({
-      buildMenuSteps: [],
-      buildMenuPacks: { extraUnits: false, scavengerUnits: false },
-      supportingWeaponDefs: [],
-    });
-    showToast('Reverted all build-menu changes');
-  };
-
-  const handleDisableSummaryBuildMenuPack = (packId) => {
-    setBuildMenuPacks(prev => ({ ...prev, [packId]: false }));
-    showToast(`Disabled ${packId === 'extraUnits' ? 'Extra Units Pack' : 'Scavenger Units Pack'}`);
-  };
-
-  const handleRestoreSummaryUnit = (unitId) => {
-    setDisabledUnitIds(prev => prev.filter(id => id.toLowerCase() !== unitId.toLowerCase()));
-    showToast(`Restored ${unitId}`);
-  };
-
-  const handleRestoreAllSummaryUnits = () => {
-    setDisabledUnitIds([]);
-    showToast('Restored all disabled units');
-  };
-
-  const handleResetAllProjectChanges = () => {
-    const selectedClone = clones.find(clone => clone.newId.toLowerCase() === selectedUnitId?.toLowerCase());
-    transactProject({
-      tweaks: {},
-      unitDescriptions: {},
-      clones: [],
-      disabledUnitIds: [],
-      buildMenuSteps: [],
-      buildMenuPacks: { extraUnits: false, scavengerUnits: false },
-    });
-    setActiveRelationshipKey(null);
-    if (selectedClone) setSelectedUnitId(selectedClone.baseId);
-    showToast('Reset all active project changes');
-  };
-
-  // Apply Bulk edit
-  const handleApplyBulk = () => {
-    const changeVal = parseFloat(bulkPercent);
-    if (Number.isNaN(changeVal)) {
-      showToast('Error: Invalid bulk adjustment value');
-      return;
-    }
-
-    let count = 0;
-    const updates = [];
-    bulkTargetUnits.forEach(unit => {
-      const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
-      const defaults = defaultsDb[baseId];
-
-      if (bulkStatKey === 'all_weapons_damage' || bulkStatKey === 'all_weapons_range') {
-        const slots = defaults.weaponSlots || [];
-        slots.forEach(slot => {
-          const subKey = bulkStatKey === 'all_weapons_damage' ? 'damage' : 'range';
-          const tweakKey = `weapon_slot_${slot.slot}_${subKey}`;
-          const currentTweak = tweaks[unit.id]?.[tweakKey];
-          const defaultVal = slot[subKey] || 0;
-          const baseVal = currentTweak !== undefined ? parseFloat(currentTweak) : defaultVal;
-
-          let newVal = baseVal;
-          if (bulkMode === 'percent') {
-            newVal = baseVal * (1 + changeVal / 100);
-          } else {
-            newVal = baseVal + changeVal;
-          }
-          if (newVal < 0) newVal = 0;
-          updates.push({ unitId: unit.id, key: tweakKey, value: newVal.toFixed(2) });
-        });
-        count++;
-      } else {
-        const defaultVal = parseFloat(defaults[bulkStatKey] || 0);
-        const currentTweak = tweaks[unit.id]?.[bulkStatKey];
-        const baseVal = currentTweak !== undefined ? parseFloat(currentTweak) : defaultVal;
-
-        let newVal = baseVal;
-        if (bulkMode === 'percent') {
-          newVal = baseVal * (1 + changeVal / 100);
-        } else {
-          newVal = baseVal + changeVal;
-        }
-
-        if (newVal < 0 && (bulkStatKey.includes('cost') || bulkStatKey.includes('health') || bulkStatKey.includes('velocity'))) {
-          newVal = 0;
-        }
-        updates.push({ unitId: unit.id, key: bulkStatKey, value: newVal.toFixed(2) });
-        count++;
-      }
-    });
-
-    transactProject(current => {
-      const nextTweaks = { ...current.tweaks };
-      updates.forEach(({ unitId, key, value }) => {
-        nextTweaks[unitId] = {
-          ...(nextTweaks[unitId] || {}),
-          [key]: value,
-        };
-      });
-      const touchesClone = bulkTargetUnits.some(unit => unit.isClone);
-      return {
-        tweaks: nextTweaks,
-        includeClones: touchesClone ? true : current.includeClones,
-        includeTweaks: touchesClone ? true : current.includeTweaks,
-      };
-    });
-    setShowBulkPanel(false);
-    showToast(`Adjusted ${bulkStatKey} for ${count} units by ${bulkMode === 'percent' ? (changeVal > 0 ? '+' : '') + changeVal + '%' : (changeVal > 0 ? '+' : '') + changeVal}`);
-  };
-
-  // Mutation Lab — controlled random adjustments with explicit scope and domains.
-  const handleRandomAdjustments = () => {
-    const intensityRanges = {
-      cautious: [0.90, 1.10],
-      balanced: [0.75, 1.25],
-      chaos: [0.50, 1.50]
-    };
-    const [minRatio, maxRatio] = intensityRanges[randomIntensity];
-    const targets = randomScope === 'selected' ? (selectedUnit ? [selectedUnit] : []) : filteredUnits;
-    const enabledDomains = Object.entries(randomDomains).filter(([, enabled]) => enabled).map(([domain]) => domain);
-
-    if (targets.length === 0) {
-      showToast(randomScope === 'selected' ? 'Select a unit before starting a mutation.' : 'No units match the current filters.');
-      return;
-    }
-    if (enabledDomains.length === 0) {
-      showToast('Choose at least one mutation domain.');
-      return;
-    }
-
-    setTweaks(prev => {
-      const next = { ...prev };
-      const applyValue = (unitId, key, value) => {
-        const unitPatch = { ...(next[unitId] || {}) };
-        unitPatch[key] = value;
-        next[unitId] = unitPatch;
-      };
-      const mutateValue = (value, decimals = 0) => {
-        const ratio = minRatio + Math.random() * (maxRatio - minRatio);
-        return (value * ratio).toFixed(decimals);
-      };
-
-      targets.forEach(unit => {
-        const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
-        const defaults = defaultsDb[baseId];
-        if (!defaults) return;
-
-        if (randomDomains.durability && Number.isFinite(Number(defaults.health))) {
-          applyValue(unit.id, 'health', mutateValue(Number(defaults.health)));
-        }
-        if (randomDomains.economy) {
-          ['metalcost', 'energycost', 'buildtime'].forEach(key => {
-            if (Number.isFinite(Number(defaults[key]))) applyValue(unit.id, key, mutateValue(Number(defaults[key])));
-          });
-        }
-        if (randomDomains.mobility && Number.isFinite(Number(defaults.maxvelocity)) && Number(defaults.maxvelocity) > 0) {
-          applyValue(unit.id, 'maxvelocity', mutateValue(Number(defaults.maxvelocity), 1));
-        }
-        if (randomDomains.weapons && defaults.weaponSlots) {
-          defaults.weaponSlots.forEach(slot => {
-            ['damage', 'range', 'reload'].forEach(key => {
-              const value = Number(slot[key]);
-              if (Number.isFinite(value) && value > 0) {
-                applyValue(unit.id, `weapon_slot_${slot.slot}_${key}`, mutateValue(value, key === 'reload' ? 2 : 1));
-              }
-            });
-          });
-        }
-      });
-      return next;
-    });
-
-    setShowRandomPanel(false);
-    showToast(`Mutation generated across ${targets.length} ${targets.length === 1 ? 'unit' : 'units'} in ${randomIntensity} mode.`);
-  };
+  }, []);
 
   const commandPaletteCommands = useMemo(() => {
     const openEditor = () => {
@@ -1298,7 +800,7 @@ export default function App() {
       onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveCollectionId(collection.id); setActiveWorkspace('collections'); },
     }));
     return commands;
-  }, [allUnitsList, unitCollections]);
+  }, [allUnitsList, unitCollections, setActiveCollectionId, setShowBulkPanel, setShowRandomPanel]);
 
   // Keyboard Shortcuts Hook
   useEffect(() => {
@@ -1338,7 +840,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleUndo, handleRedo, setShowClonePanel]);
+  }, [handleUndo, handleRedo, setShowBulkPanel, setShowClonePanel, setShowSummaryModal]);
 
   const {
     validationIssues,
@@ -1364,45 +866,6 @@ export default function App() {
     activeCollectionUnitIds,
     selectedUnitId,
   });
-
-  const handleApplyFormula = useCallback((updates) => {
-    if (!updates || updates.length === 0) return;
-    setTweaks(prevTweaks => {
-      const next = { ...prevTweaks };
-      updates.forEach(({ unitId, property, value }) => {
-        const existing = { ...(next[unitId] || {}) };
-        existing[property] = value;
-        next[unitId] = existing;
-      });
-      return next;
-    });
-    showToast(`Applied formula override to ${updates.length.toLocaleString()} ${updates.length === 1 ? 'unit' : 'units'}.`);
-  }, [setTweaks, showToast]);
-
-  const handleApplyCarrierLinkage = useCallback((parentUnitId, compiledTweaks) => {
-    if (!parentUnitId || !compiledTweaks) return;
-    const targetSlot = Number(compiledTweaks.editp_carrier_slot);
-    const linkedDrone = Object.entries(compiledTweaks).find(([key, value]) => (
-      /^weapon_slot_\d+_carried_unit$/.test(key) && value
-    ))?.[1];
-    setTweaks(prevTweaks => {
-      const next = { ...prevTweaks };
-      const existing = { ...(next[parentUnitId] || {}) };
-      Object.entries(compiledTweaks).forEach(([key, value]) => {
-        if (value === undefined) {
-          delete existing[key];
-        } else {
-          existing[key] = value;
-        }
-      });
-      next[parentUnitId] = existing;
-      return next;
-    });
-    if (Number.isFinite(targetSlot) && targetSlot > 0) {
-      setActiveWeaponSlotTab(targetSlot);
-    }
-    showToast(`Linked carrier "${parentUnitId}" to deployed drone "${linkedDrone || 'selected unit'}".`);
-  }, [setTweaks, showToast]);
 
   const activeFaction = useMemo(() => {
     if (selectedUnit) {
@@ -1438,39 +901,16 @@ export default function App() {
   } : null;
   const activeBuildMenuPackCount = Object.values(buildMenuPacks).filter(Boolean).length;
   const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount + tweakModules.length + supportingWeaponDefs.length + (lobbySetup.commands?.length || 0);
-  const integrityContext = useMemo(() => ({
-    allUnitsList,
-    activeFactoryRosters,
-    defaultsDb,
-    resolveCloneRootId,
-  }), [activeFactoryRosters, allUnitsList, defaultsDb, resolveCloneRootId]);
-  const integrityReport = useMemo(
-    () => analyzeProjectIntegrity({ project: projectStore, context: integrityContext }),
-    [integrityContext, projectStore]
+  const selectedUnitOverrideEntries = useMemo(
+    () => Object.entries(tweaks[selectedUnit?.id] || {}),
+    [tweaks, selectedUnit]
   );
-  const handleIntegrityRepair = useCallback((repairIds = []) => {
-    const result = repairProjectIntegrity(projectStore, integrityContext, repairIds);
-    if (result.applied.length === 0) {
-      showToast('No safe integrity repairs are currently available');
-      return;
-    }
-    transactProject({
-      buildMenuSteps: result.project.buildMenuSteps,
-      clones: result.project.clones,
-      disabledUnitIds: result.project.disabledUnitIds,
-      unitDescriptions: result.project.unitDescriptions,
-      supportingWeaponDefs: result.project.supportingWeaponDefs,
-    });
-    const remaining = result.after.findings.length;
-    showToast(`Project Doctor applied ${result.applied.length} safe ${result.applied.length === 1 ? 'repair' : 'repairs'}${remaining ? `; ${remaining} findings remain` : ''}`);
-  }, [integrityContext, projectStore, showToast, transactProject]);
-  const selectedUnitOverrideEntries = Object.entries(tweaks[selectedUnit?.id] || {});
-  const inspectorTabs = [
+  const inspectorTabs = useMemo(() => [
     { id: 'details', label: 'Details' },
     { id: 'compare', label: 'Compare', count: selectedUnitOverrideEntries.length },
     { id: 'changes', label: 'Changes', count: projectChangeCount },
     ...(selectedUnit?.isClone ? [{ id: 'identity', label: 'Identity' }] : []),
-  ];
+  ], [selectedUnitOverrideEntries, projectChangeCount, selectedUnit?.isClone]);
   const activeInspectorTab = workspaceLayout.layout.inspectorTab;
   const setInspectorTab = workspaceLayout.setInspectorTab;
 
@@ -1490,19 +930,6 @@ export default function App() {
     });
   }, [activeParamTab]);
 
-  const updateSelectedUnitDescription = useCallback(value => {
-    if (!selectedUnit) return;
-    const normalizedValue = value.slice(0, 1000);
-    transactProject(current => {
-      const nextDescriptions = { ...current.unitDescriptions };
-      if (normalizedValue.trim() === '') delete nextDescriptions[selectedUnit.id];
-      else nextDescriptions[selectedUnit.id] = normalizedValue;
-      return {
-        unitDescriptions: nextDescriptions,
-        includeTweaks: normalizedValue.trim() === '' ? current.includeTweaks : true,
-      };
-    });
-  }, [selectedUnit, transactProject]);
   const activeCompiledOutput = activeOutputTab === 'tweakdefs_lua'
     ? generatedTweakDefsLua
     : activeOutputTab === 'tweakunits_lua'
@@ -1511,6 +938,199 @@ export default function App() {
         ? tweakDefsB64
         : tweakUnitsB64;
   const activeCompiledOutputFallback = activeOutputTab.includes('lua') ? '{\n}' : 'No encoded output generated yet.';
+
+  const editWorkspaceContext = useMemo(() => ({
+    activeBuildMenuPackCount,
+    activeCollection,
+    activeCollectionId,
+    activeCollectionModifiedCount,
+    activeCollectionUnits,
+    activeOutputTab,
+    activeParamTab,
+    activeRelationshipKey,
+    activeWeaponSlotTab,
+    allUnitsList,
+    buildMenuSteps,
+    clearUnitFilters,
+    clones,
+    comparisonMode,
+    defaultsDb,
+    disabledUnitIds,
+    filteredUnits,
+    generatedTweakDefsLua,
+    generatedTweakUnitsLua,
+    getEffectiveTechTier,
+    getInheritedCloneWeaponSwaps,
+    getProjectUnitIconUrl,
+    getTagsOfUnit,
+    getValidationWarning,
+    handleCatClick,
+    handleCloneBuildersChange,
+    handleResetUnit,
+    handleStatChange,
+    hasActiveUnitFilters,
+    includeClones,
+    includeHeader,
+    includeRosters,
+    includeTweaks,
+    inspectorTabs,
+    knownTargetableMask,
+    limitRisk,
+    lobbyByteLimit,
+    modifiedUnitIds,
+    projectAuthor,
+    projectChangeCount,
+    projectDesc,
+    projectName,
+    resolveCloneRootId,
+    scopedValidationIssues,
+    selectedGadgetContracts,
+    searchQuery,
+    selectedCats,
+    selectedFaction,
+    selectedUnit,
+    selectedUnitDefaults,
+    selectedUnitId,
+    selectedUnitOverrideEntries,
+    selectInspectorParameter,
+    setActiveCollectionId,
+    setActiveOutputTab,
+    setActiveParamTab,
+    setActiveRelationshipKey,
+    setActiveSummaryTab,
+    setActiveSwapSlotNum,
+    setActiveWeaponSlotTab,
+    setActiveWorkspace,
+    setClones,
+    setComparisonMode,
+    setDisabledUnitIds,
+    setIncludeClones,
+    setIncludeHeader,
+    setIncludeRosters,
+    setIncludeTweaks,
+    setProjectAuthor,
+    setProjectDesc,
+    setProjectName,
+    setSearchQuery,
+    setSelectedFaction,
+    setSelectedSwapUnitId,
+    setSelectedUnitId,
+    setShowAllUnitParams,
+    setShowAllWeaponParams,
+    setShowModifiedOnly,
+    setShowSummaryModal,
+    setShowSwapModal,
+    setSwapPosition,
+    setSwapSearchQuery,
+    showAllUnitParams,
+    showAllWeaponParams,
+    showModifiedOnly,
+    showToast,
+    totalBytesUsed,
+    tweakDefsB64,
+    tweaks,
+    tweakUnitsB64,
+    unitCollections,
+    unitDescriptions,
+    unitsDb,
+    updateSelectedUnitDescription,
+    workspaceLayout,
+  }), [
+    activeBuildMenuPackCount,
+    activeCollection,
+    activeCollectionId,
+    activeCollectionModifiedCount,
+    activeCollectionUnits,
+    activeOutputTab,
+    activeParamTab,
+    activeRelationshipKey,
+    activeWeaponSlotTab,
+    allUnitsList,
+    buildMenuSteps,
+    clearUnitFilters,
+    clones,
+    comparisonMode,
+    defaultsDb,
+    disabledUnitIds,
+    filteredUnits,
+    generatedTweakDefsLua,
+    generatedTweakUnitsLua,
+    getEffectiveTechTier,
+    getInheritedCloneWeaponSwaps,
+    getProjectUnitIconUrl,
+    getTagsOfUnit,
+    handleCatClick,
+    handleCloneBuildersChange,
+    handleResetUnit,
+    handleStatChange,
+    hasActiveUnitFilters,
+    includeClones,
+    includeHeader,
+    includeRosters,
+    includeTweaks,
+    inspectorTabs,
+    knownTargetableMask,
+    limitRisk,
+    lobbyByteLimit,
+    modifiedUnitIds,
+    projectAuthor,
+    projectChangeCount,
+    projectDesc,
+    projectName,
+    resolveCloneRootId,
+    scopedValidationIssues,
+    selectedGadgetContracts,
+    searchQuery,
+    selectedCats,
+    selectedFaction,
+    selectedUnit,
+    selectedUnitDefaults,
+    selectedUnitId,
+    selectedUnitOverrideEntries,
+    selectInspectorParameter,
+    setActiveCollectionId,
+    setActiveOutputTab,
+    setActiveParamTab,
+    setActiveRelationshipKey,
+    setActiveSummaryTab,
+    setActiveSwapSlotNum,
+    setActiveWeaponSlotTab,
+    setActiveWorkspace,
+    setClones,
+    setComparisonMode,
+    setDisabledUnitIds,
+    setIncludeClones,
+    setIncludeHeader,
+    setIncludeRosters,
+    setIncludeTweaks,
+    setProjectAuthor,
+    setProjectDesc,
+    setProjectName,
+    setSearchQuery,
+    setSelectedFaction,
+    setSelectedSwapUnitId,
+    setSelectedUnitId,
+    setShowAllUnitParams,
+    setShowAllWeaponParams,
+    setShowModifiedOnly,
+    setShowSummaryModal,
+    setShowSwapModal,
+    setSwapPosition,
+    setSwapSearchQuery,
+    showAllUnitParams,
+    showAllWeaponParams,
+    showModifiedOnly,
+    showToast,
+    totalBytesUsed,
+    tweakDefsB64,
+    tweaks,
+    tweakUnitsB64,
+    unitCollections,
+    unitDescriptions,
+    unitsDb,
+    updateSelectedUnitDescription,
+    workspaceLayout,
+  ]);
 
   if (!showMainMenu && coreDataStatus !== 'ready') {
     return (
@@ -1709,105 +1329,7 @@ export default function App() {
 
       {/* Main Workspace */}
       {activeWorkspace === 'edit' ? (
-        <EditUnitsWorkspace
-          context={{
-            activeBuildMenuPackCount,
-            activeCollection,
-            activeCollectionId,
-            activeCollectionModifiedCount,
-            activeCollectionUnits,
-            activeOutputTab,
-            activeParamTab,
-            activeRelationshipKey,
-            activeWeaponSlotTab,
-            allUnitsList,
-            buildMenuSteps,
-            clearUnitFilters,
-            clones,
-            comparisonMode,
-            defaultsDb,
-            disabledUnitIds,
-            filteredUnits,
-            generatedTweakDefsLua,
-            generatedTweakUnitsLua,
-            getEffectiveTechTier,
-            getInheritedCloneWeaponSwaps,
-            getProjectUnitIconUrl,
-            getTagsOfUnit,
-            getValidationWarning,
-            handleCatClick,
-            handleCloneBuildersChange,
-            handleResetUnit,
-            handleStatChange,
-            hasActiveUnitFilters,
-            includeClones,
-            includeHeader,
-            includeRosters,
-            includeTweaks,
-            inspectorTabs,
-            knownTargetableMask,
-            limitRisk,
-            lobbyByteLimit,
-            modifiedUnitIds,
-            projectAuthor,
-            projectChangeCount,
-            projectDesc,
-            projectName,
-            resolveCloneRootId,
-            scopedValidationIssues,
-            selectedGadgetContracts,
-            searchQuery,
-            selectedCats,
-            selectedFaction,
-            selectedUnit,
-            selectedUnitDefaults,
-            selectedUnitId,
-            selectedUnitOverrideEntries,
-            selectInspectorParameter,
-            setActiveCollectionId,
-            setActiveOutputTab,
-            setActiveParamTab,
-            setActiveRelationshipKey,
-            setActiveSummaryTab,
-            setActiveSwapSlotNum,
-            setActiveWeaponSlotTab,
-            setActiveWorkspace,
-            setClones,
-            setComparisonMode,
-            setDisabledUnitIds,
-            setIncludeClones,
-            setIncludeHeader,
-            setIncludeRosters,
-            setIncludeTweaks,
-            setProjectAuthor,
-            setProjectDesc,
-            setProjectName,
-            setSearchQuery,
-            setSelectedFaction,
-            setSelectedSwapUnitId,
-            setSelectedUnitId,
-            setShowAllUnitParams,
-            setShowAllWeaponParams,
-            setShowModifiedOnly,
-            setShowSummaryModal,
-            setShowSwapModal,
-            setSwapPosition,
-            setSwapSearchQuery,
-            showAllUnitParams,
-            showAllWeaponParams,
-            showModifiedOnly,
-            showToast,
-            totalBytesUsed,
-            tweakDefsB64,
-            tweaks,
-            tweakUnitsB64,
-            unitCollections,
-            unitDescriptions,
-            unitsDb,
-            updateSelectedUnitDescription,
-            workspaceLayout,
-          }}
-        />
+        <EditUnitsWorkspace context={editWorkspaceContext} />
       ) : activeWorkspace === 'collections' ? (
         <Suspense fallback={<main className="collections-page workspace-loading"><span>Preparing collections…</span></main>}>
           <LazyCollectionsPage
@@ -1986,380 +1508,32 @@ export default function App() {
 
       {/* Weapon Swap Modal */}
       {showSwapModal && (
-        <div className="weapon-swap-overlay">
-        <div
-          className="weapon-swap-modal weapon-borrow-dialog"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="weapon-borrow-title"
-          style={swapPosition ? { top: swapPosition.y, left: swapPosition.x, transform: 'none' } : undefined}
-          onKeyDown={event => {
-            if (event.key !== 'Escape') return;
-            setShowSwapModal(false);
-            setSwapPosition(null);
-          }}
-        >
-          {/* Header (Drag Handle) */}
-          <div
-            className="weapon-swap-header"
-            onMouseDown={(e) => {
-              if (e.button !== 0) return;
-              if (e.target.closest('button')) return;
-              const modalBounds = e.currentTarget.closest('.weapon-swap-modal').getBoundingClientRect();
-              setSwapPosition({ x: modalBounds.left, y: modalBounds.top });
-              setIsDraggingSwap(true);
-              setDragOffset({
-                x: e.clientX - modalBounds.left,
-                y: e.clientY - modalBounds.top
-              });
-            }}
-          >
-            <div className="weapon-swap-title-group">
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M2 5h10M9 2l3 3-3 3M14 11H4M7 8l-3 3 3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <div className="weapon-swap-title-copy">
-                <span>Loadout editor</span>
-                <h3 id="weapon-borrow-title">Borrow a weapon</h3>
-              </div>
-              <span className="weapon-swap-slot">Target slot {activeSwapSlotNum}</span>
-            </div>
-            <button
-              type="button"
-              className="weapon-swap-close"
-              aria-label="Close borrow weapon dialog"
-              onClick={() => {
-                setShowSwapModal(false);
-                setSwapPosition(null);
-              }}
-            >
-              <span>Close</span>
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg>
-            </button>
-          </div>
-
-          <div className="weapon-swap-mode-tabs" role="tablist" aria-label="Weapon source type">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={swapLibraryMode === 'bar'}
-              className={swapLibraryMode === 'bar' ? 'is-active' : ''}
-              onClick={() => setSwapLibraryMode('bar')}
-            >
-              BAR weapons
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={swapLibraryMode === 'custom'}
-              className={swapLibraryMode === 'custom' ? 'is-active' : ''}
-              onClick={() => {
-                setSwapLibraryMode('custom');
-                setSelectedSwapBlueprintId(current => current || weaponLibrary[0]?.id || null);
-              }}
-            >
-              Custom weapons
-              <span>{weaponLibrary.length}</span>
-            </button>
-          </div>
-
-          {swapLibraryMode === 'bar' ? (
-          <div className="weapon-swap-body">
-            {/* Left Column: Search, Faction Filters & Unit list */}
-            <aside className="weapon-swap-library" aria-label="Weapon donor library">
-              <div className="weapon-swap-library-heading">
-                <span>Source library</span>
-                <strong>Select a donor unit</strong>
-              </div>
-              {/* Faction Filter Chips */}
-              <div className="weapon-swap-factions" role="group" aria-label="Filter donor units by faction">
-                {[
-                  { id: 'all', label: 'All' },
-                  { id: 'arm', label: 'Arm' },
-                  { id: 'cor', label: 'Cor' },
-                  { id: 'leg', label: 'Leg' },
-                  { id: 'scav', label: 'Scav' }
-                ].map(f => (
-                  <button
-                    type="button"
-                    key={f.id}
-                    className={swapUnitFactionFilter === f.id ? 'active' : ''}
-                    aria-pressed={swapUnitFactionFilter === f.id}
-                    onClick={() => setSwapUnitFactionFilter(f.id)}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-
-              <label className="weapon-swap-search-field">
-                <span>Search donor units</span>
-                <input
-                  type="search"
-                  className="weapon-swap-search"
-                  placeholder="Unit name or ID"
-                  autoFocus
-                  value={swapSearchQuery}
-                  onChange={e => setSwapSearchQuery(e.target.value)}
-                />
-              </label>
-
-              <div className="weapon-swap-unit-list" role="listbox" aria-label="Donor units">
-                {allUnitsList
-                  .filter(u => {
-                    if (u.isClone) return false;
-
-                    // Search Query Filter
-                    if (swapSearchQuery.trim()) {
-                      const q = swapSearchQuery.toLowerCase();
-                      if (!u.id.toLowerCase().includes(q) && !u.name.toLowerCase().includes(q)) return false;
-                    }
-
-                    // Faction Filter
-                    if (swapUnitFactionFilter !== 'all') {
-                      const faction = getFactionOfUnit(u.id);
-                      if (faction !== swapUnitFactionFilter) return false;
-                    }
-
-                    // Only show units that actually have weaponSlots configurations
-                    const defaults = defaultsDb[u.id];
-                    return defaults && defaults.weaponSlots && defaults.weaponSlots.length > 0;
-                  })
-                  .map(u => {
-                    const faction = getFactionOfUnit(u.id);
-                    let factionColor = 'var(--color-text-muted)';
-                    if (faction === 'arm') factionColor = 'var(--color-faction-arm)';
-                    else if (faction === 'cor') factionColor = 'var(--color-faction-cor)';
-                    else if (faction === 'leg') factionColor = 'var(--color-faction-leg)';
-                    else if (faction === 'scav') factionColor = 'var(--color-faction-scav)';
-
-                    const isSelected = selectedSwapUnitId === u.id;
-
-                    return (
-                      <button
-                        type="button"
-                        role="option"
-                        key={u.id}
-                        className={`weapon-swap-unit ${isSelected ? 'active' : ''}`}
-                        aria-selected={isSelected}
-                        onClick={() => setSelectedSwapUnitId(u.id)}
-                      >
-                        <div className="weapon-swap-unit-icon">
-                          <UnitArtwork unitId={u.id} alt="" />
-                        </div>
-                        <div className="weapon-swap-unit-copy">
-                          <strong>{u.name}</strong>
-                          <code>{u.id}</code>
-                        </div>
-
-                        <span className="weapon-swap-faction-dot" style={{ background: factionColor }} title={faction.toUpperCase()} />
-                      </button>
-                    );
-                  })}
-              </div>
-            </aside>
-
-            {/* Right Column: Weapon selection list */}
-            <div className="weapon-swap-stage">
-              {selectedSwapUnitId ? (() => {
-                const srcDefaults = defaultsDb[selectedSwapUnitId.toLowerCase()];
-                const srcName = unitsDb.names[selectedSwapUnitId] || selectedSwapUnitId;
-
-                // Extract available weapons from dynamic weaponSlots array
-                const weapons = srcDefaults?.weaponSlots || [];
-
-                // Classification helper
-                const getWeaponClass = (w) => {
-                  const name = w.defKey.toLowerCase();
-                  if (name.includes('laser') || name.includes('beam') || name.includes('lightning') || name.includes('heat_ray')) return 'laser';
-                  if (name.includes('missile') || name.includes('rocket') || name.includes('torpedo') || name.includes('flak')) return 'missile';
-                  if (name.includes('cannon') || name.includes('plasma') || name.includes('gauss') || name.includes('artillery')) return 'plasma';
-                  if (name.includes('shield') || name.includes('repulsor') || name.includes('jammer') || name.includes('stealth')) return 'utility';
-                  return 'other';
-                };
-
-                const getWeaponRoleLabel = (w) => {
-                  if (w.reload <= 0.15 || w.burst > 5) return 'RAPID FIRE';
-                  if (w.range >= 750) return 'LONG RANGE';
-                  if (w.aoe >= 64) return 'AREA OF EFFECT';
-                  if (w.projectiles > 3) return 'SHOTGUN VOLLEY';
-                  return 'DIRECT FIRE';
-                };
-
-                // Filter weapons
-                const filteredWeapons = weapons.filter(w => {
-                  if (swapWeaponTypeFilter === 'all') return true;
-                  return getWeaponClass(w) === swapWeaponTypeFilter;
-                });
-
-                // Current weapon equipped on destination slot for live comparison
-                const destDefaults = selectedUnitDefaults;
-                const currentWep = destDefaults?.weaponSlots?.find(s => s.slot === activeSwapSlotNum);
-
-                return (
-                  <div className="weapon-swap-stage-content">
-                    {/* Source Unit Information */}
-                    <div className="weapon-swap-source">
-                      <div className="weapon-swap-source-unit">
-                        <div className="weapon-swap-source-icon">
-                          <UnitArtwork unitId={selectedSwapUnitId} alt="" eager />
-                        </div>
-                        <div className="weapon-swap-source-copy">
-                          <span>Selected donor</span>
-                          <h4>{srcName}</h4>
-                          <code>{selectedSwapUnitId}</code>
-                        </div>
-                      </div>
-
-                      {/* Category filter tabs */}
-                      <div className="weapon-swap-type-filters" role="group" aria-label="Filter donor weapons by type">
-                        {[
-                          { id: 'all', label: 'All weapons' },
-                          { id: 'laser', label: 'Lasers' },
-                          { id: 'missile', label: 'Missiles' },
-                          { id: 'plasma', label: 'Plasma' },
-                          { id: 'utility', label: 'Shields/Util' }
-                        ].map(t => (
-                          <button
-                            type="button"
-                            key={t.id}
-                            className={swapWeaponTypeFilter === t.id ? 'active' : ''}
-                            aria-pressed={swapWeaponTypeFilter === t.id}
-                            onClick={() => setSwapWeaponTypeFilter(t.id)}
-                          >
-                            {t.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Weapons List Container */}
-                    <div className="weapon-swap-weapons">
-                      {filteredWeapons.length > 0 ? filteredWeapons.map(w => {
-                        const wRole = getWeaponRoleLabel(w);
-
-                        // Delta calculations against current weapon
-                        const dmgDiff = currentWep ? (w.damage - currentWep.damage) : null;
-                        const rldDiff = currentWep ? (w.reload - currentWep.reload) : null;
-                        const rngDiff = currentWep ? (w.range - currentWep.range) : null;
-                        const metricRows = [
-                          {
-                            label: 'Damage',
-                            value: w.damage,
-                            deltaText: dmgDiff !== null && dmgDiff !== 0 ? `${dmgDiff > 0 ? '+' : ''}${dmgDiff}` : null,
-                            positive: dmgDiff > 0,
-                          },
-                          {
-                            label: 'Range',
-                            value: w.range,
-                            deltaText: rngDiff !== null && rngDiff !== 0 ? `${rngDiff > 0 ? '+' : ''}${rngDiff}` : null,
-                            positive: rngDiff > 0,
-                          },
-                          {
-                            label: 'Reload',
-                            value: `${w.reload}s`,
-                            deltaText: rldDiff !== null && rldDiff !== 0 ? `${rldDiff < 0 ? '' : '+'}${rldDiff.toFixed(2)}s` : null,
-                            positive: rldDiff < 0,
-                          },
-                        ];
-
-                        return (
-                          <article key={w.slot} className="weapon-swap-weapon">
-                            <div className="weapon-swap-weapon-main">
-                              <div className="weapon-swap-weapon-heading">
-                                <strong>{w.defKey.toUpperCase()}</strong>
-                                <span className="weapon-swap-weapon-role">{wRole}</span>
-                              </div>
-
-                              {/* Live Comparison Layout */}
-                              <div className="weapon-swap-metrics">
-                                {metricRows.map(metric => (
-                                  <div className="weapon-swap-metric" key={metric.label}>
-                                    <span className="weapon-swap-metric-label">{metric.label}</span>
-                                    <strong className="weapon-swap-metric-value">{metric.value}</strong>
-                                    {metric.deltaText && (
-                                      <span className={`weapon-swap-metric-delta ${metric.positive ? 'is-positive' : 'is-negative'}`}>
-                                        {metric.deltaText}
-                                      </span>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-
-                            <button
-                              type="button"
-                              className="btn-action weapon-swap-borrow"
-                              onClick={() => {
-                                setClones(prev => prev.map(c => {
-                                  if (c.newId.toLowerCase() === selectedUnit.id.toLowerCase()) {
-                                    const swaps = { ...(c.weaponSwaps || {}) };
-                                    swaps[String(activeSwapSlotNum)] = {
-                                      sourceUnitId: selectedSwapUnitId,
-                                      sourceWeaponDefKey: w.defKey
-                                    };
-                                    return {
-                                      ...c,
-                                      weaponSwaps: swaps
-                                    };
-                                  }
-                                  return c;
-                                }));
-                                showToast(`Equipped ${w.defKey.toUpperCase()} on Slot ${activeSwapSlotNum}!`);
-                                setShowSwapModal(false);
-                                setSwapPosition(null);
-                              }}
-                            >
-                              Borrow to slot {activeSwapSlotNum}
-                              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
-                            </button>
-                          </article>
-                        );
-                      }) : (
-                        <div className="weapon-swap-empty">
-                          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 4l16 16M9.5 5.2A7.2 7.2 0 0 1 12 4.75c4.6 0 8 4.25 8 7.25a7.6 7.6 0 0 1-1.55 3.85M14.1 19.05a7.3 7.3 0 0 1-2.1.2c-4.6 0-8-4.25-8-7.25 0-1.3.65-2.8 1.75-4.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
-                          <span>Filtered library</span>
-                          <h4>No matching weapons</h4>
-                          <p>Choose another weapon type to see this donor unit&rsquo;s available systems.</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })() : (
-                <div className="weapon-swap-welcome">
-                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M8 12a4 4 0 100-8 4 4 0 000 8zM8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                  <span>Donor selection</span>
-                  <h4>Choose a source unit</h4>
-                  <p>Select a unit from the library to compare its weapon systems with the current slot.</p>
-                </div>
-              )}
-          </div>
-          </div>
-          ) : (
-            <div className="weapon-swap-body">
-              <CustomWeaponBorrowPanel
-                library={weaponLibrary}
-                selectedBlueprintId={selectedSwapBlueprintId}
-                targetSlot={activeSwapSlotNum}
-                onSelect={setSelectedSwapBlueprintId}
-                onEquip={blueprint => {
-                  equipWeaponBlueprint(blueprint, activeSwapSlotNum);
-                  setShowSwapModal(false);
-                  setSwapPosition(null);
-                }}
-                onOpenLaboratory={() => {
-                  setShowSwapModal(false);
-                  setSwapPosition(null);
-                  openWeaponLab();
-                }}
-              />
-            </div>
-          )}
-      </div>
-        </div>
+        <WeaponSwapModal
+          activeSwapSlotNum={activeSwapSlotNum}
+          allUnitsList={allUnitsList}
+          defaultsDb={defaultsDb}
+          equipWeaponBlueprint={equipWeaponBlueprint}
+          onBorrowWeapon={handleBorrowWeapon}
+          onClose={closeSwapModal}
+          onHeaderMouseDown={handleSwapHeaderMouseDown}
+          openWeaponLab={openWeaponLab}
+          selectedSwapBlueprintId={selectedSwapBlueprintId}
+          selectedSwapUnitId={selectedSwapUnitId}
+          selectedUnitDefaults={selectedUnitDefaults}
+          setSelectedSwapBlueprintId={setSelectedSwapBlueprintId}
+          setSelectedSwapUnitId={setSelectedSwapUnitId}
+          setSwapLibraryMode={setSwapLibraryMode}
+          setSwapSearchQuery={setSwapSearchQuery}
+          setSwapUnitFactionFilter={setSwapUnitFactionFilter}
+          setSwapWeaponTypeFilter={setSwapWeaponTypeFilter}
+          swapLibraryMode={swapLibraryMode}
+          swapPosition={swapPosition}
+          swapSearchQuery={swapSearchQuery}
+          swapUnitFactionFilter={swapUnitFactionFilter}
+          swapWeaponTypeFilter={swapWeaponTypeFilter}
+          unitNames={unitsDb.names}
+          weaponLibrary={weaponLibrary}
+        />
       )}
 
       {/* Weapon Laboratory */}
@@ -2419,7 +1593,7 @@ export default function App() {
             onPresetDescriptionChange={setPresetDescription}
             onSave={handleSavePreset}
             onApply={handleApplyPreset}
-            onDelete={presetId => setPresets(prev => prev.filter(item => item.id !== presetId))}
+            onDelete={handleDeletePreset}
             onClose={() => { setShowPresetGallery(false); setActiveWorkspace('edit'); }}
           />
         </Suspense>

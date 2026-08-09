@@ -796,7 +796,7 @@
   }
 }
 
-@media (max-height: 820px) {
+@media (max-height: 1100px) {
   .main-menu__frame {
     padding-block: var(--space-7) var(--space-8);
     gap: var(--space-8);

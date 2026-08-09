@@ -5,4 +5,5 @@ dist/
 .skill-staging/
 .agents/
 docs/
+.qoder/
 *.log

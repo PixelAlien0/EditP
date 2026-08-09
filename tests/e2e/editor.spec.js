@@ -495,7 +495,7 @@ test('Tweak Package Lab preserves auxiliary WeaponDefs in the project library an
   await expect(library).toContainText('cluster_child');
   await library.getByLabel('Owner UnitDef').fill('armflea');
   await library.getByLabel('WeaponDef key').fill('manual_aux');
-  await library.getByRole('button', { name: 'Create definition' }).click();
+  await library.getByRole('button', { name: 'Create empty' }).click();
   await expect(page.getByRole('heading', { name: 'MANUAL_AUX' })).toBeVisible();
   await page.getByRole('textbox', { name: 'Literal fields for manual_aux' }).fill(JSON.stringify({
     areaofeffect: 48,
@@ -660,7 +660,8 @@ test('advanced unit fields and custom parameters compile into tweakunits', async
   await customPanel.getByLabel('Initial value', { exact: true }).fill('0.5');
   await customPanel.getByRole('button', { name: 'Add parameter' }).click();
   await expect(customPanel).toContainText('Fall Damage Multiplier');
-  await expect(customPanel).toContainText('BAR gadget');
+  await expect(customPanel).toContainText('Consumer evidence');
+  await expect(customPanel).toContainText('unit_collision_damage_behavior.lua');
 
   await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Review & Export/ }).click();
   await page.getByText('Legacy combined compiler', { exact: true }).click();
@@ -814,6 +815,18 @@ test('parameter card hover keeps the entire section geometry stable', async ({ p
       };
     })),
   });
+
+  let previousGeometry = '';
+  await expect.poll(async () => {
+    const currentGeometry = JSON.stringify(await readGeometry());
+    const isStable = currentGeometry === previousGeometry;
+    previousGeometry = currentGeometry;
+    return isStable;
+  }, {
+    message: 'parameter layout should finish settling before hover is measured',
+    intervals: [100, 150, 250, 300],
+    timeout: 5_000,
+  }).toBe(true);
 
   const before = await readGeometry();
   await cards.first().hover();
