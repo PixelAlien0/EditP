@@ -42,8 +42,8 @@ const TEAM_COLORS = Object.freeze([
 ]);
 
 const GROUND_COLORS = Object.freeze([
-  { id: 'charcoal', label: 'Charcoal ground', value: '#151311' },
   { id: 'slate', label: 'Slate ground', value: '#20262a' },
+  { id: 'charcoal', label: 'Charcoal ground', value: '#151311' },
   { id: 'earth', label: 'Earth ground', value: '#30251d' },
   { id: 'sand', label: 'Sand ground', value: '#4a4032' },
 ]);
