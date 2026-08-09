@@ -819,8 +819,7 @@
 }
 
 .scavenger-squad-profile__identity { min-width: 0; }
-.scavenger-squad-profile__identity > span,
-.scavenger-squad-profile__preset > span {
+.scavenger-squad-profile__identity > span {
   display: block;
   margin-bottom: var(--space-1);
   color: var(--color-text-muted);
@@ -841,8 +840,17 @@
   font-size: 10px;
   line-height: 1.4;
 }
-.scavenger-squad-profile__preset { display: grid; min-width: 0; }
-.scavenger-squad-profile__preset select { min-width: 0; min-height: 32px; }
+.scavenger-squad-profile__preset {
+  align-self: stretch;
+  justify-content: end;
+}
+.scavenger-squad-profile__preset .ui-field__label {
+  color: var(--color-text);
+}
+.scavenger-squad-profile__preset .ui-select {
+  min-height: var(--control-height-md);
+  background-color: var(--color-surface);
+}
 .scavenger-squad-profile__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .scavenger-squad-profile__footer {
   grid-column: 1 / -1;

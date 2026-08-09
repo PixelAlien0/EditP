@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Button, ParameterStatus } from '../ui.jsx';
+import { Button, ParameterStatus, SelectField } from '../ui.jsx';
 import {
   CUSTOM_PARAMETER_BY_KEY,
   CUSTOM_PARAMETER_CATALOG,
@@ -93,12 +93,15 @@ function ScavengerSquadProfile({ defaults, tweaks, onApplyProfile }) {
         <h4 id="scavenger-squad-profile-title">Scavenger Squad Profile</h4>
         <p>{enabled ? 'This unit is registered as an eligible Scavenger squad candidate.' : 'Register this unit for BAR Scavenger squad selection using a tested profile.'}</p>
       </div>
-      <label className="scavenger-squad-profile__preset">
-        <span>Starter profile</span>
-        <select value={presetId} onChange={event => setPresetId(event.target.value)} aria-label="Scavenger squad starter profile">
+      <SelectField
+        className="scavenger-squad-profile__preset"
+        label="Starter profile"
+        description="Choose a tested squad role as your starting point."
+        value={presetId}
+        onChange={event => setPresetId(event.target.value)}
+      >
           {Object.entries(SCAVENGER_PRESETS).map(([id, preset]) => <option key={id} value={id}>{preset.label}</option>)}
-        </select>
-      </label>
+      </SelectField>
       <div className="scavenger-squad-profile__actions">
         <Button variant="secondary" onClick={applyPreset}>{enabled ? 'Reapply profile' : 'Enable profile'}</Button>
         {enabled && <Button variant="quiet" onClick={disableProfile}>Disable</Button>}
