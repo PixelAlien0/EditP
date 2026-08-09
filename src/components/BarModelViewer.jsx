@@ -198,29 +198,35 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     resize();
     renderFrame();
 
-    Promise.all([
-      gltfLoader.loadAsync(entry.model),
-      textureLoader.loadAsync(entry.textures.color),
-      textureLoader.loadAsync(entry.textures.pbr),
-      textureLoader.loadAsync(entry.textures.normal),
-      textureLoader.loadAsync(entry.textures.teamMask),
-      textureLoader.loadAsync(entry.textures.emissive),
-    ]).then(([gltf, colorMap, pbrMap, normalMap, teamMask, emissiveMap]) => {
+    const texturePromise = entry.textures
+      ? Promise.all([
+          textureLoader.loadAsync(entry.textures.color),
+          textureLoader.loadAsync(entry.textures.pbr),
+          textureLoader.loadAsync(entry.textures.normal),
+          textureLoader.loadAsync(entry.textures.teamMask),
+          textureLoader.loadAsync(entry.textures.emissive),
+        ])
+      : Promise.resolve(null);
+
+    Promise.all([gltfLoader.loadAsync(entry.model), texturePromise]).then(([gltf, loadedTextures]) => {
       if (cancelled) return;
-      textures = [
-        prepareTexture(colorMap, renderer, SRGBColorSpace),
-        prepareTexture(pbrMap, renderer),
-        prepareTexture(normalMap, renderer),
-        prepareTexture(teamMask, renderer),
-        prepareTexture(emissiveMap, renderer, SRGBColorSpace),
-      ];
-      material = createBarMaterial({
-        color: colorMap,
-        pbr: pbrMap,
-        normal: normalMap,
-        teamMask,
-        emissive: emissiveMap,
-      }, teamUniform);
+      if (loadedTextures) {
+        const [colorMap, pbrMap, normalMap, teamMask, emissiveMap] = loadedTextures;
+        textures = [
+          prepareTexture(colorMap, renderer, SRGBColorSpace),
+          prepareTexture(pbrMap, renderer),
+          prepareTexture(normalMap, renderer),
+          prepareTexture(teamMask, renderer),
+          prepareTexture(emissiveMap, renderer, SRGBColorSpace),
+        ];
+        material = createBarMaterial({
+          color: colorMap,
+          pbr: pbrMap,
+          normal: normalMap,
+          teamMask,
+          emissive: emissiveMap,
+        }, teamUniform);
+      }
 
       root = gltf.scene;
       root.rotation.y = -0.48;
@@ -229,9 +235,11 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
       root.traverse(node => {
         if (!node.isMesh) return;
         meshCount += 1;
-        if (Array.isArray(node.material)) node.material.forEach(entry => replacedMaterials.add(entry));
-        else if (node.material) replacedMaterials.add(node.material);
-        node.material = material;
+        if (material) {
+          if (Array.isArray(node.material)) node.material.forEach(entry => replacedMaterials.add(entry));
+          else if (node.material) replacedMaterials.add(node.material);
+          node.material = material;
+        }
         node.castShadow = true;
         node.receiveShadow = true;
       });
@@ -295,8 +303,8 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
       setModelFacts({
         pieces: meshCount,
         animations: gltf.animations.length,
-        material: 'GLB · PBR',
-        size: `${Math.max(1, Math.round(entry.modelBytes / 1024))} KB`,
+        material: entry.materialMode === 'bar-pbr' ? 'GLB · BAR PBR' : 'GLB · Native material',
+        size: entry.modelBytes ? `${Math.max(1, Math.round(entry.modelBytes / 1024))} KB` : 'Streamed',
       });
       setStatus('ready');
       resetView();
@@ -356,12 +364,12 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
           <Type variant="eyebrow">Interactive model reference</Type>
           <Type as="h4" variant="subsection-title">{entry.unitId.toUpperCase()} · {entry.name}</Type>
         </div>
-        <span className="bar-model-viewer__prototype">GLB preview</span>
+        <span className="bar-model-viewer__prototype">Official GLB</span>
       </header>
 
       <div ref={stageRef} className="bar-model-viewer__stage">
         <canvas ref={canvasRef} role="img" tabIndex="0" aria-label={`Interactive 3D model of ${entry.name}. Drag to orbit and use the mouse wheel to zoom.`} />
-        {status === 'loading' && <div className="bar-model-viewer__loading" role="status">Preparing the PBR model…</div>}
+        {status === 'loading' && <div className="bar-model-viewer__loading" role="status">Streaming the model…</div>}
         {status === 'error' && (
           <div className="bar-model-viewer__error" role="alert">
             {fallbackUrl && <img src={fallbackUrl} alt="" />}
@@ -377,7 +385,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
       </div>
 
       <div className="bar-model-viewer__controls">
-        <fieldset>
+        <fieldset disabled={!entry.textures}>
           <legend>Team colour</legend>
           <div>
             {TEAM_COLORS.map(color => (
@@ -394,7 +402,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
             ))}
           </div>
         </fieldset>
-        <p>Drag to orbit · Scroll to zoom</p>
+        <p>{entry.textures ? 'Drag to orbit · Scroll to zoom' : 'Native material · Drag to orbit · Scroll to zoom'}</p>
       </div>
 
       {modelFacts && (
@@ -404,7 +412,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
           <div><dt>Model payload</dt><dd>{modelFacts.size}</dd></div>
         </dl>
       )}
-      <footer>{entry.role} reference · {modelFacts?.material || 'GLB'} · Lazy local asset · Reference Library only</footer>
+      <footer>{entry.role} reference · {modelFacts?.material || 'GLB'} · Lazy official asset · Reference Library only</footer>
     </section>
   );
 }

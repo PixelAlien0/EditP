@@ -5,26 +5,18 @@ import sharp from 'sharp';
 
 const SOURCE_COMMIT = 'e03f8af274ad97c327d4863432c406e33a4062fa';
 const SOURCE_ROOT = `https://raw.githubusercontent.com/beyond-all-reason/Beyond-All-Reason/${SOURCE_COMMIT}`;
-const VIEWER_MODEL_ROOT = 'https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb';
+const VIEWER_ORIGIN = 'https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev';
+const VIEWER_MODEL_ROOT = `${VIEWER_ORIGIN}/glb`;
+const PUBLIC_MODEL_ROOT = '/bar-model-cdn/glb';
 const OUTPUT_ROOT = path.resolve('public/bar-models');
 const STAGING_ROOT = path.resolve('public/bar-models-staging');
 const DATA_MANIFEST = path.resolve('src/data/bar-model-manifest.json');
+const UNIT_DEFAULTS = path.resolve('src/data/unit-defaults.json');
+const UNIT_CATEGORIES = path.resolve('src/data/unit-categories.json');
+const UNIT_METADATA = path.resolve('src/data/units.json');
 const TEXTURE_SIZE = 512;
-const MAX_MODEL_BYTES = 600_000;
 const MAX_LIBRARY_BYTES = 3_000_000;
-
-const MODEL_CATALOG = Object.freeze([
-  { unitId: 'corak', name: 'Grunt', role: 'Bot', faction: 'cor', modelPath: 'Units/CORAK.s3o' },
-  { unitId: 'armfav', name: 'Rover', role: 'Vehicle', faction: 'arm', modelPath: 'Units/ARMFAV.s3o' },
-  { unitId: 'corfav', name: 'Rascal', role: 'Vehicle', faction: 'cor', modelPath: 'Units/CORFAV.s3o' },
-  { unitId: 'armfig', name: 'Falcon', role: 'Aircraft', faction: 'arm', modelPath: 'Units/ARMFIG.s3o' },
-  { unitId: 'armpt', name: 'Skater', role: 'Ship', faction: 'arm', modelPath: 'Units/ARMPT.s3o' },
-  { unitId: 'corsub', name: 'Orca', role: 'Submarine', faction: 'cor', modelPath: 'Units/CORSUB.s3o' },
-  { unitId: 'armfus', name: 'Fusion Reactor', role: 'Building', faction: 'arm', modelPath: 'Units/ARMFUS.s3o' },
-  { unitId: 'armap', name: 'Aircraft Plant', role: 'Factory', faction: 'arm', modelPath: 'Units/ARMAP.s3o' },
-  { unitId: 'armcom', name: 'Armada Commander', role: 'Commander', faction: 'arm', modelPath: 'Units/ARMCOM.s3o' },
-  { unitId: 'legcom', name: 'Legion Commander', role: 'Commander', faction: 'leg', modelPath: 'Units/LEGCOM.s3o' },
-]);
+const DISCOVERY_CONCURRENCY = 12;
 
 const TEXTURE_FAMILIES = Object.freeze({
   arm: { color: 'unittextures/Arm_color.dds', material: 'unittextures/Arm_other.dds', normal: 'unittextures/Arm_normal.dds' },
@@ -32,12 +24,50 @@ const TEXTURE_FAMILIES = Object.freeze({
   leg: {
     color: 'unittextures/leg_color.dds',
     material: 'unittextures/leg_shader.dds',
-    normal: `${VIEWER_MODEL_ROOT.replace('/glb', '/tex')}/leg_normal.png`,
+    normal: `${VIEWER_ORIGIN}/tex/leg_normal.png`,
   },
 });
 
 function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
+}
+
+function normalizeModelPath(value) {
+  return String(value || '').trim().replace(/\\/g, '/').toLowerCase();
+}
+
+function inferFaction(unitId) {
+  const normalized = String(unitId || '').toLowerCase().replace(/^scav_/, '');
+  if (normalized.startsWith('arm')) return 'arm';
+  if (normalized.startsWith('cor')) return 'cor';
+  if (normalized.startsWith('leg')) return 'leg';
+  if (normalized.startsWith('raptor')) return 'raptor';
+  return 'other';
+}
+
+function inferRole(categories = [], unitId = '', name = '') {
+  const values = new Set(categories.map(value => String(value).toLowerCase()));
+  if (/commander/i.test(name) || /(?:^|_)(?:arm|cor|leg)(?:de)?com(?:lvl\d+|con|econ|t2def)?$/i.test(unitId)) return 'Commander';
+  if (values.has('commanders')) return 'Commander';
+  if (values.has('factories')) return 'Factory';
+  if (values.has('builders')) return 'Builder';
+  if (values.has('aircraft')) return 'Aircraft';
+  if (values.has('ships')) return 'Ship';
+  if (values.has('hovercraft')) return 'Hovercraft';
+  if (values.has('vehicles')) return 'Vehicle';
+  if (values.has('bots')) return 'Bot';
+  if (values.has('buildings')) return 'Building';
+  return 'Unit';
+}
+
+function representativeScore(unitId) {
+  const id = String(unitId).toLowerCase();
+  let score = 0;
+  if (id.startsWith('scav_')) score += 100;
+  if (id.startsWith('raptor_')) score += 80;
+  if (/test|dummy|spawner|loot/.test(id)) score += 30;
+  score += id.length / 100;
+  return score;
 }
 
 async function downloadUrl(url, label = url) {
@@ -53,6 +83,40 @@ async function downloadUrl(url, label = url) {
     }
   }
   throw new Error(`Failed to download ${label}: ${lastError?.message || 'unknown error'}`);
+}
+
+async function inspectRemoteModel(unitId) {
+  const sourceUrl = `${VIEWER_MODEL_ROOT}/${unitId}.glb`;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const response = await fetch(sourceUrl, { method: 'HEAD' });
+      if (response.ok) {
+        return {
+          sourceUrl,
+          bytes: Number(response.headers.get('content-length')) || 0,
+        };
+      }
+      if (response.status === 404) return null;
+    } catch {
+      // Retry transient network failures before marking a candidate unavailable.
+    }
+    if (attempt < 3) await new Promise(resolve => setTimeout(resolve, attempt * 200));
+  }
+  return null;
+}
+
+async function mapConcurrent(values, concurrency, mapper) {
+  const results = new Array(values.length);
+  let cursor = 0;
+  async function worker() {
+    while (cursor < values.length) {
+      const index = cursor;
+      cursor += 1;
+      results[index] = await mapper(values[index], index);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, values.length) }, worker));
+  return results;
 }
 
 const downloadSource = relativePath => downloadUrl(`${SOURCE_ROOT}/${relativePath}`, relativePath);
@@ -198,50 +262,104 @@ async function encodeTextureFamily(family) {
   };
 }
 
+const [defaultsDb, categoryDb, unitMetadata] = await Promise.all([
+  readFile(UNIT_DEFAULTS, 'utf8').then(JSON.parse),
+  readFile(UNIT_CATEGORIES, 'utf8').then(JSON.parse),
+  readFile(UNIT_METADATA, 'utf8').then(JSON.parse),
+]);
+
+const modelGroups = new Map();
+for (const [unitId, definition] of Object.entries(defaultsDb)) {
+  const modelPath = normalizeModelPath(definition.objectname);
+  if (!modelPath) continue;
+  const group = modelGroups.get(modelPath) || [];
+  group.push(unitId.toLowerCase());
+  modelGroups.set(modelPath, group);
+}
+
 await rm(STAGING_ROOT, { recursive: true, force: true });
 await mkdir(path.join(STAGING_ROOT, 'assets'), { recursive: true });
 
 const textureFamilies = {};
 for (const family of Object.keys(TEXTURE_FAMILIES).sort()) textureFamilies[family] = await encodeTextureFamily(family);
 
+const groupedModels = [...modelGroups.entries()].sort(([left], [right]) => left.localeCompare(right));
+const discoveries = await mapConcurrent(groupedModels, DISCOVERY_CONCURRENCY, async ([modelPath, unitIds]) => {
+  const candidates = [...unitIds].sort((left, right) => representativeScore(left) - representativeScore(right) || left.localeCompare(right));
+  for (const unitId of candidates) {
+    const remote = await inspectRemoteModel(unitId);
+    if (remote) return { modelPath, unitIds, unitId, remote };
+  }
+  return { modelPath, unitIds, unitId: candidates[0], remote: null };
+});
+
 const entries = {};
 const aliases = {};
-for (const model of MODEL_CATALOG) {
-  const sourceUrl = `${VIEWER_MODEL_ROOT}/${model.unitId}.glb`;
-  const bytes = await downloadUrl(sourceUrl, `${model.unitId} viewer GLB`);
-  if (bytes.subarray(0, 4).toString('ascii') !== 'glTF') throw new Error(`${model.unitId} is not a valid binary GLTF file.`);
-  if (bytes.byteLength > MAX_MODEL_BYTES) throw new Error(`${model.unitId} exceeds the ${MAX_MODEL_BYTES}-byte model budget.`);
-  const modelUrl = await writeAsset(bytes, 'glb');
-  entries[model.unitId] = {
-    unitId: model.unitId,
-    name: model.name,
-    role: model.role,
-    faction: model.faction,
-    modelPath: model.modelPath,
-    model: modelUrl,
-    textures: textureFamilies[model.faction],
-    sourceUrl,
-    modelBytes: bytes.byteLength,
-    contentHash: sha256(bytes),
+const unitAliases = {};
+const unsupported = {};
+let remoteModelBytes = 0;
+let nativeMaterialModels = 0;
+
+for (const discovery of discoveries) {
+  const { modelPath, unitIds, unitId, remote } = discovery;
+  if (!remote) {
+    unsupported[modelPath] = { modelPath, unitIds, reason: 'official_web_model_unavailable' };
+    continue;
+  }
+  const faction = inferFaction(unitId);
+  const textures = textureFamilies[faction] || null;
+  if (!textures) nativeMaterialModels += 1;
+  remoteModelBytes += remote.bytes;
+  entries[unitId] = {
+    name: unitMetadata.names?.[unitId] || unitId,
+    role: inferRole(categoryDb[unitId], unitId, unitMetadata.names?.[unitId]),
+    faction,
+    modelPath,
+    textureFamily: textures ? faction : null,
+    modelBytes: remote.bytes,
   };
-  aliases[model.modelPath.replace(/\\/g, '/').toLowerCase()] = model.unitId;
+  aliases[modelPath] = unitId;
+  unitIds.forEach(alias => { unitAliases[alias] = unitId; });
 }
 
 const assetNames = new Set();
-Object.values(entries).forEach(entry => assetNames.add(entry.model));
-Object.values(textureFamilies).forEach(set => Object.values(set).filter(value => typeof value === 'string' && value.startsWith('/')).forEach(value => assetNames.add(value)));
-let totalBytes = 0;
-for (const assetUrl of assetNames) totalBytes += (await readFile(path.join(STAGING_ROOT, assetUrl.replace('/bar-models/', '')))).byteLength;
-if (totalBytes > MAX_LIBRARY_BYTES) throw new Error(`Reference model library is ${totalBytes} bytes; budget is ${MAX_LIBRARY_BYTES}.`);
+Object.values(textureFamilies).forEach(set => Object.values(set)
+  .filter(value => typeof value === 'string' && value.startsWith('/'))
+  .forEach(value => assetNames.add(value)));
+let localAssetBytes = 0;
+for (const assetUrl of assetNames) localAssetBytes += (await readFile(path.join(STAGING_ROOT, assetUrl.replace('/bar-models/', '')))).byteLength;
+if (localAssetBytes > MAX_LIBRARY_BYTES) throw new Error(`Reference model materials are ${localAssetBytes} bytes; budget is ${MAX_LIBRARY_BYTES}.`);
 
 const manifest = {
-  version: 3,
+  version: 5,
   sourceRepository: 'beyond-all-reason/Beyond-All-Reason',
   sourceCommit: SOURCE_COMMIT,
-  settings: { textureSize: TEXTURE_SIZE, maxModelBytes: MAX_MODEL_BYTES, maxLibraryBytes: MAX_LIBRARY_BYTES },
-  coverage: { supported: Object.keys(entries).length, uniqueAssets: assetNames.size, totalBytes },
+  delivery: {
+    mode: 'lazy-official-proxy',
+    publicPrefix: PUBLIC_MODEL_ROOT,
+    upstreamOrigin: VIEWER_ORIGIN,
+  },
+  settings: {
+    textureSize: TEXTURE_SIZE,
+    maxLibraryBytes: MAX_LIBRARY_BYTES,
+    discoveryConcurrency: DISCOVERY_CONCURRENCY,
+  },
+  coverage: {
+    totalUnits: Object.keys(defaultsDb).length,
+    unitsWithModels: Object.keys(unitAliases).length,
+    uniqueModelPaths: modelGroups.size,
+    supported: Object.keys(entries).length,
+    unsupported: Object.keys(unsupported).length,
+    nativeMaterialModels,
+    uniqueLocalAssets: assetNames.size,
+    localAssetBytes,
+    remoteModelBytes,
+  },
+  materials: textureFamilies,
   entries,
   aliases,
+  unitAliases,
+  unsupported,
 };
 const serializedManifest = `${JSON.stringify(manifest, null, 2)}\n`;
 await writeFile(path.join(STAGING_ROOT, 'manifest.json'), serializedManifest);
@@ -251,4 +369,6 @@ await cp(STAGING_ROOT, OUTPUT_ROOT, { recursive: true, force: true });
 await rm(STAGING_ROOT, { recursive: true, force: true });
 await writeFile(DATA_MANIFEST, serializedManifest);
 
-console.log(`Prepared ${manifest.coverage.supported} reference models across ${manifest.coverage.uniqueAssets} unique assets (${manifest.coverage.totalBytes} bytes).`);
+console.log(`Prepared ${manifest.coverage.supported}/${manifest.coverage.uniqueModelPaths} unique BAR models for lazy viewing.`);
+console.log(`Mapped ${manifest.coverage.unitsWithModels}/${manifest.coverage.totalUnits} units; ${manifest.coverage.unsupported} model paths use artwork fallback.`);
+console.log(`Local PBR materials: ${manifest.coverage.uniqueLocalAssets} assets (${manifest.coverage.localAssetBytes} bytes). Remote model catalog: ${manifest.coverage.remoteModelBytes} bytes.`);

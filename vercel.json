@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/bar-model-cdn/:path*",
+      "destination": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/unitpics/assets/(.*)",
@@ -15,6 +21,24 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/bar-models/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/bar-model-cdn/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400"
         }
       ]
     }

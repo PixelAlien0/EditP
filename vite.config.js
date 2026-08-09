@@ -4,6 +4,15 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/bar-model-cdn': {
+        target: 'https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/bar-model-cdn/, ''),
+      },
+    },
+  },
   build: {
     // Lightning CSS produces a smaller, standards-aware stylesheet bundle than
     // the default minifier while preserving the existing authored cascade.
