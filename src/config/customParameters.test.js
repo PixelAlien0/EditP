@@ -48,6 +48,12 @@ describe('advanced custom parameter metadata', () => {
       editorSupported: true,
     });
     expect(scavengerCandidate.contractIds).toContain('scavenger-squad');
+    expect(getCustomParameterDefinition('scavsquadrarity', 'unit')).toMatchObject({
+      acceptedValues: ['basic', 'special'],
+    });
+    expect(getCustomParameterDefinition('scavsquadbehavior', 'unit')).toMatchObject({
+      acceptedValues: ['raider', 'berserk', 'skirmisher', 'healer', 'artillery', 'kamikaze'],
+    });
     expect(CUSTOM_PARAMETER_DISCOVERY.version).toBe(2);
     expect(CUSTOM_PARAMETER_DISCOVERY.counts.unitParametersWithConsumers).toBeGreaterThan(0);
     expect(CUSTOM_PARAMETER_DISCOVERY.counts.weaponParametersWithConsumers).toBeGreaterThan(0);

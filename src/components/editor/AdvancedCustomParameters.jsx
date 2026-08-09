@@ -246,16 +246,33 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
                       type={type === 'number' ? 'number' : 'text'}
                       min={parameter.definition?.min}
                       max={parameter.definition?.max}
+                      step={parameter.definition?.step}
+                      list={parameter.definition?.acceptedValues?.length ? `${parameter.shortKey}-accepted-values` : undefined}
                       aria-label={`${parameter.definition?.label || parameter.shortKey} value`}
                       value={parameter.value}
                       onChange={event => onChange(parameter.tweakKey, event.target.value)}
                     />
+                  )}
+                  {parameter.definition?.acceptedValues?.length > 0 && (
+                    <datalist id={`${parameter.shortKey}-accepted-values`}>
+                      {parameter.definition.acceptedValues.map(value => <option key={value} value={value} />)}
+                    </datalist>
                   )}
                   <Button variant="quiet" disabled={!parameter.modified} onClick={() => onChange(parameter.tweakKey, undefined)}>{parameter.modified ? 'Reset' : 'Inherited'}</Button>
                 </div>
                 <p>
                   {parameter.definition?.description || 'Custom package key. Confirm that the loaded game code consumes it before relying on the value.'}
                   {parameter.definition?.observed && ` Observed ${parameter.definition.occurrences} time${parameter.definition.occurrences === 1 ? '' : 's'} in the current BAR source.`}
+                  {parameter.definition?.inputHint && (
+                    <span className="advanced-custom-parameter__input-hint">
+                      <strong>What to enter:</strong> {parameter.definition.inputHint}
+                    </span>
+                  )}
+                  {parameter.definition?.acceptedValues?.length > 0 && (
+                    <span className="advanced-custom-parameter__accepted-values" aria-label={`Accepted values: ${parameter.definition.acceptedValues.join(', ')}`}>
+                      {parameter.definition.acceptedValues.map(value => <code key={value}>{value}</code>)}
+                    </span>
+                  )}
                 </p>
                 {parameter.definition?.promotion && (
                   <div className="advanced-custom-parameter__evidence">

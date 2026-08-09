@@ -62,39 +62,50 @@ const curatedUnitParameters = [
   },
   {
     key: 'scavcustomsquad', label: 'Scavenger Squad Candidate', type: 'boolean', owner: 'BAR Scavenger system', maturity: 'stable',
-    description: 'Registers this unit as an eligible Scavenger squad candidate. The remaining Scavenger Squad Profile fields define when and how it may be selected.'
+    description: 'Registers this UnitDef with BAR\'s custom Scavenger squad loader. Leave it enabled for the remaining profile fields to be read.',
+    inputHint: 'Enabled includes the unit in Scavenger squad generation; Disabled ignores this profile.'
   },
   {
-    key: 'scavsquadunitsamount', label: 'Scavenger Squad Amount', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 1,
-    description: 'Number of this UnitDef included when the Scavenger squad entry is selected.'
+    key: 'scavsquadunitsamount', label: 'Scavenger Squad Amount', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 1, step: 1,
+    description: 'Maximum number of copies of this UnitDef placed in the squad when this entry is selected.',
+    inputHint: 'Enter a whole number of 1 or more. Example: 6 creates a six-unit squad. BAR defaults to 1 when omitted.'
   },
   {
-    key: 'scavsquadminanger', label: 'Scavenger Minimum Anger', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0,
-    description: 'Lowest Scavenger anger level at which this squad entry may be selected.'
+    key: 'scavsquadminanger', label: 'Scavenger Minimum Anger', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0, step: 1,
+    description: 'Minimum Scavenger tech/anger percentage required before this squad may enter the spawn pool.',
+    inputHint: 'Enter a whole percentage such as 15, 30, or 55. Lower values allow the unit to appear earlier. BAR defaults to 0.'
   },
   {
-    key: 'scavsquadmaxanger', label: 'Scavenger Maximum Anger', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0,
-    description: 'Highest Scavenger anger level at which this squad entry may be selected.'
+    key: 'scavsquadmaxanger', label: 'Scavenger Maximum Anger', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0, step: 1,
+    description: 'Maximum Scavenger tech/anger percentage at which this squad remains eligible for selection.',
+    inputHint: 'Enter a whole percentage greater than or equal to Minimum Anger. Values above 100 can keep it available into scaled or endless progression. BAR defaults to 999.'
   },
   {
-    key: 'scavsquadweight', label: 'Scavenger Selection Weight', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 1,
-    description: 'Relative probability weight used when BAR selects among eligible Scavenger squad entries.'
+    key: 'scavsquadweight', label: 'Scavenger Selection Weight', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 1, step: 1,
+    description: 'Relative selection weight compared with other eligible squads in the same pool; it is not a direct percentage chance.',
+    inputHint: 'Enter a whole number of 1 or more. A weight of 200 is picked roughly twice as often as a comparable weight of 100. BAR defaults to 1.'
   },
   {
     key: 'scavsquadrarity', label: 'Scavenger Rarity', type: 'string', owner: 'BAR Scavenger system', maturity: 'stable',
-    description: 'Scavenger pool classification. Typical BAR values are basic and special.'
+    description: 'Chooses which Scavenger spawn pool receives this squad. Basic squads are repeatable cannon fodder; special squads are more specialized encounters.',
+    inputHint: 'Enter exactly basic or special. BAR treats a missing or unrecognized value as special.',
+    acceptedValues: ['basic', 'special']
   },
   {
     key: 'scavsquadbehavior', label: 'Scavenger Squad Behavior', type: 'string', owner: 'BAR Scavenger system', maturity: 'stable',
-    description: 'Behavior label assigned to the selected squad. Typical BAR values are berserk, raider, and artillery.'
+    description: 'Assigns BAR\'s optional behavior package to the spawned squad. Raider is the neutral/default role and adds no extra behavior.',
+    inputHint: 'Enter exactly raider, berserk, skirmisher, healer, artillery, or kamikaze. Invalid text adds no recognized behavior.',
+    acceptedValues: ['raider', 'berserk', 'skirmisher', 'healer', 'artillery', 'kamikaze']
   },
   {
     key: 'scavsquadbehaviordistance', label: 'Scavenger Behavior Distance', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0, unit: 'elmos',
-    description: 'Distance used by the selected Scavenger squad behavior.'
+    description: 'Range at which the selected behavior reacts. It is generally a retreat or spacing distance; for berserk and kamikaze it acts as an engagement range.',
+    inputHint: 'Enter a map distance such as 500, 1000, or 2000. BAR defaults to 2000 for berserk and commonly 500 for the other active behaviors.'
   },
   {
     key: 'scavsquadbehaviorchance', label: 'Scavenger Behavior Chance', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0, max: 1,
-    description: 'Chance from 0 to 1 that the configured behavior is applied to the selected Scavenger squad.'
+    description: 'Controls how readily the behavior reacts when its trigger conditions are met.',
+    inputHint: 'Enter a decimal from 0 to 1: 0 never reacts, 0.5 reacts at half sensitivity, and 1 always reacts. BAR behavior-specific defaults range from 0.1 to 1.'
   }
 ];
 

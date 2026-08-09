@@ -912,6 +912,33 @@
 
 .advanced-custom-parameter > p { grid-column: 1 / -1; }
 
+.advanced-custom-parameter__input-hint {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.advanced-custom-parameter__input-hint strong {
+  color: var(--color-text-strong);
+}
+
+.advanced-custom-parameter__accepted-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.advanced-custom-parameter__accepted-values code {
+  padding: 3px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  color: var(--color-accent-strong);
+  font-size: 9px;
+}
+
 .advanced-custom-parameter__evidence {
   grid-column: 1 / -1;
   display: flex;
