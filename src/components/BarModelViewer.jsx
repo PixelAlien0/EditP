@@ -217,6 +217,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
   const [error, setError] = useState('');
   const [teamColor, setTeamColor] = useState(TEAM_COLORS[0].value);
   const [groundColor, setGroundColor] = useState(GROUND_COLORS[0].value);
+  const [verticalOffset, setVerticalOffset] = useState(0);
   const [modelFacts, setModelFacts] = useState(null);
   const [isRotating, setIsRotating] = useState(true);
   const [isAnimating, setIsAnimating] = useState(true);
@@ -234,6 +235,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     setError('');
     setModelFacts(null);
     setIsAnimating(true);
+    setVerticalOffset(0);
     let renderer;
     try {
       renderer = new WebGLRenderer({ canvas, alpha: false, antialias: true, powerPreference: 'high-performance' });
@@ -438,6 +440,8 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
         camera,
         controls,
         root,
+        rootBaseY: root.position.y,
+        modelHeight: size.y,
         resetView,
         teamUniform,
         floorMaterial,
@@ -485,6 +489,20 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     viewerRef.current?.floorMaterial.color.set(value);
   };
 
+  const selectVerticalOffset = value => {
+    const next = Number(value);
+    setVerticalOffset(next);
+    const viewer = viewerRef.current;
+    if (viewer?.root) {
+      viewer.root.position.y = viewer.rootBaseY + (viewer.modelHeight * next / 100);
+    }
+  };
+
+  const resetViewer = () => {
+    selectVerticalOffset(0);
+    viewerRef.current?.resetView();
+  };
+
   const toggleRotation = () => {
     setIsRotating(current => {
       const next = !current;
@@ -528,7 +546,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
         <div className="bar-model-viewer__stage-actions">
           <Button size="sm" variant="quiet" disabled={status !== 'ready'} aria-pressed={isRotating} onClick={toggleRotation}>{isRotating ? 'Rotation on' : 'Rotation off'}</Button>
           <Button size="sm" variant="quiet" disabled={status !== 'ready' || !modelFacts?.animations} aria-pressed={isAnimating} onClick={toggleAnimation}>{isAnimating ? 'Motion on' : 'Motion off'}</Button>
-          <Button size="sm" variant="quiet" disabled={status !== 'ready'} onClick={() => viewerRef.current?.resetView()}>Reset</Button>
+          <Button size="sm" variant="quiet" disabled={status !== 'ready'} onClick={resetViewer}>Reset</Button>
           <Button size="sm" variant="quiet" disabled={status !== 'ready'} onClick={enterFullscreen}>Fullscreen</Button>
         </div>
       </div>
@@ -570,6 +588,22 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
             </div>
           </fieldset>
         </div>
+        <label className="bar-model-viewer__axis-control">
+          <span>
+            <span>Model Y</span>
+            <output>{verticalOffset > 0 ? '+' : ''}{verticalOffset}%</output>
+          </span>
+          <input
+            type="range"
+            min="-50"
+            max="100"
+            step="1"
+            value={verticalOffset}
+            disabled={status !== 'ready'}
+            aria-label="Model vertical position"
+            onChange={event => selectVerticalOffset(event.target.value)}
+          />
+        </label>
         <p>{entry.textures ? 'Drag to orbit · Scroll to zoom' : 'Native material · Drag to orbit · Scroll to zoom'}</p>
       </div>
 

@@ -89,6 +89,7 @@
   min-height: 58px;
   padding: var(--space-2) var(--space-3);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
@@ -112,6 +113,11 @@
 }
 
 .bar-model-viewer__controls fieldset button.is-active { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+.bar-model-viewer__axis-control { flex: 1 1 132px; max-width: 190px; display: grid; gap: 6px; }
+.bar-model-viewer__axis-control > span { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); color: var(--color-text-muted); font: 650 8px/1 var(--font-mono); text-transform: uppercase; }
+.bar-model-viewer__axis-control output { color: var(--color-text-strong); font-variant-numeric: tabular-nums; }
+.bar-model-viewer__axis-control input { width: 100%; margin: 0; accent-color: var(--color-accent-strong); cursor: ew-resize; }
+.bar-model-viewer__axis-control input:disabled { cursor: default; opacity: 0.5; }
 .bar-model-viewer__controls p { margin: 0; color: var(--color-text-muted); font-size: 9px; text-align: right; text-wrap: pretty; }
 
 .bar-model-viewer__facts {
