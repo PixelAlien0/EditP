@@ -98,6 +98,32 @@ describe('WeaponDefLibraryPage', () => {
     ]);
   });
 
+  it('supports keyboard source selection and reopening the result list', async () => {
+    const user = userEvent.setup();
+    renderLibrary({
+      definitions: [],
+      sourceCatalog: [{
+        id: 'armflash:plasma',
+        sourceUnitId: 'armflash',
+        sourceUnitName: 'Flash',
+        sourceWeaponDefKey: 'plasma',
+        slot: { slot: 1, defKey: 'plasma', damage: 100, reload: 1.5, range: 450 },
+      }],
+    });
+
+    const sourceSearch = screen.getByRole('combobox', { name: 'BAR WeaponDef source' });
+    await user.type(sourceSearch, 'plasma');
+    expect(sourceSearch).toHaveAttribute('aria-expanded', 'true');
+    await user.keyboard('{ArrowDown}{Enter}');
+    expect(sourceSearch).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByText(/Its literal fields will be copied/)).toHaveTextContent('PLASMA from Flash');
+
+    await user.click(sourceSearch);
+    expect(sourceSearch).toHaveAttribute('aria-expanded', 'true');
+    await user.keyboard('{Escape}');
+    expect(sourceSearch).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('rejects invalid literal JSON without updating project state', async () => {
     const user = userEvent.setup();
     const callbacks = renderLibrary();
