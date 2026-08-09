@@ -49,15 +49,120 @@ const GROUND_COLORS = Object.freeze([
   { id: 'sand', label: 'Sand ground', value: '#4a4032' },
 ]);
 
+const LIGHTING_PRESETS = Object.freeze({
+  studio: Object.freeze({
+    label: 'Balanced Studio',
+    exposure: 0.94,
+    background: '#090807',
+    ambient: 0.04,
+    ambientColor: '#fff7ef',
+    hemisphere: 0.3,
+    skyColor: '#dce5eb',
+    groundColor: '#1b1410',
+    key: 1.08,
+    keyColor: '#ffead8',
+    keyPosition: [4.5, 7, 5],
+    fill: 0.18,
+    fillColor: '#c9d4df',
+    fillPosition: [-4, 3.5, -5],
+    environmentScale: 1,
+    emissiveScale: 1,
+  }),
+  battlefield: Object.freeze({
+    label: 'BAR Battlefield',
+    exposure: 0.9,
+    background: '#11100d',
+    ambient: 0.025,
+    ambientColor: '#fff1dc',
+    hemisphere: 0.34,
+    skyColor: '#b7cee0',
+    groundColor: '#302419',
+    key: 1.24,
+    keyColor: '#ffd2a2',
+    keyPosition: [5.5, 8, 3.5],
+    fill: 0.11,
+    fillColor: '#91aac1',
+    fillPosition: [-5, 2.5, -4],
+    environmentScale: 0.78,
+    emissiveScale: 0.94,
+  }),
+  overcast: Object.freeze({
+    label: 'Overcast Inspection',
+    exposure: 1,
+    background: '#101416',
+    ambient: 0.12,
+    ambientColor: '#eef2f2',
+    hemisphere: 0.56,
+    skyColor: '#d8e0e2',
+    groundColor: '#25282a',
+    key: 0.48,
+    keyColor: '#f2f0eb',
+    keyPosition: [3, 9, 4],
+    fill: 0.3,
+    fillColor: '#cbd5dc',
+    fillPosition: [-4, 5, -3],
+    environmentScale: 1.12,
+    emissiveScale: 0.86,
+  }),
+  emissive: Object.freeze({
+    label: 'Emissive Inspection',
+    exposure: 0.74,
+    background: '#040608',
+    ambient: 0.012,
+    ambientColor: '#dce8f2',
+    hemisphere: 0.09,
+    skyColor: '#71869b',
+    groundColor: '#08090b',
+    key: 0.36,
+    keyColor: '#b8cad8',
+    keyPosition: [4, 6, 5],
+    fill: 0.055,
+    fillColor: '#738ba0',
+    fillPosition: [-4, 3, -4],
+    environmentScale: 0.36,
+    emissiveScale: 1.7,
+  }),
+});
+
 const STUDIO_LIGHTING = Object.freeze({
-  exposure: 0.94,
-  ambient: 0.04,
-  hemisphere: 0.3,
-  key: 1.08,
-  fill: 0.18,
   environment: 0.66,
   emissive: 0.92,
 });
+
+function applyMaterialLighting(material, preset) {
+  if (Array.isArray(material)) {
+    material.forEach(entry => applyMaterialLighting(entry, preset));
+    return;
+  }
+  if (!material) return;
+  if ('envMapIntensity' in material) {
+    material.userData.viewerBaseEnvironment ??= material.envMapIntensity;
+    material.envMapIntensity = material.userData.viewerBaseEnvironment * preset.environmentScale;
+  }
+  if ('emissiveIntensity' in material) {
+    material.userData.viewerBaseEmissive ??= material.emissiveIntensity;
+    material.emissiveIntensity = material.userData.viewerBaseEmissive * preset.emissiveScale;
+  }
+  material.needsUpdate = true;
+}
+
+function applyLightingPreset(viewer, presetId) {
+  const preset = LIGHTING_PRESETS[presetId] ?? LIGHTING_PRESETS.studio;
+  viewer.renderer.toneMappingExposure = preset.exposure;
+  viewer.renderer.setClearColor(preset.background, 1);
+  viewer.ambient.color.set(preset.ambientColor);
+  viewer.ambient.intensity = preset.ambient;
+  viewer.hemisphere.color.set(preset.skyColor);
+  viewer.hemisphere.groundColor.set(preset.groundColor);
+  viewer.hemisphere.intensity = preset.hemisphere;
+  viewer.keyLight.color.set(preset.keyColor);
+  viewer.keyLight.intensity = preset.key;
+  viewer.keyLight.position.fromArray(preset.keyPosition);
+  viewer.fillLight.color.set(preset.fillColor);
+  viewer.fillLight.intensity = preset.fill;
+  viewer.fillLight.position.fromArray(preset.fillPosition);
+  viewer.root?.traverse(node => applyMaterialLighting(node.material, preset));
+}
 
 function prepareTexture(texture, renderer, colorSpace = NoColorSpace) {
   texture.flipY = false;
@@ -218,14 +323,18 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
   const [error, setError] = useState('');
   const [teamColor, setTeamColor] = useState(TEAM_COLORS[0].value);
   const [groundColor, setGroundColor] = useState(GROUND_COLORS[0].value);
+  const [lightingPreset, setLightingPreset] = useState('studio');
   const [shadowQuality, setShadowQuality] = useState('compatibility');
+  const [orbsEnabled, setOrbsEnabled] = useState(false);
   const [verticalOffset, setVerticalOffset] = useState(0);
   const [modelFacts, setModelFacts] = useState(null);
   const [isRotating, setIsRotating] = useState(true);
   const [isAnimating, setIsAnimating] = useState(true);
   const teamColorRef = useRef(TEAM_COLORS[0].value);
   const groundColorRef = useRef(GROUND_COLORS[0].value);
+  const lightingPresetRef = useRef('studio');
   const shadowQualityRef = useRef('compatibility');
+  const orbsEnabledRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -238,6 +347,8 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     setError('');
     setModelFacts(null);
     setIsAnimating(true);
+    setOrbsEnabled(false);
+    orbsEnabledRef.current = false;
     setVerticalOffset(0);
     let renderer;
     try {
@@ -249,10 +360,11 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     }
     renderer.outputColorSpace = SRGBColorSpace;
     renderer.toneMapping = ACESFilmicToneMapping;
-    renderer.toneMappingExposure = STUDIO_LIGHTING.exposure;
+    const initialLighting = LIGHTING_PRESETS[lightingPresetRef.current];
+    renderer.toneMappingExposure = initialLighting.exposure;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = shadowQualityRef.current === 'soft' ? PCFShadowMap : BasicShadowMap;
-    renderer.setClearColor(0x090807, 1);
+    renderer.setClearColor(initialLighting.background, 1);
     const compactDevice = window.matchMedia('(max-width: 760px)').matches;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, compactDevice ? 1.25 : 2));
 
@@ -267,15 +379,15 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     controls.autoRotateSpeed = 0.72;
     if (!controls.autoRotate) setIsRotating(false);
 
-    const ambient = new AmbientLight(0xfff7ef, STUDIO_LIGHTING.ambient);
-    const hemisphere = new HemisphereLight(0xdce5eb, 0x1b1410, STUDIO_LIGHTING.hemisphere);
-    const keyLight = new DirectionalLight(0xffead8, STUDIO_LIGHTING.key);
-    keyLight.position.set(4.5, 7, 5);
+    const ambient = new AmbientLight(initialLighting.ambientColor, initialLighting.ambient);
+    const hemisphere = new HemisphereLight(initialLighting.skyColor, initialLighting.groundColor, initialLighting.hemisphere);
+    const keyLight = new DirectionalLight(initialLighting.keyColor, initialLighting.key);
+    keyLight.position.fromArray(initialLighting.keyPosition);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(1024, 1024);
     keyLight.shadow.bias = -0.00035;
-    const fillLight = new DirectionalLight(0xc9d4df, STUDIO_LIGHTING.fill);
-    fillLight.position.set(-4, 3.5, -5);
+    const fillLight = new DirectionalLight(initialLighting.fillColor, initialLighting.fill);
+    fillLight.position.fromArray(initialLighting.fillPosition);
     scene.add(ambient, hemisphere, keyLight, fillLight);
 
     const environmentScene = new RoomEnvironment();
@@ -300,6 +412,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     let textures = [];
     let effectTime = 0;
     const effectAnimations = [];
+    const effectObjects = [];
 
     const renderFrame = timestamp => {
       timer.update(timestamp);
@@ -307,6 +420,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
       if (mixer && previewAction && !previewAction.paused) mixer.update(delta);
       effectTime += delta;
       effectAnimations.forEach(({ object, effect, phase, baseScale, baseRotationY }) => {
+        if (!object.visible) return;
         const pulse = 1 + Math.sin((effectTime * effect.pulseSpeed) + phase) * effect.pulseAmount;
         object.scale.copy(baseScale).multiplyScalar(pulse);
         object.rotation.y = baseRotationY + (effectTime * effect.rotationSpeed);
@@ -371,7 +485,9 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
           if (Array.isArray(node.material)) node.material.forEach(entry => replacedMaterials.add(entry));
           else if (node.material) replacedMaterials.add(node.material);
           node.material = createEffectMaterial(nodeEffect);
+          node.visible = orbsEnabledRef.current;
           node.renderOrder = 3;
+          effectObjects.push(node);
           registerEffectAnimation(effectAnimations, node, nodeEffect, effectAnimations.length * 0.85);
         } else if (material) {
           if (Array.isArray(node.material)) node.material.forEach(entry => replacedMaterials.add(entry));
@@ -388,7 +504,9 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
 
       const modelBounds = new Box3().setFromObject(root);
       effectProfile?.proceduralEffects?.forEach((effect, index) => {
-        createProceduralEffect(root, modelBounds, effect, effectAnimations, index * 0.85);
+        const effectObject = createProceduralEffect(root, modelBounds, effect, effectAnimations, index * 0.85);
+        effectObject.visible = orbsEnabledRef.current;
+        effectObjects.push(effectObject);
       });
       const bounds = new Box3().setFromObject(root);
       const center = bounds.getCenter(new Vector3());
@@ -443,6 +561,11 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
         camera,
         controls,
         root,
+        ambient,
+        hemisphere,
+        keyLight,
+        fillLight,
+        effectObjects,
         rootBaseY: root.position.y,
         modelHeight: size.y,
         resetView,
@@ -450,9 +573,11 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
         floorMaterial,
         previewAction,
       };
+      applyLightingPreset(viewerRef.current, lightingPresetRef.current);
       setModelFacts({
         pieces: meshCount,
         animations: gltf.animations.length,
+        effects: effectObjects.length,
         material: entry.materialMode === 'bar-pbr' ? 'GLB · BAR PBR' : 'GLB · Native material',
         size: entry.modelBytes ? `${Math.max(1, Math.round(entry.modelBytes / 1024))} KB` : 'Streamed',
       });
@@ -501,6 +626,12 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     }
   };
 
+  const selectLightingPreset = value => {
+    setLightingPreset(value);
+    lightingPresetRef.current = value;
+    if (viewerRef.current) applyLightingPreset(viewerRef.current, value);
+  };
+
   const selectShadowQuality = value => {
     setShadowQuality(value);
     shadowQualityRef.current = value;
@@ -508,6 +639,17 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     if (!renderer) return;
     renderer.shadowMap.type = value === 'soft' ? PCFShadowMap : BasicShadowMap;
     renderer.shadowMap.needsUpdate = true;
+  };
+
+  const toggleOrbs = () => {
+    setOrbsEnabled(current => {
+      const next = !current;
+      orbsEnabledRef.current = next;
+      viewerRef.current?.effectObjects.forEach(object => {
+        object.visible = next;
+      });
+      return next;
+    });
   };
 
   const resetViewer = () => {
@@ -558,6 +700,16 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
         <div className="bar-model-viewer__stage-actions">
           <Button size="sm" variant="quiet" disabled={status !== 'ready'} aria-pressed={isRotating} onClick={toggleRotation}>{isRotating ? 'Rotation on' : 'Rotation off'}</Button>
           <Button size="sm" variant="quiet" disabled={status !== 'ready' || !modelFacts?.animations} aria-pressed={isAnimating} onClick={toggleAnimation}>{isAnimating ? 'Motion on' : 'Motion off'}</Button>
+          <Button
+            size="sm"
+            variant="quiet"
+            disabled={status !== 'ready' || !modelFacts?.effects}
+            aria-pressed={orbsEnabled}
+            title={modelFacts?.effects ? 'Toggle model orbs and energy effects' : 'This model has no registered orb effect'}
+            onClick={toggleOrbs}
+          >
+            {orbsEnabled ? 'Orbs on' : 'Orbs off'}
+          </Button>
           <Button size="sm" variant="quiet" disabled={status !== 'ready'} onClick={resetViewer}>Reset</Button>
           <Button size="sm" variant="quiet" disabled={status !== 'ready'} onClick={enterFullscreen}>Fullscreen</Button>
         </div>
@@ -615,6 +767,19 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
             aria-label="Model vertical position"
             onChange={event => selectVerticalOffset(event.target.value)}
           />
+        </label>
+        <label className="bar-model-viewer__lighting-control">
+          <span>Lighting</span>
+          <select
+            value={lightingPreset}
+            disabled={status !== 'ready'}
+            aria-label="Model viewer lighting style"
+            onChange={event => selectLightingPreset(event.target.value)}
+          >
+            {Object.entries(LIGHTING_PRESETS).map(([id, preset]) => (
+              <option key={id} value={id}>{preset.label}</option>
+            ))}
+          </select>
         </label>
         <div className="bar-model-viewer__shadow-control" role="group" aria-label="Shadow quality">
           <span>Shadows</span>
