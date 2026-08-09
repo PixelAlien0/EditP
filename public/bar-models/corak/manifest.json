@@ -1,14 +1,17 @@
 {
-  "version": 1,
+  "version": 2,
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
   "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
   "unitId": "corak",
-  "model": "/bar-models/corak/corak.s3o",
+  "model": "/bar-models/corak/corak.glb",
+  "viewerModelSource": "https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/corak.glb",
   "textures": {
     "color": "/bar-models/corak/cor_color.webp",
     "teamMask": "/bar-models/corak/cor_team.webp",
-    "emissive": "/bar-models/corak/cor_emissive.webp"
+    "emissive": "/bar-models/corak/cor_emissive.webp",
+    "pbr": "/bar-models/corak/cor_pbr.webp",
+    "normal": "/bar-models/corak/cor_normal.webp"
   },
-  "textureSize": 1024,
-  "sourceHash": "3e5006a69b490fd73e992cf175d067dd87c1d87fa98aed59a2a113790dac31be"
+  "textureSize": 768,
+  "sourceHash": "cd1d4247b06469986bdcff5c6339bd81f3c6a6fae6048dcb5c6ea34da2942715"
 }

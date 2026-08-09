@@ -176,7 +176,7 @@ function ReferenceModelPrototype() {
       <div className="bar-reference-inspector__section-heading">
         <div>
           <span>3D model reference</span>
-          <small>CORAK proof of concept</small>
+          <small>Prepared GLB · PBR materials · motion</small>
         </div>
         <Button size="sm" variant={open ? 'quiet' : 'secondary'} aria-expanded={open} onClick={() => setOpen(value => !value)}>
           {open ? 'Close viewer' : 'Open 3D viewer'}

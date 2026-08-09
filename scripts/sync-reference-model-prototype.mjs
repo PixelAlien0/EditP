@@ -5,14 +5,17 @@ import sharp from 'sharp';
 
 const SOURCE_COMMIT = 'e03f8af274ad97c327d4863432c406e33a4062fa';
 const SOURCE_ROOT = `https://raw.githubusercontent.com/beyond-all-reason/Beyond-All-Reason/${SOURCE_COMMIT}`;
+const VIEWER_MODEL_URL = 'https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev/glb/corak.glb';
 const OUTPUT_DIR = path.resolve('public/bar-models/corak');
-const TEXTURE_SIZE = 1024;
+const TEXTURE_SIZE = 768;
 
-async function download(relativePath) {
-  const response = await fetch(`${SOURCE_ROOT}/${relativePath}`);
-  if (!response.ok) throw new Error(`Failed to download ${relativePath}: ${response.status}`);
+async function downloadUrl(url, label = url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to download ${label}: ${response.status}`);
   return Buffer.from(await response.arrayBuffer());
 }
+
+const download = relativePath => downloadUrl(`${SOURCE_ROOT}/${relativePath}`, relativePath);
 
 function rgb565(value) {
   return [
@@ -77,12 +80,15 @@ function decodeDxt5(buffer) {
   return { pixels, width, height };
 }
 
-async function writeTextureChannels(colorDds, materialDds) {
+async function writeTextureChannels(colorDds, materialDds, normalDds) {
   const color = decodeDxt5(colorDds);
   const material = decodeDxt5(materialDds);
+  const normal = decodeDxt5(normalDds);
   const base = Buffer.alloc(color.width * color.height * 3);
   const team = Buffer.alloc(color.width * color.height);
-  const emissive = Buffer.alloc(material.width * material.height);
+  const emissive = Buffer.alloc(material.width * material.height * 3);
+  const pbr = Buffer.alloc(material.width * material.height * 3);
+  const normalMap = Buffer.alloc(normal.width * normal.height * 3);
 
   for (let pixel = 0; pixel < color.width * color.height; pixel += 1) {
     const source = pixel * 4;
@@ -91,38 +97,54 @@ async function writeTextureChannels(colorDds, materialDds) {
     base[target + 1] = color.pixels[source + 1];
     base[target + 2] = color.pixels[source + 2];
     team[pixel] = color.pixels[source + 3];
-    emissive[pixel] = material.pixels[source];
+    const glow = material.pixels[source] / 255;
+    emissive[target] = Math.round(color.pixels[source] * glow);
+    emissive[target + 1] = Math.round(color.pixels[source + 1] * glow);
+    emissive[target + 2] = Math.round(color.pixels[source + 2] * glow);
+    pbr[target] = 255;
+    pbr[target + 1] = material.pixels[source + 2];
+    pbr[target + 2] = material.pixels[source + 1];
+    normalMap[target] = normal.pixels[source];
+    normalMap[target + 1] = normal.pixels[source + 1];
+    normalMap[target + 2] = normal.pixels[source + 2];
   }
 
   const resize = { width: TEXTURE_SIZE, height: TEXTURE_SIZE, fit: 'fill', kernel: sharp.kernel.lanczos3 };
   await Promise.all([
     sharp(base, { raw: { width: color.width, height: color.height, channels: 3 } }).resize(resize).webp({ quality: 84, effort: 6 }).toFile(path.join(OUTPUT_DIR, 'cor_color.webp')),
     sharp(team, { raw: { width: color.width, height: color.height, channels: 1 } }).resize(resize).webp({ lossless: true, effort: 6 }).toFile(path.join(OUTPUT_DIR, 'cor_team.webp')),
-    sharp(emissive, { raw: { width: material.width, height: material.height, channels: 1 } }).resize(resize).webp({ quality: 82, effort: 6 }).toFile(path.join(OUTPUT_DIR, 'cor_emissive.webp')),
+    sharp(emissive, { raw: { width: material.width, height: material.height, channels: 3 } }).resize(resize).webp({ quality: 84, effort: 6 }).toFile(path.join(OUTPUT_DIR, 'cor_emissive.webp')),
+    sharp(pbr, { raw: { width: material.width, height: material.height, channels: 3 } }).resize(resize).webp({ quality: 88, effort: 6 }).toFile(path.join(OUTPUT_DIR, 'cor_pbr.webp')),
+    sharp(normalMap, { raw: { width: normal.width, height: normal.height, channels: 3 } }).resize(resize).webp({ quality: 90, effort: 6 }).toFile(path.join(OUTPUT_DIR, 'cor_normal.webp')),
   ]);
 }
 
 await mkdir(OUTPUT_DIR, { recursive: true });
-const [model, color, material] = await Promise.all([
-  download('objects3d/Units/corak.s3o'),
+const [viewerModel, color, material, normal] = await Promise.all([
+  downloadUrl(VIEWER_MODEL_URL, 'official CORAK viewer GLB'),
   download('unittextures/cor_color.dds'),
   download('unittextures/cor_other.dds'),
+  download('unittextures/cor_normal.dds'),
 ]);
-await writeFile(path.join(OUTPUT_DIR, 'corak.s3o'), model);
-await writeTextureChannels(color, material);
+if (viewerModel.subarray(0, 4).toString('ascii') !== 'glTF') throw new Error('Official viewer model is not a valid binary GLTF file.');
+await writeFile(path.join(OUTPUT_DIR, 'corak.glb'), viewerModel);
+await writeTextureChannels(color, material, normal);
 await writeFile(path.join(OUTPUT_DIR, 'manifest.json'), `${JSON.stringify({
-  version: 1,
+  version: 2,
   sourceRepository: 'beyond-all-reason/Beyond-All-Reason',
   sourceCommit: SOURCE_COMMIT,
   unitId: 'corak',
-  model: '/bar-models/corak/corak.s3o',
+  model: '/bar-models/corak/corak.glb',
+  viewerModelSource: VIEWER_MODEL_URL,
   textures: {
     color: '/bar-models/corak/cor_color.webp',
     teamMask: '/bar-models/corak/cor_team.webp',
     emissive: '/bar-models/corak/cor_emissive.webp',
+    pbr: '/bar-models/corak/cor_pbr.webp',
+    normal: '/bar-models/corak/cor_normal.webp',
   },
   textureSize: TEXTURE_SIZE,
-  sourceHash: createHash('sha256').update(model).update(color).update(material).digest('hex'),
+  sourceHash: createHash('sha256').update(viewerModel).update(color).update(material).update(normal).digest('hex'),
 }, null, 2)}\n`);
 
 console.log(`Prepared CORAK reference model prototype at ${OUTPUT_DIR}`);
