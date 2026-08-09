@@ -68,7 +68,9 @@ describe('DesignerPage', () => {
     expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('Custom');
     expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('ARM');
     expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('T2');
-    expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('Project clone');
+    const provenance = screen.getByText('Project clone');
+    expect(provenance).toHaveClass('slot-unit-id');
+    expect(provenance).not.toHaveClass('designer-item-status');
     expect(screen.getByRole('button', { name: 'Remove Test Unit from Bot Lab' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add Other Unit' })).toBeEnabled();
   });
