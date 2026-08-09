@@ -37,6 +37,16 @@ const TEAM_COLORS = Object.freeze([
   { id: 'gold', label: 'Command gold', value: '#c99a42' },
 ]);
 
+const STUDIO_LIGHTING = Object.freeze({
+  exposure: 0.94,
+  ambient: 0.04,
+  hemisphere: 0.3,
+  key: 1.08,
+  fill: 0.18,
+  environment: 0.66,
+  emissive: 0.92,
+});
+
 function prepareTexture(texture, renderer, colorSpace = NoColorSpace) {
   texture.flipY = false;
   texture.wrapS = RepeatWrapping;
@@ -55,10 +65,10 @@ function createBarMaterial(textures, teamUniform) {
     normalScale: new Vector2(1, 1.8),
     emissive: new Color(0xffffff),
     emissiveMap: textures.emissive,
-    emissiveIntensity: 2.1,
-    roughness: 0.62,
+    emissiveIntensity: STUDIO_LIGHTING.emissive,
+    roughness: 0.68,
     metalness: 1,
-    envMapIntensity: 0.96,
+    envMapIntensity: STUDIO_LIGHTING.environment,
   });
   material.onBeforeCompile = shader => {
     shader.uniforms.barTeamMap = { value: textures.teamMask };
@@ -74,6 +84,27 @@ function createBarMaterial(textures, teamUniform) {
   };
   material.customProgramCacheKey = () => 'bar-reference-pbr-team-v2';
   return material;
+}
+
+function tuneNativeMaterial(material) {
+  if (!material) return;
+  if (Array.isArray(material)) {
+    material.forEach(tuneNativeMaterial);
+    return;
+  }
+  if ('envMapIntensity' in material) {
+    material.envMapIntensity = Math.min(
+      Number.isFinite(material.envMapIntensity) ? material.envMapIntensity : 1,
+      STUDIO_LIGHTING.environment,
+    );
+  }
+  if ('emissiveIntensity' in material) {
+    material.emissiveIntensity = Math.min(
+      Number.isFinite(material.emissiveIntensity) ? material.emissiveIntensity : 1,
+      STUDIO_LIGHTING.emissive,
+    );
+  }
+  material.needsUpdate = true;
 }
 
 function disposeMaterial(material) {
@@ -128,10 +159,10 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     }
     renderer.outputColorSpace = SRGBColorSpace;
     renderer.toneMapping = ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3;
+    renderer.toneMappingExposure = STUDIO_LIGHTING.exposure;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFShadowMap;
-    renderer.setClearColor(0x070707, 1);
+    renderer.setClearColor(0x090807, 1);
     const compactDevice = window.matchMedia('(max-width: 760px)').matches;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, compactDevice ? 1.25 : 2));
 
@@ -146,15 +177,15 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     controls.autoRotateSpeed = 0.72;
     if (!controls.autoRotate) setIsRotating(false);
 
-    const ambient = new AmbientLight(0xffffff, 0.08);
-    const hemisphere = new HemisphereLight(0xeaf0ff, 0x160f0e, 0.48);
-    const keyLight = new DirectionalLight(0xffffff, 1.8);
-    keyLight.position.set(4, 7, 4);
+    const ambient = new AmbientLight(0xfff7ef, STUDIO_LIGHTING.ambient);
+    const hemisphere = new HemisphereLight(0xdce5eb, 0x1b1410, STUDIO_LIGHTING.hemisphere);
+    const keyLight = new DirectionalLight(0xffead8, STUDIO_LIGHTING.key);
+    keyLight.position.set(4.5, 7, 5);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.set(1024, 1024);
     keyLight.shadow.bias = -0.00035;
-    const fillLight = new DirectionalLight(0xe2d6d0, 0.34);
-    fillLight.position.set(-4, 3, -5);
+    const fillLight = new DirectionalLight(0xc9d4df, STUDIO_LIGHTING.fill);
+    fillLight.position.set(-4, 3.5, -5);
     scene.add(ambient, hemisphere, keyLight, fillLight);
 
     const environmentScene = new RoomEnvironment();
@@ -239,6 +270,8 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
           if (Array.isArray(node.material)) node.material.forEach(entry => replacedMaterials.add(entry));
           else if (node.material) replacedMaterials.add(node.material);
           node.material = material;
+        } else {
+          tuneNativeMaterial(node.material);
         }
         node.castShadow = true;
         node.receiveShadow = true;
