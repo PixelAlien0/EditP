@@ -804,6 +804,57 @@
   white-space: nowrap;
 }
 
+.scavenger-squad-profile {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(160px, .55fr) auto;
+  gap: var(--space-3) var(--space-4);
+  align-items: end;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+}
+
+.scavenger-squad-profile.is-enabled {
+  background: color-mix(in srgb, var(--color-success) 7%, var(--color-surface-raised));
+}
+
+.scavenger-squad-profile__identity { min-width: 0; }
+.scavenger-squad-profile__identity > span,
+.scavenger-squad-profile__preset > span {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--color-text-muted);
+  font: 650 8px/1 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.scavenger-squad-profile__identity h4 {
+  margin: 0;
+  color: var(--color-text-strong);
+  font: 600 14px/1.2 var(--font-display);
+}
+.scavenger-squad-profile__identity p,
+.scavenger-squad-profile__footer,
+.scavenger-squad-profile__warning {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+.scavenger-squad-profile__preset { display: grid; min-width: 0; }
+.scavenger-squad-profile__preset select { min-width: 0; min-height: 32px; }
+.scavenger-squad-profile__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.scavenger-squad-profile__footer {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.scavenger-squad-profile__footer span:first-child { color: var(--color-text); font-family: var(--font-mono); }
+.scavenger-squad-profile__warning { grid-column: 1 / -1; color: var(--color-warning); }
+
 .advanced-custom-parameter {
   display: grid;
   grid-template-columns: minmax(180px, .75fr) minmax(280px, 1fr);
@@ -909,6 +960,9 @@
   }
   .advanced-custom-parameters__composer { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .advanced-custom-parameters__composer > button { justify-self: start; }
+  .scavenger-squad-profile { grid-template-columns: minmax(0, 1fr) auto; }
+  .scavenger-squad-profile__preset { grid-column: 1; }
+  .scavenger-squad-profile__actions { grid-column: 2; grid-row: 2; align-self: end; }
 }
 
 .stat-card-input.is-error { border-color: var(--color-danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 12%, transparent); }

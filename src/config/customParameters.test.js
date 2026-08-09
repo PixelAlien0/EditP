@@ -41,6 +41,13 @@ describe('advanced custom parameter metadata', () => {
 
     const cluster = getCustomParameterDefinition('cluster_def', 'weapon');
     expect(cluster).toMatchObject({ scope: 'weapon', editorKey: 'cluster_def' });
+    const scavengerCandidate = getCustomParameterDefinition('scavcustomsquad', 'unit');
+    expect(scavengerCandidate).toMatchObject({
+      scope: 'unit',
+      owner: 'BAR Scavenger system',
+      editorSupported: true,
+    });
+    expect(scavengerCandidate.contractIds).toContain('scavenger-squad');
     expect(CUSTOM_PARAMETER_DISCOVERY.version).toBe(2);
     expect(CUSTOM_PARAMETER_DISCOVERY.counts.unitParametersWithConsumers).toBeGreaterThan(0);
     expect(CUSTOM_PARAMETER_DISCOVERY.counts.weaponParametersWithConsumers).toBeGreaterThan(0);

@@ -134,6 +134,38 @@ describe('BAR gadget contract validation', () => {
     ]));
   });
 
+  it('accepts a complete Scavenger squad profile and rejects impossible bounds', () => {
+    const complete = evaluate({
+      patch: {
+        'customparams.scavcustomsquad': true,
+        'customparams.scavsquadunitsamount': 2,
+        'customparams.scavsquadminanger': 30,
+        'customparams.scavsquadmaxanger': 120,
+        'customparams.scavsquadweight': 150,
+        'customparams.scavsquadrarity': 'basic',
+        'customparams.scavsquadbehavior': 'berserk',
+        'customparams.scavsquadbehaviordistance': 1000,
+        'customparams.scavsquadbehaviorchance': 1,
+      },
+    }).find(entry => entry.contractId === 'scavenger-squad');
+    expect(complete.status).toBe('ready');
+    expect(complete.problems).toHaveLength(0);
+
+    const invalid = evaluate({
+      patch: {
+        'customparams.scavcustomsquad': true,
+        'customparams.scavsquadminanger': 140,
+        'customparams.scavsquadmaxanger': 10,
+        'customparams.scavsquadbehaviorchance': 2,
+      },
+    }).find(entry => entry.contractId === 'scavenger-squad');
+    expect(invalid.status).toBe('incomplete');
+    expect(invalid.problems).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'customparams.scavsquadunitsamount', level: 'error' }),
+      expect.objectContaining({ key: 'customparams.scavsquadbehaviorchance', level: 'error' }),
+    ]));
+  });
+
   it('converts contract problems into routed project validation issues', () => {
     const results = evaluate({ slot: { cluster_def: 'missing_weapon' } });
     const issues = gadgetContractResultsToIssues(results);

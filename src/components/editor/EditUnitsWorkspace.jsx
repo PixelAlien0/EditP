@@ -78,6 +78,7 @@ export default function EditUnitsWorkspace({ context }) {
     handleCloneBuildersChange,
     handleResetUnit,
     handleStatChange,
+    handleStatPatch,
     hasActiveUnitFilters,
     includeClones,
     includeHeader,
@@ -789,6 +790,7 @@ export default function EditUnitsWorkspace({ context }) {
                           tweaks={tweaks[selectedUnit.id] || {}}
                           inheritedFromClone={selectedUnit.isClone}
                           onChange={(key, value) => handleStatChange(selectedUnit.id, key, value)}
+                          onApplyProfile={patch => handleStatPatch(selectedUnit.id, patch)}
                         />
                       </Suspense>
                     </div>

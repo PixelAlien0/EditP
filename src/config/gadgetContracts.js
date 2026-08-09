@@ -98,6 +98,25 @@ export const GADGET_CONTRACT_REGISTRY = Object.freeze([
     ]),
     source: source('luarules/gadgets/game_energy_conversion.lua'),
   }),
+  Object.freeze({
+    id: 'scavenger-squad',
+    label: 'Scavenger squad registry',
+    scope: 'unit',
+    maturity: 'stable',
+    description: 'Registers a UnitDef as an eligible Scavenger squad member with spawn weighting, anger bounds, rarity, and behavior data.',
+    triggerKeys: Object.freeze([
+      'customparams.scavcustomsquad', 'customparams.scavsquadunitsamount', 'customparams.scavsquadminanger', 'customparams.scavsquadmaxanger',
+      'customparams.scavsquadweight', 'customparams.scavsquadrarity', 'customparams.scavsquadbehavior', 'customparams.scavsquadbehaviordistance',
+      'customparams.scavsquadbehaviorchance',
+    ]),
+    activationKeys: Object.freeze(['customparams.scavcustomsquad']),
+    requiredKeys: Object.freeze([
+      'customparams.scavcustomsquad', 'customparams.scavsquadunitsamount', 'customparams.scavsquadminanger', 'customparams.scavsquadmaxanger',
+      'customparams.scavsquadweight', 'customparams.scavsquadrarity', 'customparams.scavsquadbehavior', 'customparams.scavsquadbehaviordistance',
+      'customparams.scavsquadbehaviorchance',
+    ]),
+    source: source('luarules/configs/scav_spawn_defs.lua', 'BAR Scavenger system'),
+  }),
 ]);
 
 export const GADGET_CONTRACT_BY_ID = new Map(

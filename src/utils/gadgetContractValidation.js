@@ -203,6 +203,26 @@ function validateEnergyConverter(values, _context, problems) {
   });
 }
 
+function validateScavengerSquad(values, _context, problems) {
+  const amount = numberValue(values['customparams.scavsquadunitsamount']);
+  const weight = numberValue(values['customparams.scavsquadweight']);
+  const minAnger = numberValue(values['customparams.scavsquadminanger']);
+  const maxAnger = numberValue(values['customparams.scavsquadmaxanger']);
+  const chance = numberValue(values['customparams.scavsquadbehaviorchance']);
+  if (!Number.isInteger(amount) || amount < 1) {
+    problems.push({ kind: 'invalid', level: 'error', key: 'customparams.scavsquadunitsamount', message: 'Scavenger Squad Amount must be a whole number of at least 1.' });
+  }
+  if (!Number.isFinite(weight) || weight <= 0) {
+    problems.push({ kind: 'invalid', level: 'error', key: 'customparams.scavsquadweight', message: 'Scavenger Selection Weight must be greater than 0.' });
+  }
+  if (minAnger !== null && maxAnger !== null && minAnger > maxAnger) {
+    problems.push({ kind: 'invalid', level: 'error', key: 'customparams.scavsquadminanger', message: 'Scavenger Minimum Anger must not exceed Maximum Anger.' });
+  }
+  if (chance === null || chance < 0 || chance > 1) {
+    problems.push({ kind: 'invalid', level: 'error', key: 'customparams.scavsquadbehaviorchance', message: 'Scavenger Behavior Chance must be between 0 and 1.' });
+  }
+}
+
 const CONTRACT_VALIDATORS = Object.freeze({
   'explosion-spawner': validateExplosionSpawner,
   'carrier-spawner': validateCarrier,
@@ -210,6 +230,7 @@ const CONTRACT_VALIDATORS = Object.freeze({
   'sector-fire': validateSectorFire,
   'projectile-interception': validateInterception,
   'energy-converter': validateEnergyConverter,
+  'scavenger-squad': validateScavengerSquad,
 });
 
 function weaponSlotNumbers(defaults, patch) {

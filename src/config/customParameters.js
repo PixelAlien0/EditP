@@ -59,6 +59,42 @@ const curatedUnitParameters = [
   {
     key: 'maxrange', label: 'Reported Maximum Range', type: 'number', owner: 'BAR UI convention', maturity: 'stable', min: 0, unit: 'elmos',
     description: 'Range hint used by BAR presentation and supporting logic. It does not change a WeaponDef range by itself.'
+  },
+  {
+    key: 'scavcustomsquad', label: 'Scavenger Squad Candidate', type: 'boolean', owner: 'BAR Scavenger system', maturity: 'stable',
+    description: 'Registers this unit as an eligible Scavenger squad candidate. The remaining Scavenger Squad Profile fields define when and how it may be selected.'
+  },
+  {
+    key: 'scavsquadunitsamount', label: 'Scavenger Squad Amount', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 1,
+    description: 'Number of this UnitDef included when the Scavenger squad entry is selected.'
+  },
+  {
+    key: 'scavsquadminanger', label: 'Scavenger Minimum Anger', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0,
+    description: 'Lowest Scavenger anger level at which this squad entry may be selected.'
+  },
+  {
+    key: 'scavsquadmaxanger', label: 'Scavenger Maximum Anger', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0,
+    description: 'Highest Scavenger anger level at which this squad entry may be selected.'
+  },
+  {
+    key: 'scavsquadweight', label: 'Scavenger Selection Weight', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 1,
+    description: 'Relative probability weight used when BAR selects among eligible Scavenger squad entries.'
+  },
+  {
+    key: 'scavsquadrarity', label: 'Scavenger Rarity', type: 'string', owner: 'BAR Scavenger system', maturity: 'stable',
+    description: 'Scavenger pool classification. Typical BAR values are basic and special.'
+  },
+  {
+    key: 'scavsquadbehavior', label: 'Scavenger Squad Behavior', type: 'string', owner: 'BAR Scavenger system', maturity: 'stable',
+    description: 'Behavior label assigned to the selected squad. Typical BAR values are berserk, raider, and artillery.'
+  },
+  {
+    key: 'scavsquadbehaviordistance', label: 'Scavenger Behavior Distance', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0, unit: 'elmos',
+    description: 'Distance used by the selected Scavenger squad behavior.'
+  },
+  {
+    key: 'scavsquadbehaviorchance', label: 'Scavenger Behavior Chance', type: 'number', owner: 'BAR Scavenger system', maturity: 'stable', min: 0, max: 1,
+    description: 'Chance from 0 to 1 that the configured behavior is applied to the selected Scavenger squad.'
   }
 ];
 

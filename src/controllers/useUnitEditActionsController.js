@@ -67,18 +67,18 @@ export function useUnitEditActionsController({
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [activeSummaryTab, setActiveSummaryTab] = useState('tweaks');
 
-  // Update tweaked stat value
-  const handleStatChange = useCallback((unitId, statKey, value) => {
+  // Apply related edits as one project transaction so compound controls do not
+  // create a history entry for every individual field.
+  const handleStatPatch = useCallback((unitId, patch) => {
     transactProject(current => {
       const isClone = current.clones.some(
         clone => clone.newId.toLowerCase() === unitId.toLowerCase()
       );
       const unitTweaks = { ...current.tweaks[unitId] };
-      if (value === '' || value === undefined) {
-        delete unitTweaks[statKey];
-      } else {
-        unitTweaks[statKey] = value;
-      }
+      Object.entries(patch).forEach(([statKey, value]) => {
+        if (value === '' || value === undefined) delete unitTweaks[statKey];
+        else unitTweaks[statKey] = value;
+      });
 
       const next = { ...current.tweaks };
       if (Object.keys(unitTweaks).length === 0) {
@@ -93,6 +93,11 @@ export function useUnitEditActionsController({
       };
     });
   }, [transactProject]);
+
+  // Update one tweaked stat value.
+  const handleStatChange = useCallback((unitId, statKey, value) => {
+    handleStatPatch(unitId, { [statKey]: value });
+  }, [handleStatPatch]);
 
   // Reset tweaks
   const handleResetUnit = useCallback((unitId) => {
@@ -191,6 +196,7 @@ export function useUnitEditActionsController({
     activeSummaryTab,
     setActiveSummaryTab,
     handleStatChange,
+    handleStatPatch,
     handleResetUnit,
     handleResetSummaryUnitEdits,
     handleResetAllSummaryUnitEdits,
