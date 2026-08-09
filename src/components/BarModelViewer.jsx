@@ -21,7 +21,6 @@ import { Vector2 } from 'three/src/math/Vector2.js';
 import { Vector3 } from 'three/src/math/Vector3.js';
 import { MeshStandardMaterial } from 'three/src/materials/MeshStandardMaterial.js';
 import { MeshBasicMaterial } from 'three/src/materials/MeshBasicMaterial.js';
-import { ShadowMaterial } from 'three/src/materials/ShadowMaterial.js';
 import { Mesh } from 'three/src/objects/Mesh.js';
 import { PlaneGeometry } from 'three/src/geometries/PlaneGeometry.js';
 import { SphereGeometry } from 'three/src/geometries/SphereGeometry.js';
@@ -39,6 +38,13 @@ const TEAM_COLORS = Object.freeze([
   { id: 'blue', label: 'Alliance blue', value: '#2f72e6' },
   { id: 'green', label: 'Field green', value: '#62a765' },
   { id: 'gold', label: 'Command gold', value: '#c99a42' },
+]);
+
+const GROUND_COLORS = Object.freeze([
+  { id: 'charcoal', label: 'Charcoal ground', value: '#151311' },
+  { id: 'slate', label: 'Slate ground', value: '#20262a' },
+  { id: 'earth', label: 'Earth ground', value: '#30251d' },
+  { id: 'sand', label: 'Sand ground', value: '#4a4032' },
 ]);
 
 const STUDIO_LIGHTING = Object.freeze({
@@ -209,10 +215,12 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
   const [teamColor, setTeamColor] = useState(TEAM_COLORS[0].value);
+  const [groundColor, setGroundColor] = useState(GROUND_COLORS[0].value);
   const [modelFacts, setModelFacts] = useState(null);
   const [isRotating, setIsRotating] = useState(true);
   const [isAnimating, setIsAnimating] = useState(true);
   const teamColorRef = useRef(TEAM_COLORS[0].value);
+  const groundColorRef = useRef(GROUND_COLORS[0].value);
 
   useEffect(() => {
     let cancelled = false;
@@ -279,6 +287,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     let frameId = 0;
     let root = null;
     let floor = null;
+    let floorMaterial = null;
     let material = null;
     let mixer = null;
     let previewAction = null;
@@ -401,9 +410,15 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
       keyLight.shadow.camera.far = maxDimension * 12;
       keyLight.shadow.camera.updateProjectionMatrix();
 
+      floorMaterial = new MeshStandardMaterial({
+        color: new Color(groundColorRef.current),
+        roughness: 1,
+        metalness: 0,
+        envMapIntensity: 0.08,
+      });
       floor = new Mesh(
         new PlaneGeometry(maxDimension * 5, maxDimension * 5),
-        new ShadowMaterial({ color: 0x000000, opacity: 0.34 }),
+        floorMaterial,
       );
       floor.rotation.x = -Math.PI / 2;
       floor.position.y = bounds.min.y - maxDimension * 0.008;
@@ -427,6 +442,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
         root,
         resetView,
         teamUniform,
+        floorMaterial,
         previewAction,
       };
       setModelFacts({
@@ -463,6 +479,12 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     setTeamColor(value);
     teamColorRef.current = value;
     viewerRef.current?.teamUniform.value.set(value);
+  };
+
+  const selectGroundColor = value => {
+    setGroundColor(value);
+    groundColorRef.current = value;
+    viewerRef.current?.floorMaterial.color.set(value);
   };
 
   const toggleRotation = () => {
@@ -514,23 +536,42 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
       </div>
 
       <div className="bar-model-viewer__controls">
-        <fieldset disabled={!entry.textures}>
-          <legend>Team colour</legend>
-          <div>
-            {TEAM_COLORS.map(color => (
-              <button
-                type="button"
-                key={color.id}
-                className={teamColor === color.value ? 'is-active' : ''}
-                aria-label={color.label}
-                aria-pressed={teamColor === color.value}
-                title={color.label}
-                style={{ '--team-swatch': color.value }}
-                onClick={() => selectTeamColor(color.value)}
-              />
-            ))}
-          </div>
-        </fieldset>
+        <div className="bar-model-viewer__palettes">
+          <fieldset disabled={!entry.textures}>
+            <legend>Team colour</legend>
+            <div>
+              {TEAM_COLORS.map(color => (
+                <button
+                  type="button"
+                  key={color.id}
+                  className={teamColor === color.value ? 'is-active' : ''}
+                  aria-label={color.label}
+                  aria-pressed={teamColor === color.value}
+                  title={color.label}
+                  style={{ '--viewer-swatch': color.value }}
+                  onClick={() => selectTeamColor(color.value)}
+                />
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Ground colour</legend>
+            <div>
+              {GROUND_COLORS.map(color => (
+                <button
+                  type="button"
+                  key={color.id}
+                  className={groundColor === color.value ? 'is-active' : ''}
+                  aria-label={color.label}
+                  aria-pressed={groundColor === color.value}
+                  title={color.label}
+                  style={{ '--viewer-swatch': color.value }}
+                  onClick={() => selectGroundColor(color.value)}
+                />
+              ))}
+            </div>
+          </fieldset>
+        </div>
         <p>{entry.textures ? 'Drag to orbit · Scroll to zoom' : 'Native material · Drag to orbit · Scroll to zoom'}</p>
       </div>
 

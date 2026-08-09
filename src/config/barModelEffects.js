@@ -36,6 +36,9 @@ const EFFECTS_BY_MODEL = Object.freeze({
   'units/freefusion.s3o': Object.freeze({
     nodeEffects: energyNodes('fusionsphere'),
   }),
+  'units/corfus.s3o': Object.freeze({
+    proceduralEffects: [proceduralOrb('emit', 0.7)],
+  }),
   'units/armafus.s3o': Object.freeze({
     proceduralEffects: [proceduralOrb('emit', 0.46)],
   }),

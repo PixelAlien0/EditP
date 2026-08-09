@@ -97,6 +97,7 @@
 }
 
 .bar-model-viewer__controls fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.bar-model-viewer__palettes { min-width: 0; display: flex; align-items: flex-start; gap: var(--space-4); }
 .bar-model-viewer__controls legend { margin-bottom: 5px; color: var(--color-text-muted); font: 650 8px/1 var(--font-mono); text-transform: uppercase; }
 .bar-model-viewer__controls fieldset > div { display: flex; align-items: center; gap: 6px; }
 
@@ -106,7 +107,7 @@
   padding: 0;
   border: 1px solid var(--color-border-strong);
   border-radius: 50%;
-  background: var(--team-swatch);
+  background: var(--viewer-swatch);
   cursor: pointer;
 }
 

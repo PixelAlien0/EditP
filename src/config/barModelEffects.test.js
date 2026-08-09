@@ -33,6 +33,18 @@ describe('BAR model effect registry', () => {
     );
   });
 
+  it('restores the large generated Cortex Fusion Reactor orb', () => {
+    const profile = getBarModelEffectProfile('units/corfus.s3o');
+
+    expect(profile.proceduralEffects).toEqual([
+      expect.objectContaining({
+        anchor: 'emit',
+        sizeBasis: 'footprint',
+        diameterRatio: 0.7,
+      }),
+    ]);
+  });
+
   it('covers all six Elysium shield pieces explicitly', () => {
     const profile = getBarModelEffectProfile('Units/LEGGATET3.s3o');
     expect(profile.nodeEffects).toHaveLength(6);
@@ -41,6 +53,6 @@ describe('BAR model effect registry', () => {
 
   it('does not infer effects for unverified model paths', () => {
     expect(getBarModelEffectProfile('Units/ARMPW.s3o')).toBeNull();
-    expect(BAR_MODEL_EFFECT_PATHS.length).toBeGreaterThanOrEqual(13);
+    expect(BAR_MODEL_EFFECT_PATHS.length).toBeGreaterThanOrEqual(14);
   });
 });
