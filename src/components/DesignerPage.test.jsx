@@ -69,7 +69,7 @@ describe('DesignerPage', () => {
     expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('ARM');
     expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('T2');
     const provenance = screen.getByText('Project clone');
-    expect(provenance).toHaveClass('slot-unit-id');
+    expect(provenance).toHaveClass('ui-button', 'ui-button--sm');
     expect(provenance).not.toHaveClass('designer-item-status');
     expect(screen.getByRole('button', { name: 'Remove Test Unit from Bot Lab' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add Other Unit' })).toBeEnabled();

@@ -780,11 +780,11 @@
 }
 
 .designer-page .slot-origin {
-  min-width: 0;
+  width: 72px;
   overflow: hidden;
-  flex: 1;
+  flex: 0 0 auto;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  pointer-events: none;
 }
 
 .designer-page .slot-btn {

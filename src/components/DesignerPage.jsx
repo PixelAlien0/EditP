@@ -337,7 +337,7 @@ export default function DesignerPage({
                           {slotCategory && <span className="designer-producer-kind">{slotCategory}</span>}
                         </div>
                         <div className="slot-action-row">
-                          <span className={`slot-origin slot-unit-id ${item.sourcePack ? `slot-origin--${item.sourcePack}` : ''}`}>{slotOrigin}</span>
+                          <span className={`slot-origin ui-button ui-button--sm ${item.sourcePack ? `slot-origin--${item.sourcePack}` : ''}`}>{slotOrigin}</span>
                           {!removed ? (
                             <Button size="sm" variant="danger" className="slot-btn" aria-label={`Remove ${item.name} from ${factoryName}`} onClick={event => { event.stopPropagation(); onRemoveRosterUnit(item.id); }}>
                               Remove
