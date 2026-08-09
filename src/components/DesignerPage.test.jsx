@@ -42,7 +42,9 @@ function renderDesigner(overrides = {}) {
     producerSearch=""
     producerFaction="all"
     producerKind="all"
-    rosterItems={[{ id: 'armtest', name: 'Test Unit', status: 'added' }]}
+    rosterItems={[{
+      id: 'armtest', name: 'Test Unit', status: 'added', faction: 'arm', techTier: 't2', tags: ['bots', 't2'], isClone: true,
+    }]}
     availableUnits={[{ id: 'armother', name: 'Other Unit', rosterStatus: '' }]}
     availableSearch=""
     availableFaction="factory"
@@ -62,8 +64,11 @@ describe('DesignerPage', () => {
     expect(screen.getByRole('heading', { name: 'Factory Roster Designer' })).toBeInTheDocument();
     expect(screen.getByText('Roster conditions')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Bot Lab armlab/i })).toHaveAttribute('aria-current', 'true');
-    expect(screen.getByLabelText('Roster status')).toHaveTextContent('Custom1');
+    expect(screen.getByLabelText('Roster status')).toHaveTextContent('Added1');
     expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('Custom');
+    expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('ARM');
+    expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('T2');
+    expect(screen.getByRole('group', { name: 'Custom roster slot 1: Test Unit' })).toHaveTextContent('Project clone');
     expect(screen.getByRole('button', { name: 'Remove Test Unit from Bot Lab' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add Other Unit' })).toBeEnabled();
   });

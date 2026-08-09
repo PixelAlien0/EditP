@@ -1,4 +1,3 @@
-/* Factory Roster Designer — canonical production workbench. */
 .designer-page {
   position: fixed;
   inset: var(--header-height) 0 0;
@@ -78,121 +77,23 @@
   color: var(--color-text-strong);
 }
 
-/* Optional lobby roster packs. */
-.designer-page .designer-roster-profiles {
-  min-height: 68px;
-  padding: var(--space-3) var(--density-page-gutter);
-  display: grid;
-  grid-template-columns: minmax(250px, .6fr) minmax(560px, 1.4fr);
-  align-items: center;
-  gap: clamp(var(--space-5), 3vw, var(--space-10));
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
-}
-
-.designer-page .designer-roster-profiles__intro {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: baseline;
-  gap: var(--space-1) var(--space-3);
-}
-
-.designer-page .designer-roster-profiles__intro > small {
-  grid-column: 1 / -1;
-  overflow: hidden;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.designer-page .designer-roster-profiles__count {
-  padding: 3px 6px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-}
-
-.designer-page .designer-roster-profiles__options {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
-.designer-page .designer-pack-option {
-  min-width: 0;
-  min-height: 48px;
-  padding: var(--space-2) var(--space-3);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
-  cursor: pointer;
-}
-
-.designer-page .designer-pack-option:hover {
-  border-color: var(--color-border-strong);
-  background: var(--color-surface-hover);
-}
-
-.designer-page .designer-pack-option:has(input:checked) {
-  border-color: var(--color-border-accent-muted);
-  background: var(--color-surface-accent-subtle);
-}
-
-.designer-page .designer-pack-option .ui-switch-track {
-  flex: 0 0 auto;
-}
-
-.designer-page .designer-pack-option__copy {
-  min-width: 0;
-  display: grid;
-  flex: 1;
-  gap: 2px;
-}
-
-.designer-page .designer-pack-option__heading {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.designer-page .designer-pack-option__heading strong {
-  min-width: 0;
-  overflow: hidden;
-  flex: 1;
-  color: var(--color-text-strong);
-  font-size: var(--font-size-xs);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
+.designer-page .designer-roster-profiles { padding: var(--space-3) clamp(var(--space-5), 2.4vw, var(--space-8)); display: grid; grid-template-columns: minmax(230px, .42fr) minmax(560px, 1.58fr); align-items: center; gap: clamp(var(--space-5), 2.5vw, var(--space-9)); border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
+.designer-page .designer-roster-profiles__intro { min-width: 0; display: grid; gap: 3px; }
+.designer-page .designer-roster-profiles__heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.designer-page .designer-roster-profiles__intro > small { overflow: hidden; color: var(--color-text-muted); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
+.designer-page .designer-roster-profiles__count { padding: 3px var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-pill); font-variant-numeric: tabular-nums; }
+.designer-page .designer-roster-profiles__options { min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.designer-page .designer-pack-option { min-width: 0; min-height: 58px; padding: var(--space-2) var(--space-3); display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface-raised); cursor: pointer; }
+.designer-page .designer-pack-option:hover { border-color: var(--color-border-strong); background: var(--color-surface-hover); }
+.designer-page .designer-pack-option:has(input:checked) { border-color: var(--color-border-accent-muted); background: var(--color-surface-accent-subtle); }
+.designer-page .designer-pack-option__copy { min-width: 0; display: grid; gap: 3px; }
+.designer-page .designer-pack-option__heading { min-width: 0; display: flex; align-items: center; gap: var(--space-2); }
+.designer-page .designer-pack-option__heading strong { min-width: 0; overflow: hidden; flex: 1; color: var(--color-text-strong); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
 .designer-page .designer-pack-option__state,
-.designer-page .designer-pack-option__impact {
-  color: var(--color-text-muted);
-  font: 700 var(--font-size-xs)/1.2 var(--font-mono);
-  text-transform: uppercase;
-}
+.designer-page .designer-pack-option__impact { color: var(--color-text-muted); font: 700 var(--font-size-xs)/1.2 var(--font-mono); text-transform: uppercase; }
+.designer-page .designer-pack-option__state { padding: 2px 4px; border: 1px solid var(--color-border); border-radius: var(--radius-xs); }
+.designer-page .designer-pack-option__copy small { overflow: hidden; color: var(--color-text-muted); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
 
-.designer-page .designer-pack-option__state {
-  padding: 2px 4px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xs);
-}
-
-.designer-page .designer-pack-option__copy small {
-  overflow: hidden;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Three-pane production workspace. */
 .designer-page .designer-modal-content {
   min-height: 0;
   display: grid;
@@ -364,7 +265,6 @@
   box-shadow: none;
 }
 
-/* Catalog rows. */
 .designer-page .designer-panel-scroll {
   flex: 1;
   min-height: 0;
@@ -540,7 +440,6 @@
   color: var(--color-success);
 }
 
-/* Production canvas command surface. */
 .designer-page .designer-roster-canvas .designer-panel-header--roster {
   min-height: 100px;
   padding: var(--space-4) clamp(var(--space-5), 2vw, var(--space-7));
@@ -660,74 +559,78 @@
 }
 
 .designer-page .designer-sequence-toolbar {
-  min-height: 46px;
-  padding: var(--space-2) clamp(var(--space-5), 2vw, var(--space-7));
+  min-height: 58px;
+  padding: var(--space-2) clamp(var(--space-4), 1.5vw, var(--space-6));
   display: flex;
-  align-items: stretch;
-  gap: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface-raised);
 }
 
-.designer-page .designer-sequence-toolbar > span {
-  min-width: 76px;
-  padding-inline: var(--space-3);
+.designer-page .designer-sequence-toolbar__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 82px) 112px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+}
+
+.designer-page .designer-sequence-toolbar__metrics > span {
+  min-height: 36px;
+  padding: var(--space-1) var(--space-3);
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
   border-right: 1px solid var(--color-border-subtle);
 }
 
-.designer-page .designer-sequence-toolbar small {
+.designer-page .designer-sequence-toolbar__metrics > span:last-child { border-right: 0; }
+
+.designer-page .designer-sequence-toolbar small,
+.designer-page .designer-sequence-toolbar__note span {
   color: var(--color-text-muted);
   font-size: var(--font-size-xs);
 }
 
-.designer-page .designer-sequence-toolbar strong {
+.designer-page .designer-sequence-toolbar__metrics strong {
   color: var(--color-text-strong);
   font: 700 var(--font-size-sm)/1 var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
-.designer-page .designer-sequence-toolbar .has-warning strong {
+.designer-page .designer-sequence-toolbar__metrics .has-warning strong {
   color: var(--color-warning);
 }
 
-.designer-page .designer-sequence-toolbar p {
-  min-width: 0;
-  margin: 0 0 0 auto;
-  padding-left: var(--space-4);
-  align-self: center;
-  overflow: hidden;
-  color: var(--color-text-muted);
+.designer-page .designer-sequence-toolbar__note {
+  color: var(--color-text-strong);
   font-size: var(--font-size-xs);
-  text-overflow: ellipsis;
+  text-align: right;
+}
+
+.designer-page .designer-sequence-toolbar__note span {
+  display: block;
   white-space: nowrap;
 }
 
-.designer-page .designer-sequence-toolbar code {
-  color: var(--color-text);
-  font-family: var(--font-mono);
-}
-
-/* Roster card matrix. */
 .designer-page .designer-roster-scroll {
-  padding: clamp(var(--space-4), 1.5vw, var(--space-6));
+  padding: clamp(var(--space-4), 1.25vw, var(--space-6));
   background: var(--color-canvas);
 }
 
 .designer-page .build-menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(184px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(202px, 1fr));
   align-content: start;
-  gap: clamp(var(--space-4), 1.15vw, var(--space-5));
+  gap: clamp(var(--space-3), 1vw, var(--space-5));
 }
 
 .designer-page .build-menu-slot {
   min-width: 0;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface-raised);
@@ -754,7 +657,7 @@
 }
 
 .designer-page .build-menu-slot__meta {
-  min-height: 34px;
+  min-height: 38px;
   padding: var(--space-2) var(--space-3);
   display: flex;
   align-items: center;
@@ -765,7 +668,7 @@
 
 .designer-page .build-menu-slot__art {
   position: relative;
-  margin: var(--space-3) var(--space-3) 0;
+  margin: var(--space-2) var(--space-2) 0;
   overflow: hidden;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-xs);
@@ -801,7 +704,8 @@
 
 .designer-page .slot-drag-handle {
   color: var(--color-text-muted);
-  font: var(--font-size-sm)/1 var(--font-mono);
+  font: 700 8px/1 var(--font-mono);
+  text-transform: uppercase;
 }
 
 .designer-page .slot-status {
@@ -834,11 +738,8 @@
 
 .designer-page .slot-overlay-actions {
   min-width: 0;
-  min-height: 82px;
   padding: var(--space-3);
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-content: start;
   gap: var(--space-2);
 }
 
@@ -851,7 +752,7 @@
 .designer-page .slot-unit-name {
   overflow: hidden;
   color: var(--color-text-strong);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -865,9 +766,29 @@
   white-space: nowrap;
 }
 
+.designer-page .slot-attributes {
+  display: flex;
+  gap: var(--space-1);
+  overflow: hidden;
+}
+
+.designer-page .slot-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.designer-page .slot-origin {
+  min-width: 0;
+  overflow: hidden;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .designer-page .slot-btn {
-  width: 100%;
-  margin-top: var(--space-1);
+  min-width: 72px;
 }
 
 .designer-page .slot-btn-restore {
@@ -875,8 +796,8 @@
   color: var(--color-success);
 }
 
-.designer-page .slot-pack-source {
-  width: max-content;
+.designer-page .slot-origin--extraUnits,
+.designer-page .slot-origin--scavengerUnits {
   color: var(--color-accent-strong);
 }
 
@@ -902,7 +823,6 @@
   filter: grayscale(100%) opacity(.4);
 }
 
-/* Empty and recovery states. */
 .designer-page .designer-producer-empty,
 .designer-page .designer-empty-state {
   min-height: 190px;
@@ -985,7 +905,7 @@
   }
 
   .designer-page .designer-unitgroup-badge code,
-  .designer-page .designer-sequence-toolbar p {
+  .designer-page .designer-sequence-toolbar__note span {
     display: none;
   }
 }

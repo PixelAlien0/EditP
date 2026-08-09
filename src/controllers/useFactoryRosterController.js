@@ -77,24 +77,36 @@ export function useFactoryRosterController({
     const removedSet = new Set(step ? step.remove.map(id => id.toLowerCase()) : []);
     const addedList = step ? step.add : [];
     const defaultIds = new Set(defaults.map(id => id.toLowerCase()));
+    const unitMetadata = new Map(allUnitsList.map(unit => [unit.id.toLowerCase(), unit]));
 
-    const items = defaults.map(id => ({
+    const buildRosterItem = (id, status, extra = {}) => {
+      const metadata = unitMetadata.get(id.toLowerCase());
+      return {
+        id,
+        name: metadata?.name || unitsDbNames[id] || id,
+        status,
+        faction: metadata?.faction || getFactionOfUnit(id),
+        techTier: metadata?.techTier || '',
+        tags: metadata?.tags || [],
+        isClone: Boolean(metadata?.isClone),
+        ...extra,
+      };
+    };
+
+    const items = defaults.map(id => buildRosterItem(
       id,
-      name: unitsDbNames[id] || id,
-      status: removedSet.has(id.toLowerCase()) ? 'removed' : 'default',
-      sourcePack: getBuildMenuPackSource(selectedProducer?.sourceId || selectedFactoryId, id, buildMenuPacks),
-    }));
+      removedSet.has(id.toLowerCase()) ? 'removed' : 'default',
+      { sourcePack: getBuildMenuPackSource(selectedProducer?.sourceId || selectedFactoryId, id, buildMenuPacks) }
+    ));
 
     addedList.forEach(id => {
       if (defaultIds.has(id.toLowerCase())) return;
       const cloneInfo = clones.find(clone => clone.newId.toLowerCase() === id.toLowerCase());
-      items.push({
-        id,
+      items.push(buildRosterItem(id, 'added', {
         name: cloneInfo
           ? cloneInfo.displayName || cloneInfo.newId
           : unitsDbNames[id] || id,
-        status: 'added',
-      });
+      }));
     });
 
     if (step?.order?.length) {
@@ -113,6 +125,7 @@ export function useFactoryRosterController({
     return items;
   }, [
     activeFactoryRosters,
+    allUnitsList,
     buildMenuPacks,
     buildMenuSteps,
     clones,

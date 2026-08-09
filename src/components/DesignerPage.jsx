@@ -2,6 +2,14 @@ import { Button, PageShell, Switch, Type } from './ui.jsx';
 import UnitArtwork from './UnitArtwork.jsx';
 import '../styles/features/build-menu.css';
 
+const SLOT_CLASS_TAGS = new Set([
+  'aircraft', 'bots', 'buildings', 'defenses', 'factories', 'hovercraft', 'ships', 'vehicles',
+]);
+
+function getSlotCategory(tags = []) {
+  return tags.find(tag => SLOT_CLASS_TAGS.has(String(tag).toLowerCase())) || '';
+}
+
 export default function DesignerPage({
   factoryId,
   factoryName,
@@ -36,7 +44,7 @@ export default function DesignerPage({
   onClose,
 }) {
   const removedItems = rosterItems.filter(item => item.status === 'removed');
-  const baseSlotCount = rosterItems.filter(item => item.status !== 'added').length;
+  const defaultSlotCount = rosterItems.filter(item => item.status === 'default').length;
   const addedSlotCount = rosterItems.filter(item => item.status === 'added').length;
   const enabledPackCount = Object.keys(packDefinitions).filter(packId => rosterPacks[packId]).length;
   const suggestedUnits = availableUnits.filter(unit => !unit.rosterStatus).slice(0, 3);
@@ -64,10 +72,12 @@ export default function DesignerPage({
     >
         <section className="designer-roster-profiles" aria-labelledby="designer-roster-profiles-title">
           <div className="designer-roster-profiles__intro">
-            <Type variant="eyebrow" className="designer-panel-kicker">Game setup</Type>
+            <div className="designer-roster-profiles__heading">
+              <Type variant="eyebrow" className="designer-panel-kicker">Game setup</Type>
+              <span className="designer-roster-profiles__count">{enabledPackCount} active</span>
+            </div>
             <Type as="strong" variant="subsection-title" id="designer-roster-profiles-title">Roster conditions</Type>
             <Type as="small" variant="description">Mirror optional BAR lobby unit packs while you compose.</Type>
-            <span className="designer-roster-profiles__count">{enabledPackCount} active</span>
           </div>
           <div className="designer-roster-profiles__options">
             {Object.entries(packDefinitions).map(([packId, pack]) => {
@@ -89,8 +99,8 @@ export default function DesignerPage({
                       <span className="designer-pack-option__state">{enabled ? 'Enabled' : 'Off'}</span>
                     </span>
                     <small>{pack.description}</small>
-                    <span className="designer-pack-option__impact">
-                      {affectedProducers} producers · {addedOptions} placements
+                    <span className="designer-pack-option__impact" aria-label={`${affectedProducers} producers and ${addedOptions} unit placements`}>
+                      {affectedProducers} producers / {addedOptions} placements
                     </span>
                   </span>
                 </Switch>
@@ -251,11 +261,16 @@ export default function DesignerPage({
             </div>
 
             <div className="designer-sequence-toolbar" aria-label="Roster status">
-              <span><small>Active</small><strong>{activeSlotCount}</strong></span>
-              <span><small>References</small><strong>{baseSlotCount}</strong></span>
-              <span><small>Custom</small><strong>{addedSlotCount}</strong></span>
-              <span className={removedItems.length > 0 ? 'has-warning' : ''}><small>Removed</small><strong>{removedItems.length}</strong></span>
-              <p>Drag to sequence · changes compile into this producer’s <code>buildoptions</code>.</p>
+              <div className="designer-sequence-toolbar__metrics" role="list" aria-label="Sequence totals">
+                <span role="listitem"><small>Active</small><strong>{activeSlotCount}</strong></span>
+                <span role="listitem"><small>Default</small><strong>{defaultSlotCount}</strong></span>
+                <span role="listitem"><small>Added</small><strong>{addedSlotCount}</strong></span>
+                <span role="listitem" className={removedItems.length > 0 ? 'has-warning' : ''}><small>Recoverable</small><strong>{removedItems.length}</strong></span>
+              </div>
+              <div className="designer-sequence-toolbar__note">
+                <strong>Build order</strong>
+                <span>Drag active cards to sequence <code>buildoptions</code>.</span>
+              </div>
             </div>
 
             <div className="designer-panel-scroll designer-roster-scroll">
@@ -264,6 +279,11 @@ export default function DesignerPage({
                   const added = item.status === 'added';
                   const removed = item.status === 'removed';
                   const slotState = removed ? 'Removed' : added ? 'Custom' : 'Reference';
+                  const slotCategory = getSlotCategory(item.tags);
+                  const slotOrigin = item.sourcePack
+                    ? item.sourcePack === 'extraUnits' ? 'Extra pack' : 'Scavenger pack'
+                    : item.isClone ? 'Project clone'
+                      : added ? 'Project addition' : 'BAR reference';
                   return (
                     <div
                       key={item.id}
@@ -299,7 +319,7 @@ export default function DesignerPage({
                     >
                       <div className="build-menu-slot__meta">
                         <span className="slot-index" aria-label={`Slot ${index + 1}`}>Slot {String(index + 1).padStart(2, '0')}</span>
-                      {!removed && <span className="slot-drag-handle" aria-hidden="true" title="Drag to reorder">⠿</span>}
+                        {!removed && <span className="slot-drag-handle" aria-hidden="true" title="Drag to reorder">Drag</span>}
                         <span className={`slot-status slot-status--${item.status}`}>{slotState}</span>
                       </div>
                       <div className="build-menu-slot__art">
@@ -311,20 +331,23 @@ export default function DesignerPage({
                           <span className="slot-unit-name" title={item.name}>{item.name}</span>
                           <span className="slot-unit-id">{item.id}</span>
                         </div>
-                        {item.sourcePack && (
-                          <span className={`slot-pack-source slot-pack-source--${item.sourcePack}`}>
-                            {item.sourcePack === 'extraUnits' ? 'Extra pack' : 'Scavenger pack'}
-                          </span>
-                        )}
-                        {!removed ? (
-                          <Button size="sm" variant="danger" className="slot-btn" aria-label={`Remove ${item.name} from ${factoryName}`} onClick={event => { event.stopPropagation(); onRemoveRosterUnit(item.id); }}>
-                            <span className="slot-btn-icon" aria-hidden="true">✕</span> Remove
-                          </Button>
-                        ) : (
-                          <Button size="sm" className="slot-btn slot-btn-restore" aria-label={`Restore ${item.name} to ${factoryName}`} onClick={event => { event.stopPropagation(); onRestoreRosterUnit(item.id); }}>
-                            <span className="slot-btn-icon" aria-hidden="true">↺</span> Restore
-                          </Button>
-                        )}
+                        <div className="slot-attributes" aria-label="Unit classification">
+                          {item.faction && <span className="designer-producer-faction">{String(item.faction).toUpperCase()}</span>}
+                          {item.techTier && <span className="designer-producer-tier">{String(item.techTier).toUpperCase()}</span>}
+                          {slotCategory && <span className="designer-producer-kind">{slotCategory}</span>}
+                        </div>
+                        <div className="slot-action-row">
+                          <span className={`slot-origin designer-item-status ${item.sourcePack ? `slot-origin--${item.sourcePack}` : ''}`}>{slotOrigin}</span>
+                          {!removed ? (
+                            <Button size="sm" variant="danger" className="slot-btn" aria-label={`Remove ${item.name} from ${factoryName}`} onClick={event => { event.stopPropagation(); onRemoveRosterUnit(item.id); }}>
+                              Remove
+                            </Button>
+                          ) : (
+                            <Button size="sm" className="slot-btn slot-btn-restore" aria-label={`Restore ${item.name} to ${factoryName}`} onClick={event => { event.stopPropagation(); onRestoreRosterUnit(item.id); }}>
+                              Restore
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
