@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
   "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
   "delivery": {
@@ -9,6 +9,7 @@
   },
   "settings": {
     "textureSize": 512,
+    "specialTextureSize": 256,
     "maxLibraryBytes": 3000000,
     "discoveryConcurrency": 12
   },
@@ -18,9 +19,11 @@
     "uniqueModelPaths": 873,
     "supported": 865,
     "unsupported": 8,
-    "nativeMaterialModels": 145,
-    "uniqueLocalAssets": 15,
-    "localAssetBytes": 428412,
+    "nativeMaterialModels": 28,
+    "discoveredMaterialModels": 117,
+    "discoveredTextureFamilies": 49,
+    "uniqueLocalAssets": 80,
+    "localAssetBytes": 1415644,
     "remoteModelBytes": 121972316
   },
   "materials": {
@@ -47,6 +50,398 @@
       "pbr": "/bar-models/assets/dccfa4216c7b016cab12.webp",
       "normal": "/bar-models/assets/6285632051f9e4a75466.webp",
       "sourceHash": "4545eb4546f7d148b68c54f6d923a9c29bad2d8428c1e547b6b6ebdd3b32b468"
+    },
+    "model-de08d075e941": {
+      "color": "/bar-models/assets/c2565611779b05e163e5.webp",
+      "teamMask": "/bar-models/assets/3ec31855dad63f60147d.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/160d9ea7c8c1ad9e358f.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "ef107f6ed7285fa3dc78d87db2fb608409876b42aed47f0d13342995f148c025"
+    },
+    "model-db0643a0f2a7": {
+      "color": "/bar-models/assets/1690ce89e5cc10d97fb7.webp",
+      "teamMask": "/bar-models/assets/e156c26462e7d69af8bf.webp",
+      "emissive": "/bar-models/assets/c32768b4778649c08c9c.webp",
+      "pbr": "/bar-models/assets/09b89e7e31221b9c187e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "2291c16ff3b0dcf73a1e9e107819484e1c17645e1177a2767c2afee02ca9bf15"
+    },
+    "model-43956e9b4dc4": {
+      "color": "/bar-models/assets/95ea8ec0844dde0e888f.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "b34b5174d288e7b5d95922b2f230ae21576c2e68ecf993e43105e75a0be3c7b3"
+    },
+    "model-a3b41b547375": {
+      "color": "/bar-models/assets/9cec4eb260bc006c11da.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "76337d029c568c8783b12f9e89a0e4dae06ec9eb9558a75fb5f11dcbe0add52f"
+    },
+    "model-b70d13998858": {
+      "color": "/bar-models/assets/2a4746046c5cd6eaa6ce.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "1158b1f3824626e72546ad33e4216a90492e1a0536a6d4e4b7fbe8f4a62143aa"
+    },
+    "model-8e4da0c3b5fb": {
+      "color": "/bar-models/assets/300e2efe768528ea4289.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "fc7fd1b95258b94bf1aca5ed6d8b10e9d8d87788b3b18e878be975b6a2150da1"
+    },
+    "model-7eac7bffc23e": {
+      "color": "/bar-models/assets/f42c27886b28aac90c6b.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "9bd457a94c438387df4e3117c8208ec08934ec249c3c0b3e0e867e258d004b77"
+    },
+    "model-8ee7b661ad48": {
+      "color": "/bar-models/assets/979e3935510c93d66db9.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "f300b044f79211a942616d9f4906021dc772160c58576c76670c276ec0ab6ee5"
+    },
+    "model-55dfd94f5048": {
+      "color": "/bar-models/assets/52167c361927fb8179c9.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "08a0785e0eaa44f19711787a0f60666ed1aa9f62c2889269c8d225059a1d574d"
+    },
+    "model-89e91a6c02e3": {
+      "color": "/bar-models/assets/c58acbee48583f604fbb.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "f2bceb1ac872ec52315fa8f4850bb83f5741a14b98b811872c95e929fdeae143"
+    },
+    "model-9ea0c81034c4": {
+      "color": "/bar-models/assets/cee3afbf48de1d5ba582.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "51952bf21effa7239716ee9e3f331cc9576ddb13e928ca823864d2f0ea771da3"
+    },
+    "model-cbb666f18ecd": {
+      "color": "/bar-models/assets/aa2cc0a82cd5a361fb99.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "ee232043f3b7de43e7bee502874865b7ebafda9776f09cb6c650dd30334ba95d"
+    },
+    "model-d3f792e6fd9a": {
+      "color": "/bar-models/assets/caebd322029ccdda2263.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "9a35c221f92c19638259f888e66d64cc2ebe86d7b9a4749c963f3961c34f8972"
+    },
+    "model-f665e7275148": {
+      "color": "/bar-models/assets/aa2cc0a82cd5a361fb99.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "2f24b44c9ec345e354122facf5da1ace49992ac3fee95f5cc88282f0924b3648"
+    },
+    "model-b0efe4ad4419": {
+      "color": "/bar-models/assets/7f710386e0045e132781.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "7e434edbbdfb31746897ba44b9edd2efa52efd3af5720ec1ec41e9591ccd8122"
+    },
+    "model-305d327e678c": {
+      "color": "/bar-models/assets/a108be5cf282fb2bf088.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "c104881ba2dbf93552bc99da272b813a8c7693adc173ce85d9c9e313d2b5b60f"
+    },
+    "model-641aba2fc414": {
+      "color": "/bar-models/assets/e063eb1041ab48c8c29b.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "955bd5eb46df552afc0bb3477ad3cb42aa61e367e8a8a50638c1a5c88184af1f"
+    },
+    "model-522192f411d0": {
+      "color": "/bar-models/assets/8eb15e50919f80bb7541.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "53ba9e5071eb1328ab019a57ab199c16e323c38fc9896a9ce9bc8533fb3b5077"
+    },
+    "model-4c3045935851": {
+      "color": "/bar-models/assets/9ef09d64a4dca001b014.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "cc6c38c83d647828c4735d662e90a64b92508f0ee9a3f0dd2df3e3210a12efcc"
+    },
+    "model-f26379788cda": {
+      "color": "/bar-models/assets/e4bd97f736d733e3dbf3.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "effc131f6fc689e07bf468b2f0835aac905b39b1b78198f36fa2d6ddab1be322"
+    },
+    "model-8cd0f9ddd82f": {
+      "color": "/bar-models/assets/65446fc0de0863cbe527.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "22c3ab143466f4af37b539236d3b00eb591907b23ef60e5d03b7ab4c07abb7ff"
+    },
+    "model-f9ba4e9a6886": {
+      "color": "/bar-models/assets/53a16b745943190d369c.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "7e41cbcc6af26d131683fc85e8e586eae18700a65627870816866bb83ce073c5"
+    },
+    "model-ddc3c7842368": {
+      "color": "/bar-models/assets/52df558e9fc86ced6f5b.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "7d62ecec8006d5ab730256c429f6eb2365ea60c8f9e4d9ca63fe7b360fa356ca"
+    },
+    "model-c53248102244": {
+      "color": "/bar-models/assets/68d267e52086d91fae2f.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "c9648ff7fd599371ef25523fbf7a300a4c4f34df3a03d3c06faef5aa4f4d8b99"
+    },
+    "model-eecdd5cac395": {
+      "color": "/bar-models/assets/5a3c2a52117199b3cb35.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "35584d95256a7d08ba16e65906869392efb1e592c5bc3afe4dc4ba2792e9e0f6"
+    },
+    "model-1fbec6800363": {
+      "color": "/bar-models/assets/5a3c2a52117199b3cb35.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "32bbe54e669088e3781de1d4b1cc4d045e852083466a6885f6a843c3a156b8bf"
+    },
+    "model-19f773d18b8c": {
+      "color": "/bar-models/assets/c58acbee48583f604fbb.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/160d9ea7c8c1ad9e358f.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "1de15190bd1c99416a720fac4342df52318683abee00107e2f52979a8e135085"
+    },
+    "model-6746deae4d79": {
+      "color": "/bar-models/assets/e6445b0cf9ea2177ddc4.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "bf5e77d945b01fe393e06062b823d8474d703ff6b44d0ad4eb675fc3b3a0216f"
+    },
+    "model-ef31d62431a3": {
+      "color": "/bar-models/assets/2517ea9b7cf07cf34f4f.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "349f7a242560277366021f8862e8a0301bdba4fe836248e47ba3a24b31a1e97a"
+    },
+    "model-4c8249ac0607": {
+      "color": "/bar-models/assets/6a4a76ae17aade6b391f.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "9264d1cd550bbb78b66c5afcee541dab4281c876825f77df6b4b3ff313387a0d"
+    },
+    "model-a7f069519521": {
+      "color": "/bar-models/assets/b6913f94108e0b6395c1.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "77ac37a4304f1b232c5fce14b87f5ebf28b6b9e91d348119f53adeaf1ad710d8"
+    },
+    "model-b5eebaa0a4a0": {
+      "color": "/bar-models/assets/059efc873d1b89ac2af6.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "3287b0d3ed1007f3705d396509d85fc444c89b8e9ad25b3aa8bc66a6e181c5df"
+    },
+    "model-75ce43256186": {
+      "color": "/bar-models/assets/13abcf30883c0b07f467.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "03180f0adaf75272c54645aa7970ae5e23a264cbaf1ae5e92c3014aa170daf50"
+    },
+    "model-267a21d923f7": {
+      "color": "/bar-models/assets/a77d3c467ca584f09d40.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "8bfe571ad94a1f12bb58e08795ed4a036281c5251f1aa9b0681a7a81250fd294"
+    },
+    "model-1cf33da8e18f": {
+      "color": "/bar-models/assets/2be8657571140b4cd25d.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "fc3a0515bd566ad370877e2b50e093462e8ebc33d9b1b18e6824337082f8f41c"
+    },
+    "model-435756badec8": {
+      "color": "/bar-models/assets/8bfbf1c33b293098ba11.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "be56536dcf05f4831ccbfd055a5b1b0272a9a149206b232db40ce1349cf553f7"
+    },
+    "model-27fc1aa11e7b": {
+      "color": "/bar-models/assets/f81e1c8e505431817a88.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "d754c0a04f70815016b998b01e2bb5e6b82c24c27bdfff215a0c7cd16cf0d255"
+    },
+    "model-872ba7c7aac6": {
+      "color": "/bar-models/assets/b389542bef7f16bfacea.webp",
+      "teamMask": "/bar-models/assets/9648127aa5a9b947c00b.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/fcc97ecb3a113bc98efa.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "8e5d722761d1bee136e63e4c2a29b2770326a1b6935dc828cb09ba7d10ba7b0a"
+    },
+    "model-fff0ab8ef3b6": {
+      "color": "/bar-models/assets/aef6bf03d532190693ce.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "d2ab009f2c78101971ce72515508aa588f532ea44f6c311d46f28702013fd03b"
+    },
+    "model-687f1dcd5285": {
+      "color": "/bar-models/assets/02ca37285dc951951b88.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "ac083bf65530375ea1c6c871a96662b64ff8ec683600a35165e2136067589e0f"
+    },
+    "model-4f8bf79610ed": {
+      "color": "/bar-models/assets/2684cafb92e1508c22e5.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "05a24dd68bf2f3035bd07d4b7d44dfc6c26d37247bc953963400146c6b8fbe90"
+    },
+    "model-16c82bedbb3a": {
+      "color": "/bar-models/assets/f4e2fc5e96255452e1f2.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "15d867cfb921cbaf7d8654763588e0436b1369e3cb3e9aceb169599b50cd1bb4"
+    },
+    "model-a1022a3ebaf2": {
+      "color": "/bar-models/assets/bd091ba99f8855264332.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "be56cb7dfcb6b016bee35c8ef59db2bcbd101821ff3a26f8704a6b985c0792df"
+    },
+    "model-8c555813a1de": {
+      "color": "/bar-models/assets/a13925a80b17ad1aaec2.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "219430ce63f397f6c93767eb33b6aa465ab018e635f0ba46587b864cc5758788"
+    },
+    "model-fb76e68457d2": {
+      "color": "/bar-models/assets/03f73bd902850dc71cc2.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "d0e97d6fd05f7f1acf5c50a81214aae6b4ce259fc7d7dd4c3bff8f0d88aae35d"
+    },
+    "model-3489d54ce934": {
+      "color": "/bar-models/assets/e135619383c6c2ac338d.webp",
+      "teamMask": "/bar-models/assets/29685eb2c6db38f6f12f.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/ec2fb6ef281c29d8f83c.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "ceb5d9161fe5d2e42c161dc91a3f1101f87f587788441f1ea835268e0c698795"
+    },
+    "model-ed203810b466": {
+      "color": "/bar-models/assets/4600b76440f31d6ab3c1.webp",
+      "teamMask": "/bar-models/assets/112d631b17cefcefc368.webp",
+      "emissive": "/bar-models/assets/0bd0bdc5e67ba535d566.webp",
+      "pbr": "/bar-models/assets/39a8116302e535c00c7e.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "5f7461fbf5b0831b44af5a6ee4fd3c500c2d2d6fdf107f9ba8c017940f9be92c"
+    },
+    "model-01cf84b80f19": {
+      "color": "/bar-models/assets/ffd3b772f860c46d68b2.webp",
+      "teamMask": "/bar-models/assets/fea625a263c8b4c018f0.webp",
+      "emissive": "/bar-models/assets/bd7e9f02e2e8f743ad8d.webp",
+      "pbr": "/bar-models/assets/fbdb21899d391415dbcd.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "c524826f75524f8ab7150f89fb9d3e91abbc0695128e686a1796153a7ab0d068"
+    },
+    "model-45966356f5f2": {
+      "color": "/bar-models/assets/a6b2599da890d1225ed3.webp",
+      "teamMask": "/bar-models/assets/c832cd7e92b52eee6fd1.webp",
+      "emissive": "/bar-models/assets/8b0d183d1394447d741b.webp",
+      "pbr": "/bar-models/assets/931dd7808332ebc18e34.webp",
+      "normal": "/bar-models/assets/4350314050474fa4eb82.webp",
+      "sourceHash": "31a0b0744a67e3dc776392c7270206d492ffe4b8233ffbce94b91ac9f0001ae2"
     }
   },
   "entries": {
@@ -63,7 +458,7 @@
       "role": "Unit",
       "faction": "other",
       "modelPath": "critters/critter_ant.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-de08d075e941",
       "modelBytes": 54708
     },
     "critter_crab": {
@@ -191,7 +586,7 @@
       "role": "Unit",
       "faction": "other",
       "modelPath": "pbr_cube.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-db0643a0f2a7",
       "modelBytes": 3664
     },
     "raptor_land_kamikaze_basic_t4_v1": {
@@ -199,7 +594,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/big_raptor_dodo.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-43956e9b4dc4",
       "modelBytes": 109052
     },
     "raptorh5": {
@@ -207,7 +602,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/brain_bug.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-a3b41b547375",
       "modelBytes": 115440
     },
     "raptor_queen_easy": {
@@ -215,7 +610,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/epic_raptorq.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-b70d13998858",
       "modelBytes": 217852
     },
     "raptor_6legged_l": {
@@ -223,7 +618,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_6legged_l.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8e4da0c3b5fb",
       "modelBytes": 166088
     },
     "raptor_antinuke": {
@@ -231,7 +626,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_antinuke.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-7eac7bffc23e",
       "modelBytes": 45816
     },
     "raptor_allterrain_arty_acid_t2_v1": {
@@ -239,7 +634,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_artillery_acid_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8ee7b661ad48",
       "modelBytes": 166056
     },
     "raptor_allterrain_arty_brood_t4_v1": {
@@ -247,7 +642,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_artillery_brood_big.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-b70d13998858",
       "modelBytes": 166072
     },
     "raptor_allterrain_arty_brood_t2_v1": {
@@ -255,7 +650,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_artillery_brood_small.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-b70d13998858",
       "modelBytes": 166052
     },
     "raptor_allterrain_arty_emp_t2_v1": {
@@ -263,7 +658,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_artillery_electric_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 166056
     },
     "raptor_allterrain_arty_acid_t4_v1": {
@@ -271,7 +666,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_artillery_meteor_v2_acid.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8ee7b661ad48",
       "modelBytes": 166076
     },
     "raptor_allterrain_arty_emp_t4_v1": {
@@ -279,7 +674,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_artillery_meteor_v2_electric.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 166076
     },
     "raptor_allterrain_arty_basic_t4_v1": {
@@ -287,7 +682,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_artillery_meteor_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-89e91a6c02e3",
       "modelBytes": 166076
     },
     "raptor_allterrain_arty_basic_t2_v1": {
@@ -295,7 +690,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_artillery_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-89e91a6c02e3",
       "modelBytes": 166060
     },
     "raptor_air_fighter_basic_t4_v1": {
@@ -303,7 +698,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptor_crow.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-9ea0c81034c4",
       "modelBytes": 69184
     },
     "raptor_air_kamikaze_basic_t2_v1": {
@@ -311,7 +706,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptor_dodo_air.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-cbb666f18ecd",
       "modelBytes": 71696
     },
     "raptor_land_kamikaze_emp_t2_v1": {
@@ -319,7 +714,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_dodo_electric.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-d3f792e6fd9a",
       "modelBytes": 109088
     },
     "raptor_land_kamikaze_basic_t2_v1": {
@@ -327,7 +722,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_dodo.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-f665e7275148",
       "modelBytes": 109084
     },
     "raptor_land_kamikaze_emp_t4_v1": {
@@ -335,7 +730,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_dodo2_electric.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 109056
     },
     "raptorh1b": {
@@ -343,7 +738,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_droneb.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-b0efe4ad4419",
       "modelBytes": 112316
     },
     "raptor_hive": {
@@ -351,7 +746,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_hive.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-7eac7bffc23e",
       "modelBytes": 156824
     },
     "raptor_land_swarmer_fire_t4_v1": {
@@ -359,7 +754,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_listener.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-305d327e678c",
       "modelBytes": 93908
     },
     "raptor_land_swarmer_basic_t1_v1": {
@@ -367,7 +762,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_mini.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-641aba2fc414",
       "modelBytes": 113496
     },
     "raptor_matriarch_acid": {
@@ -375,7 +770,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_miniqueen_acid.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8ee7b661ad48",
       "modelBytes": 217892
     },
     "raptor_matriarch_basic": {
@@ -383,7 +778,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_miniqueen_basic.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-522192f411d0",
       "modelBytes": 217876
     },
     "raptor_matriarch_electric": {
@@ -391,7 +786,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_miniqueen_electric.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 217856
     },
     "raptor_matriarch_fire": {
@@ -399,7 +794,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_miniqueen_fire.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-4c3045935851",
       "modelBytes": 217912
     },
     "raptor_matriarch_healer": {
@@ -407,7 +802,7 @@
       "role": "Factory",
       "faction": "raptor",
       "modelPath": "raptors/raptor_miniqueen_healer.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-f26379788cda",
       "modelBytes": 217884
     },
     "raptor_matriarch_spectre": {
@@ -415,7 +810,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_miniqueen_spectre.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8cd0f9ddd82f",
       "modelBytes": 209504
     },
     "raptor_air_fighter_basic_t2_v1": {
@@ -423,7 +818,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptor_pidgeon.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-f9ba4e9a6886",
       "modelBytes": 69076
     },
     "raptor_air_fighter_basic_t2_v2": {
@@ -431,7 +826,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptor_pidgeonb.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-522192f411d0",
       "modelBytes": 69220
     },
     "raptor_air_fighter_basic_t2_v3": {
@@ -439,7 +834,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptor_pidgeonc.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-ddc3c7842368",
       "modelBytes": 69220
     },
     "raptor_air_fighter_basic_t2_v4": {
@@ -447,7 +842,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptor_pidgeond.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-c53248102244",
       "modelBytes": 69228
     },
     "raptor_turret_acid_t3_v1": {
@@ -455,7 +850,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretl_acid_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8ee7b661ad48",
       "modelBytes": 74576
     },
     "raptor_turret_antinuke_t3_v1": {
@@ -463,7 +858,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretl_antinuke_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-eecdd5cac395",
       "modelBytes": 74576
     },
     "raptor_turret_emp_t3_v1": {
@@ -471,7 +866,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretl_electric_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 74584
     },
     "raptor_turret_antiair_t3_v1": {
@@ -479,7 +874,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretl_red_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-43956e9b4dc4",
       "modelBytes": 74568
     },
     "raptor_turret_basic_t3_v1": {
@@ -487,7 +882,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretl_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-7eac7bffc23e",
       "modelBytes": 74572
     },
     "raptor_turret_acid_t2_v1": {
@@ -495,7 +890,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turrets_acid_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8ee7b661ad48",
       "modelBytes": 74580
     },
     "raptor_turret_antinuke_t2_v1": {
@@ -503,7 +898,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turrets_antinuke_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-1fbec6800363",
       "modelBytes": 74580
     },
     "raptor_turret_emp_t2_v1": {
@@ -511,7 +906,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turrets_electric_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 74592
     },
     "raptor_turret_antiair_t2_v1": {
@@ -519,7 +914,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turrets_red_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-43956e9b4dc4",
       "modelBytes": 74572
     },
     "raptor_turret_basic_t2_v1": {
@@ -527,7 +922,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turrets_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-7eac7bffc23e",
       "modelBytes": 74576
     },
     "raptor_turret_acid_t4_v1": {
@@ -535,7 +930,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretxl_acid_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8ee7b661ad48",
       "modelBytes": 74556
     },
     "raptor_turret_emp_t4_v1": {
@@ -543,7 +938,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretxl_electric_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 74564
     },
     "raptor_turret_meteor_t4_v1": {
@@ -551,7 +946,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretxl_meteor_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-89e91a6c02e3",
       "modelBytes": 74552
     },
     "raptor_turret_antiair_t4_v1": {
@@ -559,7 +954,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretxl_red_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-43956e9b4dc4",
       "modelBytes": 74548
     },
     "raptor_turret_basic_t4_v1": {
@@ -567,7 +962,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_turretxl_v2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-7eac7bffc23e",
       "modelBytes": 74548
     },
     "raptor_worm_green": {
@@ -575,7 +970,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor_worm_green.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-19f773d18b8c",
       "modelBytes": 74548
     },
     "raptor_land_swarmer_basic_t2_v1": {
@@ -583,7 +978,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-641aba2fc414",
       "modelBytes": 113476
     },
     "raptor_land_swarmer_basic_t2_v2": {
@@ -591,7 +986,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor1b.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-6746deae4d79",
       "modelBytes": 113468
     },
     "raptor_land_swarmer_basic_t2_v3": {
@@ -599,7 +994,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor1c.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-ef31d62431a3",
       "modelBytes": 113476
     },
     "raptor_land_swarmer_basic_t2_v4": {
@@ -607,7 +1002,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor1d.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-4c8249ac0607",
       "modelBytes": 113472
     },
     "raptor_land_swarmer_spectre_t3_v1": {
@@ -615,7 +1010,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor1x_spectre.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-a7f069519521",
       "modelBytes": 111476
     },
     "raptor_land_swarmer_basic_t3_v1": {
@@ -623,7 +1018,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor1x.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-b5eebaa0a4a0",
       "modelBytes": 113472
     },
     "raptor_land_swarmer_basic_t3_v2": {
@@ -631,7 +1026,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor1y.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-75ce43256186",
       "modelBytes": 113464
     },
     "raptor_land_swarmer_basic_t3_v3": {
@@ -639,7 +1034,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor1z.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-267a21d923f7",
       "modelBytes": 113484
     },
     "raptor_land_swarmer_spectre_t4_v1": {
@@ -647,7 +1042,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor2_spectre.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-a7f069519521",
       "modelBytes": 111480
     },
     "raptor_land_swarmer_basic_t4_v1": {
@@ -655,7 +1050,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-1cf33da8e18f",
       "modelBytes": 113476
     },
     "raptor_land_swarmer_basic_t4_v2": {
@@ -663,7 +1058,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptor2b.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-435756badec8",
       "modelBytes": 113464
     },
     "raptor_land_assault_spectre_t2_v1": {
@@ -671,7 +1066,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptora_spectre.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8cd0f9ddd82f",
       "modelBytes": 120712
     },
     "raptor_land_assault_basic_t2_v1": {
@@ -679,7 +1074,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptora.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-43956e9b4dc4",
       "modelBytes": 128204
     },
     "raptor_land_assault_spectre_t4_v1": {
@@ -687,7 +1082,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptora2_spectre.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8cd0f9ddd82f",
       "modelBytes": 120488
     },
     "raptor_land_assault_basic_t4_v1": {
@@ -695,7 +1090,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptora2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-27fc1aa11e7b",
       "modelBytes": 127980
     },
     "raptor_land_assault_basic_t4_v2": {
@@ -703,7 +1098,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptora2b.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-872ba7c7aac6",
       "modelBytes": 127980
     },
     "raptor_land_assault_basic_t2_v2": {
@@ -711,7 +1106,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorab.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-872ba7c7aac6",
       "modelBytes": 128204
     },
     "raptor_land_assault_basic_t2_v3": {
@@ -719,7 +1114,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorac.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-27fc1aa11e7b",
       "modelBytes": 128204
     },
     "raptor_allterrain_swarmer_acid_t2_v1": {
@@ -727,7 +1122,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptoracidallterrain.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-fff0ab8ef3b6",
       "modelBytes": 150396
     },
     "raptor_allterrain_assault_acid_t2_v1": {
@@ -735,7 +1130,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptoracidallterrainassault.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8ee7b661ad48",
       "modelBytes": 184176
     },
     "raptor_land_assault_acid_t2_v1": {
@@ -743,7 +1138,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptoracidassault.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8ee7b661ad48",
       "modelBytes": 128108
     },
     "raptor_air_bomber_acid_t2_v1": {
@@ -751,7 +1146,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptoracidbomber.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8ee7b661ad48",
       "modelBytes": 71596
     },
     "raptor_land_swarmer_acids_t2_v1": {
@@ -759,7 +1154,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptoracidswarmer.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-fff0ab8ef3b6",
       "modelBytes": 113484
     },
     "raptor_air_scout_basic_t2_v1": {
@@ -767,7 +1162,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorairscout1.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-eecdd5cac395",
       "modelBytes": 71840
     },
     "raptor_air_scout_basic_t3_v1": {
@@ -775,7 +1170,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorairscout2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-eecdd5cac395",
       "modelBytes": 71820
     },
     "raptor_air_scout_basic_t4_v1": {
@@ -783,7 +1178,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorairscout3.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-eecdd5cac395",
       "modelBytes": 71832
     },
     "raptor_allterrain_assault_basic_t2_v1": {
@@ -791,7 +1186,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorallterraina1.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-43956e9b4dc4",
       "modelBytes": 184272
     },
     "raptor_allterrain_assault_basic_t2_v2": {
@@ -799,7 +1194,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorallterraina1b.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-872ba7c7aac6",
       "modelBytes": 184272
     },
     "raptor_allterrain_assault_basic_t2_v3": {
@@ -807,7 +1202,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorallterraina1c.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-27fc1aa11e7b",
       "modelBytes": 184272
     },
     "raptor_allterrain_assault_basic_t4_v1": {
@@ -815,7 +1210,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorapexallterrainassault.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-872ba7c7aac6",
       "modelBytes": 184296
     },
     "raptor_allterrain_assault_basic_t4_v2": {
@@ -823,7 +1218,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorapexallterrainassaultb.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-27fc1aa11e7b",
       "modelBytes": 184296
     },
     "raptor_air_bomber_brood_t4_v2": {
@@ -831,7 +1226,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorbroodbomber.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-b70d13998858",
       "modelBytes": 71760
     },
     "raptor_allterrain_swarmer_basic_t2_v1": {
@@ -839,7 +1234,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorc3.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-687f1dcd5285",
       "modelBytes": 150388
     },
     "raptor_allterrain_swarmer_basic_t3_v1": {
@@ -847,7 +1242,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorc3b.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-4f8bf79610ed",
       "modelBytes": 150364
     },
     "raptor_allterrain_swarmer_basic_t4_v1": {
@@ -855,7 +1250,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorc3c.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-16c82bedbb3a",
       "modelBytes": 150400
     },
     "raptor_land_swarmer_emp_t2_v1": {
@@ -863,7 +1258,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptore1.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-d3f792e6fd9a",
       "modelBytes": 113496
     },
     "raptor_land_assault_emp_t2_v1": {
@@ -871,7 +1266,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptore2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 128116
     },
     "raptor_air_bomber_emp_t2_v1": {
@@ -879,7 +1274,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorebomber1.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 71592
     },
     "raptor_allterrain_swarmer_emp_t2_v1": {
@@ -887,7 +1282,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorelectricallterrain.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-d3f792e6fd9a",
       "modelBytes": 150408
     },
     "raptor_allterrain_assault_emp_t2_v1": {
@@ -895,7 +1290,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorelectricallterrainassault.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-55dfd94f5048",
       "modelBytes": 184188
     },
     "raptor_air_bomber_basic_t1_v1": {
@@ -903,7 +1298,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorf1_mini.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-89e91a6c02e3",
       "modelBytes": 71788
     },
     "raptor_air_gunship_emp_t2_v1": {
@@ -911,7 +1306,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorf1.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-89e91a6c02e3",
       "modelBytes": 71792
     },
     "raptor_air_bomber_basic_t4_v1": {
@@ -919,7 +1314,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorf1apex.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-89e91a6c02e3",
       "modelBytes": 71768
     },
     "raptor_air_bomber_basic_t4_v2": {
@@ -927,7 +1322,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorf1apexb.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-89e91a6c02e3",
       "modelBytes": 71684
     },
     "raptor_air_bomber_basic_t2_v2": {
@@ -935,7 +1330,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorf1b.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-89e91a6c02e3",
       "modelBytes": 71700
     },
     "raptor_land_swarmer_heal_t1_v1": {
@@ -943,7 +1338,7 @@
       "role": "Factory",
       "faction": "raptor",
       "modelPath": "raptors/raptorhealer1.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-a1022a3ebaf2",
       "modelBytes": 112372
     },
     "raptor_land_swarmer_heal_t2_v1": {
@@ -951,7 +1346,7 @@
       "role": "Factory",
       "faction": "raptor",
       "modelPath": "raptors/raptorhealer2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-a1022a3ebaf2",
       "modelBytes": 112340
     },
     "raptor_land_swarmer_heal_t3_v1": {
@@ -959,7 +1354,7 @@
       "role": "Factory",
       "faction": "raptor",
       "modelPath": "raptors/raptorhealer3.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-a1022a3ebaf2",
       "modelBytes": 112336
     },
     "raptor_land_swarmer_heal_t4_v1": {
@@ -967,7 +1362,7 @@
       "role": "Factory",
       "faction": "raptor",
       "modelPath": "raptors/raptorhealer4.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-a1022a3ebaf2",
       "modelBytes": 112344
     },
     "raptor_land_swarmer_fire_t2_v1": {
@@ -975,7 +1370,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorp2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8c555813a1de",
       "modelBytes": 93960
     },
     "raptor_allterrain_swarmer_fire_t2_v1": {
@@ -983,7 +1378,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptorpyroallterrain.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-8c555813a1de",
       "modelBytes": 143876
     },
     "raptor_land_spiker_basic_t2_v1": {
@@ -991,7 +1386,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptors.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-fb76e68457d2",
       "modelBytes": 113780
     },
     "raptor_land_spiker_spectre_t4_v1": {
@@ -999,7 +1394,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptors2_spectre.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-a7f069519521",
       "modelBytes": 109088
     },
     "raptor_land_spiker_basic_t4_v1": {
@@ -1007,7 +1402,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/raptors2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-3489d54ce934",
       "modelBytes": 109076
     },
     "raptor_air_fighter_basic_t1_v1": {
@@ -1015,7 +1410,7 @@
       "role": "Aircraft",
       "faction": "raptor",
       "modelPath": "raptors/raptorw1_mini.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-f9ba4e9a6886",
       "modelBytes": 69084
     },
     "raptor_land_swarmer_brood_t2_v1": {
@@ -1023,7 +1418,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/s_raptor_white.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-ed203810b466",
       "modelBytes": 113488
     },
     "raptor_land_swarmer_brood_t4_v1": {
@@ -1031,7 +1426,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/s_raptorboss_white.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-b70d13998858",
       "modelBytes": 113420
     },
     "raptor_land_swarmer_brood_t3_v1": {
@@ -1039,7 +1434,7 @@
       "role": "Bot",
       "faction": "raptor",
       "modelPath": "raptors/s_raptorboss2_white.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-b70d13998858",
       "modelBytes": 113460
     },
     "armbotrail": {
@@ -1071,7 +1466,7 @@
       "role": "Unit",
       "faction": "other",
       "modelPath": "scavs/cube.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-db0643a0f2a7",
       "modelBytes": 2476
     },
     "scavbeacon_t1": {
@@ -1079,7 +1474,7 @@
       "role": "Unit",
       "faction": "other",
       "modelPath": "scavs/scavbeacon_t1.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-db0643a0f2a7",
       "modelBytes": 141788
     },
     "scavbeacon_t2": {
@@ -1087,7 +1482,7 @@
       "role": "Unit",
       "faction": "other",
       "modelPath": "scavs/scavbeacon_t2.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-db0643a0f2a7",
       "modelBytes": 141796
     },
     "scavbeacon_t3": {
@@ -1095,7 +1490,7 @@
       "role": "Unit",
       "faction": "other",
       "modelPath": "scavs/scavbeacon_t3.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-db0643a0f2a7",
       "modelBytes": 141784
     },
     "scavbeacon_t4": {
@@ -1103,7 +1498,7 @@
       "role": "Unit",
       "faction": "other",
       "modelPath": "scavs/scavbeacon_t4.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-db0643a0f2a7",
       "modelBytes": 142032
     },
     "corscavdrag": {
@@ -1151,7 +1546,7 @@
       "role": "Building",
       "faction": "other",
       "modelPath": "scavs/scavsafeareabeacon.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-01cf84b80f19",
       "modelBytes": 21196
     },
     "armaak": {
@@ -4703,7 +5098,7 @@
       "role": "Building",
       "faction": "other",
       "modelPath": "units/freefusion.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-01cf84b80f19",
       "modelBytes": 309288
     },
     "legaabot": {
@@ -5855,7 +6250,7 @@
       "role": "Unit",
       "faction": "other",
       "modelPath": "units/legmech.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-45966356f5f2",
       "modelBytes": 299312
     },
     "legmed": {
@@ -6487,7 +6882,7 @@
       "role": "Building",
       "faction": "other",
       "modelPath": "units/mission_command_tower.s3o",
-      "textureFamily": null,
+      "textureFamily": "model-01cf84b80f19",
       "modelBytes": 309908
     },
     "armassimilator": {
@@ -9676,6 +10071,120 @@
         "armscavengerbossv2_veryhard"
       ],
       "reason": "official_web_model_unavailable"
+    }
+  },
+  "materialFallbacks": {
+    "lootboxes/lootboxv2_bronze.s3o": {
+      "reason": "model_texture_reference_unavailable",
+      "detail": "Failed to download objects3d/lootboxes/lootboxv2_bronze.s3o: 404 Not Found"
+    },
+    "lootboxes/lootboxv2_gold.s3o": {
+      "reason": "model_texture_reference_unavailable",
+      "detail": "Failed to download objects3d/lootboxes/lootboxv2_gold.s3o: 404 Not Found"
+    },
+    "lootboxes/lootboxv2_platinum.s3o": {
+      "reason": "model_texture_reference_unavailable",
+      "detail": "Failed to download objects3d/lootboxes/lootboxv2_platinum.s3o: 404 Not Found"
+    },
+    "lootboxes/lootboxv2_silver.s3o": {
+      "reason": "model_texture_reference_unavailable",
+      "detail": "Failed to download objects3d/lootboxes/lootboxv2_silver.s3o: 404 Not Found"
+    },
+    "chip.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format \u0000\u0000\u0000\u0000."
+    },
+    "critters/critter_crab.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Input buffer contains unsupported image format"
+    },
+    "critters/critter_duck.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Input buffer contains unsupported image format"
+    },
+    "critters/critter_goldfish.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Input buffer contains unsupported image format"
+    },
+    "critters/critter_gull.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "critters/critter_penguin.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Input buffer contains unsupported image format"
+    },
+    "critters/critter_penguinbro.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Input buffer contains unsupported image format"
+    },
+    "critters/critter_penguinking.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Input buffer contains unsupported image format"
+    },
+    "dbg_sphere_fullmetal.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Input buffer contains unsupported image format"
+    },
+    "dbg_sphere.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Input buffer contains unsupported image format"
+    },
+    "dice.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "meteor.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball1_1.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball1_2.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball1_3.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball1_4.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball1_5.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball1_6.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball2_1.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball2_2.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball2_3.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball2_4.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball2_5.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
+    },
+    "xmasball2_6.s3o": {
+      "reason": "model_texture_conversion_failed",
+      "detail": "Unsupported DDS texture format DXT3."
     }
   }
 }

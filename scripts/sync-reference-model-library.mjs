@@ -15,10 +15,11 @@ const UNIT_DEFAULTS = path.resolve('src/data/unit-defaults.json');
 const UNIT_CATEGORIES = path.resolve('src/data/unit-categories.json');
 const UNIT_METADATA = path.resolve('src/data/units.json');
 const TEXTURE_SIZE = 512;
+const SPECIAL_TEXTURE_SIZE = 256;
 const MAX_LIBRARY_BYTES = 3_000_000;
 const DISCOVERY_CONCURRENCY = 12;
 
-const TEXTURE_FAMILIES = Object.freeze({
+const STATIC_TEXTURE_FAMILIES = Object.freeze({
   arm: { color: 'unittextures/Arm_color.dds', material: 'unittextures/Arm_other.dds', normal: 'unittextures/Arm_normal.dds' },
   cor: { color: 'unittextures/cor_color.dds', material: 'unittextures/cor_other.dds', normal: 'unittextures/cor_normal.dds' },
   leg: {
@@ -34,6 +35,32 @@ function sha256(bytes) {
 
 function normalizeModelPath(value) {
   return String(value || '').trim().replace(/\\/g, '/').toLowerCase();
+}
+
+function sourceModelPath(value) {
+  const segments = String(value || '').trim().replace(/\\/g, '/').split('/');
+  segments[segments.length - 1] = segments.at(-1).toLowerCase();
+  return segments.join('/');
+}
+
+function readNullTerminatedString(buffer, offset) {
+  if (!offset || offset < 0 || offset >= buffer.length) return '';
+  let end = offset;
+  while (end < buffer.length && buffer[end] !== 0) end += 1;
+  return buffer.subarray(offset, end).toString('utf8').trim();
+}
+
+function readS3oTextureReferences(buffer) {
+  if (buffer.subarray(0, 12).toString('ascii') !== 'Spring unit\0') return null;
+  const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  return {
+    color: readNullTerminatedString(buffer, view.getInt32(44, true)),
+    material: readNullTerminatedString(buffer, view.getInt32(48, true)),
+  };
+}
+
+function textureFamilyKey(source) {
+  return `model-${sha256(Buffer.from(`${source.color.toLowerCase()}|${source.material.toLowerCase()}`)).slice(0, 12)}`;
 }
 
 function inferFaction(unitId) {
@@ -122,6 +149,19 @@ async function mapConcurrent(values, concurrency, mapper) {
 const downloadSource = relativePath => downloadUrl(`${SOURCE_ROOT}/${relativePath}`, relativePath);
 const downloadTexture = source => source.startsWith('https://') ? downloadUrl(source) : downloadSource(source);
 
+async function downloadOptionalTexture(textureName) {
+  if (!textureName) return null;
+  const candidates = [...new Set([textureName, textureName.toLowerCase()])];
+  for (const candidate of candidates) {
+    try {
+      return await downloadSource(`unittextures/${candidate}`);
+    } catch {
+      // Some historical S3O files retain texture casing that differs from Git.
+    }
+  }
+  return null;
+}
+
 function rgb565(value) {
   return [
     Math.round(((value >>> 11) & 31) * 255 / 31),
@@ -185,8 +225,58 @@ function decodeDxt5(buffer) {
   return { pixels, width, height };
 }
 
+function decodeDxt1(buffer) {
+  const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  if (view.getUint32(0, true) !== 0x20534444) throw new Error('Expected a DDS texture.');
+  const height = view.getUint32(12, true);
+  const width = view.getUint32(16, true);
+  const pixels = Buffer.alloc(width * height * 4);
+  let offset = 128;
+
+  for (let blockY = 0; blockY < Math.ceil(height / 4); blockY += 1) {
+    for (let blockX = 0; blockX < Math.ceil(width / 4); blockX += 1) {
+      const color0 = view.getUint16(offset, true);
+      const color1 = view.getUint16(offset + 2, true);
+      const c0 = rgb565(color0);
+      const c1 = rgb565(color1);
+      const colors = color0 > color1
+        ? [
+            [...c0, 255],
+            [...c1, 255],
+            [...c0.map((channel, index) => Math.round((2 * channel + c1[index]) / 3)), 255],
+            [...c0.map((channel, index) => Math.round((channel + 2 * c1[index]) / 3)), 255],
+          ]
+        : [
+            [...c0, 255],
+            [...c1, 255],
+            [...c0.map((channel, index) => Math.round((channel + c1[index]) / 2)), 255],
+            [0, 0, 0, 0],
+          ];
+      const colorBits = view.getUint32(offset + 4, true);
+      for (let pixel = 0; pixel < 16; pixel += 1) {
+        const x = blockX * 4 + (pixel % 4);
+        const y = blockY * 4 + Math.floor(pixel / 4);
+        if (x >= width || y >= height) continue;
+        const color = colors[(colorBits >>> (pixel * 2)) & 3];
+        const target = (y * width + x) * 4;
+        pixels[target] = color[0];
+        pixels[target + 1] = color[1];
+        pixels[target + 2] = color[2];
+        pixels[target + 3] = color[3];
+      }
+      offset += 8;
+    }
+  }
+  return { pixels, width, height };
+}
+
 async function decodeTexture(buffer) {
-  if (buffer.subarray(0, 4).toString('ascii') === 'DDS ') return decodeDxt5(buffer);
+  if (buffer.subarray(0, 4).toString('ascii') === 'DDS ') {
+    const fourCC = buffer.subarray(84, 88).toString('ascii');
+    if (fourCC === 'DXT5') return decodeDxt5(buffer);
+    if (fourCC === 'DXT1') return decodeDxt1(buffer);
+    throw new Error(`Unsupported DDS texture format ${fourCC || 'unknown'}.`);
+  }
   const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   return { pixels: data, width: info.width, height: info.height };
 }
@@ -205,22 +295,49 @@ async function writeAsset(bytes, extension) {
   return `/bar-models/assets/${fileName}`;
 }
 
-async function encodeTextureFamily(family) {
-  const source = TEXTURE_FAMILIES[family];
-  const [colorDds, materialDds, normalDds] = await Promise.all([
-    downloadTexture(source.color),
-    downloadTexture(source.material),
-    downloadTexture(source.normal),
-  ]);
-  const [color, material, normal] = await Promise.all([
-    decodeTexture(colorDds),
-    decodeTexture(materialDds),
-    decodeTexture(normalDds),
-  ]);
+async function resizeDecodedTexture(texture, width, height) {
+  if (texture.width === width && texture.height === height) return texture;
+  const pixels = await sharp(texture.pixels, {
+    raw: { width: texture.width, height: texture.height, channels: 4 },
+  }).resize({ width, height, fit: 'fill', kernel: sharp.kernel.lanczos3 }).raw().toBuffer();
+  return { pixels, width, height };
+}
+
+function createNeutralMaterial(width, height) {
+  const pixels = Buffer.alloc(width * height * 4);
+  for (let pixel = 0; pixel < width * height; pixel += 1) {
+    const offset = pixel * 4;
+    pixels[offset] = 0;
+    pixels[offset + 1] = 0;
+    pixels[offset + 2] = 255;
+    pixels[offset + 3] = 255;
+  }
+  return { pixels, width, height };
+}
+
+function createFlatNormal() {
+  const width = 16;
+  const height = 16;
+  const pixels = Buffer.alloc(width * height * 4);
+  for (let pixel = 0; pixel < width * height; pixel += 1) {
+    const offset = pixel * 4;
+    pixels[offset] = 128;
+    pixels[offset + 1] = 128;
+    pixels[offset + 2] = 255;
+    pixels[offset + 3] = 255;
+  }
+  return { pixels, width, height };
+}
+
+async function encodeTextureBuffers({ colorBuffer, materialBuffer = null, normalBuffer = null, sourceHash }, size) {
+  const color = await decodeTexture(colorBuffer);
+  const decodedMaterial = materialBuffer ? await decodeTexture(materialBuffer) : createNeutralMaterial(color.width, color.height);
+  const material = await resizeDecodedTexture(decodedMaterial, color.width, color.height);
+  const normal = normalBuffer ? await decodeTexture(normalBuffer) : createFlatNormal();
   const base = Buffer.alloc(color.width * color.height * 3);
   const team = Buffer.alloc(color.width * color.height);
-  const emissive = Buffer.alloc(material.width * material.height * 3);
-  const pbr = Buffer.alloc(material.width * material.height * 3);
+  const emissive = Buffer.alloc(color.width * color.height * 3);
+  const pbr = Buffer.alloc(color.width * color.height * 3);
   const normalMap = Buffer.alloc(normal.width * normal.height * 3);
 
   for (let pixel = 0; pixel < color.width * color.height; pixel += 1) {
@@ -242,7 +359,7 @@ async function encodeTextureFamily(family) {
     normalMap[target + 2] = normal.pixels[sourceIndex + 2];
   }
 
-  const resize = { width: TEXTURE_SIZE, height: TEXTURE_SIZE, fit: 'fill', kernel: sharp.kernel.lanczos3 };
+  const resize = { width: size, height: size, fit: 'fill', kernel: sharp.kernel.lanczos3 };
   const encoded = await Promise.all([
     sharp(base, { raw: { width: color.width, height: color.height, channels: 3 } }).resize(resize).webp({ quality: 82, effort: 6 }).toBuffer(),
     sharp(team, { raw: { width: color.width, height: color.height, channels: 1 } }).resize(resize).webp({ lossless: true, effort: 6 }).toBuffer(),
@@ -258,8 +375,36 @@ async function encodeTextureFamily(family) {
     emissive: emissiveUrl,
     pbr: pbrUrl,
     normal: normalUrl,
-    sourceHash: sha256(Buffer.concat([colorDds, materialDds, normalDds])),
+    sourceHash,
   };
+}
+
+async function encodeStaticTextureFamily(family) {
+  const source = STATIC_TEXTURE_FAMILIES[family];
+  const [colorBuffer, materialBuffer, normalBuffer] = await Promise.all([
+    downloadTexture(source.color),
+    downloadTexture(source.material),
+    downloadTexture(source.normal),
+  ]);
+  return encodeTextureBuffers({
+    colorBuffer,
+    materialBuffer,
+    normalBuffer,
+    sourceHash: sha256(Buffer.concat([colorBuffer, materialBuffer, normalBuffer])),
+  }, TEXTURE_SIZE);
+}
+
+async function encodeDiscoveredTextureFamily(source) {
+  const [colorBuffer, materialBuffer] = await Promise.all([
+    downloadOptionalTexture(source.color),
+    downloadOptionalTexture(source.material),
+  ]);
+  if (!colorBuffer) throw new Error(`Missing colour texture ${source.color}.`);
+  return encodeTextureBuffers({
+    colorBuffer,
+    materialBuffer,
+    sourceHash: sha256(Buffer.concat([colorBuffer, materialBuffer || Buffer.alloc(0)])),
+  }, SPECIAL_TEXTURE_SIZE);
 }
 
 const [defaultsDb, categoryDb, unitMetadata] = await Promise.all([
@@ -269,9 +414,11 @@ const [defaultsDb, categoryDb, unitMetadata] = await Promise.all([
 ]);
 
 const modelGroups = new Map();
+const modelSourcePaths = new Map();
 for (const [unitId, definition] of Object.entries(defaultsDb)) {
   const modelPath = normalizeModelPath(definition.objectname);
   if (!modelPath) continue;
+  if (!modelSourcePaths.has(modelPath)) modelSourcePaths.set(modelPath, String(definition.objectname).replace(/\\/g, '/'));
   const group = modelGroups.get(modelPath) || [];
   group.push(unitId.toLowerCase());
   modelGroups.set(modelPath, group);
@@ -281,7 +428,7 @@ await rm(STAGING_ROOT, { recursive: true, force: true });
 await mkdir(path.join(STAGING_ROOT, 'assets'), { recursive: true });
 
 const textureFamilies = {};
-for (const family of Object.keys(TEXTURE_FAMILIES).sort()) textureFamilies[family] = await encodeTextureFamily(family);
+for (const family of Object.keys(STATIC_TEXTURE_FAMILIES).sort()) textureFamilies[family] = await encodeStaticTextureFamily(family);
 
 const groupedModels = [...modelGroups.entries()].sort(([left], [right]) => left.localeCompare(right));
 const discoveries = await mapConcurrent(groupedModels, DISCOVERY_CONCURRENCY, async ([modelPath, unitIds]) => {
@@ -292,6 +439,52 @@ const discoveries = await mapConcurrent(groupedModels, DISCOVERY_CONCURRENCY, as
   }
   return { modelPath, unitIds, unitId: candidates[0], remote: null };
 });
+
+const textureKeyByModelPath = new Map();
+const materialFallbacks = {};
+const specialCandidates = discoveries.filter(({ unitId, remote, modelPath }) => (
+  remote && !STATIC_TEXTURE_FAMILIES[inferFaction(unitId)] && modelPath.endsWith('.s3o')
+));
+const textureReferences = await mapConcurrent(specialCandidates, 10, async discovery => {
+  const originalPath = modelSourcePaths.get(discovery.modelPath) || discovery.modelPath;
+  try {
+    const sourceBuffer = await downloadSource(`objects3d/${sourceModelPath(originalPath)}`);
+    const references = readS3oTextureReferences(sourceBuffer);
+    if (!references?.color) throw new Error('The S3O does not declare a colour texture.');
+    return { discovery, references };
+  } catch (error) {
+    return { discovery, error: error instanceof Error ? error.message : String(error) };
+  }
+});
+
+const uniqueDiscoveredFamilies = new Map();
+for (const result of textureReferences) {
+  if (result.error) {
+    materialFallbacks[result.discovery.modelPath] = { reason: 'model_texture_reference_unavailable', detail: result.error };
+    continue;
+  }
+  const key = textureFamilyKey(result.references);
+  textureKeyByModelPath.set(result.discovery.modelPath, key);
+  if (!uniqueDiscoveredFamilies.has(key)) uniqueDiscoveredFamilies.set(key, result.references);
+}
+
+const encodedDiscoveredFamilies = await mapConcurrent([...uniqueDiscoveredFamilies.entries()], 3, async ([key, source]) => {
+  try {
+    return { key, textures: await encodeDiscoveredTextureFamily(source) };
+  } catch (error) {
+    return { key, error: error instanceof Error ? error.message : String(error) };
+  }
+});
+const failedTextureFamilies = new Map();
+for (const result of encodedDiscoveredFamilies) {
+  if (result.error) failedTextureFamilies.set(result.key, result.error);
+  else textureFamilies[result.key] = result.textures;
+}
+for (const [modelPath, key] of textureKeyByModelPath) {
+  if (!failedTextureFamilies.has(key)) continue;
+  materialFallbacks[modelPath] = { reason: 'model_texture_conversion_failed', detail: failedTextureFamilies.get(key) };
+  textureKeyByModelPath.delete(modelPath);
+}
 
 const entries = {};
 const aliases = {};
@@ -307,7 +500,8 @@ for (const discovery of discoveries) {
     continue;
   }
   const faction = inferFaction(unitId);
-  const textures = textureFamilies[faction] || null;
+  const textureFamily = STATIC_TEXTURE_FAMILIES[faction] ? faction : textureKeyByModelPath.get(modelPath) || null;
+  const textures = textureFamily ? textureFamilies[textureFamily] : null;
   if (!textures) nativeMaterialModels += 1;
   remoteModelBytes += remote.bytes;
   entries[unitId] = {
@@ -315,7 +509,7 @@ for (const discovery of discoveries) {
     role: inferRole(categoryDb[unitId], unitId, unitMetadata.names?.[unitId]),
     faction,
     modelPath,
-    textureFamily: textures ? faction : null,
+    textureFamily,
     modelBytes: remote.bytes,
   };
   aliases[modelPath] = unitId;
@@ -331,7 +525,7 @@ for (const assetUrl of assetNames) localAssetBytes += (await readFile(path.join(
 if (localAssetBytes > MAX_LIBRARY_BYTES) throw new Error(`Reference model materials are ${localAssetBytes} bytes; budget is ${MAX_LIBRARY_BYTES}.`);
 
 const manifest = {
-  version: 5,
+  version: 6,
   sourceRepository: 'beyond-all-reason/Beyond-All-Reason',
   sourceCommit: SOURCE_COMMIT,
   delivery: {
@@ -341,6 +535,7 @@ const manifest = {
   },
   settings: {
     textureSize: TEXTURE_SIZE,
+    specialTextureSize: SPECIAL_TEXTURE_SIZE,
     maxLibraryBytes: MAX_LIBRARY_BYTES,
     discoveryConcurrency: DISCOVERY_CONCURRENCY,
   },
@@ -351,6 +546,8 @@ const manifest = {
     supported: Object.keys(entries).length,
     unsupported: Object.keys(unsupported).length,
     nativeMaterialModels,
+    discoveredMaterialModels: Object.keys(entries).length - nativeMaterialModels - Object.values(entries).filter(entry => ['arm', 'cor', 'leg'].includes(entry.textureFamily)).length,
+    discoveredTextureFamilies: Object.keys(textureFamilies).length - Object.keys(STATIC_TEXTURE_FAMILIES).length,
     uniqueLocalAssets: assetNames.size,
     localAssetBytes,
     remoteModelBytes,
@@ -360,6 +557,7 @@ const manifest = {
   aliases,
   unitAliases,
   unsupported,
+  materialFallbacks,
 };
 const serializedManifest = `${JSON.stringify(manifest, null, 2)}\n`;
 await writeFile(path.join(STAGING_ROOT, 'manifest.json'), serializedManifest);
@@ -372,3 +570,4 @@ await writeFile(DATA_MANIFEST, serializedManifest);
 console.log(`Prepared ${manifest.coverage.supported}/${manifest.coverage.uniqueModelPaths} unique BAR models for lazy viewing.`);
 console.log(`Mapped ${manifest.coverage.unitsWithModels}/${manifest.coverage.totalUnits} units; ${manifest.coverage.unsupported} model paths use artwork fallback.`);
 console.log(`Local PBR materials: ${manifest.coverage.uniqueLocalAssets} assets (${manifest.coverage.localAssetBytes} bytes). Remote model catalog: ${manifest.coverage.remoteModelBytes} bytes.`);
+console.log(`Discovered ${manifest.coverage.discoveredTextureFamilies} special texture families for ${manifest.coverage.discoveredMaterialModels} models; ${manifest.coverage.nativeMaterialModels} retain native materials.`);

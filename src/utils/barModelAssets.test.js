@@ -17,7 +17,7 @@ describe('BAR reference model assets', () => {
   it('accounts for every model in the pinned BAR snapshot', () => {
     const publicManifest = JSON.parse(readFileSync(`${ASSET_ROOT}/manifest.json`, 'utf8'));
     expect(publicManifest).toEqual(BAR_MODEL_MANIFEST);
-    expect(BAR_MODEL_MANIFEST.version).toBe(5);
+    expect(BAR_MODEL_MANIFEST.version).toBe(6);
     expect(BAR_MODEL_ENTRIES).toHaveLength(BAR_MODEL_MANIFEST.coverage.supported);
     expect(BAR_MODEL_MANIFEST.coverage.supported).toBeGreaterThan(800);
     expect(BAR_MODEL_MANIFEST.coverage.uniqueModelPaths).toBe(
@@ -67,5 +67,14 @@ describe('BAR reference model assets', () => {
     expect(getBarModelEntryByPath('Units\\CORAK.s3o')?.unitId).toBe('corak');
     expect(getBarModelEntryForReference({ category: 'unit', value: 'legcom' })?.role).toBe('Commander');
     expect(getBarModelEntryForReference({ category: 'sound', value: 'cannhvy1' })).toBeNull();
+  });
+
+  it('uses discovered BAR materials for Raptor models instead of native flat shading', () => {
+    const raptor = getBarModelEntry('raptor_land_swarmer_basic_t1_v1');
+    expect(raptor?.materialMode).toBe('bar-pbr');
+    expect(raptor?.textureFamily).toMatch(/^model-[a-f0-9]{12}$/);
+    expect(raptor?.textures?.color).toMatch(/^\/bar-models\/assets\/[a-f0-9]{20}\.webp$/);
+    expect(BAR_MODEL_MANIFEST.coverage.discoveredMaterialModels).toBeGreaterThan(100);
+    expect(BAR_MODEL_MANIFEST.coverage.discoveredTextureFamilies).toBeGreaterThan(35);
   });
 });
