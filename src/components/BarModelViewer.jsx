@@ -3,7 +3,7 @@ import {
   ACESFilmicToneMapping,
   AdditiveBlending,
   BasicShadowMap,
-  PCFSoftShadowMap,
+  PCFShadowMap,
   NoColorSpace,
   RepeatWrapping,
   SRGBColorSpace,
@@ -251,7 +251,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     renderer.toneMapping = ACESFilmicToneMapping;
     renderer.toneMappingExposure = STUDIO_LIGHTING.exposure;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = shadowQualityRef.current === 'soft' ? PCFSoftShadowMap : BasicShadowMap;
+    renderer.shadowMap.type = shadowQualityRef.current === 'soft' ? PCFShadowMap : BasicShadowMap;
     renderer.setClearColor(0x090807, 1);
     const compactDevice = window.matchMedia('(max-width: 760px)').matches;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, compactDevice ? 1.25 : 2));
@@ -506,7 +506,7 @@ export default function BarModelViewer({ entry, fallbackUrl = '' }) {
     shadowQualityRef.current = value;
     const renderer = viewerRef.current?.renderer;
     if (!renderer) return;
-    renderer.shadowMap.type = value === 'soft' ? PCFSoftShadowMap : BasicShadowMap;
+    renderer.shadowMap.type = value === 'soft' ? PCFShadowMap : BasicShadowMap;
     renderer.shadowMap.needsUpdate = true;
   };
 
