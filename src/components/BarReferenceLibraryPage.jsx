@@ -91,7 +91,7 @@ function ReferenceCard({ item, selected, onSelect }) {
   );
 }
 
-function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy }) {
+function ReferenceInspector({ item, catalogById, modelViewerContextKey, onSelect, onOpenUnit, onCopy }) {
   if (!item) {
     return (
       <aside className="bar-reference-inspector is-empty" aria-label="Reference details">
@@ -125,7 +125,13 @@ function ReferenceInspector({ item, catalogById, onSelect, onOpenUnit, onCopy })
         {canOpenUnit && <Button size="sm" onClick={() => onOpenUnit(unitId)}>Open unit editor</Button>}
       </div>
 
-      {modelEntry && <ReferenceModelPreview entry={modelEntry} fallbackUrl={item.previewUrl} />}
+      {modelEntry && (
+        <ReferenceModelPreview
+          key={`${modelEntry.unitId}:${modelViewerContextKey}`}
+          entry={modelEntry}
+          fallbackUrl={item.previewUrl}
+        />
+      )}
 
       <section className="bar-reference-inspector__facts" aria-label="Reference properties">
         <div className="bar-reference-inspector__section-heading">
@@ -246,6 +252,15 @@ export default function BarReferenceLibraryPage({
   const rangeEnd = Math.min((currentPage + 1) * PAGE_SIZE, filtered.length);
   const hasActiveFilters = Boolean(query.trim()) || faction !== 'all' || usageStatus !== 'all' || sortBy !== 'relevance';
   const activeCategory = BAR_REFERENCE_CATEGORIES.find(item => item.id === category);
+  const modelViewerContextKey = [
+    selectedItem?.id || 'none',
+    category,
+    query,
+    faction,
+    usageStatus,
+    sortBy,
+    currentPage,
+  ].join('|');
 
   useEffect(() => {
     if (selectedItem && selectedId !== selectedItem.id) setSelectedId(selectedItem.id);
@@ -385,6 +400,7 @@ export default function BarReferenceLibraryPage({
         <ReferenceInspector
           item={selectedItem}
           catalogById={catalogById}
+          modelViewerContextKey={modelViewerContextKey}
           onSelect={setSelectedId}
           onOpenUnit={onOpenUnit}
           onCopy={copyValue}

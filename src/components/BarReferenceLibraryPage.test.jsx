@@ -105,6 +105,24 @@ describe('BarReferenceLibraryPage', () => {
     expect(await screen.findByText('Interactive corak model')).toBeInTheDocument();
   });
 
+  it('closes the model viewer when the library context changes', async () => {
+    const user = userEvent.setup();
+    renderLibrary({
+      units: [{ id: 'corak', name: 'Grunt', faction: 'core' }],
+      defaultsDb: { corak: { objectname: 'Units/CORAK.s3o', weaponSlots: [] } },
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Open 3D viewer' }));
+    expect(await screen.findByText('Interactive corak model')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search the library' }), {
+      target: { value: 'corak' },
+    });
+
+    expect(screen.queryByText('Interactive corak model')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open 3D viewer' })).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('marks other supported reference cards as 3D ready', () => {
     renderLibrary({
       units: [{ id: 'armfav', name: 'Rover', faction: 'arm' }],
