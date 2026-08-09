@@ -142,13 +142,22 @@ function createProceduralEffect(root, bounds, effect, effectAnimations, phase) {
   const size = bounds.getSize(new Vector3());
   const center = bounds.getCenter(new Vector3());
   const maxDimension = Math.max(size.x, size.y, size.z);
+  const footprintDimension = Math.sqrt(Math.max(size.x * size.z, 0));
   const anchor = root.getObjectByName(effect.anchor);
   const position = anchor
     ? anchor.getWorldPosition(new Vector3())
     : center.clone().add(new Vector3(0, size.y * 0.22, 0));
   root.worldToLocal(position);
 
-  const radius = Math.max(maxDimension * effect.radiusFactor, 0.01);
+  const sizeBasis = effect.sizeBasis === 'footprint'
+    ? footprintDimension
+    : maxDimension;
+  const radius = Math.max(
+    effect.diameterRatio
+      ? (sizeBasis * effect.diameterRatio) / 2
+      : maxDimension * (effect.radiusFactor || 0.1),
+    0.01,
+  );
   const orb = new Mesh(
     new SphereGeometry(radius, 24, 16),
     createEffectMaterial(effect),

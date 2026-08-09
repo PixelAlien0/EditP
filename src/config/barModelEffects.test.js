@@ -15,8 +15,22 @@ describe('BAR model effect registry', () => {
   it('creates advanced-fusion orbs from verified emit anchors', () => {
     const profile = getBarModelEffectProfile('units/ARMAFUST3.s3o');
     expect(profile.proceduralEffects).toEqual([
-      expect.objectContaining({ anchor: 'emit', radiusFactor: 0.095 }),
+      expect.objectContaining({
+        anchor: 'emit',
+        sizeBasis: 'footprint',
+        diameterRatio: 0.52,
+      }),
     ]);
+  });
+
+  it('uses model-specific orb proportions instead of one fixed radius', () => {
+    const advanced = getBarModelEffectProfile('units/armafus.s3o');
+    const epic = getBarModelEffectProfile('units/armafust3.s3o');
+
+    expect(advanced.proceduralEffects[0].diameterRatio).toBe(0.46);
+    expect(epic.proceduralEffects[0].diameterRatio).toBeGreaterThan(
+      advanced.proceduralEffects[0].diameterRatio,
+    );
   });
 
   it('covers all six Elysium shield pieces explicitly', () => {

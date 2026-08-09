@@ -19,6 +19,13 @@ const SHIELD_ORB = Object.freeze({
 const energyNodes = (...names) => names.map(name => ({ name, ...ENERGY_ORB }));
 const shieldNodes = (...names) => names.map(name => ({ name, ...SHIELD_ORB }));
 
+const proceduralOrb = (anchor, diameterRatio, appearance = ENERGY_ORB) => ({
+  anchor,
+  sizeBasis: 'footprint',
+  diameterRatio,
+  ...appearance,
+});
+
 const EFFECTS_BY_MODEL = Object.freeze({
   'units/armfus.s3o': Object.freeze({
     nodeEffects: energyNodes('ball1', 'ball2'),
@@ -30,31 +37,31 @@ const EFFECTS_BY_MODEL = Object.freeze({
     nodeEffects: energyNodes('fusionsphere'),
   }),
   'units/armafus.s3o': Object.freeze({
-    proceduralEffects: [{ anchor: 'emit', radiusFactor: 0.095, ...ENERGY_ORB }],
+    proceduralEffects: [proceduralOrb('emit', 0.46)],
   }),
   'units/armafust3.s3o': Object.freeze({
-    proceduralEffects: [{ anchor: 'emit', radiusFactor: 0.095, ...ENERGY_ORB }],
+    proceduralEffects: [proceduralOrb('emit', 0.52)],
   }),
   'units/corafus.s3o': Object.freeze({
-    proceduralEffects: [{ anchor: 'emit', radiusFactor: 0.09, ...ENERGY_ORB }],
+    proceduralEffects: [proceduralOrb('emit', 0.42)],
   }),
   'units/corafust3.s3o': Object.freeze({
-    proceduralEffects: [{ anchor: 'emit', radiusFactor: 0.09, ...ENERGY_ORB }],
+    proceduralEffects: [proceduralOrb('emit', 0.48)],
   }),
   'units/legafus.s3o': Object.freeze({
-    proceduralEffects: [{ anchor: 'emit', radiusFactor: 0.085, ...ENERGY_ORB }],
+    proceduralEffects: [proceduralOrb('emit', 0.4)],
   }),
   'units/legafust3.s3o': Object.freeze({
-    proceduralEffects: [{ anchor: 'emit', radiusFactor: 0.085, ...ENERGY_ORB }],
+    proceduralEffects: [proceduralOrb('emit', 0.46)],
   }),
   'units/armgate.s3o': Object.freeze({
-    proceduralEffects: [{ anchor: 'shield', radiusFactor: 0.075, ...SHIELD_ORB }],
+    proceduralEffects: [proceduralOrb('shield', 0.3, SHIELD_ORB)],
   }),
   'units/armfgate.s3o': Object.freeze({
-    proceduralEffects: [{ anchor: 'emit', radiusFactor: 0.075, ...SHIELD_ORB }],
+    proceduralEffects: [proceduralOrb('emit', 0.28, SHIELD_ORB)],
   }),
   'units/armgatet3.s3o': Object.freeze({
-    proceduralEffects: [{ anchor: 'shield', radiusFactor: 0.085, ...SHIELD_ORB }],
+    proceduralEffects: [proceduralOrb('shield', 0.34, SHIELD_ORB)],
   }),
   'units/leggatet3.s3o': Object.freeze({
     nodeEffects: shieldNodes(
