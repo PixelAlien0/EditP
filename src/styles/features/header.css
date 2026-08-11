@@ -7,7 +7,7 @@
   height: var(--header-height);
   padding: 0 clamp(var(--space-3), 1.4vw, var(--space-6));
   display: grid;
-  grid-template-columns: minmax(204px, 238px) minmax(420px, 1fr) auto;
+  grid-template-columns: minmax(284px, 320px) minmax(390px, 1fr) auto;
   align-items: center;
   gap: clamp(var(--space-2), 1.15vw, var(--space-5));
   overflow: visible;
@@ -19,11 +19,11 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .app-header .header-brand {
-  min-width: 0;
+  min-width: max-content;
   padding: 0;
   display: flex;
   align-items: center;
@@ -64,10 +64,8 @@
 
 .app-header .brand-text h1 {
   margin: 0;
-  overflow: hidden;
   color: var(--color-text-strong);
   font: 600 20px/1 var(--font-display);
-  text-overflow: ellipsis;
   text-wrap: balance;
   white-space: nowrap;
 }
@@ -77,33 +75,38 @@
   width: max-content;
   max-width: 100%;
   min-width: 0;
-  min-height: 44px;
+  min-height: 42px;
+  padding: 3px;
   justify-self: center;
   display: inline-flex;
   align-items: stretch;
+  gap: 2px;
   overflow: hidden;
-  border-bottom: 1px solid var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
 }
 
 .app-header .workflow-nav button {
   min-width: 0;
-  min-height: 43px;
+  min-height: 34px;
   padding: 0 var(--space-3);
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  border: 0;
-  border-bottom: 2px solid transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  font: 650 9px/1 var(--font-ui);
+  font: 600 10px/1 var(--font-ui);
   white-space: nowrap;
 }
 
 .app-header .workflow-nav button:hover {
+  border-color: var(--color-border);
   background: var(--color-surface-hover);
   color: var(--color-text-strong);
 }
@@ -115,12 +118,14 @@
 }
 
 .app-header .workflow-nav button.active {
-  border-bottom-color: var(--color-accent-strong);
-  background: var(--color-surface-accent-subtle);
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface);
+  box-shadow: none;
   color: var(--color-text-strong);
 }
 
 .app-header .workflow-nav__step {
+  display: inline;
   color: var(--color-text-muted);
   font: 700 8px/1 var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -136,28 +141,20 @@
 }
 
 .app-header .workflow-nav__status {
-  min-width: 18px;
-  min-height: 18px;
-  padding-inline: 4px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-muted);
-  color: var(--color-text-muted);
+  border: 0;
+  background: transparent;
   font: 700 8px/1 var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
 .app-header .workflow-nav__status.needs-review {
-  border-color: color-mix(in srgb, var(--color-warning) 55%, var(--color-border));
-  background: var(--color-warning-surface);
   color: var(--color-warning);
-}
-
-.app-header .workflow-nav__status.is-clear {
-  color: var(--color-success);
 }
 
 /* Utilities are separated by rhythm and dividers, not nested trays. */
@@ -166,7 +163,7 @@
   justify-self: end;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
   white-space: nowrap;
 }
 
@@ -179,16 +176,13 @@
 
 .app-header .header-control-cluster,
 .app-header .header-collaboration-actions {
-  padding-right: var(--space-2);
-  border-right: 1px solid var(--color-border);
+  padding-right: 0;
 }
 
 .app-header .header-control-cluster .history-controls {
-  padding-left: var(--space-1);
   display: flex;
   gap: 1px;
   border: 0;
-  border-left: 1px solid var(--color-border);
 }
 
 .app-header .header-utility-actions :is(.btn-action, .theme-toggle, .history-controls button, .header-command-action) {
@@ -200,7 +194,7 @@
   justify-content: center;
   gap: 6px;
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   background: transparent;
   box-shadow: none;
   color: var(--color-text-muted);
@@ -251,24 +245,24 @@
 }
 
 .app-header .theme-toggle-mark {
-  color: var(--color-accent-strong);
+  color: currentColor;
 }
 
 .app-header .header-utility-actions .header-create-action,
 [data-theme="dark"] .app-header .header-utility-actions .header-create-action {
   min-width: 108px;
-  min-height: 38px;
-  height: 38px;
+  min-height: 36px;
+  height: 36px;
   padding-inline: var(--space-3);
   border-color: var(--color-border-accent-muted);
-  background: var(--color-surface-accent-subtle);
+  background: transparent;
   color: var(--color-accent-strong);
   font-weight: 720;
 }
 
 .app-header .header-create-action:hover:not(:disabled) {
   border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+  background: var(--color-surface-hover);
   color: var(--color-accent-strong);
 }
 
@@ -288,17 +282,17 @@
 }
 
 .app-header .header-utility-actions .header-tools-trigger {
-  min-height: 38px;
-  height: 38px;
-  padding-inline: var(--space-3);
-  border-color: var(--color-border);
-  background: var(--color-surface);
+  min-height: 36px;
+  height: 36px;
+  padding-inline: var(--space-2);
+  border-color: transparent;
+  background: transparent;
   color: var(--color-text);
 }
 
 .app-header .header-tools-trigger[aria-expanded='true'] {
-  border-color: var(--color-border-accent-muted);
-  background: var(--color-surface-accent-subtle);
+  border-color: var(--color-border);
+  background: var(--color-surface-hover);
   color: var(--color-accent-strong);
 }
 
@@ -309,22 +303,16 @@
 }
 
 .app-header .header-project-actions {
-  gap: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  gap: 1px;
+  margin-left: var(--space-1);
 }
 
 .app-header .header-project-actions .header-file-action {
   min-height: 36px;
   height: 36px;
-  border: 0;
-  border-radius: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
   cursor: pointer;
-}
-
-.app-header .header-project-actions .header-file-action + .header-file-action {
-  border-left: 1px solid var(--color-border);
 }
 
 .app-header .header-project-actions input,

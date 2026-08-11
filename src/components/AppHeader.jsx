@@ -97,12 +97,10 @@ export default function AppHeader({
           >
             <span className="workflow-nav__step">{workspace.step}</span>
             <span className="workflow-nav__label">{workspace.label}</span>
-            {workspace.id === 'review' && (
+            {workspace.id === 'review' && validationIssueCount > 0 && (
               <span
-                className={`workflow-nav__status ${validationIssueCount > 0 ? 'needs-review' : 'is-clear'}`}
-                aria-label={validationIssueCount > 0
-                  ? `${validationIssueCount} validation ${validationIssueCount === 1 ? 'issue' : 'issues'}`
-                  : 'No validation issues'}
+                className="workflow-nav__status needs-review"
+                aria-label={`${validationIssueCount} validation ${validationIssueCount === 1 ? 'issue' : 'issues'}`}
               >
                 {validationIssueCount}
               </span>
