@@ -47,6 +47,7 @@ import {
   getCollectionUnitIds,
 } from './project/unitCollections.js';
 import { applyWeaponBlueprintToSlot } from './utils/weaponBlueprint.js';
+import { applyWeaponClusterRecipe } from './utils/weaponClusterRecipes.js';
 
 // Publish the experimental Weapon Laboratory workspace and its Tools entry.
 const WEAPON_LAB_ENABLED = true;
@@ -956,6 +957,25 @@ export default function App() {
   const activeInspectorTab = workspaceLayout.layout.inspectorTab;
   const setInspectorTab = workspaceLayout.setInspectorTab;
 
+  const handleApplyWeaponClusterRecipe = useCallback(({
+    recipeId,
+    unitId,
+    slotNumber,
+    sourceSlot,
+  }) => {
+    try {
+      transactProject(current => applyWeaponClusterRecipe(current, {
+        recipeId,
+        ownerUnitId: unitId,
+        slotNumber,
+        sourceSlot,
+      }));
+      showToast('Napalm Blossom linked to the active weapon slot.');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Could not apply the cluster recipe.');
+    }
+  }, [showToast, transactProject]);
+
   useEffect(() => {
     if (activeInspectorTab === 'identity') {
       setInspectorTab('details');
@@ -1007,6 +1027,7 @@ export default function App() {
     getTagsOfUnit,
     getValidationWarning,
     handleCatClick,
+    handleApplyWeaponClusterRecipe,
     handleCloneBuildersChange,
     handleResetUnit,
     handleStatChange,
@@ -1103,6 +1124,7 @@ export default function App() {
     getProjectUnitIconUrl,
     getTagsOfUnit,
     handleCatClick,
+    handleApplyWeaponClusterRecipe,
     handleCloneBuildersChange,
     handleResetUnit,
     handleStatChange,

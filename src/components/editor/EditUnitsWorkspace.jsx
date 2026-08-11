@@ -76,6 +76,7 @@ export default function EditUnitsWorkspace({ context }) {
     getTagsOfUnit,
     getValidationWarning,
     handleCatClick,
+    handleApplyWeaponClusterRecipe,
     handleCloneBuildersChange,
     handleResetUnit,
     handleStatChange,
@@ -468,7 +469,7 @@ export default function EditUnitsWorkspace({ context }) {
                 }),
                 };
               })
-              .filter(group => group.params.length > 0);
+              .filter(group => group.params.length > 0 || group.kind === 'cluster');
             const detectedWeaponParameterCount = slot
               ? slotParams.filter(param => hasWeaponParameter(param.key)).length
                 + advancedWeaponGroups.reduce((total, group) => total + group.params.filter(param => hasWeaponParameter(param.key)).length, 0)
@@ -1342,6 +1343,14 @@ export default function EditUnitsWorkspace({ context }) {
                                     undefined
                                   ));
                               };
+                              const applyNapalmBlossom = () => {
+                                handleApplyWeaponClusterRecipe({
+                                  recipeId: 'napalm-blossom',
+                                  unitId: selectedUnit.id,
+                                  slotNumber: slot.slot,
+                                  sourceSlot: slot,
+                                });
+                              };
                               return (
                               <section
                                 className={`weapon-advanced-group ${group.kind === 'special-projectile' ? 'weapon-special-projectile' : ''}`}
@@ -1374,7 +1383,16 @@ export default function EditUnitsWorkspace({ context }) {
                                       </div>
                                     </div>
                                   )}
+                                  {group.kind === 'cluster' && (
+                                    <div className="weapon-advanced-group-heading__actions">
+                                      <span className="section-heading__meta">Incendiary recipe</span>
+                                      <Button size="sm" variant="primary" onClick={applyNapalmBlossom}>
+                                        Apply Napalm Blossom
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
+                                {group.params.length > 0 && (
                                 <div className="editor-grid weapon-parameter-grid weapon-advanced-grid">
                                   {group.params.map(param => {
                                     const tweakKey = `weapon_slot_${slot.slot}_${param.key}`;
@@ -1496,6 +1514,7 @@ export default function EditUnitsWorkspace({ context }) {
                                     );
                                   })}
                                 </div>
+                                )}
                               </section>
                               );
                             })}

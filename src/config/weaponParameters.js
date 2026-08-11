@@ -135,6 +135,7 @@ const editorAdvancedGroups = [
   },
   {
     title: 'Cluster / MIRV behavior',
+    kind: 'cluster',
     capabilities: ['bar-gadget', 'supporting-definition'],
     description: 'Release a supporting WeaponDef as submunitions. The referenced definition must exist when BAR loads.',
     params: [
