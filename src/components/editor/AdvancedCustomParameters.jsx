@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Button, ParameterStatus, SelectField } from '../ui.jsx';
+import CustomParameterControl from './CustomParameterControl.jsx';
 import {
   CUSTOM_PARAMETER_BY_KEY,
   CUSTOM_PARAMETER_CATALOG,
@@ -12,6 +13,7 @@ import {
   CUSTOM_PARAMETER_PROMOTION_ORDER,
   CUSTOM_PARAMETER_PROMOTION_STAGES,
 } from '../../config/customParameterPromotion.js';
+import { buildCustomParameterReferenceCatalogs } from '../../config/customParameterEditors.js';
 
 const PREFIX = 'customparams.';
 const CORE_CUSTOM_KEYS = new Set([
@@ -150,11 +152,23 @@ function ArmorProfileField({ defaults, tweaks, onChange }) {
   );
 }
 
-export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, inheritedFromClone = false, onChange, onApplyProfile }) {
+export default function AdvancedCustomParameters({
+  defaults = {},
+  tweaks = {},
+  allUnitsList = [],
+  defaultsDb = {},
+  inheritedFromClone = false,
+  onChange,
+  onApplyProfile,
+}) {
   const [catalogKey, setCatalogKey] = useState('');
   const [customKey, setCustomKey] = useState('');
   const [draftType, setDraftType] = useState('string');
   const [draftValue, setDraftValue] = useState('');
+  const referenceCatalogs = useMemo(
+    () => buildCustomParameterReferenceCatalogs(allUnitsList, defaultsDb),
+    [allUnitsList, defaultsDb]
+  );
 
   const active = useMemo(() => {
     const keys = new Set([...Object.keys(defaults), ...Object.keys(tweaks)]
@@ -263,34 +277,13 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
                   />
                 </div>
                 <div className="advanced-custom-parameter__editor">
-                  {type === 'boolean' ? (
-                    <select
-                      className="stat-card-input"
-                      aria-label={`${parameter.definition?.label || parameter.shortKey} value`}
-                      value={parameter.value === true || parameter.value === 1 || parameter.value === '1' || parameter.value === 'true' ? 'true' : 'false'}
-                      onChange={event => onChange(parameter.tweakKey, event.target.value === 'true')}
-                    >
-                      <option value="true">Enabled</option>
-                      <option value="false">Disabled</option>
-                    </select>
-                  ) : (
-                    <input
-                      className="stat-card-input"
-                      type={type === 'number' ? 'number' : 'text'}
-                      min={parameter.definition?.min}
-                      max={parameter.definition?.max}
-                      step={parameter.definition?.step}
-                      list={parameter.definition?.acceptedValues?.length ? `${parameter.shortKey}-accepted-values` : undefined}
-                      aria-label={`${parameter.definition?.label || parameter.shortKey} value`}
-                      value={parameter.value}
-                      onChange={event => onChange(parameter.tweakKey, event.target.value)}
-                    />
-                  )}
-                  {parameter.definition?.acceptedValues?.length > 0 && (
-                    <datalist id={`${parameter.shortKey}-accepted-values`}>
-                      {parameter.definition.acceptedValues.map(value => <option key={value} value={value} />)}
-                    </datalist>
-                  )}
+                  <CustomParameterControl
+                    definition={parameter.definition || { key: parameter.shortKey, type }}
+                    label={parameter.definition?.label || parameter.shortKey}
+                    value={parameter.value}
+                    onChange={value => onChange(parameter.tweakKey, value)}
+                    referenceCatalogs={referenceCatalogs}
+                  />
                   <Button variant="quiet" disabled={!parameter.modified} onClick={() => onChange(parameter.tweakKey, undefined)}>{parameter.modified ? 'Reset' : 'Inherited'}</Button>
                 </div>
                 <p>
@@ -327,7 +320,16 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
       <div className="advanced-custom-parameters__composer">
         <label>
           <span>Parameter</span>
-          <select aria-label="Custom parameter catalog" value={catalogKey} onChange={event => { setCatalogKey(event.target.value); setDraftValue(''); }}>
+          <select
+            aria-label="Custom parameter catalog"
+            value={catalogKey}
+            onChange={event => {
+              const nextKey = event.target.value;
+              const nextDefinition = CUSTOM_PARAMETER_BY_KEY.get(nextKey);
+              setCatalogKey(nextKey);
+              setDraftValue(nextDefinition?.acceptedValues?.[0] ?? (nextDefinition?.type === 'boolean' ? 'false' : ''));
+            }}
+          >
             <option value="">Choose a registered key…</option>
             {availableByPromotion.map(group => (
               <optgroup key={group.stage.id} label={`${group.stage.label} (${group.parameters.length})`}>
@@ -354,25 +356,16 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
           </label>
         )}
         {catalogKey && (
-          <label className="advanced-custom-parameters__value">
+          <div className="advanced-custom-parameters__value">
             <span>Initial value</span>
-            {selectedType === 'boolean' ? (
-              <select aria-label="Initial value" value={draftValue} onChange={event => setDraftValue(event.target.value)}>
-                <option value="">Disabled</option>
-                <option value="true">Enabled</option>
-              </select>
-            ) : (
-              <input
-                aria-label="Initial value"
-                type={selectedType === 'number' ? 'number' : 'text'}
-                min={definition?.min}
-                max={definition?.max}
-                value={draftValue}
-                placeholder={selectedType === 'number' ? '0' : 'Value required'}
-                onChange={event => setDraftValue(event.target.value)}
-              />
-            )}
-          </label>
+            <CustomParameterControl
+              definition={definition || { key: selectedKey, type: selectedType }}
+              label="Initial value"
+              value={draftValue}
+              onChange={value => setDraftValue(typeof value === 'boolean' ? String(value) : value)}
+              referenceCatalogs={referenceCatalogs}
+            />
+          </div>
         )}
         <Button variant="secondary" disabled={!canAdd} onClick={addParameter}>Add parameter</Button>
       </div>

@@ -800,6 +800,8 @@ export default function EditUnitsWorkspace({ context }) {
                         <LazyAdvancedCustomParameters
                           defaults={defaults}
                           tweaks={tweaks[selectedUnit.id] || {}}
+                          allUnitsList={allUnitsList}
+                          defaultsDb={defaultsDb}
                           inheritedFromClone={selectedUnit.isClone}
                           onChange={(key, value) => handleStatChange(selectedUnit.id, key, value)}
                           onApplyProfile={patch => handleStatPatch(selectedUnit.id, patch)}
