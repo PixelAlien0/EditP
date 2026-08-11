@@ -8,6 +8,7 @@ import {
   isValidArmorProfile,
   normalizeArmorProfile,
 } from '../config/armorProfiles.js';
+import { resolveSupportingWeaponDefReachability } from './supportingWeaponDefReachability.js';
 
 function cleanId(value) {
   return String(value || '').trim().toLowerCase();
@@ -54,39 +55,6 @@ function blueprintSourceExists(blueprint, defaultsDb) {
   const sourceId = cleanId(blueprint?.sourceUnitId);
   const weaponKey = cleanId(blueprint?.sourceWeaponDefKey);
   return Boolean(defaultsDb?.[sourceId]?.weaponSlots?.some(slot => cleanId(slot.defKey) === weaponKey));
-}
-
-function collectSupportingReferences({ tweaks, clones, weaponLibrary, supportingWeaponDefs }) {
-  const references = new Set();
-  Object.entries(tweaks || {}).forEach(([ownerUnitId, patch]) => {
-    Object.entries(patch || {}).forEach(([key, value]) => {
-      if (/^weapon_slot_\d+_(?:cluster_def|speceffect_def)$/.test(key) && cleanId(value)) {
-        references.add(`${cleanId(ownerUnitId)}:${cleanId(value)}`);
-      }
-    });
-  });
-
-  const blueprints = new Map((weaponLibrary || []).map(entry => [cleanId(entry.id), entry]));
-  (clones || []).forEach(clone => {
-    Object.values(clone.weaponSwaps || {}).forEach(swap => {
-      const sourceOwner = cleanId(swap?.sourceUnitId);
-      const sourceKey = cleanId(swap?.sourceWeaponDefKey);
-      if (sourceOwner && sourceKey) references.add(`${sourceOwner}:${sourceKey}`);
-      const blueprint = blueprints.get(cleanId(swap?.libraryWeaponId));
-      if (!blueprint) return;
-      const values = getWeaponBlueprintEffectiveValues(blueprint);
-      ['cluster_def', 'speceffect_def'].forEach(key => {
-        if (cleanId(values[key])) references.add(`${cleanId(clone.newId)}:${cleanId(values[key])}`);
-      });
-    });
-  });
-
-  (supportingWeaponDefs || []).forEach(definition => {
-    (definition.dependencies || []).forEach(dependency => {
-      references.add(`${cleanId(definition.ownerUnitId)}:${cleanId(dependency)}`);
-    });
-  });
-  return references;
 }
 
 function validateCarrierLists({ unitId, unitName, patch, issues }) {
@@ -391,15 +359,20 @@ export function buildCrossWorkspaceValidation({
     }
   });
 
-  const supportingReferences = collectSupportingReferences({ tweaks, clones, weaponLibrary, supportingWeaponDefs });
+  const supportingReachability = resolveSupportingWeaponDefReachability({
+    definitions: supportingWeaponDefs,
+    tweaks,
+    clones,
+    weaponLibrary,
+  });
   supportingWeaponDefs.filter(definition => definition.enabled !== false).forEach(definition => {
     const destination = `${cleanId(definition.ownerUnitId)}:${cleanId(definition.key)}`;
-    if (!supportingReferences.has(destination)) {
+    if (!supportingReachability.includedDestinations.has(destination)) {
       issues.push(issue({
         id: `support-${cleanId(definition.id) || destination}-unused`, level: 'info', unitId: cleanId(definition.ownerUnitId),
         unitName: definition.label || definition.key, key: 'supporting_weapondef_usage',
         title: `${definition.label || definition.key} · no detected consumer`,
-        message: 'The supporting WeaponDef is enabled but no structured cluster, split, or weapon substitution currently references it.',
+        message: 'This definition remains in the project library but is omitted from generated Lua until a structured consumer references it.',
         action: { type: 'tweak-lab', label: 'Inspect WeaponDefs' },
       }));
     }

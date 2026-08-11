@@ -35,7 +35,7 @@ export default function ReviewPage({
   tweakDefsB64, tweakUnitsB64,
   totalBytesUsed, lobbyByteLimit,
   compiledLobbyModules, lobbyCommands,
-  tweakModules = [], lobbySetup = null, supportingWeaponDefs = [], knownUnitIds = [],
+  tweakModules = [], lobbySetup = null, supportingWeaponDefs = [], weaponLibrary = [], knownUnitIds = [],
   collectionScope, integrityReport, onRepairIntegrity,
   onBack, onExport, onOpenSummary, onEditUnit, onOpenTweakLab, onOpenBuildMenus, onOpenWeaponLab, onToast
 }) {
@@ -69,9 +69,12 @@ export default function ReviewPage({
     packageAnalysis,
     lobbySetup,
     supportingWeaponDefs,
+    tweaks,
+    clones,
+    weaponLibrary,
     knownUnitIds,
     gadgetContractResults,
-  }), [compiledLobbyModules, compilerValidation, gadgetContractResults, knownUnitIds, lobbySetup, packageAnalysis, supportingWeaponDefs, tweakModules, validationIssues]);
+  }), [clones, compiledLobbyModules, compilerValidation, gadgetContractResults, knownUnitIds, lobbySetup, packageAnalysis, supportingWeaponDefs, tweakModules, tweaks, validationIssues, weaponLibrary]);
   const openSummary = tab => onOpenSummary(tab);
   const copyOutput = async () => {
     try {

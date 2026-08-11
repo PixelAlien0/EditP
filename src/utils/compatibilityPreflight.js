@@ -4,6 +4,7 @@ import {
   GENERATED_SLOT_TARGET_BYTES,
   LOBBY_SLOT_LIMIT_CHARACTERS,
 } from './byteBudget.js';
+import { resolveSupportingWeaponDefReachability } from './supportingWeaponDefReachability.js';
 
 const GROUP_META = Object.freeze({
   project: { label: 'Project values', order: 0 },
@@ -88,6 +89,9 @@ export function buildCompatibilityPreflight({
   packageAnalysis,
   lobbySetup,
   supportingWeaponDefs = [],
+  tweaks = {},
+  clones = [],
+  weaponLibrary = [],
   knownUnitIds = [],
   gadgetContractResults = [],
 } = {}) {
@@ -366,7 +370,13 @@ export function buildCompatibilityPreflight({
     });
   }
 
-  const enabledSupportingDefs = supportingWeaponDefs.filter(definition => definition.enabled !== false);
+  const supportingReachability = resolveSupportingWeaponDefReachability({
+    definitions: supportingWeaponDefs,
+    tweaks,
+    clones,
+    weaponLibrary,
+  });
+  const enabledSupportingDefs = supportingReachability.included;
   const destinations = new Map();
   enabledSupportingDefs.forEach(definition => {
     const destination = `${String(definition.ownerUnitId || '').toLowerCase()}:${String(definition.key || '').toLowerCase()}`;
@@ -398,6 +408,14 @@ export function buildCompatibilityPreflight({
       id: 'support-clear', group: 'dependencies', level: 'pass',
       title: `${enabledSupportingDefs.length} supporting WeaponDef ${enabledSupportingDefs.length === 1 ? 'destination is' : 'destinations are'} unique`,
       detail: 'Every enabled auxiliary definition has one owner-and-key destination.',
+    });
+  }
+  if (supportingReachability.totals.localOnly > 0) {
+    add({
+      id: 'support-local-only', group: 'dependencies', level: 'info',
+      title: `${supportingReachability.totals.localOnly} local-only WeaponDef ${supportingReachability.totals.localOnly === 1 ? 'is' : 'are'} omitted`,
+      detail: 'Unused project-library definitions remain saved but do not consume Definitions slots or affect compatibility preflight.',
+      action: { type: 'tweak-lab', label: 'Review library' },
     });
   }
 

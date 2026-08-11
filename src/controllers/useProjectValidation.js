@@ -8,6 +8,7 @@ import {
   gadgetContractResultsToIssues,
 } from '../utils/gadgetContractValidation.js';
 import { validateConsumerBackedPatch } from '../utils/consumerBackedValidation.js';
+import { resolveSupportingWeaponDefReachability } from '../utils/supportingWeaponDefReachability.js';
 
 export function getValidationWarning(key, value) {
   if (value === undefined || value === '') return null;
@@ -239,9 +240,12 @@ export function useProjectValidation({
         .map(slot => String(slot.defKey || '').toLowerCase())
         .filter(Boolean)
     );
-    const enabledSupportingWeaponDefs = supportingWeaponDefs.filter(
-      definition => definition.enabled !== false
-    );
+    const enabledSupportingWeaponDefs = resolveSupportingWeaponDefReachability({
+      definitions: supportingWeaponDefs,
+      tweaks,
+      clones,
+      weaponLibrary,
+    }).included;
     const supportingDestinations = new Set(
       enabledSupportingWeaponDefs.map(
         definition => `${definition.ownerUnitId}:${definition.key}`.toLowerCase()

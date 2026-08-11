@@ -29,6 +29,7 @@ function createDefinition(ownerUnitId, key, definition = { damage: { default: 0 
     label: key.toUpperCase(),
     definition,
     enabled: true,
+    alwaysExport: false,
     mode: 'replace',
     role: 'auxiliary',
     mountedSlots: [],
@@ -90,7 +91,7 @@ function DefinitionEditor({ entry, allDestinations, onUpdate, onAdd, onRemove, o
         <div className="weapondef-editor__controls">
           <StatusBadge status={STATUS_TONES[entry.status]}>{STATUS_LABELS[entry.status]}</StatusBadge>
           <Switch
-            label={`Compile ${entry.key}`}
+            label={`Enable ${entry.key} in the project library`}
             checked={entry.enabled}
             onChange={event => onUpdate(entry.id, { enabled: event.target.checked })}
           />
@@ -131,6 +132,17 @@ function DefinitionEditor({ entry, allDestinations, onUpdate, onAdd, onRemove, o
             <option value="mounted">Mounted</option>
           </SelectField>
         </div>
+        <div className="weapondef-editor__export-policy">
+          <div>
+            <strong>Always export</strong>
+            <span>Pin this definition only when dynamic or imported Lua references it and automatic discovery cannot see the consumer.</span>
+          </div>
+          <Switch
+            label={`Always export ${entry.key}`}
+            checked={entry.alwaysExport}
+            onChange={event => onUpdate(entry.id, { alwaysExport: event.target.checked })}
+          />
+        </div>
       </div>
 
       <div className="weapondef-editor__group">
@@ -168,6 +180,8 @@ export default function WeaponDefLibraryPage({
   definitions = [],
   knownUnits = [],
   tweaks = {},
+  clones = [],
+  weaponLibrary = [],
   sourceCatalog = [],
   onAdd,
   onUpdate,
@@ -191,7 +205,9 @@ export default function WeaponDefLibraryPage({
     definitions,
     knownUnitIds: knownUnits,
     tweaks,
-  }), [definitions, knownUnits, tweaks]);
+    clones,
+    weaponLibrary,
+  }), [clones, definitions, knownUnits, tweaks, weaponLibrary]);
   const allDestinations = useMemo(() => new Set(definitions.map(getSupportingWeaponDefDestination)), [definitions]);
   const normalizedQuery = query.trim().toLowerCase();
   const sourceMatches = useMemo(() => {
@@ -297,8 +313,8 @@ export default function WeaponDefLibraryPage({
       capabilityId="tool.weapondef-library"
       metrics={[
         { label: 'Definitions', value: analysis.totals.all },
-        { label: 'Needs review', value: analysis.totals.issues },
-        { label: 'Literal bytes', value: analysis.totals.bytes.toLocaleString() },
+        { label: 'Exported', value: analysis.reachability.totals.included },
+        { label: 'Local only', value: analysis.reachability.totals.localOnly },
       ]}
       actions={<Button onClick={onBack}>Back to editor</Button>}
       bodyClassName="weapondef-library-page__body"
@@ -378,7 +394,10 @@ export default function WeaponDefLibraryPage({
             {visibleEntries.length ? visibleEntries.map(entry => (
               <button type="button" key={entry.id} className={selectedEntry?.id === entry.id ? 'is-selected' : ''} onClick={() => setSelectedId(entry.id)} aria-current={selectedEntry?.id === entry.id ? 'true' : undefined}>
                 <span><strong>{entry.label || entry.key.toUpperCase()}</strong><small>{entry.ownerUnitId} / {entry.key}</small></span>
-                <StatusBadge size="sm" status={STATUS_TONES[entry.status]}>{STATUS_LABELS[entry.status]}</StatusBadge>
+                <span className="weapondef-catalog__entry-status">
+                  <small>{entry.exportState === 'included' ? 'Exported' : entry.exportState === 'local-only' ? 'Local only' : 'Excluded'}</small>
+                  <StatusBadge size="sm" status={STATUS_TONES[entry.status]}>{STATUS_LABELS[entry.status]}</StatusBadge>
+                </span>
               </button>
             )) : <EmptyState compact title="No definitions match" description="Clear the search or choose another status." action={<Button size="sm" onClick={() => { setQuery(''); setStatusFilter('all'); }}>Clear filters</Button>} />}
           </div>
@@ -411,7 +430,7 @@ export default function WeaponDefLibraryPage({
                   </ul>
                 ) : <p>No literal fields are defined yet.</p>}
               </section>
-              <div className="weapondef-insights__route"><small>Compile route</small><strong>Definitions lane</strong><span>{selectedEntry.enabled ? 'Included in generated TweakDefs' : 'Excluded from output'}</span></div>
+              <div className="weapondef-insights__route"><small>Compile route</small><strong>{selectedEntry.exportState === 'included' ? 'Definitions lane' : 'Project library'}</strong><span>{selectedEntry.exportState === 'included' ? 'Included in generated TweakDefs because a reachable project consumer uses it.' : selectedEntry.exportState === 'local-only' ? 'Stored locally and omitted until a project consumer uses it.' : 'Disabled and excluded from output.'}</span></div>
             </>
           ) : <EmptyState compact title="Nothing selected" description="Select or create a definition to inspect its relationships." />}
         </aside>

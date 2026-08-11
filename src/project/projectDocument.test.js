@@ -116,7 +116,7 @@ describe('project documents', () => {
         {
           id: 'Support Child', ownerUnitId: 'ARMFLEA', key: 'CLUSTER_CHILD', label: 'Cluster Child',
           definition: { range: 420, damage: { default: 25 }, customparams: { cluster_def: 'NEXT_CHILD' } },
-          role: 'dependency', mountedSlots: [2, 2], enabled: true, mode: 'replace', referencedBy: ['MAIN_GUN'],
+          role: 'dependency', mountedSlots: [2, 2], enabled: true, alwaysExport: true, mode: 'replace', referencedBy: ['MAIN_GUN'],
         },
         { id: 'duplicate', ownerUnitId: 'armflea', key: 'cluster_child', definition: { range: 1 } },
       ],
@@ -125,6 +125,7 @@ describe('project documents', () => {
     expect(project.supportingWeaponDefs).toEqual([expect.objectContaining({
       id: 'support_child', ownerUnitId: 'armflea', key: 'cluster_child', role: 'dependency',
       mountedSlots: [2], dependencies: ['next_child'], referencedBy: ['main_gun'],
+      alwaysExport: true,
       definition: { range: 420, damage: { default: 25 }, customparams: { cluster_def: 'NEXT_CHILD' } },
     })]);
   });

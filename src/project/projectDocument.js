@@ -230,9 +230,11 @@ function normalizeSupportingWeaponDefs(value) {
     if (!ownerUnitId || !key || !isRecord(definition) || !Object.keys(definition).length || !id || seenIds.has(id) || seenDestinations.has(destination)) return [];
     seenIds.add(id);
     seenDestinations.add(destination);
-    const clusterDependency = typeof definition.customparams?.cluster_def === 'string'
-      ? unitId(definition.customparams.cluster_def)
-      : null;
+    const dependencies = [
+      ...idList(rawDefinition.dependencies),
+      typeof definition.customparams?.cluster_def === 'string' ? unitId(definition.customparams.cluster_def) : '',
+      typeof definition.customparams?.speceffect_def === 'string' ? unitId(definition.customparams.speceffect_def) : '',
+    ].filter(Boolean);
     return [{
       id,
       ownerUnitId,
@@ -240,12 +242,13 @@ function normalizeSupportingWeaponDefs(value) {
       label: text(rawDefinition.label, key.toUpperCase(), 160).trim() || key.toUpperCase(),
       definition,
       enabled: rawDefinition.enabled !== false,
+      alwaysExport: Boolean(rawDefinition.alwaysExport),
       mode: rawDefinition.mode === 'create-only' ? 'create-only' : 'replace',
       role: rawDefinition.role === 'dependency' ? 'dependency' : rawDefinition.role === 'mounted' ? 'mounted' : 'auxiliary',
       mountedSlots: Array.isArray(rawDefinition.mountedSlots)
         ? [...new Set(rawDefinition.mountedSlots.map(Number).filter(slot => Number.isInteger(slot) && slot > 0))].slice(0, 64)
         : [],
-      dependencies: clusterDependency ? [clusterDependency] : [],
+      dependencies: [...new Set(dependencies)],
       referencedBy: idList(rawDefinition.referencedBy),
       sourceModuleId: text(rawDefinition.sourceModuleId, '', 240),
       sourceName: text(rawDefinition.sourceName, '', 260),

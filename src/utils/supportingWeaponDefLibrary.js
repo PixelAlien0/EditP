@@ -1,4 +1,8 @@
 import { WEAPON_EDITABLE_PARAMETER_CATALOG } from '../config/weaponParameters.js';
+import {
+  getSupportingWeaponDefDependencies,
+  resolveSupportingWeaponDefReachability,
+} from './supportingWeaponDefReachability.js';
 
 const cleanId = value => String(value || '').trim().toLowerCase();
 
@@ -64,6 +68,7 @@ export function createSupportingWeaponDefFromSource({ ownerUnitId, key, source }
     label: `${String(source?.sourceWeaponDefKey || cleanKey).toUpperCase()} copy`,
     definition,
     enabled: true,
+    alwaysExport: false,
     mode: 'create-only',
     role: 'auxiliary',
     mountedSlots: [],
@@ -81,7 +86,10 @@ export function analyzeSupportingWeaponDefLibrary({
   definitions = [],
   knownUnitIds = [],
   tweaks = {},
+  clones = [],
+  weaponLibrary = [],
 } = {}) {
+  const reachability = resolveSupportingWeaponDefReachability({ definitions, tweaks, clones, weaponLibrary });
   const knownUnits = new Set(knownUnitIds.map(unit => cleanId(unit?.id || unit)));
   const destinations = definitions.map(getSupportingWeaponDefDestination);
   const destinationCounts = destinations.reduce((counts, destination) => {
@@ -97,7 +105,8 @@ export function analyzeSupportingWeaponDefLibrary({
     const errors = [];
     const warnings = [];
     const consumers = new Set((definition.referencedBy || []).map(value => cleanId(value)).filter(Boolean));
-    const dependencies = [...new Set((definition.dependencies || []).map(value => cleanId(value)).filter(Boolean))];
+    const dependencies = getSupportingWeaponDefDependencies(definition);
+    const alwaysExport = Boolean(definition.alwaysExport);
 
     if (!ownerUnitId) errors.push('Owner UnitDef is required.');
     else if (!knownUnits.has(ownerUnitId)) errors.push(`Owner UnitDef ${ownerUnitId} is not present in this project.`);
@@ -119,8 +128,8 @@ export function analyzeSupportingWeaponDefLibrary({
     Object.entries(tweaks[ownerUnitId] || {}).forEach(([parameter, value]) => {
       if (cleanId(value) === key && /weapon_slot_\d+_/.test(parameter)) consumers.add(parameter.replaceAll('_', ' '));
     });
+    (reachability.reasons[destination] || []).forEach(reason => consumers.add(reason));
 
-    if (!errors.length && !consumers.size) warnings.push('No project consumer currently references this definition.');
     const enabled = definition.enabled !== false;
     const status = errors.length ? 'error' : !enabled ? 'disabled' : warnings.length ? 'review' : 'ready';
     const definitionJson = JSON.stringify(definition.definition || {});
@@ -131,6 +140,12 @@ export function analyzeSupportingWeaponDefLibrary({
       key,
       destination,
       enabled,
+      alwaysExport,
+      exportState: !enabled
+        ? 'disabled'
+        : reachability.includedDestinations.has(destination)
+          ? 'included'
+          : 'local-only',
       status,
       errors,
       warnings,
@@ -149,8 +164,10 @@ export function analyzeSupportingWeaponDefLibrary({
       active: entries.filter(entry => entry.enabled).length,
       ready: entries.filter(entry => entry.status === 'ready').length,
       issues: entries.filter(entry => entry.status === 'error' || entry.status === 'review').length,
-      unused: entries.filter(entry => entry.warnings.some(warning => warning.startsWith('No project consumer'))).length,
+      unused: entries.filter(entry => entry.exportState === 'local-only').length,
       bytes: entries.reduce((total, entry) => total + entry.encodedBytes, 0),
+      omittedBytes: reachability.totals.omittedBytes,
     },
+    reachability,
   };
 }

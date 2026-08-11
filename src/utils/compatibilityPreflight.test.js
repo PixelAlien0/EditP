@@ -184,8 +184,8 @@ describe('buildCompatibilityPreflight', () => {
       }),
       knownUnitIds: ['armflea'],
       supportingWeaponDefs: [
-        { id: 'one', ownerUnitId: 'armflea', key: 'child', definition: { range: 100 }, enabled: true },
-        { id: 'two', ownerUnitId: 'armflea', key: 'child', definition: { range: 200 }, enabled: true },
+        { id: 'one', ownerUnitId: 'armflea', key: 'child', definition: { range: 100 }, enabled: true, alwaysExport: true },
+        { id: 'two', ownerUnitId: 'armflea', key: 'child', definition: { range: 200 }, enabled: true, alwaysExport: true },
       ],
     });
 

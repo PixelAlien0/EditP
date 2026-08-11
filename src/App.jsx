@@ -1445,6 +1445,8 @@ export default function App() {
             definitions={supportingWeaponDefs}
             knownUnits={allUnitsList}
             tweaks={tweaks}
+            clones={clones}
+            weaponLibrary={weaponLibrary}
             sourceCatalog={weaponSourceCatalog}
             onAdd={handleAddSupportingWeaponDefs}
             onUpdate={handleUpdateSupportingWeaponDef}
@@ -1507,6 +1509,7 @@ export default function App() {
             tweakModules={tweakModules}
             lobbySetup={lobbySetup}
             supportingWeaponDefs={supportingWeaponDefs}
+            weaponLibrary={weaponLibrary}
             knownUnitIds={knownTweakPackageUnitIds}
             collectionScope={collectionReviewScope}
             integrityReport={integrityReport}

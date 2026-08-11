@@ -1,6 +1,7 @@
 import { serializeLuaTable } from './tweakSerializer.js';
 import { getWeaponParameterDefinition } from '../config/weaponParameters.js';
 import { getWeaponBlueprintDefinitionKey } from './weaponBlueprint.js';
+import { resolveSupportingWeaponDefReachability } from './supportingWeaponDefReachability.js';
 
 export const BUILDMENU_BEGIN = '-- EDITP_BUILDMENU_BEGIN';
 export const BUILDMENU_END = '-- EDITP_BUILDMENU_END';
@@ -1077,7 +1078,13 @@ export function compileTweakDefsLua({
     ? generateBuildMenuBlockLua(updatedSteps, { compactLuaFormatting: compileFlags?.compactLuaFormatting })
     : '';
   const deathProfileBlock = generateDeathProfilesBlockLua(deathExplosionTweaks);
-  const supportingWeaponDefsBlock = generateSupportingWeaponDefsBlockLua(supportingWeaponDefs);
+  const reachableSupportingWeaponDefs = resolveSupportingWeaponDefReachability({
+    definitions: supportingWeaponDefs,
+    tweaks,
+    clones: includeCloneDefinitions ? orderedClones : [],
+    weaponLibrary,
+  }).included;
+  const supportingWeaponDefsBlock = generateSupportingWeaponDefsBlockLua(reachableSupportingWeaponDefs);
   const carrierLinkagesBlock = generateCarrierLinkagesBlockLua(tweaks);
   
   const parts = [];

@@ -35,6 +35,8 @@
 :is(.weapondef-source-picker__results, .weapondef-catalog__list) > button:is(.is-selected, .is-active) { background: var(--color-surface-accent-subtle); }
 :is(.weapondef-source-picker__results > button, .weapondef-catalog__status-group button, .weapondef-catalog__list > button):focus-visible { outline: 2px solid var(--color-accent-strong); outline-offset: -2px; }
 .weapondef-catalog__list > button > span:nth-child(2) { min-width: 0; display: grid; gap: 2px; }
+.weapondef-catalog__entry-status { min-width: max-content; display: flex; align-items: center; gap: var(--space-2); }
+.weapondef-catalog__entry-status > small { color: var(--color-text-muted); font: 700 8px/1 var(--font-mono); text-transform: uppercase; }
 .weapondef-insights dd.is-ready { color: var(--color-success); }
 .weapondef-insights dd.is-review { color: var(--color-warning); }
 .weapondef-insights dd.is-error { color: var(--color-danger); }
@@ -59,6 +61,10 @@
 .weapondef-editor__group-heading > div { min-width: 0; display: grid; gap: var(--space-1); }
 .weapondef-editor__source-stats { flex: 0 0 auto; color: var(--color-text-muted); font: var(--font-size-xs)/1 var(--font-mono); }
 .weapondef-editor__identity { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); align-items: start; }
+.weapondef-editor__export-policy { padding: var(--space-3) var(--space-4); display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); background: var(--color-surface-subtle); }
+.weapondef-editor__export-policy > div { min-width: 0; display: grid; gap: var(--space-1); }
+.weapondef-editor__export-policy strong { color: var(--color-text-strong); font-size: var(--font-size-sm); }
+.weapondef-editor__export-policy span { color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.45; }
 .weapondef-editor__source { width: 100%; min-height: 360px; padding: var(--space-4); resize: vertical; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--color-code-canvas); color: var(--color-text-on-dark); font: var(--font-size-xs)/1.55 var(--font-mono); tab-size: 2; }
 .weapondef-editor__source:focus-visible { outline: 2px solid var(--color-accent-strong); outline-offset: 2px; }
 .weapondef-editor__source-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }

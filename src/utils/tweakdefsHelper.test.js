@@ -273,8 +273,28 @@ describe('nested clone generation', () => {
       customUnitClones: [{ baseId: 'armflash', newId: 'armflash_clone', displayName: 'Parent', builderIds: [] }],
       buildMenuWizardSteps: [], disabledUnitIds: [], unitBuildOptions: {},
       compileFlags: { includeClones: true, includeRosters: true }, supportingWeaponDefs,
+      tweaks: { armflash_clone: { weapon_slot_1_cluster_def: 'cluster_child' } },
     });
     expect(lua.indexOf('local n = "armflash_clone"')).toBeLessThan(lua.indexOf('editp_supporting_weapondefs'));
+  });
+
+  it('omits unused Supporting WeaponDefs without deleting them from project storage', () => {
+    const supportingWeaponDefs = [{
+      id: 'support_unused', ownerUnitId: 'armflash', key: 'unused_child', enabled: true,
+      definition: { range: 360, damage: { default: 44 } },
+    }];
+    const localOnlyLua = compileTweakDefsLua({
+      currentTweakDefsLua: '', customUnitClones: [], buildMenuWizardSteps: [],
+      disabledUnitIds: [], unitBuildOptions: {}, supportingWeaponDefs, tweaks: {},
+    });
+    const pinnedLua = compileTweakDefsLua({
+      currentTweakDefsLua: '', customUnitClones: [], buildMenuWizardSteps: [],
+      disabledUnitIds: [], unitBuildOptions: {},
+      supportingWeaponDefs: [{ ...supportingWeaponDefs[0], alwaysExport: true }], tweaks: {},
+    });
+
+    expect(localOnlyLua).not.toContain('editp_supporting_weapondefs');
+    expect(pinnedLua).toContain('unused_child');
   });
 
   it('targets one carrier controller WeaponDef without rewriting every weapon or child UnitDef', () => {
