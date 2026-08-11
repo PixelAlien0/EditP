@@ -804,22 +804,28 @@
   white-space: nowrap;
 }
 
-.scavenger-squad-profile {
-  display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(160px, .55fr) auto;
-  gap: var(--space-3) var(--space-4);
-  align-items: end;
+.custom-parameter-bundles {
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface-raised);
 }
 
-.scavenger-squad-profile.is-enabled {
-  background: color-mix(in srgb, var(--color-success) 7%, var(--color-surface-raised));
+.custom-parameter-bundles__header,
+.contract-bundle-card__header,
+.contract-bundle-card__actions,
+.contract-bundle-card__facts {
+  display: flex;
+  align-items: center;
 }
 
-.scavenger-squad-profile__identity { min-width: 0; }
-.scavenger-squad-profile__identity > span {
+.custom-parameter-bundles__header {
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.custom-parameter-bundles__header > div > span,
+.contract-bundle-card__header > div > span {
   display: block;
   margin-bottom: var(--space-1);
   color: var(--color-text-muted);
@@ -827,41 +833,60 @@
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-.scavenger-squad-profile__identity h4 {
+
+.custom-parameter-bundles__header h4,
+.contract-bundle-card__header h4 {
   margin: 0;
   color: var(--color-text-strong);
   font: 600 14px/1.2 var(--font-display);
+  text-wrap: balance;
 }
-.scavenger-squad-profile__identity p,
-.scavenger-squad-profile__footer,
-.scavenger-squad-profile__warning {
+
+.custom-parameter-bundles__header p,
+.contract-bundle-card > p {
   margin: var(--space-1) 0 0;
   color: var(--color-text-muted);
   font-size: 10px;
   line-height: 1.4;
+  text-wrap: pretty;
 }
-.scavenger-squad-profile__preset {
-  align-self: stretch;
-  justify-content: end;
-}
-.scavenger-squad-profile__preset .ui-field__label {
-  color: var(--color-text);
-}
-.scavenger-squad-profile__preset .ui-select {
-  min-height: var(--control-height-md);
-  background-color: var(--color-surface);
-}
-.scavenger-squad-profile__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.scavenger-squad-profile__footer {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
+
+.custom-parameter-bundles__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
+}
+
+.contract-bundle-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, .72fr);
+  gap: var(--space-3) var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.contract-bundle-card.is-ready { border-color: color-mix(in srgb, var(--color-success) 45%, var(--color-border)); }
+.contract-bundle-card.is-incomplete,
+.contract-bundle-card.is-experimental { border-color: color-mix(in srgb, var(--color-warning) 55%, var(--color-border)); }
+.contract-bundle-card__header { grid-column: 1 / -1; justify-content: space-between; gap: var(--space-3); }
+.contract-bundle-card > p { margin: 0; }
+.contract-bundle-card .ui-field { align-self: start; }
+.contract-bundle-card .ui-select { background-color: var(--color-surface-raised); }
+.contract-bundle-card__facts {
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
   padding-top: var(--space-2);
   border-top: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+  font: 600 9px/1.3 var(--font-mono);
 }
-.scavenger-squad-profile__footer span:first-child { color: var(--color-text); font-family: var(--font-mono); }
-.scavenger-squad-profile__warning { grid-column: 1 / -1; color: var(--color-warning); }
+.contract-bundle-card__facts strong { color: var(--color-text-strong); }
+.contract-bundle-card__facts span:last-child { margin-left: auto; }
+.contract-bundle-card__actions { grid-column: 1 / -1; flex-wrap: wrap; gap: var(--space-2); }
 
 .armor-profile-field {
   display: grid;
@@ -1111,9 +1136,7 @@
   }
   .advanced-custom-parameters__composer { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .advanced-custom-parameters__composer > button { justify-self: start; }
-  .scavenger-squad-profile { grid-template-columns: minmax(0, 1fr) auto; }
-  .scavenger-squad-profile__preset { grid-column: 1; }
-  .scavenger-squad-profile__actions { grid-column: 2; grid-row: 2; align-self: end; }
+  .custom-parameter-bundles__grid { grid-template-columns: minmax(0, 1fr); }
   .armor-profile-field { grid-template-columns: minmax(0, 1fr) auto; }
   .armor-profile-field label { grid-column: 1; }
 }

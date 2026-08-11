@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Button, ParameterStatus, SelectField } from '../ui.jsx';
+import { Button, ParameterStatus } from '../ui.jsx';
 import CustomParameterControl from './CustomParameterControl.jsx';
+import CustomParameterContractBundles from './CustomParameterContractBundles.jsx';
 import {
   CUSTOM_PARAMETER_BY_KEY,
   CUSTOM_PARAMETER_CATALOG,
@@ -21,104 +22,12 @@ const CORE_CUSTOM_KEYS = new Set([
   'maxunits', 'controlradius', 'enabledocking', 'decayrate', 'deathdecayrate',
   'carrierdeaththroe', 'metalcost', 'energycost', 'armordef'
 ]);
-const SCAVENGER_PROFILE_KEYS = Object.freeze([
-  'scavcustomsquad', 'scavsquadunitsamount', 'scavsquadminanger', 'scavsquadmaxanger',
-  'scavsquadweight', 'scavsquadrarity', 'scavsquadbehavior', 'scavsquadbehaviordistance',
-  'scavsquadbehaviorchance',
-]);
-const SCAVENGER_PRESETS = Object.freeze({
-  fighter: Object.freeze({
-    label: 'Fighter screen',
-    values: Object.freeze({ scavsquadunitsamount: 6, scavsquadminanger: 15, scavsquadmaxanger: 140, scavsquadweight: 100, scavsquadrarity: 'basic', scavsquadbehavior: 'berserk', scavsquadbehaviordistance: 1000, scavsquadbehaviorchance: 1 }),
-  }),
-  scout: Object.freeze({
-    label: 'Scout raider',
-    values: Object.freeze({ scavsquadunitsamount: 1, scavsquadminanger: 15, scavsquadmaxanger: 100, scavsquadweight: 100, scavsquadrarity: 'basic', scavsquadbehavior: 'raider', scavsquadbehaviordistance: 600, scavsquadbehaviorchance: 1 }),
-  }),
-  assault: Object.freeze({
-    label: 'Assault group',
-    values: Object.freeze({ scavsquadunitsamount: 2, scavsquadminanger: 30, scavsquadmaxanger: 120, scavsquadweight: 150, scavsquadrarity: 'basic', scavsquadbehavior: 'berserk', scavsquadbehaviordistance: 1000, scavsquadbehaviorchance: 1 }),
-  }),
-  artillery: Object.freeze({
-    label: 'Artillery group',
-    values: Object.freeze({ scavsquadunitsamount: 2, scavsquadminanger: 30, scavsquadmaxanger: 120, scavsquadweight: 150, scavsquadrarity: 'basic', scavsquadbehavior: 'artillery', scavsquadbehaviordistance: 1100, scavsquadbehaviorchance: 1 }),
-  }),
-  special: Object.freeze({
-    label: 'Special encounter',
-    values: Object.freeze({ scavsquadunitsamount: 2, scavsquadminanger: 55, scavsquadmaxanger: 120, scavsquadweight: 150, scavsquadrarity: 'special', scavsquadbehavior: 'raider', scavsquadbehaviordistance: 1000, scavsquadbehaviorchance: 1 }),
-  }),
-});
 
 function getValueType(value, catalogEntry) {
   if (catalogEntry?.type) return catalogEntry.type;
   if (typeof value === 'boolean') return 'boolean';
   if (typeof value === 'number') return 'number';
   return 'string';
-}
-
-function isEnabled(value) {
-  return value === true || value === 1 || value === '1' || value === 'true';
-}
-
-function ScavengerSquadProfile({ defaults, tweaks, onApplyProfile }) {
-  const [presetId, setPresetId] = useState('fighter');
-  const getEffectiveValue = key => {
-    const path = `${PREFIX}${key}`;
-    return Object.prototype.hasOwnProperty.call(tweaks, path) ? tweaks[path] : defaults[path];
-  };
-  const enabled = isEnabled(getEffectiveValue('scavcustomsquad'));
-  const minAnger = Number(getEffectiveValue('scavsquadminanger'));
-  const maxAnger = Number(getEffectiveValue('scavsquadmaxanger'));
-  const chance = Number(getEffectiveValue('scavsquadbehaviorchance'));
-  const hasAngerConflict = enabled && Number.isFinite(minAnger) && Number.isFinite(maxAnger) && minAnger > maxAnger;
-  const hasChanceConflict = enabled && Number.isFinite(chance) && (chance < 0 || chance > 1);
-
-  const applyPreset = () => {
-    const preset = SCAVENGER_PRESETS[presetId];
-    onApplyProfile(Object.fromEntries([
-      ['scavcustomsquad', true],
-      ...Object.entries(preset.values),
-    ].map(([key, value]) => [`${PREFIX}${key}`, value])));
-  };
-
-  const disableProfile = () => {
-    onApplyProfile(Object.fromEntries([
-      ['scavcustomsquad', false],
-      ...SCAVENGER_PROFILE_KEYS.filter(key => key !== 'scavcustomsquad').map(key => [key, undefined]),
-    ].map(([key, value]) => [`${PREFIX}${key}`, value])));
-  };
-
-  return (
-    <section className={`scavenger-squad-profile ${enabled ? 'is-enabled' : ''}`} aria-labelledby="scavenger-squad-profile-title">
-      <div className="scavenger-squad-profile__identity">
-        <span>BAR Scavenger system</span>
-        <h4 id="scavenger-squad-profile-title">Scavenger Squad Profile</h4>
-        <p>{enabled ? 'This unit is registered as an eligible Scavenger squad candidate.' : 'Register this unit for BAR Scavenger squad selection using a tested profile.'}</p>
-      </div>
-      <SelectField
-        className="scavenger-squad-profile__preset"
-        label="Starter profile"
-        description="Choose a tested squad role as your starting point."
-        value={presetId}
-        onChange={event => setPresetId(event.target.value)}
-      >
-          {Object.entries(SCAVENGER_PRESETS).map(([id, preset]) => <option key={id} value={id}>{preset.label}</option>)}
-      </SelectField>
-      <div className="scavenger-squad-profile__actions">
-        <Button variant="secondary" onClick={applyPreset}>{enabled ? 'Reapply profile' : 'Enable profile'}</Button>
-        {enabled && <Button variant="quiet" onClick={disableProfile}>Disable</Button>}
-      </div>
-      <div className="scavenger-squad-profile__footer">
-        <span>{enabled ? '9 configured contract fields' : 'No Scavenger registration'}</span>
-        <span>Edit the generated fields below for exact tuning.</span>
-      </div>
-      {(hasAngerConflict || hasChanceConflict) && (
-        <p className="scavenger-squad-profile__warning">
-          {hasAngerConflict && 'Minimum anger must not exceed maximum anger.'}{hasAngerConflict && hasChanceConflict && ' '}{hasChanceConflict && 'Behavior chance must be between 0 and 1.'}
-        </p>
-      )}
-    </section>
-  );
 }
 
 function ArmorProfileField({ defaults, tweaks, onChange }) {
@@ -249,10 +158,10 @@ export default function AdvancedCustomParameters({
         })}
       </ol>
 
-      <ScavengerSquadProfile
+      <CustomParameterContractBundles
         defaults={defaults}
         tweaks={tweaks}
-        onApplyProfile={onApplyProfile || (patch => Object.entries(patch).forEach(([key, value]) => onChange(key, value)))}
+        onApplyPatch={onApplyProfile || (patch => Object.entries(patch).forEach(([key, value]) => onChange(key, value)))}
       />
 
       <ArmorProfileField defaults={defaults} tweaks={tweaks} onChange={onChange} />
