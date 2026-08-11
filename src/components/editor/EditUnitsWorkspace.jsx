@@ -545,18 +545,22 @@ export default function EditUnitsWorkspace({ context }) {
                   aria-labelledby="operational-overview-title"
                 >
                   <header className="operational-overview__header">
-                    <span className="operational-overview__eyebrow">Live analysis</span>
+                    <span className="operational-overview__eyebrow">Selected chassis</span>
                     <h2 id="operational-overview-title">Operational overview</h2>
-                    <small>Performance and hardpoint telemetry</small>
+                    <small>Live performance and weapon telemetry</small>
                   </header>
 
                   <div className="operational-overview__modules">
 
                   {/* Efficiency Analysis Card */}
-                  <div className="unit-context-card unit-efficiency-card">
-                    <span className="unit-context-label">
-                      Efficiency Analysis
-                    </span>
+                  <article className="unit-context-card unit-efficiency-card">
+                    <header className="unit-context-card__header">
+                      <div>
+                        <span className="unit-context-label">Efficiency</span>
+                        <small>Cost, damage, and durability</small>
+                      </div>
+                      <span className="unit-context-card__status">Live</span>
+                    </header>
                     {(() => {
                       const baseId = selectedUnit.isClone ? resolveCloneRootId(selectedUnit.id) : selectedUnit.id;
                       const uDefaults = defaultsDb[baseId] || {};
@@ -568,31 +572,35 @@ export default function EditUnitsWorkspace({ context }) {
                       const dpsPerMetal = metalCost > 0 ? ((dpsVal / metalCost) * 100).toFixed(2) : '—';
                       const buildEfficiency = buildTime > 0 ? (health / buildTime).toFixed(2) : '—';
                       const effRows = [
-                        { label: 'Cost / HP', value: costPerHp, unit: 'm', tone: 'wisteria' },
-                        { label: 'DPS / 100m', value: dpsPerMetal, unit: '', tone: 'sakura' },
-                        { label: 'HP / Build-s', value: buildEfficiency, unit: '', tone: 'earth' }
+                        { label: 'Cost / HP', value: costPerHp, unit: 'm' },
+                        { label: 'DPS / 100m', value: dpsPerMetal, unit: '' },
+                        { label: 'HP / Build-s', value: buildEfficiency, unit: '' }
                       ];
                       return (
-                        <div className="unit-efficiency-metrics">
+                        <dl className="unit-efficiency-metrics">
                           {effRows.map(r => (
-                            <div className={`unit-efficiency-metric tone-${r.tone}`} key={r.label}>
-                              <span>{r.label}</span>
-                              <span>
+                            <div className="unit-efficiency-metric" key={r.label}>
+                              <dt>{r.label}</dt>
+                              <dd>
                                 {r.value}<small> {r.unit}</small>
-                              </span>
+                              </dd>
                             </div>
                           ))}
-                        </div>
+                        </dl>
                       );
                     })()}
-                  </div>
+                  </article>
 
                   {/* Weapon Slot Nodes Selector List */}
-                  {slots.length > 0 && (
-                    <div className="unit-context-card unit-weapon-card">
-                      <span className="unit-context-label">
-                        Chassis Weapon Slots ({slots.length})
-                      </span>
+                    <article className="unit-context-card unit-weapon-card">
+                      <header className="unit-context-card__header">
+                        <div>
+                          <span className="unit-context-label">Weapon hardpoints</span>
+                          <small>{slots.length > 0 ? `${slots.length} mounted ${slots.length === 1 ? 'definition' : 'definitions'}` : 'No mounted definitions'}</small>
+                        </div>
+                        <span className="unit-context-card__status">{slots.length}</span>
+                      </header>
+                      {slots.length > 0 ? (
                       <div className="unit-slot-list">
                         {slots.map(s => {
                           const isCurrent = s.slot === activeSlotIdx;
@@ -613,35 +621,45 @@ export default function EditUnitsWorkspace({ context }) {
                           );
                         })}
                       </div>
-                    </div>
-                  )}
+                      ) : (
+                        <p className="unit-context-empty">This chassis has no editable weapon slots.</p>
+                      )}
+                    </article>
 
                   {/* Current weapon firing profile */}
-                  {slot && (
-                    <div className="unit-context-card unit-trajectory-card">
-                      <span className="unit-context-label">Firing Profile</span>
-                      <div className="unit-trajectory-copy">
-                        <div className="unit-trajectory-values">
-                          <div>
-                            <span>DPS</span>
-                            <span className="tone-wisteria">
-                              {calculatedDps} <small>/s</small>
-                            </span>
-                          </div>
-                          <div>
-                            <span>Range</span>
-                            <span className="tone-sakura">
-                              {rawRange} <small>el</small>
-                            </span>
-                          </div>
-                          <div>
-                            <span>Spread</span>
-                            <span>{rawSpray > 0 ? `${rawSpray}°` : 'Direct'}</span>
-                          </div>
+                    <article className="unit-context-card unit-trajectory-card">
+                      <header className="unit-context-card__header">
+                        <div>
+                          <span className="unit-context-label">Firing profile</span>
+                          <small>{slot ? `Slot ${slot.slot} · ${slot.defKey}` : 'No active weapon selected'}</small>
                         </div>
+                        <span className="unit-context-card__status">{slot ? 'Active' : 'Empty'}</span>
+                      </header>
+                      {slot ? (
+                      <div className="unit-trajectory-copy">
+                        <dl className="unit-trajectory-values">
+                          <div>
+                            <dt>DPS</dt>
+                            <dd>
+                              {calculatedDps} <small>/s</small>
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Range</dt>
+                            <dd>
+                              {rawRange} <small>el</small>
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Spread</dt>
+                            <dd>{rawSpray > 0 ? `${rawSpray}°` : 'Direct'}</dd>
+                          </div>
+                        </dl>
                       </div>
-                    </div>
-                  )}
+                      ) : (
+                        <p className="unit-context-empty">Select a hardpoint to inspect its firing data.</p>
+                      )}
+                    </article>
 
                   </div>
                 </section>
