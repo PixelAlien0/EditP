@@ -1254,6 +1254,7 @@ export default function App() {
           currentActivity: presenceActivity,
         }}
         unreadChatCount={unreadChatCount}
+        validationIssueCount={validationIssues.length}
         weaponLabEnabled={WEAPON_LAB_ENABLED}
         mutatorToolsEnabled={MUTATOR_TOOLS_ENABLED}
         onWorkspaceChange={workspaceId => {

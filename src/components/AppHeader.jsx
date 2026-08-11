@@ -16,6 +16,7 @@ export default function AppHeader({
   historyFutureCount,
   presence,
   unreadChatCount,
+  validationIssueCount = 0,
   weaponLabEnabled = false,
   mutatorToolsEnabled = false,
   onWorkspaceChange,
@@ -96,6 +97,16 @@ export default function AppHeader({
           >
             <span className="workflow-nav__step">{workspace.step}</span>
             <span className="workflow-nav__label">{workspace.label}</span>
+            {workspace.id === 'review' && (
+              <span
+                className={`workflow-nav__status ${validationIssueCount > 0 ? 'needs-review' : 'is-clear'}`}
+                aria-label={validationIssueCount > 0
+                  ? `${validationIssueCount} validation ${validationIssueCount === 1 ? 'issue' : 'issues'}`
+                  : 'No validation issues'}
+              >
+                {validationIssueCount}
+              </span>
+            )}
           </button>
         ))}
       </nav>
@@ -115,6 +126,19 @@ export default function AppHeader({
             </svg>
             <span className="header-menu-label">Main menu</span>
           </Button>
+          <IconButton
+            variant="quiet"
+            size="sm"
+            className="header-command-action"
+            label="Open command palette"
+            title="Open command palette (Ctrl+K)"
+            onClick={onCommandPalette}
+          >
+            <svg viewBox="0 0 16 16">
+              <circle cx="7" cy="7" r="4.25" />
+              <path d="m10.25 10.25 3 3" />
+            </svg>
+          </IconButton>
           <Button
             variant="quiet"
             className="theme-toggle"
@@ -122,12 +146,25 @@ export default function AppHeader({
             aria-pressed={themeMode === 'dark'}
             onClick={onToggleTheme}
           >
-            <span className="theme-toggle-mark" aria-hidden="true">{themeMode === 'dark' ? '☼' : '◐'}</span>
+            <svg className="theme-toggle-mark" viewBox="0 0 16 16" aria-hidden="true">
+              {themeMode === 'dark' ? (
+                <>
+                  <circle cx="8" cy="8" r="2.75" />
+                  <path d="M8 1.5v1.25M8 13.25v1.25M1.5 8h1.25M13.25 8h1.25M3.4 3.4l.9.9M11.7 11.7l.9.9M12.6 3.4l-.9.9M4.3 11.7l-.9.9" />
+                </>
+              ) : (
+                <path d="M11.75 10.9A5.25 5.25 0 0 1 5.1 4.25 5.25 5.25 0 1 0 11.75 10.9Z" />
+              )}
+            </svg>
             <span>{themeMode === 'dark' ? 'Light' : 'Dark'}</span>
           </Button>
           <ButtonGroup className="history-controls" label="Change history">
-            <IconButton variant="quiet" size="sm" label="Undo" onClick={onUndo} disabled={historyPastCount === 0} title="Undo (Ctrl+Z)">↶</IconButton>
-            <IconButton variant="quiet" size="sm" label="Redo" onClick={onRedo} disabled={historyFutureCount === 0} title="Redo (Ctrl+Y)">↷</IconButton>
+            <IconButton variant="quiet" size="sm" label="Undo" onClick={onUndo} disabled={historyPastCount === 0} title="Undo (Ctrl+Z)">
+              <svg viewBox="0 0 16 16"><path d="M6 4 2.5 7.5 6 11" /><path d="M3 7.5h6a4 4 0 0 1 4 4" /></svg>
+            </IconButton>
+            <IconButton variant="quiet" size="sm" label="Redo" onClick={onRedo} disabled={historyFutureCount === 0} title="Redo (Ctrl+Y)">
+              <svg viewBox="0 0 16 16"><path d="m10 4 3.5 3.5L10 11" /><path d="M13 7.5H7a4 4 0 0 0-4 4" /></svg>
+            </IconButton>
           </ButtonGroup>
         </div>
 
@@ -190,7 +227,7 @@ export default function AppHeader({
               <path d="M3 4.25h10M5.5 8h5M7 11.75h2" />
             </svg>
             <span>Tools</span>
-            <span className="header-tools-chevron" aria-hidden="true">⌄</span>
+            <svg className="header-tools-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m5 6.5 3 3 3-3" /></svg>
           </Button>
           {toolsOpen && (
             <div className="header-tools-menu" id="header-tools-menu" role="menu" aria-label="Editor tools">
@@ -234,7 +271,7 @@ export default function AppHeader({
                   <span><span className="header-tool-title"><strong>Mutation Lab</strong><CapabilityLabels capabilityIds={mutatorToolsEnabled ? ['experimental'] : ['locked']} compact /></span><small>Temporarily unavailable while mutation rules are repaired</small></span>
                 </button>
               </div>
-              <div className="header-tools-menu__group" aria-label="Package and reference tools">
+              <div className="header-tools-menu__group header-tools-menu__group--wide" aria-label="Package and reference tools">
                 <span className="header-tools-menu__group-label">Packages &amp; references</span>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onTweakLab)}>
                   <span><span className="header-tool-title"><strong>Tweak Package Lab</strong><CapabilityLabels featureId="tool.tweak-package-lab" compact /></span><small>Inspect community Lua safely</small></span>

@@ -52,6 +52,21 @@ describe('AppHeader', () => {
     expect(callbacks.onWorkspaceChange).toHaveBeenCalledWith('designer');
   });
 
+  it('surfaces project validation status in Review & Export', () => {
+    renderHeader({ validationIssueCount: 3 });
+
+    expect(screen.getByLabelText('3 validation issues')).toHaveTextContent('3');
+  });
+
+  it('keeps the command palette directly accessible', async () => {
+    const user = userEvent.setup();
+    const callbacks = renderHeader();
+
+    await user.click(screen.getByRole('button', { name: 'Open command palette' }));
+
+    expect(callbacks.onCommandPalette).toHaveBeenCalledOnce();
+  });
+
   it('owns the Tools menu lifecycle and closes it after selection', async () => {
     const user = userEvent.setup();
     const callbacks = renderHeader();

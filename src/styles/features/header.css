@@ -1,17 +1,25 @@
+/* Canonical application header: brand, workflow, and restrained utilities. */
 .app-header {
   position: relative;
   z-index: var(--z-dropdown);
+  min-width: 0;
   min-height: var(--header-height);
   height: var(--header-height);
-  padding: 0 clamp(14px, 1.35vw, 26px);
+  padding: 0 clamp(var(--space-3), 1.4vw, var(--space-6));
   display: grid;
-  grid-template-columns: minmax(190px, 236px) minmax(370px, 1fr) auto;
+  grid-template-columns: minmax(204px, 238px) minmax(420px, 1fr) auto;
   align-items: center;
-  gap: clamp(10px, 1.15vw, 22px);
+  gap: clamp(var(--space-2), 1.15vw, var(--space-5));
   overflow: visible;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
-  box-shadow: 0 3px 16px color-mix(in srgb, var(--color-text-strong) 5%, transparent);
+}
+
+.app-header .header-brand-group {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .app-header .header-brand {
@@ -19,76 +27,80 @@
   padding: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   border: 0;
   background: transparent;
   color: inherit;
   text-align: left;
   cursor: pointer;
-  box-shadow: none;
+}
+
+.app-header .header-brand:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 4px;
 }
 
 .app-header .app-logo {
   width: 38px;
   height: 38px;
-  flex: 0 0 38px;
   padding: 5px;
+  flex: 0 0 38px;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
   background: var(--color-surface-subtle);
-  box-shadow: none;
 }
 
-.app-header .brand-text { min-width: 0; }
-.app-header .brand-kicker { color: var(--color-accent-strong); font: 700 8px/1.15 var(--font-mono); letter-spacing: .17em; }
-.app-header .brand-text h1 { color: var(--color-text-strong); font: 600 20px/1.05 var(--font-display); letter-spacing: -.018em; }
+.app-header .brand-text {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
 
-/* Workflow is a single quiet segmented rail. */
+.app-header .brand-kicker {
+  color: var(--color-accent-strong);
+  font: 700 8px/1.1 var(--font-mono);
+  text-transform: uppercase;
+}
+
+.app-header .brand-text h1 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 600 20px/1 var(--font-display);
+  text-overflow: ellipsis;
+  text-wrap: balance;
+  white-space: nowrap;
+}
+
+/* Workflow reads as navigation, rather than another boxed control tray. */
 .app-header .workflow-nav {
   width: max-content;
   max-width: 100%;
   min-width: 0;
-  height: 46px;
-  padding: 4px;
+  min-height: 44px;
   justify-self: center;
   display: inline-flex;
   align-items: stretch;
-  gap: 2px;
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-subtle);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .app-header .workflow-nav button {
   min-width: 0;
-  min-height: 36px;
-  padding: 0 12px;
+  min-height: 43px;
+  padding: 0 var(--space-3);
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  gap: var(--space-2);
+  border: 0;
+  border-bottom: 2px solid transparent;
   background: transparent;
-  box-shadow: none;
   color: var(--color-text-muted);
-  font: 650 9px/1 var(--font-ui);
-  letter-spacing: .01em;
-  white-space: nowrap;
   cursor: pointer;
-}
-
-.app-header .workflow-nav__step {
-  min-width: 17px;
-  color: var(--color-text-faint);
-  font: 700 8px/1 var(--font-mono);
-  letter-spacing: .06em;
-}
-
-.app-header .workflow-nav__label {
-  color: inherit;
-  font: inherit;
+  font: 650 9px/1 var(--font-ui);
+  white-space: nowrap;
 }
 
 .app-header .workflow-nav button:hover {
@@ -96,54 +108,93 @@
   color: var(--color-text-strong);
 }
 
+.app-header .workflow-nav button:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}
+
 .app-header .workflow-nav button.active {
-  border-color: var(--color-border-accent-muted);
-  background: var(--color-surface);
+  border-bottom-color: var(--color-accent-strong);
+  background: var(--color-surface-accent-subtle);
   color: var(--color-text-strong);
-  box-shadow: 0 1px 5px color-mix(in srgb, var(--color-text-strong) 6%, transparent);
+}
+
+.app-header .workflow-nav__step {
+  color: var(--color-text-muted);
+  font: 700 8px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .app-header .workflow-nav button.active .workflow-nav__step {
   color: var(--color-accent-strong);
 }
 
-/* Utilities use small trays so unrelated actions no longer read as one long button row. */
+.app-header .workflow-nav__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-header .workflow-nav__status {
+  min-width: 18px;
+  min-height: 18px;
+  padding-inline: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font: 700 8px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.app-header .workflow-nav__status.needs-review {
+  border-color: color-mix(in srgb, var(--color-warning) 55%, var(--color-border));
+  background: var(--color-warning-surface);
+  color: var(--color-warning);
+}
+
+.app-header .workflow-nav__status.is-clear {
+  color: var(--color-success);
+}
+
+/* Utilities are separated by rhythm and dividers, not nested trays. */
 .app-header .header-utility-actions {
   min-width: 0;
   justify-self: end;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   white-space: nowrap;
 }
 
 .app-header :is(.header-control-cluster, .header-collaboration-actions, .header-project-actions) {
-  min-height: 40px;
-  padding: 3px;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-subtle);
+  gap: var(--space-1);
 }
 
-.app-header .header-control-cluster {
-  padding-right: 3px;
+.app-header .header-control-cluster,
+.app-header .header-collaboration-actions {
+  padding-right: var(--space-2);
+  border-right: 1px solid var(--color-border);
 }
 
 .app-header .header-control-cluster .history-controls {
-  padding-left: 3px;
+  padding-left: var(--space-1);
   display: flex;
   gap: 1px;
   border: 0;
   border-left: 1px solid var(--color-border);
 }
 
-.app-header .header-utility-actions :is(.btn-action, .theme-toggle, .history-controls button) {
-  min-height: 32px;
-  height: 32px;
-  padding: 0 9px;
+.app-header .header-utility-actions :is(.btn-action, .theme-toggle, .history-controls button, .header-command-action) {
+  min-height: 34px;
+  height: 34px;
+  padding: 0 var(--space-2);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -154,22 +205,20 @@
   box-shadow: none;
   color: var(--color-text-muted);
   font: 650 9px/1 var(--font-ui);
-  letter-spacing: .01em;
   text-transform: none;
 }
 
-.app-header .header-utility-actions .history-controls button {
-  width: 30px;
-  min-width: 30px;
+.app-header .header-utility-actions :is(.history-controls button, .header-command-action) {
+  width: 32px;
+  min-width: 32px;
   padding: 0;
-  font-size: 14px;
 }
 
 .app-header .header-utility-actions .history-controls button:disabled {
   opacity: .34;
 }
 
-.app-header .header-utility-actions :is(.btn-action, .theme-toggle, .history-controls button):hover:not(:disabled) {
+.app-header .header-utility-actions :is(.btn-action, .theme-toggle, .history-controls button, .header-command-action):hover:not(:disabled) {
   border-color: var(--color-border);
   background: var(--color-surface-hover);
   color: var(--color-text-strong);
@@ -182,9 +231,15 @@
   outline-offset: 2px;
 }
 
-.app-header .header-menu-action svg,
-.app-header .header-action-icon,
-.app-header .header-chat-action svg {
+.app-header :is(
+  .header-menu-action svg,
+  .header-command-action svg,
+  .header-action-icon,
+  .header-chat-action svg,
+  .theme-toggle-mark,
+  .history-controls svg,
+  .header-tools-chevron
+) {
   width: 14px;
   height: 14px;
   flex: 0 0 14px;
@@ -197,20 +252,24 @@
 
 .app-header .theme-toggle-mark {
   color: var(--color-accent-strong);
-  font-size: 12px;
-  line-height: 1;
 }
 
 .app-header .header-utility-actions .header-create-action,
 [data-theme="dark"] .app-header .header-utility-actions .header-create-action {
   min-width: 108px;
-  min-height: 40px;
-  height: 40px;
-  padding-inline: 12px;
-  border-color: var(--color-border-accent-muted) !important;
-  background: var(--color-surface-accent-subtle) !important;
-  color: var(--color-accent-strong) !important;
+  min-height: 38px;
+  height: 38px;
+  padding-inline: var(--space-3);
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface-accent-subtle);
+  color: var(--color-accent-strong);
   font-weight: 720;
+}
+
+.app-header .header-create-action:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
 }
 
 .app-header .header-create-icon {
@@ -224,22 +283,16 @@
   stroke-width: 1.25;
 }
 
-.header-create-action:hover:not(:disabled) {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
-}
-
 .app-header .header-tools {
   position: relative;
 }
 
 .app-header .header-utility-actions .header-tools-trigger {
-  min-height: 40px;
-  height: 40px;
-  padding-inline: 10px;
+  min-height: 38px;
+  height: 38px;
+  padding-inline: var(--space-3);
   border-color: var(--color-border);
-  background: var(--color-surface-subtle);
+  background: var(--color-surface);
   color: var(--color-text);
 }
 
@@ -250,33 +303,28 @@
 }
 
 .app-header .header-tools-chevron {
-  margin-left: 1px;
-  color: var(--color-text-faint);
-  font-size: 12px;
-  transition: transform var(--motion-fast);
-}
-
-.app-header .header-tools-trigger[aria-expanded='true'] .header-tools-chevron {
-  transform: rotate(180deg);
+  width: 12px;
+  height: 12px;
+  color: var(--color-text-muted);
 }
 
 .app-header .header-project-actions {
   gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
 
 .app-header .header-project-actions .header-file-action {
+  min-height: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 0;
   cursor: pointer;
 }
 
 .app-header .header-project-actions .header-file-action + .header-file-action {
-  border-left-color: var(--color-border);
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.app-header .header-project-actions .header-file-action:first-child {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-left: 1px solid var(--color-border);
 }
 
 .app-header .header-project-actions input,
@@ -284,27 +332,29 @@
   display: none;
 }
 
-/* Grouped tool launcher. */
+/* Tools menu is a compact directory for secondary workbenches. */
 .app-header .header-tools-menu {
-  width: min(368px, calc(100vw - 24px));
+  width: min(660px, calc(100vw - 24px));
   max-height: calc(100dvh - var(--header-height) - 16px);
   padding: var(--space-3);
   position: absolute;
-  z-index: 120;
-  inset-block-start: calc(100% + 8px);
+  z-index: var(--z-dialog);
+  inset-block-start: calc(100% + var(--space-2));
   inset-inline-end: 0;
   display: grid;
-  gap: var(--density-control-gap);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
   overflow-y: auto;
   overscroll-behavior: contain;
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-surface-raised);
   box-shadow: var(--shadow-float);
 }
 
 .app-header .header-tools-menu__intro {
   padding: var(--space-2) var(--space-2) var(--space-3);
+  grid-column: 1 / -1;
   display: grid;
   gap: var(--space-1);
   border-bottom: 1px solid var(--color-border);
@@ -314,44 +364,55 @@
 .app-header .header-tools-menu__group-label {
   color: var(--color-accent-strong);
   font: 700 8px/1.2 var(--font-mono);
-  letter-spacing: .12em;
   text-transform: uppercase;
 }
 
 .app-header .header-tools-menu__intro > strong {
   color: var(--color-text-strong);
-  font: 600 18px/1.15 var(--font-display);
+  font: 600 var(--font-size-lg)/1.15 var(--font-display);
+  text-wrap: balance;
 }
 
 .app-header .header-tools-menu__intro > small {
   color: var(--color-text-muted);
-  font: 500 9px/1.45 var(--font-ui);
+  font: 500 9px/var(--line-height-body) var(--font-ui);
+  text-wrap: pretty;
 }
 
 .app-header .header-tools-menu__group {
+  min-width: 0;
+  padding: var(--space-2);
   display: grid;
+  align-content: start;
   gap: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
 }
 
-.app-header .header-tools-menu__group + .header-tools-menu__group {
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border-subtle);
+.app-header .header-tools-menu__group--wide {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .app-header .header-tools-menu__group-label {
   padding: var(--space-1) var(--space-2) var(--space-2);
-  color: var(--color-text-faint);
+  color: var(--color-text-muted);
+}
+
+.app-header .header-tools-menu__group--wide .header-tools-menu__group-label {
+  grid-column: 1 / -1;
 }
 
 .app-header .header-tools-menu button,
 .app-header .header-tools-menu label {
   width: 100%;
   min-height: 48px;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--density-control-gap);
+  gap: var(--space-2);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -363,7 +424,7 @@
 .app-header .header-tools-menu button > span:first-child {
   min-width: 0;
   display: grid;
-  gap: var(--space-1);
+  gap: 2px;
 }
 
 .app-header .header-tool-title {
@@ -380,13 +441,16 @@
 }
 
 .app-header .header-tools-menu button small {
+  overflow: hidden;
   color: var(--color-text-muted);
   font: 500 8px/1.35 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-header .header-tools-menu button:disabled {
   cursor: not-allowed;
-  opacity: .62;
+  opacity: .58;
 }
 
 .app-header .header-tools-menu button:disabled:hover {
@@ -396,9 +460,10 @@
 
 .app-header .header-tools-menu kbd {
   padding: 4px 5px;
+  flex: 0 0 auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xs);
-  background: var(--color-surface-subtle);
+  background: var(--color-surface);
   color: var(--color-text-muted);
   font: 600 8px/1 var(--font-mono);
 }
@@ -406,7 +471,7 @@
 .app-header .header-tools-menu :is(button, label):hover,
 .app-header .header-tools-menu :is(button, label):focus-visible,
 .app-header .header-tools-menu label:focus-within {
-  border-color: var(--color-border);
+  border-color: var(--color-border-strong);
   background: var(--color-surface-hover);
   color: var(--color-text-strong);
   outline: 0;
@@ -414,51 +479,43 @@
 
 .app-header .header-tools-menu-project-actions {
   display: none;
+  grid-column: 1 / -1;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  padding-top: 8px;
+  gap: var(--space-1);
+  padding-top: var(--space-2);
   border-top: 1px solid var(--color-border);
 }
 
 .app-header .header-tools-menu-project-actions :is(button, label) {
-  min-height: 34px;
+  min-height: 36px;
   justify-content: center;
   border-color: var(--color-border);
+  background: var(--color-surface);
   color: var(--color-text-strong);
   font: 650 9px/1 var(--font-ui);
 }
 
-@media (max-width: 1640px) {
+@media (max-width: 1700px) {
   .app-header {
-    grid-template-columns: minmax(178px, 212px) minmax(350px, 1fr) auto;
+    grid-template-columns: minmax(184px, 214px) minmax(390px, 1fr) auto;
+    gap: var(--space-2);
   }
 
-  .app-header .header-utility-actions {
-    gap: 4px;
-  }
+  .app-header .workflow-nav button { padding-inline: 10px; }
 
-  .app-header .workflow-nav button {
-    padding-inline: 9px;
-  }
-
-  .app-header .header-menu-label,
-  .app-header .header-credits-label,
-  .app-header .header-chat-label {
+  .app-header :is(.header-menu-label, .header-credits-label, .header-chat-label) {
     display: none;
   }
 
-  .app-header .header-menu-action,
-  .app-header .header-credits-action,
-  .app-header .header-chat-action {
-    width: 32px;
+  .app-header :is(.header-menu-action, .header-credits-action, .header-chat-action) {
+    width: 34px;
     padding-inline: 0;
   }
 }
 
-@media (max-width: 1420px) {
+@media (max-width: 1450px) {
   .app-header {
-    grid-template-columns: minmax(158px, 188px) minmax(318px, 1fr) auto;
-    gap: 8px;
+    grid-template-columns: minmax(158px, 184px) minmax(350px, 1fr) auto;
   }
 
   .app-header .brand-kicker,
@@ -467,23 +524,17 @@
     display: none;
   }
 
-  .app-header .workflow-nav button {
-    padding-inline: 8px;
-  }
-
   .app-header .header-project-actions .header-file-action {
-    width: 32px;
+    width: 34px;
     padding-inline: 0;
   }
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1280px) {
   .app-header {
-    grid-template-columns: 54px minmax(300px, 1fr) auto;
+    grid-template-columns: minmax(148px, 174px) minmax(330px, 1fr) auto;
   }
 
-  .app-header .brand-text,
-  .app-header .header-collaboration-actions,
   .app-header .header-project-actions {
     display: none;
   }
@@ -491,22 +542,32 @@
   .app-header .header-tools-menu-project-actions {
     display: grid;
   }
+}
 
-  .app-header .workflow-nav button {
-    padding-inline: 7px;
+@media (max-width: 1160px) {
+  .app-header {
+    padding-inline: 10px;
+    grid-template-columns: 48px minmax(315px, 1fr) auto;
+    gap: 6px;
   }
 
-  .app-header .workflow-nav__step {
+  .app-header .brand-text,
+  .app-header .header-control-cluster .history-controls {
     display: none;
   }
 
-  .app-header .workflow-nav__label {
-    display: inline;
+  .app-header .workflow-nav button {
+    padding-inline: var(--space-2);
+  }
+
+  .app-header .workflow-nav__status {
+    min-width: 16px;
+    min-height: 16px;
   }
 
   .app-header .header-utility-actions .header-create-action {
-    min-width: 40px;
-    width: 40px;
+    min-width: 38px;
+    width: 38px;
     padding-inline: 0;
   }
 
@@ -516,8 +577,7 @@
     display: none;
   }
 
-  .app-header .header-utility-actions .theme-toggle,
-  .app-header .header-utility-actions .header-tools-trigger {
+  .app-header .header-utility-actions :is(.theme-toggle, .header-tools-trigger) {
     width: 34px;
     padding-inline: 0;
   }
@@ -527,11 +587,15 @@
   }
 }
 
-@media (max-width: 1060px) {
-  .app-header {
-    padding-inline: 10px;
-    grid-template-columns: 44px minmax(292px, 1fr) auto;
-    gap: 6px;
+@media (max-width: 1040px) {
+  .app-header .workflow-nav__step,
+  .app-header .workflow-nav__status.is-clear {
+    display: none;
+  }
+
+  .app-header .header-control-cluster,
+  .app-header .header-collaboration-actions {
+    padding-right: var(--space-1);
   }
 
   .app-header .app-logo {
@@ -539,43 +603,30 @@
     height: 34px;
     flex-basis: 34px;
   }
+}
 
-  .app-header .header-control-cluster .history-controls {
-    display: none;
+@media (max-width: 700px) {
+  .app-header .header-tools-menu {
+    width: min(380px, calc(100vw - 16px));
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .app-header .header-control-cluster {
-    display: inline-flex;
+  .app-header .header-tools-menu__group--wide {
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .app-header .header-menu-action,
-  .app-header .theme-toggle {
-    width: 32px;
-    padding-inline: 0;
+  .app-header .header-tools-menu__group--wide .header-tools-menu__group-label {
+    grid-column: auto;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .app-header .header-tools-chevron {
-    transition: none;
-  }
-}
-
+/* Shared editorial eyebrow used by review and package workspaces. */
 .workflow-eyebrow {
   display: block;
-  margin-bottom: 5px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  margin-bottom: var(--space-1);
+  font: 700 9px/1.2 var(--font-mono);
   text-transform: uppercase;
-}
-
-@media (max-width: 1320px) {
-  .header-actions .btn-action {
-    padding-inline: 9px;
-    font-size: 9px;
-  }
 }
 
 .brand-kicker {
@@ -584,22 +635,4 @@
   text-transform: uppercase;
 }
 
-@media (max-width: 1100px) {
-  .brand-kicker {
-    display: none;
-  }
-}
-
-@media (max-width: 1080px) {
-  .header-actions>.btn-action:first-of-type {
-    display: none;
-  }
-}
-
-@media (max-width: 1180px) {
-  .brand-kicker {
-    display: none;
-  }
-}
-
-/*  End canonical header ownership  */
+/* End canonical header ownership. */
