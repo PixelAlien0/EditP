@@ -8,6 +8,7 @@ import {
   evaluateGadgetContracts,
   gadgetContractResultsToIssues,
 } from '../utils/gadgetContractValidation.js';
+import { validateConsumerBackedPatch } from '../utils/consumerBackedValidation.js';
 
 export function getValidationWarning(key, value) {
   if (value === undefined || value === '') return null;
@@ -229,7 +230,10 @@ export function useProjectValidation({
 
   const validationIssues = useMemo(() => {
     const issues = [];
-    const knownUnitIds = new Set(allUnitsList.map(unit => unit.id.toLowerCase()));
+    const knownUnitIds = new Set([
+      ...allUnitsList.map(unit => unit.id.toLowerCase()),
+      ...clones.map(clone => String(clone.newId || '').toLowerCase()),
+    ].filter(Boolean));
     const knownWeaponDefs = new Set(
       Object.values(defaultsDb)
         .flatMap(unit => unit?.weaponSlots || [])
@@ -249,6 +253,14 @@ export function useProjectValidation({
       const unitName = unitNames[unitId]
         || clones.find(clone => clone.newId.toLowerCase() === unitId.toLowerCase())?.displayName
         || unitId;
+      issues.push(...validateConsumerBackedPatch({
+        unitId,
+        unitName,
+        patch,
+        knownUnitIds,
+        knownWeaponDefs,
+        supportingWeaponDefs: supportingDestinations,
+      }));
       Object.entries(patch).forEach(([key, value]) => {
         const warning = getValidationWarning(key, value);
         if (warning) issues.push({ unitId, unitName, key, value, ...warning });

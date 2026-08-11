@@ -276,6 +276,11 @@ for (const parameter of WEAPON_PARAMETER_CATALOG) {
     documented: true,
     editorSupported: true,
     capabilities: parameter.capabilities || ['bar-gadget'],
+    acceptedValues: parameter.options || parameter.acceptedValues,
+    min: parameter.min,
+    max: parameter.max,
+    step: parameter.step,
+    unit: parameter.unit,
     description: parameter.description || `${parameter.label} is compiled into the WeaponDef custom-parameter table.`,
   });
 }
