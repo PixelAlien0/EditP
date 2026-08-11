@@ -1652,15 +1652,19 @@ export default function EditUnitsWorkspace({ context }) {
             changes: (
               <div className="editor-inspector-changes">
                 <div className="changes-context-summary">
-                  <div>
+                  <div className="changes-context-summary__identity">
                     <span>{activeCollection ? 'Collection ledger' : 'Project ledger'}</span>
                     <strong>{activeCollection
                       ? `${activeCollectionModifiedCount} edited member${activeCollectionModifiedCount === 1 ? '' : 's'}`
                       : `${projectChangeCount} tracked change${projectChangeCount === 1 ? '' : 's'}`}</strong>
+                    <small>Review scope, export contents, validation, and generated output.</small>
                   </div>
-                  {scopedValidationIssues.length > 0 && <small>{scopedValidationIssues.length} need review</small>}
+                  <div className={`changes-context-summary__status ${scopedValidationIssues.length > 0 ? 'needs-review' : 'is-clear'}`}>
+                    <strong>{scopedValidationIssues.length}</strong>
+                    <span>{scopedValidationIssues.length === 1 ? 'issue' : 'issues'}</span>
+                  </div>
                 </div>
-                <div className="code-scroll-area changes-pane-content">
+                <div className="changes-pane-content">
 
                 {(() => {
                   const healthState = scopedValidationIssues.some(issue => issue.level === 'error')
@@ -1697,43 +1701,58 @@ export default function EditUnitsWorkspace({ context }) {
                 {/* Active Tweaks Summary Strip */}
                 <div className="changes-summary-grid">
                   <button
+                    type="button"
+                    className="changes-summary-card"
                     onClick={() => {
                       setActiveSummaryTab('tweaks');
                       setShowSummaryModal(true);
                     }}
                     title="View/reset active tweaks"
                   >
-                    Tweaks: <span style={{ color: 'var(--color-arm)', fontWeight: 800 }}>{modifiedUnitIds.length}</span>
+                    <span>Edited units</span>
+                    <strong>{modifiedUnitIds.length}</strong>
+                    <small>Open ledger</small>
                   </button>
                   <button
+                    type="button"
+                    className="changes-summary-card"
                     onClick={() => {
                       setActiveSummaryTab('clones');
                       setShowSummaryModal(true);
                     }}
                     title="View/remove custom clones"
                   >
-                    Clones: <span style={{ color: 'var(--color-leg)', fontWeight: 800 }}>{clones.length}</span>
+                    <span>Custom units</span>
+                    <strong>{clones.length}</strong>
+                    <small>Open ledger</small>
                   </button>
                   <button
+                    type="button"
+                    className="changes-summary-card"
                     onClick={() => {
                       setActiveSummaryTab('rosters');
                       setShowSummaryModal(true);
                     }}
                     title="View/reset roster configurations"
                   >
-                    Rosters: <span style={{ color: 'var(--color-rap)', fontWeight: 800 }}>{buildMenuSteps.length + activeBuildMenuPackCount}</span>
+                    <span>Build menus</span>
+                    <strong>{buildMenuSteps.length + activeBuildMenuPackCount}</strong>
+                    <small>Open ledger</small>
                   </button>
                 </div>
 
                 {/* Mod Project Settings Card */}
-                <div className="expert-settings-card project-metadata-card">
-                  <div className="drawer-section-heading">
-                    Project Metadata
-                  </div>
+                <section className="inspector-changes-section project-metadata-card">
+                  <header className="inspector-changes-section__heading">
+                    <span>Project identity</span>
+                    <h3>Metadata</h3>
+                    <p>Used in generated header comments and downloaded project files.</p>
+                  </header>
                   <div className="project-metadata-grid">
                     <div className="drawer-field">
-                      <label>Mod Name</label>
+                      <label htmlFor="inspector-project-name">Mod name</label>
                       <input
+                        id="inspector-project-name"
                         type="text"
                         className="form-input"
                         value={projectName}
@@ -1741,8 +1760,9 @@ export default function EditUnitsWorkspace({ context }) {
                       />
                     </div>
                     <div className="drawer-field">
-                      <label>Author</label>
+                      <label htmlFor="inspector-project-author">Author</label>
                       <input
+                        id="inspector-project-author"
                         type="text"
                         className="form-input"
                         value={projectAuthor}
@@ -1751,23 +1771,26 @@ export default function EditUnitsWorkspace({ context }) {
                     </div>
                   </div>
                   <div className="drawer-field">
-                    <label>Mod Description</label>
+                    <label htmlFor="inspector-project-description">Description</label>
                     <textarea
+                      id="inspector-project-description"
                       className="form-input"
                       value={projectDesc}
                       onChange={e => setProjectDesc(e.target.value)}
                     />
                   </div>
-                </div>
+                </section>
 
                 {/* Compilation Flags Card */}
-                <div className="expert-settings-card compilation-flags-card">
-                  <div className="drawer-section-heading">
-                    Mod Compilation Flags
-                  </div>
+                <section className="inspector-changes-section compilation-flags-card">
+                  <header className="inspector-changes-section__heading">
+                    <span>Compiler scope</span>
+                    <h3>Export contents</h3>
+                    <p>Choose which project systems contribute to generated Lua.</p>
+                  </header>
                   <div className="compilation-flags-list">
                     <div className="expert-toggle-row">
-                      <span>Parameter Tweaks</span>
+                      <div><strong>Parameter tweaks</strong><small>Edited UnitDef and WeaponDef values</small></div>
                       <Switch
                         label="Include parameter tweaks"
                         checked={includeTweaks}
@@ -1775,7 +1798,7 @@ export default function EditUnitsWorkspace({ context }) {
                       />
                     </div>
                     <div className="expert-toggle-row">
-                      <span>Custom Cloned Units</span>
+                      <div><strong>Custom units</strong><small>Cloned definitions and supporting weapons</small></div>
                       <Switch
                         label="Include custom cloned units"
                         checked={includeClones}
@@ -1783,7 +1806,7 @@ export default function EditUnitsWorkspace({ context }) {
                       />
                     </div>
                     <div className="expert-toggle-row">
-                      <span>Factory Roster Changes</span>
+                      <div><strong>Build menus</strong><small>Factory and builder roster changes</small></div>
                       <Switch
                         label="Include factory roster changes"
                         checked={includeRosters}
@@ -1791,7 +1814,7 @@ export default function EditUnitsWorkspace({ context }) {
                       />
                     </div>
                     <div className="expert-toggle-row">
-                      <span>Include Header Comments</span>
+                      <div><strong>Header comments</strong><small>Project name, author, and description</small></div>
                       <Switch
                         label="Include header comments"
                         checked={includeHeader}
@@ -1799,16 +1822,26 @@ export default function EditUnitsWorkspace({ context }) {
                       />
                     </div>
                   </div>
-                </div>
+                </section>
 
                 {/* Tabs Row for Code outputs */}
-                <div className="compiled-output-section">
-                  <div className="compiled-output-tabs">
+                <section className="compiled-output-section">
+                  <header className="inspector-changes-section__heading compiled-output-heading">
+                    <span>Compiler output</span>
+                    <h3>Generated source</h3>
+                    <p>Inspect the active Lua or encoded lobby payload.</p>
+                  </header>
+                  <div className="compiled-output-tabs" role="tablist" aria-label="Generated output format">
                     {['tweakdefs_lua', 'tweakunits_lua', 'tweakdefs_b64', 'tweakunits_b64'].map(tab => {
                       const isActive = activeOutputTab === tab;
                       const label = tab === 'tweakdefs_lua' ? 'Defs Lua' : tab === 'tweakunits_lua' ? 'Units Lua' : tab === 'tweakdefs_b64' ? 'B64 Defs' : 'B64 Units';
                       return (
                         <button
+                          type="button"
+                          role="tab"
+                          id={`compiled-output-tab-${tab}`}
+                          aria-controls="compiled-output-view"
+                          aria-selected={isActive}
                           key={tab}
                           className={`compiled-output-tab ${isActive ? 'active' : ''}`}
                           onClick={() => setActiveOutputTab(tab)}
@@ -1842,21 +1875,28 @@ export default function EditUnitsWorkspace({ context }) {
                     }
 
                     return (
-                      <div className="code-block-wrapper compiled-code-wrapper">
+                      <div
+                        id="compiled-output-view"
+                        className="code-block-wrapper compiled-code-wrapper"
+                        role="tabpanel"
+                        aria-labelledby={`compiled-output-tab-${activeOutputTab}`}
+                      >
                         <div className="code-block-header">
                           <span className="code-block-title">
                             {activeOutputTab.includes('lua') ? 'Lua Source Code' : 'Encoded Base64'}
                           </span>
-                          <button
+                          <Button
+                            size="sm"
+                            variant="quiet"
                             className="copy-output-button"
                             onClick={() => {
                               const valueToCopy = codeVal || fallbackMsg;
                               navigator.clipboard.writeText(valueToCopy);
-                              showToast(`Copied current view text!`);
+                              showToast('Copied current output.');
                             }}
                           >
-                            Copy to Clipboard
-                          </button>
+                            Copy current view
+                          </Button>
                         </div>
                         {isLua ? (
                           <pre className="code-box lua">
@@ -1870,43 +1910,50 @@ export default function EditUnitsWorkspace({ context }) {
                       </div>
                     );
                   })()}
-                </div>
+                </section>
 
                 {/* Base64 toggles & Budget limit indicators at bottom */}
                 <div className="changes-pane-footer">
                   {scopedValidationIssues.length > 0 && (
-                    <div className="drawer-validation-card">
-                      <span className="drawer-validation-title">
-                        ⚠️ Smart Validation Warning ({scopedValidationIssues.length})
-                      </span>
+                    <section className="drawer-validation-card" aria-labelledby="inspector-validation-title">
+                      <header>
+                        <div>
+                          <span>Validation review</span>
+                          <strong id="inspector-validation-title">{scopedValidationIssues.length} {scopedValidationIssues.length === 1 ? 'issue needs' : 'issues need'} attention</strong>
+                        </div>
+                        <small>{scopedValidationIssues.some(issue => issue.level === 'error') ? 'Action required' : 'Review suggested'}</small>
+                      </header>
                       <div className="drawer-validation-list">
                         {scopedValidationIssues.map((issue, idx) => (
-                          <span key={idx} className="drawer-validation-item">
-                            <code>{issue.unitName}</code> ({issue.key.replace('weapon_slot_', 'Slot ')}): <span className={`drawer-validation-message ${issue.level}`}>{issue.message}</span>
-                          </span>
+                          <div key={`${issue.unitName}:${issue.key}:${idx}`} className="drawer-validation-item">
+                            <div><code>{issue.unitName}</code><span>{issue.key.replace('weapon_slot_', 'Slot ')}</span></div>
+                            <p className={`drawer-validation-message ${issue.level}`}>{issue.message}</p>
+                          </div>
                         ))}
                       </div>
-                    </div>
+                    </section>
                   )}
 
-                  <div className={`lobby-limit-indicator ${limitRisk}`}>
-                    Lobby payload: {totalBytesUsed.toLocaleString()} chars · {lobbyByteLimit.toLocaleString()} max per field
-                    {limitRisk === 'error' && <span> [EXPORT BLOCKED]</span>}
-                    {limitRisk === 'warning' && <span> [USING SAFETY RESERVE]</span>}
-                    {limitRisk === 'ok' && <span> [SAFE]</span>}
-                  </div>
-
-                  <div className="expert-settings-card base64-options-card">
-                    <div className="expert-toggle-row">
-                      <span>Lobby-safe encoding</span>
-                      <span
-                        className="expert-setting-status"
-                        title="BAR lobby commands always use URL-safe Base64 without trailing padding"
-                      >
-                        URL-safe · unpadded
-                      </span>
+                  <section className="inspector-changes-section delivery-status-card">
+                    <header className="inspector-changes-section__heading">
+                      <span>Lobby delivery</span>
+                      <h3>Payload status</h3>
+                      <p>BAR-safe encoding and current per-field budget.</p>
+                    </header>
+                    <div className="delivery-status-grid">
+                      <div className={`lobby-limit-indicator ${limitRisk}`}>
+                        <span>Generated characters</span>
+                        <strong>{totalBytesUsed.toLocaleString()}</strong>
+                        <small>of {lobbyByteLimit.toLocaleString()} per field</small>
+                        <b>{limitRisk === 'error' ? 'Export blocked' : limitRisk === 'warning' ? 'Safety reserve in use' : 'Within safe range'}</b>
+                      </div>
+                      <div className="encoding-contract">
+                        <span>Encoding contract</span>
+                        <strong>URL-safe Base64</strong>
+                        <small>Unpadded lobby command output</small>
+                      </div>
                     </div>
-                  </div>
+                  </section>
                 </div>
               </div>
               </div>
