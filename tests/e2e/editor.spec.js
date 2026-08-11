@@ -1516,6 +1516,17 @@ test('editor visual baseline: active weapon workspace', async ({ page }) => {
   await expect(page).toHaveScreenshot('editor-weapon-dark-1920.png');
 });
 
+test('editor visual baseline: comparison ledger', async ({ page }) => {
+  await openEditorVisualState(page, { theme: 'dark', width: 1440, unitId: 'armfus' });
+  await page.locator('[data-param-key="metalcost"] input').fill('999');
+  await page.getByRole('tab', { name: /Compare/ }).click();
+  const inspector = page.locator('.editor-inspector');
+  await expect(inspector.getByRole('heading', { name: 'Changed fields' })).toBeVisible();
+  await expect(inspector.getByText('Inherited', { exact: true }).first()).toBeVisible();
+  await expect(inspector.getByText('Current', { exact: true }).first()).toBeVisible();
+  await expect(inspector).toHaveScreenshot('editor-compare-ledger-dark-1440.png');
+});
+
 for (const theme of ['dark', 'light']) {
   test(`clone creator visual baseline: ${theme} workspace`, async ({ page }) => {
     await openEditorVisualState(page, { theme, width: 1440, unitId: 'armdfly' });

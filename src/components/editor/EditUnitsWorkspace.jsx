@@ -197,6 +197,60 @@ export default function EditUnitsWorkspace({ context }) {
   const selectedClone = selectedUnit?.isClone
     ? clones.find(clone => clone.newId.toLowerCase() === selectedUnit.id.toLowerCase())
     : null;
+  const comparisonEntries = selectedUnitOverrideEntries.map(([tweakKey, currentValue], index) => {
+    const weaponMatch = tweakKey.match(/^weapon_slot_(\d+)_(.+)$/);
+    const slotNumber = weaponMatch ? Number(weaponMatch[1]) : null;
+    const parameterKey = weaponMatch ? weaponMatch[2] : tweakKey;
+    const parameter = weaponMatch
+      ? getWeaponParameterDefinition(parameterKey)
+      : STAT_KEYS.find(item => item.key === parameterKey);
+    let inheritedValue;
+
+    if (weaponMatch) {
+      inheritedValue = selectedUnitDefaults?.weaponSlots
+        ?.find(item => Number(item.slot) === slotNumber)?.[parameterKey];
+    } else if (parameter) {
+      const resolution = resolveUnitParameterDefault(parameter, selectedUnitDefaults || {});
+      inheritedValue = resolution.value ?? resolution.label;
+    } else {
+      inheritedValue = selectedUnitDefaults?.[parameterKey];
+    }
+
+    const formatValue = value => {
+      if (value === undefined || value === null || value === '') return 'Inherited';
+      if (typeof value === 'boolean') return value ? 'Enabled' : 'Disabled';
+      if (Array.isArray(value)) return value.join(', ');
+      if (typeof value === 'object') return JSON.stringify(value);
+      return String(value);
+    };
+
+    return {
+      id: tweakKey,
+      index: index + 1,
+      parameterKey,
+      slotNumber,
+      label: getRelationshipLabel(parameterKey).replace(/([a-z0-9])([A-Z])/g, '$1 $2'),
+      scope: weaponMatch ? `Weapon slot ${slotNumber}` : 'Unit parameter',
+      inherited: formatValue(inheritedValue),
+      current: formatValue(currentValue),
+    };
+  });
+  const comparisonWeaponCount = comparisonEntries.filter(entry => entry.slotNumber !== null).length;
+  const comparisonUnitCount = comparisonEntries.length - comparisonWeaponCount;
+  const inspectComparisonEntry = entry => {
+    const targetTab = entry.slotNumber !== null
+      ? 'weapons'
+      : MOBILITY_STAT_KEYS.has(entry.parameterKey) ? 'mobility' : 'structure';
+    setActiveParamTab(targetTab);
+    if (entry.slotNumber !== null) setActiveWeaponSlotTab(entry.slotNumber);
+    setActiveRelationshipKey(entry.parameterKey);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const panel = document.getElementById(`workspace-panel-${targetTab}`);
+      const target = panel?.querySelector(`[data-param-key="${entry.parameterKey}"]`);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      target?.querySelector('input, select, button')?.focus({ preventScroll: true });
+    }));
+  };
   return (
       <EditorShell
         layout={workspaceLayout.layout}
@@ -1641,22 +1695,80 @@ export default function EditUnitsWorkspace({ context }) {
               </div>
             ),
             compare: (
-              <div className="inspector-panel-stack">
-                <section className="inspector-intro">
-                  <span>Before / after</span>
-                  <h3>{selectedUnitOverrideEntries.length} active override{selectedUnitOverrideEntries.length === 1 ? '' : 's'}</h3>
-                  <p>Compare edited values with their inherited BAR definitions directly in the parameter canvas.</p>
+              <div className="inspector-panel-stack inspector-compare-panel">
+                <section className="inspector-compare-summary" aria-labelledby="inspector-compare-heading">
+                  <div className="inspector-compare-summary__copy">
+                    <span>Selected unit baseline</span>
+                    <h3 id="inspector-compare-heading">{comparisonEntries.length} active override{comparisonEntries.length === 1 ? '' : 's'}</h3>
+                    <p>Review what changed, where it applies, and the inherited BAR value it replaces.</p>
+                  </div>
+                  <dl className="inspector-compare-metrics" aria-label="Override summary">
+                    <div><dt>Unit</dt><dd>{comparisonUnitCount}</dd></div>
+                    <div><dt>Weapon</dt><dd>{comparisonWeaponCount}</dd></div>
+                    <div><dt>Canvas</dt><dd>{comparisonMode ? 'On' : 'Off'}</dd></div>
+                  </dl>
                   <Button
+                    className="inspector-compare-toggle"
                     variant={comparisonMode ? 'secondary' : 'primary'}
+                    fullWidth
+                    aria-pressed={comparisonMode}
                     onClick={() => setComparisonMode(current => !current)}
                   >
-                    {comparisonMode ? 'Exit comparison' : 'Enable comparison'}
+                    {comparisonMode ? 'Hide canvas comparison' : 'Show differences on canvas'}
                   </Button>
                 </section>
+                <section className="inspector-compare-section" aria-labelledby="changed-fields-heading">
+                  <div className="inspector-compare-section__heading">
+                    <div>
+                      <span>Change ledger</span>
+                      <h3 id="changed-fields-heading">Changed fields</h3>
+                    </div>
+                    <small>{comparisonEntries.length} total</small>
+                  </div>
+                  {comparisonEntries.length > 0 ? (
+                    <div className="inspector-compare-list">
+                      {comparisonEntries.map(entry => (
+                        <button
+                          type="button"
+                          key={entry.id}
+                          onClick={() => inspectComparisonEntry(entry)}
+                          aria-label={`Inspect ${entry.label}, changed from ${entry.inherited} to ${entry.current}`}
+                        >
+                          <span className="inspector-compare-item__heading">
+                            <small>{String(entry.index).padStart(2, '0')}</small>
+                            <span>
+                              <strong>{entry.label}</strong>
+                              <small>{entry.scope}</small>
+                            </span>
+                          </span>
+                          <span className="inspector-compare-values">
+                            <span>
+                              <small>Inherited</small>
+                              <code title={entry.inherited}>{entry.inherited}</code>
+                            </span>
+                            <span className="is-current">
+                              <small>Current</small>
+                              <code title={entry.current}>{entry.current}</code>
+                            </span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="inspector-compare-empty">
+                      <strong>No overrides to compare</strong>
+                      <p>This unit still uses its inherited BAR values.</p>
+                      <Button variant="secondary" size="sm" onClick={() => workspaceLayout.setInspectorTab('details')}>Open parameter details</Button>
+                    </div>
+                  )}
+                </section>
                 {activeCollection && (
-                  <section className="inspector-section-card">
-                    <div className="inspector-section-heading">
-                      <span>Collection scope</span>
+                  <section className="inspector-compare-section inspector-compare-collection">
+                    <div className="inspector-compare-section__heading">
+                      <div>
+                        <span>Collection scope</span>
+                        <h3>{activeCollection.name}</h3>
+                      </div>
                       <small>{activeCollectionUnits.length} available members</small>
                     </div>
                     <div className="inspector-change-list">
@@ -1670,14 +1782,6 @@ export default function EditUnitsWorkspace({ context }) {
                     {activeCollectionUnits.length > 8 && <p className="inspector-empty-copy">+{activeCollectionUnits.length - 8} additional collection members</p>}
                   </section>
                 )}
-                <div className="inspector-change-list">
-                  {selectedUnitOverrideEntries.length > 0 ? selectedUnitOverrideEntries.map(([key, value]) => (
-                    <button type="button" key={key} onClick={() => selectInspectorParameter(key.replace(/^weapon_slot_\d+_/, ''))}>
-                      <span>{getRelationshipLabel(key.replace(/^weapon_slot_\d+_/, ''))}</span>
-                      <code>{String(value)}</code>
-                    </button>
-                  )) : <p className="inspector-empty-copy">This unit still uses every inherited value.</p>}
-                </div>
               </div>
             ),
             changes: (
