@@ -85,7 +85,6 @@ export default function MainMenu({
               currentActivity={currentPresenceActivity}
             />
             <button type="button" onClick={onToggleTheme} aria-label={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}>
-              <span aria-hidden="true">{themeMode === 'dark' ? '☼' : '◐'}</span>
               {themeMode === 'dark' ? 'Light' : 'Dark'}
             </button>
             <button type="button" onClick={onOpenCredits}>Credits</button>
@@ -104,10 +103,34 @@ export default function MainMenu({
           </aside>
         )}
         <section className="main-menu__project-desk" aria-labelledby="main-menu-title">
-          <div className="main-menu__identity">
-            <span className="main-menu__kicker">編集工房 · Definition workshop</span>
-            <h1 id="main-menu-title"><span>Bar</span> <em>EditP</em></h1>
-            <p>Tweak and create your own BAR units in one focused local workspace.</p>
+          <div className="main-menu__desk-intro">
+            <div className="main-menu__identity">
+              <span className="main-menu__kicker">編集工房 · Definition workshop</span>
+              <h1 id="main-menu-title"><span>Bar</span> <em>EditP</em></h1>
+              <p>Tweak and create your own BAR units in one focused local workspace.</p>
+              <dl className="main-menu__identity-meta" aria-label="Editor environment">
+                <div><dt>Workspace</dt><dd>Local-first</dd></div>
+                <div><dt>BAR data</dt><dd>{gameDataStatus === 'ready' ? 'Validated' : gameDataStatus === 'error' ? 'Unavailable' : 'Checking'}</dd></div>
+              </dl>
+            </div>
+
+            <section className="main-menu__project-files" aria-labelledby="main-menu-files-title">
+              <div>
+                <span>Project files</span>
+                <h2 id="main-menu-files-title">Continue on another machine</h2>
+              </div>
+              <div>
+                <label>
+                  <FileIcon direction="in" />
+                  <span><strong>Load project</strong><small>Open an exported JSON workspace</small></span>
+                  <input type="file" accept=".json" onChange={onLoadProject} />
+                </label>
+                <button type="button" onClick={onSaveProject}>
+                  <FileIcon direction="out" />
+                  <span><strong>Save project</strong><small>Download the current editable state</small></span>
+                </button>
+              </div>
+            </section>
           </div>
 
           <article className="main-menu__active-project" aria-labelledby="main-menu-project-title">
@@ -124,29 +147,21 @@ export default function MainMenu({
               <div><dt>Clones</dt><dd>{cloneCount}</dd></div>
               <div><dt>Rosters</dt><dd>{rosterCount}</dd></div>
             </dl>
+            <div className="main-menu__project-brief">
+              <div>
+                <span>Current state</span>
+                <strong>{hasWork ? `${projectChangeCount} tracked ${projectChangeCount === 1 ? 'change' : 'changes'} in this project` : 'Clean workspace ready for a new edit'}</strong>
+              </div>
+              <div>
+                <span>Definition source</span>
+                <strong>{gameDataStatus === 'ready' ? `BAR snapshot ${gameDataSnapshot?.sourceCommit?.slice(0, 8) || 'validated'}` : 'Waiting for validated BAR data'}</strong>
+              </div>
+            </div>
             <button type="button" className="main-menu__enter" onClick={onEditUnits}>
               <span><small>{hasWork ? 'Resume editing' : 'Open editor'}</small><strong>{hasWork ? 'Continue workshop' : 'Enter workshop'}</strong></span>
               <ArrowIcon />
             </button>
           </article>
-
-          <section className="main-menu__project-files" aria-labelledby="main-menu-files-title">
-            <div>
-              <span>Project files</span>
-              <h2 id="main-menu-files-title">Save or continue elsewhere</h2>
-            </div>
-            <div>
-              <label>
-                <FileIcon direction="in" />
-                <span><strong>Load project</strong><small>Open an exported JSON workspace</small></span>
-                <input type="file" accept=".json" onChange={onLoadProject} />
-              </label>
-              <button type="button" onClick={onSaveProject}>
-                <FileIcon direction="out" />
-                <span><strong>Save project</strong><small>Download the current editable state</small></span>
-              </button>
-            </div>
-          </section>
         </section>
 
         <section className="main-menu__launchpad" aria-labelledby="main-menu-directory-title">
@@ -193,7 +208,7 @@ export default function MainMenu({
                     </span>
                     <small>{tool.description}</small>
                   </span>
-                  <b aria-hidden="true">↗</b>
+                  <ArrowIcon />
                 </button>
               ))}
             </div>
