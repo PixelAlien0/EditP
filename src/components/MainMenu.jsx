@@ -115,11 +115,8 @@ export default function MainMenu({
             </div>
 
             <section className="main-menu__project-files" aria-labelledby="main-menu-files-title">
-              <div>
-                <span>Project files</span>
-                <h2 id="main-menu-files-title">Continue on another machine</h2>
-              </div>
-              <div>
+              <h2 id="main-menu-files-title" className="ui-visually-hidden">Project files</h2>
+              <div className="main-menu__project-file-actions">
                 <label>
                   <FileIcon direction="in" />
                   <span><strong>Load project</strong><small>Open an exported JSON workspace</small></span>
@@ -147,16 +144,6 @@ export default function MainMenu({
               <div><dt>Clones</dt><dd>{cloneCount}</dd></div>
               <div><dt>Rosters</dt><dd>{rosterCount}</dd></div>
             </dl>
-            <div className="main-menu__project-brief">
-              <div>
-                <span>Current state</span>
-                <strong>{hasWork ? `${projectChangeCount} tracked ${projectChangeCount === 1 ? 'change' : 'changes'} in this project` : 'Clean workspace ready for a new edit'}</strong>
-              </div>
-              <div>
-                <span>Definition source</span>
-                <strong>{gameDataStatus === 'ready' ? `BAR snapshot ${gameDataSnapshot?.sourceCommit?.slice(0, 8) || 'validated'}` : 'Waiting for validated BAR data'}</strong>
-              </div>
-            </div>
             <button type="button" className="main-menu__enter" onClick={onEditUnits}>
               <span><small>{hasWork ? 'Resume editing' : 'Open editor'}</small><strong>{hasWork ? 'Continue workshop' : 'Enter workshop'}</strong></span>
               <ArrowIcon />
@@ -166,12 +153,8 @@ export default function MainMenu({
 
         <section className="main-menu__launchpad" aria-labelledby="main-menu-directory-title">
           <header className="main-menu__launchpad-heading">
-            <div>
-              <span>Main menu</span>
-              <h2 id="main-menu-directory-title">Workshop directory</h2>
-              <p>Move between editing, production setup, and delivery without losing project state.</p>
-            </div>
-            <small>Local-first</small>
+            <h2 id="main-menu-directory-title">Core workspaces</h2>
+            <p>Choose where to continue.</p>
           </header>
 
           <nav className="main-menu__workspaces" aria-label="Core workspaces">
@@ -192,9 +175,9 @@ export default function MainMenu({
             ))}
           </nav>
 
-          <section className="main-menu__tool-directory" aria-labelledby="main-menu-tools-title">
+          <section className="main-menu__tool-directory" aria-label="Research & package tools">
             <header>
-              <div><span>Specialist workbenches</span><h3 id="main-menu-tools-title">Research &amp; package tools</h3></div>
+              <h3 id="main-menu-tools-title">Specialist tools</h3>
               <small>Advanced</small>
             </header>
             <div>
