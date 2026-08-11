@@ -77,6 +77,7 @@ export function validateConsumerBackedCustomParameter({
   knownUnitIds = new Set(),
   knownWeaponDefs = new Set(),
   supportingWeaponDefs = new Set(),
+  skipContractReferences = false,
 } = {}) {
   const definition = getCustomParameterDefinition(normalizeCustomParameterKey(parameterKey), scope);
   if (!definition || definition.consumerCount <= 0 || !present(value)) return [];
@@ -127,7 +128,10 @@ export function validateConsumerBackedCustomParameter({
 
   const editor = getCustomParameterEditor(definition);
   const references = text.split(/[\s,]+/).map(reference => reference.toLowerCase()).filter(Boolean);
-  if ((editor.kind === 'reference' || editor.kind === 'reference-list') && editor.referenceType === 'unit') {
+  const contractHandlesReferences = skipContractReferences && definition.contractIds.length > 0;
+  if (!contractHandlesReferences
+    && (editor.kind === 'reference' || editor.kind === 'reference-list')
+    && editor.referenceType === 'unit') {
     const known = normalizedSet(knownUnitIds);
     const missing = references.filter(reference => !known.has(reference));
     if (missing.length) {
@@ -138,7 +142,9 @@ export function validateConsumerBackedCustomParameter({
       ));
     }
   }
-  if ((editor.kind === 'reference' || editor.kind === 'reference-list') && editor.referenceType === 'weapon') {
+  if (!contractHandlesReferences
+    && (editor.kind === 'reference' || editor.kind === 'reference-list')
+    && editor.referenceType === 'weapon') {
     const known = normalizedSet(knownWeaponDefs);
     const supporting = normalizedSet(supportingWeaponDefs);
     const owner = clean(unitId).toLowerCase();

@@ -2,6 +2,10 @@ import {
   GADGET_CONTRACT_REGISTRY,
   GADGET_CONTRACT_STATUS,
 } from '../config/gadgetContracts.js';
+import {
+  SPECIAL_PROJECTILE_PARAMETERS,
+  getSpecialProjectileBehavior,
+} from '../config/specialProjectileBehaviors.js';
 
 const WEAPON_CONTRACTS = GADGET_CONTRACT_REGISTRY.filter(contract => contract.scope === 'weapon');
 const UNIT_CONTRACTS = GADGET_CONTRACT_REGISTRY.filter(contract => contract.scope === 'unit');
@@ -45,9 +49,8 @@ function fieldLabel(key) {
 }
 
 function resultStatus(contract, problems) {
-  const blockingProblems = problems.filter(problem => problem.level === 'error');
-  if (blockingProblems.some(problem => problem.kind === 'conflict')) return 'conflicting';
-  if (blockingProblems.some(problem => problem.kind === 'missing' || problem.kind === 'invalid')) return 'incomplete';
+  if (problems.some(problem => problem.kind === 'conflict')) return 'conflicting';
+  if (problems.some(problem => problem.kind === 'missing' || problem.kind === 'invalid')) return 'incomplete';
   if (problems.some(problem => problem.kind === 'unknown')) return 'unknown';
   return contract.maturity === 'experimental' ? 'experimental' : 'ready';
 }
@@ -80,9 +83,38 @@ function validateRequired(contract, values, problems) {
         level: 'error',
         key,
         message: `${contract.label} requires ${fieldLabel(key)}.`,
+        suggestedFix: `Set ${fieldLabel(key)} or clear the other ${contract.label} fields.`,
       });
     }
   });
+}
+
+function explicitContractKeys(contract, patch, slotNumber = null) {
+  return contract.triggerKeys.filter(key => {
+    const patchKey = slotNumber === null ? key : `weapon_slot_${slotNumber}_${key}`;
+    return Object.prototype.hasOwnProperty.call(patch, patchKey) && hasActiveValue(patch[patchKey]);
+  });
+}
+
+function validateOrphanedCompanions(contract, values, patch, slotNumber, problems) {
+  const activationKeys = contract.activationKeys || [];
+  if (activationKeys.length === 0) return false;
+  const active = activationKeys.some(key => hasActiveValue(values[key]));
+  if (active) return false;
+  const configured = explicitContractKeys(contract, patch, slotNumber)
+    .filter(key => !activationKeys.includes(key));
+  if (configured.length === 0) return false;
+
+  const activationKey = activationKeys[0];
+  problems.push({
+    kind: 'missing',
+    level: 'warning',
+    key: activationKey,
+    companionKeys: configured,
+    message: `${configured.map(fieldLabel).join(', ')} ${configured.length === 1 ? 'is' : 'are'} configured, but ${fieldLabel(activationKey)} is not active, so BAR will ignore this partial ${contract.label} setup.`,
+    suggestedFix: `Set ${fieldLabel(activationKey)} or reset the inactive companion fields.`,
+  });
+  return true;
 }
 
 function validateUnitReferences({ key, value, knownUnitIds, problems }) {
@@ -138,6 +170,24 @@ function validateCarrier(values, context, problems) {
       }
     });
   }
+
+  const dockingKeys = [
+    'dockingpieces', 'dockingradius', 'dockinghelperspeed', 'dockingarmor',
+    'dockinghealrate', 'docktohealthreshold', 'dronedocktime',
+  ];
+  const configuredDockingKeys = dockingKeys.filter(key => (
+    context.explicitKeys.has(key) && hasActiveValue(values[key])
+  ));
+  if (configuredDockingKeys.length > 0 && !hasActiveValue(values.enabledocking)) {
+    problems.push({
+      kind: 'conflict',
+      level: 'warning',
+      key: 'enabledocking',
+      companionKeys: configuredDockingKeys,
+      message: `${configuredDockingKeys.map(fieldLabel).join(', ')} ${configuredDockingKeys.length === 1 ? 'is' : 'are'} configured while docking is disabled. BAR will not use the docking setup.`,
+      suggestedFix: 'Enable docking or reset the docking-only fields.',
+    });
+  }
 }
 
 function validateCluster(values, context, problems) {
@@ -164,6 +214,80 @@ function validateCluster(values, context, problems) {
 function validateSectorFire(values) {
   const mode = cleanId(values.speceffect);
   if (mode !== 'sector_fire') return;
+}
+
+function validateSpecialProjectileBehavior(values, context, problems) {
+  const behavior = getSpecialProjectileBehavior(values.speceffect);
+  if (!behavior || behavior.id === 'sector_fire') return;
+
+  behavior.requiredParameterKeys.forEach(key => {
+    if (hasValue(values[key])) return;
+    problems.push({
+      kind: 'missing',
+      level: 'error',
+      key,
+      message: `${behavior.label} requires ${fieldLabel(key)}.`,
+      suggestedFix: `Set ${fieldLabel(key)} or choose a different Behavior Mode.`,
+    });
+  });
+
+  if (behavior.id === 'cruise') {
+    const minimum = numberValue(values.cruise_min_height);
+    const maximum = numberValue(values.cruise_max_height);
+    if (minimum !== null && maximum !== null && minimum > maximum) {
+      problems.push({
+        kind: 'invalid',
+        level: 'error',
+        key: 'cruise_min_height',
+        companionKeys: ['cruise_max_height'],
+        message: 'Minimum Ground Clearance must not exceed Maximum Ground Clearance.',
+        suggestedFix: 'Lower the minimum clearance or raise the maximum clearance.',
+      });
+    }
+  }
+
+  if (behavior.id === 'split') {
+    const count = numberValue(values.speceffect_number);
+    if (count !== null && (!Number.isInteger(count) || count < 1)) {
+      problems.push({
+        kind: 'invalid',
+        level: 'error',
+        key: 'speceffect_number',
+        message: 'Submunition Count must be a whole number of at least 1.',
+        suggestedFix: 'Use a positive whole-number submunition count.',
+      });
+    }
+  }
+
+  if (['split', 'cannonwaterpen'].includes(behavior.id) && hasValue(values.speceffect_def)) {
+    const weaponKey = cleanId(values.speceffect_def);
+    const localKey = `${cleanId(context.unitId)}:${weaponKey}`;
+    if (!context.knownWeaponDefs.has(weaponKey) && !context.supportingWeaponDefs.has(localKey)) {
+      problems.push({
+        kind: 'unknown',
+        level: 'warning',
+        key: 'speceffect_def',
+        message: `Supporting WeaponDef "${values.speceffect_def}" is not present in the BAR snapshot or project library.`,
+        suggestedFix: 'Select an existing WeaponDef or create an enabled supporting WeaponDef for this unit.',
+      });
+    }
+  }
+
+  const activeKeys = new Set(behavior.parameterKeys);
+  const irrelevant = SPECIAL_PROJECTILE_PARAMETERS
+    .filter(parameter => parameter.key !== 'speceffect')
+    .map(parameter => parameter.key)
+    .filter(key => context.explicitKeys.has(key) && hasActiveValue(values[key]) && !activeKeys.has(key));
+  if (irrelevant.length > 0) {
+    problems.push({
+      kind: 'conflict',
+      level: 'warning',
+      key: irrelevant[0],
+      companionKeys: irrelevant,
+      message: `${irrelevant.map(fieldLabel).join(', ')} ${irrelevant.length === 1 ? 'does' : 'do'} not belong to ${behavior.label} and will not affect that behavior.`,
+      suggestedFix: 'Reset fields from other behavior modes or select the matching Behavior Mode.',
+    });
+  }
 }
 
 function validateInterception(values, _context, problems) {
@@ -228,6 +352,7 @@ const CONTRACT_VALIDATORS = Object.freeze({
   'carrier-spawner': validateCarrier,
   'cluster-projectile': validateCluster,
   'sector-fire': validateSectorFire,
+  'special-projectile-behavior': validateSpecialProjectileBehavior,
   'projectile-interception': validateInterception,
   'energy-converter': validateEnergyConverter,
   'scavenger-squad': validateScavengerSquad,
@@ -289,40 +414,53 @@ export function evaluateGadgetContracts({
       key,
       Object.prototype.hasOwnProperty.call(patch, key) ? patch[key] : defaults[key],
     ]));
-    if (!contractIsActive(contract, values, patch)) return;
     const problems = [];
-    validateRequired(contract, values, problems);
-    CONTRACT_VALIDATORS[contract.id]?.(values, { ...normalizedContext, contract }, problems);
+    const active = contractIsActive(contract, values, patch);
+    const partial = validateOrphanedCompanions(contract, values, patch, null, problems);
+    if (!active && !partial) return;
+    if (active) {
+      validateRequired(contract, values, problems);
+      CONTRACT_VALIDATORS[contract.id]?.(values, { ...normalizedContext, contract }, problems);
+    }
     results.push(makeResult({ contract, unitId: normalizedContext.unitId, unitName, values, problems }));
   });
 
   weaponSlotNumbers(defaults, patch).forEach(slotNumber => {
     WEAPON_CONTRACTS.forEach(contract => {
       const values = effectiveWeaponValues(contract, slotNumber, defaults, patch);
+      let active;
       if (contract.id === 'sector-fire') {
         // spread_angle and max_range_reduction are not unique activation
         // markers. Ordinary weapons and copied WeaponDefs can carry them while
         // using a different special behavior. BAR only enters this gadget's
         // sector path when speceffect explicitly selects sector_fire.
-        const active = cleanId(values.speceffect) === 'sector_fire';
-        if (!active) return;
-      } else if (!contractIsActive(contract, values, patch, slotNumber)) return;
+        active = cleanId(values.speceffect) === 'sector_fire';
+      } else if (contract.id === 'special-projectile-behavior') {
+        const behavior = getSpecialProjectileBehavior(values.speceffect);
+        active = Boolean(behavior && behavior.id !== 'sector_fire');
+      } else {
+        active = contractIsActive(contract, values, patch, slotNumber);
+      }
       const problems = [];
-      validateRequired(contract, values, problems);
-      CONTRACT_VALIDATORS[contract.id]?.(
-        values,
-        {
-          ...normalizedContext,
-          contract,
-          slotNumber,
-          explicitKeys: new Set(
-            Object.keys(patch)
-              .filter(key => key.startsWith(`weapon_slot_${slotNumber}_`))
-              .map(key => key.replace(`weapon_slot_${slotNumber}_`, '')),
-          ),
-        },
-        problems,
-      );
+      const partial = validateOrphanedCompanions(contract, values, patch, slotNumber, problems);
+      if (!active && !partial) return;
+      if (active) {
+        validateRequired(contract, values, problems);
+        CONTRACT_VALIDATORS[contract.id]?.(
+          values,
+          {
+            ...normalizedContext,
+            contract,
+            slotNumber,
+            explicitKeys: new Set(
+              Object.keys(patch)
+                .filter(key => key.startsWith(`weapon_slot_${slotNumber}_`))
+                .map(key => key.replace(`weapon_slot_${slotNumber}_`, '')),
+            ),
+          },
+          problems,
+        );
+      }
       results.push(makeResult({
         contract,
         unitId: normalizedContext.unitId,
@@ -352,6 +490,9 @@ export function gadgetContractResultsToIssues(results = []) {
     level: problem.level,
     title: `${result.unitName} · ${result.label}`,
     message: problem.message,
+    companionKeys: problem.companionKeys || [],
+    suggestedFix: problem.suggestedFix || null,
+    contractSource: result.source,
     action: { type: 'unit', unitId: result.unitId, label: 'Open contract' },
   })));
 }

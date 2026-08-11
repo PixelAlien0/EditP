@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import {
-  getSpecialProjectileBehavior,
   isSupportedSpecialProjectileBehavior,
 } from '../config/specialProjectileBehaviors.js';
 import { buildCrossWorkspaceValidation } from '../utils/crossWorkspaceValidation.js';
@@ -260,90 +259,11 @@ export function useProjectValidation({
         knownUnitIds,
         knownWeaponDefs,
         supportingWeaponDefs: supportingDestinations,
+        skipContractReferences: true,
       }));
       Object.entries(patch).forEach(([key, value]) => {
         const warning = getValidationWarning(key, value);
         if (warning) issues.push({ unitId, unitName, key, value, ...warning });
-
-        const referenceId = String(value || '').trim().toLowerCase();
-        if (key === 'customparams.carried_unit'
-          || /^weapon_slot_\d+_(?:spawns_name|carried_unit)$/.test(key)) {
-          const referencedUnitIds = referenceId.split(/[\s,]+/).filter(Boolean);
-          const missingUnitIds = referencedUnitIds.filter(id => !knownUnitIds.has(id));
-          if (missingUnitIds.length > 0) {
-            issues.push({
-              unitId,
-              unitName,
-              key,
-              value,
-              level: 'warning',
-              message: `Referenced unit${missingUnitIds.length > 1 ? 's' : ''} ${missingUnitIds.map(id => `"${id}"`).join(', ')} ${missingUnitIds.length > 1 ? 'are' : 'is'} not present in the current BAR definition catalog or project clones.`,
-            });
-          }
-        }
-
-        const localSupportingWeaponDef = supportingDestinations.has(
-          `${unitId}:${referenceId}`.toLowerCase()
-        );
-        if (/^weapon_slot_\d+_(?:cluster_def|speceffect_def)$/.test(key)
-          && referenceId
-          && !knownWeaponDefs.has(referenceId)
-          && !localSupportingWeaponDef) {
-          issues.push({
-            unitId,
-            unitName,
-            key,
-            value,
-            level: 'warning',
-            message: `Referenced WeaponDef "${value}" is not present in the loaded BAR definitions. Raw imported modules may define it later.`,
-          });
-        }
-      });
-
-      Object.entries(patch).forEach(([key, value]) => {
-        const modeMatch = key.match(/^weapon_slot_(\d+)_speceffect$/);
-        if (!modeMatch) return;
-        const behavior = getSpecialProjectileBehavior(value);
-        if (!behavior) return;
-
-        const slotNumber = Number(modeMatch[1]);
-        const rootDefaults = defaultsDb[resolveCloneRootId(unitId)];
-        const defaultSlot = rootDefaults?.weaponSlots?.find(
-          slot => Number(slot.slot) === slotNumber
-        ) || {};
-        behavior.requiredParameterKeys.forEach(parameterKey => {
-          const patchKey = `weapon_slot_${slotNumber}_${parameterKey}`;
-          const effectiveValue = patch[patchKey] ?? defaultSlot[parameterKey];
-          if (effectiveValue === undefined || String(effectiveValue).trim() === '') {
-            issues.push({
-              unitId,
-              unitName,
-              key: patchKey,
-              level: 'error',
-              message: `${behavior.label} requires ${parameterKey.replaceAll('_', ' ')}.`,
-            });
-          }
-        });
-
-        if (behavior.id === 'cruise') {
-          const minimum = Number(
-            patch[`weapon_slot_${slotNumber}_cruise_min_height`]
-              ?? defaultSlot.cruise_min_height
-          );
-          const maximum = Number(
-            patch[`weapon_slot_${slotNumber}_cruise_max_height`]
-              ?? defaultSlot.cruise_max_height
-          );
-          if (Number.isFinite(minimum) && Number.isFinite(maximum) && minimum > maximum) {
-            issues.push({
-              unitId,
-              unitName,
-              key: `weapon_slot_${slotNumber}_cruise_max_height`,
-              level: 'error',
-              message: 'Maximum cruise clearance must be at least the minimum clearance.',
-            });
-          }
-        }
       });
     });
 

@@ -1,6 +1,6 @@
 import gameDataManifest from '../data/game-data-manifest.json' with { type: 'json' };
 
-export const GADGET_CONTRACT_REGISTRY_VERSION = 1;
+export const GADGET_CONTRACT_REGISTRY_VERSION = 2;
 
 export const GADGET_CONTRACT_STATUS = Object.freeze({
   ready: Object.freeze({ label: 'Ready', tone: 'success' }),
@@ -70,6 +70,22 @@ export const GADGET_CONTRACT_REGISTRY = Object.freeze([
     description: 'Rotates projectile velocity across a horizontal sector and varies shot depth.',
     triggerKeys: Object.freeze(['speceffect', 'spread_angle', 'max_range_reduction']),
     requiredKeys: Object.freeze(['speceffect', 'spread_angle', 'max_range_reduction']),
+    source: source('luarules/gadgets/unit_custom_weapons_behaviours.lua'),
+  }),
+  Object.freeze({
+    id: 'special-projectile-behavior',
+    label: 'Special projectile behavior',
+    scope: 'weapon',
+    maturity: 'stable',
+    description: 'Applies one BAR projectile lifecycle mode together with the fields required by that mode.',
+    triggerKeys: Object.freeze([
+      'speceffect', 'cruise_min_height', 'cruise_max_height', 'lockon_dist',
+      'guidance_lost_radius', 'speceffect_def', 'speceffect_number',
+      'splitexplosionceg', 'waterpenceg', 'speceffect_cegtag',
+      'speceffect_model', 'tracking_turn_radius',
+    ]),
+    activationKeys: Object.freeze(['speceffect']),
+    requiredKeys: Object.freeze(['speceffect']),
     source: source('luarules/gadgets/unit_custom_weapons_behaviours.lua'),
   }),
   Object.freeze({

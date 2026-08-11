@@ -24,7 +24,10 @@ export default function GadgetContractSummary({ results = [] }) {
               {result.problems.length > 0 && (
                 <ul>
                   {result.problems.map((problem, index) => (
-                    <li key={`${problem.key}-${index}`}>{problem.message}</li>
+                    <li key={`${problem.key}-${index}`}>
+                      <span>{problem.message}</span>
+                      {problem.suggestedFix && <small className="inspector-empty-copy">{problem.suggestedFix}</small>}
+                    </li>
                   ))}
                 </ul>
               )}
@@ -36,4 +39,3 @@ export default function GadgetContractSummary({ results = [] }) {
     </section>
   );
 }
-

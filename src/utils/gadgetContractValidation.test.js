@@ -28,7 +28,7 @@ describe('BAR gadget contract validation', () => {
   it('detects an incomplete multiple-unit explosion spawner', () => {
     const [result] = evaluate({ slot: { spawns_name: 'armflea armfav' } });
     expect(result.contractId).toBe('explosion-spawner');
-    expect(result.status).toBe('ready');
+    expect(result.status).toBe('incomplete');
     expect(result.problems).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'spawns_mode', level: 'warning' }),
     ]));
@@ -93,6 +93,42 @@ describe('BAR gadget contract validation', () => {
     expect(results.some(result => result.contractId === 'carrier-spawner')).toBe(false);
   });
 
+  it('reports explicitly edited companion fields that have no active contract key', () => {
+    const results = evaluate({
+      patch: {
+        weapon_slot_1_spawns_surface: 'LAND',
+        weapon_slot_1_controlradius: 900,
+        weapon_slot_1_cruise_min_height: 80,
+      },
+    });
+    expect(results).toEqual(expect.arrayContaining([
+      expect.objectContaining({ contractId: 'explosion-spawner', status: 'incomplete' }),
+      expect.objectContaining({ contractId: 'carrier-spawner', status: 'incomplete' }),
+      expect.objectContaining({ contractId: 'special-projectile-behavior', status: 'incomplete' }),
+    ]));
+    expect(results.flatMap(result => result.problems)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ level: 'warning', suggestedFix: expect.any(String) }),
+    ]));
+  });
+
+  it('reports Scavenger companion fields without enabling squad registration', () => {
+    const result = evaluate({
+      patch: {
+        'customparams.scavsquadunitsamount': 4,
+        'customparams.scavsquadrarity': 'basic',
+      },
+    }).find(entry => entry.contractId === 'scavenger-squad');
+    expect(result.status).toBe('incomplete');
+    expect(result.problems).toContainEqual(expect.objectContaining({
+      key: 'customparams.scavcustomsquad',
+      level: 'warning',
+      companionKeys: expect.arrayContaining([
+        'customparams.scavsquadunitsamount',
+        'customparams.scavsquadrarity',
+      ]),
+    }));
+  });
+
   it('keeps a combined carrier and explosion slot exportable with an advisory', () => {
     const results = evaluate({
       slot: {
@@ -119,6 +155,53 @@ describe('BAR gadget contract validation', () => {
     expect(result.problems).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'coverage', level: 'error' }),
     ]));
+  });
+
+  it('validates mode-specific projectile companions and supporting WeaponDefs', () => {
+    const cruise = evaluate({
+      patch: {
+        weapon_slot_1_speceffect: 'cruise',
+        weapon_slot_1_cruise_min_height: 240,
+        weapon_slot_1_cruise_max_height: 80,
+        weapon_slot_1_lockon_dist: 300,
+      },
+    }).find(entry => entry.contractId === 'special-projectile-behavior');
+    expect(cruise.status).toBe('incomplete');
+    expect(cruise.problems).toContainEqual(expect.objectContaining({
+      key: 'cruise_min_height',
+      level: 'error',
+    }));
+
+    const split = evaluate({
+      patch: {
+        weapon_slot_1_speceffect: 'split',
+        weapon_slot_1_speceffect_def: 'missing_child',
+        weapon_slot_1_speceffect_number: 0,
+      },
+    }).find(entry => entry.contractId === 'special-projectile-behavior');
+    expect(split.problems).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'speceffect_number', level: 'error' }),
+      expect.objectContaining({ key: 'speceffect_def', level: 'warning' }),
+    ]));
+  });
+
+  it('warns when docking-only carrier fields are configured while docking is disabled', () => {
+    const carrier = evaluate({
+      patch: {
+        weapon_slot_1_carried_unit: 'armflea',
+        weapon_slot_1_spawnrate: 5,
+        weapon_slot_1_maxunits: 4,
+        weapon_slot_1_controlradius: 900,
+        weapon_slot_1_enabledocking: false,
+        weapon_slot_1_dockingradius: 120,
+      },
+    }).find(entry => entry.contractId === 'carrier-spawner');
+    expect(carrier.status).toBe('conflicting');
+    expect(carrier.problems).toContainEqual(expect.objectContaining({
+      key: 'enabledocking',
+      level: 'warning',
+      suggestedFix: 'Enable docking or reset the docking-only fields.',
+    }));
   });
 
   it('does not detect a contract from an inactive inherited flag', () => {
@@ -175,6 +258,7 @@ describe('BAR gadget contract validation', () => {
         group: 'contracts',
         unitId: 'armtest',
         action: expect.objectContaining({ type: 'unit' }),
+        contractSource: expect.objectContaining({ path: expect.stringMatching(/\.lua$/) }),
       }),
     ]));
   });

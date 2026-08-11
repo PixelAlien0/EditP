@@ -79,6 +79,18 @@ describe('consumer-backed custom parameter validation', () => {
     expect(supported).toEqual([]);
   });
 
+  it('lets the canonical contract engine own references for contract-bound fields', () => {
+    const issues = validateConsumerBackedPatch({
+      ...context,
+      skipContractReferences: true,
+      patch: {
+        weapon_slot_1_carried_unit: 'missing_drone',
+        weapon_slot_1_cluster_def: 'missing_weapon',
+      },
+    });
+    expect(issues.some(issue => ['unit-reference', 'weapon-reference'].includes(issue.code))).toBe(false);
+  });
+
   it('validates unit and weapon custom parameters from one project patch', () => {
     const issues = validateConsumerBackedPatch({
       ...context,
