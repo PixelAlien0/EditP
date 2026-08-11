@@ -91,70 +91,78 @@ export default function CreditsModal({ onClose }) {
       </header>
 
       <div className="credits-modal__body">
-        <section className="credits-intro" aria-labelledby="credits-intro-title">
-          <img src="/logo.svg" alt="" className="credits-intro__logo" />
-          <div>
-            <span className="credits-intro__status">Independent fan-made editor</span>
+        <aside className="credits-summary" aria-labelledby="credits-intro-title">
+          <img src="/logo.svg" alt="" className="credits-summary__logo" />
+          <div className="credits-summary__intro">
+            <span>Independent fan-made editor</span>
             <h3 id="credits-intro-title">Built for experimenting with BAR definitions</h3>
             <p id="credits-modal-summary">BAR Editor helps creators inspect, adjust, clone, and export game definitions. It is a community tool and is separate from the official Beyond All Reason project.</p>
           </div>
-        </section>
-
-        <section className="credits-notice" aria-labelledby="credits-important-title">
-          <div className="credits-section-heading">
-            <span>Read before publishing</span>
-            <h3 id="credits-important-title">Important use notes</h3>
-          </div>
-          <div className="credits-notice__grid">
-            {CREDIT_NOTICES.map((notice, index) => (
-              <article key={notice.title} className="credits-notice__item">
-                <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                <div>
-                  <h4>{notice.title}</h4>
-                  <p>{notice.copy}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="credits-assets" aria-labelledby="credits-assets-title">
-          <div className="credits-assets__previews" aria-label="Examples of credited BAR unit artwork">
-            {CREDIT_IMAGE_PREVIEWS.map(image => <UnitArtwork key={image.id} unitId={image.id} alt={image.alt} />)}
-          </div>
-          <div className="credits-assets__copy">
-            <span>Image provenance</span>
-            <h3 id="credits-assets-title">Unit imagery comes from BAR build pictures</h3>
-            <p>Images in the unit library are converted for browser display from the BAR repository’s <code>unitpics</code> assets. Sound parameters only reference engine asset names; the editor does not package or redistribute BAR sound files.</p>
-          </div>
-        </section>
-
-        <section className="credits-sources" aria-labelledby="credits-sources-title">
-          <div className="credits-section-heading">
-            <span>Primary references</span>
-            <h3 id="credits-sources-title">Sources &amp; acknowledgements</h3>
-            <p>Follow the original projects for current code, documentation, licenses, and contributor history.</p>
-          </div>
-          <div className="credits-sources__grid">
-            {CREDIT_SOURCES.map(source => (
-              <a key={source.name} className="credits-source-card" href={source.href} target="_blank" rel="noreferrer">
-                <span>{source.kind}</span>
-                <strong>{source.name}</strong>
-                <p>{source.description}</p>
-                <small>Open source ↗</small>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        <footer className="credits-modal__footer">
-          <div className="credits-maintainer">
+          <dl className="credits-summary__facts">
+            <div><dt>Relationship</dt><dd>Independent project</dd></div>
+            <div><dt>Project storage</dt><dd>Local browser data</dd></div>
+            <div><dt>Generated output</dt><dd>Requires game testing</dd></div>
+          </dl>
+          <div className="credits-summary__maintainer">
             <span>Web application</span>
             <strong>Maintained by [Grump]SunlessK</strong>
           </div>
-          <Button onClick={onClose}>Done</Button>
-        </footer>
+        </aside>
+
+        <main className="credits-document">
+          <section className="credits-notice" aria-labelledby="credits-important-title">
+            <div className="credits-section-heading">
+              <span>Read before publishing</span>
+              <h3 id="credits-important-title">Important use notes</h3>
+              <p>What the editor provides, what remains upstream, and what you should verify before sharing a project.</p>
+            </div>
+            <div className="credits-notice__list">
+              {CREDIT_NOTICES.map((notice, index) => (
+                <article key={notice.title} className="credits-notice__item">
+                  <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h4>{notice.title}</h4>
+                    <p>{notice.copy}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="credits-assets" aria-labelledby="credits-assets-title">
+            <div className="credits-assets__copy">
+              <span>Image provenance</span>
+              <h3 id="credits-assets-title">Unit imagery comes from BAR build pictures</h3>
+              <p>Images in the unit library are converted for browser display from the BAR repository’s <code>unitpics</code> assets. Sound parameters only reference engine asset names; the editor does not package or redistribute BAR sound files.</p>
+            </div>
+            <div className="credits-assets__previews" aria-label="Examples of credited BAR unit artwork">
+              {CREDIT_IMAGE_PREVIEWS.map(image => <UnitArtwork key={image.id} unitId={image.id} alt={image.alt} />)}
+            </div>
+          </section>
+
+          <section className="credits-sources" aria-labelledby="credits-sources-title">
+            <div className="credits-section-heading">
+              <span>Primary references</span>
+              <h3 id="credits-sources-title">Sources &amp; acknowledgements</h3>
+              <p>Follow the original projects for current code, documentation, licenses, and contributor history.</p>
+            </div>
+            <div className="credits-sources__list">
+              {CREDIT_SOURCES.map(source => (
+                <a key={source.name} className="credits-source-row" href={source.href} target="_blank" rel="noreferrer">
+                  <span>{source.kind}</span>
+                  <div><strong>{source.name}</strong><p>{source.description}</p></div>
+                  <small aria-hidden="true">Open ↗</small>
+                </a>
+              ))}
+            </div>
+          </section>
+        </main>
       </div>
+
+      <footer className="credits-modal__footer">
+        <p>Review upstream licenses and test generated output before distributing a project.</p>
+        <Button onClick={onClose}>Done</Button>
+      </footer>
     </Dialog>
   );
 }
