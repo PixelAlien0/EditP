@@ -33,10 +33,12 @@ describe('discovered custom-parameter review queue', () => {
     const review = normalizeDiscoveredKeyReview({ decision: 'candidate', note: '  Confirmed reader.  ' });
     const artifact = buildDiscoveredKeyReviewArtifact(entry, review);
     expect(artifact).toMatchObject({
-      version: 1,
+      version: 2,
       sourceCommit: expect.stringMatching(/^[a-f0-9]{40}$/),
       key: entry.key,
       review: { decision: 'candidate', note: 'Confirmed reader.' },
     });
+    expect(artifact).toHaveProperty('valueDiscovery');
+    expect(artifact).toHaveProperty('consumerValueEvidence');
   });
 });

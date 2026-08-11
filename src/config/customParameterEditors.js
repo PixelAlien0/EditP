@@ -54,8 +54,11 @@ export function getCustomParameterEditor(definition = {}) {
       unit: definition.unit,
     };
   }
-  if (definition.sampleValues?.length && definition.sampleValues.length <= 40) {
-    return { kind: 'suggested-text', options: definition.sampleValues };
+  const suggestedValues = definition.suggestedValues?.length
+    ? definition.suggestedValues
+    : definition.sampleValues;
+  if (suggestedValues?.length && suggestedValues.length <= 40) {
+    return { kind: 'suggested-text', options: suggestedValues };
   }
   return { kind: 'text' };
 }

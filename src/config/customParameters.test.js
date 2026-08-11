@@ -54,9 +54,22 @@ describe('advanced custom parameter metadata', () => {
     expect(getCustomParameterDefinition('scavsquadbehavior', 'unit')).toMatchObject({
       acceptedValues: ['raider', 'berserk', 'skirmisher', 'healer', 'artillery', 'kamikaze'],
     });
-    expect(CUSTOM_PARAMETER_DISCOVERY.version).toBe(2);
+    expect(CUSTOM_PARAMETER_DISCOVERY.version).toBe(3);
     expect(CUSTOM_PARAMETER_DISCOVERY.counts.unitParametersWithConsumers).toBeGreaterThan(0);
     expect(CUSTOM_PARAMETER_DISCOVERY.counts.weaponParametersWithConsumers).toBeGreaterThan(0);
+    expect(CUSTOM_PARAMETER_DISCOVERY.counts.inferredValueParameters).toBeGreaterThan(200);
+    expect(CUSTOM_PARAMETER_DISCOVERY.counts.enumCandidateParameters).toBeGreaterThan(100);
+    const areaMex = getCustomParameterDefinition('area_mex_def', 'unit');
+    expect(areaMex).toMatchObject({
+      type: 'string',
+      valueDiscovery: {
+        inferredType: 'string',
+        typeConfidence: 'strong',
+        enumConfidence: 'partial',
+      },
+    });
+    expect(areaMex.suggestedValues).toEqual(expect.arrayContaining(['armmex', 'cormex', 'legmex']));
+    expect(areaMex.acceptedValues).toBeUndefined();
 
     const consumerBacked = CUSTOM_PARAMETER_REGISTRY.filter(parameter => parameter.consumerCount > 0);
     expect(consumerBacked.length).toBeGreaterThan(0);

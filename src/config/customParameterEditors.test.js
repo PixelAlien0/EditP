@@ -22,6 +22,12 @@ describe('custom parameter editors', () => {
       kind: 'suggested-text',
       options: ['weapon', 'builder'],
     });
+    expect(getCustomParameterEditor({
+      key: 'discovered_mode', type: 'string', sampleValues: ['legacy'], suggestedValues: ['roam', 'guard'],
+    })).toEqual({
+      kind: 'suggested-text',
+      options: ['roam', 'guard'],
+    });
   });
 
   it('uses dedicated reference and asset browsers only for known contracts', () => {

@@ -36,6 +36,36 @@ function parseValue(source) {
   return { type: 'dynamic', sample: '' };
 }
 
+const LUA_LITERAL_PATTERN = String.raw`(?:true|false|-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')`;
+
+function parseConsumerLiteral(source) {
+  const parsed = parseValue(source);
+  if (parsed.type === 'dynamic' || parsed.sample === '') return null;
+  return parsed;
+}
+
+function consumerValueEvidence(line, matchIndex, matchLength) {
+  const before = line.slice(0, matchIndex);
+  const after = line.slice(matchIndex + matchLength);
+  const evidence = [];
+  const afterComparison = after.match(new RegExp(`^\\s*(==|~=|<=|>=|<|>)\\s*(${LUA_LITERAL_PATTERN})`, 'i'));
+  const beforeComparison = before.match(new RegExp(`(${LUA_LITERAL_PATTERN})\\s*(==|~=|<=|>=|<|>)\\s*$`, 'i'));
+  const fallback = after.match(new RegExp(`^\\s*or\\s*(${LUA_LITERAL_PATTERN})`, 'i'));
+  if (afterComparison) {
+    const value = parseConsumerLiteral(afterComparison[2]);
+    if (value) evidence.push({ kind: 'comparison', operator: afterComparison[1], ...value });
+  }
+  if (beforeComparison) {
+    const value = parseConsumerLiteral(beforeComparison[1]);
+    if (value) evidence.push({ kind: 'comparison', operator: `reverse:${beforeComparison[2]}`, ...value });
+  }
+  if (fallback) {
+    const value = parseConsumerLiteral(fallback[1]);
+    if (value) evidence.push({ kind: 'default', operator: 'or', ...value });
+  }
+  return evidence;
+}
+
 function addObservation(store, { key, type, sample, unitId, weaponDef, sourcePath }) {
   const normalizedKey = String(key || '').toLowerCase();
   if (!/^[a-z_][a-z0-9_]*$/.test(normalizedKey)) return;
@@ -82,6 +112,7 @@ function addConsumer(store, { key, scope, sourcePath, line, access, confidence, 
     readCount: 0,
     writeCount: 0,
     paths: new Map(),
+    valueEvidence: new Map(),
   };
   if (operation === 'write') record.writeCount += 1;
   else record.readCount += 1;
@@ -102,6 +133,27 @@ function addConsumer(store, { key, scope, sourcePath, line, access, confidence, 
   record.paths.set(sourcePath, pathRecord);
   store.set(id, record);
   return true;
+}
+
+function addConsumerValueEvidence(store, { key, scope, sourcePath, line, evidence = [] }) {
+  const record = store.get(`${scope}:${String(key || '').toLowerCase()}`);
+  if (!record) return;
+  for (const item of evidence) {
+    const id = `${item.kind}:${item.operator}:${item.type}:${item.sample}`;
+    const existing = record.valueEvidence.get(id) || {
+      kind: item.kind,
+      operator: item.operator,
+      type: item.type,
+      value: item.sample,
+      occurrences: 0,
+      sourcePaths: new Set(),
+      lines: new Set(),
+    };
+    existing.occurrences += 1;
+    existing.sourcePaths.add(sourcePath);
+    if (line) existing.lines.add(line);
+    record.valueEvidence.set(id, existing);
+  }
 }
 
 function resolveConsumerScope({ explicitScope, key, unitKeys, weaponKeys }) {
@@ -128,6 +180,7 @@ function discoverConsumers(repository, { unitKeys, weaponKeys }) {
   for (const file of files) {
     const sourcePath = path.relative(repository, file).replaceAll('\\', '/').toLowerCase();
     const aliases = new Map();
+    const scalarAliases = new Map();
     const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/);
     lines.forEach((sourceLine, index) => {
       const trimmed = sourceLine.trim();
@@ -149,7 +202,15 @@ function discoverConsumers(repository, { unitKeys, weaponKeys }) {
           access: match[1] ? `${match[1]}.customParams` : 'customParams',
           confidence: resolved.confidence,
           operation: accessOperation(line, match),
-        })) continue;
+        })) {
+          addConsumerValueEvidence(consumers, {
+            key, scope: resolved.scope, sourcePath, line: index + 1,
+            evidence: consumerValueEvidence(line, match.index || 0, match[0].length),
+          });
+          const scalarAssignment = line.slice(0, match.index || 0).match(/\blocal\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*$/);
+          if (scalarAssignment) scalarAliases.set(scalarAssignment[1], { key, scope: resolved.scope });
+          continue;
+        }
         if (accessOperation(line, match) === 'write') continue;
         const unresolvedRecord = unresolved.get(key) || { key, occurrences: 0, sourcePaths: new Set() };
         unresolvedRecord.occurrences += 1;
@@ -168,6 +229,24 @@ function discoverConsumers(repository, { unitKeys, weaponKeys }) {
             access: aliasName, confidence: 'high',
             operation: accessOperation(line, match),
           });
+          addConsumerValueEvidence(consumers, {
+            key, scope: explicitScope, sourcePath, line: index + 1,
+            evidence: consumerValueEvidence(line, match.index || 0, match[0].length),
+          });
+          const scalarAssignment = line.slice(0, match.index || 0).match(/\blocal\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*$/);
+          if (scalarAssignment) scalarAliases.set(scalarAssignment[1], { key, scope: explicitScope });
+        }
+      }
+
+      for (const [aliasName, target] of scalarAliases) {
+        const escapedAlias = aliasName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const aliasPattern = new RegExp(`\\b${escapedAlias}\\b`, 'g');
+        for (const match of line.matchAll(aliasPattern)) {
+          const evidence = consumerValueEvidence(line, match.index || 0, match[0].length);
+          if (evidence.length === 0) continue;
+          addConsumerValueEvidence(consumers, {
+            ...target, sourcePath, line: index + 1, evidence,
+          });
         }
       }
     });
@@ -177,7 +256,7 @@ function discoverConsumers(repository, { unitKeys, weaponKeys }) {
 }
 
 function serializeConsumer(record) {
-  if (!record) return { consumerCount: 0, writerCount: 0, consumerLayers: [], consumerEvidence: [] };
+  if (!record) return { consumerCount: 0, writerCount: 0, consumerLayers: [], consumerEvidence: [], consumerValueEvidence: [] };
   const readablePaths = [...record.paths.values()]
     .filter(item => item.readCount > 0)
     .sort((left, right) => left.path.localeCompare(right.path, 'en'));
@@ -198,6 +277,81 @@ function serializeConsumer(record) {
     writerCount: record.writeCount,
     consumerLayers: [...new Set(readablePaths.map(item => item.layer))].sort(),
     consumerEvidence,
+    consumerValueEvidence: [...record.valueEvidence.values()]
+      .sort((left, right) => (
+        left.kind.localeCompare(right.kind)
+        || left.type.localeCompare(right.type)
+        || String(left.value).localeCompare(String(right.value), 'en')
+      ))
+      .slice(0, 24)
+      .map(item => ({
+        kind: item.kind,
+        operator: item.operator,
+        type: item.type,
+        value: item.value,
+        occurrences: item.occurrences,
+        sourcePath: [...item.sourcePaths].sort()[0] || '',
+        line: [...item.lines].sort((left, right) => left - right)[0] || 0,
+      })),
+  };
+}
+
+function numericBoundFromEvidence(item) {
+  if (item.type !== 'number' || item.kind !== 'comparison') return null;
+  const value = Number(item.value);
+  if (!Number.isFinite(value)) return null;
+  const reverse = item.operator.startsWith('reverse:');
+  const operator = item.operator.replace(/^reverse:/, '');
+  const normalized = reverse
+    ? ({ '<': '>', '<=': '>=', '>': '<', '>=': '<=' }[operator] || operator)
+    : operator;
+  if (normalized === '>' || normalized === '>=') return { side: 'lower', value, inclusive: normalized === '>=' };
+  if (normalized === '<' || normalized === '<=') return { side: 'upper', value, inclusive: normalized === '<=' };
+  return null;
+}
+
+function buildValueDiscovery(record, serializedConsumer) {
+  const consumerTypes = serializedConsumer.consumerValueEvidence.map(item => item.type);
+  const concreteTypes = [...new Set([...record.valueTypes, ...consumerTypes])].filter(type => type !== 'dynamic').sort();
+  const inferredType = concreteTypes.length === 1 ? concreteTypes[0] : concreteTypes.length > 1 ? 'mixed' : 'unknown';
+  const declarationSamples = [...record.sampleValues];
+  const comparisons = serializedConsumer.consumerValueEvidence.filter(item => item.kind === 'comparison');
+  const defaults = serializedConsumer.consumerValueEvidence.filter(item => item.kind === 'default');
+  const candidateValues = [...new Set([
+    ...declarationSamples,
+    ...comparisons.filter(item => ['string', 'boolean'].includes(item.type)).map(item => item.value),
+    ...defaults.filter(item => ['string', 'boolean'].includes(item.type)).map(item => item.value),
+  ])].sort((left, right) => String(left).localeCompare(String(right), 'en'));
+  const exactComparisons = comparisons.filter(item => ['==', '~=', 'reverse:==', 'reverse:~='].includes(item.operator));
+  const enumEligible = ['string', 'boolean'].includes(inferredType) && candidateValues.length > 0 && candidateValues.length <= 24;
+  const enumConfidence = !enumEligible
+    ? 'none'
+    : exactComparisons.length >= 2
+      ? 'strong'
+      : exactComparisons.length > 0 || (record.occurrences >= 3 && candidateValues.length <= 12)
+        ? 'partial'
+        : 'weak';
+  const numericValues = inferredType === 'number'
+    ? declarationSamples.map(Number).filter(Number.isFinite)
+    : [];
+  const bounds = comparisons.map(numericBoundFromEvidence).filter(Boolean);
+  const lowerBounds = bounds.filter(item => item.side === 'lower');
+  const upperBounds = bounds.filter(item => item.side === 'upper');
+  return {
+    inferredType,
+    typeConfidence: concreteTypes.length !== 1
+      ? 'uncertain'
+      : record.valueTypes.has('dynamic') ? 'partial' : record.occurrences >= 2 ? 'strong' : 'partial',
+    enumCandidates: enumEligible ? candidateValues.slice(0, 24) : [],
+    enumConfidence,
+    comparisonValues: [...new Set(exactComparisons.map(item => item.value))].slice(0, 24),
+    defaultCandidates: [...new Set(defaults.map(item => item.value))].slice(0, 12),
+    numericRange: inferredType === 'number' ? {
+      observedMin: numericValues.length > 0 ? Math.min(...numericValues) : null,
+      observedMax: numericValues.length > 0 ? Math.max(...numericValues) : null,
+      lowerBound: lowerBounds.length > 0 ? Math.max(...lowerBounds.map(item => item.value)) : null,
+      upperBound: upperBounds.length > 0 ? Math.min(...upperBounds.map(item => item.value)) : null,
+    } : null,
   };
 }
 
@@ -205,7 +359,9 @@ function serializeObservations(store, consumers, scope) {
   const limited = (values, maximum) => [...values].sort((left, right) => left.localeCompare(right, 'en')).slice(0, maximum);
   return [...store.values()]
     .sort((left, right) => left.key.localeCompare(right.key, 'en'))
-    .map(record => ({
+    .map(record => {
+      const serializedConsumer = serializeConsumer(consumers.get(`${scope}:${record.key}`));
+      return ({
       key: record.key,
       occurrences: record.occurrences,
       valueTypes: limited(record.valueTypes, 8),
@@ -213,8 +369,10 @@ function serializeObservations(store, consumers, scope) {
       sampleUnitIds: limited(record.sampleUnitIds, 3),
       sampleWeaponDefs: limited(record.sampleWeaponDefs, 3),
       sourcePaths: limited(record.sourcePaths, 1),
-      ...serializeConsumer(consumers.get(`${scope}:${record.key}`)),
-    }));
+      ...serializedConsumer,
+      valueDiscovery: buildValueDiscovery(record, serializedConsumer),
+    });
+    });
 }
 
 export function discoverCustomParameters({ repository, sourceCommit = '' }) {
@@ -298,12 +456,20 @@ export function discoverCustomParameters({ repository, sourceCommit = '' }) {
       record.scope === 'unit' ? !unitParameters.has(record.key) : !weaponParameters.has(record.key)
     ))
     .sort((left, right) => left.scope.localeCompare(right.scope) || left.key.localeCompare(right.key, 'en'))
-    .map(record => ({
-      key: record.key,
-      scope: record.scope,
-      declared: false,
-      ...serializeConsumer(record),
-    }));
+    .map(record => {
+      const serializedConsumer = serializeConsumer(record);
+      return {
+        key: record.key,
+        scope: record.scope,
+        declared: false,
+        ...serializedConsumer,
+        valueDiscovery: buildValueDiscovery({
+          occurrences: 0,
+          valueTypes: new Set(),
+          sampleValues: new Set(),
+        }, serializedConsumer),
+      };
+    });
   const unresolvedConsumers = [...consumerDiscovery.unresolved.values()]
     .sort((left, right) => left.key.localeCompare(right.key, 'en'))
     .map(record => ({
@@ -312,7 +478,7 @@ export function discoverCustomParameters({ repository, sourceCommit = '' }) {
       sourcePaths: [...record.sourcePaths].sort().slice(0, 8),
     }));
   return {
-    version: 2,
+    version: 3,
     sourceRepository: 'beyond-all-reason/Beyond-All-Reason',
     sourceCommit,
     counts: {
@@ -325,6 +491,12 @@ export function discoverCustomParameters({ repository, sourceCommit = '' }) {
       weaponParametersWithConsumers: weapon.filter(parameter => parameter.consumerCount > 0).length,
       unresolvedConsumerKeys: unresolvedConsumers.length,
       consumerOnlyParameters: consumerOnly.length,
+      inferredValueParameters: [...unit, ...weapon, ...consumerOnly]
+        .filter(parameter => parameter.valueDiscovery.inferredType !== 'unknown').length,
+      enumCandidateParameters: [...unit, ...weapon, ...consumerOnly]
+        .filter(parameter => parameter.valueDiscovery.enumCandidates.length > 0).length,
+      numericRangeParameters: [...unit, ...weapon, ...consumerOnly]
+        .filter(parameter => parameter.valueDiscovery.numericRange).length,
     },
     parameters: { unit, weapon },
     consumerOnly,

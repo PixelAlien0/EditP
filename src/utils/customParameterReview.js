@@ -3,7 +3,7 @@ import {
   CUSTOM_PARAMETER_REGISTRY,
 } from '../config/customParameters.js';
 
-export const DISCOVERED_KEY_REVIEW_VERSION = 1;
+export const DISCOVERED_KEY_REVIEW_VERSION = 2;
 
 export const DISCOVERED_KEY_REVIEW_DECISIONS = Object.freeze([
   Object.freeze({ id: 'pending', label: 'Pending review' }),
@@ -41,6 +41,16 @@ function issuesFor(definition) {
   if (observedTypes.includes('dynamic')) issues.push('At least one declaration uses a dynamic value.');
   if (observedTypes.filter(type => type !== 'dynamic').length > 1) issues.push('Declarations use more than one scalar value type.');
   if (definition.writerCount > 0) issues.push('BAR source writes this key as well as reading it.');
+  if (['mixed', 'unknown'].includes(definition.valueDiscovery?.inferredType)) {
+    issues.push('Automatic value discovery could not resolve one scalar type.');
+  }
+  if (definition.valueDiscovery?.enumConfidence === 'weak') {
+    issues.push('Enum candidates have weak evidence and must remain suggestions until reviewed.');
+  }
+  const range = definition.valueDiscovery?.numericRange;
+  if (range?.lowerBound != null && range?.upperBound != null && range.lowerBound > range.upperBound) {
+    issues.push('Detected numeric consumer bounds conflict.');
+  }
   return issues;
 }
 
@@ -81,6 +91,9 @@ function fromDefinition(definition) {
     sampleValues: definition.sampleValues,
     sampleUnitIds: definition.sampleUnitIds,
     sampleWeaponDefs: definition.sampleWeaponDefs,
+    valueDiscovery: definition.valueDiscovery,
+    suggestedValues: definition.suggestedValues,
+    consumerValueEvidence: definition.consumerValueEvidence,
     sourcePaths: definition.sourcePaths,
     evidencePaths: Object.freeze(evidencePaths),
     issues: Object.freeze(issuesFor(definition)),
@@ -96,6 +109,8 @@ function fromDefinition(definition) {
       ...evidencePaths,
       ...definition.consumerLayers,
       ...definition.sampleValues,
+      ...(definition.valueDiscovery?.enumCandidates || []),
+      ...(definition.valueDiscovery?.defaultCandidates || []),
     ].join(' ').toLowerCase(),
   });
 }
@@ -128,6 +143,9 @@ function fromUnresolved(entry) {
     sampleValues: Object.freeze([]),
     sampleUnitIds: Object.freeze([]),
     sampleWeaponDefs: Object.freeze([]),
+    valueDiscovery: null,
+    suggestedValues: Object.freeze([]),
+    consumerValueEvidence: Object.freeze([]),
     sourcePaths: Object.freeze(paths),
     evidencePaths: Object.freeze(paths),
     issues: Object.freeze(['Scope could not be resolved automatically.']),
@@ -192,6 +210,14 @@ export function buildDiscoveredKeyReviewArtifact(entry, review = {}) {
     inferredType: entry.type,
     observedTypes: [...entry.observedTypes],
     samples: [...entry.sampleValues],
+    valueDiscovery: entry.valueDiscovery ? {
+      ...entry.valueDiscovery,
+      enumCandidates: [...entry.valueDiscovery.enumCandidates],
+      comparisonValues: [...entry.valueDiscovery.comparisonValues],
+      defaultCandidates: [...entry.valueDiscovery.defaultCandidates],
+      numericRange: entry.valueDiscovery.numericRange ? { ...entry.valueDiscovery.numericRange } : null,
+    } : null,
+    consumerValueEvidence: entry.consumerValueEvidence.map(evidence => ({ ...evidence })),
     occurrences: entry.occurrences,
     consumers: entry.consumerEvidence.map(evidence => ({ ...evidence })),
     sourcePaths: [...entry.sourcePaths],

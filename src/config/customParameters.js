@@ -119,10 +119,25 @@ function titleFromKey(key) {
 }
 
 function inferredType(observation) {
+  const discoveredType = observation?.valueDiscovery?.inferredType;
+  if (['boolean', 'number', 'string'].includes(discoveredType)) return discoveredType;
   const types = new Set(observation?.valueTypes || []);
   if (types.size === 1 && types.has('boolean')) return 'boolean';
   if (types.size === 1 && types.has('number')) return 'number';
   return 'string';
+}
+
+function freezeValueDiscovery(valueDiscovery) {
+  if (!valueDiscovery) return null;
+  return Object.freeze({
+    ...valueDiscovery,
+    enumCandidates: Object.freeze([...(valueDiscovery.enumCandidates || [])]),
+    comparisonValues: Object.freeze([...(valueDiscovery.comparisonValues || [])]),
+    defaultCandidates: Object.freeze([...(valueDiscovery.defaultCandidates || [])]),
+    numericRange: valueDiscovery.numericRange
+      ? Object.freeze({ ...valueDiscovery.numericRange })
+      : null,
+  });
 }
 
 function observationMap(scope) {
@@ -153,9 +168,16 @@ for (const contract of GADGET_CONTRACT_REGISTRY) {
 function enrichDefinition(definition, scope, observation) {
   const observed = Boolean(observation && observation.declared !== false);
   const contracts = contractByParameter.get(`${scope}:${definition.key}`) || [];
+  const valueDiscovery = freezeValueDiscovery(observation?.valueDiscovery);
   const consumerEvidence = Object.freeze((observation?.consumerEvidence || []).map(item => Object.freeze({
     ...item,
   })));
+  const consumerValueEvidence = Object.freeze((observation?.consumerValueEvidence || []).map(item => Object.freeze({
+    ...item,
+  })));
+  const suggestedValues = definition.acceptedValues?.length
+    ? []
+    : (valueDiscovery?.enumCandidates || []).filter(value => String(value).trim()).slice(0, 24);
   const reviewed = Boolean(definition.reviewed || definition.curated || definition.editorSupported || contracts.length);
   const documented = Boolean(definition.documented || definition.curated || definition.editorSupported);
   const editorSupported = Boolean(definition.editorSupported);
@@ -202,10 +224,13 @@ function enrichDefinition(definition, scope, observation) {
     sampleUnitIds: Object.freeze(observation?.sampleUnitIds || []),
     sampleWeaponDefs: Object.freeze(observation?.sampleWeaponDefs || []),
     sourcePaths: Object.freeze(observation?.sourcePaths || []),
+    valueDiscovery,
+    suggestedValues: Object.freeze(suggestedValues),
     consumerCount: observation?.consumerCount || 0,
     writerCount: observation?.writerCount || 0,
     consumerLayers: Object.freeze(observation?.consumerLayers || []),
     consumerEvidence,
+    consumerValueEvidence,
   });
 }
 
@@ -308,6 +333,8 @@ export const CUSTOM_PARAMETER_DISCOVERY = Object.freeze({
     ...entry,
     consumerLayers: Object.freeze([...(entry.consumerLayers || [])]),
     consumerEvidence: Object.freeze((entry.consumerEvidence || []).map(evidence => Object.freeze({ ...evidence }))),
+    consumerValueEvidence: Object.freeze((entry.consumerValueEvidence || []).map(evidence => Object.freeze({ ...evidence }))),
+    valueDiscovery: freezeValueDiscovery(entry.valueDiscovery),
   }))),
   unresolvedConsumers: Object.freeze((discovery.unresolvedConsumers || []).map(entry => Object.freeze({
     ...entry,

@@ -38,9 +38,12 @@ describe('BAR custom-parameter discovery', () => {
     const gadgets = path.join(repository, 'luarules', 'gadgets');
     fs.mkdirSync(gadgets, { recursive: true });
     fs.writeFileSync(path.join(gadgets, 'sample_consumer.lua'), `local unitParams = UnitDefs[unitDefID].customParams
+local group = unitParams.unitgroup or "utility"
+if group == "weapon" or group == "builder" then return end
 if unitParams.crashable then return end
 if unitDef.customParams.unitgroup then return end
 if weaponDef.customParams.cluster_def then return end
+if weaponDef.customParams.cluster_number >= 2 then return end
 if customParams.shared_key then return end
 `);
 
@@ -54,17 +57,28 @@ if customParams.shared_key then return end
       expect.objectContaining({ key: 'cluster_def', sampleWeaponDefs: ['sample_weapon'] }),
       expect.objectContaining({ key: 'cluster_number', valueTypes: ['number'] }),
     ]));
-    expect(result.version).toBe(2);
+    expect(result.version).toBe(3);
     expect(result.counts.scannedConsumerFiles).toBe(1);
     expect(result.parameters.unit.find(parameter => parameter.key === 'crashable')).toMatchObject({
       consumerCount: 1,
       consumerLayers: ['runtime-gadget'],
       consumerEvidence: [expect.objectContaining({
-        path: 'luarules/gadgets/sample_consumer.lua', confidence: 'high', line: 2,
+        path: 'luarules/gadgets/sample_consumer.lua', confidence: 'high', line: 4,
       })],
     });
-    expect(result.parameters.unit.find(parameter => parameter.key === 'unitgroup')).toMatchObject({ consumerCount: 1 });
+    expect(result.parameters.unit.find(parameter => parameter.key === 'unitgroup')).toMatchObject({ consumerCount: 2 });
     expect(result.parameters.weapon.find(parameter => parameter.key === 'cluster_def')).toMatchObject({ consumerCount: 1 });
+    expect(result.parameters.unit.find(parameter => parameter.key === 'unitgroup').valueDiscovery).toMatchObject({
+      inferredType: 'string',
+      enumCandidates: ['builder', 'utility', 'weapon'],
+      enumConfidence: 'strong',
+      defaultCandidates: ['utility'],
+    });
+    expect(result.parameters.weapon.find(parameter => parameter.key === 'cluster_number').valueDiscovery).toMatchObject({
+      inferredType: 'number',
+      numericRange: expect.objectContaining({ observedMin: 6, observedMax: 6, lowerBound: 2 }),
+    });
+    expect(result.counts.enumCandidateParameters).toBeGreaterThan(0);
     expect(result.unresolvedConsumers).toContainEqual(expect.objectContaining({ key: 'shared_key', occurrences: 1 }));
   });
 });

@@ -31,6 +31,24 @@ function getValueType(value, catalogEntry) {
   return 'string';
 }
 
+function valueDiscoverySummary(definition) {
+  const discovery = definition?.valueDiscovery;
+  if (!discovery) return '';
+  const parts = [`Inferred ${discovery.inferredType} (${discovery.typeConfidence} confidence)`];
+  const range = discovery.numericRange;
+  if (range) {
+    if (range.observedMin != null || range.observedMax != null) {
+      parts.push(`observed ${range.observedMin ?? '?'} to ${range.observedMax ?? '?'}`);
+    }
+    if (range.lowerBound != null) parts.push(`consumer lower bound ${range.lowerBound}`);
+    if (range.upperBound != null) parts.push(`consumer upper bound ${range.upperBound}`);
+  }
+  if (discovery.defaultCandidates.length > 0) {
+    parts.push(`consumer default${discovery.defaultCandidates.length === 1 ? '' : 's'} ${discovery.defaultCandidates.join(', ')}`);
+  }
+  return parts.join(' · ');
+}
+
 function ArmorProfileField({ defaults, tweaks, onChange }) {
   const tweakKey = `${PREFIX}armordef`;
   const modified = Object.prototype.hasOwnProperty.call(tweaks, tweakKey);
@@ -211,10 +229,17 @@ export default function AdvancedCustomParameters({
                       {parameter.definition.acceptedValues.map(value => <code key={value}>{value}</code>)}
                     </span>
                   )}
+                  {!parameter.definition?.acceptedValues?.length && parameter.definition?.suggestedValues?.length > 0 && (
+                    <span className="advanced-custom-parameter__accepted-values" aria-label={`Values discovered in BAR: ${parameter.definition.suggestedValues.join(', ')}`}>
+                      <strong>Observed suggestions:</strong>
+                      {parameter.definition.suggestedValues.map(value => <code key={value}>{value}</code>)}
+                    </span>
+                  )}
                 </p>
                 {parameter.definition?.promotion && (
                   <div className="advanced-custom-parameter__evidence">
                     <span>{parameter.definition.promotion.description}</span>
+                    {parameter.definition.valueDiscovery && <span>{valueDiscoverySummary(parameter.definition)}. Suggestions are evidence, not enforced values.</span>}
                     {parameter.definition.consumerEvidence.length > 0 && (
                       <span className="advanced-custom-parameter__consumer" title={parameter.definition.consumerEvidence.map(item => item.path).join('\n')}>
                         Consumer evidence: {parameter.definition.consumerCount} {parameter.definition.consumerCount === 1 ? 'read' : 'reads'} across {parameter.definition.consumerEvidence.length} {parameter.definition.consumerEvidence.length === 1 ? 'source' : 'sources'} · {parameter.definition.consumerEvidence[0].path}
@@ -287,6 +312,7 @@ export default function AdvancedCustomParameters({
           {definition.observed && ` Observed ${definition.occurrences} time${definition.occurrences === 1 ? '' : 's'} across the pinned BAR source.`}
           <span className="advanced-custom-parameters__promotion-note">
             <strong>{definition.promotion.label}:</strong> {definition.promotion.description}
+            {definition.valueDiscovery && ` Automatic value discovery: ${valueDiscoverySummary(definition)}. Inferred values remain advisory.`}
             {definition.contractIds.length > 0 && ` Linked contract${definition.contractIds.length === 1 ? '' : 's'}: ${definition.contractIds.join(', ')}.`}
             {definition.consumerEvidence.length > 0 && ` Automatic consumer discovery found ${definition.consumerCount} source ${definition.consumerCount === 1 ? 'read' : 'reads'}; first evidence: ${definition.consumerEvidence[0].path}${definition.consumerEvidence[0].line ? `:${definition.consumerEvidence[0].line}` : ''}.`}
             {definition.promotion.runtimeFixtureIds.length > 0 && ` Runtime evidence: ${definition.promotion.runtimeFixtureIds.join(', ')}.`}

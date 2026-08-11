@@ -47,6 +47,19 @@ function EvidenceList({ title, empty, children }) {
   );
 }
 
+function NumericEvidence({ range }) {
+  if (!range) return null;
+  const entries = [
+    ['Observed min', range.observedMin],
+    ['Observed max', range.observedMax],
+    ['Consumer lower bound', range.lowerBound],
+    ['Consumer upper bound', range.upperBound],
+  ].filter(([, value]) => value != null);
+  return entries.length > 0
+    ? <div className="discovered-key-review__tokens">{entries.map(([label, value]) => <code key={label}>{label}: {value}</code>)}</div>
+    : null;
+}
+
 export default function DiscoveredKeyReviewWorkbench({ onClose }) {
   const closeRef = useRef(null);
   const queue = useMemo(() => buildDiscoveredKeyReviewQueue(), []);
@@ -200,11 +213,16 @@ export default function DiscoveredKeyReviewWorkbench({ onClose }) {
               <aside><strong>Recommended next step</strong><span>{selected.recommendation}</span></aside>
             </section>
             <div className="discovered-key-review__evidence-grid">
-              <EvidenceList title="Observed values" empty="No literal declaration samples were captured.">
+              <EvidenceList title="Value & enum evidence" empty="No literal values or enum candidates were discovered.">
                 {selected.sampleValues.length > 0 ? <div className="discovered-key-review__tokens">{selected.sampleValues.map(value => <code key={value}>{value}</code>)}</div> : null}
+                {selected.valueDiscovery?.enumCandidates.length > 0 ? <div className="discovered-key-review__tokens" aria-label="Discovered enum candidates">{selected.valueDiscovery.enumCandidates.map(value => <code key={`enum:${value}`}>{value}</code>)}</div> : null}
+                {selected.valueDiscovery?.enumCandidates.length > 0 ? <p>{selected.valueDiscovery.enumConfidence} enum evidence · advisory until curated</p> : null}
+                <NumericEvidence range={selected.valueDiscovery?.numericRange} />
+                {selected.valueDiscovery?.defaultCandidates.length > 0 ? <p>Consumer defaults: {selected.valueDiscovery.defaultCandidates.join(', ')}</p> : null}
               </EvidenceList>
               <EvidenceList title="Observed types" empty="Type remains unresolved.">
                 {selected.observedTypes.length > 0 ? <div className="discovered-key-review__tokens">{selected.observedTypes.map(value => <code key={value}>{value}</code>)}</div> : null}
+                {selected.valueDiscovery ? <p>Inferred {selected.valueDiscovery.inferredType} · {selected.valueDiscovery.typeConfidence} confidence</p> : null}
               </EvidenceList>
               <EvidenceList title="Consumer evidence" empty="No static consumer was resolved.">
                 {selected.consumerEvidence.length > 0 ? <ul>{selected.consumerEvidence.map(item => <li key={`${item.path}:${item.line || 0}`}><code>{item.path}{item.line ? `:${item.line}` : ''}</code><span>{item.layer} · {item.confidence} confidence</span></li>)}</ul> : null}

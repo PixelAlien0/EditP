@@ -61,7 +61,7 @@
     "customParameters": {
       "path": "src/data/custom-parameter-discovery.json",
       "schemaVersion": 1,
-      "sha256": "7ba5fdff0ddddaab90a2eb65dd2889bcab2fc4a66111f9cc43a8bf512de8daa9"
+      "sha256": "75089d80b0a0ba3918cf0e4cf7cec54e4dcc5de4979d3ae9f7cc7c928bfc83d4"
     }
   }
 }

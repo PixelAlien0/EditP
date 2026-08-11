@@ -63,12 +63,44 @@ for (const key of ['artwork', 'tacticalIcons', 'assets', 'customParameters']) {
   }
 }
 
-if (datasets.customParameters?.version !== 2) {
+if (datasets.customParameters?.version !== 3) {
   errors.push(`Unsupported custom-parameter discovery schema ${datasets.customParameters?.version ?? 'missing'}.`);
 }
 if (!Array.isArray(datasets.customParameters?.consumerOnly)
   || !Array.isArray(datasets.customParameters?.unresolvedConsumers)) {
   errors.push('Custom-parameter discovery is missing automatic consumer evidence collections.');
+}
+const discoveredParameters = [
+  ...(datasets.customParameters?.parameters?.unit || []),
+  ...(datasets.customParameters?.parameters?.weapon || []),
+  ...(datasets.customParameters?.consumerOnly || []),
+];
+const inferredValueParameters = discoveredParameters.filter(parameter => (
+  ['boolean', 'number', 'string', 'mixed'].includes(parameter.valueDiscovery?.inferredType)
+));
+const enumCandidateParameters = discoveredParameters.filter(parameter => parameter.valueDiscovery?.enumCandidates?.length > 0);
+const numericRangeParameters = discoveredParameters.filter(parameter => parameter.valueDiscovery?.numericRange);
+if (inferredValueParameters.length !== datasets.customParameters?.counts?.inferredValueParameters) {
+  errors.push('Custom-parameter inferred value count does not match the generated discovery records.');
+}
+if (enumCandidateParameters.length !== datasets.customParameters?.counts?.enumCandidateParameters) {
+  errors.push('Custom-parameter enum candidate count does not match the generated discovery records.');
+}
+if (numericRangeParameters.length !== datasets.customParameters?.counts?.numericRangeParameters) {
+  errors.push('Custom-parameter numeric range count does not match the generated discovery records.');
+}
+for (const parameter of discoveredParameters) {
+  const valueDiscovery = parameter.valueDiscovery;
+  if (!valueDiscovery
+    || !Array.isArray(valueDiscovery.enumCandidates)
+    || !Array.isArray(valueDiscovery.comparisonValues)
+    || !Array.isArray(valueDiscovery.defaultCandidates)) {
+    errors.push(`Custom-parameter ${parameter.scope || 'declared'}:${parameter.key} has malformed automatic value evidence.`);
+    continue;
+  }
+  if (valueDiscovery.enumCandidates.length > 24) {
+    errors.push(`Custom-parameter ${parameter.key} exceeds the automatic enum candidate limit.`);
+  }
 }
 
 for (const [producerId, roster] of Object.entries(datasets.rosters)) {
