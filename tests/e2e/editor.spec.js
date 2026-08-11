@@ -1313,8 +1313,9 @@ test('clone identity remains editable and nested clones keep the selected clone 
   await dialog.getByRole('button', { name: 'Create Clone' }).click();
 
   await page.getByRole('button', { name: 'Edit identity' }).click();
-  await expect(page.getByRole('tab', { name: /Identity/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tab', { name: /Details/ })).toHaveAttribute('aria-selected', 'true');
   const inspector = page.getByRole('complementary', { name: 'Editor inspector' });
+  await expect(inspector.getByRole('heading', { name: 'Identity & production' })).toBeVisible();
   await inspector.getByLabel('Display name', { exact: true }).fill('Editorial Test Clone');
 
   await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
@@ -1532,7 +1533,8 @@ test('editor visual baseline: cloned unit identity', async ({ page }) => {
   await cloneDialog.getByLabel('New Unit ID', { exact: true }).fill('armdfly_visual_clone');
   await cloneDialog.getByRole('button', { name: 'Create Clone' }).click();
   await page.getByRole('button', { name: 'Edit identity' }).click();
-  await expect(page.getByRole('tab', { name: /Identity/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tab', { name: /Details/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('heading', { name: 'Identity & production' })).toBeVisible();
   await expect(page.locator('.toast')).toHaveCount(0, { timeout: 5000 });
   await expect(page).toHaveScreenshot('editor-clone-identity-light-1440.png');
 });

@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const testPort = Number(process.env.PLAYWRIGHT_PORT || 4173);
+
 export default defineConfig({
   testDir: './tests/e2e',
   globalSetup: './tests/e2e/global-setup.js',
@@ -16,7 +18,7 @@ export default defineConfig({
   reporter: process.env.CI ? [['html', { open: 'never' }], ['github']] : 'list',
   snapshotPathTemplate: '{testDir}/__screenshots__/{arg}{ext}',
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: `http://127.0.0.1:${testPort}`,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     reducedMotion: 'reduce'

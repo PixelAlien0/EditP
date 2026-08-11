@@ -16,4 +16,8 @@ describe('normalizeWorkspaceLayout', () => {
       rightCollapsed: true,
     });
   });
+
+  it('migrates the retired identity tab into Details', () => {
+    expect(normalizeWorkspaceLayout({ inspectorTab: 'identity' }).inspectorTab).toBe('details');
+  });
 });

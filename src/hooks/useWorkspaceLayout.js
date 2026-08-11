@@ -18,7 +18,7 @@ export const WORKSPACE_LAYOUT_DEFAULTS = Object.freeze({
 });
 
 const VALID_DENSITIES = new Set(['compact', 'balanced', 'comfortable']);
-const VALID_INSPECTOR_TABS = new Set(['details', 'compare', 'changes', 'identity']);
+const VALID_INSPECTOR_TABS = new Set(['details', 'compare', 'changes']);
 
 function clamp(value, min, max) {
   const numeric = Number(value);

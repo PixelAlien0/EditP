@@ -194,6 +194,9 @@ export default function EditUnitsWorkspace({ context }) {
       external: Boolean(swap?.sourceUnitId && !defaultsDb[resolveCloneRootId(swap.sourceUnitId)]),
     };
   })();
+  const selectedClone = selectedUnit?.isClone
+    ? clones.find(clone => clone.newId.toLowerCase() === selectedUnit.id.toLowerCase())
+    : null;
   return (
       <EditorShell
         layout={workspaceLayout.layout}
@@ -499,8 +502,11 @@ export default function EditUnitsWorkspace({ context }) {
                     });
                   }}
                   onOpenIdentity={() => {
-                    workspaceLayout.setInspectorTab('identity');
+                    workspaceLayout.setInspectorTab('details');
                     workspaceLayout.setRightCollapsed(false);
+                    requestAnimationFrame(() => {
+                      document.getElementById('clone-identity-display-name')?.focus();
+                    });
                   }}
                 />
 
@@ -1562,7 +1568,7 @@ export default function EditUnitsWorkspace({ context }) {
           panels={{
             details: (
               <div className="inspector-panel-stack">
-                <section className="inspector-intro">
+                <section className="inspector-intro inspector-context-lead">
                   <span>Selected parameter</span>
                   <h3>{activeRelationshipKey ? getRelationshipLabel(activeRelationshipKey) : 'Choose a parameter'}</h3>
                   <p>{activeRelationshipKey
@@ -1572,6 +1578,49 @@ export default function EditUnitsWorkspace({ context }) {
                     <ParameterStatus {...inspectorParameterStatus} detailed />
                   )}
                 </section>
+                {selectedClone && (
+                  <section className="inspector-section-card inspector-identity-section" aria-labelledby="clone-identity-heading">
+                    <div className="inspector-identity-heading">
+                      <div>
+                        <span>Clone profile</span>
+                        <h3 id="clone-identity-heading">Identity &amp; production</h3>
+                      </div>
+                      <small>{selectedClone.builderIds?.length || 0} producer{selectedClone.builderIds?.length === 1 ? '' : 's'}</small>
+                    </div>
+                    <p className="inspector-identity-copy">Display metadata and production assignments stay synchronized with Build Menus and generated clone definitions.</p>
+                    <dl className="inspector-identity-reference">
+                      <div><dt>Unit ID</dt><dd><code>{selectedClone.newId}</code></dd></div>
+                      <div><dt>Source chassis</dt><dd><code>{selectedClone.baseId}</code></dd></div>
+                    </dl>
+                    <div className="inspector-form-grid inspector-identity-form">
+                      <label htmlFor="clone-identity-display-name">
+                        <span>Display name</span>
+                        <input
+                          id="clone-identity-display-name"
+                          type="text"
+                          className="form-input"
+                          value={selectedClone.displayName || ''}
+                          onChange={event => setClones(previous => previous.map(clone => clone.newId.toLowerCase() === selectedUnit.id.toLowerCase()
+                            ? { ...clone, displayName: event.target.value }
+                            : clone))}
+                        />
+                      </label>
+                      <label htmlFor="clone-identity-builder-ids">
+                        <span>Builder and factory IDs</span>
+                        <input
+                          id="clone-identity-builder-ids"
+                          type="text"
+                          className="form-input"
+                          value={selectedClone.builderIds?.join(', ') || ''}
+                          placeholder="e.g. armlab, armvp"
+                          aria-describedby="clone-identity-builder-help"
+                          onChange={event => handleCloneBuildersChange(selectedUnit.id, event.target.value.split(','))}
+                        />
+                        <small id="clone-identity-builder-help">Comma separated · changes also appear in Build Menus.</small>
+                      </label>
+                    </div>
+                  </section>
+                )}
                 <GadgetContractSummary results={selectedGadgetContracts} />
                 <ParameterGuide section={activeParamTab} />
                 <ParameterRelationshipPanel
@@ -1631,42 +1680,6 @@ export default function EditUnitsWorkspace({ context }) {
                 </div>
               </div>
             ),
-            identity: selectedUnit?.isClone ? (() => {
-              const selectedClone = clones.find(clone => clone.newId.toLowerCase() === selectedUnit.id.toLowerCase());
-              if (!selectedClone) return null;
-              return (
-                <div className="inspector-panel-stack">
-                  <section className="inspector-intro">
-                    <span>Clone identity</span>
-                    <h3>{selectedUnit.name}</h3>
-                    <p>Metadata stays synchronized with Build Menus and exported clone definitions.</p>
-                  </section>
-                  <div className="inspector-form-grid">
-                    <label>
-                      <span>Display name</span>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={selectedClone.displayName || ''}
-                        onChange={event => setClones(previous => previous.map(clone => clone.newId.toLowerCase() === selectedUnit.id.toLowerCase()
-                          ? { ...clone, displayName: event.target.value }
-                          : clone))}
-                      />
-                    </label>
-                    <label>
-                      <span>Builder IDs</span>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={selectedClone.builderIds?.join(', ') || ''}
-                        onChange={event => handleCloneBuildersChange(selectedUnit.id, event.target.value.split(','))}
-                      />
-                      <small>{selectedClone.builderIds?.length || 0} assigned · synced with Build Menus</small>
-                    </label>
-                  </div>
-                </div>
-              );
-            })() : null,
             changes: (
               <div className="editor-inspector-changes">
                 <div className="changes-context-summary">

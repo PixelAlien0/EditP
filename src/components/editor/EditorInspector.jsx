@@ -2,7 +2,6 @@ const TAB_ICONS = {
   details: <path d="M8 2.75a5.25 5.25 0 1 0 0 10.5A5.25 5.25 0 0 0 8 2.75Zm0 3v.1M8 7.5v3" />,
   compare: <path d="M2.75 4.5h8.5M8.5 2l2.75 2.5L8.5 7M13.25 11.5h-8.5M7.5 9l-2.75 2.5L7.5 14" />,
   changes: <path d="M4 2.75h6.25L13 5.5v7.75H4zM10 2.75V5.5h3M6 8h5M6 10.5h5" />,
-  identity: <path d="M8 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm-4.25 5c.5-2.2 2-3.3 4.25-3.3s3.75 1.1 4.25 3.3" />,
 };
 
 export default function EditorInspector({

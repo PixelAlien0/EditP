@@ -910,16 +910,15 @@ export default function App() {
     { id: 'details', label: 'Details' },
     { id: 'compare', label: 'Compare', count: selectedUnitOverrideEntries.length },
     { id: 'changes', label: 'Changes', count: projectChangeCount },
-    ...(selectedUnit?.isClone ? [{ id: 'identity', label: 'Identity' }] : []),
-  ], [selectedUnitOverrideEntries, projectChangeCount, selectedUnit?.isClone]);
+  ], [selectedUnitOverrideEntries, projectChangeCount]);
   const activeInspectorTab = workspaceLayout.layout.inspectorTab;
   const setInspectorTab = workspaceLayout.setInspectorTab;
 
   useEffect(() => {
-    if (!selectedUnit?.isClone && activeInspectorTab === 'identity') {
+    if (activeInspectorTab === 'identity') {
       setInspectorTab('details');
     }
-  }, [activeInspectorTab, selectedUnit?.isClone, setInspectorTab]);
+  }, [activeInspectorTab, setInspectorTab]);
 
   const selectInspectorParameter = useCallback(key => {
     setActiveRelationshipKey(key);
