@@ -2,6 +2,12 @@ import {
   getWeaponBlueprintEffectiveValues,
   validateWeaponBlueprint,
 } from './weaponBlueprint.js';
+import {
+  BUILTIN_ARMOR_PROFILES,
+  getArmorProfileFromDamageKey,
+  isValidArmorProfile,
+  normalizeArmorProfile,
+} from '../config/armorProfiles.js';
 
 function cleanId(value) {
   return String(value || '').trim().toLowerCase();
@@ -150,14 +156,62 @@ export function buildCrossWorkspaceValidation({
   const disabledIds = new Set(disabledUnitIds.map(cleanId));
   const rosterBuildersByUnit = new Map();
   const spawnedUnitIds = new Set();
+  const assignedArmorProfiles = new Set();
+  const usedArmorDamageProfiles = new Set();
 
-  Object.values(tweaks || {}).forEach(patch => {
+  Object.entries(tweaks || {}).forEach(([unitId, patch]) => {
+    const rawArmorProfile = patch?.['customparams.armordef'];
+    if (rawArmorProfile !== undefined && String(rawArmorProfile).trim()) {
+      const profile = normalizeArmorProfile(rawArmorProfile);
+      if (!isValidArmorProfile(profile) || profile !== String(rawArmorProfile).trim().toLowerCase()) {
+        const unitName = allUnitsList.find(unit => cleanId(unit.id) === cleanId(unitId))?.name || unitId;
+        issues.push(issue({
+          id: `armor-${cleanId(unitId)}-invalid`, level: 'error', unitId: cleanId(unitId), unitName,
+          key: 'customparams.armordef', title: `${unitName} · invalid armor profile`,
+          message: 'Armor Profile must begin with a letter or underscore and contain only lowercase letters, numbers, and underscores.',
+          action: { type: 'unit', unitId: cleanId(unitId), label: 'Repair armor profile' },
+        }));
+      } else {
+        assignedArmorProfiles.add(profile);
+      }
+    }
     Object.entries(patch || {}).forEach(([key, value]) => {
+      const damageKey = key.match(/^weapon_slot_\d+_(damage_profile__.+)$/)?.[1];
+      const damageProfile = getArmorProfileFromDamageKey(damageKey);
+      if (damageProfile && value !== undefined && String(value).trim() !== '') {
+        usedArmorDamageProfiles.add(damageProfile);
+        if (!Number.isFinite(Number(value)) || Number(value) < 0) {
+          const unitName = allUnitsList.find(unit => cleanId(unit.id) === cleanId(unitId))?.name || unitId;
+          issues.push(issue({
+            id: `armor-${cleanId(unitId)}-${damageProfile}-damage`, level: 'error', unitId: cleanId(unitId), unitName,
+            key, title: `${unitName} · invalid armor damage`,
+            message: `damage.${damageProfile} must be a non-negative number.`,
+            action: { type: 'unit', unitId: cleanId(unitId), label: 'Repair weapon damage' },
+          }));
+        }
+      }
       if (key === 'customparams.carried_unit'
         || /^weapon_slot_\d+_(?:spawns_name|carried_unit)$/.test(key)) {
         idList(value).forEach(unitId => spawnedUnitIds.add(unitId));
       }
     });
+  });
+
+  weaponLibrary.forEach(blueprint => {
+    Object.keys(getWeaponBlueprintEffectiveValues(blueprint)).forEach(key => {
+      const profile = getArmorProfileFromDamageKey(key);
+      if (profile) usedArmorDamageProfiles.add(profile);
+    });
+  });
+
+  usedArmorDamageProfiles.forEach(profile => {
+    if (assignedArmorProfiles.has(profile) || BUILTIN_ARMOR_PROFILES.includes(profile)) return;
+    issues.push(issue({
+      id: `armor-${profile}-unassigned`, unitName: 'Armor profiles', key: `damage.${profile}`,
+      title: `${profile} · no matching project unit`,
+      message: `Weapons define damage.${profile}, but no edited unit currently declares customparams.armordef = "${profile}". The loaded game or a raw module may still provide consumers.`,
+      action: { type: 'unit', label: 'Assign armor profile' },
+    }));
   });
 
   buildMenuSteps.forEach(step => {

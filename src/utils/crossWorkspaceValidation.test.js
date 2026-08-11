@@ -125,4 +125,23 @@ describe('cross-workspace project validation', () => {
     expect(result.filter(entry => entry.level === 'error')).toEqual([]);
     expect(result.some(entry => entry.id.endsWith('-unused'))).toBe(false);
   });
+
+  it('links custom armor damage to unit armor profiles', () => {
+    const linked = validate({
+      tweaks: {
+        armflash: {
+          'customparams.armordef': 'space',
+          weapon_slot_1_damage_profile__space: 1500,
+        },
+      },
+    });
+    expect(linked.some(entry => entry.id === 'cross-workspace-armor-space-unassigned')).toBe(false);
+
+    const unlinked = validate({
+      tweaks: { armflash: { weapon_slot_1_damage_profile__orbital: 900 } },
+    });
+    expect(unlinked).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'cross-workspace-armor-orbital-unassigned', level: 'warning' }),
+    ]));
+  });
 });

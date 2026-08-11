@@ -17,7 +17,7 @@ const PREFIX = 'customparams.';
 const CORE_CUSTOM_KEYS = new Set([
   'techlevel', 'energyconv_capacity', 'energyconv_efficiency', 'carried_unit', 'spawnrate',
   'maxunits', 'controlradius', 'enabledocking', 'decayrate', 'deathdecayrate',
-  'carrierdeaththroe', 'metalcost', 'energycost'
+  'carrierdeaththroe', 'metalcost', 'energycost', 'armordef'
 ]);
 const SCAVENGER_PROFILE_KEYS = Object.freeze([
   'scavcustomsquad', 'scavsquadunitsamount', 'scavsquadminanger', 'scavsquadmaxanger',
@@ -119,6 +119,37 @@ function ScavengerSquadProfile({ defaults, tweaks, onApplyProfile }) {
   );
 }
 
+function ArmorProfileField({ defaults, tweaks, onChange }) {
+  const tweakKey = `${PREFIX}armordef`;
+  const modified = Object.prototype.hasOwnProperty.call(tweaks, tweakKey);
+  const inherited = defaults[tweakKey];
+  const value = modified ? tweaks[tweakKey] : inherited;
+  return (
+    <section className={`armor-profile-field ${modified ? 'is-modified' : ''}`} aria-labelledby="armor-profile-field-title">
+      <div className="armor-profile-field__identity">
+        <span>Tweak-defined armor contract</span>
+        <h4 id="armor-profile-field-title">Unit armor profile</h4>
+        <p>Weapons with a matching <code>damage.&lt;profile&gt;</code> value use that damage against this unit.</p>
+      </div>
+      <label>
+        <span>Profile ID</span>
+        <input
+          className="ui-control"
+          value={value ?? ''}
+          placeholder="e.g. space"
+          aria-describedby="armor-profile-field-help"
+          onChange={event => {
+            const next = event.target.value.trim().toLowerCase().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
+            onChange(tweakKey, next || undefined);
+          }}
+        />
+      </label>
+      <Button size="sm" variant="ghost" disabled={!modified} onClick={() => onChange(tweakKey, undefined)}>Reset</Button>
+      <small id="armor-profile-field-help">Lowercase letters, numbers, and underscores. Configure the same ID under a weapon’s Custom armor damage section.</small>
+    </section>
+  );
+}
+
 export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, inheritedFromClone = false, onChange, onApplyProfile }) {
   const [catalogKey, setCatalogKey] = useState('');
   const [customKey, setCustomKey] = useState('');
@@ -209,6 +240,8 @@ export default function AdvancedCustomParameters({ defaults = {}, tweaks = {}, i
         tweaks={tweaks}
         onApplyProfile={onApplyProfile || (patch => Object.entries(patch).forEach(([key, value]) => onChange(key, value)))}
       />
+
+      <ArmorProfileField defaults={defaults} tweaks={tweaks} onChange={onChange} />
 
       {active.length > 0 && (
         <div className="advanced-custom-parameters__list">

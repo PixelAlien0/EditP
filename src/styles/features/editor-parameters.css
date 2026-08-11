@@ -863,6 +863,79 @@
 .scavenger-squad-profile__footer span:first-child { color: var(--color-text); font-family: var(--font-mono); }
 .scavenger-squad-profile__warning { grid-column: 1 / -1; color: var(--color-warning); }
 
+.armor-profile-field {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(220px, .7fr) auto;
+  align-items: end;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+}
+.armor-profile-field.is-modified { background: var(--color-surface-accent-subtle); }
+.armor-profile-field__identity > span,
+.armor-profile-field label > span {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--color-text-muted);
+  font: 650 8px/1 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.armor-profile-field h4 { margin: 0; color: var(--color-text-strong); font: 600 14px/1.2 var(--font-display); }
+.armor-profile-field p,
+.armor-profile-field > small { margin: var(--space-1) 0 0; color: var(--color-text-muted); font-size: 10px; line-height: 1.4; }
+.armor-profile-field > small { grid-column: 1 / -1; }
+
+.armor-damage-editor {
+  margin-block: var(--space-4);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+.armor-damage-editor__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+.armor-damage-editor__header > div { display: grid; gap: 3px; }
+.armor-damage-editor__header > div > span { color: var(--color-accent-strong); font: 650 8px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.armor-damage-editor__header h4 { margin: 0; color: var(--color-text-strong); font: 600 15px/1.2 var(--font-display); }
+.armor-damage-editor__header p,
+.armor-damage-editor__empty,
+.armor-damage-editor__error { margin: 0; color: var(--color-text-muted); font-size: 10px; line-height: 1.4; }
+.armor-damage-editor__composer {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  align-items: end;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.armor-damage-editor__composer label { display: grid; gap: var(--space-1); }
+.armor-damage-editor__composer label > span { color: var(--color-text-muted); font: 650 8px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.armor-damage-editor__rows { display: grid; }
+.armor-damage-editor__row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, .8fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.armor-damage-editor__row:last-child { border-bottom: 0; }
+.armor-damage-editor__row.is-modified { background: var(--color-surface-accent-subtle); }
+.armor-damage-editor__row > div { display: grid; gap: 2px; }
+.armor-damage-editor__row strong { color: var(--color-text-strong); font-size: 11px; text-transform: capitalize; }
+.armor-damage-editor__row code { color: var(--color-text-muted); font-size: 9px; }
+.armor-damage-editor__empty,
+.armor-damage-editor__error { padding: var(--space-3) var(--space-4); }
+.armor-damage-editor__error { color: var(--color-danger); }
+
 .advanced-custom-parameter {
   display: grid;
   grid-template-columns: minmax(180px, .75fr) minmax(280px, 1fr);
@@ -998,6 +1071,8 @@
   .scavenger-squad-profile { grid-template-columns: minmax(0, 1fr) auto; }
   .scavenger-squad-profile__preset { grid-column: 1; }
   .scavenger-squad-profile__actions { grid-column: 2; grid-row: 2; align-self: end; }
+  .armor-profile-field { grid-template-columns: minmax(0, 1fr) auto; }
+  .armor-profile-field label { grid-column: 1; }
 }
 
 .stat-card-input.is-error { border-color: var(--color-danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 12%, transparent); }

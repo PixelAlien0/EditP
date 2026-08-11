@@ -3,6 +3,7 @@ import {
   WEAPON_ESSENTIAL_KEYS,
   getWeaponParameterDefinition,
 } from '../config/weaponParameters.js';
+import { isArmorDamageParameterKey } from '../config/armorProfiles.js';
 
 const DEFAULT_APPEARANCE = Object.freeze({
   vfxEnabled: false,
@@ -129,9 +130,9 @@ export function isWeaponBlueprintParameterModified(blueprint, key) {
 export function applyWeaponBlueprintToSlot(slot = {}, blueprint) {
   const result = { ...slot };
   const values = getWeaponBlueprintEffectiveValues(blueprint);
-  WEAPON_EDITABLE_PARAMETER_CATALOG.forEach(parameter => {
-    if (!Object.prototype.hasOwnProperty.call(values, parameter.key)) return;
-    result[parameter.key] = values[parameter.key];
+  Object.entries(values).forEach(([key, value]) => {
+    if (!getWeaponParameterDefinition(key)) return;
+    result[key] = value;
   });
   return result;
 }
@@ -247,6 +248,12 @@ export function validateWeaponBlueprint(blueprint) {
   WEAPON_BLUEPRINT_NUMERIC_KEYS.forEach(key => {
     if (overrides[key] === '' || overrides[key] === null || overrides[key] === undefined) return;
     if (!Number.isFinite(Number(overrides[key]))) issues.push({ field: key, message: `${key} must be numeric.` });
+  });
+  Object.entries(overrides).forEach(([key, value]) => {
+    if (!isArmorDamageParameterKey(key)) return;
+    if (!Number.isFinite(Number(value)) || Number(value) < 0) {
+      issues.push({ field: key, message: `${key} must be a non-negative number.` });
+    }
   });
   if (Number(overrides.reload) < 0) issues.push({ field: 'reload', message: 'Reload time cannot be negative.' });
   if (Number(overrides.range) < 0) issues.push({ field: 'range', message: 'Range cannot be negative.' });

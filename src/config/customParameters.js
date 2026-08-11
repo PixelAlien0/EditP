@@ -13,8 +13,9 @@ export const CUSTOM_PARAMETER_REGISTRY_VERSION = 2;
 
 const curatedUnitParameters = [
   {
-    key: 'armordef', label: 'Armor Definition', type: 'string', owner: 'Package-specific', maturity: 'external',
-    description: 'Optional armor-table identifier. Only has an effect when the loaded game or package consumes this key.'
+    key: 'armordef', label: 'Armor Profile', type: 'string', owner: 'Tweak-defined armor contract', maturity: 'stable',
+    description: 'Assigns this unit to a tweak-defined armor profile. Weapons can then provide a matching damage.<profile> value.',
+    inputHint: 'Use a lowercase identifier such as space, orbital, or superheavy. Pair it with Damage vs Profile on at least one weapon.'
   },
   {
     key: 'restrictions_exclusion', label: 'Restriction Exclusion', type: 'string', owner: 'BAR gadget', maturity: 'stable',

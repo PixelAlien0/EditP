@@ -16,6 +16,7 @@ import {
 } from '../utils/weaponBlueprint.js';
 import { Badge, Button, ParameterStatus } from './ui.jsx';
 import AssetPicker from './editor/AssetPicker.jsx';
+import ArmorDamageEditor from './editor/ArmorDamageEditor.jsx';
 
 function groupCoreParameters(parameters) {
   const groups = new Map();
@@ -332,6 +333,12 @@ export default function WeaponBlueprintParameterEditor({ blueprint, onChange }) 
         </div>
       </header>
       <div className="weapon-lab-canonical-parameter-groups">
+        <ArmorDamageEditor
+          values={effectiveValues}
+          modifiedValues={overrideValues}
+          linkedProfiles={[]}
+          onChange={onChange}
+        />
         {groups.map((group, index) => (
           <ParameterGroup
             key={group.id || group.title}

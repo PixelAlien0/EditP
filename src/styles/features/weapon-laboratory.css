@@ -801,7 +801,8 @@
 }
 
 .weapon-lab-canonical-parameter-groups > [open],
-.weapon-lab-canonical-parameter-groups > .weapon-lab-target-masks {
+.weapon-lab-canonical-parameter-groups > .weapon-lab-target-masks,
+.weapon-lab-canonical-parameter-groups > .armor-damage-editor {
   grid-column: 1 / -1;
 }
 

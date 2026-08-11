@@ -44,6 +44,7 @@ import {
 import AssetPicker from './AssetPicker.jsx';
 import UnitDescriptionEditor from './UnitDescriptionEditor.jsx';
 import GadgetContractSummary from './GadgetContractSummary.jsx';
+import ArmorDamageEditor from './ArmorDamageEditor.jsx';
 
 const LazyBehaviorInterceptorEditor = lazy(() => import('./BehaviorInterceptorEditor.jsx'));
 const LazyAdvancedCustomParameters = lazy(() => import('./AdvancedCustomParameters.jsx'));
@@ -370,6 +371,17 @@ export default function EditUnitsWorkspace({ context }) {
             const slotParams = WEAPON_CORE_PARAMETERS;
             const advancedWeaponGroups = WEAPON_ADVANCED_GROUPS;
             const activeSlotTweaks = tweaks[selectedUnit.id] || {};
+            const selectedArmorProfile = activeSlotTweaks['customparams.armordef']
+              ?? defaults['customparams.armordef']
+              ?? '';
+            const armorDamageValues = slot ? Object.fromEntries(
+              Object.entries(slot).filter(([key]) => key.startsWith('damage_profile__'))
+            ) : {};
+            const armorDamageTweaks = slot ? Object.fromEntries(
+              Object.entries(activeSlotTweaks)
+                .filter(([key]) => key.startsWith(`weapon_slot_${slot.slot}_damage_profile__`))
+                .map(([key, value]) => [key.slice(`weapon_slot_${slot.slot}_`.length), value])
+            ) : {};
             const hasWeaponParameter = key => slot && (
               Object.prototype.hasOwnProperty.call(slot, key)
               || Object.prototype.hasOwnProperty.call(activeSlotTweaks, `weapon_slot_${slot.slot}_${key}`)
@@ -1059,6 +1071,14 @@ export default function EditUnitsWorkspace({ context }) {
                               </div>
                             </div>
                           </section>
+
+                          <ArmorDamageEditor
+                            values={{ ...armorDamageValues, ...armorDamageTweaks }}
+                            modifiedValues={armorDamageTweaks}
+                            linkedProfiles={selectedArmorProfile ? [selectedArmorProfile] : []}
+                            onChange={(key, value) => handleStatChange(selectedUnit.id, `weapon_slot_${slot.slot}_${key}`, value)}
+                            compact
+                          />
 
                           <ParameterMatrix
                             sectionId={`weapon-slot-${slot.slot}`}

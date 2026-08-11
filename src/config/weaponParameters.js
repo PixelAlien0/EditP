@@ -6,6 +6,10 @@ import {
   WEAPON_SLOT_STRING_PARAMS as LEGACY_STRING_PARAMS,
 } from './editorParameters.js';
 import { SPECIAL_PROJECTILE_PARAMETERS } from './specialProjectileBehaviors.js';
+import {
+  createArmorDamageParameter,
+  isArmorDamageParameterKey,
+} from './armorProfiles.js';
 
 export { SPAWNER_CARRIER_WEAPON_GROUPS };
 export {
@@ -496,7 +500,8 @@ export const WEAPON_SLOT_PATHS = Object.freeze(Object.fromEntries(
 ));
 
 export function getWeaponParameterDefinition(key) {
-  return WEAPON_PARAMETER_BY_KEY.get(key) || null;
+  if (WEAPON_PARAMETER_BY_KEY.has(key)) return WEAPON_PARAMETER_BY_KEY.get(key);
+  return isArmorDamageParameterKey(key) ? createArmorDamageParameter(key.slice('damage_profile__'.length)) : null;
 }
 
 export function getApplicableWeaponParameters(parameters, {

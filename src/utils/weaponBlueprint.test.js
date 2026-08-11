@@ -8,6 +8,7 @@ import {
   normalizeWeaponBlueprint,
   validateWeaponBlueprint,
 } from './weaponBlueprint.js';
+import { generateWeaponBlueprintOverridesLua } from './tweakdefsHelper.js';
 
 describe('weapon blueprints', () => {
   it('creates a reusable draft from the active weapon slot', () => {
@@ -90,5 +91,18 @@ describe('weapon blueprints', () => {
       sourceWeaponDefKey: 'plasma',
       overrides: { projectiles: 0, burst: 1 },
     })).toContainEqual(expect.objectContaining({ field: 'projectiles' }));
+  });
+
+  it('preserves and compiles tweak-defined armor damage profiles', () => {
+    const blueprint = normalizeWeaponBlueprint({
+      id: 'space_laser',
+      name: 'Space Laser',
+      sourceUnitId: 'armflash',
+      sourceWeaponDefKey: 'laser',
+      overrides: { damage_profile__space: 1500 },
+    });
+    expect(blueprint.overrides.damage_profile__space).toBe(1500);
+    expect(generateWeaponBlueprintOverridesLua(blueprint, 'editp_space_laser', 1).join('\n'))
+      .toContain('w.damage.space = 1500');
   });
 });
