@@ -25,6 +25,7 @@ export function buildPresetSnapshot(projectState) {
     includeClones: projectState.includeClones,
     includeRosters: projectState.includeRosters,
     includeHeader: projectState.includeHeader,
+    exportOptimizationProfile: projectState.exportOptimizationProfile,
   };
 }
 

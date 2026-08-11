@@ -22,6 +22,7 @@ const PROJECT_STATE = {
   includeClones: true,
   includeRosters: false,
   includeHeader: true,
+  exportOptimizationProfile: 'maximum',
   // Fields outside the snapshot contract must be ignored.
   exportEnglishOnly: false,
   compactLuaFormatting: true,
@@ -49,6 +50,7 @@ describe('buildPresetSnapshot', () => {
       'includeClones',
       'includeRosters',
       'includeHeader',
+      'exportOptimizationProfile',
     ]);
   });
 
@@ -73,6 +75,7 @@ describe('buildPresetSnapshot', () => {
       includeClones: true,
       includeRosters: false,
       includeHeader: true,
+      exportOptimizationProfile: 'maximum',
     });
     expect(snapshot.tweaks).toBe(PROJECT_STATE.tweaks);
     expect(snapshot.lobbySetup).toBe(PROJECT_STATE.lobbySetup);

@@ -41,6 +41,22 @@ test('main workflow remains keyboard accessible', async ({ page }) => {
   await page.keyboard.press('Escape');
 });
 
+test('export optimization profiles expose their active compiler policy', async ({ page }) => {
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Review & Export/i }).click();
+  await page.locator('.export-console-config > summary').filter({ hasText: 'Package identity' }).click();
+
+  const profileGroup = page.getByRole('radiogroup', { name: 'Export optimization profile' });
+  await expect(profileGroup.getByRole('radio')).toHaveCount(3);
+  await expect(profileGroup.getByRole('radio', { name: /Balanced/ })).toHaveAttribute('aria-checked', 'true');
+
+  await profileGroup.getByRole('radio', { name: /Maximum/ }).click();
+  await expect(profileGroup.getByRole('radio', { name: /Maximum/ })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('.export-profile-summary')).toContainText('English only');
+  await expect(page.locator('.export-profile-summary')).toContainText('Guarded');
+});
+
 test('main menu separates the active project, core workspaces, and specialist workbenches', async ({ page }) => {
   await waitForMainMenu(page);
 

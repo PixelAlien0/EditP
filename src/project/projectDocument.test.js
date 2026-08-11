@@ -52,7 +52,7 @@ describe('project documents', () => {
       migrated: true,
       assumedLegacyVersion: true,
     });
-    expect(prepared.steps).toHaveLength(8);
+    expect(prepared.steps).toHaveLength(9);
     expect(prepared.document.tweaks.armdfly.health).toBe(1500);
     expect(prepared.document.clones[0].newId).toBe('old_clone');
     expect(prepared.document.buildMenuSteps[0].builderId).toBe('armlab');
@@ -121,7 +121,7 @@ describe('project documents', () => {
         { id: 'duplicate', ownerUnitId: 'armflea', key: 'cluster_child', definition: { range: 1 } },
       ],
     });
-    expect(project.version).toBe('1.8');
+    expect(project.version).toBe('1.9');
     expect(project.supportingWeaponDefs).toEqual([expect.objectContaining({
       id: 'support_child', ownerUnitId: 'armflea', key: 'cluster_child', role: 'dependency',
       mountedSlots: [2], dependencies: ['next_child'], referencedBy: ['main_gun'],
@@ -170,5 +170,20 @@ describe('project documents', () => {
     expect(project.lobbySetup.commands).toEqual([expect.objectContaining({
       prefix: '!', name: 'map', category: 'map-setup', safety: 'manual',
     })]);
+  });
+
+  it('migrates export optimization profiles and rejects unknown profile names safely', () => {
+    const migrated = normalizeProjectDocument({
+      version: '1.8',
+      projectName: 'Existing project',
+    });
+    const repaired = normalizeProjectDocument({
+      version: '1.9',
+      projectName: 'Unknown profile',
+      exportOptimizationProfile: 'turbo',
+    });
+
+    expect(migrated.exportOptimizationProfile).toBe('balanced');
+    expect(repaired.exportOptimizationProfile).toBe('balanced');
   });
 });

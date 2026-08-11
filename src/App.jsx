@@ -111,14 +111,14 @@ export default function App() {
     setTweaks, setClones, setDisabledUnitIds,
     setBuildMenuSteps, setBuildMenuPacks, setPresets, setWeaponLibrary, setSupportingWeaponDefs, setUnitCollections, setTweakModules, setLobbySetup,
     setProjectName, setProjectAuthor, setProjectDesc,
-    setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setExportEnglishOnly, setCompactLuaFormatting,
+    setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setExportOptimizationProfile,
     transactProject, applyProjectSnapshot, hydrateProjectStore,
     undoProject, redoProject, historyPastCount, historyFutureCount,
   } = useProjectStore();
   const {
     tweaks, clones, disabledUnitIds, unitDescriptions, buildMenuSteps, buildMenuPacks,
     presets, weaponLibrary, supportingWeaponDefs, unitCollections, tweakModules, lobbySetup, projectName, projectAuthor, projectDesc,
-    includeTweaks, includeClones, includeRosters, includeHeader, exportEnglishOnly, compactLuaFormatting,
+    includeTweaks, includeClones, includeRosters, includeHeader, exportOptimizationProfile,
   } = projectStore;
 
   const {
@@ -728,8 +728,7 @@ export default function App() {
     weaponLibrary,
     supportingWeaponDefs,
     tweakModules,
-    exportEnglishOnly,
-    compactLuaFormatting,
+    exportOptimizationProfile,
   });
   const limitRisk = compiledLobbyModules.overflow
     ? 'error'
@@ -1467,14 +1466,12 @@ export default function App() {
             includeClones={includeClones}
             includeRosters={includeRosters}
             includeHeader={includeHeader}
-            exportEnglishOnly={exportEnglishOnly}
-            compactLuaFormatting={compactLuaFormatting}
+            exportOptimizationProfile={exportOptimizationProfile}
             setIncludeTweaks={setIncludeTweaks}
             setIncludeClones={setIncludeClones}
             setIncludeRosters={setIncludeRosters}
             setIncludeHeader={setIncludeHeader}
-            setExportEnglishOnly={setExportEnglishOnly}
-            setCompactLuaFormatting={setCompactLuaFormatting}
+            setExportOptimizationProfile={setExportOptimizationProfile}
             activeOutputTab={activeOutputTab}
             setActiveOutputTab={setActiveOutputTab}
             activeCompiledOutput={activeCompiledOutput}

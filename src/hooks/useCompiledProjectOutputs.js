@@ -8,6 +8,10 @@ import { encodeLobbyBase64, serializeLuaTable } from '../utils/tweakSerializer.j
 import { compileTweakDefsLua } from '../utils/tweakdefsHelper.js';
 import { getWeaponBlueprintDefinitionKey } from '../utils/weaponBlueprint.js';
 import { LOBBY_SLOT_LIMIT_CHARACTERS } from '../utils/byteBudget.js';
+import {
+  getExportOptimizationPolicy,
+  normalizeExportOptimizationProfile,
+} from '../config/exportOptimizationProfiles.js';
 
 function setNestedValue(object, path, value) {
   const keys = path.split('.');
@@ -72,7 +76,14 @@ export function useCompiledProjectOutputs({
   tweakModules,
   exportEnglishOnly = false,
   compactLuaFormatting = false,
+  exportOptimizationProfile,
 }) {
+  const normalizedOptimizationProfile = normalizeExportOptimizationProfile(
+    exportOptimizationProfile || (exportEnglishOnly ? 'maximum' : 'balanced')
+  );
+  const optimizationPolicy = getExportOptimizationPolicy(normalizedOptimizationProfile);
+  const effectiveExportEnglishOnly = optimizationPolicy.exportEnglishOnly ?? exportEnglishOnly;
+  const effectiveCompactLuaFormatting = optimizationPolicy.compactLuaFormatting ?? compactLuaFormatting;
   const generatedTweakUnitsLua = useMemo(() => {
     if (!includeTweaks) return '{\n}';
     const patches = {};
@@ -249,7 +260,7 @@ export function useCompiledProjectOutputs({
       const description = unitDescriptions[unitId];
       if (typeof description === 'string' && description.trim()) {
         unitPatch.description = description.trim();
-        const tooltipLanguages = exportEnglishOnly
+        const tooltipLanguages = effectiveExportEnglishOnly
           ? ['en']
           : ['en', 'de', 'fr', 'es', 'it', 'ru', 'zh', 'cs', 'hr', 'lt'];
         tooltipLanguages.forEach(language => {
@@ -270,7 +281,7 @@ export function useCompiledProjectOutputs({
   }, [
     allUnitsList,
     defaultsDb,
-    exportEnglishOnly,
+    effectiveExportEnglishOnly,
     getInheritedCloneWeaponSwaps,
     includeTweaks,
     resolveCloneRootId,
@@ -317,7 +328,12 @@ export function useCompiledProjectOutputs({
     disabledUnitIds,
     unitBuildOptions: activeFactoryRosters,
     projectMeta: includeHeader ? { name: projectName, author: projectAuthor, desc: projectDesc } : null,
-    compileFlags: { includeClones, includeRosters, exportEnglishOnly, compactLuaFormatting },
+    compileFlags: {
+      includeClones,
+      includeRosters,
+      exportEnglishOnly: effectiveExportEnglishOnly,
+      compactLuaFormatting: effectiveCompactLuaFormatting,
+    },
     weaponLibrary,
     deathExplosionTweaks,
     supportingWeaponDefs,
@@ -326,10 +342,10 @@ export function useCompiledProjectOutputs({
     activeFactoryRosters,
     buildMenuSteps,
     clones,
-    compactLuaFormatting,
+    effectiveCompactLuaFormatting,
     deathExplosionTweaks,
     disabledUnitIds,
-    exportEnglishOnly,
+    effectiveExportEnglishOnly,
     includeClones,
     includeHeader,
     includeRosters,
@@ -354,7 +370,18 @@ export function useCompiledProjectOutputs({
     tweakModules,
     generatedTweakDefsLua,
     generatedTweakUnitsLua,
-  }), [generatedTweakDefsLua, generatedTweakUnitsLua, tweakModules]);
+  }, {
+    compactGenerated: optimizationPolicy.compactGenerated,
+    deduplicate: optimizationPolicy.deduplicate,
+    optimizationProfile: normalizedOptimizationProfile,
+  }), [
+    generatedTweakDefsLua,
+    generatedTweakUnitsLua,
+    normalizedOptimizationProfile,
+    optimizationPolicy.compactGenerated,
+    optimizationPolicy.deduplicate,
+    tweakModules,
+  ]);
   const lobbyCommands = useMemo(() => buildLobbyCommands(compiledLobbyModules), [compiledLobbyModules]);
 
   return {

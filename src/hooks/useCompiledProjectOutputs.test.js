@@ -98,6 +98,29 @@ describe('useCompiledProjectOutputs', () => {
     expect(result.current.generatedTweakUnitsLua).not.toContain('i18n_zh_tooltip');
   });
 
+  it('applies the selected export optimization policy to generated and packed output', () => {
+    const safe = renderHook(() => useCompiledProjectOutputs(createInput({
+      exportOptimizationProfile: 'safe',
+    })));
+    const maximum = renderHook(() => useCompiledProjectOutputs(createInput({
+      exportOptimizationProfile: 'maximum',
+      tweaks: {},
+      unitDescriptions: { armflash: 'Compact tooltip.' },
+    })));
+
+    expect(safe.result.current.compiledLobbyModules).toMatchObject({
+      optimizationProfile: 'safe',
+      compaction: { enabled: false },
+      deduplication: { enabled: false },
+    });
+    expect(maximum.result.current.compiledLobbyModules).toMatchObject({
+      optimizationProfile: 'maximum',
+      compaction: { enabled: true },
+      deduplication: { enabled: true },
+    });
+    expect(maximum.result.current.generatedTweakUnitsLua).not.toContain('i18n_de_tooltip');
+  });
+
   it('compiles legacy weapon fields through their canonical BAR targets', () => {
     const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
       tweaks: {

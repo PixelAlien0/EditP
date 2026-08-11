@@ -15,6 +15,7 @@ export const LEGACY_PROJECT_FIELDS = Object.freeze({
   includeClones: ['bmf_inc_clones', 'boolean'],
   includeRosters: ['bmf_inc_rosters', 'boolean'],
   includeHeader: ['bmf_inc_header', 'boolean'],
+  exportOptimizationProfile: ['editp_export_optimization_profile', 'string'],
 });
 
 function readValue(field, fallback, storage) {

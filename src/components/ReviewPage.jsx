@@ -11,6 +11,10 @@ import {
   LOBBY_SLOT_LIMIT_CHARACTERS,
 } from '../utils/byteBudget.js';
 import '../styles/features/review-export.css';
+import {
+  EXPORT_OPTIMIZATION_PROFILES,
+  getExportOptimizationProfile,
+} from '../config/exportOptimizationProfiles.js';
 
 const EXPORT_TABS = [
   { id: 'tweakdefs_lua', label: 'Definitions Lua' },
@@ -24,8 +28,9 @@ export default function ReviewPage({
   gadgetContractResults,
   projectChangeCount, unitNames, projectName, projectAuthor, projectDesc,
   setProjectName, setProjectAuthor, setProjectDesc,
-  includeTweaks, includeClones, includeRosters, includeHeader, exportEnglishOnly = false, compactLuaFormatting = false,
-  setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setExportEnglishOnly, setCompactLuaFormatting,
+  includeTweaks, includeClones, includeRosters, includeHeader,
+  exportOptimizationProfile = 'balanced',
+  setIncludeTweaks, setIncludeClones, setIncludeRosters, setIncludeHeader, setExportOptimizationProfile,
   activeOutputTab, setActiveOutputTab, activeCompiledOutput, activeCompiledOutputFallback,
   tweakDefsB64, tweakUnitsB64,
   totalBytesUsed, lobbyByteLimit,
@@ -37,6 +42,7 @@ export default function ReviewPage({
   const [selectedSlotField, setSelectedSlotField] = useState('');
   const [slotPreviewMode, setSlotPreviewMode] = useState('command');
   const lobbySlots = compiledLobbyModules?.slots || [];
+  const activeOptimizationProfile = getExportOptimizationProfile(exportOptimizationProfile);
   const legacyDefsWithinLimit = !tweakDefsB64 || tweakDefsB64.length <= LOBBY_SLOT_LIMIT_CHARACTERS;
   const legacyUnitsWithinLimit = !tweakUnitsB64 || tweakUnitsB64.length <= LOBBY_SLOT_LIMIT_CHARACTERS;
   const selectedLobbySlot = lobbySlots.find(slot => slot.fieldName === selectedSlotField) || lobbySlots[0] || null;
@@ -219,28 +225,46 @@ export default function ReviewPage({
             <section className="export-delivery-optimizations" aria-labelledby="delivery-optimization-title">
               <header>
                 <div>
-                  <Type variant="eyebrow" className="workflow-eyebrow">Safe delivery</Type>
-                  <Type as="h4" variant="subsection-title" id="delivery-optimization-title">Payload optimization</Type>
+                  <Type variant="eyebrow" className="workflow-eyebrow">Compiler policy</Type>
+                  <Type as="h4" variant="subsection-title" id="delivery-optimization-title">Export optimization profile</Type>
                 </div>
                 <span>{LOBBY_SLOT_LIMIT_CHARACTERS.toLocaleString()} max / field</span>
               </header>
-              <div className="export-optimization-grid">
-                <SwitchField
-                  className="export-optimization-card"
-                  label="English-only tooltips"
-                  description="Removes duplicated translated tooltip strings. Gameplay values are unchanged."
-                  checked={exportEnglishOnly}
-                  onChange={event => setExportEnglishOnly && setExportEnglishOnly(event.target.checked)}
-                />
-                <SwitchField
-                  className="export-optimization-card"
-                  label="Compact generated build menus"
-                  description="Uses the smaller deterministic helper covered by compiler and BAR-runtime regression fixtures."
-                  checked={compactLuaFormatting}
-                  onChange={event => setCompactLuaFormatting && setCompactLuaFormatting(event.target.checked)}
-                />
+              <div className="export-profile-options" role="radiogroup" aria-label="Export optimization profile">
+                {EXPORT_OPTIMIZATION_PROFILES.map(profile => {
+                  const selected = profile.id === activeOptimizationProfile.id;
+                  return (
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      className={`export-profile-option${selected ? ' is-selected' : ''}`}
+                      key={profile.id}
+                      onClick={() => setExportOptimizationProfile?.(profile.id)}
+                    >
+                      <span>
+                        <strong>{profile.label}</strong>
+                        {profile.id === 'balanced' && <em>Recommended</em>}
+                      </span>
+                      <small>{profile.useCase}</small>
+                      <p>{profile.description}</p>
+                    </button>
+                  );
+                })}
               </div>
-              <p>Generated fields target {GENERATED_SLOT_TARGET_BYTES.toLocaleString()} characters, keeping a 1,024-character reserve below the multiplayer limit. Oversized or unverifiable output is blocked, never truncated.</p>
+              <div className="export-profile-summary" aria-live="polite">
+                <div>
+                  <span>Current policy</span>
+                  <strong>{activeOptimizationProfile.label}</strong>
+                  <p>{activeOptimizationProfile.benefit}</p>
+                </div>
+                <dl>
+                  <div><dt>Generated compaction</dt><dd>{activeOptimizationProfile.policy.compactGenerated ? 'Guarded' : 'Off'}</dd></div>
+                  <div><dt>Safe deduplication</dt><dd>{activeOptimizationProfile.policy.deduplicate ? 'On' : 'Off'}</dd></div>
+                  <div><dt>Tooltip languages</dt><dd>{activeOptimizationProfile.policy.exportEnglishOnly ? 'English only' : 'Complete'}</dd></div>
+                </dl>
+              </div>
+              <p>Generated fields target {GENERATED_SLOT_TARGET_BYTES.toLocaleString()} characters, keeping a 1,024-character reserve below the multiplayer limit. Imported raw Lua is never rewritten. Oversized or unverifiable output is blocked, never truncated.</p>
             </section>
           </details>
 

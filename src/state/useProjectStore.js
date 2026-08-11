@@ -33,6 +33,7 @@ export const PROJECT_STORE_DEFAULTS = Object.freeze({
   includeHeader: true,
   exportEnglishOnly: false,
   compactLuaFormatting: true,
+  exportOptimizationProfile: 'balanced',
 });
 
 export const PROJECT_HISTORY_LIMIT = 50;

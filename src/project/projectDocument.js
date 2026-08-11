@@ -1,6 +1,7 @@
 import { normalizeUnitCollections } from './unitCollections.js';
+import { normalizeExportOptimizationProfile } from '../config/exportOptimizationProfiles.js';
 
-export const PROJECT_DOCUMENT_VERSION = '1.8';
+export const PROJECT_DOCUMENT_VERSION = '1.9';
 export const MAX_PROJECT_BYTES = 5 * 1024 * 1024;
 
 const UNIT_ID_PATTERN = /^[a-z0-9_]+$/i;
@@ -9,6 +10,7 @@ const PROJECT_FIELD_NAMES = new Set([
   'unitDescriptions', 'weaponLibrary', 'supportingWeaponDefs', 'unitCollections',
   'tweakModules', 'lobbySetup', 'projectName', 'projectAuthor', 'projectDesc',
   'includeTweaks', 'includeClones', 'includeRosters', 'includeHeader',
+  'exportOptimizationProfile',
   // Historical aliases accepted only by the migration layer.
   'unitTweaks', 'modifiedUnits', 'customUnits', 'clonedUnits', 'disabledUnits',
   'descriptions', 'rosterChanges', 'factoryRosterChanges',
@@ -27,6 +29,7 @@ const MIGRATION_DEFAULTS = Object.freeze({
   tweakModules: [],
   supportingWeaponDefs: [],
   lobbySetup: {},
+  exportOptimizationProfile: 'balanced',
 });
 
 export class ProjectDocumentError extends Error {
@@ -114,6 +117,11 @@ const PROJECT_MIGRATIONS = Object.freeze({
   '1.5': document => ({ ...document, supportingWeaponDefs: document.supportingWeaponDefs ?? MIGRATION_DEFAULTS.supportingWeaponDefs, version: '1.6' }),
   '1.6': document => ({ ...document, lobbySetup: document.lobbySetup ?? MIGRATION_DEFAULTS.lobbySetup, version: '1.7' }),
   '1.7': document => ({ ...document, version: '1.8' }),
+  '1.8': document => ({
+    ...document,
+    exportOptimizationProfile: document.exportOptimizationProfile ?? MIGRATION_DEFAULTS.exportOptimizationProfile,
+    version: '1.9',
+  }),
 });
 
 function text(value, fallback = '', maxLength = 5000) {
@@ -422,6 +430,7 @@ function normalizeMigratedProjectDocument(migrated) {
     includeClones: migrated.includeClones !== false,
     includeRosters: migrated.includeRosters !== false,
     includeHeader: migrated.includeHeader !== false,
+    exportOptimizationProfile: normalizeExportOptimizationProfile(migrated.exportOptimizationProfile),
   };
 }
 

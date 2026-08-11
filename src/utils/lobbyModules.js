@@ -658,6 +658,7 @@ export function compileLobbyModules(projectState, options = {}) {
     canonicalBlocks,
     effectiveBlocks: deduplicated.blocks,
     base64Padding,
+    optimizationProfile: options.optimizationProfile || 'balanced',
     compaction: {
       enabled: options.compactGenerated !== false,
       equivalenceGuarded: true,
