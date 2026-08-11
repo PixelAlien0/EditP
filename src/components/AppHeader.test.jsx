@@ -58,6 +58,33 @@ describe('AppHeader', () => {
     expect(screen.getByLabelText('3 validation issues')).toHaveTextContent('3');
   });
 
+  it('shows compact progress for each active workflow', () => {
+    renderHeader({
+      workflowProgress: {
+        edit: { value: 4, label: '4 edited units', tone: 'has-work' },
+        collections: { value: 2, label: '2 saved collections', tone: 'has-work' },
+        designer: { value: 3, label: '3 build-menu changes', tone: 'has-work' },
+        review: { value: 'Ready', label: 'Project ready for review', tone: 'is-clear' },
+      },
+    });
+
+    expect(screen.getByLabelText('4 edited units')).toHaveTextContent('4');
+    expect(screen.getByLabelText('2 saved collections')).toHaveTextContent('2');
+    expect(screen.getByLabelText('3 build-menu changes')).toHaveTextContent('3');
+    expect(screen.getByLabelText('Project ready for review')).toHaveTextContent('Ready');
+  });
+
+  it('announces unread chat and routes the chat action', async () => {
+    const user = userEvent.setup();
+    const callbacks = renderHeader({ unreadChatCount: 4 });
+
+    const chatButton = screen.getByRole('button', { name: 'Open editor chat, 4 unread messages' });
+    expect(chatButton).toHaveClass('has-unread');
+    expect(chatButton).toHaveTextContent('4');
+    await user.click(chatButton);
+    expect(callbacks.onChat).toHaveBeenCalledOnce();
+  });
+
   it('keeps the command palette directly accessible', async () => {
     const user = userEvent.setup();
     const callbacks = renderHeader();

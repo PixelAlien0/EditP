@@ -157,6 +157,21 @@
   color: var(--color-warning);
 }
 
+.app-header .workflow-nav__status.has-work {
+  min-width: 17px;
+  min-height: 17px;
+  padding-inline: 4px;
+  border: 1px solid var(--color-border-accent-muted);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-accent-strong);
+}
+
+.app-header .workflow-nav__status.is-clear {
+  color: var(--color-success);
+  font-size: 7px;
+}
+
 /* Utilities are separated by rhythm and dividers, not nested trays. */
 .app-header .header-utility-actions {
   min-width: 0;

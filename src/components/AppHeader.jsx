@@ -15,6 +15,7 @@ export default function AppHeader({
   historyPastCount,
   historyFutureCount,
   presence,
+  workflowProgress = {},
   unreadChatCount,
   validationIssueCount = 0,
   weaponLabEnabled = false,
@@ -88,25 +89,34 @@ export default function AppHeader({
       </div>
 
       <nav className="workflow-nav" aria-label="Editor workflow">
-        {HEADER_WORKSPACES.map(workspace => (
-          <button
-            key={workspace.id}
-            className={activeWorkspace === workspace.id ? 'active' : ''}
-            aria-current={activeWorkspace === workspace.id ? 'page' : undefined}
-            onClick={() => onWorkspaceChange(workspace.id)}
-          >
-            <span className="workflow-nav__step">{workspace.step}</span>
-            <span className="workflow-nav__label">{workspace.label}</span>
-            {workspace.id === 'review' && validationIssueCount > 0 && (
+        {HEADER_WORKSPACES.map(workspace => {
+          const progress = workflowProgress[workspace.id]
+            || (workspace.id === 'review' && validationIssueCount > 0 ? {
+              value: validationIssueCount,
+              label: `${validationIssueCount} validation ${validationIssueCount === 1 ? 'issue' : 'issues'}`,
+              tone: 'needs-review',
+            } : null);
+          return (
+            <button
+              key={workspace.id}
+              className={activeWorkspace === workspace.id ? 'active' : ''}
+              aria-current={activeWorkspace === workspace.id ? 'page' : undefined}
+              title={progress?.label}
+              onClick={() => onWorkspaceChange(workspace.id)}
+            >
+              <span className="workflow-nav__step">{workspace.step}</span>
+              <span className="workflow-nav__label">{workspace.label}</span>
+              {progress && (
               <span
-                className="workflow-nav__status needs-review"
-                aria-label={`${validationIssueCount} validation ${validationIssueCount === 1 ? 'issue' : 'issues'}`}
+                  className={`workflow-nav__status ${progress.tone}`}
+                  aria-label={progress.label}
               >
-                {validationIssueCount}
+                  {progress.value}
               </span>
             )}
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </nav>
 
       <div className="header-actions header-utility-actions">
@@ -178,9 +188,12 @@ export default function AppHeader({
           </Button>
           <Button
             variant="quiet"
-            className="btn-action btn-secondary header-chat-action"
+            className={`btn-action btn-secondary header-chat-action ${unreadChatCount > 0 ? 'has-unread' : ''}`}
             onClick={onChat}
             aria-haspopup="dialog"
+            aria-label={unreadChatCount > 0
+              ? `Open editor chat, ${unreadChatCount} unread message${unreadChatCount === 1 ? '' : 's'}`
+              : 'Open editor chat'}
             title="Open temporary editor chat"
           >
             <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -189,10 +202,13 @@ export default function AppHeader({
             </svg>
             <span className="header-chat-label">Chat</span>
             {unreadChatCount > 0 && (
-              <span className="header-chat-unread" aria-label={`${unreadChatCount} unread chat messages`}>
+              <span className="header-chat-unread" aria-hidden="true">
                 {Math.min(unreadChatCount, 9)}{unreadChatCount > 9 ? '+' : ''}
               </span>
             )}
+            <span className="ui-visually-hidden" role="status" aria-live="polite">
+              {unreadChatCount > 0 ? `${unreadChatCount} unread chat message${unreadChatCount === 1 ? '' : 's'}` : 'No unread chat messages'}
+            </span>
           </Button>
         </div>
 

@@ -350,16 +350,16 @@ test('editor header stays grouped and usable across supported desktop widths', a
   await expect(menu.getByText('Packages & references', { exact: true })).toBeVisible();
   const menuDensity = await menu.evaluate(element => {
     const items = [...element.querySelectorAll('[role="menuitem"]')];
-    const groups = [...element.querySelectorAll('.header-tools-menu__group')];
+    const styles = getComputedStyle(element);
     return {
       shortestItem: Math.min(...items.map(item => item.getBoundingClientRect().height)),
-      groupGaps: groups.slice(1).map((group, index) => (
-        group.getBoundingClientRect().top - groups[index].getBoundingClientRect().bottom
-      )),
+      rowGap: Number.parseFloat(styles.rowGap),
+      columnGap: Number.parseFloat(styles.columnGap),
     };
   });
   expect(menuDensity.shortestItem).toBeGreaterThanOrEqual(48);
-  expect(Math.min(...menuDensity.groupGaps)).toBeGreaterThanOrEqual(8);
+  expect(menuDensity.rowGap).toBeGreaterThanOrEqual(8);
+  expect(menuDensity.columnGap).toBeGreaterThanOrEqual(8);
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
 });

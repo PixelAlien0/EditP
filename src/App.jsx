@@ -161,8 +161,11 @@ export default function App() {
   const [showChatModal, setShowChatModal] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showProjectCheckpoints, setShowProjectCheckpoints] = useState(false);
-  const temporaryChat = useTemporaryChat(showChatModal);
-  const [chatReadAt, setChatReadAt] = useState(() => Date.now());
+  const temporaryChat = useTemporaryChat(true);
+  const [chatReadAt, setChatReadAt] = useState(() => {
+    const stored = Number(window.localStorage.getItem('editp_chat_read_at_v1'));
+    return Number.isFinite(stored) && stored > 0 ? stored : Date.now();
+  });
   const [showPresetGallery, setShowPresetGallery] = useState(false);
   const [showWeaponLab, setShowWeaponLab] = useState(false);
   // Active Output tab
@@ -176,10 +179,16 @@ export default function App() {
     )).length;
   }, [chatReadAt, showChatModal, temporaryChat.identity.id, temporaryChat.messages]);
 
+  const markTemporaryChatRead = useCallback(() => {
+    const readAt = Date.now();
+    setChatReadAt(readAt);
+    window.localStorage.setItem('editp_chat_read_at_v1', String(readAt));
+  }, []);
+
   const closeTemporaryChat = useCallback(() => {
     setShowChatModal(false);
-    setChatReadAt(Date.now());
-  }, []);
+    markTemporaryChatRead();
+  }, [markTemporaryChatRead]);
 
   const handleUndo = undoProject;
   const handleRedo = redoProject;
@@ -902,6 +911,40 @@ export default function App() {
   } : null;
   const activeBuildMenuPackCount = Object.values(buildMenuPacks).filter(Boolean).length;
   const projectChangeCount = modifiedUnitIds.length + clones.length + disabledUnitIds.length + buildMenuSteps.length + activeBuildMenuPackCount + tweakModules.length + supportingWeaponDefs.length + (lobbySetup.commands?.length || 0);
+  const workflowProgress = useMemo(() => {
+    const editedUnitCount = new Set([
+      ...modifiedUnitIds,
+      ...clones.map(clone => clone.newId),
+      ...disabledUnitIds,
+    ]).size;
+    const rosterChangeCount = buildMenuSteps.length + activeBuildMenuPackCount;
+    return {
+      edit: editedUnitCount > 0 ? {
+        value: editedUnitCount,
+        label: `${editedUnitCount} edited unit${editedUnitCount === 1 ? '' : 's'}`,
+        tone: 'has-work',
+      } : null,
+      collections: unitCollections.length > 0 ? {
+        value: unitCollections.length,
+        label: `${unitCollections.length} saved collection${unitCollections.length === 1 ? '' : 's'}`,
+        tone: 'has-work',
+      } : null,
+      designer: rosterChangeCount > 0 ? {
+        value: rosterChangeCount,
+        label: `${rosterChangeCount} build-menu change${rosterChangeCount === 1 ? '' : 's'}`,
+        tone: 'has-work',
+      } : null,
+      review: validationIssues.length > 0 ? {
+        value: validationIssues.length,
+        label: `${validationIssues.length} validation ${validationIssues.length === 1 ? 'issue' : 'issues'}`,
+        tone: 'needs-review',
+      } : projectChangeCount > 0 ? {
+        value: 'Ready',
+        label: 'Project ready for review',
+        tone: 'is-clear',
+      } : null,
+    };
+  }, [activeBuildMenuPackCount, buildMenuSteps.length, clones, disabledUnitIds, modifiedUnitIds, projectChangeCount, unitCollections.length, validationIssues.length]);
   const selectedUnitOverrideEntries = useMemo(
     () => Object.entries(tweaks[selectedUnit?.id] || {}),
     [tweaks, selectedUnit]
@@ -1252,6 +1295,7 @@ export default function App() {
           activityCounts: presenceActivityCounts,
           currentActivity: presenceActivity,
         }}
+        workflowProgress={workflowProgress}
         unreadChatCount={unreadChatCount}
         validationIssueCount={validationIssues.length}
         weaponLabEnabled={WEAPON_LAB_ENABLED}
@@ -1266,7 +1310,7 @@ export default function App() {
         onRedo={handleRedo}
         onCredits={() => setShowCreditsModal(true)}
         onChat={() => {
-          setChatReadAt(Date.now());
+          markTemporaryChatRead();
           setShowChatModal(true);
         }}
         onClone={() => {

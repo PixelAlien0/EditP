@@ -5,6 +5,11 @@
   gap: 6px;
 }
 
+.app-header .header-utility-actions .header-chat-action.has-unread {
+  border-color: var(--color-border-accent-muted);
+  color: var(--color-text-strong);
+}
+
 .header-chat-unread {
   min-width: 16px;
   height: 16px;
