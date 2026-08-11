@@ -42,7 +42,7 @@ export default function ArmorDamageEditor({
             className="ui-control"
             value={draftProfile}
             list="armor-profile-suggestions"
-            placeholder="e.g. space"
+            placeholder="e.g. armored"
             onChange={event => setDraftProfile(event.target.value)}
           />
           <datalist id="armor-profile-suggestions">

@@ -47,7 +47,7 @@ function ArmorProfileField({ defaults, tweaks, onChange }) {
         <input
           className="ui-control"
           value={value ?? ''}
-          placeholder="e.g. space"
+          placeholder="e.g. armored"
           aria-describedby="armor-profile-field-help"
           onChange={event => {
             const next = event.target.value.trim().toLowerCase().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
