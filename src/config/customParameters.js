@@ -304,6 +304,15 @@ export const CUSTOM_PARAMETER_DISCOVERY = Object.freeze({
   sourceRepository: discovery.sourceRepository,
   sourceCommit: discovery.sourceCommit,
   counts: Object.freeze({ ...discovery.counts }),
+  consumerOnly: Object.freeze((discovery.consumerOnly || []).map(entry => Object.freeze({
+    ...entry,
+    consumerLayers: Object.freeze([...(entry.consumerLayers || [])]),
+    consumerEvidence: Object.freeze((entry.consumerEvidence || []).map(evidence => Object.freeze({ ...evidence }))),
+  }))),
+  unresolvedConsumers: Object.freeze((discovery.unresolvedConsumers || []).map(entry => Object.freeze({
+    ...entry,
+    sourcePaths: Object.freeze([...(entry.sourcePaths || [])]),
+  }))),
 });
 
 export const CUSTOM_PARAMETER_REGISTRY = Object.freeze([...unitRegistry, ...weaponRegistry]);

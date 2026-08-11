@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Button, ParameterStatus } from '../ui.jsx';
 import CustomParameterControl from './CustomParameterControl.jsx';
 import CustomParameterContractBundles from './CustomParameterContractBundles.jsx';
+import DiscoveredKeyReviewWorkbench from './DiscoveredKeyReviewWorkbench.jsx';
 import {
   CUSTOM_PARAMETER_BY_KEY,
   CUSTOM_PARAMETER_CATALOG,
@@ -74,6 +75,7 @@ export default function AdvancedCustomParameters({
   const [customKey, setCustomKey] = useState('');
   const [draftType, setDraftType] = useState('string');
   const [draftValue, setDraftValue] = useState('');
+  const [showReviewWorkbench, setShowReviewWorkbench] = useState(false);
   const referenceCatalogs = useMemo(
     () => buildCustomParameterReferenceCatalogs(allUnitsList, defaultsDb),
     [allUnitsList, defaultsDb]
@@ -142,6 +144,7 @@ export default function AdvancedCustomParameters({
           <span className="advanced-custom-parameters__count">{CUSTOM_PARAMETER_DISCOVERY.counts.unitParameters} observed keys</span>
           <span className="advanced-custom-parameters__count">{consumerBackedCount} consumer-backed</span>
           <span className="advanced-custom-parameters__count">{supportedCount} supported</span>
+          <Button size="sm" variant="secondary" onClick={() => setShowReviewWorkbench(true)}>Review discovered keys</Button>
         </div>
       </header>
 
@@ -292,6 +295,7 @@ export default function AdvancedCustomParameters({
         </p>
       )}
       {isCustom && selectedKey && !isValidCustomParameterKey(selectedKey) && <p className="advanced-custom-parameters__error">Use lowercase letters, numbers, and underscores; the first character must be a letter or underscore.</p>}
+      {showReviewWorkbench && <DiscoveredKeyReviewWorkbench onClose={() => setShowReviewWorkbench(false)} />}
     </section>
   );
 }
