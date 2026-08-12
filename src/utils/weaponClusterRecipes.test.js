@@ -53,3 +53,33 @@ describe('Napalm Blossom cluster recipe', () => {
     expect(patch.includeTweaks).toBe(true);
   });
 });
+
+describe('Meteor Rain cluster recipe', () => {
+  it('builds a BAR-asset-backed ballistic meteor child', () => {
+    const application = buildWeaponClusterRecipeApplication({
+      recipeId: 'meteor-rain',
+      ownerUnitId: 'YUMIRU',
+      slotNumber: 1,
+      sourceSlot: { damage: 1000, aoe: 200 },
+    });
+
+    expect(application.tweakPatch).toEqual({
+      weapon_slot_1_cluster_def: 'editp_meteor_rain',
+      weapon_slot_1_cluster_number: 8,
+    });
+    expect(application.supportingDefinition).toMatchObject({
+      ownerUnitId: 'yumiru',
+      key: 'editp_meteor_rain',
+      sourceName: 'BAR Editor recipe: Meteor Rain',
+      definition: {
+        weapontype: 'Cannon',
+        model: 'meteor.s3o',
+        mygravity: 0.32,
+        areaofeffect: 110,
+        explosiongenerator: 'custom:genericshellexplosion-meteor',
+        cegtag: 'meteortrail',
+        damage: { default: 120, commanders: 25 },
+      },
+    });
+  });
+});

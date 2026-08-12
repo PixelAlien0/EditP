@@ -15,7 +15,77 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     clusterCount: 7,
     description: 'Impact-fired incendiary Cannon fragments with BAR-native flame presentation and area-on-hit behavior.',
   }),
+  'meteor-rain': Object.freeze({
+    id: 'meteor-rain',
+    label: 'Meteor Rain',
+    supportingKey: 'editp_meteor_rain',
+    clusterCount: 8,
+    description: 'Impact-fired meteor fragments that arc outward, lose height quickly, and saturate the surrounding ground.',
+  }),
 });
+
+function buildNapalmBlossomDefinition({ recipe, childDamage, childAoe }) {
+  return {
+    name: `${recipe.label} fragment`,
+    weapontype: 'Cannon',
+    range: 360,
+    reloadtime: 1,
+    weaponvelocity: 360,
+    areaofeffect: childAoe,
+    edgeeffectiveness: 0.35,
+    accuracy: 0,
+    sprayangle: 0,
+    gravityaffected: true,
+    mygravity: 0.1,
+    avoidfeature: false,
+    avoidfriendly: false,
+    collidefriendly: false,
+    noselfdamage: true,
+    firestarter: 100,
+    impulsefactor: 0.123,
+    craterboost: 0,
+    cratermult: 0,
+    explosiongenerator: 'custom:fire-explosion-small',
+    cegtag: 'burnflame-xs',
+    soundhitdry: 'flamhit1',
+    soundhitwet: 'sizzle',
+    damage: { default: childDamage },
+    customparams: { area_onhit: 1 },
+  };
+}
+
+function buildMeteorRainDefinition({ recipe, parentDamage, parentAoe }) {
+  return {
+    name: `${recipe.label} fragment`,
+    weapontype: 'Cannon',
+    range: 520,
+    reloadtime: 1,
+    weaponvelocity: 245,
+    areaofeffect: Math.round(clamp(parentAoe * 0.55, 64, 150)),
+    edgeeffectiveness: 0.4,
+    accuracy: 850,
+    sprayangle: 650,
+    gravityaffected: true,
+    mygravity: 0.32,
+    model: 'meteor.s3o',
+    avoidfeature: false,
+    avoidfriendly: false,
+    collidefriendly: false,
+    noselfdamage: true,
+    firestarter: 70,
+    impulsefactor: 0.2,
+    craterboost: 0,
+    cratermult: 0,
+    explosiongenerator: 'custom:genericshellexplosion-meteor',
+    cegtag: 'meteortrail',
+    soundhitdry: 'xplonuk4',
+    soundhitwet: 'sizzle',
+    damage: {
+      default: Math.round(clamp(parentDamage * 0.12, 18, 220)),
+      commanders: Math.round(clamp(parentDamage * 0.025, 5, 40)),
+    },
+  };
+}
 
 export function buildWeaponClusterRecipeApplication({
   recipeId,
@@ -37,49 +107,23 @@ export function buildWeaponClusterRecipeApplication({
   const childDamage = Math.round(clamp(parentDamage * 0.1, 8, 180));
   const childAoe = Math.round(clamp(parentAoe * 0.65, 48, 120));
 
+  const definition = recipe.id === 'meteor-rain'
+    ? buildMeteorRainDefinition({ recipe, parentDamage, parentAoe })
+    : buildNapalmBlossomDefinition({ recipe, childDamage, childAoe });
+
   const supportingDefinition = {
     id: `support_recipe_${recipe.id.replaceAll('-', '_')}_${owner}`,
     ownerUnitId: owner,
     key: recipe.supportingKey,
     label: recipe.label,
-    definition: {
-      name: `${recipe.label} fragment`,
-      weapontype: 'Cannon',
-      range: 360,
-      reloadtime: 1,
-      weaponvelocity: 360,
-      areaofeffect: childAoe,
-      edgeeffectiveness: 0.35,
-      accuracy: 0,
-      sprayangle: 0,
-      gravityaffected: true,
-      mygravity: 0.1,
-      avoidfeature: false,
-      avoidfriendly: false,
-      collidefriendly: false,
-      noselfdamage: true,
-      firestarter: 100,
-      impulsefactor: 0.123,
-      craterboost: 0,
-      cratermult: 0,
-      explosiongenerator: 'custom:fire-explosion-small',
-      cegtag: 'burnflame-xs',
-      soundhitdry: 'flamhit1',
-      soundhitwet: 'sizzle',
-      damage: {
-        default: childDamage,
-      },
-      customparams: {
-        area_onhit: 1,
-      },
-    },
+    definition,
     enabled: true,
     mode: 'replace',
     role: 'cluster-child',
     mountedSlots: [],
     dependencies: [],
     referencedBy: [`weapon slot ${slot}`],
-    sourceName: 'BAR Editor recipe: Napalm Blossom',
+    sourceName: `BAR Editor recipe: ${recipe.label}`,
   };
 
   return {

@@ -45,6 +45,7 @@ import AssetPicker from './AssetPicker.jsx';
 import UnitDescriptionEditor from './UnitDescriptionEditor.jsx';
 import GadgetContractSummary from './GadgetContractSummary.jsx';
 import ArmorDamageEditor from './ArmorDamageEditor.jsx';
+import { WEAPON_CLUSTER_RECIPES } from '../../utils/weaponClusterRecipes.js';
 
 const LazyBehaviorInterceptorEditor = lazy(() => import('./BehaviorInterceptorEditor.jsx'));
 const LazyAdvancedCustomParameters = lazy(() => import('./AdvancedCustomParameters.jsx'));
@@ -1343,9 +1344,9 @@ export default function EditUnitsWorkspace({ context }) {
                                     undefined
                                   ));
                               };
-                              const applyNapalmBlossom = () => {
+                              const applyClusterRecipe = recipeId => {
                                 handleApplyWeaponClusterRecipe({
-                                  recipeId: 'napalm-blossom',
+                                  recipeId,
                                   unitId: selectedUnit.id,
                                   slotNumber: slot.slot,
                                   sourceSlot: slot,
@@ -1385,10 +1386,14 @@ export default function EditUnitsWorkspace({ context }) {
                                   )}
                                   {group.kind === 'cluster' && (
                                     <div className="weapon-advanced-group-heading__actions">
-                                      <span className="section-heading__meta">Incendiary recipe</span>
-                                      <Button size="sm" variant="primary" onClick={applyNapalmBlossom}>
-                                        Apply Napalm Blossom
-                                      </Button>
+                                      <span className="section-heading__meta">Cluster recipes</span>
+                                      <div className="ui-button-group">
+                                        {Object.values(WEAPON_CLUSTER_RECIPES).map(recipe => (
+                                          <Button key={recipe.id} size="sm" variant="primary" title={recipe.description} onClick={() => applyClusterRecipe(recipe.id)}>
+                                            Apply {recipe.label}
+                                          </Button>
+                                        ))}
+                                      </div>
                                     </div>
                                   )}
                                 </div>

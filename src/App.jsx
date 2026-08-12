@@ -47,7 +47,7 @@ import {
   getCollectionUnitIds,
 } from './project/unitCollections.js';
 import { applyWeaponBlueprintToSlot } from './utils/weaponBlueprint.js';
-import { applyWeaponClusterRecipe } from './utils/weaponClusterRecipes.js';
+import { applyWeaponClusterRecipe, WEAPON_CLUSTER_RECIPES } from './utils/weaponClusterRecipes.js';
 
 // Publish the experimental Weapon Laboratory workspace and its Tools entry.
 const WEAPON_LAB_ENABLED = true;
@@ -970,7 +970,8 @@ export default function App() {
         slotNumber,
         sourceSlot,
       }));
-      showToast('Napalm Blossom linked to the active weapon slot.');
+      const recipeLabel = WEAPON_CLUSTER_RECIPES[recipeId]?.label || 'Cluster recipe';
+      showToast(`${recipeLabel} linked to the active weapon slot.`);
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Could not apply the cluster recipe.');
     }
