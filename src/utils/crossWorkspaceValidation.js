@@ -349,14 +349,6 @@ export function buildCrossWorkspaceValidation({
         action: { type: 'weapon-lab', blueprintId, label: 'Choose a new source' },
       }));
     }
-    if (!used) {
-      issues.push(issue({
-        id: `weapon-${blueprintId}-unused`, level: 'info', unitName: blueprint.name || blueprintId,
-        key: 'weapon_blueprint_usage', title: `${blueprint.name || blueprintId} · stored but not equipped`,
-        message: 'This custom weapon remains safely in project storage but does not contribute to generated Lua.',
-        action: { type: 'weapon-lab', blueprintId, label: 'Open Weapon Lab' },
-      }));
-    }
   });
 
   const supportingReachability = resolveSupportingWeaponDefReachability({

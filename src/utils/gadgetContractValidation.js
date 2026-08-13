@@ -102,7 +102,10 @@ function validateOrphanedCompanions(contract, values, patch, slotNumber, problem
   const active = activationKeys.some(key => hasActiveValue(values[key]));
   if (active) return false;
   const configured = explicitContractKeys(contract, patch, slotNumber)
-    .filter(key => !activationKeys.includes(key));
+    .filter(key => !activationKeys.includes(key))
+    // BAR also uses spawns_surface as shared placement metadata. On its own it
+    // does not establish an explosion-spawner contract.
+    .filter(key => contract.id !== 'explosion-spawner' || key !== 'spawns_surface');
   if (configured.length === 0) return false;
 
   const activationKey = activationKeys[0];
@@ -193,6 +196,7 @@ function validateCarrier(values, context, problems) {
 function validateCluster(values, context, problems) {
   const clusterKey = cleanId(values.cluster_def);
   if (clusterKey && context.explicitKeys.has('cluster_def')
+    && cleanId(context.sourceSlot?.cluster_def) !== clusterKey
     && !context.knownWeaponDefs.has(clusterKey)
     && !context.supportingWeaponDefs.has(`${cleanId(context.unitId)}:${clusterKey}`)) {
     problems.push({
@@ -262,7 +266,10 @@ function validateSpecialProjectileBehavior(values, context, problems) {
   if (['split', 'cannonwaterpen'].includes(behavior.id) && hasValue(values.speceffect_def)) {
     const weaponKey = cleanId(values.speceffect_def);
     const localKey = `${cleanId(context.unitId)}:${weaponKey}`;
-    if (!context.knownWeaponDefs.has(weaponKey) && !context.supportingWeaponDefs.has(localKey)) {
+    const inheritedReference = cleanId(context.sourceSlot?.speceffect_def) === weaponKey;
+    if (!inheritedReference
+      && !context.knownWeaponDefs.has(weaponKey)
+      && !context.supportingWeaponDefs.has(localKey)) {
       problems.push({
         kind: 'unknown',
         level: 'warning',
@@ -426,6 +433,8 @@ export function evaluateGadgetContracts({
   });
 
   weaponSlotNumbers(defaults, patch).forEach(slotNumber => {
+    const sourceSlot = (defaults?.weaponSlots || [])
+      .find(entry => Number(entry.slot) === slotNumber) || {};
     WEAPON_CONTRACTS.forEach(contract => {
       const values = effectiveWeaponValues(contract, slotNumber, defaults, patch);
       let active;
@@ -452,6 +461,7 @@ export function evaluateGadgetContracts({
             ...normalizedContext,
             contract,
             slotNumber,
+            sourceSlot,
             explicitKeys: new Set(
               Object.keys(patch)
                 .filter(key => key.startsWith(`weapon_slot_${slotNumber}_`))

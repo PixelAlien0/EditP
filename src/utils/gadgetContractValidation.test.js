@@ -102,10 +102,10 @@ describe('BAR gadget contract validation', () => {
       },
     });
     expect(results).toEqual(expect.arrayContaining([
-      expect.objectContaining({ contractId: 'explosion-spawner', status: 'incomplete' }),
       expect.objectContaining({ contractId: 'carrier-spawner', status: 'incomplete' }),
       expect.objectContaining({ contractId: 'special-projectile-behavior', status: 'incomplete' }),
     ]));
+    expect(results.some(result => result.contractId === 'explosion-spawner')).toBe(false);
     expect(results.flatMap(result => result.problems)).toEqual(expect.arrayContaining([
       expect.objectContaining({ level: 'warning', suggestedFix: expect.any(String) }),
     ]));
@@ -183,6 +183,31 @@ describe('BAR gadget contract validation', () => {
       expect.objectContaining({ key: 'speceffect_number', level: 'error' }),
       expect.objectContaining({ key: 'speceffect_def', level: 'warning' }),
     ]));
+  });
+
+  it('trusts inherited BAR-local child WeaponDefs omitted from the normalized snapshot', () => {
+    const result = evaluateGadgetContracts({
+      unitId: 'armmship_clone',
+      defaults: {
+        weaponSlots: [{
+          slot: 1,
+          defKey: 'rocket',
+          speceffect: 'split',
+          speceffect_def: 'armmship_rocket_split',
+          speceffect_number: 6,
+        }],
+      },
+      patch: { weapon_slot_1_speceffect_def: 'armmship_rocket_split' },
+    }).find(entry => entry.contractId === 'special-projectile-behavior');
+
+    expect(result).toBeDefined();
+    expect(result.problems).not.toContainEqual(expect.objectContaining({ key: 'speceffect_def' }));
+  });
+
+  it('does not treat standalone surface metadata as a partial explosion spawner', () => {
+    expect(evaluate({
+      patch: { weapon_slot_1_spawns_surface: 'LAND' },
+    }).some(result => result.contractId === 'explosion-spawner')).toBe(false);
   });
 
   it('warns when docking-only carrier fields are configured while docking is disabled', () => {

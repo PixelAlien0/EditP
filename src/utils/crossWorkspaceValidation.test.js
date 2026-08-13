@@ -68,7 +68,7 @@ describe('cross-workspace project validation', () => {
     ]));
   });
 
-  it('distinguishes unused custom weapons from broken equipped weapons', () => {
+  it('keeps intentionally stored custom weapons out of review while flagging broken equipped weapons', () => {
     const blueprint = {
       id: 'rose_laser',
       name: 'Rose Laser',
@@ -78,9 +78,7 @@ describe('cross-workspace project validation', () => {
       overrides: { damage: 20 },
     };
     const unused = validate({ weaponLibrary: [blueprint] });
-    expect(unused).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: 'cross-workspace-weapon-rose_laser-unused', level: 'info' }),
-    ]));
+    expect(unused.some(entry => entry.id === 'cross-workspace-weapon-rose_laser-unused')).toBe(false);
 
     const broken = validate({
       clones: [{
