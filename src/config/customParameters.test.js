@@ -86,7 +86,8 @@ describe('advanced custom parameter metadata', () => {
   it('promotes contracts only as far as their recorded evidence permits', () => {
     expect(CUSTOM_PARAMETER_PROMOTION_VERSION).toBe(1);
     expect(getCustomParameterPromotion('airfactory', 'unit')?.id).toBe('observed');
-    expect(getCustomParameterPromotion('energyconv_capacity', 'unit')?.id).toBe('reviewed');
+    expect(getCustomParameterPromotion('energyconv_capacity', 'unit')?.id).toBe('runtime-tested');
+    expect(getCustomParameterPromotion('scavcustomsquad', 'unit')?.id).toBe('runtime-tested');
     expect(getCustomParameterPromotion('unitgroup', 'unit')?.id).toBe('editor-supported');
     expect(getCustomParameterPromotion('cluster_def', 'weapon')?.id).toBe('runtime-tested');
 

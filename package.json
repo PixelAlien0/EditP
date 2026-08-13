@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "test": "vitest run",
-    "test:bar-runtime": "vitest run src/utils/barRuntimeHarness.test.js",
+    "test:bar-runtime": "vitest run src/utils/barRuntimeHarness.test.js src/config/gadgetContracts.test.js src/utils/runtimeContractFixtures.test.js",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",

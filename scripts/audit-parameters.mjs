@@ -191,8 +191,7 @@ export function auditParameterCompleteness({
     .map(parameter => parameter.id);
   const missingRuntimeEvidence = Object.keys(CUSTOM_PARAMETER_RUNTIME_EVIDENCE)
     .filter(key => !CUSTOM_PARAMETER_REGISTRY.some(parameter => (
-      parameter.scope === 'weapon'
-      && parameter.key === key
+      parameter.key === key
       && parameter.promotion.id === 'runtime-tested'
     )));
   const brokenPromotionChains = CUSTOM_PARAMETER_REGISTRY
@@ -305,7 +304,7 @@ export function auditParameterCompleteness({
     ['invalid custom-parameter registry metadata', invalidRegistryMetadata],
     ['invalid custom-parameter promotion metadata', invalidPromotionMetadata],
     ['invalid automatic consumer evidence', invalidConsumerMetadata],
-    ['runtime evidence without a promoted weapon contract', missingRuntimeEvidence],
+    ['runtime evidence without a promoted custom-parameter contract', missingRuntimeEvidence],
     ['custom-parameter promotions with incomplete evidence chains', brokenPromotionChains],
     ['custom-parameter discovery commit mismatch', discoveryCommitMismatch],
     ['custom-parameter discovery coverage mismatch', discoveryCoverageMismatch],

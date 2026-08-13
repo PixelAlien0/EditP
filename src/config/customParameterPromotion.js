@@ -30,6 +30,17 @@ export const CUSTOM_PARAMETER_PROMOTION_ORDER = Object.freeze([
 // These entries are intentionally explicit. A key must not become runtime-tested merely
 // because it appears in BAR data or can be written by the generic parameter editor.
 export const CUSTOM_PARAMETER_RUNTIME_EVIDENCE = Object.freeze({
+  energyconv_capacity: Object.freeze(['energy-converter-contract']),
+  energyconv_efficiency: Object.freeze(['energy-converter-contract']),
+  scavcustomsquad: Object.freeze(['scavenger-squad-contract']),
+  scavsquadunitsamount: Object.freeze(['scavenger-squad-contract']),
+  scavsquadminanger: Object.freeze(['scavenger-squad-contract']),
+  scavsquadmaxanger: Object.freeze(['scavenger-squad-contract']),
+  scavsquadweight: Object.freeze(['scavenger-squad-contract']),
+  scavsquadrarity: Object.freeze(['scavenger-squad-contract']),
+  scavsquadbehavior: Object.freeze(['scavenger-squad-contract']),
+  scavsquadbehaviordistance: Object.freeze(['scavenger-squad-contract']),
+  scavsquadbehaviorchance: Object.freeze(['scavenger-squad-contract']),
   carried_unit: Object.freeze(['multi-type-carrier-safety']),
   carrierdeaththroe: Object.freeze(['multi-type-carrier-safety']),
   controlradius: Object.freeze(['multi-type-carrier-safety']),

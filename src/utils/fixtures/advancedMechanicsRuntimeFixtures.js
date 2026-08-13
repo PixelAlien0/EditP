@@ -1,6 +1,9 @@
+export const RUNTIME_CONTRACT_FIXTURE_VERSION = 1;
+
 export const ADVANCED_MECHANICS_RUNTIME_FIXTURES = Object.freeze([
   Object.freeze({
     id: 'multi-type-carrier-safety',
+    contractIds: Object.freeze(['carrier-spawner']),
     description: 'normalizes multi-drone lists and fills BAR carrier safety defaults',
     units: [{ id: 'editp_carrier', name: 'Runtime Carrier', isClone: false }],
     defaultsDb: {
@@ -60,6 +63,7 @@ export const ADVANCED_MECHANICS_RUNTIME_FIXTURES = Object.freeze([
   }),
   Object.freeze({
     id: 'spawner-cluster-interceptor',
+    contractIds: Object.freeze(['explosion-spawner', 'cluster-projectile', 'projectile-interception']),
     description: 'preserves spawner, supporting WeaponDef, and interception contracts together',
     units: [{ id: 'editp_launcher', name: 'Runtime Launcher', isClone: false }],
     defaultsDb: {
@@ -134,6 +138,7 @@ export const ADVANCED_MECHANICS_RUNTIME_FIXTURES = Object.freeze([
   }),
   Object.freeze({
     id: 'sector-fire-horizontal-spread',
+    contractIds: Object.freeze(['sector-fire']),
     description: 'writes the verified Tremor sector-fire contract without replacing unrelated WeaponDef custom parameters',
     units: [{ id: 'editp_inferno', name: 'Runtime Inferno', isClone: false }],
     defaultsDb: {
@@ -175,6 +180,7 @@ export const ADVANCED_MECHANICS_RUNTIME_FIXTURES = Object.freeze([
   }),
   Object.freeze({
     id: 'special-projectile-behavior-contracts',
+    contractIds: Object.freeze(['special-projectile-behavior']),
     description: 'writes all BAR custom projectile behavior modes and keeps child presentation fields inside custom parameters',
     units: [{ id: 'editp_projectiles', name: 'Runtime Projectile Lab', isClone: false }],
     defaultsDb: {
@@ -264,7 +270,84 @@ export const ADVANCED_MECHANICS_RUNTIME_FIXTURES = Object.freeze([
     },
   }),
   Object.freeze({
+    id: 'energy-converter-contract',
+    contractIds: Object.freeze(['energy-converter']),
+    description: 'writes the complete BAR energy-conversion pair without disturbing unrelated UnitDef custom parameters',
+    units: [{ id: 'editp_converter', name: 'Runtime Converter', isClone: false }],
+    defaultsDb: {
+      editp_converter: { customparams: { unitgroup: 'energy' } },
+    },
+    tweaks: {
+      editp_converter: {
+        'customparams.energyconv_capacity': 600,
+        'customparams.energyconv_efficiency': 0.01724,
+      },
+    },
+    runtimeUnitDefs: {
+      editp_converter: {
+        customparams: {
+          unitgroup: 'energy',
+          existing_contract_value: 'preserved',
+        },
+      },
+    },
+    expectations: {
+      paths: [
+        { path: 'editp_converter.customparams.energyconv_capacity', equals: 600 },
+        { path: 'editp_converter.customparams.energyconv_efficiency', equals: 0.01724 },
+        { path: 'editp_converter.customparams.unitgroup', equals: 'energy' },
+        { path: 'editp_converter.customparams.existing_contract_value', equals: 'preserved' },
+      ],
+    },
+  }),
+  Object.freeze({
+    id: 'scavenger-squad-contract',
+    contractIds: Object.freeze(['scavenger-squad']),
+    description: 'writes a complete Scavenger squad profile with exact runtime types and preserves unrelated metadata',
+    units: [{ id: 'editp_scav_raider', name: 'Runtime Scavenger Raider', isClone: false }],
+    defaultsDb: {
+      editp_scav_raider: { customparams: { unitgroup: 'weapon' } },
+    },
+    tweaks: {
+      editp_scav_raider: {
+        'customparams.scavcustomsquad': true,
+        'customparams.scavsquadunitsamount': 2,
+        'customparams.scavsquadminanger': 30,
+        'customparams.scavsquadmaxanger': 120,
+        'customparams.scavsquadweight': 150,
+        'customparams.scavsquadrarity': 'basic',
+        'customparams.scavsquadbehavior': 'berserk',
+        'customparams.scavsquadbehaviordistance': 1000,
+        'customparams.scavsquadbehaviorchance': 1,
+      },
+    },
+    runtimeUnitDefs: {
+      editp_scav_raider: {
+        customparams: {
+          unitgroup: 'weapon',
+          existing_contract_value: 'preserved',
+        },
+      },
+    },
+    expectations: {
+      paths: [
+        { path: 'editp_scav_raider.customparams.scavcustomsquad', equals: true },
+        { path: 'editp_scav_raider.customparams.scavsquadunitsamount', equals: 2 },
+        { path: 'editp_scav_raider.customparams.scavsquadminanger', equals: 30 },
+        { path: 'editp_scav_raider.customparams.scavsquadmaxanger', equals: 120 },
+        { path: 'editp_scav_raider.customparams.scavsquadweight', equals: 150 },
+        { path: 'editp_scav_raider.customparams.scavsquadrarity', equals: 'basic' },
+        { path: 'editp_scav_raider.customparams.scavsquadbehavior', equals: 'berserk' },
+        { path: 'editp_scav_raider.customparams.scavsquadbehaviordistance', equals: 1000 },
+        { path: 'editp_scav_raider.customparams.scavsquadbehaviorchance', equals: 1 },
+        { path: 'editp_scav_raider.customparams.unitgroup', equals: 'weapon' },
+        { path: 'editp_scav_raider.customparams.existing_contract_value', equals: 'preserved' },
+      ],
+    },
+  }),
+  Object.freeze({
     id: 'nested-clone-explosion-isolation',
+    contractIds: Object.freeze([]),
     description: 'keeps death and self-destruct profiles isolated on a nested clone',
     units: [
       { id: 'armflash', name: 'Flash', isClone: false },

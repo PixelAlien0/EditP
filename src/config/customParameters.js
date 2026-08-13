@@ -38,6 +38,14 @@ const curatedUnitParameters = [
     description: 'BAR role classification used by UI, targeting, restrictions, and supporting gadgets.'
   },
   {
+    key: 'energyconv_capacity', label: 'Energy Conversion Capacity', type: 'number', owner: 'BAR gadget', maturity: 'stable', min: 0,
+    description: 'Maximum energy throughput offered to BAR\'s energy-conversion gadget during each conversion interval.'
+  },
+  {
+    key: 'energyconv_efficiency', label: 'Energy Conversion Efficiency', type: 'number', owner: 'BAR gadget', maturity: 'stable', min: 0,
+    description: 'Metal returned per unit of energy consumed by BAR\'s energy-conversion gadget.'
+  },
+  {
     key: 'ignore_noair', label: 'Ignore No-Air Restriction', type: 'boolean', owner: 'Package-specific', maturity: 'external',
     description: 'Package convention for bypassing a no-air restriction. It requires code that explicitly reads the key.'
   },
@@ -181,9 +189,7 @@ function enrichDefinition(definition, scope, observation) {
   const reviewed = Boolean(definition.reviewed || definition.curated || definition.editorSupported || contracts.length);
   const documented = Boolean(definition.documented || definition.curated || definition.editorSupported);
   const editorSupported = Boolean(definition.editorSupported);
-  const runtimeFixtureIds = scope === 'weapon'
-    ? CUSTOM_PARAMETER_RUNTIME_EVIDENCE[definition.key] || []
-    : [];
+  const runtimeFixtureIds = CUSTOM_PARAMETER_RUNTIME_EVIDENCE[definition.key] || [];
   const promotion = buildCustomParameterPromotion({
     observed,
     reviewed,
