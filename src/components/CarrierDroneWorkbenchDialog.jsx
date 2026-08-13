@@ -179,6 +179,8 @@ export default function CarrierDroneWorkbenchDialog({
     [carriedUnitsText]
   );
   const multiTypeDirectControl = carriedUnitIds.length > 1 && manualControl;
+  const linkageModeLabel = manualControl ? 'Player controlled' : 'Carrier directed';
+  const dockingModeLabel = dockingEnabled && !multiTypeDirectControl ? 'Docking enabled' : 'Free deployment';
 
   const rosterRows = useMemo(() => carriedUnitIds.map((unitId, index) => {
     const unit = allAvailableUnits.find(item => item.id.toLowerCase() === unitId.toLowerCase());
@@ -376,21 +378,44 @@ export default function CarrierDroneWorkbenchDialog({
       <form onSubmit={handleSave}>
         <header className="carrier-workbench__header">
           <div className="carrier-workbench__heading">
-            <span className="carrier-workbench__eyebrow">Carrier Systems</span>
+            <span className="carrier-workbench__eyebrow">Carrier systems · linkage editor</span>
             <h2 id={titleId}>Carrier &amp; Deployed Drone Linkage Workbench</h2>
-            <p id={descriptionId}>Connect one carrier controller to an ordered roster of deployed unit types.</p>
+            <p id={descriptionId}>Build an ordered payload roster, then define how its controller deploys and recalls each unit type.</p>
           </div>
           <IconButton label="Close carrier workbench" variant="quiet" size="sm" onClick={onClose}>×</IconButton>
         </header>
 
         <div className="carrier-workbench__body">
+          <dl className="carrier-workbench__status-rail" aria-label="Current carrier linkage summary">
+            <div>
+              <dt>Carrier</dt>
+              <dd>{parentUnitInfo.displayName}</dd>
+              <code>{parentUnitInfo.id}</code>
+            </div>
+            <div>
+              <dt>Controller</dt>
+              <dd>Weapon slot {targetWeaponSlot}</dd>
+              <code>{targetWeaponDef || parentConfig.activeWeaponDef || 'Inherited WeaponDef'}</code>
+            </div>
+            <div>
+              <dt>Payload roster</dt>
+              <dd>{carriedUnitIds.length} {carriedUnitIds.length === 1 ? 'unit type' : 'unit types'}</dd>
+              <code>{carriedUnitIds.length ? 'Ordered parallel values' : 'Roster required'}</code>
+            </div>
+            <div>
+              <dt>Runtime policy</dt>
+              <dd>{linkageModeLabel}</dd>
+              <code>{dockingModeLabel}</code>
+            </div>
+          </dl>
+
           {/* Visual Flight-Deck Diagram with Rich Interactive Picker Cards */}
           <section className="carrier-workbench__deck-diagram">
             <button
               type="button"
               className="carrier-workbench__picker-card"
               onClick={() => openUnitPicker('parent')}
-              title="Click to select Parent Carrier Chassis"
+              aria-label="Change parent carrier chassis"
             >
               <UnitArtwork unitId={parentUnitInfo.artworkUnitId || parentUnitInfo.id} className="carrier-workbench__card-art" alt="" />
               <div className="carrier-workbench__card-info">
@@ -412,7 +437,7 @@ export default function CarrierDroneWorkbenchDialog({
               type="button"
               className="carrier-workbench__picker-card"
               onClick={() => openUnitPicker('child:0')}
-              title="Click to replace the primary deployed unit type"
+              aria-label="Change primary deployed unit"
             >
               <UnitArtwork unitId={childUnitInfo.artworkUnitId || childUnitInfo.id} className="carrier-workbench__card-art" alt="" />
               <div className="carrier-workbench__card-info">
@@ -497,7 +522,7 @@ export default function CarrierDroneWorkbenchDialog({
             </div>
           </section>
 
-          <section className="carrier-workbench__section">
+          <section className="carrier-workbench__section carrier-workbench__configuration">
             <div className="carrier-workbench__section-heading">
               <div>
                 <span className="carrier-workbench__section-index">02 · Linkage behavior</span>
@@ -507,13 +532,14 @@ export default function CarrierDroneWorkbenchDialog({
             </div>
 
             <div className="carrier-workbench__typebox-grid">
-              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <div className="form-group carrier-workbench__field--wide carrier-workbench__policy-field">
                 <label>Spawn Surface Restriction</label>
-                <div className="carrier-workbench__segmented">
+                <div className="carrier-workbench__segmented" role="group" aria-label="Spawn surface restriction">
                   <button
                     type="button"
                     className={`carrier-workbench__faction-chip ${spawnSurface === '' ? 'is-active' : ''}`}
                     onClick={() => setSpawnSurface('')}
+                    aria-pressed={spawnSurface === ''}
                   >
                     Any surface
                   </button>
@@ -521,6 +547,7 @@ export default function CarrierDroneWorkbenchDialog({
                     type="button"
                     className={`carrier-workbench__faction-chip ${spawnSurface === 'LAND' ? 'is-active' : ''}`}
                     onClick={() => setSpawnSurface('LAND')}
+                    aria-pressed={spawnSurface === 'LAND'}
                   >
                     Land only
                   </button>
@@ -528,15 +555,16 @@ export default function CarrierDroneWorkbenchDialog({
                     type="button"
                     className={`carrier-workbench__faction-chip ${spawnSurface === 'SEA' ? 'is-active' : ''}`}
                     onClick={() => setSpawnSurface('SEA')}
+                    aria-pressed={spawnSurface === 'SEA'}
                   >
                     Sea only
                   </button>
                 </div>
               </div>
 
-              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <div className="form-group carrier-workbench__field--wide carrier-workbench__policy-field">
                 <label>Drone Command Mode</label>
-                <div className="carrier-workbench__segmented">
+                <div className="carrier-workbench__segmented" role="group" aria-label="Drone command mode">
                   <button
                     type="button"
                     className={`carrier-workbench__faction-chip ${manualControl ? 'is-active' : ''}`}
@@ -544,6 +572,7 @@ export default function CarrierDroneWorkbenchDialog({
                       setManualControl(true);
                       if (carriedUnitIds.length > 1) setDockingEnabled(false);
                     }}
+                    aria-pressed={manualControl}
                   >
                     Direct player control
                   </button>
@@ -551,6 +580,7 @@ export default function CarrierDroneWorkbenchDialog({
                     type="button"
                     className={`carrier-workbench__faction-chip ${!manualControl ? 'is-active' : ''}`}
                     onClick={() => setManualControl(false)}
+                    aria-pressed={!manualControl}
                   >
                     Carrier-directed only
                   </button>
@@ -558,7 +588,7 @@ export default function CarrierDroneWorkbenchDialog({
                 <small>Direct control uses BAR's <code>manualdrones</code> mode. The carrier can still issue formation and recall orders.</small>
               </div>
 
-              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <div className="form-group carrier-workbench__field--wide carrier-workbench__policy-field">
                 <label htmlFor="input-carrier-death-behavior">When the Carrier Is Destroyed</label>
                 <select
                   id="input-carrier-death-behavior"
@@ -575,13 +605,14 @@ export default function CarrierDroneWorkbenchDialog({
                 <small>Surviving modes receive a safe lifetime value to avoid BAR's nil <code>droneAirTime</code> destruction error.</small>
               </div>
 
-              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <div className="form-group carrier-workbench__field--wide carrier-workbench__policy-field">
                 <label>Docking Behavior</label>
-                <div className="carrier-workbench__segmented">
+                <div className="carrier-workbench__segmented" role="group" aria-label="Docking behavior">
                   <button
                     type="button"
                     className={`carrier-workbench__faction-chip ${!dockingEnabled ? 'is-active' : ''}`}
                     onClick={() => setDockingEnabled(false)}
+                    aria-pressed={!dockingEnabled}
                   >
                     Free deployment
                   </button>
@@ -589,6 +620,7 @@ export default function CarrierDroneWorkbenchDialog({
                     type="button"
                     className={`carrier-workbench__faction-chip ${dockingEnabled ? 'is-active' : ''}`}
                     onClick={() => setDockingEnabled(true)}
+                    aria-pressed={dockingEnabled}
                     disabled={multiTypeDirectControl}
                     title={multiTypeDirectControl
                       ? 'BAR multi-type direct control leaves one attached reserve per type. Use free deployment.'
@@ -813,7 +845,7 @@ export default function CarrierDroneWorkbenchDialog({
                 <small>Use 0 for unlimited ammunition.</small>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+              <div className="carrier-workbench__clone-action">
                 <Button type="button" variant="secondary" size="sm" onClick={handleQuickCreateDroneClone}>
                   + Create Custom Clone of "{childUnitInfo.displayName}"
                 </Button>
@@ -824,7 +856,7 @@ export default function CarrierDroneWorkbenchDialog({
 
         <footer className="carrier-workbench__footer">
           <span className="carrier-workbench__summary">
-            <strong>{parentUnitInfo.displayName}</strong> will manage <strong>{carriedUnitIds.length}</strong> deployed unit {carriedUnitIds.length === 1 ? 'type' : 'types'} from controller slot {targetWeaponSlot}. {manualControl ? 'Units remain player-selectable.' : 'Units remain carrier-directed.'}
+            <strong>{parentUnitInfo.displayName}</strong> · slot {targetWeaponSlot} · {carriedUnitIds.length} deployed {carriedUnitIds.length === 1 ? 'type' : 'types'} · {linkageModeLabel} · {dockingModeLabel}
           </span>
           <div className="carrier-workbench__actions">
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
@@ -908,7 +940,7 @@ export default function CarrierDroneWorkbenchDialog({
               ))}
 
               {filteredPickerUnits.length === 0 && (
-                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                <div className="carrier-workbench__picker-empty">
                   No units found matching "{pickerQuery}".
                 </div>
               )}
