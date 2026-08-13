@@ -13,14 +13,15 @@ export function getSupabaseClient() {
       supabaseUrl,
       supabasePublishableKey,
       {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-      },
-      realtime: {
-        params: { eventsPerSecond: 2 },
-      },
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce',
+        },
+        realtime: {
+          params: { eventsPerSecond: 2 },
+        },
       }
     ));
   }

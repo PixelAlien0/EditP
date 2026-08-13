@@ -7,6 +7,7 @@ afterEach(cleanup);
 const projects = [
   {
     id: 'project-one',
+    ownerId: 'creator-one',
     title: 'Armada frontline pass',
     summary: 'A measured frontline rebalance with a revised Bot Lab roster.',
     authorName: 'Workshop Pilot',
@@ -19,6 +20,7 @@ const projects = [
     updatedAt: '2026-08-12T00:00:00.000Z',
     downloadCount: 18,
     forkCount: 3,
+    hasProjectCopy: true,
   },
 ];
 
@@ -29,7 +31,8 @@ describe('CommunityGalleryPage', () => {
 
     expect(await screen.findAllByRole('heading', { name: 'Armada frontline pass' })).toHaveLength(2);
     expect(screen.getAllByText('Workshop Pilot')).toHaveLength(2);
-    expect(screen.getByText('Read-only preview')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open as copy' })).toBeEnabled();
+    expect(screen.getByText('Sanitized project copy')).toBeInTheDocument();
   });
 
   it('sends search and compatibility controls to the paginated loader', async () => {
@@ -40,12 +43,31 @@ describe('CommunityGalleryPage', () => {
     fireEvent.change(screen.getByLabelText('Search projects'), { target: { value: 'air power' } });
     fireEvent.click(screen.getByRole('button', { name: 'Search' }));
     fireEvent.change(screen.getByLabelText('Compatibility'), { target: { value: 'compatible' } });
+    fireEvent.change(screen.getByLabelText('Tag'), { target: { value: 'armada' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
 
     await waitFor(() => expect(loadProjects).toHaveBeenLastCalledWith(expect.objectContaining({
       page: 1,
       search: 'air power',
+      tag: 'armada',
       compatibility: 'compatible',
     })));
+  });
+
+  it('opens a published project as an independent copy', async () => {
+    const openProjectCopy = vi.fn().mockResolvedValue({ id: 'project-one', title: 'Armada frontline pass', document: { version: '1.9' } });
+    const onOpenCopy = vi.fn();
+    render(
+      <CommunityGalleryPage
+        onBack={vi.fn()}
+        onOpenCopy={onOpenCopy}
+        loadProjects={vi.fn().mockResolvedValue({ projects, total: 1, configured: true })}
+        openProjectCopy={openProjectCopy}
+      />
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Open as copy' }));
+    await waitFor(() => expect(onOpenCopy).toHaveBeenCalledWith({ version: '1.9' }, 'Armada frontline pass'));
   });
 
   it('explains when Supabase has not been configured', async () => {

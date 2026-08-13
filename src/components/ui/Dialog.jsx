@@ -19,6 +19,7 @@ export function Dialog({
   overlayClassName,
   labelledBy,
   describedBy,
+  role = 'dialog',
   initialFocusRef,
   closeOnBackdrop = true
 }) {
@@ -77,7 +78,7 @@ export function Dialog({
       <section
         ref={dialogRef}
         className={cx('ui-dialog', className)}
-        role="dialog"
+        role={role}
         aria-modal="true"
         aria-labelledby={labelledBy}
         aria-describedby={describedBy}

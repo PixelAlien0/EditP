@@ -48,6 +48,7 @@ import {
 } from './project/unitCollections.js';
 import { applyWeaponBlueprintToSlot } from './utils/weaponBlueprint.js';
 import { applyWeaponClusterRecipe, WEAPON_CLUSTER_RECIPES } from './utils/weaponClusterRecipes.js';
+import { normalizeProjectDocumentWithReport } from './project/projectDocument.js';
 
 // Publish the experimental Weapon Laboratory workspace and its Tools entry.
 const WEAPON_LAB_ENABLED = true;
@@ -1476,7 +1477,21 @@ export default function App() {
         </Suspense>
       ) : activeWorkspace === 'community' ? (
         <Suspense fallback={<main className="community-gallery-page workspace-loading"><span>Preparing Community Gallery…</span></main>}>
-          <LazyCommunityGalleryPage onBack={() => setActiveWorkspace('edit')} />
+          <LazyCommunityGalleryPage
+            currentProject={normalizedProjectDocument}
+            currentSnapshot={gameDataSnapshot}
+            onOpenCopy={(communityDocument, communityTitle) => {
+              const prepared = normalizeProjectDocumentWithReport(communityDocument);
+              hydrateProjectStore({
+                ...prepared.document,
+                projectName: `${communityTitle || prepared.document.projectName} (Community Copy)`,
+              });
+              setActiveWorkspace('edit');
+              showToast('Opened an independent community project copy.');
+            }}
+            onNotice={showToast}
+            onBack={() => setActiveWorkspace('edit')}
+          />
         </Suspense>
       ) : activeWorkspace === 'review' ? (
         <Suspense fallback={<main className="review-workspace workspace-loading"><span>Preparing project review…</span></main>}>

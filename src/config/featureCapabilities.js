@@ -65,6 +65,12 @@ export const CAPABILITY_DEFINITIONS = Object.freeze({
     tone: 'neutral',
     description: 'Provides validated lookup information without changing the project.',
   }),
+  'account-publishing': Object.freeze({
+    label: 'Account publishing',
+    shortLabel: 'Account',
+    tone: 'info',
+    description: 'Anyone can browse; publishing, reporting, and owner deletion require a signed-in community account.',
+  }),
   'validated-export': Object.freeze({
     label: 'Preflight checked',
     shortLabel: 'Preflight',
@@ -104,7 +110,7 @@ export const FEATURE_CAPABILITIES = Object.freeze({
   'tool.tweak-package-lab': Object.freeze(['static-analysis']),
   'tool.weapondef-library': Object.freeze(['editor-generated', 'validated-export']),
   'tool.reference-library': Object.freeze(['read-only']),
-  'tool.community-gallery': Object.freeze(['read-only']),
+  'tool.community-gallery': Object.freeze(['account-publishing']),
 });
 
 export function getCapabilityDefinition(capabilityId) {
