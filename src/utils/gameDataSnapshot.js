@@ -1,4 +1,5 @@
-const SUPPORTED_SNAPSHOT_SCHEMA = 1;
+import { GAME_DATA_SNAPSHOT_SCHEMA_VERSION } from '../config/gameDataSchema.js';
+
 const COMMIT_PATTERN = /^[a-f0-9]{40}$/i;
 
 function normalizedKeys(value) {
@@ -41,7 +42,7 @@ export function validateCoreGameDataSnapshot({
   const canonicalIds = normalizedKeys(unitsDb?.names);
   const canonicalSet = new Set(canonicalIds);
 
-  if (schemaVersion !== SUPPORTED_SNAPSHOT_SCHEMA) {
+  if (schemaVersion !== GAME_DATA_SNAPSHOT_SCHEMA_VERSION) {
     issues.push(`Snapshot schema ${schemaVersion ?? 'unknown'} is not supported.`);
   }
   if (!COMMIT_PATTERN.test(sourceCommit)) {

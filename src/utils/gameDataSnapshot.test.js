@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { GAME_DATA_SNAPSHOT_SCHEMA_VERSION } from '../config/gameDataSchema.js';
+import gameDataManifest from '../data/game-data-manifest.json';
 import { formatSnapshotError, validateCoreGameDataSnapshot } from './gameDataSnapshot.js';
 
 const COMMIT = 'e34440077024d3b122b89d07a314a2df7b1b181d';
@@ -6,7 +8,7 @@ const COMMIT = 'e34440077024d3b122b89d07a314a2df7b1b181d';
 function createFixture(overrides = {}) {
   return {
     manifest: {
-      schemaVersion: 1,
+      schemaVersion: GAME_DATA_SNAPSHOT_SCHEMA_VERSION,
       snapshotId: `bar-${COMMIT.slice(0, 12)}`,
       sourceCommit: COMMIT,
       counts: {
@@ -41,6 +43,27 @@ describe('game-data snapshot runtime validation', () => {
     expect(result.isValid).toBe(true);
     expect(result.snapshotId).toBe('bar-e34440077024');
     expect(result.issues).toEqual([]);
+  });
+
+  it('accepts the schema emitted by the current snapshot generator', () => {
+    expect(gameDataManifest.schemaVersion).toBe(GAME_DATA_SNAPSHOT_SCHEMA_VERSION);
+    const result = validateCoreGameDataSnapshot(createFixture({
+      manifest: {
+        ...createFixture().manifest,
+        schemaVersion: gameDataManifest.schemaVersion,
+      },
+    }));
+    expect(result.isValid).toBe(true);
+  });
+
+  it('rejects genuinely unsupported snapshot schemas', () => {
+    const fixture = createFixture();
+    fixture.manifest.schemaVersion = GAME_DATA_SNAPSHOT_SCHEMA_VERSION + 1;
+    const result = validateCoreGameDataSnapshot(fixture);
+    expect(result.isValid).toBe(false);
+    expect(result.issues).toContain(
+      `Snapshot schema ${GAME_DATA_SNAPSHOT_SCHEMA_VERSION + 1} is not supported.`
+    );
   });
 
   it('rejects mixed commits and missing catalog entries', () => {

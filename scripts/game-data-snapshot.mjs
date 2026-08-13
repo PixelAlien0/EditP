@@ -1,12 +1,13 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { GAME_DATA_SNAPSHOT_SCHEMA_VERSION } from '../src/config/gameDataSchema.js';
 
 export const ROOT = path.resolve(import.meta.dirname, '..');
 export const DATA_DIRECTORY = path.join(ROOT, 'src', 'data');
 export const GAME_DATA_MANIFEST_PATH = path.join(DATA_DIRECTORY, 'game-data-manifest.json');
 export const SOURCE_REPOSITORY = 'beyond-all-reason/Beyond-All-Reason';
-export const SNAPSHOT_SCHEMA_VERSION = 2;
+export const SNAPSHOT_SCHEMA_VERSION = GAME_DATA_SNAPSHOT_SCHEMA_VERSION;
 
 export const SNAPSHOT_PATHS = Object.freeze({
   units: path.join(DATA_DIRECTORY, 'units.json'),
