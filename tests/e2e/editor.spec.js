@@ -1466,11 +1466,12 @@ test('unit and death-explosion parameters compile to their correct lobby outputs
   await page.locator('[data-param-key="selfdestructcountdown"] input').fill('8');
 
   await page.getByRole('tab', { name: /Changes/i }).click();
-  await page.getByRole('button', { name: 'Defs Lua' }).click();
+  await page.getByRole('tab', { name: 'tweakdefs1' }).click();
+  await page.getByRole('tab', { name: 'Lua', exact: true }).click();
   await expect(page.locator('.code-box').first()).toContainText('editp_death_profile("armfus"');
-  await expect(page.locator('.code-box').first()).toContainText('damage =4000');
+  await expect(page.locator('.code-box').first()).toContainText('damage=4000');
 
-  await page.getByRole('button', { name: 'Units Lua' }).click();
+  await page.getByRole('tab', { name: 'tweakunits1' }).click();
   await expect(page.locator('.code-box').first()).toContainText('selfDestructCountdown');
   await expect(page.locator('.code-box').first()).toContainText('8');
 });

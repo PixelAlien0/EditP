@@ -367,10 +367,88 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.compiled-package-status {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-subtle);
+}
+
+.compiled-package-status > div {
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 2px var(--space-2);
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.compiled-package-status > div:last-child { border-right: 0; }
+.compiled-package-status span,
+.compiled-package-status small {
+  color: var(--color-text-muted);
+  font: 650 8px/var(--line-height-ui) var(--font-mono);
+  text-transform: uppercase;
+}
+.compiled-package-status strong {
+  color: var(--color-text-strong);
+  font: 650 12px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.compiled-package-status small { grid-column: 2; }
+.compiled-package-status.is-blocked strong { color: var(--color-danger); }
+
+.compiled-slot-navigator {
+  padding: var(--space-2) var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.compiled-slot-lane {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.compiled-slot-lane > span {
+  color: var(--color-text-muted);
+  font: 650 8px/var(--line-height-ui) var(--font-mono);
+  text-transform: uppercase;
+}
+
+.compiled-slot-lane > div {
+  min-width: 0;
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.compiled-slot-lane button {
+  min-height: 30px;
+  padding: 0 var(--space-2);
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font: 650 8px/1 var(--font-mono);
+}
+
+.compiled-slot-lane button:hover { border-color: var(--color-border-strong); color: var(--color-text-strong); }
+.compiled-slot-lane button.active { border-color: var(--color-accent); background: var(--color-accent-muted); color: var(--color-text-strong); }
+.compiled-slot-lane button:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+
 .compiled-output-tabs {
   min-height: 40px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface-subtle);
 }
@@ -419,6 +497,13 @@
 
 .compiled-output-section .copy-output-button {
   min-height: 30px;
+}
+
+.compiled-output-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
 }
 
 .compiled-output-section .code-box {

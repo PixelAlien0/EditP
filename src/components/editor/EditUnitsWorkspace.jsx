@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { getFactionOfUnit } from '../../utils/categories.js';
 import {
   getApplicableUnitParameters,
@@ -58,7 +58,6 @@ export default function EditUnitsWorkspace({ context }) {
     activeCollectionId,
     activeCollectionModifiedCount,
     activeCollectionUnits,
-    activeOutputTab,
     activeParamTab,
     activeRelationshipKey,
     activeWeaponSlotTab,
@@ -66,12 +65,11 @@ export default function EditUnitsWorkspace({ context }) {
     buildMenuSteps,
     clearUnitFilters,
     clones,
+    compiledLobbyModules,
     comparisonMode,
     defaultsDb,
     disabledUnitIds,
     filteredUnits,
-    generatedTweakDefsLua,
-    generatedTweakUnitsLua,
     getEffectiveTechTier,
     getInheritedCloneWeaponSwaps,
     getProjectUnitIconUrl,
@@ -109,7 +107,6 @@ export default function EditUnitsWorkspace({ context }) {
     selectedUnitOverrideEntries,
     selectInspectorParameter,
     setActiveCollectionId,
-    setActiveOutputTab,
     setActiveParamTab,
     setActiveRelationshipKey,
     setActiveSummaryTab,
@@ -142,15 +139,29 @@ export default function EditUnitsWorkspace({ context }) {
     showModifiedOnly,
     showToast,
     totalBytesUsed,
-    tweakDefsB64,
     tweaks,
-    tweakUnitsB64,
     unitCollections,
     unitDescriptions,
     unitsDb,
     updateSelectedUnitDescription,
     workspaceLayout,
   } = context;
+  const [selectedCompiledField, setSelectedCompiledField] = useState('');
+  const [compiledOutputView, setCompiledOutputView] = useState('command');
+  const compiledOutputSlots = compiledLobbyModules?.slots || [];
+  const selectedCompiledSlot = compiledOutputSlots.find(slot => slot.fieldName === selectedCompiledField)
+    || compiledOutputSlots[0]
+    || null;
+  const selectedCompiledValue = selectedCompiledSlot
+    ? compiledOutputView === 'lua'
+      ? selectedCompiledSlot.lua
+      : compiledOutputView === 'base64'
+        ? selectedCompiledSlot.encoded
+        : selectedCompiledSlot.command
+    : '';
+  const compiledOutputFallback = compiledLobbyModules?.overflow
+    ? 'Modern lobby compilation is blocked. Resolve the slot or byte-budget overflow in Review & Export.'
+    : 'No numbered lobby fields are currently generated.';
   const activeUnitFilterCount = (
     (searchQuery.trim() ? 1 : 0)
     + (selectedFaction !== 'all' ? 1 : 0)
@@ -1992,92 +2003,99 @@ export default function EditUnitsWorkspace({ context }) {
                   </div>
                 </section>
 
-                {/* Tabs Row for Code outputs */}
                 <section className="compiled-output-section">
                   <header className="inspector-changes-section__heading compiled-output-heading">
-                    <span>Compiler output</span>
-                    <h3>Generated source</h3>
-                    <p>Inspect the active Lua or encoded lobby payload.</p>
+                    <span>Modern compiler output</span>
+                    <h3>Numbered lobby package</h3>
+                    <p>Inspect the exact deterministic fields delivered to BAR.</p>
                   </header>
-                  <div className="compiled-output-tabs" role="tablist" aria-label="Generated output format">
-                    {['tweakdefs_lua', 'tweakunits_lua', 'tweakdefs_b64', 'tweakunits_b64'].map(tab => {
-                      const isActive = activeOutputTab === tab;
-                      const label = tab === 'tweakdefs_lua' ? 'Defs Lua' : tab === 'tweakunits_lua' ? 'Units Lua' : tab === 'tweakdefs_b64' ? 'B64 Defs' : 'B64 Units';
-                      return (
-                        <button
-                          type="button"
-                          role="tab"
-                          id={`compiled-output-tab-${tab}`}
-                          aria-controls="compiled-output-view"
-                          aria-selected={isActive}
-                          key={tab}
-                          className={`compiled-output-tab ${isActive ? 'active' : ''}`}
-                          onClick={() => setActiveOutputTab(tab)}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
+                  <div className={`compiled-package-status ${compiledLobbyModules?.overflow ? 'is-blocked' : ''}`}>
+                    <div><span>Definitions</span><strong>{compiledLobbyModules?.defs?.required || 0} / {compiledLobbyModules?.defs?.maximum || 9}</strong></div>
+                    <div><span>Units</span><strong>{compiledLobbyModules?.units?.required || 0} / {compiledLobbyModules?.units?.maximum || 9}</strong></div>
+                    <div><span>Payload</span><strong>{(compiledLobbyModules?.aggregateBytes || 0).toLocaleString()}</strong><small>chars</small></div>
                   </div>
-
-                  {/* Dynamic Code Viewer Card */}
-                  {(() => {
-                    let codeVal = '';
-                    let isLua = false;
-                    let fallbackMsg = '';
-
-                    if (activeOutputTab === 'tweakdefs_lua') {
-                      codeVal = generatedTweakDefsLua;
-                      isLua = true;
-                      fallbackMsg = '-- No clone or custom builder definitions compile.';
-                    } else if (activeOutputTab === 'tweakunits_lua') {
-                      codeVal = generatedTweakUnitsLua;
-                      isLua = true;
-                      fallbackMsg = '{\n}';
-                    } else if (activeOutputTab === 'tweakdefs_b64') {
-                      codeVal = tweakDefsB64;
-                      fallbackMsg = 'No clones/disabled definitions base64 generated.';
-                    } else if (activeOutputTab === 'tweakunits_b64') {
-                      codeVal = tweakUnitsB64;
-                      fallbackMsg = 'No parameter tweaks base64 generated.';
-                    }
-
-                    return (
-                      <div
-                        id="compiled-output-view"
-                        className="code-block-wrapper compiled-code-wrapper"
-                        role="tabpanel"
-                        aria-labelledby={`compiled-output-tab-${activeOutputTab}`}
-                      >
-                        <div className="code-block-header">
-                          <span className="code-block-title">
-                            {activeOutputTab.includes('lua') ? 'Lua Source Code' : 'Encoded Base64'}
-                          </span>
-                          <Button
-                            size="sm"
-                            variant="quiet"
-                            className="copy-output-button"
-                            onClick={() => {
-                              const valueToCopy = codeVal || fallbackMsg;
-                              navigator.clipboard.writeText(valueToCopy);
-                              showToast('Copied current output.');
-                            }}
-                          >
-                            Copy current view
-                          </Button>
-                        </div>
-                        {isLua ? (
-                          <pre className="code-box lua">
-                            {codeVal || fallbackMsg}
-                          </pre>
-                        ) : (
-                          <div className="code-box code-box--encoded">
-                            {codeVal || fallbackMsg}
+                  {compiledOutputSlots.length > 0 && (
+                    <div className="compiled-slot-navigator">
+                      {['defs', 'units'].map(kind => {
+                        const laneSlots = compiledOutputSlots.filter(slot => slot.kind === kind);
+                        if (laneSlots.length === 0) return null;
+                        return (
+                          <div className="compiled-slot-lane" key={kind}>
+                            <span>{kind === 'defs' ? 'Definitions' : 'Units'}</span>
+                            <div role="tablist" aria-label={`${kind === 'defs' ? 'Definitions' : 'Units'} lobby fields`}>
+                              {laneSlots.map(slot => (
+                                <button
+                                  type="button"
+                                  role="tab"
+                                  aria-selected={selectedCompiledSlot?.fieldName === slot.fieldName}
+                                  key={slot.fieldName}
+                                  className={selectedCompiledSlot?.fieldName === slot.fieldName ? 'active' : ''}
+                                  onClick={() => setSelectedCompiledField(slot.fieldName)}
+                                >
+                                  {slot.fieldName}
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        )}
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="compiled-output-tabs" role="tablist" aria-label="Selected lobby field format">
+                    {[
+                      ['command', 'Command'],
+                      ['lua', 'Lua'],
+                      ['base64', 'Base64'],
+                    ].map(([view, label]) => (
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={compiledOutputView === view}
+                        key={view}
+                        className={`compiled-output-tab ${compiledOutputView === view ? 'active' : ''}`}
+                        onClick={() => setCompiledOutputView(view)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <div id="compiled-output-view" className="code-block-wrapper compiled-code-wrapper" role="tabpanel">
+                    <div className="code-block-header">
+                      <span className="code-block-title">
+                        {selectedCompiledSlot
+                          ? `${selectedCompiledSlot.fieldName} · ${selectedCompiledSlot.encodedBytes.toLocaleString()} chars · ${selectedCompiledSlot.compatibility}`
+                          : 'No generated fields'}
+                      </span>
+                      <div className="compiled-output-actions">
+                        <Button
+                          size="sm"
+                          variant="quiet"
+                          className="copy-output-button"
+                          disabled={!selectedCompiledValue}
+                          onClick={() => {
+                            navigator.clipboard.writeText(selectedCompiledValue);
+                            showToast(`${selectedCompiledSlot?.fieldName || 'Current output'} copied.`);
+                          }}
+                        >
+                          Copy current
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="quiet"
+                          disabled={!compiledOutputSlots.length || compiledLobbyModules?.overflow}
+                          onClick={() => {
+                            navigator.clipboard.writeText(compiledOutputSlots.map(slot => slot.command).join('\n'));
+                            showToast('All numbered lobby commands copied.');
+                          }}
+                        >
+                          Copy all commands
+                        </Button>
                       </div>
-                    );
-                  })()}
+                    </div>
+                    <pre className={`code-box ${compiledOutputView === 'base64' ? 'code-box--encoded' : 'lua'}`}>
+                      {selectedCompiledValue || compiledOutputFallback}
+                    </pre>
+                  </div>
                 </section>
 
                 {/* Base64 toggles & Budget limit indicators at bottom */}
