@@ -26,7 +26,7 @@ async function readPrimaryActionPalette(locator) {
 
 test('main workflow remains keyboard accessible', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.getByRole('navigation', { name: 'Editor workflow' })).toBeVisible();
   await page.getByRole('button', { name: /Build Menus/i }).click();
   await expect(page.getByText('Factory Roster Designer', { exact: true }).first()).toBeVisible();
@@ -43,7 +43,7 @@ test('main workflow remains keyboard accessible', async ({ page }) => {
 
 test('export optimization profiles expose their active compiler policy', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /Review & Export/i }).click();
   await page.locator('.export-console-config > summary').filter({ hasText: 'Package identity' }).click();
 
@@ -124,7 +124,7 @@ test('main menu fits standard desktop viewports without nested scrolling', async
 
 test('build-picture browser distinguishes normal and Scavenger artwork namespaces', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.locator('.unit-item').first()).toBeVisible();
   await page.getByPlaceholder(/Search unit name/i).fill('Arquebus');
   await page.locator('.unit-item').filter({ has: page.getByText('Arquebus', { exact: true }) }).click();
@@ -149,7 +149,7 @@ test('build-picture browser distinguishes normal and Scavenger artwork namespace
 
 test('tactical icon browser previews and applies official BAR icon types', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.locator('.unit-item').first()).toBeVisible();
   await page.getByPlaceholder(/Search unit name/i).fill('Abductor');
   await page.locator('.unit-item').filter({ has: page.getByText('Abductor', { exact: true }) }).click();
@@ -174,7 +174,7 @@ test('tactical icon browser previews and applies official BAR icon types', async
 
 test('build menu producer catalog separates factories and builders', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /Build Menus/i }).click();
 
   const catalog = page.locator('.designer-factory-browser');
@@ -229,7 +229,7 @@ test('build menu producer catalog separates factories and builders', async ({ pa
 test('build menu keeps its production heading and placement guide readable at 1180px', async ({ page }) => {
   await page.setViewportSize({ width: 1180, height: 1080 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /Build Menus/i }).click();
 
   const content = page.locator('.designer-modal-content');
@@ -256,7 +256,7 @@ test('build menu keeps its production heading and placement guide readable at 11
 
 test('behavior and interceptor editor links unit policy, projectile masks, and coverage', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('tab', { name: /Weapons/ }).click();
 
   const editor = page.getByRole('region', { name: 'Behaviour & Interception' });
@@ -293,7 +293,7 @@ test('behavior and interceptor editor links unit policy, projectile masks, and c
 
 test('BAR Reference Library unifies definitions, assets, reverse usage, and editor navigation', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /^Tools/ }).click();
   await page.getByRole('menuitem', { name: 'BAR Reference Library' }).click();
 
@@ -331,7 +331,7 @@ test('BAR Reference Library unifies definitions, assets, reverse usage, and edit
 test('editor header stays grouped and usable across supported desktop widths', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   for (const width of [1920, 1440, 1180, 1024]) {
     await page.setViewportSize({ width, height: 900 });
@@ -384,7 +384,7 @@ test('tools menu visual baseline: grouped dark workbench', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.addInitScript(() => localStorage.setItem('bmf_theme', 'dark'));
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /^Tools/ }).click();
   const menu = page.getByRole('menu', { name: 'Editor tools' });
   await expect(menu).toBeVisible();
@@ -393,7 +393,7 @@ test('tools menu visual baseline: grouped dark workbench', async ({ page }) => {
 
 test('Tweak Package Lab imports inert modules and exposes numbered slots', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /^Tools/ }).click();
   await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
   await expect(page.getByRole('heading', { name: 'Tweak Package Lab' })).toBeVisible();
@@ -430,7 +430,7 @@ test('Tweak Package Lab imports inert modules and exposes numbered slots', async
 
 test('Tweak Package Lab previews and imports a full lobby setup bundle', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /^Tools/ }).click();
   await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
 
@@ -469,7 +469,7 @@ test('Tweak Package Lab previews and imports a full lobby setup bundle', async (
 
 test('Tweak Package Lab preflights value types and safely reorders dependencies', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /^Tools/ }).click();
   await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
 
@@ -489,7 +489,7 @@ test('Tweak Package Lab preflights value types and safely reorders dependencies'
 
 test('Tweak Package Lab preserves auxiliary WeaponDefs in the project library and export', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /^Tools/ }).click();
   await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
 
@@ -532,7 +532,7 @@ test('Tweak Package Lab preserves auxiliary WeaponDefs in the project library an
 
 test('Tweak Package Lab converts literal unit tables into editable project state', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /^Tools/ }).click();
   await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
   await page.getByRole('textbox', { name: 'Tweak package input' }).fill(`
@@ -569,7 +569,7 @@ test('Tweak Package Lab converts literal unit tables into editable project state
 
 test('compatibility preflight blocks definite Lua failures while preserving repair navigation', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /^Tools/ }).click();
   await page.getByRole('menuitem', { name: 'Tweak Package Lab' }).click();
 
@@ -596,7 +596,7 @@ test('main menu, editor, collections, and export have no serious accessibility v
   let results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
   expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
 
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.getByRole('navigation', { name: 'Editor workflow' })).toBeVisible();
   results = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
   expect(results.violations.filter(violation => ['serious', 'critical'].includes(violation.impact))).toEqual([]);
@@ -614,7 +614,7 @@ test('main menu, editor, collections, and export have no serious accessibility v
 
 test('unit parameter relevance preserves edits and distinguishes inherited booleans', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.locator('#workspace-panel-structure')).toBeVisible();
 
   const view = page.getByRole('group', { name: 'Choose visible unit parameters' });
@@ -642,7 +642,7 @@ test('unit parameter relevance preserves edits and distinguishes inherited boole
 test('wide parameter groups flow independently without paired-row gaps', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.locator('#workspace-panel-structure')).toBeVisible();
 
   const positions = await page.locator('#workspace-panel-structure .parameter-compact-group').evaluateAll(nodes => (
@@ -662,7 +662,7 @@ test('wide parameter groups flow independently without paired-row gaps', async (
 
 test('advanced unit fields and custom parameters compile into tweakunits', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const view = page.getByRole('group', { name: 'Choose visible unit parameters' });
   await view.getByRole('button', { name: 'All' }).click();
@@ -691,7 +691,7 @@ test('advanced unit fields and custom parameters compile into tweakunits', async
 
 test('carrier parameters inherit from BAR and compile inside the selected WeaponDef customparams', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByPlaceholder(/Search unit name/i).fill('armdronecarry');
   await page.locator('.unit-item').filter({ hasText: 'armdronecarry' }).first().click();
   await page.getByRole('tab', { name: /Weapons/ }).click();
@@ -713,7 +713,7 @@ test('carrier parameters inherit from BAR and compile inside the selected Weapon
 
 test('carrier workbench and Weapon workspace share one per-slot carrier configuration', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByPlaceholder(/Search unit name/i).fill('armdronecarry');
   await page.locator('.unit-item').filter({ hasText: 'armdronecarry' }).first().click();
 
@@ -802,7 +802,7 @@ test('carrier workbench and Weapon workspace share one per-slot carrier configur
 test('parameter card hover keeps the entire section geometry stable', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const panel = page.locator('#workspace-panel-structure');
   const cards = panel.locator('.stat-card');
@@ -863,7 +863,7 @@ test('primary actions use restrained accent surfaces instead of solid pink fills
   await page.addInitScript(() => localStorage.setItem('bmf_theme', 'dark'));
   await waitForMainMenu(page);
 
-  const enterAction = page.getByRole('button', { name: /Enter workshop|Continue workshop/i });
+  const enterAction = page.getByRole('button', { name: /Open editor|Continue editing/i });
   let palette = await readPrimaryActionPalette(enterAction);
   expect(palette.background).toBe(palette.subtle);
   expect(palette.background).not.toBe(palette.accent);
@@ -882,7 +882,7 @@ test('primary actions use restrained accent surfaces instead of solid pink fills
 
 test('project edits recover after reload', async ({ page }) => {
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   const metalCard = page.locator('.stat-card').filter({ hasText: 'METAL COST' }).first();
   const metalInput = metalCard.locator('input').first();
   await expect(metalInput).toBeVisible();
@@ -891,7 +891,7 @@ test('project edits recover after reload', async ({ page }) => {
 
   await page.reload();
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.locator('.stat-card').filter({ hasText: 'METAL COST' }).first().locator('input').first()).toHaveValue('4321');
 });
 
@@ -901,7 +901,7 @@ test('legacy projects migrate once without duplicate local-storage writes', asyn
     localStorage.setItem('bmf_project_name', 'Migrated project');
   });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const metalInput = page.locator('.stat-card').filter({ hasText: 'METAL COST' }).first().locator('input').first();
   await expect(metalInput).toHaveValue('2468');
@@ -913,14 +913,14 @@ test('legacy projects migrate once without duplicate local-storage writes', asyn
 
   await page.reload();
   await expect(page.getByRole('heading', { name: /Bar EditP/i })).toBeVisible({ timeout: 30_000 });
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.locator('.stat-card').filter({ hasText: 'METAL COST' }).first().locator('input').first()).toHaveValue('3579');
 });
 
 test('clone creator stays centered above the workspace', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.getByRole('navigation', { name: 'Editor workflow' })).toBeVisible();
   await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
 
@@ -951,7 +951,7 @@ test('clone creator stays centered above the workspace', async ({ page }) => {
 test('editor workbench panes resize, collapse, and persist', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await expect(page.locator('.editor-shell')).toBeVisible();
 
   const library = page.getByRole('complementary', { name: 'Unit library' });
@@ -990,7 +990,7 @@ test('editor workbench panes resize, collapse, and persist', async ({ page }) =>
 test('Edit Units keeps one stable viewport-height parameter scroller', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 720 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('group', { name: 'Choose visible unit parameters' }).getByRole('button', { name: 'All' }).click();
 
   const shell = page.locator('.editor-shell');
@@ -1051,7 +1051,7 @@ test('narrow workbench uses temporary overlay panes without overwriting desktop 
     collapsedGroups: {},
   })));
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const library = page.getByRole('complementary', { name: 'Unit library' });
   await expect(library).toHaveClass(/is-collapsed/);
@@ -1070,7 +1070,7 @@ test('narrow workbench uses temporary overlay panes without overwriting desktop 
 test('selected unit header reflows within a narrow editor canvas', async ({ page }) => {
   await page.setViewportSize({ width: 800, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const header = page.locator('.editor-unit-header');
   const identity = header.locator('.editor-unit-identity');
@@ -1109,7 +1109,7 @@ test('selected unit header reflows within a narrow editor canvas', async ({ page
 test('selected unit actions keep an even vertical inset in the desktop header', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const inset = await page.locator('.editor-unit-header').evaluate(header => {
     const headerBounds = header.getBoundingClientRect();
@@ -1127,7 +1127,7 @@ test('selected unit actions keep an even vertical inset in the desktop header', 
 test('parameter tabs keep the selected state inset from the editor section edge', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const tabList = page.getByRole('tablist', { name: 'Editor parameter sections' });
   const activeTab = tabList.getByRole('tab', { selected: true });
@@ -1152,7 +1152,7 @@ test('operational overview uses telemetry modules without the legacy trajectory 
   await page.setViewportSize({ width: 1920, height: 900 });
   await page.addInitScript(() => localStorage.setItem('bmf_theme', 'dark'));
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const overview = page.getByRole('region', { name: 'Operational overview' });
   await expect(overview).toBeVisible();
@@ -1193,7 +1193,7 @@ test('operational overview uses telemetry modules without the legacy trajectory 
 test('nested unit collections persist and scope expert workflows', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1000 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   const workflow = page.getByRole('navigation', { name: 'Editor workflow' });
   await workflow.getByRole('button', { name: /Collections/ }).click();
 
@@ -1242,7 +1242,7 @@ test('nested unit collections persist and scope expert workflows', async ({ page
   await page.waitForTimeout(1200);
   await page.reload();
   await expect(page.getByRole('heading', { name: /Bar EditP/i })).toBeVisible();
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('navigation', { name: 'Editor workflow' }).getByRole('button', { name: /Collections/ }).click();
   const restoredCollections = page.getByRole('region', { name: 'Collections' });
   await expect(restoredCollections.getByText('Air Ops', { exact: true })).toBeVisible();
@@ -1253,7 +1253,7 @@ test('nested unit collections persist and scope expert workflows', async ({ page
 test('custom units inherit their base artwork in collections', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   const workflow = page.getByRole('navigation', { name: 'Editor workflow' });
   await workflow.getByRole('button', { name: /Collections/ }).click();
   const collections = page.getByRole('region', { name: 'Collections' });
@@ -1282,7 +1282,7 @@ test('custom units inherit their base artwork in collections', async ({ page }) 
 test('borrow weapon dialog exposes the themed donor and comparison workflow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
   const cloneDialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
@@ -1321,7 +1321,7 @@ test('borrow weapon dialog exposes the themed donor and comparison workflow', as
 test('clone identity remains editable and nested clones keep the selected clone as parent', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
   let dialog = page.getByRole('dialog', { name: 'Clone Unit Creator' });
@@ -1347,7 +1347,7 @@ test('clone identity remains editable and nested clones keep the selected clone 
 test('a clone workflow is committed as one undoable project transaction', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const cloneId = 'armdfly_atomic_history_test';
   await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
@@ -1372,7 +1372,7 @@ test('a clone workflow is committed as one undoable project transaction', async 
 test('deleting a parent clone preserves a nested clone weapon chassis', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   const workflow = page.getByRole('navigation', { name: 'Editor workflow' });
 
   await page.getByRole('button', { name: /Create a clone of the selected unit/i }).click();
@@ -1405,7 +1405,7 @@ test('deleting a parent clone preserves a nested clone weapon chassis', async ({
 test('cloning preserves economy, durability, and explosion edits in their required lobby outputs', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
 
   const parameterView = page.getByRole('group', { name: 'Choose visible unit parameters' });
   await parameterView.getByRole('button', { name: 'All' }).click();
@@ -1452,7 +1452,7 @@ test('cloning preserves economy, durability, and explosion edits in their requir
 test('unit and death-explosion parameters compile to their correct lobby outputs', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByPlaceholder(/Search unit name/i).fill('armfus');
   await page.locator('.unit-item').filter({ hasText: 'armfus' }).first().click();
   await page.getByRole('group', { name: 'Choose visible unit parameters' }).getByRole('button', { name: 'All' }).click();
@@ -1478,7 +1478,7 @@ test('unit and death-explosion parameters compile to their correct lobby outputs
 test('all-parameter view exposes effective Recoil defaults without creating overrides', async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByPlaceholder(/Search unit name/i).fill('armfus');
   await page.locator('.unit-item').filter({ hasText: 'armfus' }).first().click();
   await page.getByRole('group', { name: 'Choose visible unit parameters' }).getByRole('button', { name: 'All' }).click();
@@ -1499,7 +1499,7 @@ async function openEditorVisualState(page, { theme, width, unitId, tab = 'struct
   await page.setViewportSize({ width, height: 1080 });
   await page.addInitScript(selectedTheme => localStorage.setItem('bmf_theme', selectedTheme), theme);
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   if (unitId && unitId !== 'armdfly') {
     await page.getByPlaceholder(/Search unit name/i).fill(unitId);
     await page.locator('.unit-item').filter({ hasText: unitId }).first().click();
@@ -1575,7 +1575,7 @@ async function openBuildMenuVisualState(page, { theme, width }) {
   await page.setViewportSize({ width, height: 1080 });
   await page.addInitScript(selectedTheme => localStorage.setItem('bmf_theme', selectedTheme), theme);
   await waitForMainMenu(page);
-  await page.getByRole('button', { name: /Enter workshop|Continue workshop/i }).click();
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
   await page.getByRole('button', { name: /Build Menus/i }).click();
   await expect(page.getByText('Factory Roster Designer', { exact: true }).first()).toBeVisible();
   await expect(page.locator('.designer-roster-canvas')).toBeVisible();

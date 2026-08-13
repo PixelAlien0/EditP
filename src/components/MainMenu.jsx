@@ -43,27 +43,27 @@ export default function MainMenu({
   const currentProjectName = projectName?.trim() || 'Untitled BAR project';
   const workspaces = [
     {
-      id: 'edit', number: '01', eyebrow: 'Core workspace', title: 'Edit units',
-      description: 'Tune definitions, weapons, behavior, assets, and clone identity.',
-      meta: hasWork ? `${projectChangeCount} tracked changes` : 'Start here', capabilityId: 'workspace.edit', primary: true, onSelect: onEditUnits,
+      id: 'edit', number: '01', eyebrow: 'Editor', title: 'Edit units',
+      description: 'Unit stats, weapons, behavior, assets, and clones.',
+      meta: hasWork ? `${projectChangeCount} changes` : 'No changes', capabilityId: 'workspace.edit', primary: true, onSelect: onEditUnits,
     },
     {
       id: 'build', number: '02', eyebrow: 'Production', title: 'Build menus',
-      description: 'Compose factory rosters and place custom units into production.',
-      meta: rosterCount ? `${rosterCount} roster changes` : 'Roster designer', capabilityId: 'workspace.build-menus', onSelect: onBuildMenus,
+      description: 'Factory and builder production rosters.',
+      meta: rosterCount ? `${rosterCount} roster changes` : 'No roster changes', capabilityId: 'workspace.build-menus', onSelect: onBuildMenus,
     },
     {
-      id: 'review', number: '03', eyebrow: 'Delivery', title: 'Review & export',
-      description: 'Run compatibility preflight and prepare numbered lobby commands.',
-      meta: hasWork ? 'Preflight project' : 'Inspect output', capabilityId: 'workspace.review', onSelect: onReviewExport,
+      id: 'review', number: '03', eyebrow: 'Output', title: 'Review & export',
+      description: 'Validation, Lua output, and lobby commands.',
+      meta: hasWork ? 'Ready for review' : 'No changes to export', capabilityId: 'workspace.review', onSelect: onReviewExport,
     },
   ];
   const tools = [
-    { id: 'collections', code: 'COL', title: 'Collections', description: 'Organize reusable unit scopes.', capabilityId: 'workspace.collections', onSelect: onCollections },
-    { id: 'presets', code: 'PRE', title: 'Preset Gallery', description: 'Save and apply project snapshots.', capabilityId: 'tool.preset-gallery', onSelect: onPresetGallery },
-    { id: 'tweak-lab', code: 'LAB', title: 'Tweak Package Lab', description: 'Inspect community Lua safely.', capabilityId: 'tool.tweak-package-lab', onSelect: onTweakLab },
-    { id: 'weapondefs', code: 'WDF', title: 'WeaponDef Library', description: 'Build supporting weapon definitions.', capabilityId: 'tool.weapondef-library', onSelect: onWeaponDefLibrary },
-    { id: 'reference', code: 'REF', title: 'BAR Reference Library', description: 'Search definitions and assets.', capabilityId: 'tool.reference-library', onSelect: onReferenceLibrary },
+    { id: 'collections', code: 'COL', title: 'Collections', description: 'Reusable unit sets', capabilityId: 'workspace.collections', onSelect: onCollections },
+    { id: 'presets', code: 'PRE', title: 'Preset Gallery', description: 'Project snapshots', capabilityId: 'tool.preset-gallery', onSelect: onPresetGallery },
+    { id: 'tweak-lab', code: 'LAB', title: 'Tweak Package Lab', description: 'Lua package analysis', capabilityId: 'tool.tweak-package-lab', onSelect: onTweakLab },
+    { id: 'weapondefs', code: 'WDF', title: 'WeaponDef Library', description: 'Supporting definitions', capabilityId: 'tool.weapondef-library', onSelect: onWeaponDefLibrary },
+    { id: 'reference', code: 'REF', title: 'BAR Reference Library', description: 'Verified game data', capabilityId: 'tool.reference-library', onSelect: onReferenceLibrary },
   ];
 
   return (
@@ -102,38 +102,12 @@ export default function MainMenu({
             </div>
           </aside>
         )}
+
         <section className="main-menu__project-desk" aria-labelledby="main-menu-title">
-          <div className="main-menu__desk-intro">
-            <div className="main-menu__identity">
-              <span className="main-menu__kicker">編集工房 · Definition workshop</span>
-              <h1 id="main-menu-title"><span>Bar</span> <em>EditP</em></h1>
-              <p>Tweak and create your own BAR units in one focused local workspace.</p>
-              <dl className="main-menu__identity-meta" aria-label="Editor environment">
-                <div><dt>Workspace</dt><dd>Local-first</dd></div>
-                <div><dt>BAR data</dt><dd>{gameDataStatus === 'ready' ? 'Validated' : gameDataStatus === 'error' ? 'Unavailable' : 'Checking'}</dd></div>
-              </dl>
-            </div>
-
-            <section className="main-menu__project-files" aria-labelledby="main-menu-files-title">
-              <h2 id="main-menu-files-title" className="ui-visually-hidden">Project files</h2>
-              <div className="main-menu__project-file-actions">
-                <label>
-                  <FileIcon direction="in" />
-                  <span><strong>Load project</strong><small>Open an exported JSON workspace</small></span>
-                  <input type="file" accept=".json" onChange={onLoadProject} />
-                </label>
-                <button type="button" onClick={onSaveProject}>
-                  <FileIcon direction="out" />
-                  <span><strong>Save project</strong><small>Download the current editable state</small></span>
-                </button>
-              </div>
-            </section>
-          </div>
-
           <article className="main-menu__active-project" aria-labelledby="main-menu-project-title">
             <header>
               <div>
-                <span>{hasWork ? 'Active local project' : 'New local session'}</span>
+                <span>Current project</span>
                 <h2 id="main-menu-project-title">{currentProjectName}</h2>
               </div>
               <small className={hasWork ? 'is-active' : ''}><i aria-hidden="true" />{hasWork ? 'In progress' : 'Ready'}</small>
@@ -145,16 +119,43 @@ export default function MainMenu({
               <div><dt>Rosters</dt><dd>{rosterCount}</dd></div>
             </dl>
             <button type="button" className="main-menu__enter" onClick={onEditUnits}>
-              <span><small>{hasWork ? 'Resume editing' : 'Open editor'}</small><strong>{hasWork ? 'Continue workshop' : 'Enter workshop'}</strong></span>
+              <span><small>Edit units</small><strong>{hasWork ? 'Continue editing' : 'Open editor'}</strong></span>
               <ArrowIcon />
             </button>
           </article>
+
+          <aside className="main-menu__project-sidebar" aria-label="Project actions and status">
+            <div className="main-menu__project-summary">
+              <span>BAR Editor</span>
+              <h1 id="main-menu-title">Bar EditP</h1>
+              <p>Edit BAR units and export lobby-ready tweaks.</p>
+            </div>
+
+            <section className="main-menu__project-files" aria-labelledby="main-menu-files-title">
+              <h2 id="main-menu-files-title">Project files</h2>
+              <div className="main-menu__project-file-actions">
+                <label>
+                  <FileIcon direction="in" />
+                  <span><strong>Load project</strong><small>Open JSON</small></span>
+                  <input type="file" accept=".json" onChange={onLoadProject} />
+                </label>
+                <button type="button" onClick={onSaveProject}>
+                  <FileIcon direction="out" />
+                  <span><strong>Save project</strong><small>Download JSON</small></span>
+                </button>
+              </div>
+            </section>
+
+            <dl className="main-menu__system-status" aria-label="Editor status">
+              <div><dt>BAR data</dt><dd>{gameDataStatus === 'ready' ? 'Validated' : gameDataStatus === 'error' ? 'Unavailable' : 'Checking'}</dd></div>
+              <div><dt>Storage</dt><dd>Local</dd></div>
+            </dl>
+          </aside>
         </section>
 
         <section className="main-menu__launchpad" aria-labelledby="main-menu-directory-title">
           <header className="main-menu__launchpad-heading">
-            <h2 id="main-menu-directory-title">Core workspaces</h2>
-            <p>Choose where to continue.</p>
+            <h2 id="main-menu-directory-title">Workspaces</h2>
           </header>
 
           <nav className="main-menu__workspaces" aria-label="Core workspaces">
@@ -176,10 +177,7 @@ export default function MainMenu({
           </nav>
 
           <section className="main-menu__tool-directory" aria-label="Research & package tools">
-            <header>
-              <h3 id="main-menu-tools-title">Specialist tools</h3>
-              <small>Advanced</small>
-            </header>
+            <header><h3 id="main-menu-tools-title">Tools</h3></header>
             <div>
               {tools.map(tool => (
                 <button type="button" key={tool.id} onClick={tool.onSelect}>
@@ -202,13 +200,11 @@ export default function MainMenu({
       <footer className="main-menu__footer">
         <span>Maintained by <strong>[Grump]SunlessK</strong></span>
         <span>
-          Local project session · {
-            gameDataStatus === 'ready'
-              ? `BAR snapshot ${gameDataSnapshot?.sourceCommit?.slice(0, 12) || 'validated'}`
-              : gameDataStatus === 'error'
-                ? 'BAR snapshot unavailable'
-                : 'Validating BAR definitions'
-          }
+          {gameDataStatus === 'ready'
+            ? `BAR snapshot ${gameDataSnapshot?.sourceCommit?.slice(0, 12) || 'validated'}`
+            : gameDataStatus === 'error'
+              ? 'BAR snapshot unavailable'
+              : 'Validating BAR definitions'}
         </span>
       </footer>
     </main>
