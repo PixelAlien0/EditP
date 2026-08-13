@@ -1,10 +1,11 @@
 import { ASSET_TYPE_LABELS, getAssetManifestMetadata, getAssetOptions, getAssetPreviewUrl } from './barAssets.js';
 import { getUnitIconUrl } from './unitArtwork.js';
+import { getCanonicalWeaponDefs, getMountedWeaponDefKeys } from './canonicalWeaponDefs.js';
 
 export const BAR_REFERENCE_CATEGORIES = Object.freeze([
   { id: 'all', label: 'All references', shortLabel: 'All' },
   { id: 'unit', label: 'Units', shortLabel: 'Units' },
-  { id: 'weapon', label: 'Mounted WeaponDefs', shortLabel: 'Weapons' },
+  { id: 'weapon', label: 'Unit-owned WeaponDefs', shortLabel: 'Weapons' },
   { id: 'explosionProfile', label: 'Explosion profiles', shortLabel: 'Explosions' },
   { id: 'buildPicture', label: 'Build pictures', shortLabel: 'Pictures' },
   { id: 'unitModel', label: 'Unit models', shortLabel: 'Models' },
@@ -134,14 +135,20 @@ function createWeaponItems(units, defaultsDb, usageMap) {
     const id = typeof unit === 'string' ? unit : unit.id || '';
     if (!id) return;
     const name = typeof unit === 'string' ? unit : unit.name || id;
-    const slots = defaultsDb[id]?.weaponSlots || [];
+    const defaults = defaultsDb[id] || {};
+    const mountedKeys = getMountedWeaponDefKeys(defaults);
+    const firstMountByKey = new Map(
+      (defaults.weaponSlots || []).map(slot => [normalizeReferenceValue(slot?.defKey), slot])
+    );
     const faction = getFactionKey(id, typeof unit === 'object' ? unit.faction : '');
-    slots.forEach(slot => {
-      const defKey = slot.defKey || `slot_${slot.slot}`;
+    Object.entries(getCanonicalWeaponDefs(defaults)).forEach(([defKey, definition]) => {
+      const mount = firstMountByKey.get(normalizeReferenceValue(defKey));
+      const slot = { ...definition, ...mount };
+      const mounted = mountedKeys.has(normalizeReferenceValue(defKey));
       const source = {
-        id: `weapon:${id}:${slot.slot}:${defKey}`,
+        id: `weapon:${id}:${defKey}`,
         title: String(defKey).toUpperCase(),
-        subtitle: `${name} · Slot ${slot.slot}`,
+        subtitle: mounted ? `${name} · Slot ${slot.slot}` : `${name} · Auxiliary`,
         category: 'weapon',
       };
       Object.entries(WEAPON_ASSET_FIELDS).forEach(([field, category]) => {
@@ -151,14 +158,16 @@ function createWeaponItems(units, defaultsDb, usageMap) {
       items.push({
         ...source,
         value: defKey,
-        description: `${slot.weapontype || 'WeaponDef'} mounted by ${id}`,
+        description: mounted
+          ? `${slot.weapontype || 'WeaponDef'} mounted by ${id}`
+          : `${slot.weapontype || 'WeaponDef'} owned by ${id} as an auxiliary definition`,
         previewUrl: getUnitIconUrl(id),
         ownerUnitId: id,
         faction,
         details: compactDetails([
           detail('Owner unit', id),
           detail('Faction', faction.toUpperCase()),
-          detail('Weapon slot', slot.slot),
+          detail('Usage', mounted ? `Mounted in slot ${slot.slot}` : 'Auxiliary / nested'),
           detail('Weapon type', slot.weapontype),
           detail('Damage', slot.damage),
           detail('Reload', slot.reload, 'seconds'),

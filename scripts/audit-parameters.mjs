@@ -29,6 +29,7 @@ const defaultsPath = path.join(projectRoot, 'src/data/unit-defaults.json');
 
 const UNIT_STRUCTURAL_KEYS = new Set([
   'weaponSlots',
+  'weaponDefs',
   'weapon1def',
   'weapon1Damage',
   'weapon1Reload',

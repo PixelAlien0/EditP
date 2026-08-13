@@ -68,6 +68,25 @@ describe('weapon blueprints', () => {
     expect(catalog[1].slot.damage).toBe(100);
   });
 
+  it('exposes auxiliary UnitDef-owned WeaponDefs without pretending they are mounted', () => {
+    const catalog = createWeaponSourceCatalog([{ id: 'armmship', name: 'Longbow' }], {
+      armmship: {
+        weaponDefs: {
+          rocket: { damage: 650 },
+          rocket_split: { damage: 350, burst: 6 },
+        },
+        weaponSlots: [{ slot: 1, defKey: 'rocket', damage: 650 }],
+      },
+    });
+    expect(catalog).toHaveLength(2);
+    expect(catalog.find(item => item.sourceWeaponDefKey === 'rocket')).toMatchObject({ mounted: true, mountedSlot: 1 });
+    expect(catalog.find(item => item.sourceWeaponDefKey === 'rocket_split')).toMatchObject({
+      mounted: false,
+      mountedSlot: null,
+      slot: expect.objectContaining({ damage: 350, burst: 6 }),
+    });
+  });
+
   it('uses BAR EditP names for generated CEG bindings', () => {
     const blueprint = normalizeWeaponBlueprint({
       id: 'rose-cannon',

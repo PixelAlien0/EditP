@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "schemaVersion": 1,
+  "version": 2,
+  "schemaVersion": 2,
   "snapshotId": "bar-e03f8af274ad",
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
   "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
@@ -9,6 +9,7 @@
     "units": 1788,
     "descriptions": 1788,
     "defaults": 1788,
+    "weaponDefs": 1878,
     "categories": 1788,
     "rosters": 170,
     "explosions": 133,
@@ -20,47 +21,47 @@
   "files": {
     "units": {
       "path": "src/data/units.json",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "sha256": "41a37cfbdd1a150fa80ec19545fbfffff87bb4658f14e5bc60b3583c12eb46a6"
     },
     "defaults": {
       "path": "src/data/unit-defaults.json",
-      "schemaVersion": 1,
-      "sha256": "f145c1a3803dd2ee6021f7e4d208c5483886b12c9daebca50308225e74ab5260"
+      "schemaVersion": 2,
+      "sha256": "a1d1c6aa9069ad79e55ab74f4aa40c33f8e87579259c4592a824fcc893392071"
     },
     "categories": {
       "path": "src/data/unit-categories.json",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "sha256": "bd5211bee1ef7568bf75bca4da4b79e13e39df83380a8031c97d685b78a6a7f1"
     },
     "rosters": {
       "path": "src/data/factory-rosters.json",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "sha256": "a5743d0b48a6188a16a5ab387d18bd5ba0ed0664b72410c4b52304f630c2dbf4"
     },
     "explosions": {
       "path": "src/data/explosion-profiles.json",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "sha256": "26c17855c6e1d3d251867e1854114e534a96209a9a6bc01c23e6c0274eac2ceb"
     },
     "artwork": {
       "path": "src/data/unitpic-manifest.json",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "sha256": "c1176bf107ba8131f221dba19c0ca409c280e8b177fdba75f78565e06a0639d1"
     },
     "tacticalIcons": {
       "path": "src/data/tactical-icon-manifest.json",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "sha256": "b4728b3b1963c65dc3881536a6790e6f51dd4d42bf53937b450e9f36db964874"
     },
     "assets": {
       "path": "src/data/bar-asset-manifest.json",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "sha256": "c41314b4a68430bb9d84fc151804f362cb239506734a80017c7035d6e44728c8"
     },
     "customParameters": {
       "path": "src/data/custom-parameter-discovery.json",
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "sha256": "75089d80b0a0ba3918cf0e4cf7cec54e4dcc5de4979d3ae9f7cc7c928bfc83d4"
     }
   }

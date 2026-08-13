@@ -9,6 +9,7 @@ import {
   normalizeArmorProfile,
 } from '../config/armorProfiles.js';
 import { resolveSupportingWeaponDefReachability } from './supportingWeaponDefReachability.js';
+import { getCanonicalWeaponDef } from './canonicalWeaponDefs.js';
 
 function cleanId(value) {
   return String(value || '').trim().toLowerCase();
@@ -54,7 +55,7 @@ function effectiveRoster(builderId, activeFactoryRosters, step) {
 function blueprintSourceExists(blueprint, defaultsDb) {
   const sourceId = cleanId(blueprint?.sourceUnitId);
   const weaponKey = cleanId(blueprint?.sourceWeaponDefKey);
-  return Boolean(defaultsDb?.[sourceId]?.weaponSlots?.some(slot => cleanId(slot.defKey) === weaponKey));
+  return Boolean(getCanonicalWeaponDef(defaultsDb?.[sourceId], weaponKey));
 }
 
 function validateCarrierLists({ unitId, unitName, patch, issues }) {

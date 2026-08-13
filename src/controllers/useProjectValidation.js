@@ -9,6 +9,7 @@ import {
 } from '../utils/gadgetContractValidation.js';
 import { validateConsumerBackedPatch } from '../utils/consumerBackedValidation.js';
 import { resolveSupportingWeaponDefReachability } from '../utils/supportingWeaponDefReachability.js';
+import { getKnownWeaponDefKeys } from '../utils/canonicalWeaponDefs.js';
 
 export function getValidationWarning(key, value) {
   if (value === undefined || value === '') return null;
@@ -190,12 +191,7 @@ export function useProjectValidation({
       ...allUnitsList.map(unit => String(unit.id || '').toLowerCase()),
       ...clones.map(clone => String(clone.newId || '').toLowerCase()),
     ].filter(Boolean)),
-    knownWeaponDefs: new Set(
-      Object.values(defaultsDb)
-        .flatMap(unit => unit?.weaponSlots || [])
-        .map(slot => String(slot.defKey || '').toLowerCase())
-        .filter(Boolean)
-    ),
+    knownWeaponDefs: getKnownWeaponDefKeys(defaultsDb),
     supportingWeaponDefs: new Set(
       supportingWeaponDefs
         .filter(definition => definition.enabled !== false)
@@ -234,12 +230,7 @@ export function useProjectValidation({
       ...allUnitsList.map(unit => unit.id.toLowerCase()),
       ...clones.map(clone => String(clone.newId || '').toLowerCase()),
     ].filter(Boolean));
-    const knownWeaponDefs = new Set(
-      Object.values(defaultsDb)
-        .flatMap(unit => unit?.weaponSlots || [])
-        .map(slot => String(slot.defKey || '').toLowerCase())
-        .filter(Boolean)
-    );
+    const knownWeaponDefs = getKnownWeaponDefKeys(defaultsDb);
     const enabledSupportingWeaponDefs = resolveSupportingWeaponDefReachability({
       definitions: supportingWeaponDefs,
       tweaks,

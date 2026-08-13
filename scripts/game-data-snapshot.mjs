@@ -6,7 +6,7 @@ export const ROOT = path.resolve(import.meta.dirname, '..');
 export const DATA_DIRECTORY = path.join(ROOT, 'src', 'data');
 export const GAME_DATA_MANIFEST_PATH = path.join(DATA_DIRECTORY, 'game-data-manifest.json');
 export const SOURCE_REPOSITORY = 'beyond-all-reason/Beyond-All-Reason';
-export const SNAPSHOT_SCHEMA_VERSION = 1;
+export const SNAPSHOT_SCHEMA_VERSION = 2;
 
 export const SNAPSHOT_PATHS = Object.freeze({
   units: path.join(DATA_DIRECTORY, 'units.json'),
@@ -112,6 +112,8 @@ export function getDatasetCounts(datasets) {
     units: Object.keys(names).length,
     descriptions: Object.keys(descriptions).length,
     defaults: Object.keys(datasets.defaults || {}).length,
+    weaponDefs: Object.values(datasets.defaults || {})
+      .reduce((total, defaults) => total + Object.keys(defaults?.weaponDefs || {}).length, 0),
     categories: Object.keys(datasets.categories || {}).length,
     rosters: Object.keys(datasets.rosters || {}).length,
     explosions: Object.keys(datasets.explosions || {}).length,

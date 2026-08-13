@@ -4,6 +4,7 @@ import {
   getWeaponParameterDefinition,
 } from '../config/weaponParameters.js';
 import { isArmorDamageParameterKey } from '../config/armorProfiles.js';
+import { getCanonicalWeaponDefs, getMountedWeaponDefKeys } from './canonicalWeaponDefs.js';
 
 const DEFAULT_APPEARANCE = Object.freeze({
   vfxEnabled: false,
@@ -167,20 +168,26 @@ export function createWeaponSourceCatalog(units = [], defaultsDb = {}) {
   return units
     .filter(unit => unit?.id && !unit.isClone)
     .flatMap(unit => {
-      const weaponSlots = defaultsDb?.[String(unit.id).toLowerCase()]?.weaponSlots;
-      if (!Array.isArray(weaponSlots)) return [];
-      return weaponSlots.flatMap(slot => {
-        const sourceWeaponDefKey = cleanId(slot?.defKey);
-        const sourceUnitId = cleanId(unit.id);
+      const sourceUnitId = cleanId(unit.id);
+      const defaults = defaultsDb?.[sourceUnitId] || {};
+      const mountedKeys = getMountedWeaponDefKeys(defaults);
+      const firstMountByKey = new Map(
+        (defaults.weaponSlots || []).map(slot => [cleanId(slot?.defKey), slot])
+      );
+      return Object.entries(getCanonicalWeaponDefs(defaults)).flatMap(([rawKey, definition]) => {
+        const sourceWeaponDefKey = cleanId(rawKey);
         const identity = `${sourceUnitId}:${sourceWeaponDefKey}`;
         if (!sourceWeaponDefKey || seen.has(identity)) return [];
         seen.add(identity);
+        const mount = firstMountByKey.get(sourceWeaponDefKey);
         return [{
           id: identity,
           sourceUnitId,
           sourceUnitName: String(unit.name || unit.id),
           sourceWeaponDefKey,
-          slot: { ...slot },
+          mounted: mountedKeys.has(sourceWeaponDefKey),
+          mountedSlot: mount?.slot ?? null,
+          slot: { ...definition, ...mount, defKey: sourceWeaponDefKey },
         }];
       });
     })

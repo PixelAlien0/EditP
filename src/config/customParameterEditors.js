@@ -1,3 +1,5 @@
+import { getCanonicalWeaponDefKeys, getMountedWeaponDefKeys } from '../utils/canonicalWeaponDefs.js';
+
 const ASSET_EDITORS = Object.freeze({
   buildpic: 'buildPicture',
   icontype: 'iconType',
@@ -75,16 +77,21 @@ export function buildCustomParameterReferenceCatalogs(allUnitsList = [], default
 
   const weaponsById = new Map();
   Object.entries(defaultsDb || {}).forEach(([unitId, defaults]) => {
-    (defaults?.weaponSlots || []).forEach(slot => {
-      const id = String(slot?.defKey || '').trim().toLowerCase();
+    const mountedKeys = getMountedWeaponDefKeys(defaults);
+    getCanonicalWeaponDefKeys(defaults).forEach(rawId => {
+      const id = String(rawId || '').trim().toLowerCase();
       if (!id) return;
-      const current = weaponsById.get(id) || { id, label: String(slot.defKey), owners: [] };
+      const current = weaponsById.get(id) || { id, label: id, owners: [], mountedOwners: [] };
       if (!current.owners.includes(unitId)) current.owners.push(unitId);
+      if (mountedKeys.has(id) && !current.mountedOwners.includes(unitId)) current.mountedOwners.push(unitId);
       weaponsById.set(id, current);
     });
   });
   const weapons = [...weaponsById.values()]
-    .map(item => ({ ...item, detail: `${item.owners.length} mounted ${item.owners.length === 1 ? 'unit' : 'units'}` }))
+    .map(item => ({
+      ...item,
+      detail: `${item.owners.length} owning ${item.owners.length === 1 ? 'unit' : 'units'} · ${item.mountedOwners.length} mounted`,
+    }))
     .sort((left, right) => left.id.localeCompare(right.id, 'en'));
 
   return { units, weapons };

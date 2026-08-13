@@ -23,6 +23,10 @@ const fixture = {
     alpha: {
       health: 1000, objectname: 'Units/alpha.s3o', script: 'Units/alpha.cob', buildpic: 'ALPHA.DDS',
       explodeas: 'alpha_boom',
+      weaponDefs: {
+        alpha_rocket: { damage: 100, range: 500, model: 'rocket.s3o', soundstart: 'launch', explosiongenerator: 'custom:impact' },
+        alpha_fragment: { damage: 25, range: 120 },
+      },
       weaponSlots: [{ slot: 1, defKey: 'alpha_rocket', damage: 100, range: 500, model: 'rocket.s3o', soundstart: 'launch', explosiongenerator: 'custom:impact' }],
     },
   },
@@ -30,10 +34,10 @@ const fixture = {
 };
 
 describe('BAR reference library', () => {
-  it('normalizes units, mounted weapons, explosions, and assets into one catalog', () => {
+  it('normalizes units, owned weapons, explosions, and assets into one catalog', () => {
     const catalog = buildBarReferenceCatalog(fixture);
     expect(catalog.counts.unit).toBe(1);
-    expect(catalog.counts.weapon).toBe(1);
+    expect(catalog.counts.weapon).toBe(2);
     expect(catalog.counts.explosionProfile).toBe(1);
     expect(catalog.items.find(item => item.id === 'asset:unitModel:units/alpha.s3o')?.usedBy).toEqual([
       expect.objectContaining({ id: 'unit:alpha' }),
@@ -44,13 +48,21 @@ describe('BAR reference library', () => {
     ]));
   });
 
+  it('labels nested WeaponDefs as auxiliary instead of mounted slots', () => {
+    const catalog = buildBarReferenceCatalog(fixture);
+    expect(catalog.items.find(item => item.id === 'weapon:alpha:alpha_fragment')).toMatchObject({
+      description: expect.stringContaining('auxiliary definition'),
+      subtitle: expect.stringContaining('Auxiliary'),
+    });
+  });
+
   it('searches exact values and reverse usage relationships', () => {
     const { items } = buildBarReferenceCatalog(fixture);
     expect(filterBarReferences(items, { query: 'alpha_rocket' }).map(item => item.category)).toContain('weapon');
     expect(filterBarReferences(items, { category: 'unitModel', query: 'Alpha' })).toHaveLength(1);
     expect(filterBarReferences(items, { category: 'sound', usedOnly: true })).toHaveLength(1);
     expect(filterBarReferences(items, { category: 'texture', usedOnly: true })).toHaveLength(0);
-    expect(filterBarReferences(items, { faction: 'arm' })).toHaveLength(2);
+    expect(filterBarReferences(items, { faction: 'arm' })).toHaveLength(3);
     expect(filterBarReferences(items, { faction: 'core' })).toHaveLength(0);
     expect(filterBarReferences(items, { sortBy: 'usage-desc' })[0].id).toBe('asset:ceg:custom:impact');
   });

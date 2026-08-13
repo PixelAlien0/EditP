@@ -24,6 +24,13 @@ const existingNames = datasets.units.names || {};
 const existingDescriptions = datasets.units.descriptions || {};
 
 for (const defaults of Object.values(datasets.defaults)) {
+  if (defaults.weaponDefs && typeof defaults.weaponDefs === 'object') {
+    defaults.weaponDefs = Object.fromEntries(
+      Object.entries(defaults.weaponDefs)
+        .map(([key, definition]) => [String(key).toLowerCase(), definition])
+        .sort(([left], [right]) => left.localeCompare(right, 'en'))
+    );
+  }
   for (const slot of defaults.weaponSlots || []) {
     if (slot.defKey !== undefined) slot.defKey = String(slot.defKey).toLowerCase();
   }

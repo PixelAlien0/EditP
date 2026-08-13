@@ -6,6 +6,7 @@ import {
   loadSnapshotDatasets,
   normalizeUnitId,
   readJson,
+  SNAPSHOT_SCHEMA_VERSION,
   sha256File,
 } from './game-data-snapshot.mjs';
 import { SCAVENGER_BOSS_DIFFICULTIES } from './dynamic-unit-families.mjs';
@@ -28,7 +29,7 @@ function compareKeys(label, source) {
 if (!/^[a-f0-9]{40}$/i.test(manifest.sourceCommit || '')) {
   errors.push('Snapshot manifest has no exact BAR source commit.');
 }
-if ((manifest.schemaVersion ?? manifest.version) !== 1) {
+if ((manifest.schemaVersion ?? manifest.version) !== SNAPSHOT_SCHEMA_VERSION) {
   errors.push(`Unsupported snapshot schema ${manifest.schemaVersion ?? manifest.version ?? 'unknown'}.`);
 }
 if (manifest.snapshotId !== `bar-${String(manifest.sourceCommit || '').slice(0, 12)}`) {
@@ -110,6 +111,28 @@ for (const [producerId, roster] of Object.entries(datasets.rosters)) {
   }
 }
 
+for (const [unitId, defaults] of Object.entries(datasets.defaults)) {
+  const weaponDefs = defaults?.weaponDefs;
+  if (weaponDefs !== undefined && (!weaponDefs || typeof weaponDefs !== 'object' || Array.isArray(weaponDefs))) {
+    errors.push(`${unitId} has a malformed canonical WeaponDef map.`);
+    continue;
+  }
+  for (const key of Object.keys(weaponDefs || {})) {
+    if (!key || key !== key.toLowerCase()) errors.push(`${unitId} has a non-canonical WeaponDef key: ${key}`);
+  }
+  for (const slot of defaults?.weaponSlots || []) {
+    const defKey = String(slot?.defKey || '').toLowerCase();
+    if (defKey && !weaponDefs?.[defKey]) {
+      errors.push(`${unitId} mounted WeaponDef ${defKey} is absent from the canonical map.`);
+    }
+  }
+}
+for (const [unitId, childKey] of [['armmship', 'rocket_split'], ['cormship', 'rocket_split']]) {
+  if (!datasets.defaults[unitId]?.weaponDefs?.[childKey]) {
+    errors.push(`Canonical nested WeaponDef snapshot is missing ${unitId}:${childKey}.`);
+  }
+}
+
 const airborneWithoutAircraftTag = unitIds.filter(unitId => (
   Number(datasets.defaults[unitId]?.cruisealt) > 0
   && !datasets.categories[unitId]?.includes('aircraft')
@@ -127,7 +150,7 @@ for (const [key, record] of Object.entries(manifest.files || {})) {
     errors.push(`Manifest dataset is missing: ${key}`);
     continue;
   }
-  if (record.schemaVersion !== 1) errors.push(`${key} has no supported dataset schema version.`);
+  if (record.schemaVersion !== SNAPSHOT_SCHEMA_VERSION) errors.push(`${key} has no supported dataset schema version.`);
   const actualHash = sha256File(expectedPath);
   if (record.sha256 !== actualHash) errors.push(`${key} changed without refreshing game-data-manifest.json.`);
 }
@@ -141,6 +164,7 @@ for (const [key, value] of Object.entries(counts)) {
 console.log('BAR game-data snapshot audit');
 console.log(`  Source: ${manifest.sourceCommit?.slice(0, 12) || 'unknown'}`);
 console.log(`  Units/defaults/categories/artwork: ${counts.units}/${counts.defaults}/${counts.categories}/${counts.artwork}`);
+console.log(`  Canonical unit-owned WeaponDefs: ${counts.weaponDefs}`);
 console.log(`  Factory rosters: ${counts.rosters}`);
 console.log(`  Tactical icons: ${counts.tacticalIcons}`);
 console.log(`  Validated asset references: ${counts.assetReferences}`);

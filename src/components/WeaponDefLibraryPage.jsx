@@ -371,13 +371,16 @@ export default function WeaponDefLibraryPage({
                       onMouseEnter={() => setActiveSourceIndex(index)}
                       onClick={() => selectSource(source)}
                     >
-                      <span><strong>{source.sourceWeaponDefKey.toUpperCase()}</strong><small>{source.sourceUnitName} / {source.sourceUnitId}</small></span>
+                      <span>
+                        <strong>{source.sourceWeaponDefKey.toUpperCase()}</strong>
+                        <small>{source.sourceUnitName} / {source.sourceUnitId} · {source.mounted ? `mounted slot ${source.mountedSlot}` : 'auxiliary definition'}</small>
+                      </span>
                       <em>{selectedSource?.id === source.id ? 'Selected' : 'Copy'}</em>
                     </button>
                   )) : <p>No BAR WeaponDefs match this search.</p>}
                 </div>
               )}
-              {selectedSource && <p className="weapondef-source-picker__selection"><strong>Selected source:</strong> {selectedSource.sourceWeaponDefKey.toUpperCase()} from {selectedSource.sourceUnitName}. Its literal fields will be copied; the original BAR definition remains unchanged.</p>}
+              {selectedSource && <p className="weapondef-source-picker__selection"><strong>Selected source:</strong> {selectedSource.sourceWeaponDefKey.toUpperCase()} from {selectedSource.sourceUnitName} ({selectedSource.mounted ? `mounted slot ${selectedSource.mountedSlot}` : 'auxiliary definition'}). Its literal fields will be copied; the original BAR definition remains unchanged.</p>}
             </div>
             <div className="weapondef-create__actions">
               <Button variant="primary" disabled={!newOwner || !newKey || allDestinations.has(`${newOwner}:${newKey}`)} onClick={createNewDefinition}>Create empty</Button>

@@ -51,8 +51,8 @@ describe('custom parameter editors', () => {
 
     expect(catalogs.units.map(unit => unit.id)).toEqual(['armck', 'corak']);
     expect(catalogs.weapons).toEqual([
-      expect.objectContaining({ id: 'laser', detail: '2 mounted units' }),
-      expect.objectContaining({ id: 'nano', detail: '1 mounted unit' }),
+      expect.objectContaining({ id: 'laser', detail: '2 owning units · 2 mounted' }),
+      expect.objectContaining({ id: 'nano', detail: '1 owning unit · 1 mounted' }),
     ]);
   });
 });

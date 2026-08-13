@@ -12,9 +12,9 @@ const sortedKeys = value => Object.keys(value || {}).sort();
 
 describe('bundled BAR game-data snapshot', () => {
   it('declares a versioned, commit-addressed snapshot contract', () => {
-    expect(gameDataManifest.schemaVersion).toBe(1);
+    expect(gameDataManifest.schemaVersion).toBe(2);
     expect(gameDataManifest.snapshotId).toBe(`bar-${gameDataManifest.sourceCommit.slice(0, 12)}`);
-    expect(Object.values(gameDataManifest.files).every(file => file.schemaVersion === 1)).toBe(true);
+    expect(Object.values(gameDataManifest.files).every(file => file.schemaVersion === 2)).toBe(true);
   });
 
   it('uses one canonical unit catalog across names, defaults, categories, and artwork', () => {

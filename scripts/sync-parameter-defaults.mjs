@@ -333,6 +333,7 @@ for (const [id, source] of sources) {
 
   defaults[id] = {
     ...source.values,
+    ...(Object.keys(source.weaponDefs).length ? { weaponDefs: source.weaponDefs } : {}),
     ...(weaponSlots.length ? { weaponSlots } : {}),
   }
   added += 1
@@ -347,6 +348,8 @@ for (const [id, unit] of Object.entries(defaults)) {
     if (key.startsWith('death_explosion_') || key.startsWith('selfd_explosion_')) delete unit[key]
   }
   Object.assign(unit, source.values)
+  if (Object.keys(source.weaponDefs).length) unit.weaponDefs = source.weaponDefs
+  else delete unit.weaponDefs
   for (const slot of unit.weaponSlots || []) {
     for (const key of [...Object.values(WEAPON_FIELDS), ...Object.values(WEAPON_CUSTOM_PARAM_FIELDS), ...Object.values(DAMAGE_FIELDS), ...Object.values(SHIELD_FIELDS), ...Object.values(MOUNT_FIELDS)]) delete slot[key]
     Object.assign(slot, source.weaponDefs[String(slot.defKey).toLowerCase()] || {})
@@ -358,6 +361,26 @@ for (const [id, unit] of Object.entries(defaults)) {
   const selfd = explosions[String(source.values.selfdestructas || source.values.explodeas || '').toLowerCase()]
   if (selfd) for (const [key, value] of Object.entries(selfd)) unit[`selfd_explosion_${key}`] = value
   resolved += 1
+}
+
+// Recovery and generated UnitDefs can retain mounted slots even when the
+// lightweight source parser cannot resolve their helper-built weapondefs.
+// Project those slots into the canonical map so schema v2 never regresses the
+// mounted definitions that schema v1 already exposed.
+const mountOnlyKeys = new Set([
+  'slot', 'defKey', 'onlytargetcategory', 'badtargetcategory',
+  ...Object.values(MOUNT_FIELDS),
+])
+for (const unit of Object.values(defaults)) {
+  const weaponDefs = { ...(unit.weaponDefs || {}) }
+  for (const slot of unit.weaponSlots || []) {
+    const defKey = String(slot.defKey || '').trim().toLowerCase()
+    if (!defKey || weaponDefs[defKey]) continue
+    weaponDefs[defKey] = Object.fromEntries(
+      Object.entries(slot).filter(([key]) => !mountOnlyKeys.has(key))
+    )
+  }
+  if (Object.keys(weaponDefs).length) unit.weaponDefs = weaponDefs
 }
 
 fs.writeFileSync(outputFile, `${JSON.stringify(defaults, null, 2)}\n`)
