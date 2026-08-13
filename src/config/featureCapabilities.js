@@ -104,6 +104,7 @@ export const FEATURE_CAPABILITIES = Object.freeze({
   'tool.tweak-package-lab': Object.freeze(['static-analysis']),
   'tool.weapondef-library': Object.freeze(['editor-generated', 'validated-export']),
   'tool.reference-library': Object.freeze(['read-only']),
+  'tool.community-gallery': Object.freeze(['read-only']),
 });
 
 export function getCapabilityDefinition(capabilityId) {

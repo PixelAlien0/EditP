@@ -66,6 +66,7 @@ const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplore
 const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
 const LazyWeaponDefLibraryPage = lazy(() => import('./components/WeaponDefLibraryPage.jsx'));
 const LazyBarReferenceLibraryPage = lazy(() => import('./components/BarReferenceLibraryPage.jsx'));
+const LazyCommunityGalleryPage = lazy(() => import('./components/CommunityGalleryPage.jsx'));
 const LazyFormulaMutatorDialog = MUTATOR_TOOLS_ENABLED
   ? lazy(() => import('./components/FormulaMutatorDialog.jsx'))
   : null;
@@ -596,6 +597,7 @@ export default function App() {
       || activeWorkspace === 'tweak-lab'
       || activeWorkspace === 'weapondef-library'
       || activeWorkspace === 'reference-library'
+      || activeWorkspace === 'community'
     ) {
       return PRESENCE_ACTIVITY.TOOLS;
     }
@@ -762,6 +764,7 @@ export default function App() {
       { id: 'tool-tweak-package', kind: 'Tool', label: 'Tweak Package Lab', description: 'Inspect and package modular tweakdefs and tweakunits safely.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); } },
       { id: 'tool-weapondef-library', kind: 'Tool', label: 'WeaponDef Library', description: 'Create, validate, and maintain supporting WeaponDefs.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('weapondef-library'); } },
       { id: 'tool-bar-reference-library', kind: 'Tool', label: 'BAR Reference Library', description: 'Search verified units, WeaponDefs, models, scripts, artwork, effects, sounds, and explosion profiles.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('reference-library'); } },
+      { id: 'community-gallery', kind: 'Community', label: 'Community projects', description: 'Browse public projects shared by BAR Editor creators.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('community'); } },
     ];
 
     if (MUTATOR_TOOLS_ENABLED) {
@@ -1269,6 +1272,12 @@ export default function App() {
             setActiveWorkspace('reference-library');
             setShowMainMenu(false);
           }}
+          onCommunity={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('community');
+            setShowMainMenu(false);
+          }}
           onLoadProject={handleImportConfig}
           onSaveProject={handleExportConfig}
         />
@@ -1366,6 +1375,12 @@ export default function App() {
           setShowPresetGallery(false);
           setActiveWorkspace('reference-library');
         }}
+        onCommunity={() => {
+          setShowMainMenu(false);
+          setShowDesignerPanel(false);
+          setShowPresetGallery(false);
+          setActiveWorkspace('community');
+        }}
         onExport={handleExportConfig}
         onImport={handleImportConfig}
       />
@@ -1458,6 +1473,10 @@ export default function App() {
             onBack={() => setActiveWorkspace('edit')}
             onToast={showToast}
           />
+        </Suspense>
+      ) : activeWorkspace === 'community' ? (
+        <Suspense fallback={<main className="community-gallery-page workspace-loading"><span>Preparing Community Gallery…</span></main>}>
+          <LazyCommunityGalleryPage onBack={() => setActiveWorkspace('edit')} />
         </Suspense>
       ) : activeWorkspace === 'review' ? (
         <Suspense fallback={<main className="review-workspace workspace-loading"><span>Preparing project review…</span></main>}>

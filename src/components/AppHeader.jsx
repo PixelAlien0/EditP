@@ -37,6 +37,7 @@ export default function AppHeader({
   onTweakLab,
   onWeaponDefLibrary,
   onReferenceLibrary,
+  onCommunity,
   onExport,
   onImport,
 }) {
@@ -287,6 +288,9 @@ export default function AppHeader({
               </div>
               <div className="header-tools-menu__group header-tools-menu__group--wide" aria-label="Package and reference tools">
                 <span className="header-tools-menu__group-label">Packages &amp; references</span>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onCommunity)}>
+                  <span><span className="header-tool-title"><strong>Community Projects</strong><CapabilityLabels featureId="tool.community-gallery" compact /></span><small>Browse public creator projects</small></span>
+                </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onTweakLab)}>
                   <span><span className="header-tool-title"><strong>Tweak Package Lab</strong><CapabilityLabels featureId="tool.tweak-package-lab" compact /></span><small>Inspect community Lua safely</small></span>
                 </button>

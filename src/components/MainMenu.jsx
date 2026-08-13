@@ -36,6 +36,7 @@ export default function MainMenu({
   onTweakLab,
   onWeaponDefLibrary,
   onReferenceLibrary,
+  onCommunity,
   onLoadProject,
   onSaveProject,
 }) {
@@ -59,6 +60,7 @@ export default function MainMenu({
     },
   ];
   const tools = [
+    { id: 'community', code: 'COM', title: 'Community', description: 'Public creator projects', capabilityId: 'tool.community-gallery', onSelect: onCommunity },
     { id: 'collections', code: 'COL', title: 'Collections', description: 'Reusable unit sets', capabilityId: 'workspace.collections', onSelect: onCollections },
     { id: 'presets', code: 'PRE', title: 'Preset Gallery', description: 'Project snapshots', capabilityId: 'tool.preset-gallery', onSelect: onPresetGallery },
     { id: 'tweak-lab', code: 'LAB', title: 'Tweak Package Lab', description: 'Lua package analysis', capabilityId: 'tool.tweak-package-lab', onSelect: onTweakLab },
