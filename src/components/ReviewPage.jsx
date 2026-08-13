@@ -3,6 +3,7 @@ import { Button, EmptyState, PageShell, SwitchField, Tabs, TextAreaField, TextFi
 import CompatibilityPreflight from './CompatibilityPreflight.jsx';
 import ProjectIntegrityDoctor from './ProjectIntegrityDoctor.jsx';
 import ByteBudgetInspector from './ByteBudgetInspector.jsx';
+import ValidationCenter from './ValidationCenter.jsx';
 import { analyzeTweakPackage } from '../utils/tweakPackage.js';
 import { buildCompatibilityPreflight } from '../utils/compatibilityPreflight.js';
 import { validateCompiledLobbyModules } from '../utils/compilerValidation.js';
@@ -168,17 +169,7 @@ export default function ReviewPage({
           <CompatibilityPreflight report={compatibilityReport} onAction={handleCompatibilityAction} />
 
           <div className="review-detail-grid">
-            <section className="review-card validation-center">
-              <div className="review-card-heading">
-                <div><Type variant="eyebrow" className="workflow-eyebrow">Validation center</Type><Type as="h3" variant="section-title">{validationIssues.length === 0 ? 'Ready to export' : `${validationIssues.length} ${validationIssues.length === 1 ? 'issue' : 'issues'} to review`}</Type></div>
-                <span className={`review-status ${validationIssues.some(issue => issue.level === 'error') ? 'error' : validationIssues.length ? 'warning' : 'ready'}`}>{validationIssues.some(issue => issue.level === 'error') ? 'Blocked' : validationIssues.length ? 'Review' : 'Ready'}</span>
-              </div>
-              {validationIssues.length === 0 ? (
-                <EmptyState compact className="review-empty-state" title="No validation issues detected" description="Your current parameter values pass the editor's safety checks." />
-              ) : (
-                <div className="validation-list">{validationIssues.map((issue, index) => <div key={`${issue.unitName}-${issue.key}-${index}`} className={`validation-row ${issue.level}`}><span>{issue.unitName}</span><code>{issue.key.replace('weapon_slot_', 'Weapon ')}</code><strong>{issue.message}</strong></div>)}</div>
-              )}
-            </section>
+            <ValidationCenter issues={validationIssues} onEditUnit={onEditUnit} />
 
             <section className="review-card change-ledger">
               <div className="review-card-heading"><div><Type variant="eyebrow" className="workflow-eyebrow">Change ledger</Type><Type as="h3" variant="section-title">{projectChangeCount} project changes</Type></div><button type="button" className="text-button" onClick={() => openSummary('tweaks')}>Full summary</button></div>
