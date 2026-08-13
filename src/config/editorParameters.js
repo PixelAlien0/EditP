@@ -558,7 +558,13 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
       { key: 'spawn_energy_cost', label: 'Energy Cost per Type', type: 'string' },
       { key: 'controlradius', label: 'Control Radius', type: 'number' },
       { key: 'engagementrange', label: 'Engagement Range', type: 'number' },
-      { key: 'manualdrones', label: 'Allow Direct Player Control', type: 'tri-state', valueType: 'number' },
+      {
+        key: 'manualdrones',
+        label: 'Allow Direct Player Control',
+        type: 'tri-state',
+        valueType: 'number',
+        valueEncoding: 'numeric-boolean',
+      },
       {
         key: 'carrierdeaththroe',
         label: 'Behavior When Carrier Dies',
@@ -572,7 +578,13 @@ export const SPAWNER_CARRIER_WEAPON_GROUPS = Object.freeze([
     capabilities: ['bar-gadget', 'experimental'],
     description: 'Recovery, formation, lifetime, and ammunition behavior for deployed units.',
     params: [
-      { key: 'enabledocking', label: 'Enable Docking', type: 'tri-state', valueType: 'number' },
+      {
+        key: 'enabledocking',
+        label: 'Enable Docking',
+        type: 'tri-state',
+        valueType: 'number',
+        valueEncoding: 'numeric-boolean',
+      },
       { key: 'dockingpieces', label: 'Docking Piece Groups (comma-separated)', type: 'string' },
       { key: 'dockingradius', label: 'Docking Radius', type: 'number' },
       { key: 'dockinghelperspeed', label: 'Docking Helper Speed', type: 'number' },

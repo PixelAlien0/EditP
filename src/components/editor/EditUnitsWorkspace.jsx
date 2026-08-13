@@ -12,6 +12,7 @@ import {
 import {
   getApplicableWeaponParameters,
   getWeaponParameterDefinition,
+  getTriStateControlValue,
   getSpecialProjectileBehavior,
   getSpecialProjectileParameters,
   SPECIAL_PROJECTILE_PARAMETER_KEYS,
@@ -1439,8 +1440,16 @@ export default function EditUnitsWorkspace({ context }) {
                                           {param.type === 'tri-state' ? (
                                             <select
                                               className="stat-card-input"
-                                              value={displayValue === true ? 'true' : displayValue === false ? 'false' : displayValue}
-                                              onChange={e => handleStatChange(selectedUnit.id, tweakKey, e.target.value === '' ? undefined : e.target.value)}
+                                              value={getTriStateControlValue(param, displayValue)}
+                                              onChange={e => handleStatChange(
+                                                selectedUnit.id,
+                                                tweakKey,
+                                                e.target.value === ''
+                                                  ? undefined
+                                                  : param.valueEncoding === 'numeric-boolean'
+                                                    ? (e.target.value === 'true' ? 1 : 0)
+                                                    : e.target.value,
+                                              )}
                                             >
                                               <option value="">Inherited</option>
                                               <option value="true">Enabled</option>

@@ -26,7 +26,15 @@ function valueKind(value) {
 function validBoolean(value) {
   if (typeof value === 'boolean') return true;
   if (value === 0 || value === 1) return true;
-  return ['true', 'false', '0', '1'].includes(clean(value).toLowerCase());
+  return ['true', 'false', '0', '1', 'on', 'off', 'yes', 'no', 'enabled', 'disabled']
+    .includes(clean(value).toLowerCase());
+}
+
+function numericValues(value, allowList) {
+  const values = allowList && typeof value === 'string'
+    ? clean(value).split(/\s+/).filter(Boolean).map(Number)
+    : [Number(value)];
+  return values.length > 0 && values.every(Number.isFinite) ? values : null;
 }
 
 function consumerSource(definition) {
@@ -90,11 +98,18 @@ export function validateConsumerBackedCustomParameter({
     return issues;
   }
 
-  const type = reliableType(definition);
-  let numericValue = null;
+  const numericListContract = definition.acceptedTypes?.includes('number')
+    && definition.acceptedTypes?.includes('string');
+  const type = numericListContract ? 'number' : reliableType(definition);
+  let numericList = null;
   if (type === 'number') {
-    numericValue = Number(value);
-    if (!Number.isFinite(numericValue)) {
+    const allowsNumericList = numericListContract;
+    numericList = definition.valueEncoding === 'numeric-boolean'
+      ? (validBoolean(value)
+        ? [['true', '1', 'on', 'yes', 'enabled'].includes(text.toLowerCase()) ? 1 : 0]
+        : null)
+      : numericValues(value, allowsNumericList);
+    if (!numericList) {
       issues.push(makeIssue('error', 'type', `${definition.label} expects a number, but this edit contains ${valueKind(value)}.`));
     }
   } else if (type === 'boolean' && !validBoolean(value)) {
@@ -103,14 +118,14 @@ export function validateConsumerBackedCustomParameter({
     issues.push(makeIssue('error', 'type', `${definition.label} expects text, but this edit contains ${valueKind(value)}.`));
   }
 
-  if (numericValue !== null && Number.isFinite(numericValue)) {
-    if (definition.min !== undefined && numericValue < definition.min) {
+  if (numericList) {
+    if (definition.min !== undefined && numericList.some(item => item < definition.min)) {
       issues.push(makeIssue('error', 'minimum', `${definition.label} must be at least ${definition.min}.`));
     }
-    if (definition.max !== undefined && numericValue > definition.max) {
+    if (definition.max !== undefined && numericList.some(item => item > definition.max)) {
       issues.push(makeIssue('error', 'maximum', `${definition.label} must not exceed ${definition.max}.`));
     }
-    if (definition.step === 1 && !Number.isInteger(numericValue)) {
+    if (definition.step === 1 && numericList.some(item => !Number.isInteger(item))) {
       issues.push(makeIssue('error', 'integer', `${definition.label} must be a whole number.`));
     }
   }

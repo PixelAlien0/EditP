@@ -1,5 +1,8 @@
 import { serializeLuaTable } from './tweakSerializer.js';
-import { getWeaponParameterDefinition } from '../config/weaponParameters.js';
+import {
+  getWeaponParameterDefinition,
+  normalizeWeaponParameterValue,
+} from '../config/weaponParameters.js';
 import { getWeaponBlueprintDefinitionKey } from './weaponBlueprint.js';
 import { resolveSupportingWeaponDefReachability } from './supportingWeaponDefReachability.js';
 
@@ -227,17 +230,7 @@ ${SUPPORTING_WEAPONDEFS_END}`;
 }
 
 function normalizeBlueprintOverrideValue(parameter, value) {
-  if (value === undefined || value === null || value === '') return undefined;
-  if (parameter.valueType === 'boolean') {
-    if (value === true || value === 'true' || value === 1 || value === '1') return true;
-    if (value === false || value === 'false' || value === 0 || value === '0') return false;
-    return undefined;
-  }
-  if (parameter.valueType === 'number') {
-    const numericValue = Number(value);
-    return Number.isFinite(numericValue) ? numericValue : undefined;
-  }
-  return String(value);
+  return normalizeWeaponParameterValue(parameter, value);
 }
 
 function generateNestedAssignment(target, path, value) {

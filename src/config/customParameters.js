@@ -295,6 +295,8 @@ for (const parameter of WEAPON_PARAMETER_CATALOG) {
     editorKey: parameter.key,
     label: parameter.label,
     type: parameter.valueType === 'boolean' ? 'boolean' : parameter.valueType === 'number' ? 'number' : 'string',
+    valueEncoding: parameter.valueEncoding,
+    acceptedTypes: parameter.acceptedTypes,
     owner: 'BAR gadget',
     maturity: parameter.capabilities?.includes('experimental') ? 'experimental' : 'supported',
     reviewed: true,

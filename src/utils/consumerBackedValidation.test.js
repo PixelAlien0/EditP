@@ -106,4 +106,54 @@ describe('consumer-backed custom parameter validation', () => {
     ]));
     expect(issues.some(issue => issue.key === 'health')).toBe(false);
   });
+
+  it('accepts legacy text booleans for numeric carrier flags during migration', () => {
+    const enabled = validateConsumerBackedCustomParameter({
+      ...context,
+      scope: 'weapon',
+      projectKey: 'weapon_slot_1_manualdrones',
+      parameterKey: 'manualdrones',
+      value: 'true',
+    });
+    const disabled = validateConsumerBackedCustomParameter({
+      ...context,
+      scope: 'weapon',
+      projectKey: 'weapon_slot_1_enabledocking',
+      parameterKey: 'enabledocking',
+      value: 'false',
+    });
+    const legacyLabel = validateConsumerBackedCustomParameter({
+      ...context,
+      scope: 'weapon',
+      projectKey: 'weapon_slot_1_manualdrones',
+      parameterKey: 'manualdrones',
+      value: 'Enabled',
+    });
+
+    expect(enabled).toEqual([]);
+    expect(disabled).toEqual([]);
+    expect(legacyLabel).toEqual([]);
+  });
+
+  it('accepts numeric carrier rosters while rejecting malformed list entries', () => {
+    const valid = validateConsumerBackedCustomParameter({
+      ...context,
+      scope: 'weapon',
+      projectKey: 'weapon_slot_1_maxunits',
+      parameterKey: 'maxunits',
+      value: '4 3 2',
+    });
+    const invalid = validateConsumerBackedCustomParameter({
+      ...context,
+      scope: 'weapon',
+      projectKey: 'weapon_slot_1_maxunits',
+      parameterKey: 'maxunits',
+      value: '4 many 2',
+    });
+
+    expect(valid).toEqual([]);
+    expect(invalid).toEqual(expect.arrayContaining([
+      expect.objectContaining({ level: 'error', code: 'type' }),
+    ]));
+  });
 });

@@ -505,6 +505,34 @@ export function getWeaponParameterDefinition(key) {
   return isArmorDamageParameterKey(key) ? createArmorDamageParameter(key.slice('damage_profile__'.length)) : null;
 }
 
+export function normalizeWeaponParameterValue(parameter, value) {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (parameter?.valueEncoding === 'numeric-boolean') {
+    if (value === true || value === 1 || ['true', '1', 'on', 'yes', 'enabled'].includes(String(value).trim().toLowerCase())) return 1;
+    if (value === false || value === 0 || ['false', '0', 'off', 'no', 'disabled'].includes(String(value).trim().toLowerCase())) return 0;
+    return undefined;
+  }
+  if (parameter?.valueType === 'boolean') {
+    if (value === true || value === 1 || value === '1' || String(value).trim().toLowerCase() === 'true') return true;
+    if (value === false || value === 0 || value === '0' || String(value).trim().toLowerCase() === 'false') return false;
+    return undefined;
+  }
+  if (parameter?.valueType === 'number') {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : undefined;
+  }
+  return String(value);
+}
+
+export function getTriStateControlValue(parameter, value) {
+  if (value === undefined || value === null || value === '') return '';
+  const normalized = normalizeWeaponParameterValue(parameter, value);
+  if (parameter?.valueEncoding === 'numeric-boolean') {
+    return normalized === 1 ? 'true' : normalized === 0 ? 'false' : '';
+  }
+  return normalized === true ? 'true' : normalized === false ? 'false' : '';
+}
+
 export function getApplicableWeaponParameters(parameters, {
   showAll = false,
   hasParameter = () => false,

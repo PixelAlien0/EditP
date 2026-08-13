@@ -191,6 +191,29 @@ describe('useCompiledProjectOutputs', () => {
     expect(result.current.generatedTweakUnitsLua).toContain('shield_power = 8000');
   });
 
+  it('normalizes legacy carrier toggle text into BAR numeric gadget flags', () => {
+    const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
+      tweaks: {
+        armcarry: {
+          weapon_slot_1_carried_unit: 'armflea',
+          weapon_slot_1_manualdrones: 'true',
+          weapon_slot_1_enabledocking: 'false',
+        },
+      },
+      allUnitsList: [{ id: 'armcarry', name: 'Carrier', isClone: false }],
+      defaultsDb: {
+        armcarry: {
+          weaponSlots: [{ slot: 1, defKey: 'carrier_controller' }],
+        },
+      },
+    })));
+
+    expect(result.current.generatedTweakUnitsLua).toContain('manualdrones = 1');
+    expect(result.current.generatedTweakUnitsLua).toContain('enabledocking = 0');
+    expect(result.current.generatedTweakUnitsLua).not.toContain('manualdrones = "true"');
+    expect(result.current.generatedTweakUnitsLua).not.toContain('enabledocking = "false"');
+  });
+
   it('targets the generated WeaponDef when a saved Weapon Lab blueprint is equipped', () => {
     const blueprint = {
       id: 'weapon_madsam_copy',

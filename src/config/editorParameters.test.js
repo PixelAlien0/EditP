@@ -90,6 +90,8 @@ describe('editor parameter configuration', () => {
     expect(WEAPON_SLOT_BOOLEAN_PARAMS.has('manualdrones')).toBe(false);
     expect(getWeaponParameterDefinition('enabledocking')?.valueType).toBe('number');
     expect(getWeaponParameterDefinition('manualdrones')?.valueType).toBe('number');
+    expect(getWeaponParameterDefinition('enabledocking')?.valueEncoding).toBe('numeric-boolean');
+    expect(getWeaponParameterDefinition('manualdrones')?.valueEncoding).toBe('numeric-boolean');
     expect(WEAPON_SLOT_PATHS.spawns_height).toBeUndefined();
     expect(WEAPON_SLOT_PATHS.is_controllable).toBeUndefined();
   });

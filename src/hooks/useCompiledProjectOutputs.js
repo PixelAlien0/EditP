@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import { STAT_KEYS } from '../config/editorParameters.js';
-import { getWeaponParameterDefinition } from '../config/weaponParameters.js';
+import {
+  getWeaponParameterDefinition,
+  normalizeWeaponParameterValue,
+} from '../config/weaponParameters.js';
 import { isValidCustomParameterKey } from '../config/customParameterKey.js';
 import { ensureSafeCarrierWeaponPatch } from '../utils/carrierRuntimeSafety.js';
 import { buildLobbyCommands, compileLobbyModules } from '../utils/lobbyModules.js';
@@ -160,10 +163,9 @@ export function useCompiledProjectOutputs({
           let typedValue = value;
           if (parameterDefinition?.valueTransform === 'shield-mask') {
             typedValue = value === 'true' || value === true ? 1 : 0;
-          } else if (parameterDefinition?.valueType === 'boolean') {
-            typedValue = value === 'true' || value === true;
-          } else if (parameterDefinition?.valueType === 'string') {
-            typedValue = value ? String(value) : '';
+          } else if (parameterDefinition) {
+            typedValue = normalizeWeaponParameterValue(parameterDefinition, value);
+            if (typedValue === undefined) return;
           } else {
             typedValue = typeof value === 'boolean' ? (value ? 1 : 0) : Number.parseFloat(value);
             if (Number.isNaN(typedValue)) return;
