@@ -159,8 +159,8 @@ export default function UnitCollectionsPanel({
     <section className={`unit-collections unit-collections--${variant}`} aria-labelledby="unit-collections-title">
       <header className="unit-collections__header">
         <div>
-          <span>Workspace scopes</span>
-          <strong id="unit-collections-title">Collections</strong>
+          <span>{variant === 'page' ? 'Folders' : 'Workspace scopes'}</span>
+          <strong id="unit-collections-title">{variant === 'page' ? 'Manage collections' : 'Collections'}</strong>
         </div>
         <button type="button" onClick={() => beginCreate(null)}>New</button>
       </header>
@@ -197,7 +197,7 @@ export default function UnitCollectionsPanel({
           <small>{availableUnitIds.length.toLocaleString()}</small>
         </button>
         {collections.length > 0 ? renderBranch() : (
-          <p className="unit-collections__empty">Create a folder, then use + to assign the selected unit.</p>
+          <p className="unit-collections__empty">Create a collection to organize units.</p>
         )}
       </div>
 
@@ -206,7 +206,7 @@ export default function UnitCollectionsPanel({
           <div>
             <span>Active scope</span>
             <strong>{activeCollection.name}</strong>
-            <small>{activeScopeIds.size} members including nested folders</small>
+            <small>{activeScopeIds.size} members including nested collections</small>
           </div>
           <button type="button" onClick={() => onSelectCollection(null)}>Clear</button>
           {unresolvedIds.length > 0 && (

@@ -40,8 +40,22 @@ export default function CollectionsPage({
   );
   const nestedOnlyIds = useMemo(() => new Set([...scopeIds].filter(id => !directIds.has(id))), [directIds, scopeIds]);
   const unresolvedIds = useMemo(() => [...scopeIds].filter(id => !availableIds.has(id)), [availableIds, scopeIds]);
-  const validationCount = validationIssues.filter(issue => scopeIds.has(issue.unitId)).length;
-  const modifiedCount = units.filter(unit => scopeIds.has(unit.id) && Object.keys(tweaks[unit.id] || {}).length > 0).length;
+  const issueCountsByUnit = useMemo(() => {
+    const counts = new Map();
+    validationIssues.forEach(issue => {
+      if (!issue.unitId) return;
+      counts.set(issue.unitId, (counts.get(issue.unitId) || 0) + 1);
+    });
+    return counts;
+  }, [validationIssues]);
+  const validationCount = useMemo(
+    () => [...scopeIds].reduce((total, unitId) => total + (issueCountsByUnit.get(unitId) || 0), 0),
+    [issueCountsByUnit, scopeIds]
+  );
+  const modifiedCount = useMemo(
+    () => units.filter(unit => scopeIds.has(unit.id) && Object.keys(tweaks[unit.id] || {}).length > 0).length,
+    [scopeIds, tweaks, units]
+  );
 
   const filteredUnits = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -56,24 +70,33 @@ export default function CollectionsPage({
   }, [directIds, membershipFilter, query, scopeIds, sourceFilter, units]);
 
   const visibleUnits = filteredUnits.slice(0, RESULT_LIMIT);
+  const clearFilters = () => {
+    setQuery('');
+    setSourceFilter('all');
+    setMembershipFilter('all');
+  };
 
   return (
     <PageShell
       className="collections-page"
       label="Collections"
-      eyebrow="Reusable unit scopes"
+      eyebrow="Unit organization"
       title="Collections"
-      description="Organize vanilla and custom units into nested, overlapping folders for focused editing and review."
+      description="Create reusable unit groups for editing, comparison, and export."
       capabilityId="workspace.collections"
       metrics={[
-        { label: 'Folders', value: collections.length },
-        { label: 'Organized units', value: new Set(collections.flatMap(collection => collection.unitIds)).size },
+        { label: 'Collections', value: collections.length },
+        { label: 'Units grouped', value: new Set(collections.flatMap(collection => collection.unitIds)).size },
       ]}
       actions={<Button onClick={onBack}>Back to editor</Button>}
       bodyClassName="collections-page__body"
     >
       <div className="collections-page__layout">
         <aside className="collections-page__folders" aria-label="Collection folders">
+          <div className="collections-page__folders-heading">
+            <span>Collection library</span>
+            <strong>{collections.length} folders</strong>
+          </div>
           <UnitCollectionsPanel
             variant="page"
             collections={collections}
@@ -88,8 +111,8 @@ export default function CollectionsPage({
             onCleanupCollection={onCleanupCollection}
           />
           <div className="collections-page__guidance">
-            <Type variant="eyebrow">Scope behavior</Type>
-            <Type as="p" variant="description">A parent includes every member in its child folders. A unit can belong directly to as many folders as needed.</Type>
+            <strong>Nested membership</strong>
+            <p>Parent collections include units from their child collections.</p>
           </div>
         </aside>
 
@@ -97,16 +120,16 @@ export default function CollectionsPage({
           {activeCollection ? (
             <>
               <header className="collection-members__header">
-                <div>
-                  <Type variant="eyebrow">Active collection</Type>
+                <div className="collection-members__identity">
+                  <span>Selected collection</span>
                   <Type as="h3" variant="section-title" id="collection-members-title">{activeCollection.name}</Type>
-                  <Type as="p" variant="description">{descendantIds.size - 1} nested folders contribute to this scope.</Type>
+                  <small>{descendantIds.size - 1} child {descendantIds.size - 1 === 1 ? 'collection' : 'collections'}</small>
                 </div>
                 <div className="collection-members__metrics" aria-label="Collection summary">
-                  <div><strong>{directIds.size}</strong><span>direct</span></div>
-                  <div><strong>{nestedOnlyIds.size}</strong><span>nested</span></div>
-                  <div><strong>{modifiedCount}</strong><span>edited</span></div>
-                  <div><strong>{validationCount}</strong><span>issues</span></div>
+                  <div><strong>{directIds.size}</strong><span>Direct</span></div>
+                  <div><strong>{nestedOnlyIds.size}</strong><span>Inherited</span></div>
+                  <div><strong>{modifiedCount}</strong><span>Edited</span></div>
+                  <div><strong>{validationCount}</strong><span>Issues</span></div>
                 </div>
               </header>
 
@@ -119,47 +142,66 @@ export default function CollectionsPage({
 
               <div className="collection-members__toolbar">
                 <label className="collection-members__search">
-                  <span>Search catalog</span>
-                  <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Unit name, ID, faction, or tag…" />
+                  <span>Find units</span>
+                  <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Name, ID, faction, or tag" />
                 </label>
-                <label><span>Source</span><select value={sourceFilter} onChange={event => setSourceFilter(event.target.value)}><option value="all">All units</option><option value="vanilla">Vanilla</option><option value="custom">Custom</option></select></label>
-                <label><span>Membership</span><select value={membershipFilter} onChange={event => setMembershipFilter(event.target.value)}><option value="all">Entire catalog</option><option value="included">Included in scope</option><option value="direct">Direct members</option><option value="available">Not included</option></select></label>
+                <label>
+                  <span>Source</span>
+                  <select value={sourceFilter} onChange={event => setSourceFilter(event.target.value)}>
+                    <option value="all">All units</option><option value="vanilla">BAR units</option><option value="custom">Custom units</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Membership</span>
+                  <select value={membershipFilter} onChange={event => setMembershipFilter(event.target.value)}>
+                    <option value="all">Entire catalog</option><option value="included">Included</option><option value="direct">Direct members</option><option value="available">Not included</option>
+                  </select>
+                </label>
               </div>
 
               <div className="collection-members__result-bar">
-                <span>{filteredUnits.length.toLocaleString()} matching units</span>
-                <small>Checking a unit changes direct membership in {activeCollection.name}.</small>
+                <span>{filteredUnits.length.toLocaleString()} units</span>
+                <small>Membership changes apply to {activeCollection.name}.</small>
+              </div>
+
+              <div className="collection-members__columns" aria-hidden="true">
+                <span>Membership</span><span>Unit</span><span>Classification</span><span>Project status</span><span>Action</span>
               </div>
 
               <div className="collection-members__list" role="list" aria-label={`${activeCollection.name} unit membership`}>
                 {visibleUnits.map(unit => {
                   const isDirect = directIds.has(unit.id);
                   const isNested = nestedOnlyIds.has(unit.id);
-                  const issueCount = validationIssues.filter(issue => issue.unitId === unit.id).length;
+                  const issueCount = issueCountsByUnit.get(unit.id) || 0;
                   return (
                     <article className={`collection-member-row ${isDirect ? 'is-direct' : isNested ? 'is-nested' : ''}`} key={unit.id} role="listitem">
                       <label className="collection-member-row__toggle">
                         <input type="checkbox" checked={isDirect} onChange={() => onToggleMembership(activeCollection.id, unit.id)} />
                         <span aria-hidden="true" />
-                        <em>{isDirect ? 'Direct' : isNested ? 'Nested' : 'Add'}</em>
+                        <em>{isDirect ? 'Direct' : isNested ? 'Inherited' : 'Add'}</em>
                       </label>
                       <UnitArtwork src={getUnitIconUrl(unit.rootBaseId || unit.id)} alt="" className="collection-member-row__art" />
                       <div className="collection-member-row__identity"><strong>{unit.name}</strong><code>{unit.id}</code></div>
-                      <div className="collection-member-row__meta"><span>{unit.isClone ? 'Custom' : 'Vanilla'}</span><span>{unit.faction}</span><span>{unit.tags.find(tag => /^t[1-4]$/.test(tag)) || '—'}</span></div>
-                      <div className="collection-member-row__signals"><span>{Object.keys(tweaks[unit.id] || {}).length} edits</span><span>{issueCount} issues</span></div>
+                      <div className="collection-member-row__meta"><span>{unit.isClone ? 'Custom' : 'BAR'}</span><span>{unit.faction}</span><span>{unit.tags.find(tag => /^t[1-4]$/.test(tag)) || '—'}</span></div>
+                      <div className="collection-member-row__signals"><span>{Object.keys(tweaks[unit.id] || {}).length} edits</span><span className={issueCount > 0 ? 'has-issues' : ''}>{issueCount} issues</span></div>
                       <button type="button" onClick={() => onEditUnit(unit.id)}>Open editor</button>
                     </article>
                   );
                 })}
-                {visibleUnits.length === 0 && <div className="collection-members__empty"><strong>No units match</strong><span>Change the catalog filters or search query.</span></div>}
+                {visibleUnits.length === 0 && (
+                  <div className="collection-members__empty">
+                    <strong>No matching units</strong>
+                    <span>Clear the filters to return to the full catalog.</span>
+                    <button type="button" onClick={clearFilters}>Clear filters</button>
+                  </div>
+                )}
               </div>
-              {filteredUnits.length > RESULT_LIMIT && <p className="collection-members__limit">Showing the first {RESULT_LIMIT} results. Refine the search to reach a specific unit.</p>}
+              {filteredUnits.length > RESULT_LIMIT && <p className="collection-members__limit">Showing {RESULT_LIMIT} of {filteredUnits.length.toLocaleString()} units. Use search to narrow the catalog.</p>}
             </>
           ) : (
             <div className="collection-members__blank">
-              <Type variant="eyebrow">Collection workspace</Type>
-              <Type as="h3" variant="section-title" id="collection-members-title">Select a collection to inspect its unit scope</Type>
-              <Type as="p" variant="description">Choose an existing collection or create a new one to review included units, nested scope inheritance, and editing impact.</Type>
+              <Type as="h3" variant="section-title" id="collection-members-title">Select a collection</Type>
+              <Type as="p" variant="description">Choose a collection from the library or create a new one.</Type>
             </div>
           )}
         </section>
