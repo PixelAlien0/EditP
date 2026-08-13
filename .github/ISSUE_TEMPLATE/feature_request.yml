@@ -1,0 +1,53 @@
+name: Feature request
+description: Propose a focused editor or BAR compatibility improvement.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Editing workflow
+        - Parameters and contracts
+        - Build menus
+        - Validation and export
+        - Project persistence
+        - Reference data
+        - Interface and accessibility
+        - Performance
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the blocked workflow or missing BAR capability.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe what the user should be able to do and where it belongs.
+    validations:
+      required: true
+  - type: textarea
+    id: bar_reference
+    attributes:
+      label: BAR reference
+      description: Link the relevant UnitDef, WeaponDef, gadget, engine documentation, or working tweak when available.
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility considerations
+      description: Note project migrations, generated Lua changes, runtime dependencies, or existing workflows that could be affected.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and the current editor for this capability.
+          required: true
+

@@ -1,0 +1,77 @@
+name: Bug report
+description: Report a reproducible editor, export, or BAR runtime problem.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to document the problem. Remove private project content before attaching files.
+  - type: input
+    id: version
+    attributes:
+      label: Editor version
+      description: Paste the deployed URL or commit hash where the problem occurred.
+      placeholder: https://edit-p-nine.vercel.app/ or commit hash
+    validations:
+      required: true
+  - type: dropdown
+    id: workspace
+    attributes:
+      label: Workspace
+      options:
+        - Main menu and project files
+        - Edit Units
+        - Collections
+        - Build Menus
+        - Review & Export
+        - Weapon Laboratory
+        - WeaponDef Library
+        - Tweak Package Lab
+        - BAR Reference Library
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: definition
+    attributes:
+      label: Unit or WeaponDef
+      description: Add exact IDs and the active weapon slot when relevant.
+      placeholder: armmd, weapon slot 1, madsam_missile
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Open...
+        2. Change...
+        3. Export...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Include validation text, console errors, or BAR runtime errors exactly as shown.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots, project file, or generated Lua
+      description: Drag files here. Remove secrets, chat content, and unrelated project data first.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I reproduced this on the current deployed editor or latest main branch.
+          required: true
+        - label: I searched open issues for the same problem.
+          required: true
+
