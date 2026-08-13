@@ -4,6 +4,7 @@ import CompatibilityPreflight from './CompatibilityPreflight.jsx';
 import ProjectIntegrityDoctor from './ProjectIntegrityDoctor.jsx';
 import ByteBudgetInspector from './ByteBudgetInspector.jsx';
 import ValidationCenter from './ValidationCenter.jsx';
+import ExportTraceInspector from './ExportTraceInspector.jsx';
 import { analyzeTweakPackage } from '../utils/tweakPackage.js';
 import { buildCompatibilityPreflight } from '../utils/compatibilityPreflight.js';
 import { validateCompiledLobbyModules } from '../utils/compilerValidation.js';
@@ -291,6 +292,7 @@ export default function ReviewPage({
             </div>
 
             <ByteBudgetInspector compiledModules={compiledLobbyModules} />
+            <ExportTraceInspector compiledModules={compiledLobbyModules} />
 
             {compiledLobbyModules?.overflow && (
               <div className="lobby-slot-overflow" role="alert">
