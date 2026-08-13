@@ -18,7 +18,7 @@ describe('ExportTraceInspector', () => {
     render(<ExportTraceInspector compiledModules={buildCompiledPackage()} />);
 
     await user.click(screen.getByText('Export Trace Inspector'));
-    expect(screen.getByText('Follow editor state into delivered Lua')).toBeInTheDocument();
+    expect(screen.getByText('Source-to-delivery map')).toBeInTheDocument();
     expect(screen.getAllByText('tweakdefs1').length).toBeGreaterThan(0);
 
     await user.selectOptions(screen.getByLabelText('Output lane'), 'units');

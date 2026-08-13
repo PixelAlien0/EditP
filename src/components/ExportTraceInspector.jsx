@@ -34,24 +34,39 @@ export default function ExportTraceInspector({ compiledModules }) {
   const selectedTrace = filteredTraces.find(trace => trace.id === selectedTraceId)
     || filteredTraces[0]
     || null;
+  const deliveredPercent = report.summary.canonicalBlocks
+    ? Math.round((report.summary.deliveredBlocks / report.summary.canonicalBlocks) * 100)
+    : 0;
 
   return (
-    <details className="export-console-config export-trace-inspector">
-      <summary>
-        <span>Export Trace Inspector</span>
-        <small>{report.summary.canonicalBlocks} blocks · {report.summary.slots} lobby fields</small>
+    <details className="export-console-config export-inspector export-inspector--trace export-trace-inspector">
+      <summary className="export-inspector__summary">
+        <span className="export-inspector__index" aria-hidden="true">T</span>
+        <span className="export-inspector__heading">
+          <small>Compiler provenance</small>
+          <strong>Export Trace Inspector</strong>
+          <em>Follow each editor change into its delivered lobby field</em>
+        </span>
+        <span className={`export-inspector__status ${report.summary.unpackedBlocks ? 'is-attention' : 'is-healthy'}`}>
+          {report.summary.unpackedBlocks ? `${report.summary.unpackedBlocks} unpacked` : 'Fully traced'}
+        </span>
+        <span className="export-inspector__metrics" aria-label="Export trace summary">
+          <span><small>Blocks</small><strong>{report.summary.canonicalBlocks}</strong></span>
+          <span><small>Delivered</small><strong>{deliveredPercent}%</strong></span>
+        </span>
       </summary>
+
       <div className="export-trace-inspector__body">
         <header className="export-trace-inspector__intro">
           <div>
-            <strong>Follow editor state into delivered Lua</strong>
-            <p>Inspect which subsystem produced a canonical block, whether optimization merged it, and which numbered BAR field executes it.</p>
+            <strong>Source-to-delivery map</strong>
+            <p>Choose a compiler block to inspect its origin, optimization path, dependencies, and numbered BAR destination.</p>
           </div>
           <dl aria-label="Export trace summary">
             <div><dt>Canonical</dt><dd>{report.summary.canonicalBlocks}</dd></div>
             <div><dt>Executed</dt><dd>{report.summary.executedBlocks}</dd></div>
             <div><dt>Merged</dt><dd>{report.summary.deduplicatedBlocks}</dd></div>
-            <div><dt>Unpacked</dt><dd>{report.summary.unpackedBlocks}</dd></div>
+            <div className={report.summary.unpackedBlocks ? 'is-attention' : ''}><dt>Unpacked</dt><dd>{report.summary.unpackedBlocks}</dd></div>
           </dl>
         </header>
 
@@ -72,6 +87,10 @@ export default function ExportTraceInspector({ compiledModules }) {
             <option value="generated">Editor generated</option>
             <option value="imported">Imported module</option>
           </SelectField>
+          <div className="export-trace-results" aria-live="polite">
+            <small>Visible traces</small>
+            <strong>{filteredTraces.length} / {report.traces.length}</strong>
+          </div>
         </div>
 
         {selectedTrace ? (
@@ -85,7 +104,7 @@ export default function ExportTraceInspector({ compiledModules }) {
                   aria-pressed={selectedTrace.id === trace.id}
                   onClick={() => setSelectedTraceId(trace.id)}
                 >
-                  <span>{LANE_LABELS[trace.lane]}</span>
+                  <span>{LANE_LABELS[trace.lane]} · {humanize(trace.category)}</span>
                   <strong>{trace.label}</strong>
                   <small>{trace.slotFieldName || 'Not packed'}</small>
                 </button>
