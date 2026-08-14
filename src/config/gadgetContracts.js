@@ -1,6 +1,6 @@
 import gameDataManifest from '../data/game-data-manifest.json' with { type: 'json' };
 
-export const GADGET_CONTRACT_REGISTRY_VERSION = 2;
+export const GADGET_CONTRACT_REGISTRY_VERSION = 3;
 
 export const GADGET_CONTRACT_STATUS = Object.freeze({
   ready: Object.freeze({ label: 'Ready', tone: 'success' }),
@@ -11,9 +11,18 @@ export const GADGET_CONTRACT_STATUS = Object.freeze({
 });
 
 const source = (path, owner = 'BAR gadget') => Object.freeze({
+  kind: 'bar',
   owner,
   repository: 'beyond-all-reason/Beyond-All-Reason',
   commit: gameDataManifest.sourceCommit,
+  path,
+});
+
+const projectSource = path => Object.freeze({
+  kind: 'project',
+  owner: 'BAR EditP runtime gadget',
+  repository: 'PixelAlien0/EditP',
+  commit: null,
   path,
 });
 
@@ -132,6 +141,21 @@ export const GADGET_CONTRACT_REGISTRY = Object.freeze([
       'customparams.scavsquadbehaviorchance',
     ]),
     source: source('luarules/configs/scav_spawn_defs.lua', 'BAR Scavenger system'),
+  }),
+  Object.freeze({
+    id: 'unit-prerequisites',
+    label: 'Technology prerequisite',
+    scope: 'unit',
+    maturity: 'experimental',
+    description: 'Allows construction only after the builder team owns the required finished UnitDefs. Requires the BAR EditP runtime gadget in the loaded game or mod package.',
+    triggerKeys: Object.freeze([
+      'customparams.editp_prerequisite_units',
+      'customparams.editp_prerequisite_mode',
+      'customparams.editp_prerequisite_persistent',
+    ]),
+    activationKeys: Object.freeze(['customparams.editp_prerequisite_units']),
+    requiredKeys: Object.freeze(['customparams.editp_prerequisite_units']),
+    source: projectSource('runtime/prerequisites/LuaRules/Gadgets/unit_build_prerequisites.lua'),
   }),
 ]);
 

@@ -12,11 +12,16 @@ import { buildRuntimeContractFixtureReport } from '../utils/runtimeContractFixtu
 
 describe('BAR gadget contract registry', () => {
   it('is versioned and pinned to the bundled BAR snapshot', () => {
-    expect(GADGET_CONTRACT_REGISTRY_VERSION).toBe(2);
+    expect(GADGET_CONTRACT_REGISTRY_VERSION).toBe(3);
     expect(GADGET_CONTRACT_REGISTRY.length).toBeGreaterThanOrEqual(8);
     GADGET_CONTRACT_REGISTRY.forEach(contract => {
-      expect(contract.source.commit).toBe(gameDataManifest.sourceCommit);
-      expect(contract.source.repository).toBe('beyond-all-reason/Beyond-All-Reason');
+      if (contract.source.kind === 'bar') {
+        expect(contract.source.commit).toBe(gameDataManifest.sourceCommit);
+        expect(contract.source.repository).toBe('beyond-all-reason/Beyond-All-Reason');
+      } else {
+        expect(contract.source.kind).toBe('project');
+        expect(contract.source.repository).toBe('PixelAlien0/EditP');
+      }
       expect(contract.source.path).toMatch(/\.lua$/);
     });
   });

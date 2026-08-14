@@ -46,6 +46,23 @@ const curatedUnitParameters = [
     description: 'Metal returned per unit of energy consumed by BAR\'s energy-conversion gadget.'
   },
   {
+    key: 'editp_prerequisite_units', label: 'Required Unit Types', type: 'string', owner: 'BAR EditP runtime gadget', maturity: 'experimental', capabilities: ['external-package', 'editor-generated', 'experimental'],
+    description: 'UnitDef IDs that the builder team must own as finished units before this unit may be constructed. The BAR EditP prerequisite gadget must be installed in the loaded game or mod package.',
+    inputHint: 'Select one or more UnitDefs. All are required by default; use Prerequisite Mode to allow any one of them.',
+    editor: { kind: 'reference-list', referenceType: 'unit' }
+  },
+  {
+    key: 'editp_prerequisite_mode', label: 'Prerequisite Mode', type: 'string', owner: 'BAR EditP runtime gadget', maturity: 'experimental', capabilities: ['external-package', 'editor-generated', 'experimental'],
+    description: 'Controls whether construction requires every listed UnitDef or any one listed UnitDef.',
+    inputHint: 'All requires every listed type. Any unlocks after at least one listed type is finished.',
+    acceptedValues: ['all', 'any']
+  },
+  {
+    key: 'editp_prerequisite_persistent', label: 'Keep Prerequisite Unlocked', type: 'boolean', owner: 'BAR EditP runtime gadget', maturity: 'experimental', capabilities: ['external-package', 'editor-generated', 'experimental'],
+    description: 'Keeps the unit unlocked for a team after its prerequisite was satisfied once. When disabled, losing the prerequisite units locks construction again.',
+    inputHint: 'Disabled is the strict live-ownership rule. Enabled turns the prerequisite into a permanent team unlock.'
+  },
+  {
     key: 'ignore_noair', label: 'Ignore No-Air Restriction', type: 'boolean', owner: 'Package-specific', maturity: 'external',
     description: 'Package convention for bypassing a no-air restriction. It requires code that explicitly reads the key.'
   },

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildPrerequisiteGraphIssues,
   evaluateGadgetContracts,
   gadgetContractResultsToIssues,
 } from './gadgetContractValidation.js';
@@ -272,6 +273,41 @@ describe('BAR gadget contract validation', () => {
       expect.objectContaining({ key: 'customparams.scavsquadunitsamount', level: 'error' }),
       expect.objectContaining({ key: 'customparams.scavsquadbehaviorchance', level: 'error' }),
     ]));
+  });
+
+  it('validates technology prerequisite references and rejects self-dependencies', () => {
+    const result = evaluate({
+      patch: {
+        'customparams.editp_prerequisite_units': 'armtest missing_unit armflea armflea',
+        'customparams.editp_prerequisite_mode': 'sometimes',
+      },
+    }).find(entry => entry.contractId === 'unit-prerequisites');
+
+    expect(result.status).toBe('conflicting');
+    expect(result.problems).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'customparams.editp_prerequisite_units', level: 'error' }),
+      expect.objectContaining({ key: 'customparams.editp_prerequisite_units', kind: 'unknown' }),
+      expect.objectContaining({ key: 'customparams.editp_prerequisite_mode', level: 'error' }),
+      expect.objectContaining({ kind: 'dependency', level: 'warning' }),
+    ]));
+  });
+
+  it('blocks circular technology prerequisite graphs', () => {
+    const issues = buildPrerequisiteGraphIssues({
+      tweaks: {
+        alpha: { 'customparams.editp_prerequisite_units': 'beta' },
+        beta: { 'customparams.editp_prerequisite_units': 'gamma' },
+        gamma: { 'customparams.editp_prerequisite_units': 'alpha' },
+      },
+      unitNames: { alpha: 'Alpha', beta: 'Beta', gamma: 'Gamma' },
+    });
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      contractId: 'unit-prerequisites',
+      level: 'error',
+      key: 'customparams.editp_prerequisite_units',
+    });
+    expect(issues[0].message).toContain('Alpha → Beta → Gamma → Alpha');
   });
 
   it('converts contract problems into routed project validation issues', () => {

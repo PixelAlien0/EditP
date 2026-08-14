@@ -270,6 +270,37 @@ export const ADVANCED_MECHANICS_RUNTIME_FIXTURES = Object.freeze([
     },
   }),
   Object.freeze({
+    id: 'unit-prerequisite-contract',
+    contractIds: Object.freeze(['unit-prerequisites']),
+    description: 'writes a team-local technology prerequisite contract into UnitDef custom parameters',
+    units: [
+      { id: 'editp_tech_lab', name: 'Runtime Technology Lab', isClone: false },
+      { id: 'editp_advanced_unit', name: 'Runtime Advanced Unit', isClone: false },
+    ],
+    defaultsDb: {
+      editp_tech_lab: {},
+      editp_advanced_unit: {},
+    },
+    tweaks: {
+      editp_advanced_unit: {
+        'customparams.editp_prerequisite_units': 'editp_tech_lab',
+        'customparams.editp_prerequisite_mode': 'all',
+        'customparams.editp_prerequisite_persistent': false,
+      },
+    },
+    runtimeUnitDefs: {
+      editp_tech_lab: { health: 1000 },
+      editp_advanced_unit: { health: 500 },
+    },
+    expectations: {
+      paths: [
+        { path: 'editp_advanced_unit.customparams.editp_prerequisite_units', equals: 'editp_tech_lab' },
+        { path: 'editp_advanced_unit.customparams.editp_prerequisite_mode', equals: 'all' },
+        { path: 'editp_advanced_unit.customparams.editp_prerequisite_persistent', equals: false },
+      ],
+    },
+  }),
+  Object.freeze({
     id: 'energy-converter-contract',
     contractIds: Object.freeze(['energy-converter']),
     description: 'writes the complete BAR energy-conversion pair without disturbing unrelated UnitDef custom parameters',

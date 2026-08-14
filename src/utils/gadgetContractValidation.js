@@ -354,6 +354,59 @@ function validateScavengerSquad(values, _context, problems) {
   }
 }
 
+export function parsePrerequisiteUnitIds(value) {
+  return [...new Set(valueList(value).map(cleanId).filter(Boolean))];
+}
+
+function validateUnitPrerequisites(values, context, problems) {
+  const rawUnits = valueList(values['customparams.editp_prerequisite_units']).map(cleanId).filter(Boolean);
+  const requiredUnits = parsePrerequisiteUnitIds(values['customparams.editp_prerequisite_units']);
+  validateUnitReferences({
+    key: 'customparams.editp_prerequisite_units',
+    value: requiredUnits.join(' '),
+    ...context,
+    problems,
+  });
+
+  if (requiredUnits.includes(context.unitId)) {
+    problems.push({
+      kind: 'conflict',
+      level: 'error',
+      key: 'customparams.editp_prerequisite_units',
+      message: 'A unit cannot require itself; that prerequisite can never be satisfied before construction.',
+      suggestedFix: 'Remove this unit from Required Unit Types.',
+    });
+  }
+  if (rawUnits.length !== requiredUnits.length) {
+    problems.push({
+      kind: 'invalid',
+      level: 'warning',
+      key: 'customparams.editp_prerequisite_units',
+      message: 'Duplicate prerequisite UnitDef IDs will be ignored by the runtime gadget.',
+      suggestedFix: 'Keep each required UnitDef only once.',
+    });
+  }
+
+  const mode = cleanId(values['customparams.editp_prerequisite_mode'] || 'all');
+  if (!['all', 'any'].includes(mode)) {
+    problems.push({
+      kind: 'invalid',
+      level: 'error',
+      key: 'customparams.editp_prerequisite_mode',
+      message: 'Prerequisite Mode must be all or any.',
+      suggestedFix: 'Choose All or Any.',
+    });
+  }
+
+  problems.push({
+    kind: 'dependency',
+    level: 'warning',
+    key: 'customparams.editp_prerequisite_units',
+    message: 'This rule requires the BAR EditP prerequisite LuaRules gadget in the loaded game or mod package. Lobby tweak fields alone cannot enforce construction prerequisites.',
+    suggestedFix: 'Install runtime/prerequisites/LuaRules/Gadgets/unit_build_prerequisites.lua in the game or mod package used for testing.',
+  });
+}
+
 const CONTRACT_VALIDATORS = Object.freeze({
   'explosion-spawner': validateExplosionSpawner,
   'carrier-spawner': validateCarrier,
@@ -363,7 +416,61 @@ const CONTRACT_VALIDATORS = Object.freeze({
   'projectile-interception': validateInterception,
   'energy-converter': validateEnergyConverter,
   'scavenger-squad': validateScavengerSquad,
+  'unit-prerequisites': validateUnitPrerequisites,
 });
+
+export function buildPrerequisiteGraphIssues({ tweaks = {}, unitNames = {} } = {}) {
+  const graph = new Map();
+  Object.entries(tweaks).forEach(([rawUnitId, patch]) => {
+    const unitId = cleanId(rawUnitId);
+    const required = parsePrerequisiteUnitIds(patch?.['customparams.editp_prerequisite_units']);
+    if (unitId && required.length) graph.set(unitId, required);
+  });
+
+  const state = new Map();
+  const stack = [];
+  const cycles = new Map();
+  const visit = unitId => {
+    state.set(unitId, 1);
+    stack.push(unitId);
+    (graph.get(unitId) || []).forEach(requiredId => {
+      if (!graph.has(requiredId)) return;
+      if (!state.has(requiredId)) {
+        visit(requiredId);
+        return;
+      }
+      if (state.get(requiredId) !== 1) return;
+      const start = stack.lastIndexOf(requiredId);
+      const cycle = [...stack.slice(start), requiredId];
+      const members = [...new Set(cycle.slice(0, -1))].sort();
+      cycles.set(members.join('|'), cycle);
+    });
+    stack.pop();
+    state.set(unitId, 2);
+  };
+  graph.forEach((_required, unitId) => {
+    if (!state.has(unitId)) visit(unitId);
+  });
+
+  return [...cycles.values()].map((cycle, index) => {
+    const unitId = cycle[0];
+    const names = cycle.map(id => unitNames[id] || id);
+    return {
+      id: `prerequisite-cycle-${index}-${cycle.join('-')}`,
+      source: 'gadget-contract',
+      group: 'contracts',
+      contractId: 'unit-prerequisites',
+      unitId,
+      unitName: unitNames[unitId] || unitId,
+      key: 'customparams.editp_prerequisite_units',
+      level: 'error',
+      title: `${unitNames[unitId] || unitId} · Technology prerequisite`,
+      message: `Circular prerequisite detected: ${names.join(' → ')}. None of these units can become available first.`,
+      suggestedFix: 'Remove or redirect at least one prerequisite in this cycle.',
+      action: { type: 'unit', unitId, label: 'Open contract' },
+    };
+  });
+}
 
 function weaponSlotNumbers(defaults, patch) {
   const numbers = new Set((defaults?.weaponSlots || []).map(slot => Number(slot.slot)).filter(Number.isFinite));

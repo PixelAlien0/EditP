@@ -26,6 +26,7 @@ const UNIT_REFERENCE_KEYS = new Set([
 
 const UNIT_LIST_KEYS = new Set([
   'carried_unit',
+  'editp_prerequisite_units',
   'spawn_units',
   'unit_list',
 ]);

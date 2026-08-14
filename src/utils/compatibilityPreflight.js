@@ -121,7 +121,9 @@ export function buildCompatibilityPreflight({
     group: 'contracts',
     level: result.status === 'experimental' ? 'info' : 'pass',
     title: `${result.unitName} · ${result.label}`,
-    detail: `${result.slotNumber === null ? 'Unit contract' : `Weapon slot ${result.slotNumber}`} matches registry v${result.source.commit.slice(0, 8)} for the pinned BAR snapshot${result.status === 'experimental' ? '; runtime behavior remains experimental' : ''}.`,
+    detail: result.source.kind === 'project'
+      ? `${result.slotNumber === null ? 'Unit contract' : `Weapon slot ${result.slotNumber}`} matches the BAR EditP runtime package contract${result.status === 'experimental' ? '; runtime behavior remains experimental' : ''}.`
+      : `${result.slotNumber === null ? 'Unit contract' : `Weapon slot ${result.slotNumber}`} matches registry v${result.source.commit.slice(0, 8)} for the pinned BAR snapshot${result.status === 'experimental' ? '; runtime behavior remains experimental' : ''}.`,
     action: { type: 'unit', unitId: result.unitId, label: 'Open unit' },
   }));
   if (gadgetContractResults.length === 0) {

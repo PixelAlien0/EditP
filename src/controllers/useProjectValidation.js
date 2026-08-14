@@ -4,6 +4,7 @@ import {
 } from '../config/specialProjectileBehaviors.js';
 import { buildCrossWorkspaceValidation } from '../utils/crossWorkspaceValidation.js';
 import {
+  buildPrerequisiteGraphIssues,
   evaluateGadgetContracts,
   gadgetContractResultsToIssues,
 } from '../utils/gadgetContractValidation.js';
@@ -321,6 +322,7 @@ export function useProjectValidation({
       });
     }
     issues.push(...gadgetContractResultsToIssues(gadgetContractResults));
+    issues.push(...buildPrerequisiteGraphIssues({ tweaks, unitNames }));
     issues.push(...buildCrossWorkspaceValidation({
       tweaks,
       clones,
