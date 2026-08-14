@@ -16,6 +16,8 @@ Only finished units count. In strict mode, destroyed, reverse-built, captured, o
 
 ## Behavior boundary
 
-The gadget rejects unavailable build commands and factory queue entries through synchronized `AllowCommand` and `AllowUnitCreation` call-ins. It does not hide locked icons from the build menu; adding a matching unsynced command-menu presentation layer is a separate optional feature.
+The gadget rejects unavailable build commands and factory queue entries through synchronized `AllowCommand` and `AllowUnitCreation` call-ins. It also publishes the state through BAR's native Build Blocking API. Locked build options therefore remain visible but appear dimmed and cannot be selected. Their command tooltips identify the prerequisite units. The commands automatically become available when the team satisfies the rule and return to the locked state if a strict prerequisite is lost. Persistent rules remain available after their first unlock.
+
+The presentation uses BAR's Build Blocking API plus Recoil's command-description API. Custom command-menu widgets that ignore BAR block notifications or command tooltips may need their own visual adapter, while enforcement remains active regardless of the UI.
 
 Unknown prerequisite UnitDefs fail closed and are reported once through `Spring.Echo`. BAR EditP also blocks self-references and circular project rules during export validation.

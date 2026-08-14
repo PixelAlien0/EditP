@@ -19,6 +19,15 @@ local prerequisiteRules = {}
 local finishedUnits = {}
 local teamUnitCounts = {}
 local permanentUnlocks = {}
+local trackedBuilders = {}
+local builderCommandState = {}
+local buildBlockingState = {}
+local buildBlockingInitialized = false
+local BLOCK_REASON = "editp_prerequisite"
+
+local spEditUnitCmdDesc = Spring.EditUnitCmdDesc
+local spFindUnitCmdDesc = Spring.FindUnitCmdDesc
+local spGetUnitCmdDescs = Spring.GetUnitCmdDescs
 
 local function normalize(value)
   if value == nil then return "" end
@@ -118,6 +127,137 @@ local function prerequisiteSatisfied(teamID, targetUnitDefID)
   return satisfied
 end
 
+local function prerequisiteLabel(rule)
+  local names = {}
+  for index = 1, #rule.requiredUnitDefIDs do
+    local requiredDef = UnitDefs[rule.requiredUnitDefIDs[index]]
+    names[#names + 1] = (requiredDef and (requiredDef.humanName or requiredDef.name)) or "Unknown unit"
+  end
+  local joiner = rule.mode == "any" and " or " or ", "
+  return table.concat(names, joiner)
+end
+
+local function lockedTooltip(rule, originalTooltip)
+  local requirement = prerequisiteLabel(rule)
+  local modeText = rule.mode == "any" and "one of" or "all of"
+  local persistentText = rule.persistent and " Unlock remains after the prerequisite is lost." or ""
+  local notice = "LOCKED - Build " .. modeText .. ": " .. requirement .. "." .. persistentText
+  if originalTooltip and originalTooltip ~= "" then
+    return originalTooltip .. "\n\n" .. notice
+  end
+  return notice
+end
+
+local function refreshBuilderCommand(unitID, teamID, targetUnitDefID, rule)
+  local cmdDescID = spFindUnitCmdDesc(unitID, -targetUnitDefID)
+  if not cmdDescID then return false end
+
+  local states = builderCommandState[unitID]
+  if not states then
+    states = {}
+    builderCommandState[unitID] = states
+  end
+
+  local state = states[targetUnitDefID]
+  if not state then
+    local descriptions = spGetUnitCmdDescs(unitID, cmdDescID, cmdDescID)
+    local description = descriptions and descriptions[1] or {}
+    state = {
+      tooltip = description.tooltip or "",
+      disabled = description.disabled == true,
+    }
+    states[targetUnitDefID] = state
+  end
+
+  local locked = not prerequisiteSatisfied(teamID, targetUnitDefID)
+  spEditUnitCmdDesc(unitID, cmdDescID, {
+    -- BAR's build menu hides disabled command descriptions completely. Keep the
+    -- command's original state here and use BAR's Build Blocking API for the
+    -- visible, dimmed, unselectable presentation instead.
+    disabled = state.disabled,
+    tooltip = locked and lockedTooltip(rule, state.tooltip) or state.tooltip,
+  })
+  return true
+end
+
+local function publishRuleState(teamID, targetUnitDefID)
+  local buildBlocking = GG and GG.BuildBlocking
+  if not buildBlocking or not buildBlocking.AddBlockedUnit or not buildBlocking.RemoveBlockedUnit then
+    return false
+  end
+
+  local teamStates = buildBlockingState[teamID]
+  if not teamStates then
+    teamStates = {}
+    buildBlockingState[teamID] = teamStates
+  end
+
+  local locked = not prerequisiteSatisfied(teamID, targetUnitDefID)
+  if teamStates[targetUnitDefID] == locked then return true end
+  if locked then
+    buildBlocking.AddBlockedUnit(targetUnitDefID, teamID, BLOCK_REASON)
+  else
+    buildBlocking.RemoveBlockedUnit(targetUnitDefID, teamID, BLOCK_REASON)
+  end
+  teamStates[targetUnitDefID] = locked
+  return true
+end
+
+local function refreshTeamRules(teamID)
+  if not teamID then return false end
+  local published = true
+  for targetUnitDefID in pairs(prerequisiteRules) do
+    if not publishRuleState(teamID, targetUnitDefID) then
+      published = false
+    end
+  end
+  return published
+end
+
+local function refreshAllTeamRules()
+  local published = true
+  local teams = Spring.GetTeamList and Spring.GetTeamList() or {}
+  for index = 1, #teams do
+    if not refreshTeamRules(teams[index]) then
+      published = false
+    end
+  end
+  return published
+end
+
+local function refreshBuilder(unitID, unitDefID, teamID)
+  if not unitDefID or not teamID then return end
+  local unitDef = UnitDefs[unitDefID]
+  local buildOptions = unitDef and unitDef.buildOptions
+  if not buildOptions or #buildOptions == 0 then return end
+
+  local hasTrackedCommand = false
+  for index = 1, #buildOptions do
+    local targetUnitDefID = buildOptions[index]
+    if type(targetUnitDefID) == "string" then
+      local targetDef = UnitDefNames[normalize(targetUnitDefID)]
+      targetUnitDefID = targetDef and targetDef.id
+    end
+    local rule = targetUnitDefID and prerequisiteRules[targetUnitDefID]
+    if rule and refreshBuilderCommand(unitID, teamID, targetUnitDefID, rule) then
+      hasTrackedCommand = true
+    end
+  end
+
+  if hasTrackedCommand then
+    trackedBuilders[unitID] = { unitDefID = unitDefID, teamID = teamID }
+  end
+end
+
+local function refreshTeamBuilders(teamID)
+  if not teamID then return end
+  for unitID, builder in pairs(trackedBuilders) do
+    if builder.teamID == teamID then
+      refreshBuilder(unitID, builder.unitDefID, teamID)
+    end
+  end
+end
+
 local function loadRules()
   for unitDefID, unitDef in pairs(UnitDefs) do
     local customParams = unitDef.customParams or {}
@@ -157,26 +297,67 @@ function gadget:Initialize()
       trackFinishedUnit(unitID, unitDefID, teamID)
     end
   end
+  for index = 1, #allUnits do
+    local unitID = allUnits[index]
+    refreshBuilder(unitID, Spring.GetUnitDefID(unitID), Spring.GetUnitTeam(unitID))
+  end
+  buildBlockingInitialized = refreshAllTeamRules()
+end
+
+function gadget:GameFrame(frame)
+  if not buildBlockingInitialized and frame % 30 == 1 then
+    buildBlockingInitialized = refreshAllTeamRules()
+  end
+end
+
+function gadget:UnitCreated(unitID, unitDefID, teamID)
+  refreshBuilder(unitID, unitDefID, teamID)
 end
 
 function gadget:UnitFinished(unitID, unitDefID, teamID)
   trackFinishedUnit(unitID, unitDefID, teamID)
+  refreshTeamRules(teamID)
+  refreshBuilder(unitID, unitDefID, teamID)
+  refreshTeamBuilders(teamID)
 end
 
-function gadget:UnitReverseBuilt(unitID)
+function gadget:UnitReverseBuilt(unitID, _unitDefID, teamID)
   untrackUnit(unitID)
+  refreshTeamRules(teamID)
+  refreshTeamBuilders(teamID)
 end
 
-function gadget:UnitDestroyed(unitID)
+function gadget:UnitDestroyed(unitID, _unitDefID, teamID)
   untrackUnit(unitID)
+  trackedBuilders[unitID] = nil
+  builderCommandState[unitID] = nil
+  refreshTeamRules(teamID)
+  refreshTeamBuilders(teamID)
 end
 
 function gadget:UnitTaken(unitID, unitDefID, oldTeamID, newTeamID)
   moveTrackedUnit(unitID, unitDefID, newTeamID)
+  if trackedBuilders[unitID] then
+    trackedBuilders[unitID].teamID = newTeamID
+  end
+  refreshBuilder(unitID, unitDefID, newTeamID)
+  refreshTeamRules(oldTeamID)
+  refreshTeamRules(newTeamID)
+  refreshTeamBuilders(oldTeamID)
+  refreshTeamBuilders(newTeamID)
 end
 
-function gadget:UnitGiven(unitID, unitDefID, newTeamID)
+function gadget:UnitGiven(unitID, unitDefID, newTeamID, oldTeamID)
+  oldTeamID = oldTeamID or (trackedBuilders[unitID] and trackedBuilders[unitID].teamID)
   moveTrackedUnit(unitID, unitDefID, newTeamID)
+  if trackedBuilders[unitID] then
+    trackedBuilders[unitID].teamID = newTeamID
+  end
+  refreshBuilder(unitID, unitDefID, newTeamID)
+  refreshTeamRules(oldTeamID)
+  refreshTeamRules(newTeamID)
+  refreshTeamBuilders(oldTeamID)
+  refreshTeamBuilders(newTeamID)
 end
 
 function gadget:AllowUnitCreation(unitDefID, builderID, builderTeam)
