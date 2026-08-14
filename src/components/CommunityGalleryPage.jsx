@@ -12,6 +12,7 @@ import {
 import {
   COMMUNITY_PAGE_SIZE,
   deleteCommunityProject,
+  getCommunityLobbyCommands,
   getCommunitySession,
   listCommunityProjects,
   openCommunityProjectCopy,
@@ -21,6 +22,7 @@ import {
   signOutCommunity,
   subscribeCommunityAuth,
 } from '../services/communityGallery.js';
+import { getExportOptimizationProfile } from '../config/exportOptimizationProfiles.js';
 import '../styles/features/community-gallery.css';
 
 const COMPATIBILITY_OPTIONS = Object.freeze([
@@ -91,6 +93,9 @@ export default function CommunityGalleryPage({
   onBack,
   currentProject,
   currentSnapshot,
+  currentLobbyCommands = '',
+  currentCompiledLobbyModules,
+  currentOptimizationProfile = 'balanced',
   onOpenCopy,
   onNotice,
   loadProjects = listCommunityProjects,
@@ -99,6 +104,7 @@ export default function CommunityGalleryPage({
   requestSignIn = requestCommunitySignIn,
   signOut = signOutCommunity,
   publishProject = publishCommunityProject,
+  loadLobbyCommands = getCommunityLobbyCommands,
   openProjectCopy = openCommunityProjectCopy,
   deleteProject = deleteCommunityProject,
   reportProject = reportCommunityProject,
@@ -179,6 +185,13 @@ export default function CommunityGalleryPage({
     [projects, selectedId]
   );
   const isOwner = Boolean(user?.id && selectedProject?.ownerId === user.id);
+  const currentExportProfile = getExportOptimizationProfile(currentOptimizationProfile);
+  const currentLobbySlotCount = currentCompiledLobbyModules?.overflow
+    ? 0
+    : (currentCompiledLobbyModules?.slots?.length || 0);
+  const currentLobbyPayloadCharacters = currentCompiledLobbyModules?.overflow
+    ? 0
+    : (currentCompiledLobbyModules?.aggregateBytes || 0);
 
   const updateFilter = setter => event => {
     setter(event.target.value);
@@ -257,15 +270,34 @@ export default function CommunityGalleryPage({
         projectVersion: currentProject?.version || '',
         metrics: getProjectMetrics(currentProject),
         document: currentProject,
+        lobbyCommands: currentLobbyCommands,
+        optimizationProfile: currentExportProfile.id,
       });
       setDialog('');
       setPage(1);
       setSelectedId(published.id);
       setReloadToken(current => current + 1);
-      setNotice('Project published without raw Lua or external links.');
+      setNotice(currentLobbyCommands
+        ? `Project published with a ${currentExportProfile.label} lobby-ready export.`
+        : 'Project published without raw Lua or external links.');
       onNotice?.('Community project published.');
     } catch (publishError) {
       setActionError(publishError instanceof Error ? publishError.message : 'The project could not be published.');
+    } finally {
+      setBusyAction('');
+    }
+  };
+
+  const handleCopyLobbyCommands = async () => {
+    if (!selectedProject?.hasLobbyCommands) return;
+    setBusyAction('lobby-copy');
+    setActionError('');
+    try {
+      const artifact = await loadLobbyCommands(selectedProject.id);
+      await navigator.clipboard.writeText(artifact.commands);
+      setNotice(`Copied ${artifact.slotCount} lobby ${artifact.slotCount === 1 ? 'field' : 'fields'} using the ${getExportOptimizationProfile(artifact.optimizationProfile).label} profile.`);
+    } catch (copyError) {
+      setActionError(copyError instanceof Error ? copyError.message : 'The lobby commands could not be copied.');
     } finally {
       setBusyAction('');
     }
@@ -430,6 +462,7 @@ export default function CommunityGalleryPage({
             <aside className="community-project-details" aria-live="polite">
               {selectedProject && (() => {
                 const projectStatus = getStatus(selectedProject);
+                const exportProfile = getExportOptimizationProfile(selectedProject.exportOptimizationProfile);
                 return (
                   <>
                     <header><Type variant="eyebrow">Project dossier</Type><Type as="h3" variant="section-title">{selectedProject.title}</Type><span>Published {formatDate(selectedProject.publishedAt)}</span></header>
@@ -437,13 +470,36 @@ export default function CommunityGalleryPage({
                     <p>{selectedProject.summary}</p>
                     <dl><div><dt>Creator</dt><dd>{selectedProject.authorName}</dd></div><div><dt>Project format</dt><dd>{selectedProject.projectVersion || 'Not supplied'}</dd></div><div><dt>BAR snapshot</dt><dd>{selectedProject.snapshotCommit ? selectedProject.snapshotCommit.slice(0, 12) : 'Not supplied'}</dd></div><div><dt>Opened as copies</dt><dd>{selectedProject.forkCount.toLocaleString()}</dd></div></dl>
                     <div className="community-project-details__tags">{selectedProject.tags.length > 0 ? selectedProject.tags.map(projectTag => <button type="button" key={projectTag} onClick={() => selectTag(projectTag)}>#{projectTag}</button>) : <span>Untagged project</span>}</div>
+                    <section className="community-project-export" aria-labelledby="community-project-export-title">
+                      <header>
+                        <div>
+                          <Type variant="eyebrow">Lobby-ready export</Type>
+                          <Type as="h4" variant="subsection-title" id="community-project-export-title">Copy without importing</Type>
+                        </div>
+                        <Badge tone={selectedProject.hasLobbyCommands ? 'success' : 'neutral'} size="sm">
+                          {selectedProject.hasLobbyCommands ? exportProfile.label : 'Not included'}
+                        </Badge>
+                      </header>
+                      {selectedProject.hasLobbyCommands ? (
+                        <>
+                          <dl>
+                            <div><dt>Optimization</dt><dd>{exportProfile.label}</dd></div>
+                            <div><dt>Lobby fields</dt><dd>{selectedProject.lobbySlotCount} / 18</dd></div>
+                            <div><dt>Payload</dt><dd>{selectedProject.lobbyPayloadCharacters.toLocaleString()} chars</dd></div>
+                          </dl>
+                          <Button variant="primary" loading={busyAction === 'lobby-copy'} onClick={handleCopyLobbyCommands}>Copy all !bset commands</Button>
+                        </>
+                      ) : (
+                        <p>This entry predates lobby-ready community exports. Open it as a copy to compile it locally.</p>
+                      )}
+                    </section>
                     {actionError && !dialog && <Callout tone="danger" title="Action unavailable">{actionError}</Callout>}
                     <div className="community-project-details__actions">
                       <Button variant="primary" loading={busyAction === 'copy'} disabled={!selectedProject.hasProjectCopy} onClick={handleOpenCopy}>Open as copy</Button>
                       <Button onClick={requestReport}>Report project</Button>
                       {isOwner && <Button variant="danger" onClick={() => { setActionError(''); setDialog('delete'); }}>Delete your project</Button>}
                     </div>
-                    <Callout title="Sanitized project copy" tone="info">Opens as an independent local copy. Comments, external links, imported raw Lua, and lobby command payloads are never published.</Callout>
+                    <Callout title="Sanitized project copy" tone="info">Opens as an independent local copy. Comments, external links, imported raw Lua, and raw source are excluded. When available, the separate lobby-ready artifact contains only validated editor-generated !bset commands.</Callout>
                   </>
                 );
               })()}
@@ -465,8 +521,19 @@ export default function CommunityGalleryPage({
       {dialog === 'publish' && (
         <CommunityDialog className="community-gallery-dialog--publish" labelledBy="community-publish-title" describedBy="community-publish-description" onClose={closeDialog}>
           <form onSubmit={handlePublish}>
-            <header><Type variant="eyebrow">Publish safe copy</Type><Type as="h2" variant="section-title" id="community-publish-title">Share this project</Type><p id="community-publish-description">Only structured editor data is shared. Raw Lua, lobby imports, links, and comments are excluded.</p></header>
+            <header><Type variant="eyebrow">Publish safe copy</Type><Type as="h2" variant="section-title" id="community-publish-title">Share this project</Type><p id="community-publish-description">Structured editor data and its validated lobby-ready export are shared. Imported raw Lua, links, and comments are excluded.</p></header>
             <div className="community-gallery-dialog__body community-gallery-publish-grid">
+              <section className="community-publish-export is-wide" aria-label="Published lobby export">
+                <div>
+                  <Type variant="eyebrow">Direct lobby copy</Type>
+                  <strong>{currentExportProfile.label} optimization</strong>
+                  <span>{currentLobbyCommands ? 'Visitors can copy the exact compiled commands without opening your project.' : 'This project currently has no lobby commands to include.'}</span>
+                </div>
+                <dl>
+                  <div><dt>Fields</dt><dd>{currentLobbySlotCount} / 18</dd></div>
+                  <div><dt>Payload</dt><dd>{currentLobbyPayloadCharacters.toLocaleString()} chars</dd></div>
+                </dl>
+              </section>
               <label><span>Project title</span><input value={publishDraft.title} onChange={event => setPublishDraft(current => ({ ...current, title: event.target.value }))} minLength={3} maxLength={80} required /></label>
               <label><span>Creator name</span><input value={publishDraft.authorName} onChange={event => setPublishDraft(current => ({ ...current, authorName: event.target.value }))} minLength={2} maxLength={48} required /></label>
               <label className="is-wide"><span>Summary</span><textarea value={publishDraft.summary} onChange={event => setPublishDraft(current => ({ ...current, summary: event.target.value }))} minLength={12} maxLength={500} required /></label>

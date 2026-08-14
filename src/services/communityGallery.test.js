@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   normalizeCommunityTags,
   sanitizeCommunityProjectDocument,
+  validateCommunityLobbyArtifact,
   validateCommunityPublication,
 } from './communityGallery.js';
 
@@ -41,5 +42,36 @@ describe('community gallery publication safety', () => {
 
   it('normalizes and limits searchable tags', () => {
     expect(normalizeCommunityTags('Balance, ARMADA, balance, invalid!, air power')).toEqual(['balance', 'armada', 'air power']);
+  });
+
+  it('accepts deterministic editor lobby commands and records their optimization profile', () => {
+    const result = validateCommunityLobbyArtifact({
+      commands: '!bset tweakdefs1 QUJD\n!bset tweakunits1 REVG',
+      optimizationProfile: 'maximum',
+    });
+
+    expect(result).toEqual({
+      valid: true,
+      errors: [],
+      value: {
+        commands: '!bset tweakdefs1 QUJD\n!bset tweakunits1 REVG',
+        optimizationProfile: 'maximum',
+        slotCount: 2,
+        payloadCharacters: 8,
+      },
+    });
+  });
+
+  it('rejects arbitrary lobby commands and non-deterministic field ordering', () => {
+    expect(validateCommunityLobbyArtifact({
+      commands: '!bset tweakunits1 REVG\n!bset tweakdefs1 QUJD\n!bset forceallunits 1',
+      optimizationProfile: 'balanced',
+    })).toMatchObject({
+      valid: false,
+      errors: expect.arrayContaining([
+        'Definitions fields must appear before Units fields.',
+        'Lobby output contains a command outside the supported tweakdefs/tweakunits format.',
+      ]),
+    });
   });
 });

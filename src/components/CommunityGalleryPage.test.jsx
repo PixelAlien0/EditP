@@ -2,7 +2,10 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import CommunityGalleryPage from './CommunityGalleryPage.jsx';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 const projects = [
   {
@@ -21,6 +24,10 @@ const projects = [
     downloadCount: 18,
     forkCount: 3,
     hasProjectCopy: true,
+    hasLobbyCommands: true,
+    exportOptimizationProfile: 'maximum',
+    lobbySlotCount: 2,
+    lobbyPayloadCharacters: 8192,
   },
 ];
 
@@ -32,6 +39,8 @@ describe('CommunityGalleryPage', () => {
     expect(await screen.findAllByRole('heading', { name: 'Armada frontline pass' })).toHaveLength(2);
     expect(screen.getAllByText('Workshop Pilot')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Open as copy' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Copy all !bset commands' })).toBeEnabled();
+    expect(screen.getAllByText('Maximum').length).toBeGreaterThan(0);
     expect(screen.getByText('Sanitized project copy')).toBeInTheDocument();
   });
 
@@ -68,6 +77,35 @@ describe('CommunityGalleryPage', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Open as copy' }));
     await waitFor(() => expect(onOpenCopy).toHaveBeenCalledWith({ version: '1.9' }, 'Armada frontline pass'));
+  });
+
+  it('copies the published lobby artifact without opening the project', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+    const loadLobbyCommands = vi.fn().mockResolvedValue({
+      commands: '!bset tweakdefs1 QUJD',
+      optimizationProfile: 'maximum',
+      slotCount: 1,
+      payloadCharacters: 4,
+    });
+    const onOpenCopy = vi.fn();
+    render(
+      <CommunityGalleryPage
+        onBack={vi.fn()}
+        onOpenCopy={onOpenCopy}
+        loadProjects={vi.fn().mockResolvedValue({ projects, total: 1, configured: true })}
+        loadLobbyCommands={loadLobbyCommands}
+      />
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Copy all !bset commands' }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('!bset tweakdefs1 QUJD'));
+    expect(loadLobbyCommands).toHaveBeenCalledWith('project-one');
+    expect(onOpenCopy).not.toHaveBeenCalled();
+    expect(screen.getByText(/Copied 1 lobby field using the Maximum profile/)).toBeInTheDocument();
   });
 
   it('explains when Supabase has not been configured', async () => {

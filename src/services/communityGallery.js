@@ -1,7 +1,10 @@
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase.js';
+import { normalizeExportOptimizationProfile } from '../config/exportOptimizationProfiles.js';
 
 export const COMMUNITY_PAGE_SIZE = 24;
 export const COMMUNITY_MAX_PROJECT_BYTES = 1024 * 1024;
+export const COMMUNITY_MAX_LOBBY_SLOTS = 18;
+export const COMMUNITY_MAX_LOBBY_PAYLOAD_CHARACTERS = 16384 * COMMUNITY_MAX_LOBBY_SLOTS;
 
 const COMMUNITY_PROJECT_FIELDS = [
   'id',
@@ -19,6 +22,10 @@ const COMMUNITY_PROJECT_FIELDS = [
   'download_count',
   'fork_count',
   'has_project_copy',
+  'has_lobby_commands',
+  'export_optimization_profile',
+  'lobby_slot_count',
+  'lobby_payload_chars',
 ].join(',');
 
 const URL_PATTERN = /(?:https?:\/\/|www\.)/i;
@@ -26,6 +33,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TAG_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N}\s-]{0,23}$/u;
 const REPORT_REASONS = new Set(['broken', 'unsafe', 'misleading', 'copyright', 'other']);
 const COMPATIBILITY_STATUSES = new Set(['compatible', 'review', 'outdated', 'experimental']);
+const LOBBY_COMMAND_PATTERN = /^!bset (tweakdefs|tweakunits)([1-9]) ([A-Za-z0-9+/_-]+={0,2})$/;
 const PUBLIC_PROJECT_FIELDS = new Set([
   'version', 'tweaks', 'clones', 'disabledUnitIds', 'buildMenuSteps', 'buildMenuPacks',
   'unitDescriptions', 'weaponLibrary', 'supportingWeaponDefs', 'unitCollections',
@@ -63,6 +71,10 @@ function normalizeProject(row) {
     downloadCount: Number(row.download_count) || 0,
     forkCount: Number(row.fork_count) || 0,
     hasProjectCopy: Boolean(row.has_project_copy),
+    hasLobbyCommands: Boolean(row.has_lobby_commands),
+    exportOptimizationProfile: normalizeExportOptimizationProfile(row.export_optimization_profile),
+    lobbySlotCount: Number(row.lobby_slot_count) || 0,
+    lobbyPayloadCharacters: Number(row.lobby_payload_chars) || 0,
   };
 }
 
@@ -97,7 +109,60 @@ export function sanitizeCommunityProjectDocument(document) {
   return sanitized;
 }
 
-export function validateCommunityPublication({ title, summary, authorName, tags, document }) {
+export function validateCommunityLobbyArtifact({ commands, optimizationProfile } = {}) {
+  const profile = normalizeExportOptimizationProfile(optimizationProfile);
+  const normalizedCommands = String(commands || '')
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean);
+  const errors = [];
+
+  if (normalizedCommands.length > COMMUNITY_MAX_LOBBY_SLOTS) {
+    errors.push(`Lobby output uses more than ${COMMUNITY_MAX_LOBBY_SLOTS} fields.`);
+  }
+
+  let unitsStarted = false;
+  let payloadCharacters = 0;
+  const seenFields = new Set();
+  const expectedIndex = { tweakdefs: 1, tweakunits: 1 };
+
+  normalizedCommands.forEach(command => {
+    const match = command.match(LOBBY_COMMAND_PATTERN);
+    if (!match) {
+      errors.push('Lobby output contains a command outside the supported tweakdefs/tweakunits format.');
+      return;
+    }
+    const [, kind, indexText, payload] = match;
+    const fieldName = `${kind}${indexText}`;
+    const index = Number(indexText);
+    if (seenFields.has(fieldName)) errors.push(`Lobby output repeats ${fieldName}.`);
+    seenFields.add(fieldName);
+    if (kind === 'tweakunits') unitsStarted = true;
+    if (kind === 'tweakdefs' && unitsStarted) errors.push('Definitions fields must appear before Units fields.');
+    if (index !== expectedIndex[kind]) errors.push(`${kind} fields must be numbered consecutively from 1.`);
+    expectedIndex[kind] = index + 1;
+    if (payload.length > 16384) errors.push(`${fieldName} exceeds BAR's 16,384-character field limit.`);
+    payloadCharacters += payload.length;
+  });
+
+  if (payloadCharacters > COMMUNITY_MAX_LOBBY_PAYLOAD_CHARACTERS) {
+    errors.push('Lobby output exceeds the community publication payload limit.');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors: [...new Set(errors)],
+    value: {
+      commands: normalizedCommands.join('\n'),
+      optimizationProfile: profile,
+      slotCount: normalizedCommands.length,
+      payloadCharacters,
+    },
+  };
+}
+
+export function validateCommunityPublication({ title, summary, authorName, tags, document, lobbyCommands, optimizationProfile }) {
   const safeTitle = String(title || '').trim();
   const safeSummary = String(summary || '').trim();
   const safeAuthor = String(authorName || '').trim();
@@ -114,6 +179,11 @@ export function validateCommunityPublication({ title, summary, authorName, tags,
   const bytes = new TextEncoder().encode(serialized).byteLength;
   if (URL_PATTERN.test(serialized)) errors.push('Remove external links from the project before publishing.');
   if (bytes > COMMUNITY_MAX_PROJECT_BYTES) errors.push('The safe project copy exceeds the 1 MB publication limit.');
+  const lobbyArtifact = validateCommunityLobbyArtifact({
+    commands: lobbyCommands,
+    optimizationProfile: optimizationProfile || sanitizedDocument.exportOptimizationProfile,
+  });
+  errors.push(...lobbyArtifact.errors);
 
   return {
     valid: errors.length === 0,
@@ -125,6 +195,7 @@ export function validateCommunityPublication({ title, summary, authorName, tags,
       tags: safeTags,
       document: sanitizedDocument,
       bytes,
+      lobbyArtifact: lobbyArtifact.value,
     },
   };
 }
@@ -205,9 +276,17 @@ export async function listCommunityProjects({
   return { projects: (data || []).map(normalizeProject), total: count || 0, configured: true };
 }
 
-export async function publishCommunityProject({ user, title, summary, authorName, tags, compatibilityStatus, snapshotCommit, projectVersion, metrics, document }) {
+export async function publishCommunityProject({ user, title, summary, authorName, tags, compatibilityStatus, snapshotCommit, projectVersion, metrics, document, lobbyCommands, optimizationProfile }) {
   if (!user?.id) throw new Error('Sign in before publishing a project.');
-  const validation = validateCommunityPublication({ title, summary, authorName, tags, document });
+  const validation = validateCommunityPublication({
+    title,
+    summary,
+    authorName,
+    tags,
+    document,
+    lobbyCommands,
+    optimizationProfile,
+  });
   if (!validation.valid) throw new Error(validation.errors[0]);
   const supabase = await getSupabaseClient();
   if (!supabase) throw new Error('Community publishing is not configured.');
@@ -225,12 +304,30 @@ export async function publishCommunityProject({ user, title, summary, authorName
       project_version: String(projectVersion || '').slice(0, 24),
       metrics: metrics || {},
       project_document: values.document,
+      lobby_commands: values.lobbyArtifact.commands,
+      export_optimization_profile: values.lobbyArtifact.optimizationProfile,
+      lobby_slot_count: values.lobbyArtifact.slotCount,
+      lobby_payload_chars: values.lobbyArtifact.payloadCharacters,
       status: 'published',
     })
     .select(COMMUNITY_PROJECT_FIELDS)
     .single();
   if (error) throw communityError(error, 'The project could not be published.');
   return normalizeProject(data);
+}
+
+export async function getCommunityLobbyCommands(projectId) {
+  const supabase = await getSupabaseClient();
+  if (!supabase) throw new Error('Community lobby exports are not configured.');
+  const { data, error } = await supabase.rpc('get_community_lobby_commands', { project_uuid: projectId });
+  if (error) throw communityError(error, 'The lobby commands could not be loaded.');
+  if (!data?.commands) throw new Error('This project does not include a lobby-ready export.');
+  return {
+    commands: data.commands,
+    optimizationProfile: normalizeExportOptimizationProfile(data.optimizationProfile),
+    slotCount: Number(data.slotCount) || 0,
+    payloadCharacters: Number(data.payloadCharacters) || 0,
+  };
 }
 
 export async function openCommunityProjectCopy(projectId) {

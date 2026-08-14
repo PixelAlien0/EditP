@@ -1480,6 +1480,9 @@ export default function App() {
           <LazyCommunityGalleryPage
             currentProject={normalizedProjectDocument}
             currentSnapshot={gameDataSnapshot}
+            currentLobbyCommands={lobbyCommands}
+            currentCompiledLobbyModules={compiledLobbyModules}
+            currentOptimizationProfile={exportOptimizationProfile}
             onOpenCopy={(communityDocument, communityTitle) => {
               const prepared = normalizeProjectDocumentWithReport(communityDocument);
               hydrateProjectStore({
