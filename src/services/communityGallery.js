@@ -28,6 +28,24 @@ const COMMUNITY_PROJECT_FIELDS = [
   'lobby_payload_chars',
 ].join(',');
 
+const COMMUNITY_LEGACY_PROJECT_FIELDS = [
+  'id',
+  'owner_id',
+  'title',
+  'summary',
+  'author_name',
+  'tags',
+  'compatibility_status',
+  'snapshot_commit',
+  'project_version',
+  'metrics',
+  'published_at',
+  'updated_at',
+  'download_count',
+  'fork_count',
+  'has_project_copy',
+].join(',');
+
 const URL_PATTERN = /(?:https?:\/\/|www\.)/i;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TAG_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N}\s-]{0,23}$/u;
@@ -81,7 +99,23 @@ function normalizeProject(row) {
 function communityError(error, fallback) {
   if (error?.code === '23505') return new Error('You already reported this project.');
   if (error?.code === '42501') return new Error('Your account is not allowed to perform this action.');
+  if (isCommunityLobbySchemaError(error)) {
+    return new Error('Direct lobby exports are not configured yet. Run the latest Community Gallery Supabase migration.');
+  }
   return new Error(error?.message || fallback);
+}
+
+export function isCommunityLobbySchemaError(error) {
+  const message = String(error?.message || error?.details || '').toLowerCase();
+  return ['42703', 'pgrst202', 'pgrst204'].includes(String(error?.code || '').toLowerCase())
+    && (
+      message.includes('lobby_commands')
+      || message.includes('has_lobby_commands')
+      || message.includes('export_optimization_profile')
+      || message.includes('lobby_slot_count')
+      || message.includes('lobby_payload_chars')
+      || message.includes('get_community_lobby_commands')
+    );
 }
 
 export function normalizeCommunityTags(tags) {
@@ -254,24 +288,31 @@ export async function listCommunityProjects({
   const searchTerm = sanitizeSearchTerm(search);
   const tagTerm = normalizeTag(tag);
 
-  let request = supabase
-    .from('community_projects')
-    .select(COMMUNITY_PROJECT_FIELDS, { count: 'exact' })
-    .eq('status', 'published');
+  const buildRequest = fields => {
+    let request = supabase
+      .from('community_projects')
+      .select(fields, { count: 'exact' })
+      .eq('status', 'published');
 
-  if (searchTerm) request = request.or(`title.ilike.%${searchTerm}%,summary.ilike.%${searchTerm}%,author_name.ilike.%${searchTerm}%`);
-  if (tagTerm) request = request.contains('tags', [tagTerm]);
-  if (compatibility !== 'all') request = request.eq('compatibility_status', compatibility);
+    if (searchTerm) request = request.or(`title.ilike.%${searchTerm}%,summary.ilike.%${searchTerm}%,author_name.ilike.%${searchTerm}%`);
+    if (tagTerm) request = request.contains('tags', [tagTerm]);
+    if (compatibility !== 'all') request = request.eq('compatibility_status', compatibility);
 
-  if (sort === 'popular') {
-    request = request.order('download_count', { ascending: false }).order('published_at', { ascending: false });
-  } else if (sort === 'updated') {
-    request = request.order('updated_at', { ascending: false });
-  } else {
-    request = request.order('published_at', { ascending: false });
+    if (sort === 'popular') {
+      request = request.order('download_count', { ascending: false }).order('published_at', { ascending: false });
+    } else if (sort === 'updated') {
+      request = request.order('updated_at', { ascending: false });
+    } else {
+      request = request.order('published_at', { ascending: false });
+    }
+    return request.range(from, to);
+  };
+
+  let result = await buildRequest(COMMUNITY_PROJECT_FIELDS);
+  if (result.error && isCommunityLobbySchemaError(result.error)) {
+    result = await buildRequest(COMMUNITY_LEGACY_PROJECT_FIELDS);
   }
-
-  const { data, error, count } = await request.range(from, to);
+  const { data, error, count } = result;
   if (error) throw communityError(error, 'The community gallery could not be loaded.');
   return { projects: (data || []).map(normalizeProject), total: count || 0, configured: true };
 }

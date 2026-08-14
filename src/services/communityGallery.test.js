@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  isCommunityLobbySchemaError,
   normalizeCommunityTags,
   sanitizeCommunityProjectDocument,
   validateCommunityLobbyArtifact,
@@ -73,5 +74,20 @@ describe('community gallery publication safety', () => {
         'Lobby output contains a command outside the supported tweakdefs/tweakunits format.',
       ]),
     });
+  });
+
+  it('recognizes an outdated Community lobby-export schema without masking unrelated errors', () => {
+    expect(isCommunityLobbySchemaError({
+      code: '42703',
+      message: 'column community_projects.has_lobby_commands does not exist',
+    })).toBe(true);
+    expect(isCommunityLobbySchemaError({
+      code: 'PGRST202',
+      message: 'Could not find the function public.get_community_lobby_commands',
+    })).toBe(true);
+    expect(isCommunityLobbySchemaError({
+      code: '42703',
+      message: 'column community_projects.unrelated_column does not exist',
+    })).toBe(false);
   });
 });
