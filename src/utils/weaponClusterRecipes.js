@@ -128,6 +128,78 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     kind: 'visual',
     description: 'Visual only: eerie Scavenger mist blooms around the impact without changing combat.',
   }),
+  'aqua-prism': Object.freeze({
+    id: 'aqua-prism',
+    label: 'Aqua Prism',
+    supportingKey: 'editp_aqua_prism',
+    clusterCount: 8,
+    kind: 'visual',
+    description: 'Visual only: cool aqua laser facets radiate from the impact without changing combat.',
+  }),
+  'verdant-echo': Object.freeze({
+    id: 'verdant-echo',
+    label: 'Verdant Echo',
+    supportingKey: 'editp_verdant_echo',
+    clusterCount: 10,
+    kind: 'visual',
+    description: 'Visual only: layered green energy blooms leave a restrained luminous echo.',
+  }),
+  'crimson-petals': Object.freeze({
+    id: 'crimson-petals',
+    label: 'Crimson Petals',
+    supportingKey: 'editp_crimson_petals',
+    clusterCount: 12,
+    kind: 'visual',
+    description: 'Visual only: compact red laser impacts scatter like petals around the target.',
+  }),
+  'golden-flicker': Object.freeze({
+    id: 'golden-flicker',
+    label: 'Golden Flicker',
+    supportingKey: 'editp_golden_flicker',
+    clusterCount: 15,
+    kind: 'visual',
+    description: 'Visual only: small golden flashes create a dense celebratory shimmer.',
+  }),
+  'acid-aurora': Object.freeze({
+    id: 'acid-aurora',
+    label: 'Acid Aurora',
+    supportingKey: 'editp_acid_aurora',
+    clusterCount: 7,
+    kind: 'visual',
+    description: 'Visual only: vivid acidic light curls through the impact zone with no damage.',
+  }),
+  'raptor-embers': Object.freeze({
+    id: 'raptor-embers',
+    label: 'Raptor Embers',
+    supportingKey: 'editp_raptor_embers',
+    clusterCount: 9,
+    kind: 'visual',
+    description: 'Visual only: hot Raptor sparks and embers punctuate the impact without applying damage.',
+  }),
+  'black-ash': Object.freeze({
+    id: 'black-ash',
+    label: 'Black Ash',
+    supportingKey: 'editp_black_ash',
+    clusterCount: 5,
+    kind: 'visual',
+    description: 'Visual only: dark combustion plumes give heavy impacts a smoky afterimage.',
+  }),
+  'dust-halo': Object.freeze({
+    id: 'dust-halo',
+    label: 'Dust Halo',
+    supportingKey: 'editp_dust_halo',
+    clusterCount: 14,
+    kind: 'visual',
+    description: 'Visual only: a broad ring of earth-toned dust marks the impact without deforming terrain.',
+  }),
+  'void-pulse': Object.freeze({
+    id: 'void-pulse',
+    label: 'Void Pulse',
+    supportingKey: 'editp_void_pulse',
+    clusterCount: 6,
+    kind: 'visual',
+    description: 'Visual only: compact Scavenger haze creates a muted, otherworldly pulse.',
+  }),
 });
 
 function buildNapalmBlossomDefinition({ recipe, childDamage, childAoe }) {
@@ -546,6 +618,69 @@ function buildScavMirageDefinition(options) {
   });
 }
 
+function buildAquaPrismDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:laserhit-large-aqua',
+  });
+}
+
+function buildVerdantEchoDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:laserhit-large-green',
+  });
+}
+
+function buildCrimsonPetalsDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:laserhit-medium-red',
+  });
+}
+
+function buildGoldenFlickerDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:laserhit-small-yellow',
+  });
+}
+
+function buildAcidAuroraDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:acid-explosion-small',
+  });
+}
+
+function buildRaptorEmbersDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:raptorspike-small-sparks-burn',
+  });
+}
+
+function buildBlackAshDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:burnblackbig',
+  });
+}
+
+function buildDustHaloDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:dirtpoof',
+  });
+}
+
+function buildVoidPulseDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:scavmist',
+  });
+}
+
 const RECIPE_BUILDERS = Object.freeze({
   'napalm-blossom': buildNapalmBlossomDefinition,
   'meteor-rain': buildMeteorRainDefinition,
@@ -562,6 +697,15 @@ const RECIPE_BUILDERS = Object.freeze({
   'blue-nova': buildBlueNovaDefinition,
   'spark-veil': buildSparkVeilDefinition,
   'scav-mirage': buildScavMirageDefinition,
+  'aqua-prism': buildAquaPrismDefinition,
+  'verdant-echo': buildVerdantEchoDefinition,
+  'crimson-petals': buildCrimsonPetalsDefinition,
+  'golden-flicker': buildGoldenFlickerDefinition,
+  'acid-aurora': buildAcidAuroraDefinition,
+  'raptor-embers': buildRaptorEmbersDefinition,
+  'black-ash': buildBlackAshDefinition,
+  'dust-halo': buildDustHaloDefinition,
+  'void-pulse': buildVoidPulseDefinition,
 });
 
 export function buildWeaponClusterRecipeApplication({

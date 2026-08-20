@@ -6,7 +6,7 @@ import {
 } from './weaponClusterRecipes.js';
 
 describe('Cluster recipe library', () => {
-  it('offers twelve gameplay and three visual-only presets', () => {
+  it('offers twelve gameplay and twelve visual-only presets', () => {
     expect(Object.keys(WEAPON_CLUSTER_RECIPES)).toEqual([
       'napalm-blossom',
       'meteor-rain',
@@ -23,10 +23,19 @@ describe('Cluster recipe library', () => {
       'blue-nova',
       'spark-veil',
       'scav-mirage',
+      'aqua-prism',
+      'verdant-echo',
+      'crimson-petals',
+      'golden-flicker',
+      'acid-aurora',
+      'raptor-embers',
+      'black-ash',
+      'dust-halo',
+      'void-pulse',
     ]);
-    expect(new Set(Object.values(WEAPON_CLUSTER_RECIPES).map(recipe => recipe.supportingKey)).size).toBe(15);
+    expect(new Set(Object.values(WEAPON_CLUSTER_RECIPES).map(recipe => recipe.supportingKey)).size).toBe(24);
     expect(Object.values(WEAPON_CLUSTER_RECIPES).filter(recipe => recipe.kind === 'combat')).toHaveLength(12);
-    expect(Object.values(WEAPON_CLUSTER_RECIPES).filter(recipe => recipe.kind === 'visual')).toHaveLength(3);
+    expect(Object.values(WEAPON_CLUSTER_RECIPES).filter(recipe => recipe.kind === 'visual')).toHaveLength(12);
   });
 });
 
@@ -143,6 +152,15 @@ describe.each([
   ['blue-nova', 9, 'custom:laserhit-large-blue'],
   ['spark-veil', 14, 'custom:plasmahit-sparkonly'],
   ['scav-mirage', 6, 'custom:scav_mist_explosion'],
+  ['aqua-prism', 8, 'custom:laserhit-large-aqua'],
+  ['verdant-echo', 10, 'custom:laserhit-large-green'],
+  ['crimson-petals', 12, 'custom:laserhit-medium-red'],
+  ['golden-flicker', 15, 'custom:laserhit-small-yellow'],
+  ['acid-aurora', 7, 'custom:acid-explosion-small'],
+  ['raptor-embers', 9, 'custom:raptorspike-small-sparks-burn'],
+  ['black-ash', 5, 'custom:burnblackbig'],
+  ['dust-halo', 14, 'custom:dirtpoof'],
+  ['void-pulse', 6, 'custom:scavmist'],
 ])('%s visual cluster recipe', (recipeId, clusterCount, explosiongenerator) => {
   it('produces presentation without combat or terrain effects', () => {
     const application = buildWeaponClusterRecipeApplication({
