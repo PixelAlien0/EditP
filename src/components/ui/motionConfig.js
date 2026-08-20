@@ -74,4 +74,35 @@ export const MOTION_VARIANTS = Object.freeze({
     visible: Object.freeze({ opacity: 1, y: 0 }),
     exit: Object.freeze({ opacity: 0 }),
   }),
+  topbar: Object.freeze({
+    hidden: Object.freeze({ opacity: 0, y: -MOTION_DISTANCE.subtle }),
+    visible: Object.freeze({ opacity: 1, y: 0 }),
+  }),
+  staggerGroup: Object.freeze({
+    hidden: Object.freeze({ opacity: 0 }),
+    visible: Object.freeze({ opacity: 1 }),
+  }),
+  staggerItem: Object.freeze({
+    hidden: Object.freeze({ opacity: 0, y: MOTION_DISTANCE.standard }),
+    visible: Object.freeze({ opacity: 1, y: 0 }),
+  }),
+  metricItem: Object.freeze({
+    hidden: Object.freeze({ opacity: 0, y: MOTION_DISTANCE.subtle }),
+    visible: Object.freeze({ opacity: 1, y: 0 }),
+  }),
+  interactiveCard: Object.freeze({
+    rest: Object.freeze({ y: 0 }),
+    hover: Object.freeze({ y: -MOTION_DISTANCE.subtle }),
+    tap: Object.freeze({ y: 0, scale: 0.995 }),
+  }),
+  interactiveSurface: Object.freeze({
+    hidden: Object.freeze({ opacity: 0, y: MOTION_DISTANCE.subtle }),
+    visible: Object.freeze({ opacity: 1, y: 0 }),
+    hover: Object.freeze({ y: -2 }),
+    tap: Object.freeze({ y: 0, scale: 0.995 }),
+  }),
+  directional: Object.freeze({
+    rest: Object.freeze({ x: 0 }),
+    hover: Object.freeze({ x: MOTION_DISTANCE.subtle }),
+  }),
 });

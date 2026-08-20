@@ -1,10 +1,16 @@
 import OnlinePresenceBadge from './OnlinePresenceBadge.jsx';
 import { CapabilityLabels } from './ui.jsx';
 import { m } from 'motion/react';
-import { MOTION_DELAY, MOTION_TRANSITION, MOTION_VARIANTS } from './ui/motionConfig.js';
+import { MOTION_DELAY, MOTION_STAGGER, MOTION_TRANSITION, MOTION_VARIANTS } from './ui/motionConfig.js';
 
 const ArrowIcon = () => (
   <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9h11" /><path d="m10.5 5 4 4-4 4" /></svg>
+);
+
+const MotionArrow = () => (
+  <m.span className="main-menu__motion-arrow" variants={MOTION_VARIANTS.directional} aria-hidden="true">
+    <ArrowIcon />
+  </m.span>
 );
 
 const FileIcon = ({ direction = 'in' }) => (
@@ -70,9 +76,28 @@ export default function MainMenu({
     { id: 'reference', code: 'REF', title: 'BAR Reference Library', description: 'Verified game data', capabilityId: 'tool.reference-library', onSelect: onReferenceLibrary },
   ];
 
+  const projectMetrics = [
+    ['Definitions', unitCount.toLocaleString()],
+    ['Changes', projectChangeCount],
+    ['Clones', cloneCount],
+    ['Rosters', rosterCount],
+  ];
+
   return (
-    <main className="main-menu">
-      <header className="main-menu__topbar">
+    <m.main
+      className="main-menu"
+      variants={MOTION_VARIANTS.page}
+      initial="hidden"
+      animate="visible"
+      transition={MOTION_TRANSITION.enter}
+    >
+      <m.header
+        className="main-menu__topbar"
+        variants={MOTION_VARIANTS.topbar}
+        initial="hidden"
+        animate="visible"
+        transition={MOTION_TRANSITION.enter}
+      >
         <div className="main-menu__topbar-inner">
           <div className="main-menu__brand">
             <img src="/logo.svg" alt="" />
@@ -94,7 +119,7 @@ export default function MainMenu({
             <button type="button" onClick={onOpenCredits}>Credits</button>
           </div>
         </div>
-      </header>
+      </m.header>
 
       <div className="main-menu__frame">
         {gameDataStatus === 'error' && (
@@ -115,53 +140,72 @@ export default function MainMenu({
           animate="visible"
           transition={MOTION_TRANSITION.enter}
         >
-          <article className="main-menu__active-project" aria-labelledby="main-menu-project-title">
-            <header>
-              <div>
-                <span>Current project</span>
-                <h2 id="main-menu-project-title">{currentProjectName}</h2>
-              </div>
-              <small className={hasWork ? 'is-active' : ''}><i aria-hidden="true" />{hasWork ? 'In progress' : 'Ready'}</small>
-            </header>
-            <dl aria-label="Current project status">
-              <div><dt>Definitions</dt><dd>{unitCount.toLocaleString()}</dd></div>
-              <div><dt>Changes</dt><dd>{projectChangeCount}</dd></div>
-              <div><dt>Clones</dt><dd>{cloneCount}</dd></div>
-              <div><dt>Rosters</dt><dd>{rosterCount}</dd></div>
-            </dl>
-            <button type="button" className="main-menu__enter" onClick={onEditUnits}>
-              <span><small>Edit units</small><strong>{hasWork ? 'Continue editing' : 'Open editor'}</strong></span>
-              <ArrowIcon />
-            </button>
-          </article>
-
-          <aside className="main-menu__project-sidebar" aria-label="Project actions and status">
+          <aside className="main-menu__studio-intro" aria-labelledby="main-menu-title">
             <div className="main-menu__project-summary">
-              <span>BAR Editor</span>
+              <span>Definition workspace</span>
               <h1 id="main-menu-title">Bar EditP</h1>
-              <p>Edit BAR units and export lobby-ready tweaks.</p>
+              <p>A focused workshop for shaping BAR units, production rosters, and lobby-ready projects.</p>
             </div>
+
+            <dl className="main-menu__system-status" aria-label="Editor status">
+              <div><dt>BAR data</dt><dd>{gameDataStatus === 'ready' ? 'Validated' : gameDataStatus === 'error' ? 'Unavailable' : 'Checking'}</dd></div>
+              <div><dt>Storage</dt><dd>Local-first</dd></div>
+            </dl>
 
             <section className="main-menu__project-files" aria-labelledby="main-menu-files-title">
               <h2 id="main-menu-files-title">Project files</h2>
               <div className="main-menu__project-file-actions">
-                <label>
+                <m.label variants={MOTION_VARIANTS.interactiveCard} initial="rest" whileHover="hover" whileTap="tap">
                   <FileIcon direction="in" />
-                  <span><strong>Load project</strong><small>Open JSON</small></span>
+                  <span><strong>Load project</strong><small>Open a saved JSON workspace</small></span>
                   <input type="file" accept=".json" onChange={onLoadProject} />
-                </label>
-                <button type="button" onClick={onSaveProject}>
+                </m.label>
+                <m.button type="button" onClick={onSaveProject} variants={MOTION_VARIANTS.interactiveCard} initial="rest" whileHover="hover" whileTap="tap">
                   <FileIcon direction="out" />
-                  <span><strong>Save project</strong><small>Download JSON</small></span>
-                </button>
+                  <span><strong>Save project</strong><small>Download the current workspace</small></span>
+                </m.button>
               </div>
             </section>
-
-            <dl className="main-menu__system-status" aria-label="Editor status">
-              <div><dt>BAR data</dt><dd>{gameDataStatus === 'ready' ? 'Validated' : gameDataStatus === 'error' ? 'Unavailable' : 'Checking'}</dd></div>
-              <div><dt>Storage</dt><dd>Local</dd></div>
-            </dl>
           </aside>
+
+          <article className="main-menu__active-project" aria-labelledby="main-menu-project-title">
+            <header>
+              <div>
+                <span>Active local project</span>
+                <h2 id="main-menu-project-title">{currentProjectName}</h2>
+              </div>
+              <small className={hasWork ? 'is-active' : ''}><i aria-hidden="true" />{hasWork ? 'In progress' : 'Ready'}</small>
+            </header>
+            <m.dl
+              variants={MOTION_VARIANTS.staggerGroup}
+              initial="hidden"
+              animate="visible"
+              transition={{ delayChildren: MOTION_DELAY.relatedSection, staggerChildren: MOTION_STAGGER.standard }}
+              aria-label="Current project status"
+            >
+              {projectMetrics.map(([label, value]) => (
+                <m.div key={label} variants={MOTION_VARIANTS.metricItem} transition={MOTION_TRANSITION.feedback}>
+                  <dt>{label}</dt><dd>{value}</dd>
+                </m.div>
+              ))}
+            </m.dl>
+            <div className="main-menu__project-context">
+              <div><span>Current state</span><strong>{hasWork ? `${projectChangeCount} tracked changes` : 'Clean workspace'}</strong></div>
+              <div><span>Definition source</span><strong>{gameDataSnapshot?.sourceCommit ? `BAR ${gameDataSnapshot.sourceCommit.slice(0, 8)}` : 'Bundled snapshot'}</strong></div>
+            </div>
+            <m.button
+              type="button"
+              className="main-menu__enter"
+              onClick={onEditUnits}
+              variants={MOTION_VARIANTS.interactiveCard}
+              initial="rest"
+              whileHover="hover"
+              whileTap="tap"
+            >
+              <span><small>Edit units</small><strong>{hasWork ? 'Continue editing' : 'Open editor'}</strong></span>
+              <MotionArrow />
+            </m.button>
+          </article>
         </m.section>
 
         <m.section
@@ -173,12 +217,32 @@ export default function MainMenu({
           transition={{ ...MOTION_TRANSITION.enter, delay: MOTION_DELAY.relatedSection }}
         >
           <header className="main-menu__launchpad-heading">
-            <h2 id="main-menu-directory-title">Workspaces</h2>
+            <div>
+              <span>Project routes</span>
+              <h2 id="main-menu-directory-title">Choose a workspace</h2>
+            </div>
+            <p>Move between editing, production, and delivery without losing project state.</p>
           </header>
 
-          <nav className="main-menu__workspaces" aria-label="Core workspaces">
+          <m.nav
+            className="main-menu__workspaces"
+            variants={MOTION_VARIANTS.staggerGroup}
+            initial="hidden"
+            animate="visible"
+            transition={{ delayChildren: MOTION_DELAY.relatedSection, staggerChildren: MOTION_STAGGER.standard }}
+            aria-label="Core workspaces"
+          >
             {workspaces.map(item => (
-              <button key={item.id} type="button" className={item.primary ? 'is-primary' : ''} onClick={item.onSelect}>
+              <m.button
+                key={item.id}
+                type="button"
+                className={item.primary ? 'is-primary' : ''}
+                onClick={item.onSelect}
+                variants={MOTION_VARIANTS.interactiveSurface}
+                transition={MOTION_TRANSITION.enter}
+                whileHover="hover"
+                whileTap="tap"
+              >
                 <span className="main-menu__workspace-number">{item.number}</span>
                 <span className="main-menu__workspace-copy">
                   <span className="main-menu__workspace-capabilities">
@@ -189,16 +253,29 @@ export default function MainMenu({
                   <p>{item.description}</p>
                 </span>
                 <span className="main-menu__workspace-meta">{item.meta}</span>
-                <ArrowIcon />
-              </button>
+                <MotionArrow />
+              </m.button>
             ))}
-          </nav>
+          </m.nav>
 
           <section className="main-menu__tool-directory" aria-label="Research & package tools">
-            <header><h3 id="main-menu-tools-title">Tools</h3></header>
-            <div>
+            <header><span>Specialist workbenches</span><h3 id="main-menu-tools-title">Project tools</h3></header>
+            <m.div
+              variants={MOTION_VARIANTS.staggerGroup}
+              initial="hidden"
+              animate="visible"
+              transition={{ delayChildren: MOTION_DELAY.relatedSection, staggerChildren: MOTION_STAGGER.tight }}
+            >
               {tools.map(tool => (
-                <button type="button" key={tool.id} onClick={tool.onSelect}>
+                <m.button
+                  type="button"
+                  key={tool.id}
+                  onClick={tool.onSelect}
+                  variants={MOTION_VARIANTS.interactiveSurface}
+                  transition={MOTION_TRANSITION.enter}
+                  whileHover="hover"
+                  whileTap="tap"
+                >
                   <span>{tool.code}</span>
                   <span>
                     <span className="main-menu__tool-title">
@@ -207,10 +284,10 @@ export default function MainMenu({
                     </span>
                     <small>{tool.description}</small>
                   </span>
-                  <ArrowIcon />
-                </button>
+                  <MotionArrow />
+                </m.button>
               ))}
-            </div>
+            </m.div>
           </section>
         </m.section>
       </div>
@@ -225,6 +302,6 @@ export default function MainMenu({
               : 'Validating BAR definitions'}
         </span>
       </footer>
-    </main>
+    </m.main>
   );
 }

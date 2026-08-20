@@ -63,7 +63,7 @@ test('main menu separates the active project, core workspaces, and specialist wo
   await expect(page.locator('.main-menu__active-project')).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Core workspaces' }).getByRole('button')).toHaveCount(3);
   const tools = page.getByRole('region', { name: 'Research & package tools' });
-  await expect(tools.getByRole('button')).toHaveCount(5);
+  await expect(tools.getByRole('button')).toHaveCount(6);
   await expect(page.getByRole('button', { name: 'Save project' })).toBeVisible();
 
   await tools.getByRole('button', { name: /Collections/ }).click();
