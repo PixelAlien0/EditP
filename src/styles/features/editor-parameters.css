@@ -312,12 +312,30 @@
   gap: var(--space-3);
 }
 
+.weapon-advanced-group-heading--cluster {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.3fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-5);
+  padding-block: var(--space-3);
+}
+
+.weapon-advanced-group-heading--cluster .weapon-advanced-group-heading__copy {
+  padding-top: calc(var(--space-4) + var(--space-1));
+}
+
+.weapon-advanced-group-heading--cluster .weapon-advanced-group-heading__actions {
+  width: 100%;
+  min-width: 0;
+}
+
 .weapon-cluster-recipe-palette {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
   gap: var(--space-2);
-  width: min(1040px, 70vw);
+  width: 100%;
 }
 
 .weapon-cluster-recipe-palette__group {
@@ -346,6 +364,17 @@
   white-space: nowrap;
 }
 
+@media (max-width: 1180px) {
+  .weapon-advanced-group-heading--cluster {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .weapon-advanced-group-heading--cluster .weapon-advanced-group-heading__copy {
+    padding-top: 0;
+  }
+}
+
 .weapon-advanced-grid {
   padding: var(--space-3);
   margin-bottom: 0;
@@ -367,6 +396,10 @@
     width: 100%;
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .weapon-advanced-group-heading--cluster {
+    display: grid;
   }
 
   .weapon-advanced-group-heading__actions .section-heading__meta {

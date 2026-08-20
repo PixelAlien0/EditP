@@ -1369,7 +1369,7 @@ export default function EditUnitsWorkspace({ context }) {
                                 className={`weapon-advanced-group ${group.kind === 'special-projectile' ? 'weapon-special-projectile' : ''}`}
                                 key={group.title}
                               >
-                                <div className="weapon-advanced-group-heading">
+                                <div className={`weapon-advanced-group-heading ${group.kind === 'cluster' ? 'weapon-advanced-group-heading--cluster' : ''}`}>
                                   <div className="weapon-advanced-group-heading__copy">
                                     <span className="weapon-advanced-group-heading__title">{group.title}</span>
                                     <small>{specialProjectileBehavior?.description || group.description}</small>
@@ -1398,7 +1398,6 @@ export default function EditUnitsWorkspace({ context }) {
                                   )}
                                   {group.kind === 'cluster' && (
                                     <div className="weapon-advanced-group-heading__actions">
-                                      <span className="section-heading__meta">Preset library</span>
                                       <div className="weapon-cluster-recipe-palette" role="group" aria-label="Cluster recipe presets">
                                         {[
                                           ['combat', 'Gameplay'],
