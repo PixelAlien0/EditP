@@ -55,7 +55,6 @@
 .main-menu__project-pulse > span,
 .main-menu__enter small,
 .main-menu__workspace-capabilities > small,
-.main-menu__launchpad-heading span,
 .main-menu__tool-directory > header > span,
 .main-menu__project-context span {
   color: var(--color-text-muted);
@@ -155,7 +154,6 @@
 }
 
 .main-menu__project-summary > span,
-.main-menu__launchpad-heading span,
 .main-menu__tool-directory > header > span { color: var(--color-accent-strong); }
 
 .main-menu__project-summary h1 {
@@ -355,23 +353,11 @@
 .main-menu__launchpad {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(190px, .34fr) minmax(0, 1.66fr);
-  grid-template-areas:
-    "heading workspaces"
-    "tools tools";
-  align-items: stretch;
-  gap: var(--space-4) clamp(var(--space-5), 2vw, var(--space-8));
+  gap: var(--space-4);
 }
-.main-menu__launchpad-heading { display: grid; align-content: end; gap: var(--space-3); padding-bottom: var(--space-5); }
-.main-menu__launchpad-heading { grid-area: heading; }
-.main-menu__launchpad-heading > div { display: grid; gap: 3px; }
-.main-menu__launchpad-heading h2 { margin: 0; color: var(--color-text-strong); font: 560 clamp(22px, 1.8vw, 28px)/1.1 var(--font-display); }
-.main-menu__launchpad-heading h2,
 .main-menu__workspace-copy strong { text-wrap: balance; }
-.main-menu__launchpad-heading p { max-width: 27ch; margin: 0; color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.55; text-wrap: pretty; }
 
 .main-menu__workspaces {
-  grid-area: workspaces;
   min-height: 190px;
   display: grid;
   grid-template-columns: minmax(260px, 1.25fr) repeat(2, minmax(190px, .8fr));
@@ -410,7 +396,7 @@
 .main-menu__workspace-meta { grid-column: 2; align-self: end; color: var(--color-accent-strong); font: 650 8px/1 var(--font-mono); }
 .main-menu__workspaces .main-menu__motion-arrow { grid-column: 3; grid-row: 2; align-self: end; }
 
-.main-menu__tool-directory { grid-area: tools; min-width: 0; display: grid; grid-template-columns: minmax(190px, .34fr) minmax(0, 1.66fr); align-items: center; gap: clamp(var(--space-5), 2vw, var(--space-8)); }
+.main-menu__tool-directory { min-width: 0; display: grid; grid-template-columns: minmax(190px, .34fr) minmax(0, 1.66fr); align-items: center; gap: clamp(var(--space-5), 2vw, var(--space-8)); }
 .main-menu__tool-directory > header { display: grid; gap: 3px; }
 .main-menu__tool-directory h3 { margin: 0; color: var(--color-text-strong); font: 650 var(--font-size-sm)/1.3 var(--font-ui); }
 .main-menu__tool-directory > div {
@@ -466,7 +452,6 @@
   .main-menu__project-file-actions { grid-template-columns: 1fr; }
   .main-menu__project-files small,
   .main-menu__tool-directory button small { display: none; }
-  .main-menu__launchpad,
   .main-menu__tool-directory { grid-template-columns: 180px minmax(0, 1fr); }
   .main-menu__tool-directory > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .main-menu__workspaces > button { padding: var(--space-4); }
@@ -481,12 +466,10 @@
   .main-menu__project-summary h1 { font-size: 42px; }
   .main-menu__project-summary p,
   .main-menu__project-files small,
-  .main-menu__workspace-copy p,
-  .main-menu__launchpad-heading p { display: none; }
+  .main-menu__workspace-copy p { display: none; }
   .main-menu__project-overview { grid-template-columns: minmax(210px, .8fr) minmax(300px, 1.2fr); }
   .main-menu__project-pulse > small,
   .main-menu__project-ledger > div small { display: none; }
-  .main-menu__launchpad,
   .main-menu__tool-directory { grid-template-columns: 160px minmax(0, 1fr); }
   .main-menu__workspaces { grid-template-columns: minmax(220px, 1.15fr) repeat(2, minmax(170px, .85fr)); }
   .main-menu__tool-directory button { grid-template-columns: 28px minmax(0, 1fr); }

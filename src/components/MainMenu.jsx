@@ -233,20 +233,12 @@ export default function MainMenu({
 
         <m.section
           className="main-menu__launchpad"
-          aria-labelledby="main-menu-directory-title"
+          aria-label="Project workspaces and tools"
           variants={MOTION_VARIANTS.surface}
           initial="hidden"
           animate="visible"
           transition={{ ...MOTION_TRANSITION.enter, delay: MOTION_DELAY.relatedSection }}
         >
-          <header className="main-menu__launchpad-heading">
-            <div>
-              <span>Project routes</span>
-              <h2 id="main-menu-directory-title">Choose a workspace</h2>
-            </div>
-            <p>Move between editing, production, and delivery without losing project state.</p>
-          </header>
-
           <m.nav
             className="main-menu__workspaces"
             variants={MOTION_VARIANTS.staggerGroup}
