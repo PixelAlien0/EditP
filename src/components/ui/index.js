@@ -9,3 +9,5 @@ export { Type, Eyebrow, TechnicalText } from './Typography.jsx';
 export { SectionHeader, PageHeader, PageShell, Card, StatCard, Divider } from './Layout.jsx';
 export { Spinner, EmptyState, Callout } from './Feedback.jsx';
 export { Dialog } from './Dialog.jsx';
+export { MotionProvider, MotionPage, MotionToast } from './Motion.jsx';
+export { MOTION_TIMING, MOTION_EASE } from './motionConfig.js';

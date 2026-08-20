@@ -1,5 +1,6 @@
 import OnlinePresenceBadge from './OnlinePresenceBadge.jsx';
 import { CapabilityLabels } from './ui.jsx';
+import { m, useReducedMotion } from 'motion/react';
 
 const ArrowIcon = () => (
   <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9h11" /><path d="m10.5 5 4 4-4 4" /></svg>
@@ -40,6 +41,7 @@ export default function MainMenu({
   onLoadProject,
   onSaveProject,
 }) {
+  const reduceMotion = useReducedMotion();
   const hasWork = projectChangeCount > 0;
   const currentProjectName = projectName?.trim() || 'Untitled BAR project';
   const workspaces = [
@@ -105,7 +107,13 @@ export default function MainMenu({
           </aside>
         )}
 
-        <section className="main-menu__project-desk" aria-labelledby="main-menu-title">
+        <m.section
+          className="main-menu__project-desk"
+          aria-labelledby="main-menu-title"
+          initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
           <article className="main-menu__active-project" aria-labelledby="main-menu-project-title">
             <header>
               <div>
@@ -153,9 +161,15 @@ export default function MainMenu({
               <div><dt>Storage</dt><dd>Local</dd></div>
             </dl>
           </aside>
-        </section>
+        </m.section>
 
-        <section className="main-menu__launchpad" aria-labelledby="main-menu-directory-title">
+        <m.section
+          className="main-menu__launchpad"
+          aria-labelledby="main-menu-directory-title"
+          initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18, delay: reduceMotion ? 0 : 0.04, ease: 'easeOut' }}
+        >
           <header className="main-menu__launchpad-heading">
             <h2 id="main-menu-directory-title">Workspaces</h2>
           </header>
@@ -196,7 +210,7 @@ export default function MainMenu({
               ))}
             </div>
           </section>
-        </section>
+        </m.section>
       </div>
 
       <footer className="main-menu__footer">

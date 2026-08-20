@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, useMemo, useEffect, useCallback } from 'react';
+import { AnimatePresence } from 'motion/react';
 import { BUILD_MENU_PACKS } from './data/build-menu-packs.js';
 import { useOnlinePresence } from './hooks/useOnlinePresence.js';
 import { useTemporaryChat } from './hooks/useTemporaryChat.js';
@@ -39,7 +40,7 @@ import {
   BULK_PARAMETER_GROUPS,
   useMutatorToolsController,
 } from './controllers/useMutatorToolsController.js';
-import { Button } from './components/ui.jsx';
+import { Button, MotionToast } from './components/ui.jsx';
 import EditUnitsWorkspace from './components/editor/EditUnitsWorkspace.jsx';
 import { getRelationshipLabel } from './config/parameterGuidance.js';
 import { collectKnownTargetableMask } from './config/behaviorInterceptor.js';
@@ -1208,7 +1209,7 @@ export default function App() {
   if (showMainMenu) {
     return (
       <>
-        {toast.show && <div className="toast">{toast.message}</div>}
+        <AnimatePresence>{toast.show && <MotionToast>{toast.message}</MotionToast>}</AnimatePresence>
         <MainMenu
           themeMode={themeMode}
           unitCount={allUnitsList.length || 1731}
@@ -1304,7 +1305,7 @@ export default function App() {
   return (
     <div className="app-container" style={{ '--border-accent': factionAccentColor }}>
       {/* Toast */}
-      {toast.show && <div className="toast">{toast.message}</div>}
+      <AnimatePresence>{toast.show && <MotionToast>{toast.message}</MotionToast>}</AnimatePresence>
 
       <AppHeader
         activeWorkspace={activeWorkspace}

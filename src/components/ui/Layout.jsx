@@ -1,6 +1,7 @@
 import { cx } from './utils.js';
 import { CapabilityLabels } from './CapabilityBadge.jsx';
 import { Type } from './Typography.jsx';
+import { MotionPage } from './Motion.jsx';
 
 export function SectionHeader({ eyebrow, title, description, actions, className, headingLevel = 2 }) {
   const Heading = `h${headingLevel}`;
@@ -92,7 +93,7 @@ export function PageShell({
     : { 'aria-label': label };
 
   return (
-    <main className={cx('ui-page-shell', `ui-page-shell--${scrollMode}`, className)} {...accessibleProps}>
+    <MotionPage className={cx('ui-page-shell', `ui-page-shell--${scrollMode}`, className)} {...accessibleProps}>
       {header || (title && (
         <PageHeader
           eyebrow={eyebrow}
@@ -111,7 +112,7 @@ export function PageShell({
       {toolbar && <div className="ui-page-shell__toolbar">{toolbar}</div>}
       <div className={cx('ui-page-shell__body', bodyClassName)}>{children}</div>
       {footer && <footer className="ui-page-shell__footer">{footer}</footer>}
-    </main>
+    </MotionPage>
   );
 }
 
