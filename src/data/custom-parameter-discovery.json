@@ -1,26 +1,26 @@
 {
   "version": 3,
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
-  "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
+  "sourceCommit": "32b0375ab2f928323e1a79880ca62b8734ec39d1",
   "counts": {
-    "scannedUnitFiles": 983,
-    "unitParameters": 122,
-    "weaponParameters": 92,
-    "totalParameters": 214,
-    "scannedConsumerFiles": 947,
+    "scannedUnitFiles": 968,
+    "unitParameters": 123,
+    "weaponParameters": 96,
+    "totalParameters": 219,
+    "scannedConsumerFiles": 950,
     "unitParametersWithConsumers": 80,
-    "weaponParametersWithConsumers": 77,
-    "unresolvedConsumerKeys": 30,
-    "consumerOnlyParameters": 104,
-    "inferredValueParameters": 229,
+    "weaponParametersWithConsumers": 76,
+    "unresolvedConsumerKeys": 28,
+    "consumerOnlyParameters": 107,
+    "inferredValueParameters": 233,
     "enumCandidateParameters": 119,
-    "numericRangeParameters": 93
+    "numericRangeParameters": 97
   },
   "parameters": {
     "unit": [
       {
         "key": "airfactory",
-        "occurrences": 15,
+        "occurrences": 13,
         "valueTypes": [
           "boolean"
         ],
@@ -46,7 +46,7 @@
             "path": "luaui/widgets/cmd_fac_holdposition.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 24,
+            "line": 22,
             "access": "unitDef.customParams"
           }
         ],
@@ -391,7 +391,7 @@
             "path": "luarules/gadgets/unit_air_attacksafetydistance.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 28,
+            "line": 29,
             "access": "ud.customParams"
           }
         ],
@@ -475,7 +475,7 @@
             "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 115,
+            "line": 131,
             "access": "UD.customParams"
           }
         ],
@@ -487,7 +487,7 @@
             "value": "1.0",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
-            "line": 115
+            "line": 131
           }
         ],
         "valueDiscovery": {
@@ -509,7 +509,7 @@
       },
       {
         "key": "buildinggrounddecaldecayspeed",
-        "occurrences": 263,
+        "occurrences": 257,
         "valueTypes": [
           "number"
         ],
@@ -548,7 +548,7 @@
       },
       {
         "key": "buildinggrounddecalsizex",
-        "occurrences": 263,
+        "occurrences": 257,
         "valueTypes": [
           "number"
         ],
@@ -576,7 +576,7 @@
             "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 113,
+            "line": 129,
             "access": "UD.customParams"
           }
         ],
@@ -588,7 +588,7 @@
             "value": "0.0",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
-            "line": 113
+            "line": 129
           }
         ],
         "valueDiscovery": {
@@ -610,7 +610,7 @@
       },
       {
         "key": "buildinggrounddecalsizey",
-        "occurrences": 263,
+        "occurrences": 257,
         "valueTypes": [
           "number"
         ],
@@ -638,7 +638,7 @@
             "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 114,
+            "line": 130,
             "access": "UD.customParams"
           }
         ],
@@ -650,7 +650,7 @@
             "value": "0.0",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
-            "line": 114
+            "line": 130
           }
         ],
         "valueDiscovery": {
@@ -672,7 +672,7 @@
       },
       {
         "key": "buildinggrounddecaltype",
-        "occurrences": 263,
+        "occurrences": 257,
         "valueTypes": [
           "string"
         ],
@@ -700,7 +700,7 @@
             "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 105,
+            "line": 121,
             "access": "UD.customParams"
           }
         ],
@@ -743,7 +743,7 @@
             "path": "luarules/gadgets/unit_areaattack.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 35,
+            "line": 34,
             "access": "unitDef.customParams"
           }
         ],
@@ -828,7 +828,7 @@
             "path": "luarules/gadgets/game_territorial_domination.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 127,
+            "line": 130,
             "access": "def.customParams"
           }
         ],
@@ -875,7 +875,7 @@
             "path": "luarules/gadgets/unit_inherit_creation_xp.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 48,
+            "line": 51,
             "access": "def.customParams"
           }
         ],
@@ -887,7 +887,7 @@
             "value": " ",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_inherit_creation_xp.lua",
-            "line": 49
+            "line": 52
           }
         ],
         "valueDiscovery": {
@@ -971,7 +971,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 373,
+            "line": 436,
             "access": "customParams"
           }
         ],
@@ -983,7 +983,7 @@
             "value": "1000",
             "occurrences": 1,
             "sourcePath": "gamedata/alldefs_post.lua",
-            "line": 373
+            "line": 436
           }
         ],
         "valueDiscovery": {
@@ -1031,7 +1031,7 @@
             "path": "luarules/gadgets/unit_crashing_aircraft.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 52,
+            "line": 51,
             "access": "UnitDef.customParams"
           }
         ],
@@ -1043,7 +1043,7 @@
             "value": "0",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_crashing_aircraft.lua",
-            "line": 52
+            "line": 51
           }
         ],
         "valueDiscovery": {
@@ -1162,7 +1162,7 @@
             "path": "luarules/gadgets/cmd_build_bugger_off.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 57,
+            "line": 58,
             "access": "unitDef.customParams"
           }
         ],
@@ -1213,7 +1213,7 @@
             "path": "luarules/gadgets/cmd_dev_helpers.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 2463,
+            "line": 2737,
             "access": "cp"
           }
         ],
@@ -1225,7 +1225,7 @@
             "value": "armfus",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/raptor_spawner_defense.lua",
-            "line": 1488
+            "line": 1748
           }
         ],
         "valueDiscovery": {
@@ -1400,7 +1400,7 @@
             "path": "luarules/gadgets/game_apm_broadcast.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 31,
+            "line": 29,
             "access": "uDef.customParams"
           }
         ],
@@ -1531,7 +1531,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 286,
+            "line": 336,
             "access": "customParams"
           }
         ],
@@ -1584,7 +1584,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 286,
+            "line": 336,
             "access": "customParams"
           }
         ],
@@ -1633,7 +1633,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 631,
+            "line": 702,
             "access": "customParams"
           }
         ],
@@ -1683,7 +1683,7 @@
             "path": "luaui/widgets/gui_info.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 391,
+            "line": 459,
             "access": "unitDef.customParams"
           }
         ],
@@ -1732,7 +1732,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 375,
+            "line": 438,
             "access": "customParams"
           }
         ],
@@ -1744,7 +1744,7 @@
             "value": "health",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_evolution.lua",
-            "line": 319
+            "line": 695
           },
           {
             "kind": "comparison",
@@ -1753,7 +1753,7 @@
             "value": "power",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_evolution.lua",
-            "line": 385
+            "line": 765
           },
           {
             "kind": "comparison",
@@ -1762,7 +1762,7 @@
             "value": "timer",
             "occurrences": 3,
             "sourcePath": "luarules/gadgets/unit_evolution.lua",
-            "line": 135
+            "line": 406
           },
           {
             "kind": "comparison",
@@ -1771,7 +1771,7 @@
             "value": "timer_global",
             "occurrences": 3,
             "sourcePath": "luarules/gadgets/unit_evolution.lua",
-            "line": 142
+            "line": 413
           },
           {
             "kind": "comparison",
@@ -1780,7 +1780,7 @@
             "value": "xp",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_evolution.lua",
-            "line": 396
+            "line": 776
           },
           {
             "kind": "default",
@@ -1789,7 +1789,7 @@
             "value": "timer",
             "occurrences": 1,
             "sourcePath": "gamedata/alldefs_post.lua",
-            "line": 375
+            "line": 438
           }
         ],
         "valueDiscovery": {
@@ -1845,7 +1845,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 377,
+            "line": 440,
             "access": "customParams"
           }
         ],
@@ -1857,7 +1857,7 @@
             "value": "full",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_evolution.lua",
-            "line": 211
+            "line": 503
           },
           {
             "kind": "comparison",
@@ -1866,7 +1866,7 @@
             "value": "percentage",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_evolution.lua",
-            "line": 212
+            "line": 504
           },
           {
             "kind": "default",
@@ -1875,7 +1875,7 @@
             "value": "flat",
             "occurrences": 1,
             "sourcePath": "gamedata/alldefs_post.lua",
-            "line": 377
+            "line": 440
           }
         ],
         "valueDiscovery": {
@@ -1926,7 +1926,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 379,
+            "line": 442,
             "access": "customParams"
           }
         ],
@@ -1977,7 +1977,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 380,
+            "line": 443,
             "access": "customParams"
           }
         ],
@@ -2017,7 +2017,7 @@
         "sourcePaths": [
           "units/Legion/Legion EvoCom/legcomlvl2.lua"
         ],
-        "consumerCount": 5,
+        "consumerCount": 6,
         "writerCount": 1,
         "consumerLayers": [
           "definition-transform",
@@ -2028,7 +2028,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 372,
+            "line": 435,
             "access": "customParams"
           }
         ],
@@ -2097,7 +2097,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 381,
+            "line": 444,
             "access": "customParams"
           }
         ],
@@ -2119,7 +2119,7 @@
       },
       {
         "key": "faction",
-        "occurrences": 1,
+        "occurrences": 2,
         "valueTypes": [
           "string"
         ],
@@ -2127,11 +2127,12 @@
           "NONE"
         ],
         "sampleUnitIds": [
+          "ceg_test_projectile_unit",
           "volcano_projectile_unit"
         ],
         "sampleWeaponDefs": [],
         "sourcePaths": [
-          "units/other/volcano_projectile_unit.lua"
+          "units/other/ceg_test_projectile.lua"
         ],
         "consumerCount": 0,
         "writerCount": 0,
@@ -2140,7 +2141,7 @@
         "consumerValueEvidence": [],
         "valueDiscovery": {
           "inferredType": "string",
-          "typeConfidence": "partial",
+          "typeConfidence": "strong",
           "enumCandidates": [
             "NONE"
           ],
@@ -2179,7 +2180,7 @@
             "path": "luarules/gadgets/unit_collision_damage_behavior.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 90,
+            "line": 92,
             "access": "unitDef.customParams"
           }
         ],
@@ -2191,7 +2192,7 @@
             "value": "1.0",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_collision_damage_behavior.lua",
-            "line": 90
+            "line": 92
           }
         ],
         "valueDiscovery": {
@@ -2239,7 +2240,7 @@
             "path": "luaui/widgets/unit_set_fighters_fly.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 35,
+            "line": 33,
             "access": "ud.customParams"
           }
         ],
@@ -2287,7 +2288,7 @@
             "path": "luaui/widgets/unit_cloak_firestate.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 37,
+            "line": 36,
             "access": "unitDef.customParams"
           }
         ],
@@ -2337,7 +2338,7 @@
             "path": "gamedata/scavengers/unitdef_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 37,
+            "line": 39,
             "access": "uDef.customParams"
           }
         ],
@@ -2457,7 +2458,7 @@
             "path": "luarules/gadgets/cmd_dev_helpers.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 2317,
+            "line": 2587,
             "access": "cp"
           }
         ],
@@ -2503,7 +2504,7 @@
             "path": "luarules/gadgets/gfx_energy_explosion_particles_gl4.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 1288,
+            "line": 1359,
             "access": "ud.customParams"
           }
         ],
@@ -2605,7 +2606,7 @@
             "path": "luarules/gadgets/unit_inherit_creation_xp.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 38,
+            "line": 40,
             "access": "def.customParams"
           }
         ],
@@ -2617,7 +2618,7 @@
             "value": "1",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_inherit_creation_xp.lua",
-            "line": 39
+            "line": 41
           }
         ],
         "valueDiscovery": {
@@ -2680,6 +2681,42 @@
           "comparisonValues": [],
           "defaultCandidates": [],
           "numericRange": null
+        }
+      },
+      {
+        "key": "is_ceg_test_unit",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "1"
+        ],
+        "sampleUnitIds": [
+          "ceg_test_projectile_unit"
+        ],
+        "sampleWeaponDefs": [],
+        "sourcePaths": [
+          "units/other/ceg_test_projectile.lua"
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": [],
+        "consumerValueEvidence": [],
+        "valueDiscovery": {
+          "inferredType": "number",
+          "typeConfidence": "partial",
+          "enumCandidates": [],
+          "enumConfidence": "none",
+          "comparisonValues": [],
+          "defaultCandidates": [],
+          "numericRange": {
+            "observedMin": 1,
+            "observedMax": 1,
+            "lowerBound": null,
+            "upperBound": null
+          }
         }
       },
       {
@@ -2794,7 +2831,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 442,
+            "line": 504,
             "access": "customParams"
           }
         ],
@@ -2841,7 +2878,7 @@
             "path": "gamedata/scavengers/unitdef_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 169,
+            "line": 184,
             "access": "uDef.customParams"
           }
         ],
@@ -2883,7 +2920,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 442,
+            "line": 504,
             "access": "customParams"
           }
         ],
@@ -3136,7 +3173,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 271,
+            "line": 320,
             "access": "customParams"
           }
         ],
@@ -3148,7 +3185,7 @@
             "value": "0",
             "occurrences": 3,
             "sourcePath": "gamedata/alldefs_post.lua",
-            "line": 195
+            "line": 217
           }
         ],
         "valueDiscovery": {
@@ -3195,7 +3232,7 @@
             "path": "luarules/gadgets/cmd_mines_firestate.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 27,
+            "line": 25,
             "access": "unitDef.customParams"
           }
         ],
@@ -3241,7 +3278,7 @@
             "path": "luarules/gadgets/ai_simpleai.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 136,
+            "line": 145,
             "access": "unitDef.customParams"
           }
         ],
@@ -3301,7 +3338,7 @@
       },
       {
         "key": "model_author",
-        "occurrences": 928,
+        "occurrences": 913,
         "valueTypes": [
           "string"
         ],
@@ -3504,7 +3541,7 @@
       },
       {
         "key": "normaltex",
-        "occurrences": 945,
+        "occurrences": 930,
         "valueTypes": [
           "string"
         ],
@@ -3532,7 +3569,7 @@
             "path": "luarules/gadgets/cus_gl4.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 929,
+            "line": 1043,
             "access": "featureDef.customParams"
           }
         ],
@@ -3589,7 +3626,7 @@
             "path": "luarules/gadgets/ai_simpleai.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 144,
+            "line": 153,
             "access": "unitDef.customParams"
           }
         ],
@@ -3634,7 +3671,7 @@
             "path": "luarules/gadgets/unit_paralyze_on_off.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 25,
+            "line": 24,
             "access": "uDef.customParams"
           }
         ],
@@ -3646,7 +3683,7 @@
             "value": "false",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_paralyze_on_off.lua",
-            "line": 25
+            "line": 24
           }
         ],
         "valueDiscovery": {
@@ -3740,7 +3777,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 165,
+            "line": 203,
             "access": "uDef.customParams"
           }
         ],
@@ -3752,7 +3789,7 @@
             "value": "0",
             "occurrences": 1,
             "sourcePath": "gamedata/alldefs_post.lua",
-            "line": 165
+            "line": 203
           },
           {
             "kind": "comparison",
@@ -3761,7 +3798,7 @@
             "value": "0",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_stun_script.lua",
-            "line": 24
+            "line": 23
           },
           {
             "kind": "default",
@@ -3770,7 +3807,7 @@
             "value": "1",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_paralyze_damage_multiplier.lua",
-            "line": 23
+            "line": 22
           }
         ],
         "valueDiscovery": {
@@ -3820,7 +3857,7 @@
             "path": "luarules/gadgets/unit_transport_dies_load_dies.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 31,
+            "line": 33,
             "access": "ud.customParams"
           }
         ],
@@ -3867,7 +3904,7 @@
             "path": "luarules/gadgets/unit_inherit_creation_xp.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 44,
+            "line": 46,
             "access": "def.customParams"
           }
         ],
@@ -3879,7 +3916,7 @@
             "value": " ",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_inherit_creation_xp.lua",
-            "line": 45
+            "line": 47
           }
         ],
         "valueDiscovery": {
@@ -3927,7 +3964,7 @@
             "path": "luarules/gadgets/unit_xp_range_bonus.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 27,
+            "line": 25,
             "access": "unitDef.customParams"
           }
         ],
@@ -4237,7 +4274,7 @@
             "path": "common/configs/unit_restrictions_config.lua",
             "layer": "shared-runtime",
             "confidence": "high",
-            "line": 23,
+            "line": 26,
             "access": "unitDef.customParams"
           }
         ],
@@ -4285,7 +4322,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 259,
+            "line": 299,
             "access": "customParams"
           }
         ],
@@ -4438,7 +4475,7 @@
             "path": "luarules/gadgets/scav_spawner_defense.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 2386,
+            "line": 3071,
             "access": "customParams"
           }
         ],
@@ -4450,7 +4487,7 @@
             "value": "delete",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/scav_spawner_defense.lua",
-            "line": 2391
+            "line": 3087
           },
           {
             "kind": "comparison",
@@ -4459,7 +4496,7 @@
             "value": "null",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/scav_spawner_defense.lua",
-            "line": 2393
+            "line": 3089
           }
         ],
         "valueDiscovery": {
@@ -4508,7 +4545,7 @@
             "path": "luarules/gadgets/scav_spawner_defense.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 1688,
+            "line": 2131,
             "access": "customParams"
           }
         ],
@@ -4520,7 +4557,7 @@
             "value": "delete",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/scav_spawner_defense.lua",
-            "line": 1693
+            "line": 2147
           },
           {
             "kind": "comparison",
@@ -4529,7 +4566,7 @@
             "value": "null",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/scav_spawner_defense.lua",
-            "line": 1695
+            "line": 2149
           }
         ],
         "valueDiscovery": {
@@ -4576,7 +4613,7 @@
             "path": "luaui/widgets/unit_smart_select.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 106,
+            "line": 108,
             "access": "customParams"
           }
         ],
@@ -4621,7 +4658,7 @@
             "path": "gamedata/unitdefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 131,
+            "line": 138,
             "access": "ud.customParams"
           }
         ],
@@ -4670,7 +4707,7 @@
             "path": "luarules/gadgets/gfx_unit_shield_effects.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 627,
+            "line": 690,
             "access": "ud.customParams"
           }
         ],
@@ -4721,7 +4758,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 701,
+            "line": 772,
             "access": "customParams"
           }
         ],
@@ -4771,7 +4808,7 @@
             "path": "luarules/gadgets/gfx_unit_shield_effects.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 605,
+            "line": 661,
             "access": "ud.customParams"
           }
         ],
@@ -4855,7 +4892,7 @@
             "path": "luarules/gadgets/ai_simpleai.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 157,
+            "line": 170,
             "access": "unitDef.customParams"
           }
         ],
@@ -5010,7 +5047,7 @@
             "path": "luaui/widgets/api_resource_spot_builder.lua",
             "layer": "interface",
             "confidence": "medium",
-            "line": 72,
+            "line": 70,
             "access": "customParams"
           }
         ],
@@ -5029,7 +5066,7 @@
       },
       {
         "key": "subfolder",
-        "occurrences": 962,
+        "occurrences": 947,
         "valueTypes": [
           "string"
         ],
@@ -5059,7 +5096,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 230,
+            "line": 267,
             "access": "customParams"
           }
         ],
@@ -5071,7 +5108,7 @@
             "value": "other/hats",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/cmd_build_bugger_off.lua",
-            "line": 57
+            "line": 59
           },
           {
             "kind": "comparison",
@@ -5080,7 +5117,7 @@
             "value": "other/hats",
             "occurrences": 2,
             "sourcePath": "luarules/gadgets/unit_hats.lua",
-            "line": 31
+            "line": 33
           },
           {
             "kind": "comparison",
@@ -5089,7 +5126,7 @@
             "value": "other/raptors",
             "occurrences": 2,
             "sourcePath": "luarules/gadgets/gfx_energy_explosion_particles_gl4.lua",
-            "line": 55
+            "line": 57
           }
         ],
         "valueDiscovery": {
@@ -5107,7 +5144,7 @@
       },
       {
         "key": "techlevel",
-        "occurrences": 448,
+        "occurrences": 434,
         "valueTypes": [
           "number"
         ],
@@ -5137,7 +5174,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 227,
+            "line": 264,
             "access": "customParams"
           }
         ],
@@ -5149,7 +5186,7 @@
             "value": "2",
             "occurrences": 2,
             "sourcePath": "luaui/widgets/snd_notifications.lua",
-            "line": 348
+            "line": 360
           },
           {
             "kind": "comparison",
@@ -5158,7 +5195,7 @@
             "value": "3",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/snd_notifications.lua",
-            "line": 354
+            "line": 371
           },
           {
             "kind": "comparison",
@@ -5167,7 +5204,7 @@
             "value": "4",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/snd_notifications.lua",
-            "line": 357
+            "line": 374
           }
         ],
         "valueDiscovery": {
@@ -5248,7 +5285,7 @@
             "path": "luarules/gadgets/cus_gl4.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 1022,
+            "line": 1134,
             "access": "featureDef.customParams"
           }
         ],
@@ -5260,7 +5297,7 @@
             "value": "yes",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/cus_gl4.lua",
-            "line": 1022
+            "line": 1134
           }
         ],
         "valueDiscovery": {
@@ -5315,7 +5352,7 @@
       },
       {
         "key": "unitgroup",
-        "occurrences": 782,
+        "occurrences": 767,
         "valueTypes": [
           "string"
         ],
@@ -5345,7 +5382,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 255,
+            "line": 295,
             "access": "customParams"
           }
         ],
@@ -5357,7 +5394,7 @@
             "value": "aa",
             "occurrences": 3,
             "sourcePath": "gamedata/alldefs_post.lua",
-            "line": 255
+            "line": 295
           },
           {
             "kind": "comparison",
@@ -5366,7 +5403,7 @@
             "value": "antinuke",
             "occurrences": 2,
             "sourcePath": "luarules/gadgets/raptor_spawner_defense.lua",
-            "line": 102
+            "line": 104
           },
           {
             "kind": "comparison",
@@ -5411,7 +5448,7 @@
             "value": "explo",
             "occurrences": 2,
             "sourcePath": "luaui/widgets/dbg_unit_csv_export.lua",
-            "line": 255
+            "line": 314
           },
           {
             "kind": "comparison",
@@ -5429,7 +5466,7 @@
             "value": "nuke",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/raptor_spawner_defense.lua",
-            "line": 1498
+            "line": 1764
           },
           {
             "kind": "comparison",
@@ -5438,7 +5475,7 @@
             "value": "util",
             "occurrences": 3,
             "sourcePath": "luarules/gadgets/cmd_dev_helpers.lua",
-            "line": 101
+            "line": 103
           }
         ],
         "valueDiscovery": {
@@ -5481,7 +5518,7 @@
       },
       {
         "key": "usebuildinggrounddecal",
-        "occurrences": 264,
+        "occurrences": 258,
         "valueTypes": [
           "boolean"
         ],
@@ -5508,7 +5545,7 @@
             "path": "luaui/widgets/gui_ground_ao_plates_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 105,
+            "line": 121,
             "access": "UD.customParams"
           }
         ],
@@ -5552,7 +5589,7 @@
             "path": "luarules/gadgets/cus_gl4.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 1118,
+            "line": 1231,
             "access": "unitDef.customParams"
           }
         ],
@@ -5596,7 +5633,7 @@
             "path": "luarules/gadgets/unit_custom_weapons_cluster.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 218,
+            "line": 236,
             "access": "unitDef.customParams"
           }
         ],
@@ -5608,7 +5645,7 @@
             "value": "1",
             "occurrences": 2,
             "sourcePath": "luaui/widgets/gui_idle_builders.lua",
-            "line": 43
+            "line": 42
           }
         ],
         "valueDiscovery": {
@@ -5650,7 +5687,7 @@
             "path": "luarules/gadgets/unit_water_depth_damage.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 66,
+            "line": 71,
             "access": "unitDef.customParams"
           }
         ],
@@ -5662,7 +5699,7 @@
             "value": "1",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_water_depth_damage.lua",
-            "line": 66
+            "line": 71
           }
         ],
         "valueDiscovery": {
@@ -5684,23 +5721,21 @@
       },
       {
         "key": "weapon1turretx",
-        "occurrences": 56,
+        "occurrences": 2,
         "valueTypes": [
           "number"
         ],
         "sampleValues": [
-          "125",
-          "130",
-          "192.5"
+          "20",
+          "200"
         ],
         "sampleUnitIds": [
-          "armart",
-          "armassimilator",
-          "armbull"
+          "corves",
+          "legmrv"
         ],
         "sampleWeaponDefs": [],
         "sourcePaths": [
-          "units/ArmBots/armpw.lua"
+          "units/Legion/Vehicles/T2 Vehicles/legmrv.lua"
         ],
         "consumerCount": 0,
         "writerCount": 0,
@@ -5716,7 +5751,7 @@
           "defaultCandidates": [],
           "numericRange": {
             "observedMin": 20,
-            "observedMax": 400,
+            "observedMax": 200,
             "lowerBound": null,
             "upperBound": null
           }
@@ -5724,23 +5759,21 @@
       },
       {
         "key": "weapon1turrety",
-        "occurrences": 56,
+        "occurrences": 2,
         "valueTypes": [
           "number"
         ],
         "sampleValues": [
-          "105",
-          "110",
-          "125"
+          "170",
+          "400"
         ],
         "sampleUnitIds": [
-          "armart",
-          "armassimilator",
-          "armbull"
+          "corves",
+          "legmrv"
         ],
         "sampleWeaponDefs": [],
         "sourcePaths": [
-          "units/ArmBots/armpw.lua"
+          "units/Legion/Vehicles/T2 Vehicles/legmrv.lua"
         ],
         "consumerCount": 0,
         "writerCount": 0,
@@ -5755,8 +5788,8 @@
           "comparisonValues": [],
           "defaultCandidates": [],
           "numericRange": {
-            "observedMin": 35,
-            "observedMax": 500,
+            "observedMin": 170,
+            "observedMax": 400,
             "lowerBound": null,
             "upperBound": null
           }
@@ -5998,7 +6031,7 @@
             "path": "luaui/widgets/gfx_decals_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 981,
+            "line": 1075,
             "access": "weaponDef.customParams"
           }
         ],
@@ -6053,7 +6086,7 @@
             "path": "luaui/widgets/gui_info.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 342,
+            "line": 406,
             "access": "def.customParams"
           }
         ],
@@ -6193,7 +6226,7 @@
             "path": "luaui/widgets/gfx_decals_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 951,
+            "line": 1047,
             "access": "weaponDef.customParams"
           }
         ],
@@ -6205,7 +6238,7 @@
             "value": "_RAPTORACID_",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gfx_decals_gl4.lua",
-            "line": 951
+            "line": 1047
           },
           {
             "kind": "comparison",
@@ -6214,7 +6247,7 @@
             "value": "fire",
             "occurrences": 2,
             "sourcePath": "luaui/widgets/gfx_decals_gl4.lua",
-            "line": 970
+            "line": 1065
           }
         ],
         "valueDiscovery": {
@@ -6267,7 +6300,7 @@
             "path": "luaui/widgets/gui_info.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 343,
+            "line": 408,
             "access": "def.customParams"
           }
         ],
@@ -6317,7 +6350,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 244,
+            "line": 230,
             "access": "wdcp"
           }
         ],
@@ -6368,7 +6401,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 243,
+            "line": 229,
             "access": "wdcp"
           }
         ],
@@ -6422,7 +6455,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 765,
+            "line": 876,
             "access": "weaponDef.customParams"
           }
         ],
@@ -6432,18 +6465,18 @@
             "operator": "~=",
             "type": "string",
             "value": "1",
-            "occurrences": 4,
+            "occurrences": 2,
             "sourcePath": "luaui/widgets/dbg_unit_csv_export.lua",
-            "line": 34
+            "line": 249
           },
           {
             "kind": "comparison",
             "operator": "==",
             "type": "string",
             "value": "1",
-            "occurrences": 1,
+            "occurrences": 3,
             "sourcePath": "luaui/widgets/gui_attackrange_gl4.lua",
-            "line": 341
+            "line": 30
           }
         ],
         "valueDiscovery": {
@@ -6494,7 +6527,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 769,
+            "line": 881,
             "access": "weaponDef.customParams"
           }
         ],
@@ -6549,7 +6582,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 248,
+            "line": 234,
             "access": "wdcp"
           }
         ],
@@ -6640,7 +6673,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 98,
+            "line": 99,
             "access": "weaponDef.customParams"
           }
         ],
@@ -6695,7 +6728,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 100,
+            "line": 101,
             "access": "weaponDef.customParams"
           }
         ],
@@ -6707,7 +6740,7 @@
             "value": "5",
             "occurrences": 1,
             "sourcePath": "gamedata/alldefs_post.lua",
-            "line": 100
+            "line": 101
           }
         ],
         "valueDiscovery": {
@@ -6758,7 +6791,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 260,
+            "line": 246,
             "access": "wdcp"
           }
         ],
@@ -6809,7 +6842,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 261,
+            "line": 247,
             "access": "wdcp"
           }
         ],
@@ -6901,7 +6934,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 235,
+            "line": 221,
             "access": "wdcp"
           }
         ],
@@ -7027,7 +7060,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 246,
+            "line": 232,
             "access": "wdcp"
           }
         ],
@@ -7079,7 +7112,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 245,
+            "line": 231,
             "access": "wdcp"
           }
         ],
@@ -7217,7 +7250,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 241,
+            "line": 227,
             "access": "wdcp"
           }
         ],
@@ -7271,7 +7304,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 242,
+            "line": 228,
             "access": "wdcp"
           }
         ],
@@ -7323,7 +7356,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 240,
+            "line": 226,
             "access": "wdcp"
           }
         ],
@@ -7377,7 +7410,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 217,
+            "line": 203,
             "access": "wdcp"
           }
         ],
@@ -7389,7 +7422,7 @@
             "value": "1",
             "occurrences": 2,
             "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-            "line": 217
+            "line": 203
           }
         ],
         "valueDiscovery": {
@@ -7450,7 +7483,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 239,
+            "line": 225,
             "access": "wdcp"
           }
         ],
@@ -7504,7 +7537,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 247,
+            "line": 233,
             "access": "wdcp"
           }
         ],
@@ -7558,7 +7591,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 222,
+            "line": 208,
             "access": "wdcp"
           }
         ],
@@ -7612,7 +7645,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 224,
+            "line": 210,
             "access": "wdcp"
           }
         ],
@@ -7624,7 +7657,7 @@
             "value": "0",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-            "line": 224
+            "line": 210
           }
         ],
         "valueDiscovery": {
@@ -7672,7 +7705,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 223,
+            "line": 209,
             "access": "wdcp"
           }
         ],
@@ -7724,7 +7757,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 257,
+            "line": 243,
             "access": "wdcp"
           }
         ],
@@ -7773,7 +7806,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 237,
+            "line": 223,
             "access": "wdcp"
           }
         ],
@@ -7824,7 +7857,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 221,
+            "line": 207,
             "access": "wdcp"
           }
         ],
@@ -7878,7 +7911,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 236,
+            "line": 222,
             "access": "wdcp"
           }
         ],
@@ -7931,7 +7964,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 1033,
+            "line": 1169,
             "access": "customParams"
           }
         ],
@@ -8018,7 +8051,7 @@
             "path": "luaui/widgets/gui_attack_aoe.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 988,
+            "line": 1085,
             "access": "weaponDef.customParams"
           }
         ],
@@ -8030,7 +8063,7 @@
             "value": "mini",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_attack_aoe.lua",
-            "line": 990
+            "line": 1087
           }
         ],
         "valueDiscovery": {
@@ -8112,7 +8145,7 @@
             "path": "luaui/widgets/gui_attack_aoe.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 986,
+            "line": 1083,
             "access": "weaponDef.customParams"
           }
         ],
@@ -8165,7 +8198,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 319,
+            "line": 379,
             "access": "weaponDef.customParams"
           }
         ],
@@ -8177,7 +8210,7 @@
             "value": "1",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_info.lua",
-            "line": 570
+            "line": 638
           },
           {
             "kind": "default",
@@ -8186,7 +8219,7 @@
             "value": "1",
             "occurrences": 2,
             "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-            "line": 218
+            "line": 204
           }
         ],
         "valueDiscovery": {
@@ -8235,7 +8268,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 220,
+            "line": 206,
             "access": "wdcp"
           }
         ],
@@ -8327,7 +8360,7 @@
             "path": "luaui/widgets/gui_attackrange_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 366,
+            "line": 371,
             "access": "weaponDef.customParams"
           }
         ],
@@ -8381,7 +8414,7 @@
             "path": "luaui/widgets/gfx_decals_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 784,
+            "line": 872,
             "access": "weaponDef.customParams"
           }
         ],
@@ -8428,7 +8461,7 @@
             "path": "luaui/configs/deferredlightsgl4weaponsconfig.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 699,
+            "line": 967,
             "access": "weaponDef.customParams"
           }
         ],
@@ -8480,7 +8513,7 @@
             "path": "luarules/gadgets/gfx_tree_feller.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 103,
+            "line": 102,
             "access": "wDefs.customParams"
           }
         ],
@@ -8565,7 +8598,7 @@
             "path": "luaui/widgets/gui_attackrange_gl4.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 341,
+            "line": 344,
             "access": "weaponDef.customParams"
           }
         ],
@@ -8618,7 +8651,7 @@
             "path": "luarules/gadgets/unit_target_on_the_move.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 104,
+            "line": 103,
             "access": "weaponDef.customParams"
           }
         ],
@@ -8668,7 +8701,7 @@
             "path": "luaui/widgets/gui_info.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 446,
+            "line": 512,
             "access": "weaponDef.customParams"
           }
         ],
@@ -8680,7 +8713,7 @@
             "value": "1",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_info.lua",
-            "line": 446
+            "line": 512
           }
         ],
         "valueDiscovery": {
@@ -8697,7 +8730,7 @@
       },
       {
         "key": "overpenetrate",
-        "occurrences": 11,
+        "occurrences": 12,
         "valueTypes": [
           "boolean"
         ],
@@ -8727,7 +8760,7 @@
             "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 136,
+            "line": 137,
             "access": "custom"
           }
         ],
@@ -8780,7 +8813,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 1227,
+            "line": 1378,
             "access": "customParams"
           }
         ],
@@ -8881,7 +8914,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "medium",
-            "line": 1033,
+            "line": 1169,
             "access": "customParams"
           }
         ],
@@ -8934,7 +8967,7 @@
             "path": "luarules/gadgets/unit_projectile_overrange.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 110,
+            "line": 118,
             "access": "customParams"
           }
         ],
@@ -8946,7 +8979,7 @@
             "value": "descend",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_projectile_overrange.lua",
-            "line": 111
+            "line": 119
           },
           {
             "kind": "comparison",
@@ -8955,7 +8988,7 @@
             "value": "expire",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_projectile_overrange.lua",
-            "line": 113
+            "line": 121
           },
           {
             "kind": "default",
@@ -8964,7 +8997,7 @@
             "value": "explode",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_projectile_overrange.lua",
-            "line": 110
+            "line": 118
           }
         ],
         "valueDiscovery": {
@@ -9066,7 +9099,7 @@
             "path": "gamedata/scavengers/weapondef_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 12,
+            "line": 14,
             "access": "wDef.customParams"
           }
         ],
@@ -9115,7 +9148,7 @@
             "path": "luarules/gadgets/unit_shield_behaviour.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 187,
+            "line": 220,
             "access": "weaponDef.customParams"
           }
         ],
@@ -9154,18 +9187,20 @@
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
         ],
-        "consumerCount": 1,
-        "writerCount": 0,
+        "consumerCount": 5,
+        "writerCount": 2,
         "consumerLayers": [
+          "definition-transform",
+          "interface",
           "runtime-gadget"
         ],
         "consumerEvidence": [
           {
-            "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
-            "layer": "runtime-gadget",
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
             "confidence": "high",
-            "line": 124,
-            "access": "weaponDef.customParams"
+            "line": 841,
+            "access": "customParams"
           }
         ],
         "consumerValueEvidence": [],
@@ -9203,18 +9238,20 @@
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
         ],
-        "consumerCount": 1,
-        "writerCount": 0,
+        "consumerCount": 5,
+        "writerCount": 2,
         "consumerLayers": [
+          "definition-transform",
+          "interface",
           "runtime-gadget"
         ],
         "consumerEvidence": [
           {
-            "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
-            "layer": "runtime-gadget",
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
             "confidence": "high",
-            "line": 113,
-            "access": "weaponDef.customParams"
+            "line": 839,
+            "access": "customParams"
           }
         ],
         "consumerValueEvidence": [],
@@ -9250,18 +9287,20 @@
         "sourcePaths": [
           "units/ArmBuildings/LandDefenceOffence/armamb.lua"
         ],
-        "consumerCount": 1,
-        "writerCount": 0,
+        "consumerCount": 5,
+        "writerCount": 2,
         "consumerLayers": [
+          "definition-transform",
+          "interface",
           "runtime-gadget"
         ],
         "consumerEvidence": [
           {
-            "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
-            "layer": "runtime-gadget",
+            "path": "gamedata/alldefs_post.lua",
+            "layer": "definition-transform",
             "confidence": "high",
-            "line": 127,
-            "access": "weaponDef.customParams"
+            "line": 843,
+            "access": "customParams"
           }
         ],
         "consumerValueEvidence": [],
@@ -9305,7 +9344,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 818,
+            "line": 929,
             "access": "wd.customParams"
           }
         ],
@@ -9578,7 +9617,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 315,
+            "line": 369,
             "access": "weaponDef.customParams"
           }
         ],
@@ -9607,7 +9646,9 @@
         "sampleValues": [
           "scav-spawnexplo-medium"
         ],
-        "sampleUnitIds": [],
+        "sampleUnitIds": [
+          "xl"
+        ],
         "sampleWeaponDefs": [
           "landturretspawner",
           "landunitspawner",
@@ -9626,7 +9667,7 @@
             "path": "luarules/gadgets/unit_explosion_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 94,
+            "line": 92,
             "access": "wdcp"
           }
         ],
@@ -9677,7 +9718,7 @@
             "path": "luarules/gadgets/unit_explosion_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 90,
+            "line": 88,
             "access": "wdcp"
           }
         ],
@@ -9729,7 +9770,7 @@
             "path": "luarules/gadgets/unit_explosion_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 93,
+            "line": 91,
             "access": "wdcp"
           }
         ],
@@ -9782,7 +9823,7 @@
             "path": "gamedata/scavengers/weapondef_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 64,
+            "line": 74,
             "access": "wDef.customParams"
           }
         ],
@@ -9821,7 +9862,9 @@
         "sampleValues": [
           "1"
         ],
-        "sampleUnitIds": [],
+        "sampleUnitIds": [
+          "xl"
+        ],
         "sampleWeaponDefs": [
           "landturretspawner",
           "landunitspawner",
@@ -9840,7 +9883,7 @@
             "path": "luarules/gadgets/unit_explosion_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 95,
+            "line": 93,
             "access": "wdcp"
           }
         ],
@@ -9894,7 +9937,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 229,
+            "line": 215,
             "access": "wdcp"
           }
         ],
@@ -9960,7 +10003,7 @@
             "value": "cruise",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_custom_weapons_behaviours.lua",
-            "line": 640
+            "line": 689
           },
           {
             "kind": "comparison",
@@ -9969,7 +10012,7 @@
             "value": "sector_fire",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_attack_aoe.lua",
-            "line": 983
+            "line": 1080
           },
           {
             "kind": "comparison",
@@ -9978,7 +10021,7 @@
             "value": "split",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_info.lua",
-            "line": 443
+            "line": 509
           }
         ],
         "valueDiscovery": {
@@ -10032,7 +10075,7 @@
             "path": "luaui/widgets/gui_info.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 445,
+            "line": 511,
             "access": "weaponDef.customParams"
           }
         ],
@@ -10114,7 +10157,7 @@
             "path": "luaui/widgets/gui_attack_aoe.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 985,
+            "line": 1082,
             "access": "weaponDef.customParams"
           }
         ],
@@ -10166,7 +10209,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 319,
+            "line": 380,
             "access": "weaponDef.customParams"
           }
         ],
@@ -10178,7 +10221,7 @@
             "value": "0",
             "occurrences": 2,
             "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-            "line": 528
+            "line": 524
           },
           {
             "kind": "default",
@@ -10187,7 +10230,7 @@
             "value": "0",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-            "line": 219
+            "line": 205
           }
         ],
         "valueDiscovery": {
@@ -10236,7 +10279,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 259,
+            "line": 245,
             "access": "wdcp"
           }
         ],
@@ -10258,7 +10301,7 @@
       },
       {
         "key": "stockpilelimit",
-        "occurrences": 60,
+        "occurrences": 62,
         "valueTypes": [
           "number"
         ],
@@ -10290,7 +10333,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 256,
+            "line": 242,
             "access": "wdcp"
           }
         ],
@@ -10344,7 +10387,7 @@
             "path": "luarules/gadgets/unit_carrier_spawner.lua",
             "layer": "runtime-gadget",
             "confidence": "high",
-            "line": 258,
+            "line": 244,
             "access": "wdcp"
           }
         ],
@@ -10403,15 +10446,15 @@
         }
       },
       {
-        "key": "sweepfire",
+        "key": "sweepfire_firetime",
         "occurrences": 5,
         "valueTypes": [
           "number"
         ],
         "sampleValues": [
-          "4",
-          "4.5",
-          "7"
+          "1.0",
+          "1.8",
+          "2.1667"
         ],
         "sampleUnitIds": [
           "legaheattank",
@@ -10426,20 +10469,10 @@
         "sourcePaths": [
           "units/Legion/Air/T2 Air/legphoenix.lua"
         ],
-        "consumerCount": 3,
+        "consumerCount": 0,
         "writerCount": 0,
-        "consumerLayers": [
-          "interface"
-        ],
-        "consumerEvidence": [
-          {
-            "path": "luaui/widgets/gui_info.lua",
-            "layer": "interface",
-            "confidence": "high",
-            "line": 486,
-            "access": "weaponDef.customParams"
-          }
-        ],
+        "consumerLayers": [],
+        "consumerEvidence": [],
         "consumerValueEvidence": [],
         "valueDiscovery": {
           "inferredType": "number",
@@ -10449,8 +10482,46 @@
           "comparisonValues": [],
           "defaultCandidates": [],
           "numericRange": {
-            "observedMin": 4,
-            "observedMax": 9,
+            "observedMin": 1,
+            "observedMax": 2.5,
+            "lowerBound": null,
+            "upperBound": null
+          }
+        }
+      },
+      {
+        "key": "sweepfire_reloadtime",
+        "occurrences": 1,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "3.0"
+        ],
+        "sampleUnitIds": [
+          "legamph"
+        ],
+        "sampleWeaponDefs": [
+          "heat_ray"
+        ],
+        "sourcePaths": [
+          "units/Legion/Bots/T2 Bots/legamph.lua"
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": [],
+        "consumerValueEvidence": [],
+        "valueDiscovery": {
+          "inferredType": "number",
+          "typeConfidence": "partial",
+          "enumCandidates": [],
+          "enumConfidence": "none",
+          "comparisonValues": [],
+          "defaultCandidates": [],
+          "numericRange": {
+            "observedMin": 3,
+            "observedMax": 3,
             "lowerBound": null,
             "upperBound": null
           }
@@ -10495,6 +10566,129 @@
           "numericRange": {
             "observedMin": 400,
             "observedMax": 2000,
+            "lowerBound": null,
+            "upperBound": null
+          }
+        }
+      },
+      {
+        "key": "turretspeeds",
+        "occurrences": 1,
+        "valueTypes": [
+          "string"
+        ],
+        "sampleValues": [
+          "192.5 192.5"
+        ],
+        "sampleUnitIds": [
+          "corgator"
+        ],
+        "sampleWeaponDefs": [
+          "gator_laserx"
+        ],
+        "sourcePaths": [
+          "units/CorVehicles/corgator.lua"
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": [],
+        "consumerValueEvidence": [],
+        "valueDiscovery": {
+          "inferredType": "string",
+          "typeConfidence": "partial",
+          "enumCandidates": [
+            "192.5 192.5"
+          ],
+          "enumConfidence": "weak",
+          "comparisonValues": [],
+          "defaultCandidates": [],
+          "numericRange": null
+        }
+      },
+      {
+        "key": "turretspeedx",
+        "occurrences": 54,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "125",
+          "130",
+          "135"
+        ],
+        "sampleUnitIds": [
+          "armart",
+          "armassimilator",
+          "armbull"
+        ],
+        "sampleWeaponDefs": [
+          "aimhull",
+          "arm_artillery",
+          "arm_bosscannon"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/armpw.lua"
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": [],
+        "consumerValueEvidence": [],
+        "valueDiscovery": {
+          "inferredType": "number",
+          "typeConfidence": "strong",
+          "enumCandidates": [],
+          "enumConfidence": "none",
+          "comparisonValues": [],
+          "defaultCandidates": [],
+          "numericRange": {
+            "observedMin": 20,
+            "observedMax": 400,
+            "lowerBound": null,
+            "upperBound": null
+          }
+        }
+      },
+      {
+        "key": "turretspeedy",
+        "occurrences": 54,
+        "valueTypes": [
+          "number"
+        ],
+        "sampleValues": [
+          "105",
+          "110",
+          "125"
+        ],
+        "sampleUnitIds": [
+          "armart",
+          "armassimilator",
+          "armbull"
+        ],
+        "sampleWeaponDefs": [
+          "aimhull",
+          "arm_artillery",
+          "arm_bosscannon"
+        ],
+        "sourcePaths": [
+          "units/ArmBots/armpw.lua"
+        ],
+        "consumerCount": 0,
+        "writerCount": 0,
+        "consumerLayers": [],
+        "consumerEvidence": [],
+        "consumerValueEvidence": [],
+        "valueDiscovery": {
+          "inferredType": "number",
+          "typeConfidence": "strong",
+          "enumCandidates": [],
+          "enumConfidence": "none",
+          "comparisonValues": [],
+          "defaultCandidates": [],
+          "numericRange": {
+            "observedMin": 35,
+            "observedMax": 500,
             "lowerBound": null,
             "upperBound": null
           }
@@ -10570,7 +10764,7 @@
             "path": "luarules/gadgets/gfx_watersplash.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 101,
+            "line": 99,
             "access": "def.customParams"
           }
         ],
@@ -10582,7 +10776,7 @@
             "value": "0",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/gfx_watersplash.lua",
-            "line": 104
+            "line": 102
           },
           {
             "kind": "comparison",
@@ -10591,7 +10785,7 @@
             "value": "0",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/gfx_watersplash.lua",
-            "line": 110
+            "line": 108
           }
         ],
         "valueDiscovery": {
@@ -10639,7 +10833,7 @@
             "path": "luarules/gadgets/gfx_watersplash.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 111,
+            "line": 109,
             "access": "def.customParams"
           }
         ],
@@ -10658,7 +10852,7 @@
       },
       {
         "key": "weapons_group",
-        "occurrences": 225,
+        "occurrences": 213,
         "valueTypes": [
           "number"
         ],
@@ -10667,9 +10861,9 @@
           "2"
         ],
         "sampleUnitIds": [
-          "armamb",
           "armcom",
-          "armcomcon"
+          "armcomcon",
+          "armcomlvl10"
         ],
         "sampleWeaponDefs": [
           "aa_missile",
@@ -10690,7 +10884,7 @@
             "path": "gamedata/alldefs_post.lua",
             "layer": "definition-transform",
             "confidence": "high",
-            "line": 749,
+            "line": 824,
             "access": "weaponDef.customParams"
           }
         ],
@@ -10702,7 +10896,7 @@
             "value": "-1",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_unit_stats.lua",
-            "line": 216
+            "line": 218
           },
           {
             "kind": "default",
@@ -10711,7 +10905,7 @@
             "value": "0",
             "occurrences": 1,
             "sourcePath": "gamedata/alldefs_post.lua",
-            "line": 749
+            "line": 824
           }
         ],
         "valueDiscovery": {
@@ -10734,7 +10928,7 @@
       },
       {
         "key": "weapons_role",
-        "occurrences": 81,
+        "occurrences": 82,
         "valueTypes": [
           "string"
         ],
@@ -10764,7 +10958,7 @@
             "path": "luaui/widgets/gui_info.lua",
             "layer": "interface",
             "confidence": "high",
-            "line": 544,
+            "line": 607,
             "access": "weaponDef.customParams"
           }
         ],
@@ -10776,7 +10970,7 @@
             "value": "secondary",
             "occurrences": 1,
             "sourcePath": "luaui/widgets/gui_info.lua",
-            "line": 544
+            "line": 607
           }
         ],
         "valueDiscovery": {
@@ -10810,7 +11004,7 @@
           "path": "luarules/gadgets/unit_area_timed_damage.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 612,
+          "line": 627,
           "access": "unitDef.customParams"
         }
       ],
@@ -10839,7 +11033,7 @@
           "path": "gamedata/armordefs.lua",
           "layer": "definition-transform",
           "confidence": "high",
-          "line": 786,
+          "line": 783,
           "access": "unitDef.customParams"
         }
       ],
@@ -10868,7 +11062,7 @@
           "path": "luarules/gadgets/unit_custom_weapons_cluster.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 219,
+          "line": 237,
           "access": "unitDef.customParams"
         }
       ],
@@ -10897,7 +11091,7 @@
           "path": "luarules/gadgets/unit_evolution.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 369,
+          "line": 747,
           "access": "evolution"
         }
       ],
@@ -10926,7 +11120,7 @@
           "path": "luaui/widgets/cmd_startpos_tool.lua",
           "layer": "interface",
           "confidence": "high",
-          "line": 391,
+          "line": 399,
           "access": "cp"
         }
       ],
@@ -10984,7 +11178,7 @@
           "path": "luaui/widgets/dbg_unit_csv_export.lua",
           "layer": "interface",
           "confidence": "high",
-          "line": 133,
+          "line": 170,
           "access": "unitDef.customParams"
         }
       ],
@@ -11013,7 +11207,7 @@
           "path": "luarules/gadgets/unit_evolution.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 198,
+          "line": 490,
           "access": "evolution"
         }
       ],
@@ -11042,7 +11236,7 @@
           "path": "luarules/gadgets/unit_evolution.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 201,
+          "line": 493,
           "access": "evolution"
         }
       ],
@@ -11071,7 +11265,7 @@
           "path": "luarules/gadgets/unit_evolution.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 272,
+          "line": 609,
           "access": "evolution"
         }
       ],
@@ -11100,7 +11294,7 @@
           "path": "luarules/gadgets/unit_evolution.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 273,
+          "line": 610,
           "access": "udcp"
         }
       ],
@@ -11129,7 +11323,7 @@
           "path": "luarules/gadgets/unit_evolution.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 276,
+          "line": 613,
           "access": "evolution"
         }
       ],
@@ -11158,7 +11352,7 @@
           "path": "luaui/configs/buildmenu_sorting.lua",
           "layer": "interface",
           "confidence": "high",
-          "line": 857,
+          "line": 859,
           "access": "unitDef.customParams"
         }
       ],
@@ -11187,7 +11381,7 @@
           "path": "luarules/gadgets/unit_custom_weapons_cluster.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 207,
+          "line": 225,
           "access": "decoyDef"
         }
       ],
@@ -11216,7 +11410,7 @@
           "path": "luaui/widgets/cmd_startpos_tool.lua",
           "layer": "interface",
           "confidence": "high",
-          "line": 391,
+          "line": 399,
           "access": "cp"
         }
       ],
@@ -11246,7 +11440,7 @@
           "path": "luarules/gadgets/cmd_dev_helpers.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 2459,
+          "line": 2733,
           "access": "cp"
         }
       ],
@@ -11275,7 +11469,7 @@
           "path": "luaui/widgets/gui_pip.lua",
           "layer": "interface",
           "confidence": "high",
-          "line": 8306,
+          "line": 9131,
           "access": "uDef.customParams"
         }
       ],
@@ -11305,7 +11499,7 @@
           "path": "luarules/gadgets/gfx_fire_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 1202,
+          "line": 1406,
           "access": "cp"
         }
       ],
@@ -11334,7 +11528,7 @@
           "path": "luarules/gadgets/api_build_blocking.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 265,
+          "line": 281,
           "access": "unitDef.customParams"
         }
       ],
@@ -11392,7 +11586,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2989,
+          "line": 3075,
           "access": "unitDef.customParams"
         }
       ],
@@ -11404,7 +11598,7 @@
           "value": "1",
           "occurrences": 1,
           "sourcePath": "luarules/configs/raptor_spawn_defs.lua",
-          "line": 2989
+          "line": 3075
         }
       ],
       "valueDiscovery": {
@@ -11435,7 +11629,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2999,
+          "line": 3087,
           "access": "unitDef.customParams"
         }
       ],
@@ -11447,7 +11641,7 @@
           "value": "artillery",
           "occurrences": 1,
           "sourcePath": "luarules/configs/raptor_spawn_defs.lua",
-          "line": 3036
+          "line": 3125
         },
         {
           "kind": "comparison",
@@ -11456,7 +11650,7 @@
           "value": "berserk",
           "occurrences": 1,
           "sourcePath": "luarules/configs/raptor_spawn_defs.lua",
-          "line": 3001
+          "line": 3089
         },
         {
           "kind": "comparison",
@@ -11465,7 +11659,7 @@
           "value": "healer",
           "occurrences": 1,
           "sourcePath": "luarules/configs/raptor_spawn_defs.lua",
-          "line": 3023
+          "line": 3112
         },
         {
           "kind": "comparison",
@@ -11474,7 +11668,7 @@
           "value": "kamikaze",
           "occurrences": 1,
           "sourcePath": "luarules/configs/raptor_spawn_defs.lua",
-          "line": 3054
+          "line": 3143
         },
         {
           "kind": "comparison",
@@ -11483,7 +11677,7 @@
           "value": "skirmisher",
           "occurrences": 1,
           "sourcePath": "luarules/configs/raptor_spawn_defs.lua",
-          "line": 3008
+          "line": 3097
         }
       ],
       "valueDiscovery": {
@@ -11522,7 +11716,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 3003,
+          "line": 3092,
           "access": "unitDef.customParams"
         }
       ],
@@ -11551,7 +11745,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 3004,
+          "line": 3093,
           "access": "unitDef.customParams"
         }
       ],
@@ -11580,7 +11774,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 3071,
+          "line": 3159,
           "access": "unitDef.customParams"
         }
       ],
@@ -11609,7 +11803,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 3071,
+          "line": 3160,
           "access": "unitDef.customParams"
         }
       ],
@@ -11638,7 +11832,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2996,
+          "line": 3084,
           "access": "unitDef.customParams"
         }
       ],
@@ -11667,7 +11861,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2995,
+          "line": 3083,
           "access": "unitDef.customParams"
         }
       ],
@@ -11696,7 +11890,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 3070,
+          "line": 3157,
           "access": "unitDef.customParams"
         }
       ],
@@ -11708,7 +11902,7 @@
           "value": "basic",
           "occurrences": 1,
           "sourcePath": "luarules/configs/raptor_spawn_defs.lua",
-          "line": 3070
+          "line": 3157
         }
       ],
       "valueDiscovery": {
@@ -11739,7 +11933,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2992,
+          "line": 3079,
           "access": "unitDef.customParams"
         }
       ],
@@ -11768,7 +11962,7 @@
           "path": "luarules/configs/raptor_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2997,
+          "line": 3085,
           "access": "unitDef.customParams"
         }
       ],
@@ -11797,7 +11991,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2714,
+          "line": 2933,
           "access": "unitDef.customParams"
         }
       ],
@@ -11809,7 +12003,7 @@
           "value": "1",
           "occurrences": 1,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2714
+          "line": 2933
         }
       ],
       "valueDiscovery": {
@@ -11840,7 +12034,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2724,
+          "line": 2944,
           "access": "unitDef.customParams"
         }
       ],
@@ -11852,7 +12046,7 @@
           "value": "artillery",
           "occurrences": 1,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2760
+          "line": 2979
         },
         {
           "kind": "comparison",
@@ -11861,7 +12055,7 @@
           "value": "berserk",
           "occurrences": 1,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2726
+          "line": 2945
         },
         {
           "kind": "comparison",
@@ -11870,7 +12064,7 @@
           "value": "healer",
           "occurrences": 3,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2748
+          "line": 2967
         },
         {
           "kind": "comparison",
@@ -11879,7 +12073,7 @@
           "value": "kamikaze",
           "occurrences": 1,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2778
+          "line": 2997
         },
         {
           "kind": "comparison",
@@ -11888,7 +12082,7 @@
           "value": "skirmisher",
           "occurrences": 1,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2733
+          "line": 2952
         }
       ],
       "valueDiscovery": {
@@ -11927,7 +12121,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2728,
+          "line": 2947,
           "access": "unitDef.customParams"
         }
       ],
@@ -11956,7 +12150,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2729,
+          "line": 2948,
           "access": "unitDef.customParams"
         }
       ],
@@ -11985,7 +12179,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2798,
+          "line": 3023,
           "access": "unitDef.customParams"
         }
       ],
@@ -12014,7 +12208,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2798,
+          "line": 3024,
           "access": "unitDef.customParams"
         }
       ],
@@ -12043,7 +12237,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2721,
+          "line": 2941,
           "access": "unitDef.customParams"
         }
       ],
@@ -12072,7 +12266,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2720,
+          "line": 2940,
           "access": "unitDef.customParams"
         }
       ],
@@ -12101,7 +12295,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2797,
+          "line": 3021,
           "access": "unitDef.customParams"
         }
       ],
@@ -12113,7 +12307,7 @@
           "value": "basic",
           "occurrences": 2,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2797
+          "line": 3021
         }
       ],
       "valueDiscovery": {
@@ -12144,7 +12338,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2794,
+          "line": 3012,
           "access": "unitDef.customParams"
         }
       ],
@@ -12156,7 +12350,7 @@
           "value": "land",
           "occurrences": 1,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2794
+          "line": 3013
         },
         {
           "kind": "comparison",
@@ -12165,7 +12359,7 @@
           "value": "mixed",
           "occurrences": 2,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2794
+          "line": 3014
         },
         {
           "kind": "comparison",
@@ -12174,7 +12368,7 @@
           "value": "sea",
           "occurrences": 1,
           "sourcePath": "luarules/configs/scav_spawn_defs.lua",
-          "line": 2813
+          "line": 3045
         }
       ],
       "valueDiscovery": {
@@ -12209,7 +12403,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2717,
+          "line": 2937,
           "access": "unitDef.customParams"
         }
       ],
@@ -12238,7 +12432,7 @@
           "path": "luarules/configs/scav_spawn_defs.lua",
           "layer": "source",
           "confidence": "high",
-          "line": 2722,
+          "line": 2942,
           "access": "unitDef.customParams"
         }
       ],
@@ -12267,7 +12461,7 @@
           "path": "luarules/gadgets/gfx_unit_shield_effects.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 625,
+          "line": 686,
           "access": "ud.customParams"
         }
       ],
@@ -12296,7 +12490,7 @@
           "path": "luarules/gadgets/gfx_unit_shield_effects.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 625,
+          "line": 687,
           "access": "ud.customParams"
         }
       ],
@@ -12325,31 +12519,17 @@
           "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 118,
+          "line": 115,
           "access": "unitDef.customParams"
         }
       ],
-      "consumerValueEvidence": [
-        {
-          "kind": "comparison",
-          "operator": "==",
-          "type": "string",
-          "value": "trajectory",
-          "occurrences": 1,
-          "sourcePath": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
-          "line": 118
-        }
-      ],
+      "consumerValueEvidence": [],
       "valueDiscovery": {
-        "inferredType": "string",
-        "typeConfidence": "partial",
-        "enumCandidates": [
-          "trajectory"
-        ],
-        "enumConfidence": "partial",
-        "comparisonValues": [
-          "trajectory"
-        ],
+        "inferredType": "unknown",
+        "typeConfidence": "uncertain",
+        "enumCandidates": [],
+        "enumConfidence": "none",
+        "comparisonValues": [],
         "defaultCandidates": [],
         "numericRange": null
       }
@@ -12368,7 +12548,7 @@
           "path": "luarules/gadgets/unit_evolution.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 339,
+          "line": 715,
           "access": "evolution"
         }
       ],
@@ -12397,8 +12577,67 @@
           "path": "luarules/gadgets/cmd_dev_helpers.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 2132,
+          "line": 2398,
           "access": "cp"
+        }
+      ],
+      "consumerValueEvidence": [],
+      "valueDiscovery": {
+        "inferredType": "unknown",
+        "typeConfidence": "uncertain",
+        "enumCandidates": [],
+        "enumConfidence": "none",
+        "comparisonValues": [],
+        "defaultCandidates": [],
+        "numericRange": null
+      }
+    },
+    {
+      "key": "weapons_smart_select",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 4,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface",
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 112,
+          "access": "unitDef.customParams"
+        }
+      ],
+      "consumerValueEvidence": [],
+      "valueDiscovery": {
+        "inferredType": "unknown",
+        "typeConfidence": "uncertain",
+        "enumCandidates": [],
+        "enumConfidence": "none",
+        "comparisonValues": [],
+        "defaultCandidates": [],
+        "numericRange": null
+      }
+    },
+    {
+      "key": "zombie_respawn_time",
+      "scope": "unit",
+      "declared": false,
+      "consumerCount": 1,
+      "writerCount": 0,
+      "consumerLayers": [
+        "runtime-gadget"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luarules/gadgets/unit_zombies.lua",
+          "layer": "runtime-gadget",
+          "confidence": "high",
+          "line": 246,
+          "access": "unitDef.customParams"
         }
       ],
       "consumerValueEvidence": [],
@@ -12426,7 +12665,7 @@
           "path": "luarules/gadgets/gfx_beam_laser_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 196,
+          "line": 198,
           "access": "cp"
         }
       ],
@@ -12455,7 +12694,7 @@
           "path": "luarules/gadgets/gfx_beam_laser_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 197,
+          "line": 199,
           "access": "cp"
         }
       ],
@@ -12484,7 +12723,7 @@
           "path": "luarules/gadgets/gfx_beam_laser_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 195,
+          "line": 197,
           "access": "cp"
         }
       ],
@@ -12513,7 +12752,7 @@
           "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 155,
+          "line": 160,
           "access": "custom"
         }
       ],
@@ -12525,7 +12764,7 @@
           "value": "1",
           "occurrences": 1,
           "sourcePath": "luarules/gadgets/unit_custom_weapons_overpen.lua",
-          "line": 155
+          "line": 160
         }
       ],
       "valueDiscovery": {
@@ -12559,7 +12798,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 221,
+          "line": 207,
           "access": "wdcp"
         }
       ],
@@ -12588,7 +12827,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 220,
+          "line": 206,
           "access": "wdcp"
         }
       ],
@@ -12617,7 +12856,7 @@
           "path": "luaui/widgets/gui_info.lua",
           "layer": "interface",
           "confidence": "high",
-          "line": 411,
+          "line": 479,
           "access": "weaponDef.customParams"
         }
       ],
@@ -12646,7 +12885,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 253,
+          "line": 239,
           "access": "wdcp"
         }
       ],
@@ -12675,7 +12914,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 254,
+          "line": 240,
           "access": "wdcp"
         }
       ],
@@ -12704,7 +12943,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 252,
+          "line": 238,
           "access": "wdcp"
         }
       ],
@@ -12733,7 +12972,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 251,
+          "line": 237,
           "access": "wdcp"
         }
       ],
@@ -12762,7 +13001,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 250,
+          "line": 236,
           "access": "wdcp"
         }
       ],
@@ -12791,7 +13030,7 @@
           "path": "luaui/widgets/gui_info.lua",
           "layer": "interface",
           "confidence": "high",
-          "line": 465,
+          "line": 531,
           "access": "weaponDef.customParams"
         }
       ],
@@ -12820,7 +13059,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 216,
+          "line": 202,
           "access": "wdcp"
         }
       ],
@@ -12832,7 +13071,7 @@
           "value": "abductor",
           "occurrences": 1,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 1661
+          "line": 1832
         },
         {
           "kind": "comparison",
@@ -12841,7 +13080,7 @@
           "value": "bomber",
           "occurrences": 2,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 943
+          "line": 962
         },
         {
           "kind": "comparison",
@@ -12850,7 +13089,7 @@
           "value": "infantry",
           "occurrences": 1,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 370
+          "line": 350
         },
         {
           "kind": "comparison",
@@ -12859,7 +13098,7 @@
           "value": "printer",
           "occurrences": 2,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 390
+          "line": 377
         },
         {
           "kind": "comparison",
@@ -12868,7 +13107,7 @@
           "value": "turret",
           "occurrences": 1,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 1675
+          "line": 1846
         },
         {
           "kind": "default",
@@ -12877,7 +13116,7 @@
           "value": "default",
           "occurrences": 2,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 216
+          "line": 202
         }
       ],
       "valueDiscovery": {
@@ -12919,7 +13158,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 262,
+          "line": 248,
           "access": "wdcp"
         }
       ],
@@ -12948,7 +13187,7 @@
           "path": "gamedata/alldefs_post.lua",
           "layer": "definition-transform",
           "confidence": "high",
-          "line": 1111,
+          "line": 1253,
           "access": "cp"
         }
       ],
@@ -12960,7 +13199,7 @@
           "value": "1",
           "occurrences": 1,
           "sourcePath": "gamedata/alldefs_post.lua",
-          "line": 1111
+          "line": 1253
         }
       ],
       "valueDiscovery": {
@@ -12991,7 +13230,7 @@
           "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 262,
+          "line": 264,
           "access": "cp"
         }
       ],
@@ -13020,7 +13259,7 @@
           "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 264,
+          "line": 266,
           "access": "cp"
         }
       ],
@@ -13049,7 +13288,7 @@
           "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 254,
+          "line": 256,
           "access": "cp"
         }
       ],
@@ -13078,7 +13317,7 @@
           "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 260,
+          "line": 262,
           "access": "cp"
         }
       ],
@@ -13107,7 +13346,7 @@
           "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 263,
+          "line": 265,
           "access": "cp"
         }
       ],
@@ -13136,7 +13375,7 @@
           "path": "luarules/gadgets/gfx_flamethrower_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 261,
+          "line": 263,
           "access": "cp"
         }
       ],
@@ -13165,7 +13404,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 249,
+          "line": 235,
           "access": "wdcp"
         }
       ],
@@ -13194,7 +13433,7 @@
           "path": "luaui/widgets/gui_info.lua",
           "layer": "interface",
           "confidence": "high",
-          "line": 572,
+          "line": 640,
           "access": "droneDef"
         }
       ],
@@ -13223,7 +13462,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 214,
+          "line": 224,
           "access": "cp"
         }
       ],
@@ -13252,7 +13491,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 213,
+          "line": 223,
           "access": "cp"
         }
       ],
@@ -13281,7 +13520,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 208,
+          "line": 218,
           "access": "cp"
         }
       ],
@@ -13310,7 +13549,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 176,
+          "line": 186,
           "access": "cp"
         }
       ],
@@ -13339,7 +13578,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 175,
+          "line": 185,
           "access": "cp"
         }
       ],
@@ -13368,7 +13607,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 174,
+          "line": 184,
           "access": "cp"
         }
       ],
@@ -13397,7 +13636,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 180,
+          "line": 190,
           "access": "cp"
         }
       ],
@@ -13426,7 +13665,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 179,
+          "line": 189,
           "access": "cp"
         }
       ],
@@ -13455,7 +13694,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 178,
+          "line": 188,
           "access": "cp"
         }
       ],
@@ -13484,7 +13723,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 203,
+          "line": 213,
           "access": "cp"
         }
       ],
@@ -13513,7 +13752,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 226,
+          "line": 236,
           "access": "cp"
         }
       ],
@@ -13542,7 +13781,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 198,
+          "line": 208,
           "access": "cp"
         }
       ],
@@ -13571,7 +13810,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 170,
+          "line": 178,
           "access": "cp"
         }
       ],
@@ -13583,7 +13822,7 @@
           "value": "1",
           "occurrences": 1,
           "sourcePath": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
-          "line": 170
+          "line": 178
         }
       ],
       "valueDiscovery": {
@@ -13614,7 +13853,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 218,
+          "line": 228,
           "access": "cp"
         }
       ],
@@ -13643,7 +13882,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 193,
+          "line": 203,
           "access": "cp"
         }
       ],
@@ -13672,7 +13911,7 @@
           "path": "luarules/gadgets/gfx_lightning_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 182,
+          "line": 192,
           "access": "cp"
         }
       ],
@@ -13701,7 +13940,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 255,
+          "line": 241,
           "access": "wdcp"
         }
       ],
@@ -13730,7 +13969,7 @@
           "path": "luarules/gadgets/unit_cloak.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 86,
+          "line": 84,
           "access": "wd.customParams"
         }
       ],
@@ -13759,7 +13998,7 @@
           "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 144,
+          "line": 146,
           "access": "custom"
         }
       ],
@@ -13788,7 +14027,7 @@
           "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 146,
+          "line": 151,
           "access": "custom"
         }
       ],
@@ -13817,7 +14056,7 @@
           "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 145,
+          "line": 149,
           "access": "custom"
         }
       ],
@@ -13846,7 +14085,7 @@
           "path": "luarules/gadgets/gfx_plasma_cannon_gl4.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 126,
+          "line": 128,
           "access": "cp"
         }
       ],
@@ -13875,7 +14114,7 @@
           "path": "luarules/gadgets/unit_custom_weapons_overpen.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 154,
+          "line": 159,
           "access": "custom"
         }
       ],
@@ -13887,7 +14126,7 @@
           "value": "0",
           "occurrences": 2,
           "sourcePath": "luarules/gadgets/unit_shield_behaviour.lua",
-          "line": 192
+          "line": 225
         }
       ],
       "valueDiscovery": {
@@ -13921,7 +14160,7 @@
           "path": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 116,
+          "line": 105,
           "access": "weaponDef.customParams"
         }
       ],
@@ -13933,7 +14172,7 @@
           "value": "0",
           "occurrences": 1,
           "sourcePath": "luarules/gadgets/unit_weapon_smart_select_helper.lua",
-          "line": 116
+          "line": 105
         }
       ],
       "valueDiscovery": {
@@ -13967,7 +14206,7 @@
           "path": "gamedata/alldefs_post.lua",
           "layer": "definition-transform",
           "confidence": "high",
-          "line": 832,
+          "line": 943,
           "access": "wd.customParams"
         }
       ],
@@ -13996,7 +14235,7 @@
           "path": "gamedata/alldefs_post.lua",
           "layer": "definition-transform",
           "confidence": "high",
-          "line": 839,
+          "line": 950,
           "access": "wd.customParams"
         }
       ],
@@ -14025,7 +14264,7 @@
           "path": "gamedata/alldefs_post.lua",
           "layer": "definition-transform",
           "confidence": "high",
-          "line": 825,
+          "line": 936,
           "access": "wd.customParams"
         }
       ],
@@ -14054,7 +14293,7 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 269,
+          "line": 254,
           "access": "wdcp"
         }
       ],
@@ -14083,8 +14322,37 @@
           "path": "luarules/gadgets/unit_carrier_spawner.lua",
           "layer": "runtime-gadget",
           "confidence": "high",
-          "line": 228,
+          "line": 214,
           "access": "wdcp"
+        }
+      ],
+      "consumerValueEvidence": [],
+      "valueDiscovery": {
+        "inferredType": "unknown",
+        "typeConfidence": "uncertain",
+        "enumCandidates": [],
+        "enumConfidence": "none",
+        "comparisonValues": [],
+        "defaultCandidates": [],
+        "numericRange": null
+      }
+    },
+    {
+      "key": "sweepfire",
+      "scope": "weapon",
+      "declared": false,
+      "consumerCount": 3,
+      "writerCount": 0,
+      "consumerLayers": [
+        "interface"
+      ],
+      "consumerEvidence": [
+        {
+          "path": "luaui/widgets/gui_info.lua",
+          "layer": "interface",
+          "confidence": "high",
+          "line": 548,
+          "access": "weaponDef.customParams"
         }
       ],
       "consumerValueEvidence": [],
@@ -14112,7 +14380,7 @@
           "path": "luaui/configs/deferredlightsgl4weaponsconfig.lua",
           "layer": "interface",
           "confidence": "high",
-          "line": 672,
+          "line": 940,
           "access": "weaponDef.customParams"
         }
       ],
@@ -14373,13 +14641,6 @@
       ]
     },
     {
-      "key": "no",
-      "occurrences": 1,
-      "sourcePaths": [
-        "luarules/gadgets/unit_turretspeed.lua"
-      ]
-    },
-    {
       "key": "nohealthbars",
       "occurrences": 1,
       "sourcePaths": [
@@ -14408,17 +14669,10 @@
       ]
     },
     {
-      "key": "wpnxturretx",
+      "key": "smart_weapon_cmddesc",
       "occurrences": 1,
       "sourcePaths": [
-        "luarules/gadgets/unit_turretspeed.lua"
-      ]
-    },
-    {
-      "key": "wpnxturrety",
-      "occurrences": 1,
-      "sourcePaths": [
-        "luarules/gadgets/unit_turretspeed.lua"
+        "gamedata/alldefs_post.lua"
       ]
     }
   ]

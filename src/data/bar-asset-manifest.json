@@ -1,7 +1,7 @@
 {
   "version": 1,
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
-  "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
+  "sourceCommit": "32b0375ab2f928323e1a79880ca62b8734ec39d1",
   "categories": {
     "unitModel": [
       "chip.s3o",
@@ -839,7 +839,6 @@
       "Units/scavboss/ARMLICHET4.s3o",
       "Units/scavboss/armlunchbox.s3o",
       "Units/scavboss/ARMMEATBALL.s3o",
-      "Units/scavboss/ARMMINEBOMBER.s3o",
       "Units/scavboss/ARMPSHIPT3.s3o",
       "Units/scavboss/ARMPTT2.s3o",
       "Units/scavboss/armpwt4.s3o",
@@ -1606,7 +1605,6 @@
       "Units/scavboss/armfepocht4.cob",
       "Units/scavboss/armlunchbox.cob",
       "Units/scavboss/armmeatball.cob",
-      "Units/scavboss/ARMMINEBOMBER.cob",
       "Units/scavboss/ARMPSHIPT3.cob",
       "Units/scavboss/ARMPTT2.cob",
       "Units/scavboss/armpwt4.cob",
@@ -3952,6 +3950,7 @@
       "NUKETRAIL",
       "nuketrail-roost",
       "railgun",
+      "railgun-epic",
       "scaspawn-greentrail",
       "scaspawn-trail",
       "sporetrail-large",

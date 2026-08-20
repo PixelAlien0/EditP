@@ -1,4 +1,41 @@
 {
+  "armatlas": [
+    "aircraft",
+    "t1"
+  ],
+  "armca": [
+    "aircraft",
+    "factories",
+    "t1"
+  ],
+  "armdrone": [
+    "aircraft",
+    "t1"
+  ],
+  "armdroneold": [
+    "aircraft",
+    "t1"
+  ],
+  "armfig": [
+    "aircraft",
+    "t1"
+  ],
+  "armhvytrans": [
+    "aircraft",
+    "t1"
+  ],
+  "armkam": [
+    "aircraft",
+    "t1"
+  ],
+  "armpeep": [
+    "aircraft",
+    "t1"
+  ],
+  "armthund": [
+    "aircraft",
+    "t1"
+  ],
   "armaca": [
     "aircraft",
     "factories",
@@ -40,41 +77,37 @@
     "aircraft",
     "t2"
   ],
-  "armatlas": [
-    "aircraft",
-    "t1"
-  ],
-  "armca": [
-    "aircraft",
+  "armck": [
+    "bots",
     "factories",
     "t1"
   ],
-  "armdrone": [
-    "aircraft",
+  "armflea": [
+    "bots",
     "t1"
   ],
-  "armdroneold": [
-    "aircraft",
+  "armham": [
+    "bots",
     "t1"
   ],
-  "armfig": [
-    "aircraft",
+  "armjeth": [
+    "bots",
     "t1"
   ],
-  "armhvytrans": [
-    "aircraft",
+  "armpw": [
+    "bots",
     "t1"
   ],
-  "armkam": [
-    "aircraft",
+  "armrectr": [
+    "bots",
     "t1"
   ],
-  "armpeep": [
-    "aircraft",
+  "armrock": [
+    "bots",
     "t1"
   ],
-  "armthund": [
-    "aircraft",
+  "armwar": [
+    "bots",
     "t1"
   ],
   "armaak": [
@@ -129,11 +162,6 @@
     "bots",
     "t2"
   ],
-  "armsack": [
-    "bots",
-    "factories",
-    "t2"
-  ],
   "armscab": [
     "bots",
     "t2"
@@ -161,39 +189,6 @@
   "armzeus": [
     "bots",
     "t2"
-  ],
-  "armck": [
-    "bots",
-    "factories",
-    "t1"
-  ],
-  "armflea": [
-    "bots",
-    "t1"
-  ],
-  "armham": [
-    "bots",
-    "t1"
-  ],
-  "armjeth": [
-    "bots",
-    "t1"
-  ],
-  "armpw": [
-    "bots",
-    "t1"
-  ],
-  "armrectr": [
-    "bots",
-    "t1"
-  ],
-  "armrock": [
-    "bots",
-    "t1"
-  ],
-  "armwar": [
-    "bots",
-    "t1"
   ],
   "armamb": [
     "defenses",
@@ -379,18 +374,6 @@
     "factories",
     "t1"
   ],
-  "armsaap": [
-    "factories",
-    "t2"
-  ],
-  "armsalab": [
-    "factories",
-    "t2"
-  ],
-  "armsavp": [
-    "factories",
-    "t2"
-  ],
   "armshltx": [
     "factories",
     "t3"
@@ -572,10 +555,6 @@
     "factories",
     "t1.5"
   ],
-  "armsasy": [
-    "factories",
-    "t2"
-  ],
   "armshltxuw": [
     "factories",
     "t3"
@@ -618,6 +597,14 @@
   ],
   "armsonar": [
     "buildings",
+    "t1"
+  ],
+  "armcom": [
+    "factories",
+    "t1"
+  ],
+  "armcomcon": [
+    "factories",
     "t1"
   ],
   "armbanth": [
@@ -699,6 +686,39 @@
     "aircraft",
     "t1"
   ],
+  "armcs": [
+    "ships",
+    "factories",
+    "t1"
+  ],
+  "armdecade": [
+    "ships",
+    "t1"
+  ],
+  "armpship": [
+    "ships",
+    "t1"
+  ],
+  "armpt": [
+    "ships",
+    "t1"
+  ],
+  "armrecl": [
+    "ships",
+    "t1"
+  ],
+  "armroy": [
+    "ships",
+    "t1"
+  ],
+  "armsub": [
+    "ships",
+    "t1"
+  ],
+  "armtorps": [
+    "ships",
+    "t1"
+  ],
   "armaas": [
     "ships",
     "t2"
@@ -754,11 +774,6 @@
     "ships",
     "t2"
   ],
-  "armsacsub": [
-    "ships",
-    "factories",
-    "t2"
-  ],
   "armseadragon": [
     "ships",
     "t2"
@@ -777,45 +792,53 @@
   ],
   "armtdrone": [
     "aircraft",
-    "defenses",
     "t1"
   ],
   "armtrident": [
     "ships",
-    "defenses",
     "t2"
   ],
-  "armcs": [
-    "ships",
+  "armart": [
+    "vehicles",
+    "t1"
+  ],
+  "armbeaver": [
+    "vehicles",
     "factories",
     "t1"
   ],
-  "armdecade": [
-    "ships",
+  "armcv": [
+    "vehicles",
+    "factories",
     "t1"
   ],
-  "armpship": [
-    "ships",
+  "armfav": [
+    "vehicles",
     "t1"
   ],
-  "armpt": [
-    "ships",
+  "armflash": [
+    "vehicles",
     "t1"
   ],
-  "armrecl": [
-    "ships",
+  "armjanus": [
+    "vehicles",
     "t1"
   ],
-  "armroy": [
-    "ships",
+  "armmlv": [
+    "vehicles",
+    "factories",
     "t1"
   ],
-  "armsub": [
-    "ships",
+  "armpincer": [
+    "vehicles",
     "t1"
   ],
-  "armtorps": [
-    "ships",
+  "armsam": [
+    "vehicles",
+    "t1"
+  ],
+  "armstump": [
+    "vehicles",
     "t1"
   ],
   "armacv": [
@@ -865,93 +888,12 @@
     "vehicles",
     "t2"
   ],
-  "armsacv": [
-    "vehicles",
-    "factories",
-    "t2"
-  ],
   "armseer": [
     "vehicles",
     "t2"
   ],
   "armyork": [
     "vehicles",
-    "t2"
-  ],
-  "armart": [
-    "vehicles",
-    "t1"
-  ],
-  "armbeaver": [
-    "vehicles",
-    "factories",
-    "t1"
-  ],
-  "armcv": [
-    "vehicles",
-    "factories",
-    "t1"
-  ],
-  "armfav": [
-    "vehicles",
-    "t1"
-  ],
-  "armflash": [
-    "vehicles",
-    "t1"
-  ],
-  "armjanus": [
-    "vehicles",
-    "t1"
-  ],
-  "armmlv": [
-    "vehicles",
-    "factories",
-    "t1"
-  ],
-  "armpincer": [
-    "vehicles",
-    "t1"
-  ],
-  "armsam": [
-    "vehicles",
-    "t1"
-  ],
-  "armstump": [
-    "vehicles",
-    "t1"
-  ],
-  "coraca": [
-    "aircraft",
-    "factories",
-    "t2"
-  ],
-  "corape": [
-    "aircraft",
-    "t2"
-  ],
-  "corawac": [
-    "aircraft",
-    "t2"
-  ],
-  "corcrwh": [
-    "aircraft",
-    "t2"
-  ],
-  "corhurc": [
-    "aircraft",
-    "t2"
-  ],
-  "corseah": [
-    "aircraft",
-    "t2"
-  ],
-  "cortitan": [
-    "aircraft",
-    "t2"
-  ],
-  "corvamp": [
-    "aircraft",
     "t2"
   ],
   "corbw": [
@@ -989,6 +931,64 @@
   ],
   "corveng": [
     "aircraft",
+    "t1"
+  ],
+  "coraca": [
+    "aircraft",
+    "factories",
+    "t2"
+  ],
+  "corape": [
+    "aircraft",
+    "t2"
+  ],
+  "corawac": [
+    "aircraft",
+    "t2"
+  ],
+  "corcrwh": [
+    "aircraft",
+    "t2"
+  ],
+  "corhurc": [
+    "aircraft",
+    "t2"
+  ],
+  "corseah": [
+    "aircraft",
+    "t2"
+  ],
+  "cortitan": [
+    "aircraft",
+    "t2"
+  ],
+  "corvamp": [
+    "aircraft",
+    "t2"
+  ],
+  "corak": [
+    "bots",
+    "t1"
+  ],
+  "corck": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "corcrash": [
+    "bots",
+    "t1"
+  ],
+  "cornecro": [
+    "bots",
+    "t1"
+  ],
+  "corstorm": [
+    "bots",
+    "t1"
+  ],
+  "corthud": [
+    "bots",
     "t1"
   ],
   "coraak": [
@@ -1044,11 +1044,6 @@
     "bots",
     "t2"
   ],
-  "corsack": [
-    "bots",
-    "factories",
-    "t2"
-  ],
   "corsktl": [
     "bots",
     "t2"
@@ -1072,31 +1067,6 @@
   "corvoyr": [
     "bots",
     "t2"
-  ],
-  "corak": [
-    "bots",
-    "t1"
-  ],
-  "corck": [
-    "bots",
-    "factories",
-    "t1"
-  ],
-  "corcrash": [
-    "bots",
-    "t1"
-  ],
-  "cornecro": [
-    "bots",
-    "t1"
-  ],
-  "corstorm": [
-    "bots",
-    "t1"
-  ],
-  "corthud": [
-    "bots",
-    "t1"
   ],
   "corbhmth": [
     "defenses",
@@ -1281,18 +1251,6 @@
   "corlab": [
     "factories",
     "t1"
-  ],
-  "corsaap": [
-    "factories",
-    "t2"
-  ],
-  "corsalab": [
-    "factories",
-    "t2"
-  ],
-  "corsavp": [
-    "factories",
-    "t2"
   ],
   "corvp": [
     "factories",
@@ -1479,10 +1437,6 @@
     "factories",
     "t1.5"
   ],
-  "corsasy": [
-    "factories",
-    "t2"
-  ],
   "corsy": [
     "factories",
     "t1"
@@ -1521,6 +1475,14 @@
   ],
   "corsonar": [
     "buildings",
+    "t1"
+  ],
+  "corcom": [
+    "factories",
+    "t1"
+  ],
+  "corcomcon": [
+    "factories",
     "t1"
   ],
   "corcat": [
@@ -1611,6 +1573,35 @@
     "factories",
     "t2"
   ],
+  "corcs": [
+    "ships",
+    "factories",
+    "t1"
+  ],
+  "coresupp": [
+    "ships",
+    "t1"
+  ],
+  "corpship": [
+    "ships",
+    "t1"
+  ],
+  "corpt": [
+    "ships",
+    "t1"
+  ],
+  "correcl": [
+    "ships",
+    "t1"
+  ],
+  "corroy": [
+    "ships",
+    "t1"
+  ],
+  "corsub": [
+    "ships",
+    "t1"
+  ],
   "coracsub": [
     "ships",
     "factories",
@@ -1674,14 +1665,8 @@
     "ships",
     "t2"
   ],
-  "corsacvsub": [
-    "ships",
-    "factories",
-    "t2"
-  ],
   "corsentinel": [
     "ships",
-    "defenses",
     "t2"
   ],
   "corshark": [
@@ -1698,36 +1683,49 @@
   ],
   "cortdrone": [
     "aircraft",
-    "defenses",
     "t1"
   ],
-  "corcs": [
-    "ships",
+  "corcv": [
+    "vehicles",
     "factories",
     "t1"
   ],
-  "coresupp": [
-    "ships",
+  "corfav": [
+    "vehicles",
     "t1"
   ],
-  "corpship": [
-    "ships",
+  "corgarp": [
+    "vehicles",
     "t1"
   ],
-  "corpt": [
-    "ships",
+  "corgator": [
+    "vehicles",
     "t1"
   ],
-  "correcl": [
-    "ships",
+  "corlevlr": [
+    "vehicles",
     "t1"
   ],
-  "corroy": [
-    "ships",
+  "cormist": [
+    "vehicles",
     "t1"
   ],
-  "corsub": [
-    "ships",
+  "cormlv": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "cormuskrat": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "corraid": [
+    "vehicles",
+    "t1"
+  ],
+  "corwolv": [
+    "vehicles",
     "t1"
   ],
   "coracv": [
@@ -1777,11 +1775,6 @@
     "vehicles",
     "t2"
   ],
-  "corsacv": [
-    "vehicles",
-    "factories",
-    "t2"
-  ],
   "corsala": [
     "vehicles",
     "t2"
@@ -1796,7 +1789,6 @@
   ],
   "corsiegebreaker": [
     "vehicles",
-    "defenses",
     "t2"
   ],
   "cortrem": [
@@ -1821,47 +1813,32 @@
     "vehicles",
     "t2"
   ],
-  "corcv": [
-    "vehicles",
-    "factories",
+  "legatrans": [
+    "aircraft",
     "t1"
   ],
-  "corfav": [
-    "vehicles",
+  "legcib": [
+    "aircraft",
     "t1"
   ],
-  "corgarp": [
-    "vehicles",
+  "legdrone": [
+    "aircraft",
     "t1"
   ],
-  "corgator": [
-    "vehicles",
+  "legfig": [
+    "aircraft",
     "t1"
   ],
-  "corlevlr": [
-    "vehicles",
+  "legkam": [
+    "aircraft",
     "t1"
   ],
-  "cormist": [
-    "vehicles",
+  "leglts": [
+    "aircraft",
     "t1"
   ],
-  "cormlv": [
-    "vehicles",
-    "factories",
-    "t1"
-  ],
-  "cormuskrat": [
-    "vehicles",
-    "factories",
-    "t1"
-  ],
-  "corraid": [
-    "vehicles",
-    "t1"
-  ],
-  "corwolv": [
-    "vehicles",
+  "legmos": [
+    "aircraft",
     "t1"
   ],
   "legafigdef": [
@@ -1912,32 +1889,32 @@
     "aircraft",
     "t2"
   ],
-  "legatrans": [
-    "aircraft",
+  "legaabot": [
+    "bots",
     "t1"
   ],
-  "legcib": [
-    "aircraft",
+  "legbal": [
+    "bots",
     "t1"
   ],
-  "legdrone": [
-    "aircraft",
+  "legcen": [
+    "bots",
     "t1"
   ],
-  "legfig": [
-    "aircraft",
+  "leggob": [
+    "bots",
     "t1"
   ],
-  "legkam": [
-    "aircraft",
+  "legkark": [
+    "bots",
     "t1"
   ],
-  "leglts": [
-    "aircraft",
+  "leglob": [
+    "bots",
     "t1"
   ],
-  "legmos": [
-    "aircraft",
+  "legrezbot": [
+    "bots",
     "t1"
   ],
   "legadvaabot": [
@@ -1997,34 +1974,6 @@
   "legstr": [
     "bots",
     "t2"
-  ],
-  "legaabot": [
-    "bots",
-    "t1"
-  ],
-  "legbal": [
-    "bots",
-    "t1"
-  ],
-  "legcen": [
-    "bots",
-    "t1"
-  ],
-  "leggob": [
-    "bots",
-    "t1"
-  ],
-  "legkark": [
-    "bots",
-    "t1"
-  ],
-  "leglob": [
-    "bots",
-    "t1"
-  ],
-  "legrezbot": [
-    "bots",
-    "t1"
   ],
   "legaca": [
     "aircraft",
@@ -2367,6 +2316,10 @@
     "factories",
     "t1"
   ],
+  "legcom": [
+    "factories",
+    "t1"
+  ],
   "legcomecon": [
     "factories",
     "t1"
@@ -2390,18 +2343,6 @@
   "legvision": [
     "buildings",
     "t1"
-  ],
-  "leganavalaaturret": [
-    "defenses",
-    "t2"
-  ],
-  "leganavaldefturret": [
-    "defenses",
-    "t2"
-  ],
-  "leganavaltorpturret": [
-    "defenses",
-    "t2"
   ],
   "legctl": [
     "defenses",
@@ -2431,20 +2372,16 @@
     "defenses",
     "t1"
   ],
-  "leganavaladvgeo": [
-    "buildings",
+  "leganavalaaturret": [
+    "defenses",
     "t2"
   ],
-  "leganavaleconv": [
-    "buildings",
+  "leganavaldefturret": [
+    "defenses",
     "t2"
   ],
-  "leganavalfusion": [
-    "buildings",
-    "t2"
-  ],
-  "leganavalmex": [
-    "buildings",
+  "leganavaltorpturret": [
+    "defenses",
     "t2"
   ],
   "legfeconv": [
@@ -2466,6 +2403,22 @@
   "leguwmstore": [
     "buildings",
     "t1"
+  ],
+  "leganavaladvgeo": [
+    "buildings",
+    "t2"
+  ],
+  "leganavaleconv": [
+    "buildings",
+    "t2"
+  ],
+  "leganavalfusion": [
+    "buildings",
+    "t2"
+  ],
+  "leganavalmex": [
+    "buildings",
+    "t2"
   ],
   "legspbomber": [
     "aircraft",
@@ -2491,6 +2444,10 @@
     "aircraft",
     "t1"
   ],
+  "legfrad": [
+    "buildings",
+    "t1"
+  ],
   "leganavalpinpointer": [
     "buildings",
     "t2"
@@ -2499,8 +2456,32 @@
     "buildings",
     "t2"
   ],
-  "legfrad": [
-    "buildings",
+  "legnavyaaship": [
+    "ships",
+    "t1"
+  ],
+  "legnavyartyship": [
+    "ships",
+    "t1"
+  ],
+  "legnavydestro": [
+    "ships",
+    "t1"
+  ],
+  "legnavyfrigate": [
+    "ships",
+    "t1"
+  ],
+  "legnavyrezsub": [
+    "ships",
+    "t1"
+  ],
+  "legnavyscout": [
+    "ships",
+    "t1"
+  ],
+  "legnavysub": [
+    "ships",
     "t1"
   ],
   "leganavyaaship": [
@@ -2546,34 +2527,6 @@
   "leganavyradjamship": [
     "ships",
     "t2"
-  ],
-  "legnavyaaship": [
-    "ships",
-    "t1"
-  ],
-  "legnavyartyship": [
-    "ships",
-    "t1"
-  ],
-  "legnavydestro": [
-    "ships",
-    "t1"
-  ],
-  "legnavyfrigate": [
-    "ships",
-    "t1"
-  ],
-  "legnavyrezsub": [
-    "ships",
-    "t1"
-  ],
-  "legnavyscout": [
-    "ships",
-    "t1"
-  ],
-  "legnavysub": [
-    "ships",
-    "t1"
   ],
   "leegmech": [
     "t3"
@@ -2675,6 +2628,39 @@
     "buildings",
     "t2"
   ],
+  "legamphtank": [
+    "vehicles",
+    "t1"
+  ],
+  "legbar": [
+    "vehicles",
+    "t1"
+  ],
+  "leggat": [
+    "vehicles",
+    "t1"
+  ],
+  "leghades": [
+    "vehicles",
+    "t1"
+  ],
+  "leghelios": [
+    "vehicles",
+    "t1"
+  ],
+  "legmlv": [
+    "vehicles",
+    "factories",
+    "t1"
+  ],
+  "legrail": [
+    "vehicles",
+    "t1"
+  ],
+  "legscout": [
+    "vehicles",
+    "t1"
+  ],
   "legaheattank": [
     "vehicles",
     "t2"
@@ -2727,41 +2713,745 @@
     "vehicles",
     "t2"
   ],
-  "legamphtank": [
-    "vehicles",
+  "armsat": [
+    "aircraft",
+    "t2"
+  ],
+  "ceg_test_projectile_unit": [
     "t1"
   ],
-  "legbar": [
-    "vehicles",
+  "chip": [
     "t1"
   ],
-  "leggat": [
-    "vehicles",
+  "corsat": [
+    "aircraft",
+    "t2"
+  ],
+  "critter_ant": [
     "t1"
   ],
-  "leghades": [
-    "vehicles",
+  "critter_crab": [
     "t1"
   ],
-  "leghelios": [
-    "vehicles",
+  "critter_duck": [
     "t1"
   ],
-  "legmlv": [
-    "vehicles",
+  "critter_goldfish": [
+    "t1"
+  ],
+  "critter_gull": [
+    "aircraft",
+    "t1"
+  ],
+  "critter_penguin": [
+    "t1"
+  ],
+  "critter_penguinbro": [
+    "t1"
+  ],
+  "critter_penguinking": [
+    "t1"
+  ],
+  "dbg_sphere": [
+    "t1"
+  ],
+  "dbg_sphere_fullmetal": [
+    "t1"
+  ],
+  "dice": [
+    "t1"
+  ],
+  "armcomlvl10": [
     "factories",
     "t1"
   ],
-  "legrail": [
-    "vehicles",
-    "t1"
-  ],
-  "legscout": [
-    "vehicles",
-    "t1"
-  ],
-  "legcom": [
+  "armcomlvl3": [
     "factories",
+    "t1"
+  ],
+  "armcomlvl4": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl5": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl6": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl7": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl8": [
+    "factories",
+    "t1"
+  ],
+  "armcomlvl9": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl10": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl3": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl4": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl5": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl6": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl7": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl8": [
+    "factories",
+    "t1"
+  ],
+  "corcomlvl9": [
+    "factories",
+    "t1"
+  ],
+  "freefusion": [
+    "buildings",
+    "t2"
+  ],
+  "lootboxbronze": [
+    "t1"
+  ],
+  "lootboxgold": [
+    "t1"
+  ],
+  "lootboxplatinum": [
+    "t1"
+  ],
+  "lootboxsilver": [
+    "t1"
+  ],
+  "lootdroppod_gold": [
+    "defenses",
+    "t1"
+  ],
+  "lootdroppod_printer": [
+    "defenses",
+    "t1"
+  ],
+  "meteor": [
+    "defenses",
+    "t1"
+  ],
+  "mission_command_tower": [
+    "buildings",
+    "t2"
+  ],
+  "nuketest": [
+    "defenses",
+    "t1"
+  ],
+  "nuketestcor": [
+    "defenses",
+    "t1"
+  ],
+  "nuketestorg": [
+    "defenses",
+    "t1"
+  ],
+  "pbr_cube": [
+    "t1"
+  ],
+  "raptor_air_bomber_acid_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_allterrain_arty_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_acid_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_acid_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_acids_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptorartillery": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t4_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t4_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t2_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_basic_t2_v3": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t2_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_basic_t2_v3": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t1_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t2_v2": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t4_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_bomber_basic_t4_v2": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_bomber_brood_t4_v2": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_bomber_brood_t4_v3": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_bomber_brood_t4_v4": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_allterrain_arty_brood_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_brood_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_brood_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_brood_t3_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_brood_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_bomber_emp_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_allterrain_arty_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_arty_emp_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_assault_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_kamikaze_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_kamikaze_emp_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_emp_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t1_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t2_v2": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t2_v3": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t2_v4": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_fighter_basic_t4_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_fire_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_fire_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_fire_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptorh1b": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_heal_t1_v1": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_land_swarmer_heal_t2_v1": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_land_swarmer_heal_t3_v1": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_land_swarmer_heal_t4_v1": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_air_kamikaze_basic_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_land_kamikaze_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_kamikaze_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_acid": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_basic": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_electric": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_fire": [
+    "bots",
+    "t1"
+  ],
+  "raptor_matriarch_healer": [
+    "bots",
+    "factories",
+    "t1"
+  ],
+  "raptor_matriarch_spectre": [
+    "bots",
+    "t1"
+  ],
+  "raptorh5": [
+    "bots",
+    "t1"
+  ],
+  "raptor_queen_easy": [
+    "bots",
+    "t1"
+  ],
+  "raptor_queen_epic": [
+    "bots",
+    "t1"
+  ],
+  "raptor_queen_hard": [
+    "bots",
+    "t1"
+  ],
+  "raptor_queen_normal": [
+    "bots",
+    "t1"
+  ],
+  "raptor_queen_veryeasy": [
+    "bots",
+    "t1"
+  ],
+  "raptor_queen_veryhard": [
+    "bots",
+    "t1"
+  ],
+  "raptor_air_gunship_acid_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_gunship_antiair_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_gunship_basic_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_gunship_emp_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_gunship_fire_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_scout_basic_t2_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_scout_basic_t3_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_air_scout_basic_t4_v1": [
+    "aircraft",
+    "t1"
+  ],
+  "raptor_land_assault_spectre_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_assault_spectre_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_spiker_spectre_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_spectre_t3_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_spectre_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_spiker_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_spiker_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_antinuke": [
+    "bots",
+    "defenses",
+    "t2"
+  ],
+  "raptor_hive": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_acid_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_acid_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_acid_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_acid_t4_v2": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antiair_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antiair_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antiair_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antinuke_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_antinuke_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_basic_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_basic_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_basic_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_basic_t4_v2": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_brood_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_brood_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_brood_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_brood_t4_v2": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_burrow_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_emp_t2_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_emp_t3_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_emp_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_emp_t4_v2": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_turret_meteor_t4_v1": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_worm_green": [
+    "bots",
+    "defenses",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t4_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_6legged_l": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_basic_t3_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_allterrain_swarmer_basic_t4_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t1_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t2_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t2_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t2_v3": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t2_v4": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t3_v1": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t3_v2": [
+    "bots",
+    "t1"
+  ],
+  "raptor_land_swarmer_basic_t3_v3": [
+    "bots",
+    "t1"
+  ],
+  "resourcecheat": [
+    "buildings",
+    "t2"
+  ],
+  "volcano_projectile_unit": [
+    "t1"
+  ],
+  "xmasball1_1": [
+    "t1"
+  ],
+  "xmasball1_2": [
+    "t1"
+  ],
+  "xmasball1_3": [
+    "t1"
+  ],
+  "xmasball1_4": [
+    "t1"
+  ],
+  "xmasball1_5": [
+    "t1"
+  ],
+  "xmasball1_6": [
+    "t1"
+  ],
+  "xmasball2_1": [
+    "t1"
+  ],
+  "xmasball2_2": [
+    "t1"
+  ],
+  "xmasball2_3": [
+    "t1"
+  ],
+  "xmasball2_4": [
+    "t1"
+  ],
+  "xmasball2_5": [
+    "t1"
+  ],
+  "xmasball2_6": [
     "t1"
   ],
   "armfepocht4": [
@@ -2775,10 +3465,6 @@
   "armlichet4": [
     "aircraft",
     "t3"
-  ],
-  "armminebomber": [
-    "aircraft",
-    "t1"
   ],
   "armthundt4": [
     "aircraft",
@@ -3111,762 +3797,51 @@
     "vehicles",
     "t3"
   ],
-  "armcom": [
+  "scav_armatlas": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armca": [
+    "aircraft",
     "factories",
-    "t1"
+    "t1",
+    "scavenger"
   ],
-  "armcomcon": [
-    "factories",
-    "t1"
-  ],
-  "corcom": [
-    "factories",
-    "t1"
-  ],
-  "corcomcon": [
-    "factories",
-    "t1"
-  ],
-  "armsat": [
+  "scav_armdrone": [
     "aircraft",
-    "t2"
+    "t1",
+    "scavenger"
   ],
-  "ceg_test_projectile_unit": [
-    "t1"
-  ],
-  "chip": [
-    "t1"
-  ],
-  "corsat": [
+  "scav_armdroneold": [
     "aircraft",
-    "t2"
+    "t1",
+    "scavenger"
   ],
-  "critter_ant": [
-    "t1"
-  ],
-  "critter_crab": [
-    "t1"
-  ],
-  "critter_duck": [
-    "t1"
-  ],
-  "critter_goldfish": [
-    "t1"
-  ],
-  "critter_gull": [
+  "scav_armfig": [
     "aircraft",
-    "t1"
+    "t1",
+    "scavenger"
   ],
-  "critter_penguin": [
-    "t1"
-  ],
-  "critter_penguinbro": [
-    "t1"
-  ],
-  "critter_penguinking": [
-    "t1"
-  ],
-  "dbg_sphere": [
-    "t1"
-  ],
-  "dbg_sphere_fullmetal": [
-    "t1"
-  ],
-  "dice": [
-    "t1"
-  ],
-  "armcomlvl10": [
-    "factories",
-    "t1"
-  ],
-  "armcomlvl3": [
-    "factories",
-    "t1"
-  ],
-  "armcomlvl4": [
-    "factories",
-    "t1"
-  ],
-  "armcomlvl5": [
-    "factories",
-    "t1"
-  ],
-  "armcomlvl6": [
-    "factories",
-    "t1"
-  ],
-  "armcomlvl7": [
-    "factories",
-    "t1"
-  ],
-  "armcomlvl8": [
-    "factories",
-    "t1"
-  ],
-  "armcomlvl9": [
-    "factories",
-    "t1"
-  ],
-  "corcomlvl10": [
-    "factories",
-    "t1"
-  ],
-  "corcomlvl3": [
-    "factories",
-    "t1"
-  ],
-  "corcomlvl4": [
-    "factories",
-    "t1"
-  ],
-  "corcomlvl5": [
-    "factories",
-    "t1"
-  ],
-  "corcomlvl6": [
-    "factories",
-    "t1"
-  ],
-  "corcomlvl7": [
-    "factories",
-    "t1"
-  ],
-  "corcomlvl8": [
-    "factories",
-    "t1"
-  ],
-  "corcomlvl9": [
-    "factories",
-    "t1"
-  ],
-  "freefusion": [
-    "buildings",
-    "t2"
-  ],
-  "lootboxbronze": [
-    "t1"
-  ],
-  "lootboxgold": [
-    "t1"
-  ],
-  "lootboxplatinum": [
-    "t1"
-  ],
-  "lootboxsilver": [
-    "t1"
-  ],
-  "lootdroppod_gold": [
-    "defenses",
-    "t1"
-  ],
-  "lootdroppod_printer": [
-    "defenses",
-    "t1"
-  ],
-  "meteor": [
-    "defenses",
-    "t1"
-  ],
-  "mission_command_tower": [
-    "buildings",
-    "t2"
-  ],
-  "nuketest": [
-    "defenses",
-    "t1"
-  ],
-  "nuketestcor": [
-    "defenses",
-    "t1"
-  ],
-  "nuketestorg": [
-    "defenses",
-    "t1"
-  ],
-  "pbr_cube": [
-    "t1"
-  ],
-  "raptor_air_bomber_acid_t2_v1": [
+  "scav_armhvytrans": [
     "aircraft",
-    "t1"
+    "t1",
+    "scavenger"
   ],
-  "raptor_allterrain_arty_acid_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_arty_acid_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_assault_acid_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_swarmer_acid_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_assault_acid_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_acids_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_arty_basic_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_arty_basic_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptorartillery": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_assault_basic_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_assault_basic_t4_v2": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_assault_basic_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_assault_basic_t4_v2": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_assault_basic_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_assault_basic_t2_v2": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_assault_basic_t2_v3": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_assault_basic_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_assault_basic_t2_v2": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_assault_basic_t2_v3": [
-    "bots",
-    "t1"
-  ],
-  "raptor_air_bomber_basic_t1_v1": [
+  "scav_armkam": [
     "aircraft",
-    "t1"
+    "t1",
+    "scavenger"
   ],
-  "raptor_air_bomber_basic_t2_v1": [
+  "scav_armpeep": [
     "aircraft",
-    "t1"
+    "t1",
+    "scavenger"
   ],
-  "raptor_air_bomber_basic_t2_v2": [
+  "scav_armthund": [
     "aircraft",
-    "t1"
-  ],
-  "raptor_air_bomber_basic_t4_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_bomber_basic_t4_v2": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_bomber_brood_t4_v2": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_bomber_brood_t4_v3": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_bomber_brood_t4_v4": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_allterrain_arty_brood_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_arty_brood_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_brood_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_brood_t3_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_brood_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_air_bomber_emp_t2_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_allterrain_arty_emp_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_arty_emp_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_assault_emp_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_swarmer_emp_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_assault_emp_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_kamikaze_emp_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_kamikaze_emp_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_emp_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_air_fighter_basic_t1_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_fighter_basic_t2_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_fighter_basic_t2_v2": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_fighter_basic_t2_v3": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_fighter_basic_t2_v4": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_fighter_basic_t4_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_allterrain_swarmer_fire_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_fire_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_fire_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_heal_t1_v1": [
-    "bots",
-    "factories",
-    "t1"
-  ],
-  "raptor_land_swarmer_heal_t2_v1": [
-    "bots",
-    "factories",
-    "t1"
-  ],
-  "raptor_land_swarmer_heal_t3_v1": [
-    "bots",
-    "factories",
-    "t1"
-  ],
-  "raptor_land_swarmer_heal_t4_v1": [
-    "bots",
-    "factories",
-    "t1"
-  ],
-  "raptorh1b": [
-    "bots",
-    "t1"
-  ],
-  "raptor_air_kamikaze_basic_t2_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_land_kamikaze_basic_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_kamikaze_basic_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_matriarch_acid": [
-    "bots",
-    "t1"
-  ],
-  "raptor_matriarch_basic": [
-    "bots",
-    "t1"
-  ],
-  "raptor_matriarch_electric": [
-    "bots",
-    "t1"
-  ],
-  "raptor_matriarch_fire": [
-    "bots",
-    "t1"
-  ],
-  "raptor_matriarch_healer": [
-    "bots",
-    "factories",
-    "t1"
-  ],
-  "raptor_matriarch_spectre": [
-    "bots",
-    "t1"
-  ],
-  "raptorh5": [
-    "bots",
-    "t1"
-  ],
-  "raptor_queen_easy": [
-    "bots",
-    "t1"
-  ],
-  "raptor_queen_epic": [
-    "bots",
-    "t1"
-  ],
-  "raptor_queen_hard": [
-    "bots",
-    "t1"
-  ],
-  "raptor_queen_normal": [
-    "bots",
-    "t1"
-  ],
-  "raptor_queen_veryeasy": [
-    "bots",
-    "t1"
-  ],
-  "raptor_queen_veryhard": [
-    "bots",
-    "t1"
-  ],
-  "raptor_air_scout_basic_t2_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_scout_basic_t3_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_scout_basic_t4_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_land_assault_spectre_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_assault_spectre_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_spiker_spectre_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_spectre_t3_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_spectre_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_spiker_basic_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_spiker_basic_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_antinuke": [
-    "bots",
-    "defenses",
-    "t2"
-  ],
-  "raptor_hive": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_acid_t2_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_acid_t3_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_acid_t4_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_acid_t4_v2": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_antiair_t2_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_antiair_t3_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_antiair_t4_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_antinuke_t2_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_antinuke_t3_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_basic_t2_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_basic_t3_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_basic_t4_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_basic_t4_v2": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_brood_t2_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_brood_t3_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_brood_t4_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_brood_t4_v2": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_burrow_t2_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_emp_t2_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_emp_t3_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_emp_t4_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_emp_t4_v2": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_turret_meteor_t4_v1": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_worm_green": [
-    "bots",
-    "defenses",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t4_v2": [
-    "bots",
-    "t1"
-  ],
-  "raptor_6legged_l": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_swarmer_basic_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_swarmer_basic_t3_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_allterrain_swarmer_basic_t4_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t1_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t2_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t2_v2": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t2_v3": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t2_v4": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t3_v1": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t3_v2": [
-    "bots",
-    "t1"
-  ],
-  "raptor_land_swarmer_basic_t3_v3": [
-    "bots",
-    "t1"
-  ],
-  "raptor_air_gunship_acid_t2_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_gunship_antiair_t2_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_gunship_basic_t2_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_gunship_emp_t2_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "raptor_air_gunship_fire_t2_v1": [
-    "aircraft",
-    "t1"
-  ],
-  "resourcecheat": [
-    "buildings",
-    "t2"
-  ],
-  "volcano_projectile_unit": [
-    "t1"
-  ],
-  "xmasball1_1": [
-    "t1"
-  ],
-  "xmasball1_2": [
-    "t1"
-  ],
-  "xmasball1_3": [
-    "t1"
-  ],
-  "xmasball1_4": [
-    "t1"
-  ],
-  "xmasball1_5": [
-    "t1"
-  ],
-  "xmasball1_6": [
-    "t1"
-  ],
-  "xmasball2_1": [
-    "t1"
-  ],
-  "xmasball2_2": [
-    "t1"
-  ],
-  "xmasball2_3": [
-    "t1"
-  ],
-  "xmasball2_4": [
-    "t1"
-  ],
-  "xmasball2_5": [
-    "t1"
-  ],
-  "xmasball2_6": [
-    "t1"
+    "t1",
+    "scavenger"
   ],
   "scav_armaca": [
     "aircraft",
@@ -3919,49 +3894,44 @@
     "t2",
     "scavenger"
   ],
-  "scav_armatlas": [
-    "aircraft",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armca": [
-    "aircraft",
+  "scav_armck": [
+    "bots",
     "factories",
     "t1",
     "scavenger"
   ],
-  "scav_armdrone": [
-    "aircraft",
+  "scav_armflea": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_armdroneold": [
-    "aircraft",
+  "scav_armham": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_armfig": [
-    "aircraft",
+  "scav_armjeth": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_armhvytrans": [
-    "aircraft",
+  "scav_armpw": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_armkam": [
-    "aircraft",
+  "scav_armrectr": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_armpeep": [
-    "aircraft",
+  "scav_armrock": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_armthund": [
-    "aircraft",
+  "scav_armwar": [
+    "bots",
     "t1",
     "scavenger"
   ],
@@ -4029,12 +3999,6 @@
     "t2",
     "scavenger"
   ],
-  "scav_armsack": [
-    "bots",
-    "factories",
-    "t2",
-    "scavenger"
-  ],
   "scav_armscab": [
     "bots",
     "t2",
@@ -4068,47 +4032,6 @@
   "scav_armzeus": [
     "bots",
     "t2",
-    "scavenger"
-  ],
-  "scav_armck": [
-    "bots",
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armflea": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armham": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armjeth": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armpw": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armrectr": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armrock": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armwar": [
-    "bots",
-    "t1",
     "scavenger"
   ],
   "scav_armamb": [
@@ -4341,21 +4264,6 @@
     "t1",
     "scavenger"
   ],
-  "scav_armsaap": [
-    "factories",
-    "t2",
-    "scavenger"
-  ],
-  "scav_armsalab": [
-    "factories",
-    "t2",
-    "scavenger"
-  ],
-  "scav_armsavp": [
-    "factories",
-    "t2",
-    "scavenger"
-  ],
   "scav_armshltx": [
     "factories",
     "t3",
@@ -4582,11 +4490,6 @@
     "t1.5",
     "scavenger"
   ],
-  "scav_armsasy": [
-    "factories",
-    "t2",
-    "scavenger"
-  ],
   "scav_armshltxuw": [
     "factories",
     "t3",
@@ -4639,6 +4542,16 @@
   ],
   "scav_armsonar": [
     "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcom": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomcon": [
+    "factories",
     "t1",
     "scavenger"
   ],
@@ -4738,6 +4651,47 @@
     "t1",
     "scavenger"
   ],
+  "scav_armcs": [
+    "ships",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armdecade": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armpship": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armpt": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armrecl": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armroy": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armsub": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armtorps": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
   "scav_armaas": [
     "ships",
     "t2",
@@ -4806,12 +4760,6 @@
     "t2",
     "scavenger"
   ],
-  "scav_armsacsub": [
-    "ships",
-    "factories",
-    "t2",
-    "scavenger"
-  ],
   "scav_armseadragon": [
     "ships",
     "t2",
@@ -4834,54 +4782,64 @@
   ],
   "scav_armtdrone": [
     "aircraft",
-    "defenses",
     "t1",
     "scavenger"
   ],
   "scav_armtrident": [
     "ships",
-    "defenses",
     "t2",
     "scavenger"
   ],
-  "scav_armcs": [
-    "ships",
+  "scav_armart": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armbeaver": [
+    "vehicles",
     "factories",
     "t1",
     "scavenger"
   ],
-  "scav_armdecade": [
-    "ships",
+  "scav_armcv": [
+    "vehicles",
+    "factories",
     "t1",
     "scavenger"
   ],
-  "scav_armpship": [
-    "ships",
+  "scav_armfav": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
-  "scav_armpt": [
-    "ships",
+  "scav_armflash": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
-  "scav_armrecl": [
-    "ships",
+  "scav_armjanus": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
-  "scav_armroy": [
-    "ships",
+  "scav_armmlv": [
+    "vehicles",
+    "factories",
     "t1",
     "scavenger"
   ],
-  "scav_armsub": [
-    "ships",
+  "scav_armpincer": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
-  "scav_armtorps": [
-    "ships",
+  "scav_armsam": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armstump": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
@@ -4943,12 +4901,6 @@
     "t2",
     "scavenger"
   ],
-  "scav_armsacv": [
-    "vehicles",
-    "factories",
-    "t2",
-    "scavenger"
-  ],
   "scav_armseer": [
     "vehicles",
     "t2",
@@ -4956,100 +4908,6 @@
   ],
   "scav_armyork": [
     "vehicles",
-    "t2",
-    "scavenger"
-  ],
-  "scav_armart": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armbeaver": [
-    "vehicles",
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armcv": [
-    "vehicles",
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armfav": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armflash": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armjanus": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armmlv": [
-    "vehicles",
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armpincer": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armsam": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armstump": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_coraca": [
-    "aircraft",
-    "factories",
-    "t2",
-    "scavenger"
-  ],
-  "scav_corape": [
-    "aircraft",
-    "t2",
-    "scavenger"
-  ],
-  "scav_corawac": [
-    "aircraft",
-    "t2",
-    "scavenger"
-  ],
-  "scav_corcrwh": [
-    "aircraft",
-    "t2",
-    "scavenger"
-  ],
-  "scav_corhurc": [
-    "aircraft",
-    "t2",
-    "scavenger"
-  ],
-  "scav_corseah": [
-    "aircraft",
-    "t2",
-    "scavenger"
-  ],
-  "scav_cortitan": [
-    "aircraft",
-    "t2",
-    "scavenger"
-  ],
-  "scav_corvamp": [
-    "aircraft",
     "t2",
     "scavenger"
   ],
@@ -5096,6 +4954,78 @@
   ],
   "scav_corveng": [
     "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coraca": [
+    "aircraft",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corape": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corawac": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corcrwh": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corhurc": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corseah": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_cortitan": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corvamp": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corak": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corck": [
+    "bots",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcrash": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cornecro": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corstorm": [
+    "bots",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corthud": [
+    "bots",
     "t1",
     "scavenger"
   ],
@@ -5164,12 +5094,6 @@
     "t2",
     "scavenger"
   ],
-  "scav_corsack": [
-    "bots",
-    "factories",
-    "t2",
-    "scavenger"
-  ],
   "scav_corsktl": [
     "bots",
     "t2",
@@ -5198,37 +5122,6 @@
   "scav_corvoyr": [
     "bots",
     "t2",
-    "scavenger"
-  ],
-  "scav_corak": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corck": [
-    "bots",
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corcrash": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_cornecro": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corstorm": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corthud": [
-    "bots",
-    "t1",
     "scavenger"
   ],
   "scav_corbhmth": [
@@ -5459,21 +5352,6 @@
   "scav_corlab": [
     "factories",
     "t1",
-    "scavenger"
-  ],
-  "scav_corsaap": [
-    "factories",
-    "t2",
-    "scavenger"
-  ],
-  "scav_corsalab": [
-    "factories",
-    "t2",
-    "scavenger"
-  ],
-  "scav_corsavp": [
-    "factories",
-    "t2",
     "scavenger"
   ],
   "scav_corvp": [
@@ -5707,11 +5585,6 @@
     "t1.5",
     "scavenger"
   ],
-  "scav_corsasy": [
-    "factories",
-    "t2",
-    "scavenger"
-  ],
   "scav_corsy": [
     "factories",
     "t1",
@@ -5759,6 +5632,16 @@
   ],
   "scav_corsonar": [
     "buildings",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcom": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomcon": [
+    "factories",
     "t1",
     "scavenger"
   ],
@@ -5869,6 +5752,42 @@
     "t2",
     "scavenger"
   ],
+  "scav_corcs": [
+    "ships",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_coresupp": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corpship": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corpt": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_correcl": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corroy": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corsub": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
   "scav_coracsub": [
     "ships",
     "factories",
@@ -5947,15 +5866,8 @@
     "t2",
     "scavenger"
   ],
-  "scav_corsacvsub": [
-    "ships",
-    "factories",
-    "t2",
-    "scavenger"
-  ],
   "scav_corsentinel": [
     "ships",
-    "defenses",
     "t2",
     "scavenger"
   ],
@@ -5976,43 +5888,59 @@
   ],
   "scav_cortdrone": [
     "aircraft",
-    "defenses",
     "t1",
     "scavenger"
   ],
-  "scav_corcs": [
-    "ships",
+  "scav_corcv": [
+    "vehicles",
     "factories",
     "t1",
     "scavenger"
   ],
-  "scav_coresupp": [
-    "ships",
+  "scav_corfav": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
-  "scav_corpship": [
-    "ships",
+  "scav_corgarp": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
-  "scav_corpt": [
-    "ships",
+  "scav_corgator": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
-  "scav_correcl": [
-    "ships",
+  "scav_corlevlr": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
-  "scav_corroy": [
-    "ships",
+  "scav_cormist": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
-  "scav_corsub": [
-    "ships",
+  "scav_cormlv": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_cormuskrat": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corraid": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corwolv": [
+    "vehicles",
     "t1",
     "scavenger"
   ],
@@ -6074,12 +6002,6 @@
     "t2",
     "scavenger"
   ],
-  "scav_corsacv": [
-    "vehicles",
-    "factories",
-    "t2",
-    "scavenger"
-  ],
   "scav_corsala": [
     "vehicles",
     "t2",
@@ -6097,7 +6019,6 @@
   ],
   "scav_corsiegebreaker": [
     "vehicles",
-    "defenses",
     "t2",
     "scavenger"
   ],
@@ -6128,56 +6049,38 @@
     "t2",
     "scavenger"
   ],
-  "scav_corcv": [
-    "vehicles",
-    "factories",
+  "scav_legatrans": [
+    "aircraft",
     "t1",
     "scavenger"
   ],
-  "scav_corfav": [
-    "vehicles",
+  "scav_legcib": [
+    "aircraft",
     "t1",
     "scavenger"
   ],
-  "scav_corgarp": [
-    "vehicles",
+  "scav_legdrone": [
+    "aircraft",
     "t1",
     "scavenger"
   ],
-  "scav_corgator": [
-    "vehicles",
+  "scav_legfig": [
+    "aircraft",
     "t1",
     "scavenger"
   ],
-  "scav_corlevlr": [
-    "vehicles",
+  "scav_legkam": [
+    "aircraft",
     "t1",
     "scavenger"
   ],
-  "scav_cormist": [
-    "vehicles",
+  "scav_leglts": [
+    "aircraft",
     "t1",
     "scavenger"
   ],
-  "scav_cormlv": [
-    "vehicles",
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_cormuskrat": [
-    "vehicles",
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corraid": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corwolv": [
-    "vehicles",
+  "scav_legmos": [
+    "aircraft",
     "t1",
     "scavenger"
   ],
@@ -6241,38 +6144,38 @@
     "t2",
     "scavenger"
   ],
-  "scav_legatrans": [
-    "aircraft",
+  "scav_legaabot": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_legcib": [
-    "aircraft",
+  "scav_legbal": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_legdrone": [
-    "aircraft",
+  "scav_legcen": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_legfig": [
-    "aircraft",
+  "scav_leggob": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_legkam": [
-    "aircraft",
+  "scav_legkark": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_leglts": [
-    "aircraft",
+  "scav_leglob": [
+    "bots",
     "t1",
     "scavenger"
   ],
-  "scav_legmos": [
-    "aircraft",
+  "scav_legrezbot": [
+    "bots",
     "t1",
     "scavenger"
   ],
@@ -6346,41 +6249,6 @@
   "scav_legstr": [
     "bots",
     "t2",
-    "scavenger"
-  ],
-  "scav_legaabot": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legbal": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legcen": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_leggob": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legkark": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_leglob": [
-    "bots",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legrezbot": [
-    "bots",
-    "t1",
     "scavenger"
   ],
   "scav_legaca": [
@@ -6794,6 +6662,11 @@
     "t1",
     "scavenger"
   ],
+  "scav_legcom": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
   "scav_legcomecon": [
     "factories",
     "t1",
@@ -6822,21 +6695,6 @@
   "scav_legvision": [
     "buildings",
     "t1",
-    "scavenger"
-  ],
-  "scav_leganavalaaturret": [
-    "defenses",
-    "t2",
-    "scavenger"
-  ],
-  "scav_leganavaldefturret": [
-    "defenses",
-    "t2",
-    "scavenger"
-  ],
-  "scav_leganavaltorpturret": [
-    "defenses",
-    "t2",
     "scavenger"
   ],
   "scav_legctl": [
@@ -6874,23 +6732,18 @@
     "t1",
     "scavenger"
   ],
-  "scav_leganavaladvgeo": [
-    "buildings",
+  "scav_leganavalaaturret": [
+    "defenses",
     "t2",
     "scavenger"
   ],
-  "scav_leganavaleconv": [
-    "buildings",
+  "scav_leganavaldefturret": [
+    "defenses",
     "t2",
     "scavenger"
   ],
-  "scav_leganavalfusion": [
-    "buildings",
-    "t2",
-    "scavenger"
-  ],
-  "scav_leganavalmex": [
-    "buildings",
+  "scav_leganavaltorpturret": [
+    "defenses",
     "t2",
     "scavenger"
   ],
@@ -6917,6 +6770,26 @@
   "scav_leguwmstore": [
     "buildings",
     "t1",
+    "scavenger"
+  ],
+  "scav_leganavaladvgeo": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavaleconv": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavalfusion": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_leganavalmex": [
+    "buildings",
+    "t2",
     "scavenger"
   ],
   "scav_legspbomber": [
@@ -6949,6 +6822,11 @@
     "t1",
     "scavenger"
   ],
+  "scav_legfrad": [
+    "buildings",
+    "t1",
+    "scavenger"
+  ],
   "scav_leganavalpinpointer": [
     "buildings",
     "t2",
@@ -6959,8 +6837,38 @@
     "t2",
     "scavenger"
   ],
-  "scav_legfrad": [
-    "buildings",
+  "scav_legnavyaaship": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavyartyship": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavydestro": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavyfrigate": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavyrezsub": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavyscout": [
+    "ships",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legnavysub": [
+    "ships",
     "t1",
     "scavenger"
   ],
@@ -7017,41 +6925,6 @@
   "scav_leganavyradjamship": [
     "ships",
     "t2",
-    "scavenger"
-  ],
-  "scav_legnavyaaship": [
-    "ships",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legnavyartyship": [
-    "ships",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legnavydestro": [
-    "ships",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legnavyfrigate": [
-    "ships",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legnavyrezsub": [
-    "ships",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legnavyscout": [
-    "ships",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legnavysub": [
-    "ships",
-    "t1",
     "scavenger"
   ],
   "scav_leegmech": [
@@ -7179,6 +7052,47 @@
     "t2",
     "scavenger"
   ],
+  "scav_legamphtank": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legbar": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leggat": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leghades": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_leghelios": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legmlv": [
+    "vehicles",
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legrail": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
+  "scav_legscout": [
+    "vehicles",
+    "t1",
+    "scavenger"
+  ],
   "scav_legaheattank": [
     "vehicles",
     "t2",
@@ -7244,49 +7158,263 @@
     "t2",
     "scavenger"
   ],
-  "scav_legamphtank": [
-    "vehicles",
+  "scav_armsat": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_ceg_test_projectile_unit": [
     "t1",
     "scavenger"
   ],
-  "scav_legbar": [
-    "vehicles",
+  "scav_chip": [
     "t1",
     "scavenger"
   ],
-  "scav_leggat": [
-    "vehicles",
+  "scav_corsat": [
+    "aircraft",
+    "t2",
+    "scavenger"
+  ],
+  "scav_critter_ant": [
     "t1",
     "scavenger"
   ],
-  "scav_leghades": [
-    "vehicles",
+  "scav_critter_crab": [
     "t1",
     "scavenger"
   ],
-  "scav_leghelios": [
-    "vehicles",
+  "scav_critter_duck": [
     "t1",
     "scavenger"
   ],
-  "scav_legmlv": [
-    "vehicles",
+  "scav_critter_goldfish": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_gull": [
+    "aircraft",
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_penguin": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_penguinbro": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_critter_penguinking": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_dbg_sphere": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_dbg_sphere_fullmetal": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_dice": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl10": [
     "factories",
     "t1",
     "scavenger"
   ],
-  "scav_legrail": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legscout": [
-    "vehicles",
-    "t1",
-    "scavenger"
-  ],
-  "scav_legcom": [
+  "scav_armcomlvl3": [
     "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl4": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl5": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl6": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl7": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl8": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_armcomlvl9": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl10": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl3": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl4": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl5": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl6": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl7": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl8": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_corcomlvl9": [
+    "factories",
+    "t1",
+    "scavenger"
+  ],
+  "scav_freefusion": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_lootboxbronze": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootboxgold": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootboxplatinum": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootboxsilver": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootdroppod_gold": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_lootdroppod_printer": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_meteor": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_mission_command_tower": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_nuketest": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_nuketestcor": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_nuketestorg": [
+    "defenses",
+    "t1",
+    "scavenger"
+  ],
+  "scav_pbr_cube": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_resourcecheat": [
+    "buildings",
+    "t2",
+    "scavenger"
+  ],
+  "scav_volcano_projectile_unit": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_1": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_2": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_3": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_4": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_5": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball1_6": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_1": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_2": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_3": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_4": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_5": [
+    "t1",
+    "scavenger"
+  ],
+  "scav_xmasball2_6": [
     "t1",
     "scavenger"
   ],
@@ -7303,11 +7431,6 @@
   "scav_armlichet4": [
     "aircraft",
     "t3",
-    "scavenger"
-  ],
-  "scav_armminebomber": [
-    "aircraft",
-    "t1",
     "scavenger"
   ],
   "scav_armthundt4": [
@@ -7653,283 +7776,150 @@
     "t3",
     "scavenger"
   ],
-  "scav_armcom": [
+  "armsack": [
+    "bots",
     "factories",
-    "t1",
-    "scavenger"
+    "t2"
   ],
-  "scav_armcomcon": [
+  "armsaap": [
     "factories",
-    "t1",
-    "scavenger"
+    "t2"
   ],
-  "scav_corcom": [
+  "armsalab": [
     "factories",
-    "t1",
-    "scavenger"
+    "t2"
   ],
-  "scav_corcomcon": [
+  "armsavp": [
     "factories",
-    "t1",
-    "scavenger"
+    "t2"
   ],
-  "scav_armsat": [
+  "armsasy": [
+    "factories",
+    "t2"
+  ],
+  "armsacsub": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "armsacv": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "corsack": [
+    "bots",
+    "factories",
+    "t2"
+  ],
+  "corsaap": [
+    "factories",
+    "t2"
+  ],
+  "corsalab": [
+    "factories",
+    "t2"
+  ],
+  "corsavp": [
+    "factories",
+    "t2"
+  ],
+  "corsasy": [
+    "factories",
+    "t2"
+  ],
+  "corsacvsub": [
+    "ships",
+    "factories",
+    "t2"
+  ],
+  "corsacv": [
+    "vehicles",
+    "factories",
+    "t2"
+  ],
+  "armminebomber": [
     "aircraft",
+    "t1"
+  ],
+  "scav_armsack": [
+    "bots",
+    "factories",
     "t2",
     "scavenger"
   ],
-  "scav_ceg_test_projectile_unit": [
-    "t1",
+  "scav_armsaap": [
+    "factories",
+    "t2",
     "scavenger"
   ],
-  "scav_chip": [
-    "t1",
+  "scav_armsalab": [
+    "factories",
+    "t2",
     "scavenger"
   ],
-  "scav_corsat": [
+  "scav_armsavp": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsasy": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsacsub": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armsacv": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsack": [
+    "bots",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsaap": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsalab": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsavp": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsasy": [
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsacvsub": [
+    "ships",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_corsacv": [
+    "vehicles",
+    "factories",
+    "t2",
+    "scavenger"
+  ],
+  "scav_armminebomber": [
     "aircraft",
-    "t2",
-    "scavenger"
-  ],
-  "scav_critter_ant": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_critter_crab": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_critter_duck": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_critter_goldfish": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_critter_gull": [
-    "aircraft",
-    "t1",
-    "scavenger"
-  ],
-  "scav_critter_penguin": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_critter_penguinbro": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_critter_penguinking": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_dbg_sphere": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_dbg_sphere_fullmetal": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_dice": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_armcomlvl10": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armcomlvl3": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armcomlvl4": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armcomlvl5": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armcomlvl6": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armcomlvl7": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armcomlvl8": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_armcomlvl9": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corcomlvl10": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corcomlvl3": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corcomlvl4": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corcomlvl5": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corcomlvl6": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corcomlvl7": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corcomlvl8": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_corcomlvl9": [
-    "factories",
-    "t1",
-    "scavenger"
-  ],
-  "scav_freefusion": [
-    "buildings",
-    "t2",
-    "scavenger"
-  ],
-  "scav_lootboxbronze": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_lootboxgold": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_lootboxplatinum": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_lootboxsilver": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_lootdroppod_gold": [
-    "defenses",
-    "t1",
-    "scavenger"
-  ],
-  "scav_lootdroppod_printer": [
-    "defenses",
-    "t1",
-    "scavenger"
-  ],
-  "scav_meteor": [
-    "defenses",
-    "t1",
-    "scavenger"
-  ],
-  "scav_mission_command_tower": [
-    "buildings",
-    "t2",
-    "scavenger"
-  ],
-  "scav_nuketest": [
-    "defenses",
-    "t1",
-    "scavenger"
-  ],
-  "scav_nuketestcor": [
-    "defenses",
-    "t1",
-    "scavenger"
-  ],
-  "scav_nuketestorg": [
-    "defenses",
-    "t1",
-    "scavenger"
-  ],
-  "scav_pbr_cube": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_resourcecheat": [
-    "buildings",
-    "t2",
-    "scavenger"
-  ],
-  "scav_volcano_projectile_unit": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball1_1": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball1_2": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball1_3": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball1_4": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball1_5": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball1_6": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball2_1": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball2_2": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball2_3": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball2_4": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball2_5": [
-    "t1",
-    "scavenger"
-  ],
-  "scav_xmasball2_6": [
     "t1",
     "scavenger"
   ],
@@ -8028,5 +8018,6 @@
     "bots",
     "t4",
     "scavenger"
-  ]
+  ],
+  "xl": []
 }

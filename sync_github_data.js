@@ -1,11 +1,14 @@
 import https from 'https';
 import fs from 'fs';
+import path from 'path';
+import { execFileSync } from 'child_process';
 import { pathToFileURL } from 'url';
 import { reconcileUnitCategories } from './scripts/game-data-snapshot.mjs';
 import { reconcileDynamicUnitFamilies } from './scripts/dynamic-unit-families.mjs';
 
 const SOURCE_REPOSITORY = 'beyond-all-reason/Beyond-All-Reason';
 const REQUESTED_SOURCE_REF = process.env.BAR_SOURCE_COMMIT || process.env.BAR_SOURCE_REF || 'master';
+const LOCAL_BAR_REPOSITORY = process.env.BAR_REPOSITORY || '';
 
 const DATA_PATHS = Object.freeze({
   defaults: 'src/data/unit-defaults.json',
@@ -80,6 +83,27 @@ function fetchRawText(url) {
       });
     }).on('error', reject);
   });
+}
+
+function localSourcePath(...segments) {
+  return path.join(LOCAL_BAR_REPOSITORY, ...segments);
+}
+
+function walkLuaFiles(directory, result = []) {
+  if (!fs.existsSync(directory)) return result;
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const absolutePath = path.join(directory, entry.name);
+    if (entry.isDirectory()) walkLuaFiles(absolutePath, result);
+    else if (entry.isFile() && entry.name.endsWith('.lua')) result.push(absolutePath);
+  }
+  return result;
+}
+
+function resolveLocalSourceCommit() {
+  if (/^[a-f0-9]{40}$/i.test(REQUESTED_SOURCE_REF)) return REQUESTED_SOURCE_REF;
+  return execFileSync('git', ['-C', LOCAL_BAR_REPOSITORY, 'rev-parse', `${REQUESTED_SOURCE_REF}^{commit}`], {
+    encoding: 'utf8',
+  }).trim();
 }
 
 export function parseLua(luaStr) {
@@ -191,8 +215,12 @@ function delay(ms) {
 
 export async function run() {
   try {
-    const commit = await fetchJson(`https://api.github.com/repos/${SOURCE_REPOSITORY}/commits/${REQUESTED_SOURCE_REF}`);
-    const sourceCommit = commit.sha;
+    const hasLocalSource = Boolean(LOCAL_BAR_REPOSITORY)
+      && fs.existsSync(path.join(LOCAL_BAR_REPOSITORY, '.git'));
+    const commit = hasLocalSource
+      ? null
+      : await fetchJson(`https://api.github.com/repos/${SOURCE_REPOSITORY}/commits/${REQUESTED_SOURCE_REF}`);
+    const sourceCommit = hasLocalSource ? resolveLocalSourceCommit() : commit.sha;
     if (!/^[a-f0-9]{40}$/i.test(sourceCommit || '')) {
       throw new Error(`Unable to resolve BAR source ref ${REQUESTED_SOURCE_REF}.`);
     }
@@ -203,8 +231,10 @@ export async function run() {
     const existingRosters = readExistingJson(DATA_PATHS.rosters);
     let unwrappedUnits;
     try {
-      console.log('1. Downloading latest language/en/units.json (Names/Descriptions)...');
-      const langUnits = await fetchJson(`https://cdn.jsdelivr.net/gh/${SOURCE_REPOSITORY}@${sourceCommit}/language/en/units.json`);
+      console.log(`1. Loading language/en/units.json from ${hasLocalSource ? 'the local BAR checkout' : 'GitHub'}...`);
+      const langUnits = hasLocalSource
+        ? JSON.parse(fs.readFileSync(localSourcePath('language', 'en', 'units.json'), 'utf8'))
+        : await fetchJson(`https://cdn.jsdelivr.net/gh/${SOURCE_REPOSITORY}@${sourceCommit}/language/en/units.json`);
       unwrappedUnits = langUnits.units || langUnits;
       console.log(`Downloaded name/desc database. Names keys: ${Object.keys(unwrappedUnits.names || {}).length}`);
       
@@ -216,18 +246,18 @@ export async function run() {
       unwrappedUnits = JSON.parse(fs.readFileSync('src/data/units.json', 'utf8'));
     }
 
-    console.log('2. Fetching repository file tree...');
-    const treeData = await fetchJson(`https://api.github.com/repos/${SOURCE_REPOSITORY}/git/trees/${sourceCommit}?recursive=1`);
-    if (!treeData.tree) {
-      console.error('Failed to fetch repository tree.');
+    console.log(`2. ${hasLocalSource ? 'Reading' : 'Fetching'} repository unit definitions...`);
+    const unitFiles = hasLocalSource
+      ? walkLuaFiles(localSourcePath('units')).map(absolutePath => ({
+        path: path.relative(LOCAL_BAR_REPOSITORY, absolutePath).replace(/\\/g, '/'),
+        absolutePath,
+      }))
+      : (await fetchJson(`https://api.github.com/repos/${SOURCE_REPOSITORY}/git/trees/${sourceCommit}?recursive=1`)).tree
+        ?.filter(file => file.path.startsWith('units/') && file.path.endsWith('.lua'));
+    if (!unitFiles) {
+      console.error('Failed to locate unit definitions.');
       return;
     }
-
-    // Filter for unit lua files
-    const unitFiles = treeData.tree.filter(f => 
-      f.path.startsWith('units/') && 
-      f.path.endsWith('.lua')
-    );
     console.log(`Found ${unitFiles.length} unit definition paths in repository.`);
 
     const defaultsDb = {};
@@ -242,8 +272,10 @@ export async function run() {
       console.log(`Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(unitFiles.length/batchSize)}...`);
       
       const promises = batch.map(file => {
-        const url = `https://cdn.jsdelivr.net/gh/${SOURCE_REPOSITORY}@${sourceCommit}/${file.path}`;
-        return fetchRawText(url).then(text => {
+        const source = hasLocalSource
+          ? Promise.resolve(fs.readFileSync(file.absolutePath, 'utf8'))
+          : fetchRawText(`https://cdn.jsdelivr.net/gh/${SOURCE_REPOSITORY}@${sourceCommit}/${file.path}`);
+        return source.then(text => {
           try {
             const parsedObj = parseLua(text);
             const unitKey = Object.keys(parsedObj)[0];
@@ -562,7 +594,7 @@ export async function run() {
     console.log(`  Factory Rosters Mapped: ${Object.keys(rostersDb).length}`);
     return {
       sourceCommit,
-      sourceDate: commit.commit?.committer?.date || null,
+      sourceDate: commit?.commit?.committer?.date || null,
     };
   } catch (err) {
     console.error('Fatal Error during synchronization:', err);

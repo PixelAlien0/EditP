@@ -1,43 +1,43 @@
 {
   "version": 2,
   "schemaVersion": 2,
-  "snapshotId": "bar-e03f8af274ad",
+  "snapshotId": "bar-32b0375ab2f9",
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
-  "sourceCommit": "e03f8af274ad97c327d4863432c406e33a4062fa",
-  "sourceDate": "2026-08-07T22:17:17Z",
+  "sourceCommit": "32b0375ab2f928323e1a79880ca62b8734ec39d1",
+  "sourceDate": "2026-08-20T02:09:06Z",
   "counts": {
-    "units": 1788,
-    "descriptions": 1788,
-    "defaults": 1788,
-    "weaponDefs": 1878,
-    "categories": 1788,
+    "units": 1789,
+    "descriptions": 1789,
+    "defaults": 1789,
+    "weaponDefs": 1881,
+    "categories": 1789,
     "rosters": 170,
     "explosions": 133,
-    "artwork": 1788,
+    "artwork": 1789,
     "tacticalIcons": 990,
-    "assetReferences": 3963,
-    "customParameters": 214
+    "assetReferences": 3962,
+    "customParameters": 219
   },
   "files": {
     "units": {
       "path": "src/data/units.json",
       "schemaVersion": 2,
-      "sha256": "41a37cfbdd1a150fa80ec19545fbfffff87bb4658f14e5bc60b3583c12eb46a6"
+      "sha256": "03bb55e2db273d71b84ff5a69f7dab3d8c6bdbe7b882686ddd7d514021540a5f"
     },
     "defaults": {
       "path": "src/data/unit-defaults.json",
       "schemaVersion": 2,
-      "sha256": "a1d1c6aa9069ad79e55ab74f4aa40c33f8e87579259c4592a824fcc893392071"
+      "sha256": "45b119191dbe9adcd2f23985d339c947971ebde4a30bbdd3e6fdeb3f8f8c7a2f"
     },
     "categories": {
       "path": "src/data/unit-categories.json",
       "schemaVersion": 2,
-      "sha256": "bd5211bee1ef7568bf75bca4da4b79e13e39df83380a8031c97d685b78a6a7f1"
+      "sha256": "3839939023b6acbfb0d8d79fb7d2cd358fcfd8bab40d331f353ade51c248ffbf"
     },
     "rosters": {
       "path": "src/data/factory-rosters.json",
       "schemaVersion": 2,
-      "sha256": "a5743d0b48a6188a16a5ab387d18bd5ba0ed0664b72410c4b52304f630c2dbf4"
+      "sha256": "ed47e111fb4a38c2f07bc4b6b2618c69a98aeacf30e38bbf8cbdb608290304cb"
     },
     "explosions": {
       "path": "src/data/explosion-profiles.json",
@@ -47,22 +47,22 @@
     "artwork": {
       "path": "src/data/unitpic-manifest.json",
       "schemaVersion": 2,
-      "sha256": "c1176bf107ba8131f221dba19c0ca409c280e8b177fdba75f78565e06a0639d1"
+      "sha256": "4a5f1f5b7a04187412aba5ed7454239ae5d9992f18b5b370561d72563f28bf91"
     },
     "tacticalIcons": {
       "path": "src/data/tactical-icon-manifest.json",
       "schemaVersion": 2,
-      "sha256": "b4728b3b1963c65dc3881536a6790e6f51dd4d42bf53937b450e9f36db964874"
+      "sha256": "1df706ace7eab6e629622a8f7d6a618c05f9e4d53f82f8dcb503d62f26f1da95"
     },
     "assets": {
       "path": "src/data/bar-asset-manifest.json",
       "schemaVersion": 2,
-      "sha256": "c41314b4a68430bb9d84fc151804f362cb239506734a80017c7035d6e44728c8"
+      "sha256": "d4b55e7ad1c621f371ee68cd1c4bd4a37f94d218e560423cf60e776a8c463452"
     },
     "customParameters": {
       "path": "src/data/custom-parameter-discovery.json",
       "schemaVersion": 2,
-      "sha256": "75089d80b0a0ba3918cf0e4cf7cec54e4dcc5de4979d3ae9f7cc7c928bfc83d4"
+      "sha256": "d0a4db6d83a7eecd7a3232913a0c45dd3f53e17f9be0a887a7b86b8c23eb57c7"
     }
   }
 }
