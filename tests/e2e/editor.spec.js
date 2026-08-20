@@ -62,6 +62,18 @@ test('main menu separates the active project, core workspaces, and specialist wo
 
   await expect(page.locator('.main-menu__active-project')).toBeVisible();
   await expect(page.locator('.main-menu__atmosphere canvas')).toBeVisible();
+  const continueEditing = page.locator('.main-menu__enter');
+  await expect(continueEditing).toBeVisible();
+  const continueEditingBeforeHover = await continueEditing.boundingBox();
+  await continueEditing.hover();
+  await page.waitForTimeout(220);
+  const continueEditingAfterHover = await continueEditing.boundingBox();
+  expect(continueEditingBeforeHover).not.toBeNull();
+  expect(continueEditingAfterHover).not.toBeNull();
+  expect(Math.abs(continueEditingAfterHover.x - continueEditingBeforeHover.x)).toBeLessThan(0.5);
+  expect(Math.abs(continueEditingAfterHover.y - continueEditingBeforeHover.y)).toBeLessThan(0.5);
+  expect(Math.abs(continueEditingAfterHover.width - continueEditingBeforeHover.width)).toBeLessThan(0.5);
+  expect(Math.abs(continueEditingAfterHover.height - continueEditingBeforeHover.height)).toBeLessThan(0.5);
   await expect(page.getByRole('navigation', { name: 'Core workspaces' }).getByRole('button')).toHaveCount(3);
   const tools = page.getByRole('region', { name: 'Research & package tools' });
   await expect(tools.getByRole('button')).toHaveCount(6);

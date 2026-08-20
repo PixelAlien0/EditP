@@ -78,9 +78,9 @@ export default function MainMenu({
   ];
 
   const projectLedger = [
-    ['Definitions', unitCount.toLocaleString()],
-    ['Clones', cloneCount],
-    ['Rosters', rosterCount],
+    { label: 'Definitions', value: unitCount.toLocaleString(), note: 'BAR records available' },
+    { label: 'Clones', value: cloneCount, note: 'Custom units' },
+    { label: 'Rosters', value: rosterCount, note: 'Edited producers' },
   ];
 
   return (
@@ -186,41 +186,47 @@ export default function MainMenu({
                 transition={MOTION_TRANSITION.feedback}
               >
                 <span>Project activity</span>
-                <strong>{projectChangeCount.toLocaleString()}</strong>
-                <p>{hasWork ? 'tracked changes ready to review' : 'no pending changes'}</p>
+                <div className="main-menu__project-pulse-value">
+                  <strong>{projectChangeCount.toLocaleString()}</strong>
+                  <p>{hasWork ? 'Tracked changes' : 'No pending changes'}</p>
+                </div>
+                <small>{hasWork ? 'Continue editing or review the current output.' : 'The workspace is ready for a new edit.'}</small>
               </m.div>
-              <m.dl
-                className="main-menu__project-ledger"
-                variants={MOTION_VARIANTS.staggerGroup}
-                initial="hidden"
-                animate="visible"
-                transition={{ delayChildren: MOTION_DELAY.relatedSection, staggerChildren: MOTION_STAGGER.standard }}
-                aria-label="Current project inventory"
-              >
-                {projectLedger.map(([label, value]) => (
-                  <m.div key={label} variants={MOTION_VARIANTS.metricItem} transition={MOTION_TRANSITION.feedback}>
-                    <dt>{label}</dt><dd>{value}</dd>
-                  </m.div>
-                ))}
-              </m.dl>
+              <div className="main-menu__project-inventory">
+                <div className="main-menu__project-inventory-heading">
+                  <span>Project inventory</span>
+                  <small>Local snapshot</small>
+                </div>
+                <m.dl
+                  className="main-menu__project-ledger"
+                  variants={MOTION_VARIANTS.staggerGroup}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delayChildren: MOTION_DELAY.relatedSection, staggerChildren: MOTION_STAGGER.standard }}
+                  aria-label="Current project inventory"
+                >
+                  {projectLedger.map(({ label, value, note }) => (
+                    <m.div key={label} variants={MOTION_VARIANTS.metricItem} transition={MOTION_TRANSITION.feedback}>
+                      <span><dt>{label}</dt><small>{note}</small></span>
+                      <dd>{value}</dd>
+                    </m.div>
+                  ))}
+                </m.dl>
+              </div>
             </div>
             <footer className="main-menu__project-footer">
               <div className="main-menu__project-context">
                 <div><span>Workspace state</span><strong>{hasWork ? 'Working draft' : 'Clean workspace'}</strong></div>
                 <div><span>Definition source</span><strong>{gameDataSnapshot?.sourceCommit ? `BAR ${gameDataSnapshot.sourceCommit.slice(0, 8)}` : 'Bundled snapshot'}</strong></div>
               </div>
-              <m.button
+              <button
                 type="button"
                 className="main-menu__enter"
                 onClick={onEditUnits}
-                variants={MOTION_VARIANTS.interactiveCard}
-                initial="rest"
-                whileHover="hover"
-                whileTap="tap"
               >
                 <span><small>Enter workspace</small><strong>{hasWork ? 'Continue editing' : 'Open editor'}</strong></span>
                 <MotionArrow />
-              </m.button>
+              </button>
             </footer>
           </article>
         </m.section>
