@@ -52,6 +52,7 @@
 .main-menu__brand span,
 .main-menu__project-summary > span,
 .main-menu__active-project > header span,
+.main-menu__project-pulse > span,
 .main-menu__enter small,
 .main-menu__workspace-capabilities > small,
 .main-menu__launchpad-heading span,
@@ -226,15 +227,15 @@
   min-width: 0;
   min-height: 294px;
   display: grid;
-  grid-template-rows: auto 1fr auto auto;
+  grid-template-rows: auto 1fr auto;
   overflow: hidden;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background: var(--color-surface-raised);
+  background: color-mix(in srgb, var(--color-surface-raised) 92%, var(--color-accent-soft));
 }
 .main-menu__active-project > header {
-  min-height: 78px;
-  padding: var(--space-4) clamp(var(--space-5), 2vw, var(--space-7));
+  min-height: 74px;
+  padding: var(--space-4) clamp(var(--space-5), 2.2vw, var(--space-8));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -255,32 +256,70 @@
 .main-menu__active-project > header > small i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .main-menu__active-project > header > small.is-active { color: var(--color-accent-strong); }
 
-.main-menu__active-project dl {
-  min-height: 100px;
+.main-menu__project-overview {
+  min-height: 126px;
+  display: grid;
+  grid-template-columns: minmax(190px, .72fr) minmax(360px, 1.48fr);
+  gap: clamp(var(--space-5), 2.5vw, var(--space-8));
+  padding: var(--space-4) clamp(var(--space-5), 2.2vw, var(--space-8)) var(--space-5);
+}
+
+.main-menu__project-pulse {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto 1fr auto;
+  align-items: end;
+  column-gap: var(--space-4);
+}
+
+.main-menu__project-pulse > span { grid-column: 1 / -1; color: var(--color-accent-strong); }
+.main-menu__project-pulse > strong {
+  color: var(--color-text-strong);
+  font: 520 clamp(52px, 5vw, 76px)/.84 var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+.main-menu__project-pulse > p {
+  max-width: 14ch;
+  margin: 0 0 2px;
+  color: var(--color-text-muted);
+  font: 550 10px/1.35 var(--font-ui);
+  text-wrap: pretty;
+}
+
+.main-menu__project-ledger {
+  min-width: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: 1.18fr 1.18fr .82fr .82fr;
+  grid-template-columns: 1.35fr repeat(2, minmax(90px, .8fr));
+  align-items: end;
+  gap: clamp(var(--space-4), 2vw, var(--space-7));
+}
+
+.main-menu__project-ledger > div { min-width: 0; display: grid; align-content: end; gap: var(--space-2); }
+.main-menu__project-ledger dd { margin: 0; color: var(--color-text-strong); font: 540 clamp(26px, 2.3vw, 38px)/1 var(--font-display); font-variant-numeric: tabular-nums; }
+
+.main-menu__project-footer {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, .48fr);
+  align-items: stretch;
   background: var(--color-surface-subtle);
 }
 
-.main-menu__active-project dl > div { min-width: 0; padding: var(--space-5) clamp(var(--space-4), 1.8vw, var(--space-6)); display: flex; flex-direction: column-reverse; justify-content: center; gap: var(--space-3); }
-.main-menu__active-project dl > div + div { border-left: 1px solid var(--color-border); }
-.main-menu__active-project dd { margin: 0; color: var(--color-text-strong); font: 560 clamp(24px, 2vw, 34px)/1 var(--font-display); font-variant-numeric: tabular-nums; }
-
-.main-menu__project-context { padding: var(--space-4) clamp(var(--space-5), 2vw, var(--space-7)); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
+.main-menu__project-context { padding: var(--space-4) clamp(var(--space-5), 2.2vw, var(--space-8)); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: var(--space-6); }
 .main-menu__project-context > div { min-width: 0; display: grid; gap: 5px; }
-.main-menu__project-context > div + div { padding-left: var(--space-6); border-left: 1px solid var(--color-border); }
 .main-menu__project-context strong { overflow: hidden; color: var(--color-text-strong); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
 
 .main-menu__enter {
-  min-height: 62px;
-  padding-inline: clamp(var(--space-5), 2vw, var(--space-7));
+  min-height: 66px;
+  padding-inline: clamp(var(--space-4), 1.6vw, var(--space-6));
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-5);
   border: 0;
-  border-top: 1px solid var(--color-border-accent-muted);
+  border-left: 1px solid var(--color-border-accent-muted);
   background: var(--color-surface-accent-subtle);
   color: var(--color-text-strong);
   text-align: left;
@@ -298,27 +337,26 @@
 .main-menu__launchpad {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(640px, 1.62fr) minmax(330px, .78fr);
+  grid-template-columns: minmax(190px, .34fr) minmax(0, 1.66fr);
   grid-template-areas:
-    "heading heading"
-    "workspaces tools";
+    "heading workspaces"
+    "tools tools";
   align-items: stretch;
-  gap: var(--space-3);
+  gap: var(--space-4) clamp(var(--space-5), 2vw, var(--space-8));
 }
-.main-menu__launchpad-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--space-6); }
+.main-menu__launchpad-heading { display: grid; align-content: end; gap: var(--space-3); padding-bottom: var(--space-5); }
 .main-menu__launchpad-heading { grid-area: heading; }
 .main-menu__launchpad-heading > div { display: grid; gap: 3px; }
 .main-menu__launchpad-heading h2 { margin: 0; color: var(--color-text-strong); font: 560 clamp(22px, 1.8vw, 28px)/1.1 var(--font-display); }
 .main-menu__launchpad-heading h2,
 .main-menu__workspace-copy strong { text-wrap: balance; }
-.main-menu__launchpad-heading p { max-width: 54ch; margin: 0; color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.5; text-align: right; }
+.main-menu__launchpad-heading p { max-width: 27ch; margin: 0; color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.55; text-wrap: pretty; }
 
 .main-menu__workspaces {
   grid-area: workspaces;
-  min-height: 206px;
+  min-height: 190px;
   display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(260px, 1.25fr) repeat(2, minmax(190px, .8fr));
   gap: var(--space-2);
 }
 .main-menu__workspaces > button {
@@ -339,13 +377,10 @@
   transition: background-color var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 
-.main-menu__workspaces > button.is-primary { grid-row: 1 / 3; }
 .main-menu__workspaces > button.is-primary { border-color: var(--color-border-accent-muted); background: var(--color-surface-accent-subtle); }
 .main-menu__workspaces > button:not(.is-primary) {
-  padding-block: var(--space-4);
-  grid-template-rows: auto auto;
+  padding: var(--space-4);
 }
-.main-menu__workspaces > button:not(.is-primary) .main-menu__workspace-copy p { display: none; }
 .main-menu__workspaces > button:hover { border-color: var(--color-border-strong); background: var(--color-surface-hover); box-shadow: var(--shadow-sm); }
 .main-menu__workspaces > button.is-primary:hover { background: var(--color-accent-soft); }
 .main-menu__workspace-number { color: var(--color-accent-strong); font: 700 9px/1 var(--font-mono); }
@@ -353,35 +388,31 @@
 .main-menu__workspace-capabilities,
 .main-menu__tool-title { display: inline-flex; align-items: center; gap: var(--space-2); }
 .main-menu__workspace-copy strong { color: var(--color-text-strong); font: 560 20px/1.15 var(--font-display); }
-.main-menu__workspace-copy p { max-width: 38ch; margin: 0; color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.5; text-wrap: pretty; }
+.main-menu__workspace-copy p { max-width: 34ch; margin: 0; color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.5; text-wrap: pretty; }
 .main-menu__workspace-meta { grid-column: 2; align-self: end; color: var(--color-accent-strong); font: 650 8px/1 var(--font-mono); }
 .main-menu__workspaces .main-menu__motion-arrow { grid-column: 3; grid-row: 2; align-self: end; }
 
-.main-menu__tool-directory { grid-area: tools; min-width: 0; display: grid; grid-template-rows: auto 1fr; gap: var(--space-2); }
+.main-menu__tool-directory { grid-area: tools; min-width: 0; display: grid; grid-template-columns: minmax(190px, .34fr) minmax(0, 1.66fr); align-items: center; gap: clamp(var(--space-5), 2vw, var(--space-8)); }
 .main-menu__tool-directory > header { display: grid; gap: 3px; }
 .main-menu__tool-directory h3 { margin: 0; color: var(--color-text-strong); font: 650 var(--font-size-sm)/1.3 var(--font-ui); }
 .main-menu__tool-directory > div {
-  padding: var(--space-2);
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: var(--space-1);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-subtle);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
 }
 
 .main-menu__tool-directory button {
   min-width: 0;
-  min-height: 0;
+  min-height: 64px;
   padding: var(--space-3);
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) auto;
+  grid-template-columns: 30px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
   align-items: center;
   gap: var(--space-3);
-  border: 1px solid transparent;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: transparent;
+  background: var(--color-surface-raised);
   color: var(--color-text);
   text-align: left;
   cursor: pointer;
@@ -393,7 +424,7 @@
 .main-menu__tool-directory button > span:nth-child(2) { min-width: 0; display: grid; gap: 4px; }
 .main-menu__tool-directory strong { overflow: hidden; color: var(--color-text-strong); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
 .main-menu__tool-directory button small { overflow: hidden; color: var(--color-text-muted); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
-.main-menu__tool-directory .main-menu__motion-arrow { width: 15px; height: 15px; }
+.main-menu__tool-directory .main-menu__motion-arrow { width: 15px; height: 15px; grid-column: 2; justify-self: end; }
 
 .main-menu__footer {
   min-height: 40px;
@@ -417,7 +448,9 @@
   .main-menu__project-file-actions { grid-template-columns: 1fr; }
   .main-menu__project-files small,
   .main-menu__tool-directory button small { display: none; }
-  .main-menu__launchpad { grid-template-columns: minmax(610px, 1.58fr) minmax(320px, .82fr); }
+  .main-menu__launchpad,
+  .main-menu__tool-directory { grid-template-columns: 180px minmax(0, 1fr); }
+  .main-menu__tool-directory > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .main-menu__workspaces > button { padding: var(--space-4); }
 }
 
@@ -432,8 +465,11 @@
   .main-menu__project-files small,
   .main-menu__workspace-copy p,
   .main-menu__launchpad-heading p { display: none; }
-  .main-menu__active-project dl > div { padding-inline: var(--space-3); }
-  .main-menu__launchpad { grid-template-columns: minmax(590px, 1.65fr) minmax(320px, .8fr); }
+  .main-menu__project-overview { grid-template-columns: 170px minmax(0, 1fr); }
+  .main-menu__project-pulse > p { display: none; }
+  .main-menu__launchpad,
+  .main-menu__tool-directory { grid-template-columns: 160px minmax(0, 1fr); }
+  .main-menu__workspaces { grid-template-columns: minmax(220px, 1.15fr) repeat(2, minmax(170px, .85fr)); }
   .main-menu__tool-directory button { grid-template-columns: 28px minmax(0, 1fr); }
   .main-menu__tool-directory .main-menu__motion-arrow { display: none; }
 }
@@ -449,12 +485,14 @@
   .main-menu__workspace-copy p,
   .main-menu__tool-directory button small { display: none; }
   .main-menu__active-project > header { min-height: 62px; }
-  .main-menu__active-project dl { min-height: 78px; }
-  .main-menu__active-project dl > div { padding-block: var(--space-3); }
+  .main-menu__project-overview { min-height: 102px; padding-block: var(--space-3); }
+  .main-menu__project-pulse > strong { font-size: 50px; }
+  .main-menu__project-ledger dd { font-size: 26px; }
   .main-menu__project-context { padding-block: var(--space-3); }
   .main-menu__enter { min-height: 52px; }
-  .main-menu__workspaces { min-height: 174px; }
+  .main-menu__workspaces { min-height: 166px; }
   .main-menu__workspaces > button { padding-block: var(--space-4); }
+  .main-menu__tool-directory button { min-height: 54px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
