@@ -1,35 +1,63 @@
-import { useCallback, useState } from 'react';
-import { STAT_KEYS } from '../config/editorParameters.js';
+import { useCallback, useMemo, useState } from 'react';
 
-export const BULK_PARAMETER_GROUPS = [
+export const BULK_PARAMETER_GROUPS = Object.freeze([
   {
-    label: 'Common unit stats',
+    label: 'Structure and cost',
     options: [
-      { value: 'health', label: 'Unit Health (HP)', description: 'Adjust the maximum durability of every eligible unit.' },
-      { value: 'metalcost', label: 'Metal Cost', description: 'Adjust the metal investment required to build each unit.' },
-      { value: 'energycost', label: 'Energy Cost', description: 'Adjust the energy investment required to build each unit.' },
-      { value: 'buildtime', label: 'Build Time', description: 'Adjust the build work required to complete each unit.' },
-      { value: 'maxvelocity', label: 'Max Velocity (Speed)', description: 'Adjust the maximum movement speed of eligible units.' },
+      { value: 'health', label: 'Health', unit: 'HP', minimum: 1, decimals: 2, description: 'Maximum durability. Units without a numeric BAR value are skipped.' },
+      { value: 'metalcost', label: 'Metal cost', unit: 'metal', minimum: 0, decimals: 2, description: 'Metal required to construct each eligible unit.' },
+      { value: 'energycost', label: 'Energy cost', unit: 'energy', minimum: 0, decimals: 2, description: 'Energy required to construct each eligible unit.' },
+      { value: 'buildtime', label: 'Build time', unit: 'work', minimum: 1, decimals: 2, description: 'Build work required to complete each eligible unit.' },
+      { value: 'mass', label: 'Mass', unit: 'mass', minimum: 1, decimals: 2, description: 'Collision and impulse mass for units that define it.' },
     ],
   },
   {
-    label: 'Weapon slots',
+    label: 'Movement and sensors',
     options: [
-      { value: 'all_weapons_damage', label: 'All Weapons Damage', description: 'Adjust every weapon slot’s base damage for each eligible unit.' },
-      { value: 'all_weapons_range', label: 'All Weapons Range', description: 'Adjust every weapon slot’s maximum range for each eligible unit.' },
+      { value: 'maxvelocity', label: 'Maximum speed', unit: 'elmos/s', minimum: 0, decimals: 4, description: 'Top movement speed for units that define locomotion.' },
+      { value: 'acceleration', label: 'Acceleration', unit: 'elmos/s²', minimum: 0, decimals: 5, description: 'Rate at which eligible units gain movement speed.' },
+      { value: 'brakerate', label: 'Brake rate', unit: 'elmos/s²', minimum: 0, decimals: 5, description: 'Rate at which eligible units lose movement speed.' },
+      { value: 'turnrate', label: 'Turn rate', unit: 'turn/s', minimum: 0, decimals: 3, description: 'Ground or chassis turning speed where BAR defines it.' },
+      { value: 'sightdistance', label: 'Sight range', unit: 'elmos', minimum: 0, decimals: 2, description: 'Ordinary visual detection range.' },
+      { value: 'radardistance', label: 'Radar range', unit: 'elmos', minimum: 0, decimals: 2, description: 'Radar detection range for units that carry radar.' },
+      { value: 'sonardistance', label: 'Sonar range', unit: 'elmos', minimum: 0, decimals: 2, description: 'Underwater detection range for units that carry sonar.' },
     ],
   },
   {
-    label: 'Additional numeric stats',
-    options: STAT_KEYS
-      .filter(stat => stat.type === 'number' && !['health', 'metalcost', 'energycost', 'buildtime', 'maxvelocity'].includes(stat.key))
-      .map(stat => ({
-        value: stat.key,
-        label: stat.label,
-        description: `Adjust ${stat.label.toLowerCase()} across every eligible unit.`,
-      })),
+    label: 'Production and storage',
+    options: [
+      { value: 'workertime', label: 'Worker power', unit: 'work/s', minimum: 0, decimals: 3, description: 'Build, repair, reclaim, and terraform power.' },
+      { value: 'metalmake', label: 'Metal production', unit: 'metal/s', minimum: 0, decimals: 4, description: 'Passive metal production where BAR defines it.' },
+      { value: 'energymake', label: 'Energy production', unit: 'energy/s', minimum: 0, decimals: 4, description: 'Passive energy production where BAR defines it.' },
+      { value: 'metalstorage', label: 'Metal storage', unit: 'metal', minimum: 0, decimals: 2, description: 'Additional team metal storage.' },
+      { value: 'energystorage', label: 'Energy storage', unit: 'energy', minimum: 0, decimals: 2, description: 'Additional team energy storage.' },
+      { value: 'builddistance', label: 'Build range', unit: 'elmos', minimum: 0, decimals: 2, description: 'Builder interaction range for units that define it.' },
+    ],
   },
-];
+  {
+    label: 'Existing weapon slots',
+    options: [
+      { value: 'all_weapons_damage', label: 'All weapon damage', unit: 'damage', minimum: 0, decimals: 3, weaponField: 'damage', description: 'Adjust base damage on every existing mounted weapon slot.' },
+      { value: 'all_weapons_range', label: 'All weapon range', unit: 'elmos', minimum: 0, decimals: 2, weaponField: 'range', description: 'Adjust range on every existing mounted weapon slot.' },
+      { value: 'all_weapons_reload', label: 'All weapon reload', unit: 'seconds', minimum: 0.01, decimals: 4, weaponField: 'reload', description: 'Adjust reload time on every existing mounted weapon slot.' },
+    ],
+  },
+]);
+
+const BULK_PARAMETERS = new Map(
+  BULK_PARAMETER_GROUPS.flatMap(group => group.options).map(option => [option.value, option]),
+);
+
+function formatBulkNumber(value, decimals = 4) {
+  const rounded = Number(Number(value).toFixed(decimals));
+  return Object.is(rounded, -0) ? '0' : String(rounded);
+}
+
+function applyBulkOperation(currentValue, changeValue, mode) {
+  if (mode === 'percent') return currentValue * (1 + changeValue / 100);
+  if (mode === 'set') return changeValue;
+  return currentValue + changeValue;
+}
 
 export const RANDOM_INTENSITY_RANGES = {
   cautious: [0.90, 1.10],
@@ -45,51 +73,118 @@ export function computeBulkUpdates(units, defaultsDb, tweaks, {
   mode,
   resolveCloneRootId,
 }) {
-  let count = 0;
+  const parameter = BULK_PARAMETERS.get(statKey);
   const updates = [];
+  const previewRows = [];
+  const affectedUnitIds = new Set();
+  let skippedFieldCount = 0;
+  let unchangedFieldCount = 0;
+  const numericChange = Number(changeValue);
+
+  if (!parameter || !Number.isFinite(numericChange)) {
+    return {
+      updates,
+      count: 0,
+      affectedUnitCount: 0,
+      affectedFieldCount: 0,
+      skippedUnitCount: units.length,
+      skippedFieldCount: 0,
+      unchangedFieldCount: 0,
+      previewRows,
+      blocked: true,
+      error: !parameter ? 'Choose a supported parameter.' : 'Enter a valid numeric adjustment.',
+      warnings: [],
+    };
+  }
+
+  const pushUpdate = (unit, key, rawValue, sourceValue) => {
+    const baseValue = Number(rawValue);
+    if (!Number.isFinite(baseValue)) {
+      skippedFieldCount += 1;
+      return;
+    }
+
+    let nextValue = applyBulkOperation(baseValue, numericChange, mode === 'fixed' ? 'add' : mode);
+    if (!Number.isFinite(nextValue)) {
+      skippedFieldCount += 1;
+      return;
+    }
+    if (parameter.minimum !== undefined) nextValue = Math.max(parameter.minimum, nextValue);
+    if (parameter.maximum !== undefined) nextValue = Math.min(parameter.maximum, nextValue);
+
+    const before = formatBulkNumber(baseValue, parameter.decimals);
+    const after = formatBulkNumber(nextValue, parameter.decimals);
+    if (Number(before) === Number(after)) {
+      unchangedFieldCount += 1;
+      return;
+    }
+
+    updates.push({ unitId: unit.id, key, value: after });
+    affectedUnitIds.add(unit.id);
+    previewRows.push({
+      unitId: unit.id,
+      unitName: unit.name || unit.id,
+      artworkUnitId: unit.isClone ? (unit.baseId || resolveCloneRootId(unit.id)) : unit.id,
+      key,
+      fieldLabel: parameter.weaponField
+        ? `${parameter.label} · slot ${key.match(/weapon_slot_(\d+)_/)?.[1] || '?'}`
+        : parameter.label,
+      before,
+      after,
+      source: sourceValue === undefined ? 'BAR' : 'Edited',
+    });
+  };
+
   units.forEach(unit => {
     const baseId = unit.isClone ? resolveCloneRootId(unit.id) : unit.id;
     const defaults = defaultsDb[baseId];
+    if (!defaults) {
+      skippedFieldCount += 1;
+      return;
+    }
 
-    if (statKey === 'all_weapons_damage' || statKey === 'all_weapons_range') {
-      const slots = defaults.weaponSlots || [];
+    if (parameter.weaponField) {
+      const slots = Array.isArray(defaults.weaponSlots) ? defaults.weaponSlots : [];
       slots.forEach(slot => {
-        const subKey = statKey === 'all_weapons_damage' ? 'damage' : 'range';
+        const subKey = parameter.weaponField;
         const tweakKey = `weapon_slot_${slot.slot}_${subKey}`;
         const currentTweak = tweaks[unit.id]?.[tweakKey];
-        const defaultVal = slot[subKey] || 0;
-        const baseVal = currentTweak !== undefined ? parseFloat(currentTweak) : defaultVal;
-
-        let newVal = baseVal;
-        if (mode === 'percent') {
-          newVal = baseVal * (1 + changeValue / 100);
-        } else {
-          newVal = baseVal + changeValue;
+        const baseValue = currentTweak !== undefined ? currentTweak : slot[subKey];
+        if (baseValue === undefined || baseValue === null || baseValue === '') {
+          skippedFieldCount += 1;
+          return;
         }
-        if (newVal < 0) newVal = 0;
-        updates.push({ unitId: unit.id, key: tweakKey, value: newVal.toFixed(2) });
+        pushUpdate(unit, tweakKey, baseValue, currentTweak);
       });
-      count++;
     } else {
-      const defaultVal = parseFloat(defaults[statKey] || 0);
       const currentTweak = tweaks[unit.id]?.[statKey];
-      const baseVal = currentTweak !== undefined ? parseFloat(currentTweak) : defaultVal;
-
-      let newVal = baseVal;
-      if (mode === 'percent') {
-        newVal = baseVal * (1 + changeValue / 100);
-      } else {
-        newVal = baseVal + changeValue;
+      const baseValue = currentTweak !== undefined ? currentTweak : defaults[statKey];
+      if (baseValue === undefined || baseValue === null || baseValue === '') {
+        skippedFieldCount += 1;
+        return;
       }
-
-      if (newVal < 0 && (statKey.includes('cost') || statKey.includes('health') || statKey.includes('velocity'))) {
-        newVal = 0;
-      }
-      updates.push({ unitId: unit.id, key: statKey, value: newVal.toFixed(2) });
-      count++;
+      pushUpdate(unit, statKey, baseValue, currentTweak);
     }
   });
-  return { updates, count };
+
+  const warnings = [];
+  if (skippedFieldCount > 0) warnings.push(`${skippedFieldCount.toLocaleString()} missing or non-numeric fields will be skipped.`);
+  if (unchangedFieldCount > 0) warnings.push(`${unchangedFieldCount.toLocaleString()} fields already resolve to the previewed value.`);
+  if (affectedUnitIds.size > 250) warnings.push('Large scope: review the project change count and lobby byte budget after applying.');
+
+  return {
+    updates,
+    count: affectedUnitIds.size,
+    affectedUnitCount: affectedUnitIds.size,
+    affectedFieldCount: updates.length,
+    skippedUnitCount: Math.max(0, units.length - affectedUnitIds.size),
+    skippedFieldCount,
+    unchangedFieldCount,
+    previewRows,
+    blocked: updates.length === 0,
+    error: updates.length === 0 ? 'This adjustment would not change any eligible fields.' : '',
+    warnings,
+  };
 }
 
 // Deterministic core of the Mutation Lab handler. Builds the list of random
@@ -163,6 +258,13 @@ export function useMutatorToolsController({
   const [bulkPercent, setBulkPercent] = useState('10');
   const [bulkMode, setBulkMode] = useState('percent');
 
+  const bulkPreview = useMemo(() => computeBulkUpdates(bulkTargetUnits, defaultsDb, tweaks, {
+    statKey: bulkStatKey,
+    changeValue: String(bulkPercent).trim() === '' ? Number.NaN : Number(bulkPercent),
+    mode: bulkMode,
+    resolveCloneRootId,
+  }), [bulkMode, bulkPercent, bulkStatKey, bulkTargetUnits, defaultsDb, resolveCloneRootId, tweaks]);
+
   // Apply Bulk edit
   const handleApplyBulk = useCallback(() => {
     const changeVal = parseFloat(bulkPercent);
@@ -171,12 +273,11 @@ export function useMutatorToolsController({
       return;
     }
 
-    const { updates, count } = computeBulkUpdates(bulkTargetUnits, defaultsDb, tweaks, {
-      statKey: bulkStatKey,
-      changeValue: changeVal,
-      mode: bulkMode,
-      resolveCloneRootId,
-    });
+    const { updates, count, affectedFieldCount, blocked, error } = bulkPreview;
+    if (blocked) {
+      showToast(error || 'No eligible fields would change.');
+      return;
+    }
 
     transactProject(current => {
       const nextTweaks = { ...current.tweaks };
@@ -194,17 +295,13 @@ export function useMutatorToolsController({
       };
     });
     setShowBulkPanel(false);
-    showToast(`Adjusted ${bulkStatKey} for ${count} units by ${bulkMode === 'percent' ? (changeVal > 0 ? '+' : '') + changeVal + '%' : (changeVal > 0 ? '+' : '') + changeVal}`);
+    showToast(`Applied ${affectedFieldCount.toLocaleString()} field edits across ${count.toLocaleString()} ${count === 1 ? 'unit' : 'units'}.`);
   }, [
-    bulkMode,
     bulkPercent,
-    bulkStatKey,
     bulkTargetUnits,
-    defaultsDb,
-    resolveCloneRootId,
+    bulkPreview,
     showToast,
     transactProject,
-    tweaks,
   ]);
 
   // Mutation Lab — controlled random adjustments with explicit scope and domains.
@@ -286,6 +383,7 @@ export function useMutatorToolsController({
     setBulkPercent,
     bulkMode,
     setBulkMode,
+    bulkPreview,
     handleApplyBulk,
     handleRandomAdjustments,
     handleApplyFormula,

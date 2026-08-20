@@ -17,6 +17,7 @@ function renderHeader(overrides = {}) {
     onClone: vi.fn(),
     onCommandPalette: vi.fn(),
     onCheckpoints: vi.fn(),
+    onBatchAdjust: vi.fn(),
     onCollections: vi.fn(),
     onCarrierWorkbench: vi.fn(),
     onPresetGallery: vi.fn(),
@@ -120,15 +121,28 @@ describe('AppHeader', () => {
 
   it('states tool readiness and runtime provenance in the menu', async () => {
     const user = userEvent.setup();
-    renderHeader();
+    renderHeader({ batchAdjustEnabled: true });
 
     await user.click(screen.getByRole('button', { name: 'Tools' }));
 
-    expect(screen.getByRole('menuitem', { name: /batch adjust/i })).toHaveTextContent('Locked');
+    expect(screen.getByRole('menuitem', { name: /batch adjust/i })).toHaveTextContent('Dev');
+    expect(screen.getByRole('menuitem', { name: /batch adjust/i })).toBeEnabled();
+    expect(screen.getByRole('menuitem', { name: /formula mutator/i })).toHaveTextContent('Locked');
     expect(screen.getByRole('menuitem', { name: /carrier & drone studio/i })).toHaveTextContent('Gadget');
     expect(screen.getByRole('menuitem', { name: /carrier & drone studio/i })).toHaveTextContent('Experimental');
     expect(screen.getByRole('menuitem', { name: /weapondef library/i })).toHaveTextContent('Generated');
     expect(screen.getByRole('menuitem', { name: /weapondef library/i })).toHaveTextContent('Preflight');
     expect(screen.getByRole('menuitem', { name: /bar reference library/i })).toHaveTextContent('Reference');
+  });
+
+  it('opens the controlled Batch Adjust workspace and closes the Tools menu', async () => {
+    const user = userEvent.setup();
+    const callbacks = renderHeader({ batchAdjustEnabled: true });
+
+    await user.click(screen.getByRole('button', { name: 'Tools' }));
+    await user.click(screen.getByRole('menuitem', { name: /batch adjust/i }));
+
+    expect(callbacks.onBatchAdjust).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('menu', { name: 'Editor tools' })).not.toBeInTheDocument();
   });
 });

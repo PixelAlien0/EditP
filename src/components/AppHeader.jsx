@@ -19,6 +19,7 @@ export default function AppHeader({
   unreadChatCount,
   validationIssueCount = 0,
   weaponLabEnabled = false,
+  batchAdjustEnabled = false,
   mutatorToolsEnabled = false,
   onWorkspaceChange,
   onMainMenu,
@@ -30,6 +31,7 @@ export default function AppHeader({
   onClone,
   onCommandPalette,
   onCheckpoints,
+  onBatchAdjust,
   onCollections,
   onCarrierWorkbench,
   onPresetGallery,
@@ -265,8 +267,8 @@ export default function AppHeader({
               </div>
               <div className="header-tools-menu__group" aria-label="Editing tools">
                 <span className="header-tools-menu__group-label">Editing tools</span>
-                <button type="button" role="menuitem" disabled={!mutatorToolsEnabled}>
-                  <span><span className="header-tool-title"><strong>Batch Adjust</strong><CapabilityLabels capabilityIds={mutatorToolsEnabled ? ['experimental'] : ['locked']} compact /></span><small>Temporarily unavailable while bulk editing is repaired</small></span>
+                <button type="button" role="menuitem" disabled={!batchAdjustEnabled} onClick={() => runToolAction(onBatchAdjust)}>
+                  <span><span className="header-tool-title"><strong>Batch Adjust</strong><CapabilityLabels capabilityIds={batchAdjustEnabled ? ['development'] : ['locked']} compact /></span><small>{batchAdjustEnabled ? 'Preview and apply safe numeric edits across the active scope' : 'Temporarily unavailable while bulk editing is repaired'}</small></span>
                 </button>
                 <button type="button" role="menuitem" disabled={!mutatorToolsEnabled}>
                   <span><span className="header-tool-title"><strong>Formula Mutator</strong><CapabilityLabels capabilityIds={mutatorToolsEnabled ? ['experimental'] : ['locked']} compact /></span><small>Temporarily unavailable while formula evaluation is repaired</small></span>

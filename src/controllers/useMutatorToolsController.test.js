@@ -40,8 +40,8 @@ describe('computeBulkUpdates', () => {
 
     expect(count).toBe(2);
     expect(updates).toEqual([
-      { unitId: 'armflash', key: 'health', value: '1100.00' },
-      { unitId: 'corvoy', key: 'health', value: '880.00' },
+      { unitId: 'armflash', key: 'health', value: '1100' },
+      { unitId: 'corvoy', key: 'health', value: '880' },
     ]);
   });
 
@@ -54,8 +54,8 @@ describe('computeBulkUpdates', () => {
       resolveCloneRootId: identityResolve,
     });
 
-    expect(updates[0]).toEqual({ unitId: 'armflash', key: 'health', value: '600.00' });
-    expect(updates[1]).toEqual({ unitId: 'corvoy', key: 'health', value: '960.00' });
+    expect(updates[0]).toEqual({ unitId: 'armflash', key: 'health', value: '600' });
+    expect(updates[1]).toEqual({ unitId: 'corvoy', key: 'health', value: '960' });
   });
 
   it('applies fixed mode additively', () => {
@@ -67,19 +67,19 @@ describe('computeBulkUpdates', () => {
     });
 
     expect(updates).toEqual([
-      { unitId: 'armflash', key: 'metalcost', value: '150.00' },
-      { unitId: 'corvoy', key: 'metalcost', value: '100.00' },
+      { unitId: 'armflash', key: 'metalcost', value: '150' },
+      { unitId: 'corvoy', key: 'metalcost', value: '100' },
     ]);
   });
 
-  it('clamps cost, health, and velocity stats at zero but allows negative values elsewhere', () => {
+  it('clamps health and build time to engine-safe minimums', () => {
     const clamped = computeBulkUpdates([{ id: 'corvoy' }], DEFAULTS_DB, {}, {
       statKey: 'health',
       changeValue: -100,
       mode: 'percent',
       resolveCloneRootId: identityResolve,
     });
-    expect(clamped.updates[0].value).toBe('0.00');
+    expect(clamped.updates[0].value).toBe('1');
 
     const unclamped = computeBulkUpdates([{ id: 'corvoy' }], DEFAULTS_DB, {}, {
       statKey: 'buildtime',
@@ -87,7 +87,7 @@ describe('computeBulkUpdates', () => {
       mode: 'fixed',
       resolveCloneRootId: identityResolve,
     });
-    expect(unclamped.updates[0].value).toBe('-8199.00');
+    expect(unclamped.updates[0].value).toBe('1');
   });
 
   it('adjusts every weapon slot for the all-weapons stat keys', () => {
@@ -100,7 +100,7 @@ describe('computeBulkUpdates', () => {
 
     expect(count).toBe(1);
     expect(updates).toEqual([
-      { unitId: 'armflash', key: 'weapon_slot_1_damage', value: '330.00' },
+      { unitId: 'armflash', key: 'weapon_slot_1_damage', value: '330' },
     ]);
 
     const rangeUpdates = computeBulkUpdates([{ id: 'armflash' }], DEFAULTS_DB, {}, {
@@ -110,7 +110,7 @@ describe('computeBulkUpdates', () => {
       resolveCloneRootId: identityResolve,
     });
     expect(rangeUpdates.updates).toEqual([
-      { unitId: 'armflash', key: 'weapon_slot_1_range', value: '300.00' },
+      { unitId: 'armflash', key: 'weapon_slot_1_range', value: '300' },
     ]);
   });
 
@@ -124,7 +124,7 @@ describe('computeBulkUpdates', () => {
     });
 
     expect(updates).toEqual([
-      { unitId: 'armflash', key: 'weapon_slot_1_damage', value: '0.00' },
+      { unitId: 'armflash', key: 'weapon_slot_1_damage', value: '0' },
     ]);
   });
 
@@ -137,8 +137,53 @@ describe('computeBulkUpdates', () => {
     });
 
     expect(updates).toEqual([
-      { unitId: 'armflash_mk2', key: 'health', value: '1100.00' },
+      { unitId: 'armflash_mk2', key: 'health', value: '1100' },
     ]);
+  });
+
+  it('skips fields that do not exist instead of inventing zero-valued edits', () => {
+    const preview = computeBulkUpdates(units, DEFAULTS_DB, {}, {
+      statKey: 'mass',
+      changeValue: 10,
+      mode: 'percent',
+      resolveCloneRootId: identityResolve,
+    });
+
+    expect(preview.updates).toEqual([]);
+    expect(preview.blocked).toBe(true);
+    expect(preview.skippedFieldCount).toBe(2);
+    expect(preview.warnings[0]).toContain('2 missing or non-numeric fields');
+  });
+
+  it('blocks no-op writes and reports unchanged fields', () => {
+    const preview = computeBulkUpdates(units, DEFAULTS_DB, {}, {
+      statKey: 'health',
+      changeValue: 0,
+      mode: 'percent',
+      resolveCloneRootId: identityResolve,
+    });
+
+    expect(preview.updates).toEqual([]);
+    expect(preview.blocked).toBe(true);
+    expect(preview.unchangedFieldCount).toBe(2);
+  });
+
+  it('returns a reviewable before and after ledger', () => {
+    const preview = computeBulkUpdates([{ id: 'armflash', name: 'Flash' }], DEFAULTS_DB, {}, {
+      statKey: 'all_weapons_reload',
+      changeValue: -20,
+      mode: 'percent',
+      resolveCloneRootId: identityResolve,
+    });
+
+    expect(preview.previewRows).toEqual([expect.objectContaining({
+      unitName: 'Flash',
+      fieldLabel: 'All weapon reload · slot 1',
+      before: '2.5',
+      after: '2',
+      source: 'BAR',
+    })]);
+    expect(preview.affectedFieldCount).toBe(1);
   });
 });
 

@@ -53,17 +53,16 @@ import { normalizeProjectDocumentWithReport } from './project/projectDocument.js
 
 // Publish the experimental Weapon Laboratory workspace and its Tools entry.
 const WEAPON_LAB_ENABLED = true;
-// Keep these implementations in source control for repair, but do not emit
-// their JavaScript or CSS while every public entry point remains locked.
+// Batch Adjust uses a preview-first, curated numeric editing path. Formula
+// Mutator and Mutation Lab remain unavailable until their evaluators are repaired.
+const BATCH_ADJUST_ENABLED = true;
 const MUTATOR_TOOLS_ENABLED = false;
 
 const LazyDesignerPage = lazy(() => import('./components/DesignerPage.jsx'));
 const LazyCollectionsPage = lazy(() => import('./components/CollectionsPage.jsx'));
 const LazyPresetGalleryPage = lazy(() => import('./components/PresetGalleryPage.jsx'));
 const LazyReviewPage = lazy(() => import('./components/ReviewPage.jsx'));
-const LazyBatchAdjustDialog = MUTATOR_TOOLS_ENABLED
-  ? lazy(() => import('./components/BatchAdjustDialog.jsx'))
-  : null;
+const LazyBatchAdjustDialog = lazy(() => import('./components/BatchAdjustDialog.jsx'));
 const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplorerDialog.jsx'));
 const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
 const LazyWeaponDefLibraryPage = lazy(() => import('./components/WeaponDefLibraryPage.jsx'));
@@ -571,6 +570,7 @@ export default function App() {
     setBulkPercent,
     bulkMode,
     setBulkMode,
+    bulkPreview,
     handleApplyBulk,
     handleRandomAdjustments,
     handleApplyFormula,
@@ -769,9 +769,14 @@ export default function App() {
       { id: 'community-gallery', kind: 'Community', label: 'Community projects', description: 'Browse public projects shared by BAR Editor creators.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('community'); } },
     ];
 
+    if (BATCH_ADJUST_ENABLED) {
+      commands.push(
+        { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Preview and apply one safe numeric operation across the active unit scope.', onSelect: () => { openEditor(); setShowBulkPanel(true); } },
+      );
+    }
+
     if (MUTATOR_TOOLS_ENABLED) {
       commands.push(
-        { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Apply one adjustment across matching units.', onSelect: () => { openEditor(); setShowBulkPanel(true); } },
         { id: 'tool-mutation', kind: 'Tool', label: 'Mutation lab', description: 'Generate controlled random adjustments.', onSelect: () => { openEditor(); setShowRandomPanel(true); } },
       );
     }
@@ -1322,6 +1327,7 @@ export default function App() {
         unreadChatCount={unreadChatCount}
         validationIssueCount={validationIssues.length}
         weaponLabEnabled={WEAPON_LAB_ENABLED}
+        batchAdjustEnabled={BATCH_ADJUST_ENABLED}
         mutatorToolsEnabled={MUTATOR_TOOLS_ENABLED}
         onWorkspaceChange={workspaceId => {
           setShowDesignerPanel(workspaceId === 'designer');
@@ -1349,6 +1355,13 @@ export default function App() {
         }}
         onCommandPalette={() => setShowCommandPalette(true)}
         onCheckpoints={() => setShowProjectCheckpoints(true)}
+        onBatchAdjust={() => {
+          setShowMainMenu(false);
+          setShowDesignerPanel(false);
+          setShowPresetGallery(false);
+          setActiveWorkspace('edit');
+          setShowBulkPanel(true);
+        }}
         onCollections={() => {
           setShowDesignerPanel(false);
           setActiveWorkspace('collections');
@@ -1721,7 +1734,7 @@ export default function App() {
         onClose={() => setShowClonePanel(false)}
       />
 
-      {MUTATOR_TOOLS_ENABLED && showBulkPanel && <Suspense fallback={null}><LazyBatchAdjustDialog
+      {BATCH_ADJUST_ENABLED && showBulkPanel && <Suspense fallback={null}><LazyBatchAdjustDialog
         open={showBulkPanel}
         onClose={() => setShowBulkPanel(false)}
         parameterGroups={BULK_PARAMETER_GROUPS}
@@ -1733,6 +1746,7 @@ export default function App() {
         onValueChange={setBulkPercent}
         targetUnits={bulkTargetUnits}
         scopeLabel={activeCollection ? `Collection · ${activeCollection.name}` : 'Current filters'}
+        preview={bulkPreview}
         onApply={handleApplyBulk}
       /></Suspense>}
       {MUTATOR_TOOLS_ENABLED && showFormulaMutator && <Suspense fallback={null}><LazyFormulaMutatorDialog
