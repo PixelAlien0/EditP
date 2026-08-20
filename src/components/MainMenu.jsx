@@ -1,6 +1,7 @@
 import OnlinePresenceBadge from './OnlinePresenceBadge.jsx';
 import { CapabilityLabels } from './ui.jsx';
-import { m, useReducedMotion } from 'motion/react';
+import { m } from 'motion/react';
+import { MOTION_DELAY, MOTION_TRANSITION, MOTION_VARIANTS } from './ui/motionConfig.js';
 
 const ArrowIcon = () => (
   <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9h11" /><path d="m10.5 5 4 4-4 4" /></svg>
@@ -41,7 +42,6 @@ export default function MainMenu({
   onLoadProject,
   onSaveProject,
 }) {
-  const reduceMotion = useReducedMotion();
   const hasWork = projectChangeCount > 0;
   const currentProjectName = projectName?.trim() || 'Untitled BAR project';
   const workspaces = [
@@ -110,9 +110,10 @@ export default function MainMenu({
         <m.section
           className="main-menu__project-desk"
           aria-labelledby="main-menu-title"
-          initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.18, ease: 'easeOut' }}
+          variants={MOTION_VARIANTS.surface}
+          initial="hidden"
+          animate="visible"
+          transition={MOTION_TRANSITION.enter}
         >
           <article className="main-menu__active-project" aria-labelledby="main-menu-project-title">
             <header>
@@ -166,9 +167,10 @@ export default function MainMenu({
         <m.section
           className="main-menu__launchpad"
           aria-labelledby="main-menu-directory-title"
-          initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.18, delay: reduceMotion ? 0 : 0.04, ease: 'easeOut' }}
+          variants={MOTION_VARIANTS.surface}
+          initial="hidden"
+          animate="visible"
+          transition={{ ...MOTION_TRANSITION.enter, delay: MOTION_DELAY.relatedSection }}
         >
           <header className="main-menu__launchpad-heading">
             <h2 id="main-menu-directory-title">Workspaces</h2>

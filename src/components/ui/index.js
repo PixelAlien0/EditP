@@ -10,4 +10,12 @@ export { SectionHeader, PageHeader, PageShell, Card, StatCard, Divider } from '.
 export { Spinner, EmptyState, Callout } from './Feedback.jsx';
 export { Dialog } from './Dialog.jsx';
 export { MotionProvider, MotionPage, MotionToast } from './Motion.jsx';
-export { MOTION_TIMING, MOTION_EASE } from './motionConfig.js';
+export {
+  MOTION_TIMING,
+  MOTION_EASE,
+  MOTION_DISTANCE,
+  MOTION_DELAY,
+  MOTION_STAGGER,
+  MOTION_TRANSITION,
+  MOTION_VARIANTS,
+} from './motionConfig.js';

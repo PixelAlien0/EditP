@@ -1,6 +1,7 @@
 import { Children, cloneElement, isValidElement, useCallback } from 'react';
-import { m, useReducedMotion } from 'motion/react';
+import { m } from 'motion/react';
 import { WORKSPACE_LAYOUT_LIMITS } from '../../hooks/useWorkspaceLayout.js';
+import { MOTION_TRANSITION, MOTION_VARIANTS } from '../ui/motionConfig.js';
 
 function PaneSeparator({ side, value, onChange, controls, disabled }) {
   const limits = WORKSPACE_LAYOUT_LIMITS[side];
@@ -63,7 +64,6 @@ function PaneSeparator({ side, value, onChange, controls, disabled }) {
 }
 
 export default function EditorShell({ layout, actions, children }) {
-  const reduceMotion = useReducedMotion();
   const [library, canvas, inspector] = Children.toArray(children);
   const closeOverlayPanes = useCallback(() => {
     if (actions.closeOverlayPanes) actions.closeOverlayPanes();
@@ -85,9 +85,10 @@ export default function EditorShell({ layout, actions, children }) {
     <m.div
       className={`main-layout editor-shell density-${layout.density} ${layout.leftCollapsed ? 'is-library-collapsed' : 'is-library-open'} ${layout.rightCollapsed ? 'is-inspector-collapsed' : 'is-inspector-open'}`}
       style={style}
-      initial={{ opacity: 0, y: reduceMotion ? 0 : 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.18, ease: 'easeOut' }}
+      variants={MOTION_VARIANTS.surface}
+      initial="hidden"
+      animate="visible"
+      transition={MOTION_TRANSITION.enter}
     >
       {libraryPane}
       <PaneSeparator
