@@ -30,6 +30,19 @@ const DEFAULTS_DB = {
 describe('computeBulkUpdates', () => {
   const units = [{ id: 'armflash' }, { id: 'corvoy' }];
 
+  it('requires an explicit unit selection', () => {
+    const preview = computeBulkUpdates([], DEFAULTS_DB, {}, {
+      statKey: 'health',
+      changeValue: 10,
+      mode: 'percent',
+      resolveCloneRootId: identityResolve,
+    });
+
+    expect(preview.blocked).toBe(true);
+    expect(preview.error).toContain('Select at least one unit');
+    expect(preview.estimatedBase64Chars).toBe(0);
+  });
+
   it('applies percent mode against defaults when no tweaks exist', () => {
     const { updates, count } = computeBulkUpdates(units, DEFAULTS_DB, {}, {
       statKey: 'health',
@@ -184,6 +197,23 @@ describe('computeBulkUpdates', () => {
       source: 'BAR',
     })]);
     expect(preview.affectedFieldCount).toBe(1);
+    expect(preview.estimatedLuaChars).toBeGreaterThan(0);
+    expect(preview.estimatedBase64Chars).toBeGreaterThan(preview.estimatedLuaChars);
+  });
+
+  it('flags large explicit selections for a second confirmation', () => {
+    const largeUnits = Array.from({ length: 101 }, (_, index) => ({ id: `unit_${index}` }));
+    const largeDefaults = Object.fromEntries(largeUnits.map(unit => [unit.id, { health: 100 }]));
+    const preview = computeBulkUpdates(largeUnits, largeDefaults, {}, {
+      statKey: 'health',
+      changeValue: 10,
+      mode: 'percent',
+      resolveCloneRootId: identityResolve,
+    });
+
+    expect(preview.affectedUnitCount).toBe(101);
+    expect(preview.requiresLargeScopeConfirmation).toBe(true);
+    expect(preview.warnings).toEqual(expect.arrayContaining([expect.stringContaining('Large batch')]));
   });
 });
 

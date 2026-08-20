@@ -48,6 +48,9 @@ const BULK_PARAMETERS = new Map(
   BULK_PARAMETER_GROUPS.flatMap(group => group.options).map(option => [option.value, option]),
 );
 
+const BULK_CONFIRMATION_UNIT_THRESHOLD = 100;
+const BULK_CONFIRMATION_BASE64_THRESHOLD = 12000;
+
 function formatBulkNumber(value, decimals = 4) {
   const rounded = Number(Number(value).toFixed(decimals));
   return Object.is(rounded, -0) ? '0' : String(rounded);
@@ -81,6 +84,25 @@ export function computeBulkUpdates(units, defaultsDb, tweaks, {
   let unchangedFieldCount = 0;
   const numericChange = Number(changeValue);
 
+  if (units.length === 0) {
+    return {
+      updates,
+      count: 0,
+      affectedUnitCount: 0,
+      affectedFieldCount: 0,
+      skippedUnitCount: 0,
+      skippedFieldCount: 0,
+      unchangedFieldCount: 0,
+      estimatedLuaChars: 0,
+      estimatedBase64Chars: 0,
+      requiresLargeScopeConfirmation: false,
+      previewRows,
+      blocked: true,
+      error: 'Select at least one unit before configuring the batch.',
+      warnings: [],
+    };
+  }
+
   if (!parameter || !Number.isFinite(numericChange)) {
     return {
       updates,
@@ -90,6 +112,9 @@ export function computeBulkUpdates(units, defaultsDb, tweaks, {
       skippedUnitCount: units.length,
       skippedFieldCount: 0,
       unchangedFieldCount: 0,
+      estimatedLuaChars: 0,
+      estimatedBase64Chars: 0,
+      requiresLargeScopeConfirmation: false,
       previewRows,
       blocked: true,
       error: !parameter ? 'Choose a supported parameter.' : 'Enter a valid numeric adjustment.',
@@ -168,9 +193,15 @@ export function computeBulkUpdates(units, defaultsDb, tweaks, {
   });
 
   const warnings = [];
+  const estimatedLuaChars = updates.reduce((total, update) => (
+    total + update.unitId.length + update.key.length + String(update.value).length + 28
+  ), 0);
+  const estimatedBase64Chars = Math.ceil(estimatedLuaChars / 3) * 4;
+  const requiresLargeScopeConfirmation = affectedUnitIds.size > BULK_CONFIRMATION_UNIT_THRESHOLD
+    || estimatedBase64Chars > BULK_CONFIRMATION_BASE64_THRESHOLD;
   if (skippedFieldCount > 0) warnings.push(`${skippedFieldCount.toLocaleString()} missing or non-numeric fields will be skipped.`);
   if (unchangedFieldCount > 0) warnings.push(`${unchangedFieldCount.toLocaleString()} fields already resolve to the previewed value.`);
-  if (affectedUnitIds.size > 250) warnings.push('Large scope: review the project change count and lobby byte budget after applying.');
+  if (requiresLargeScopeConfirmation) warnings.push('Large batch: review the selected units and projected payload before confirming this operation.');
 
   return {
     updates,
@@ -180,6 +211,9 @@ export function computeBulkUpdates(units, defaultsDb, tweaks, {
     skippedUnitCount: Math.max(0, units.length - affectedUnitIds.size),
     skippedFieldCount,
     unchangedFieldCount,
+    estimatedLuaChars,
+    estimatedBase64Chars,
+    requiresLargeScopeConfirmation,
     previewRows,
     blocked: updates.length === 0,
     error: updates.length === 0 ? 'This adjustment would not change any eligible fields.' : '',
@@ -257,16 +291,66 @@ export function useMutatorToolsController({
   const [bulkStatKey, setBulkStatKey] = useState('health');
   const [bulkPercent, setBulkPercent] = useState('10');
   const [bulkMode, setBulkMode] = useState('percent');
+  const [bulkSelectedUnitIds, setBulkSelectedUnitIds] = useState([]);
 
-  const bulkPreview = useMemo(() => computeBulkUpdates(bulkTargetUnits, defaultsDb, tweaks, {
+  const bulkCandidateUnitIds = useMemo(
+    () => new Set(bulkTargetUnits.map(unit => unit.id)),
+    [bulkTargetUnits],
+  );
+  const bulkSelectedUnits = useMemo(() => {
+    const selectedIds = new Set(bulkSelectedUnitIds);
+    return bulkTargetUnits.filter(unit => selectedIds.has(unit.id));
+  }, [bulkSelectedUnitIds, bulkTargetUnits]);
+  const activeBulkSelectedUnitIds = useMemo(
+    () => bulkSelectedUnits.map(unit => unit.id),
+    [bulkSelectedUnits],
+  );
+
+  const openBulkPanel = useCallback(() => {
+    setBulkSelectedUnitIds([]);
+    setShowBulkPanel(true);
+  }, []);
+
+  const closeBulkPanel = useCallback(() => {
+    setShowBulkPanel(false);
+    setBulkSelectedUnitIds([]);
+  }, []);
+
+  const toggleBulkUnit = useCallback(unitId => {
+    if (!bulkCandidateUnitIds.has(unitId)) return;
+    setBulkSelectedUnitIds(current => (
+      current.includes(unitId)
+        ? current.filter(id => id !== unitId)
+        : [...current, unitId]
+    ));
+  }, [bulkCandidateUnitIds]);
+
+  const selectBulkUnits = useCallback(unitIds => {
+    setBulkSelectedUnitIds(current => {
+      const next = new Set(current);
+      unitIds.forEach(unitId => {
+        if (bulkCandidateUnitIds.has(unitId)) next.add(unitId);
+      });
+      return [...next];
+    });
+  }, [bulkCandidateUnitIds]);
+
+  const deselectBulkUnits = useCallback(unitIds => {
+    const removedIds = new Set(unitIds);
+    setBulkSelectedUnitIds(current => current.filter(unitId => !removedIds.has(unitId)));
+  }, []);
+
+  const clearBulkSelection = useCallback(() => setBulkSelectedUnitIds([]), []);
+
+  const bulkPreview = useMemo(() => computeBulkUpdates(bulkSelectedUnits, defaultsDb, tweaks, {
     statKey: bulkStatKey,
     changeValue: String(bulkPercent).trim() === '' ? Number.NaN : Number(bulkPercent),
     mode: bulkMode,
     resolveCloneRootId,
-  }), [bulkMode, bulkPercent, bulkStatKey, bulkTargetUnits, defaultsDb, resolveCloneRootId, tweaks]);
+  }), [bulkMode, bulkPercent, bulkSelectedUnits, bulkStatKey, defaultsDb, resolveCloneRootId, tweaks]);
 
   // Apply Bulk edit
-  const handleApplyBulk = useCallback(() => {
+  const handleApplyBulk = useCallback(({ allowLargeScope = false } = {}) => {
     const changeVal = parseFloat(bulkPercent);
     if (Number.isNaN(changeVal)) {
       showToast('Error: Invalid bulk adjustment value');
@@ -278,6 +362,10 @@ export function useMutatorToolsController({
       showToast(error || 'No eligible fields would change.');
       return;
     }
+    if (bulkPreview.requiresLargeScopeConfirmation && !allowLargeScope) {
+      showToast('Confirm the large export impact before applying this batch.');
+      return;
+    }
 
     transactProject(current => {
       const nextTweaks = { ...current.tweaks };
@@ -287,19 +375,20 @@ export function useMutatorToolsController({
           [key]: value,
         };
       });
-      const touchesClone = bulkTargetUnits.some(unit => unit.isClone);
+      const touchesClone = bulkSelectedUnits.some(unit => unit.isClone);
       return {
         tweaks: nextTweaks,
         includeClones: touchesClone ? true : current.includeClones,
         includeTweaks: touchesClone ? true : current.includeTweaks,
       };
     });
-    setShowBulkPanel(false);
+    closeBulkPanel();
     showToast(`Applied ${affectedFieldCount.toLocaleString()} field edits across ${count.toLocaleString()} ${count === 1 ? 'unit' : 'units'}.`);
   }, [
     bulkPercent,
-    bulkTargetUnits,
+    bulkSelectedUnits,
     bulkPreview,
+    closeBulkPanel,
     showToast,
     transactProject,
   ]);
@@ -364,7 +453,8 @@ export function useMutatorToolsController({
 
   return {
     showBulkPanel,
-    setShowBulkPanel,
+    openBulkPanel,
+    closeBulkPanel,
     showFormulaMutator,
     setShowFormulaMutator,
     showRandomPanel,
@@ -383,6 +473,11 @@ export function useMutatorToolsController({
     setBulkPercent,
     bulkMode,
     setBulkMode,
+    bulkSelectedUnitIds: activeBulkSelectedUnitIds,
+    toggleBulkUnit,
+    selectBulkUnits,
+    deselectBulkUnits,
+    clearBulkSelection,
     bulkPreview,
     handleApplyBulk,
     handleRandomAdjustments,

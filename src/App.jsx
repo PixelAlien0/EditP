@@ -551,7 +551,8 @@ export default function App() {
 
   const {
     showBulkPanel,
-    setShowBulkPanel,
+    openBulkPanel,
+    closeBulkPanel,
     showFormulaMutator,
     setShowFormulaMutator,
     showRandomPanel,
@@ -570,6 +571,11 @@ export default function App() {
     setBulkPercent,
     bulkMode,
     setBulkMode,
+    bulkSelectedUnitIds,
+    toggleBulkUnit,
+    selectBulkUnits,
+    deselectBulkUnits,
+    clearBulkSelection,
     bulkPreview,
     handleApplyBulk,
     handleRandomAdjustments,
@@ -771,7 +777,7 @@ export default function App() {
 
     if (BATCH_ADJUST_ENABLED) {
       commands.push(
-        { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Preview and apply one safe numeric operation across the active unit scope.', onSelect: () => { openEditor(); setShowBulkPanel(true); } },
+        { id: 'tool-batch', kind: 'Tool', label: 'Batch adjust stats', description: 'Select units, preview exact changes, and apply one controlled numeric operation.', onSelect: () => { openEditor(); openBulkPanel(); } },
       );
     }
 
@@ -820,7 +826,7 @@ export default function App() {
       onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveCollectionId(collection.id); setActiveWorkspace('collections'); },
     }));
     return commands;
-  }, [allUnitsList, unitCollections, setActiveCollectionId, setShowBulkPanel, setShowRandomPanel]);
+  }, [allUnitsList, unitCollections, openBulkPanel, setActiveCollectionId, setShowRandomPanel]);
 
   // Keyboard Shortcuts Hook
   useEffect(() => {
@@ -849,7 +855,7 @@ export default function App() {
       if (e.key === 'Escape') {
         setShowSwapModal(false);
         setShowClonePanel(false);
-        setShowBulkPanel(false);
+        closeBulkPanel();
         setShowDesignerPanel(false);
         setShowSummaryModal(false);
         setShowCreditsModal(false);
@@ -860,7 +866,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleUndo, handleRedo, setShowBulkPanel, setShowClonePanel, setShowSummaryModal]);
+  }, [closeBulkPanel, handleUndo, handleRedo, setShowClonePanel, setShowSummaryModal]);
 
   const {
     validationIssues,
@@ -1360,7 +1366,7 @@ export default function App() {
           setShowDesignerPanel(false);
           setShowPresetGallery(false);
           setActiveWorkspace('edit');
-          setShowBulkPanel(true);
+          openBulkPanel();
         }}
         onCollections={() => {
           setShowDesignerPanel(false);
@@ -1736,7 +1742,7 @@ export default function App() {
 
       {BATCH_ADJUST_ENABLED && showBulkPanel && <Suspense fallback={null}><LazyBatchAdjustDialog
         open={showBulkPanel}
-        onClose={() => setShowBulkPanel(false)}
+        onClose={closeBulkPanel}
         parameterGroups={BULK_PARAMETER_GROUPS}
         statKey={bulkStatKey}
         onStatKeyChange={setBulkStatKey}
@@ -1744,7 +1750,13 @@ export default function App() {
         onModeChange={setBulkMode}
         value={bulkPercent}
         onValueChange={setBulkPercent}
-        targetUnits={bulkTargetUnits}
+        candidateUnits={bulkTargetUnits}
+        selectedUnitIds={bulkSelectedUnitIds}
+        currentUnitId={selectedUnit?.id || ''}
+        onToggleUnit={toggleBulkUnit}
+        onSelectUnits={selectBulkUnits}
+        onDeselectUnits={deselectBulkUnits}
+        onClearSelection={clearBulkSelection}
         scopeLabel={activeCollection ? `Collection · ${activeCollection.name}` : 'Current filters'}
         preview={bulkPreview}
         onApply={handleApplyBulk}

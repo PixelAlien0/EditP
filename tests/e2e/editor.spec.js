@@ -1230,6 +1230,10 @@ test('nested unit collections persist and scope expert workflows', async ({ page
   await batchTool.click();
   await expect(page.getByRole('heading', { name: 'Batch Adjust' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Bulk adjustment preview' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Apply to 0 units' })).toBeDisabled();
+  await expect(page.getByText('Select at least one unit before configuring the batch.')).toBeVisible();
+  await page.getByRole('button', { name: 'Add current' }).click();
+  await expect(page.getByRole('button', { name: 'Apply to 1 unit' })).toBeEnabled();
   await page.getByRole('button', { name: 'Close Batch Adjust' }).click();
 
   await page.getByRole('tab', { name: /Compare/ }).click();
