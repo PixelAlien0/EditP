@@ -274,7 +274,6 @@ export default function MainMenu({
           </m.nav>
 
           <section className="main-menu__tool-directory" aria-label="Research & package tools">
-            <header><span>Specialist workbenches</span><h3 id="main-menu-tools-title">Project tools</h3></header>
             <m.div
               variants={MOTION_VARIANTS.staggerGroup}
               initial="hidden"
