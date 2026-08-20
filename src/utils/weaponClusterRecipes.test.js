@@ -6,7 +6,7 @@ import {
 } from './weaponClusterRecipes.js';
 
 describe('Cluster recipe library', () => {
-  it('offers six distinct optional presets', () => {
+  it('offers twelve gameplay and three visual-only presets', () => {
     expect(Object.keys(WEAPON_CLUSTER_RECIPES)).toEqual([
       'napalm-blossom',
       'meteor-rain',
@@ -14,8 +14,19 @@ describe('Cluster recipe library', () => {
       'razor-halo',
       'seismic-crown',
       'pursuit-swarm',
+      'plasma-rosette',
+      'thunder-web',
+      'gravity-sink',
+      'flak-constellation',
+      'breach-needles',
+      'starfire-choir',
+      'blue-nova',
+      'spark-veil',
+      'scav-mirage',
     ]);
-    expect(new Set(Object.values(WEAPON_CLUSTER_RECIPES).map(recipe => recipe.supportingKey)).size).toBe(6);
+    expect(new Set(Object.values(WEAPON_CLUSTER_RECIPES).map(recipe => recipe.supportingKey)).size).toBe(15);
+    expect(Object.values(WEAPON_CLUSTER_RECIPES).filter(recipe => recipe.kind === 'combat')).toHaveLength(12);
+    expect(Object.values(WEAPON_CLUSTER_RECIPES).filter(recipe => recipe.kind === 'visual')).toHaveLength(3);
   });
 });
 
@@ -104,6 +115,12 @@ describe.each([
   ['razor-halo', 12, { weapontype: 'Cannon', weaponvelocity: 760, sprayangle: 1450 }],
   ['seismic-crown', 5, { weapontype: 'Cannon', impulsefactor: 1.4, cratermult: 0.8 }],
   ['pursuit-swarm', 9, { weapontype: 'MissileLauncher', tracks: true, turnrate: 42000 }],
+  ['plasma-rosette', 10, { weapontype: 'Cannon', explosiongenerator: 'custom:plasmahit-medium' }],
+  ['thunder-web', 7, { weapontype: 'Cannon', paralyzer: true, paralyzetime: 2.5 }],
+  ['gravity-sink', 6, { weapontype: 'Cannon', impulsefactor: -1.8, impulseboost: -24 }],
+  ['flak-constellation', 11, { weapontype: 'Cannon', explosiongenerator: 'custom:flak' }],
+  ['breach-needles', 4, { weapontype: 'Cannon', weaponvelocity: 1800, areaofeffect: 12 }],
+  ['starfire-choir', 8, { weapontype: 'MissileLauncher', cegtag: 'starfire-small' }],
 ])('%s cluster recipe', (recipeId, clusterCount, expectedDefinition) => {
   it('builds its distinctive compiler-safe child definition', () => {
     const application = buildWeaponClusterRecipeApplication({
@@ -119,5 +136,29 @@ describe.each([
     );
     expect(application.supportingDefinition.definition).toMatchObject(expectedDefinition);
     expect(application.supportingDefinition.definition.damage.default).toBeGreaterThan(0);
+  });
+});
+
+describe.each([
+  ['blue-nova', 9, 'custom:laserhit-large-blue'],
+  ['spark-veil', 14, 'custom:plasmahit-sparkonly'],
+  ['scav-mirage', 6, 'custom:scav_mist_explosion'],
+])('%s visual cluster recipe', (recipeId, clusterCount, explosiongenerator) => {
+  it('produces presentation without combat or terrain effects', () => {
+    const application = buildWeaponClusterRecipeApplication({
+      recipeId,
+      ownerUnitId: 'ARMTEST',
+      slotNumber: 1,
+      sourceSlot: { damage: 1200, aoe: 180 },
+    });
+
+    expect(application.tweakPatch.weapon_slot_1_cluster_number).toBe(clusterCount);
+    expect(application.supportingDefinition.definition).toMatchObject({
+      explosiongenerator,
+      impulsefactor: 0,
+      craterboost: 0,
+      cratermult: 0,
+      damage: { default: 0 },
+    });
   });
 });

@@ -13,6 +13,7 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     label: 'Napalm Blossom',
     supportingKey: 'editp_napalm_blossom',
     clusterCount: 7,
+    kind: 'combat',
     description: 'Impact-fired incendiary Cannon fragments with BAR-native flame presentation and area-on-hit behavior.',
   }),
   'meteor-rain': Object.freeze({
@@ -20,6 +21,7 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     label: 'Meteor Rain',
     supportingKey: 'editp_meteor_rain',
     clusterCount: 8,
+    kind: 'combat',
     description: 'Impact-fired meteor fragments that arc outward, lose height quickly, and saturate the surrounding ground.',
   }),
   'emp-starburst': Object.freeze({
@@ -27,6 +29,7 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     label: 'EMP Starburst',
     supportingKey: 'editp_emp_starburst',
     clusterCount: 6,
+    kind: 'combat',
     description: 'A short-lived ring of paralyzing fragments that trades raw damage for a compact EMP lockdown.',
   }),
   'razor-halo': Object.freeze({
@@ -34,6 +37,7 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     label: 'Razor Halo',
     supportingKey: 'editp_razor_halo',
     clusterCount: 12,
+    kind: 'combat',
     description: 'Twelve fast, low-area shrapnel rounds form a wide kinetic halo around the impact point.',
   }),
   'seismic-crown': Object.freeze({
@@ -41,6 +45,7 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     label: 'Seismic Crown',
     supportingKey: 'editp_seismic_crown',
     clusterCount: 5,
+    kind: 'combat',
     description: 'Five heavy fragments fall into a tight crown with strong terrain and impulse character.',
   }),
   'pursuit-swarm': Object.freeze({
@@ -48,7 +53,80 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     label: 'Pursuit Swarm',
     supportingKey: 'editp_pursuit_swarm',
     clusterCount: 9,
+    kind: 'combat',
     description: 'Guided child missiles accelerate away from the impact and continue tracking the inherited target.',
+  }),
+  'plasma-rosette': Object.freeze({
+    id: 'plasma-rosette',
+    label: 'Plasma Rosette',
+    supportingKey: 'editp_plasma_rosette',
+    clusterCount: 10,
+    kind: 'combat',
+    description: 'A balanced flower of medium plasma fragments with readable spacing and dependable splash damage.',
+  }),
+  'thunder-web': Object.freeze({
+    id: 'thunder-web',
+    label: 'Thunder Web',
+    supportingKey: 'editp_thunder_web',
+    clusterCount: 7,
+    kind: 'combat',
+    description: 'Electrical fragments lace the impact zone with light paralysis and bright lightning hits.',
+  }),
+  'gravity-sink': Object.freeze({
+    id: 'gravity-sink',
+    label: 'Gravity Sink',
+    supportingKey: 'editp_gravity_sink',
+    clusterCount: 6,
+    kind: 'combat',
+    description: 'Wide, low-damage fragments use negative impulse to pull nearby units toward the impact.',
+  }),
+  'flak-constellation': Object.freeze({
+    id: 'flak-constellation',
+    label: 'Flak Constellation',
+    supportingKey: 'editp_flak_constellation',
+    clusterCount: 11,
+    kind: 'combat',
+    description: 'A broad constellation of flak bursts weighted toward airborne targets.',
+  }),
+  'breach-needles': Object.freeze({
+    id: 'breach-needles',
+    label: 'Breach Needles',
+    supportingKey: 'editp_breach_needles',
+    clusterCount: 4,
+    kind: 'combat',
+    description: 'Four extremely fast, precise shards concentrate damage with almost no splash.',
+  }),
+  'starfire-choir': Object.freeze({
+    id: 'starfire-choir',
+    label: 'Starfire Choir',
+    supportingKey: 'editp_starfire_choir',
+    clusterCount: 8,
+    kind: 'combat',
+    description: 'A rising chorus of accelerating missiles creates a dramatic delayed second strike.',
+  }),
+  'blue-nova': Object.freeze({
+    id: 'blue-nova',
+    label: 'Blue Nova',
+    supportingKey: 'editp_blue_nova',
+    clusterCount: 9,
+    kind: 'visual',
+    description: 'Visual only: a clean blue laser-hit bloom with zero damage, impulse, or terrain deformation.',
+  }),
+  'spark-veil': Object.freeze({
+    id: 'spark-veil',
+    label: 'Spark Veil',
+    supportingKey: 'editp_spark_veil',
+    clusterCount: 14,
+    kind: 'visual',
+    description: 'Visual only: a fine veil of plasma sparks with zero damage, impulse, or terrain deformation.',
+  }),
+  'scav-mirage': Object.freeze({
+    id: 'scav-mirage',
+    label: 'Scav Mirage',
+    supportingKey: 'editp_scav_mirage',
+    clusterCount: 6,
+    kind: 'visual',
+    description: 'Visual only: eerie Scavenger mist blooms around the impact without changing combat.',
   }),
 });
 
@@ -240,6 +318,234 @@ function buildPursuitSwarmDefinition({ recipe, parentDamage, parentAoe }) {
   };
 }
 
+function buildPlasmaRosetteDefinition({ recipe, parentDamage, parentAoe }) {
+  return {
+    name: `${recipe.label} petal`,
+    weapontype: 'Cannon',
+    range: 480,
+    reloadtime: 1,
+    weaponvelocity: 520,
+    areaofeffect: Math.round(clamp(parentAoe * 0.5, 40, 104)),
+    edgeeffectiveness: 0.4,
+    accuracy: 260,
+    sprayangle: 980,
+    gravityaffected: false,
+    avoidfeature: false,
+    avoidfriendly: false,
+    collidefriendly: false,
+    noselfdamage: true,
+    firestarter: 20,
+    impulsefactor: 0.123,
+    craterboost: 0,
+    cratermult: 0,
+    explosiongenerator: 'custom:plasmahit-medium',
+    cegtag: 'Heavy-Plasma',
+    damage: {
+      default: Math.round(clamp(parentDamage * 0.075, 14, 150)),
+    },
+  };
+}
+
+function buildThunderWebDefinition({ recipe, parentDamage, parentAoe }) {
+  return {
+    name: `${recipe.label} arc`,
+    weapontype: 'Cannon',
+    range: 430,
+    reloadtime: 1,
+    weaponvelocity: 610,
+    areaofeffect: Math.round(clamp(parentAoe * 0.58, 48, 120)),
+    edgeeffectiveness: 0.5,
+    accuracy: 380,
+    sprayangle: 860,
+    gravityaffected: false,
+    avoidfeature: false,
+    avoidfriendly: false,
+    collidefriendly: false,
+    noselfdamage: true,
+    firestarter: 0,
+    impulsefactor: 0,
+    craterboost: 0,
+    cratermult: 0,
+    paralyzer: true,
+    paralyzetime: 2.5,
+    explosiongenerator: 'custom:genericshellexplosion-small-lightning',
+    damage: {
+      default: Math.round(clamp(parentDamage * 0.06, 12, 115)),
+    },
+  };
+}
+
+function buildGravitySinkDefinition({ recipe, parentDamage, parentAoe }) {
+  return {
+    name: `${recipe.label} fragment`,
+    weapontype: 'Cannon',
+    range: 360,
+    reloadtime: 1,
+    weaponvelocity: 300,
+    areaofeffect: Math.round(clamp(parentAoe * 0.95, 96, 220)),
+    edgeeffectiveness: 0.8,
+    accuracy: 520,
+    sprayangle: 620,
+    gravityaffected: true,
+    mygravity: 0.14,
+    avoidfeature: false,
+    avoidfriendly: false,
+    collidefriendly: false,
+    noselfdamage: true,
+    firestarter: 0,
+    impulsefactor: -1.8,
+    impulseboost: -24,
+    craterboost: 0,
+    cratermult: 0,
+    explosiongenerator: 'custom:shockwaveceg',
+    damage: {
+      default: Math.round(clamp(parentDamage * 0.035, 8, 70)),
+    },
+  };
+}
+
+function buildFlakConstellationDefinition({ recipe, parentDamage, parentAoe }) {
+  const baseDamage = Math.round(clamp(parentDamage * 0.045, 8, 85));
+  return {
+    name: `${recipe.label} burst`,
+    weapontype: 'Cannon',
+    range: 560,
+    reloadtime: 1,
+    weaponvelocity: 880,
+    areaofeffect: Math.round(clamp(parentAoe * 0.72, 64, 144)),
+    edgeeffectiveness: 0.7,
+    accuracy: 720,
+    sprayangle: 1250,
+    gravityaffected: false,
+    avoidfeature: false,
+    avoidfriendly: false,
+    collidefriendly: false,
+    noselfdamage: true,
+    firestarter: 0,
+    impulsefactor: 0,
+    craterboost: 0,
+    cratermult: 0,
+    explosiongenerator: 'custom:flak',
+    cegtag: 'flaktrailaa',
+    damage: {
+      default: baseDamage,
+      vtol: Math.round(baseDamage * 2.5),
+    },
+  };
+}
+
+function buildBreachNeedlesDefinition({ recipe, parentDamage }) {
+  return {
+    name: `${recipe.label} shard`,
+    weapontype: 'Cannon',
+    range: 720,
+    reloadtime: 1,
+    weaponvelocity: 1800,
+    areaofeffect: 12,
+    edgeeffectiveness: 0.05,
+    accuracy: 35,
+    sprayangle: 140,
+    gravityaffected: false,
+    avoidfeature: false,
+    avoidfriendly: false,
+    collidefriendly: false,
+    noselfdamage: true,
+    firestarter: 0,
+    impulsefactor: 0.08,
+    craterboost: 0,
+    cratermult: 0,
+    explosiongenerator: 'custom:genericshellexplosion-sniper',
+    cegtag: 'railgun',
+    damage: {
+      default: Math.round(clamp(parentDamage * 0.16, 28, 300)),
+    },
+  };
+}
+
+function buildStarfireChoirDefinition({ recipe, parentDamage, parentAoe }) {
+  return {
+    name: `${recipe.label} missile`,
+    weapontype: 'MissileLauncher',
+    range: 760,
+    reloadtime: 1,
+    startvelocity: 80,
+    weaponacceleration: 105,
+    weaponvelocity: 620,
+    flighttime: 3.2,
+    tracks: false,
+    trajectoryheight: 1.25,
+    areaofeffect: Math.round(clamp(parentAoe * 0.42, 40, 96)),
+    edgeeffectiveness: 0.35,
+    avoidfeature: false,
+    avoidfriendly: false,
+    collidefriendly: false,
+    noselfdamage: true,
+    firestarter: 45,
+    impulsefactor: 0.1,
+    craterboost: 0,
+    cratermult: 0,
+    smoketrail: true,
+    smokeperiod: 6,
+    smokesize: 1.8,
+    smoketime: 12,
+    cegtag: 'starfire-small',
+    explosiongenerator: 'custom:ministarfire-explosion',
+    damage: {
+      default: Math.round(clamp(parentDamage * 0.08, 16, 155)),
+    },
+  };
+}
+
+function buildVisualRecipeDefinition({ recipe, parentAoe, effect, trail }) {
+  return {
+    name: `${recipe.label} visual`,
+    weapontype: 'Cannon',
+    range: 400,
+    reloadtime: 1,
+    weaponvelocity: 520,
+    areaofeffect: Math.round(clamp(parentAoe * 0.45, 32, 96)),
+    edgeeffectiveness: 0,
+    accuracy: 480,
+    sprayangle: 980,
+    gravityaffected: false,
+    avoidfeature: false,
+    avoidfriendly: false,
+    collidefriendly: false,
+    noselfdamage: true,
+    firestarter: 0,
+    impulsefactor: 0,
+    impulseboost: 0,
+    craterboost: 0,
+    cratermult: 0,
+    explosiongenerator: effect,
+    ...(trail ? { cegtag: trail } : {}),
+    damage: { default: 0 },
+  };
+}
+
+function buildBlueNovaDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:laserhit-large-blue',
+    trail: 'blob_trail_blue',
+  });
+}
+
+function buildSparkVeilDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:plasmahit-sparkonly',
+  });
+}
+
+function buildScavMirageDefinition(options) {
+  return buildVisualRecipeDefinition({
+    ...options,
+    effect: 'custom:scav_mist_explosion',
+    trail: 'scaspawn-greentrail',
+  });
+}
+
 const RECIPE_BUILDERS = Object.freeze({
   'napalm-blossom': buildNapalmBlossomDefinition,
   'meteor-rain': buildMeteorRainDefinition,
@@ -247,6 +553,15 @@ const RECIPE_BUILDERS = Object.freeze({
   'razor-halo': buildRazorHaloDefinition,
   'seismic-crown': buildSeismicCrownDefinition,
   'pursuit-swarm': buildPursuitSwarmDefinition,
+  'plasma-rosette': buildPlasmaRosetteDefinition,
+  'thunder-web': buildThunderWebDefinition,
+  'gravity-sink': buildGravitySinkDefinition,
+  'flak-constellation': buildFlakConstellationDefinition,
+  'breach-needles': buildBreachNeedlesDefinition,
+  'starfire-choir': buildStarfireChoirDefinition,
+  'blue-nova': buildBlueNovaDefinition,
+  'spark-veil': buildSparkVeilDefinition,
+  'scav-mirage': buildScavMirageDefinition,
 });
 
 export function buildWeaponClusterRecipeApplication({
