@@ -81,8 +81,18 @@
   --font-size-sm: 12px;
   --font-size-md: 14px;
   --font-size-lg: 18px;
+  --font-size-title-page: clamp(26px, 1.9vw, 32px);
+  --font-size-title-section: 20px;
+  --font-size-title-subsection: 14px;
+  --font-size-body: 12px;
+  --font-size-label: 10px;
+  --font-size-metadata: 9px;
+  --line-height-title: 1.08;
+  --line-height-heading: 1.2;
   --line-height-ui: 1.35;
   --line-height-body: 1.55;
+  --measure-copy: 68ch;
+  --measure-description: 76ch;
 
   --control-height-sm: 32px;
   --control-height-md: 38px;

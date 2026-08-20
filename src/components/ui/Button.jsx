@@ -14,14 +14,17 @@ export const Button = forwardRef(function Button({
   disabled,
   ...props
 }, ref) {
+  const resolvedVariant = variant === 'ghost' ? 'quiet' : variant;
+  const resolvedSize = size === 'small' ? 'sm' : size;
+
   return (
     <button
       ref={ref}
       type={type}
       className={cx(
         'ui-button',
-        `ui-button--${variant}`,
-        `ui-button--${size}`,
+        `ui-button--${resolvedVariant}`,
+        `ui-button--${resolvedSize}`,
         fullWidth && 'ui-button--full',
         loading && 'is-loading',
         className
@@ -66,8 +69,11 @@ export function FileButton({
   disabled = false,
   ...props
 }) {
+  const resolvedVariant = variant === 'ghost' ? 'quiet' : variant;
+  const resolvedSize = size === 'small' ? 'sm' : size;
+
   return (
-    <label className={cx('ui-button', `ui-button--${variant}`, `ui-button--${size}`, 'ui-file-button', disabled && 'is-disabled', className)} {...props}>
+    <label className={cx('ui-button', `ui-button--${resolvedVariant}`, `ui-button--${resolvedSize}`, 'ui-file-button', disabled && 'is-disabled', className)} {...props}>
       {children}
       <input type="file" accept={accept} multiple={multiple} disabled={disabled} onChange={onChange} />
     </label>

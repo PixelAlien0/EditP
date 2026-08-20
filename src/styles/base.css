@@ -1,9 +1,19 @@
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: var(--font-display);
   font-optical-sizing: auto;
+  color: var(--color-text-strong);
+  text-wrap: balance;
 }
+
+:where(h1) { font-size: var(--font-size-title-page); line-height: var(--line-height-title); }
+:where(h2) { font-size: var(--font-size-title-section); line-height: var(--line-height-heading); }
+:where(h3) { font-size: var(--font-size-title-subsection); line-height: var(--line-height-heading); }
+:where(h4) { font-size: var(--font-size-sm); line-height: var(--line-height-heading); }
+:where(p) { text-wrap: pretty; }
+:where(code, kbd, samp, [data-numeric]) { font-variant-numeric: tabular-nums; }
 html {
   width: 100%;
   height: 100%;
