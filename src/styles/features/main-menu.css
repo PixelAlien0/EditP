@@ -114,6 +114,7 @@
 
 .main-menu__studio-intro {
   min-width: 0;
+  margin-block: var(--space-3);
   padding: clamp(var(--space-5), 2.2vw, var(--space-8));
   display: grid;
   grid-template-rows: 1fr auto auto;
@@ -132,6 +133,7 @@
   color: var(--color-text-strong);
   font: 540 clamp(44px, 4.1vw, 66px)/.94 var(--font-display);
   letter-spacing: -.035em;
+  text-wrap: balance;
 }
 
 .main-menu__project-summary p {
@@ -188,6 +190,7 @@
 
 .main-menu__active-project {
   min-width: 0;
+  min-height: 294px;
   display: grid;
   grid-template-rows: auto 1fr auto auto;
   overflow: hidden;
@@ -258,16 +261,35 @@
 .main-menu__motion-arrow { width: 18px; height: 18px; flex: 0 0 auto; color: var(--color-accent-strong); }
 .main-menu__motion-arrow svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.35; }
 
-.main-menu__launchpad { min-width: 0; display: grid; gap: var(--space-3); }
+.main-menu__launchpad {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(640px, 1.62fr) minmax(330px, .78fr);
+  grid-template-areas:
+    "heading heading"
+    "workspaces tools";
+  align-items: stretch;
+  gap: var(--space-3);
+}
 .main-menu__launchpad-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--space-6); }
+.main-menu__launchpad-heading { grid-area: heading; }
 .main-menu__launchpad-heading > div { display: grid; gap: 3px; }
 .main-menu__launchpad-heading h2 { margin: 0; color: var(--color-text-strong); font: 560 clamp(22px, 1.8vw, 28px)/1.1 var(--font-display); }
+.main-menu__launchpad-heading h2,
+.main-menu__workspace-copy strong { text-wrap: balance; }
 .main-menu__launchpad-heading p { max-width: 54ch; margin: 0; color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.5; text-align: right; }
 
-.main-menu__workspaces { display: grid; grid-template-columns: minmax(0, 1.18fr) repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.main-menu__workspaces {
+  grid-area: workspaces;
+  min-height: 206px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
 .main-menu__workspaces > button {
   min-width: 0;
-  min-height: 142px;
+  min-height: 0;
   padding: var(--space-5);
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr) 18px;
@@ -283,7 +305,13 @@
   transition: background-color var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
 }
 
+.main-menu__workspaces > button.is-primary { grid-row: 1 / 3; }
 .main-menu__workspaces > button.is-primary { border-color: var(--color-border-accent-muted); background: var(--color-surface-accent-subtle); }
+.main-menu__workspaces > button:not(.is-primary) {
+  padding-block: var(--space-4);
+  grid-template-rows: auto auto;
+}
+.main-menu__workspaces > button:not(.is-primary) .main-menu__workspace-copy p { display: none; }
 .main-menu__workspaces > button:hover { border-color: var(--color-border-strong); background: var(--color-surface-hover); box-shadow: var(--shadow-sm); }
 .main-menu__workspaces > button.is-primary:hover { background: var(--color-accent-soft); }
 .main-menu__workspace-number { color: var(--color-accent-strong); font: 700 9px/1 var(--font-mono); }
@@ -295,13 +323,14 @@
 .main-menu__workspace-meta { grid-column: 2; align-self: end; color: var(--color-accent-strong); font: 650 8px/1 var(--font-mono); }
 .main-menu__workspaces .main-menu__motion-arrow { grid-column: 3; grid-row: 2; align-self: end; }
 
-.main-menu__tool-directory { display: grid; gap: var(--space-2); }
+.main-menu__tool-directory { grid-area: tools; min-width: 0; display: grid; grid-template-rows: auto 1fr; gap: var(--space-2); }
 .main-menu__tool-directory > header { display: grid; gap: 3px; }
 .main-menu__tool-directory h3 { margin: 0; color: var(--color-text-strong); font: 650 var(--font-size-sm)/1.3 var(--font-ui); }
 .main-menu__tool-directory > div {
   padding: var(--space-2);
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: var(--space-1);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -310,7 +339,7 @@
 
 .main-menu__tool-directory button {
   min-width: 0;
-  min-height: 64px;
+  min-height: 0;
   padding: var(--space-3);
   display: grid;
   grid-template-columns: 30px minmax(0, 1fr) auto;
@@ -354,7 +383,7 @@
   .main-menu__project-file-actions { grid-template-columns: 1fr; }
   .main-menu__project-files small,
   .main-menu__tool-directory button small { display: none; }
-  .main-menu__tool-directory > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .main-menu__launchpad { grid-template-columns: minmax(610px, 1.58fr) minmax(320px, .82fr); }
   .main-menu__workspaces > button { padding: var(--space-4); }
 }
 
@@ -362,14 +391,14 @@
   .main-menu__topbar-inner,
   .main-menu__frame { width: calc(100% - 28px); }
   .main-menu__project-desk { grid-template-columns: 270px minmax(0, 1fr); }
-  .main-menu__studio-intro { padding: var(--space-5); }
+  .main-menu__studio-intro { margin-block: var(--space-2); padding: var(--space-5); }
   .main-menu__project-summary h1 { font-size: 42px; }
   .main-menu__project-summary p,
   .main-menu__project-files small,
   .main-menu__workspace-copy p,
   .main-menu__launchpad-heading p { display: none; }
   .main-menu__active-project dl > div { padding-inline: var(--space-3); }
-  .main-menu__workspaces > button { min-height: 122px; }
+  .main-menu__launchpad { grid-template-columns: minmax(590px, 1.65fr) minmax(320px, .8fr); }
   .main-menu__tool-directory button { grid-template-columns: 28px minmax(0, 1fr); }
   .main-menu__tool-directory .main-menu__motion-arrow { display: none; }
 }
@@ -377,7 +406,8 @@
 @media (max-height: 900px) {
   .main-menu__frame { padding-block: var(--space-4); gap: var(--space-4); }
   .main-menu__project-desk { min-height: 250px; }
-  .main-menu__studio-intro { padding-block: var(--space-4); gap: var(--space-3); }
+  .main-menu__active-project { min-height: 250px; }
+  .main-menu__studio-intro { margin-block: var(--space-2); padding-block: var(--space-4); gap: var(--space-3); }
   .main-menu__project-summary h1 { font-size: 44px; }
   .main-menu__project-summary p,
   .main-menu__project-files small,
@@ -388,8 +418,8 @@
   .main-menu__active-project dl > div { padding-block: var(--space-3); }
   .main-menu__project-context { padding-block: var(--space-3); }
   .main-menu__enter { min-height: 52px; }
-  .main-menu__workspaces > button { min-height: 112px; padding-block: var(--space-4); }
-  .main-menu__tool-directory button { min-height: 52px; }
+  .main-menu__workspaces { min-height: 174px; }
+  .main-menu__workspaces > button { padding-block: var(--space-4); }
 }
 
 @media (prefers-reduced-motion: reduce) {
