@@ -1399,10 +1399,10 @@ export default function EditUnitsWorkspace({ context }) {
                                   {group.kind === 'cluster' && (
                                     <div className="weapon-advanced-group-heading__actions">
                                       <span className="section-heading__meta">Cluster recipes</span>
-                                      <div className="ui-button-group">
+                                      <div className="weapon-cluster-recipe-palette" role="group" aria-label="Cluster recipe presets">
                                         {Object.values(WEAPON_CLUSTER_RECIPES).map(recipe => (
-                                          <Button key={recipe.id} size="sm" variant="primary" title={recipe.description} onClick={() => applyClusterRecipe(recipe.id)}>
-                                            Apply {recipe.label}
+                                          <Button key={recipe.id} size="sm" variant="secondary" title={recipe.description} onClick={() => applyClusterRecipe(recipe.id)}>
+                                            {recipe.label}
                                           </Button>
                                         ))}
                                       </div>
