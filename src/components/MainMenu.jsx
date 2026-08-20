@@ -1,4 +1,5 @@
 import OnlinePresenceBadge from './OnlinePresenceBadge.jsx';
+import MainMenuAtmosphere from './MainMenuAtmosphere.jsx';
 import { CapabilityLabels } from './ui.jsx';
 import { m } from 'motion/react';
 import { MOTION_DELAY, MOTION_STAGGER, MOTION_TRANSITION, MOTION_VARIANTS } from './ui/motionConfig.js';
@@ -86,7 +87,7 @@ export default function MainMenu({
   return (
     <m.main
       className="main-menu"
-      variants={MOTION_VARIANTS.page}
+      variants={MOTION_VARIANTS.fade}
       initial="hidden"
       animate="visible"
       transition={MOTION_TRANSITION.enter}
@@ -141,6 +142,7 @@ export default function MainMenu({
           transition={MOTION_TRANSITION.enter}
         >
           <aside className="main-menu__studio-intro" aria-labelledby="main-menu-title">
+            <MainMenuAtmosphere themeMode={themeMode} />
             <div className="main-menu__project-summary">
               <span>Definition workspace</span>
               <h1 id="main-menu-title">Bar EditP</h1>
