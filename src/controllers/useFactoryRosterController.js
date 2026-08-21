@@ -6,6 +6,7 @@ import {
 import { getFactionOfUnit } from '../utils/categories.js';
 import {
   addCloneProducerRosters,
+  addConstructionTurretProducerRosters,
   createProducerCatalog,
   PRODUCER_KIND,
 } from '../utils/producerCatalog.js';
@@ -29,8 +30,13 @@ export function useFactoryRosterController({
   const [factorySearchQuery, setFactorySearchQuery] = useState('');
 
   const baseFactoryRosters = useMemo(
-    () => buildEffectiveFactoryRosters(factoryRosters, buildMenuPacks),
-    [buildMenuPacks, factoryRosters]
+    () => addConstructionTurretProducerRosters(
+      buildEffectiveFactoryRosters(factoryRosters, buildMenuPacks),
+      unitsDbNames,
+      defaultsDb,
+      allUnitsList
+    ),
+    [allUnitsList, buildMenuPacks, defaultsDb, factoryRosters, unitsDbNames]
   );
   const activeFactoryRosters = useMemo(
     () => addCloneProducerRosters(baseFactoryRosters, clones),

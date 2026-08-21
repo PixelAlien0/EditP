@@ -10,7 +10,22 @@ const PRODUCER_KIND_ORDER = {
   [PRODUCER_KIND.BUILDER]: 1,
 };
 
-function getProducerKind(unitDefaults = {}) {
+function isConstructionTurretProducer(name, unitDefaults = {}) {
+  const unitGroup = String(unitDefaults['customparams.unitgroup'] || '').trim().toLowerCase();
+  const workertime = Number(unitDefaults.workertime);
+  const builddistance = Number(unitDefaults.builddistance);
+  const maxVelocity = Number(unitDefaults.maxvelocity);
+  return /construction turret/i.test(String(name || ''))
+    && unitGroup === 'builder'
+    && Number.isFinite(workertime)
+    && workertime > 0
+    && Number.isFinite(builddistance)
+    && builddistance > 0
+    && (!Number.isFinite(maxVelocity) || maxVelocity <= 0);
+}
+
+function getProducerKind(unitDefaults = {}, name = '') {
+  if (isConstructionTurretProducer(name, unitDefaults)) return PRODUCER_KIND.BUILDER;
   const maxVelocity = Number(unitDefaults.maxvelocity);
   return Number.isFinite(maxVelocity) && maxVelocity > 0
     ? PRODUCER_KIND.BUILDER
@@ -26,6 +41,39 @@ function getProducerTier(unitDefaults = {}) {
 
 function cleanId(value) {
   return String(value || '').trim().toLowerCase();
+}
+
+/**
+ * Construction turrets are real BAR builders, but vanilla BAR gives them no
+ * buildoptions. Keep an empty editable roster for them so the roster designer
+ * can author one without pretending that every static utility unit is a
+ * producer.
+ */
+export function addConstructionTurretProducerRosters(
+  rosters = {},
+  names = {},
+  defaults = {},
+  units = []
+) {
+  const result = Object.fromEntries(
+    Object.entries(rosters).map(([producerId, roster]) => [
+      cleanId(producerId),
+      Array.isArray(roster) ? [...roster] : [],
+    ])
+  );
+  const unitsById = new Map(
+    units.map(unit => [cleanId(unit?.id), unit]).filter(([id]) => id)
+  );
+
+  Object.entries(defaults).forEach(([rawId, unitDefaults]) => {
+    const id = cleanId(rawId);
+    if (!id || Object.hasOwn(result, id)) return;
+    const unit = unitsById.get(id);
+    const name = String(unit?.name || names[id] || '').trim();
+    if (isConstructionTurretProducer(name, unitDefaults)) result[id] = [];
+  });
+
+  return result;
 }
 
 export function addCloneProducerRosters(rosters = {}, clones = []) {
@@ -78,7 +126,12 @@ export function createProducerCatalog(rosters = {}, names = {}, defaults = {}, u
 
       const sourceId = cleanId(unit?.rootBaseId || unit?.baseId || id);
       const unitDefaults = defaults[id] || defaults[sourceId] || {};
-      const kind = getProducerKind(unitDefaults);
+      const sourceName = String(names[sourceId] || '').trim();
+      const isConstructionTurret = isConstructionTurretProducer(name, unitDefaults)
+        || isConstructionTurretProducer(sourceName, unitDefaults);
+      const kind = isConstructionTurret
+        ? PRODUCER_KIND.BUILDER
+        : getProducerKind(unitDefaults, name);
       return [{
         id,
         name,
@@ -88,6 +141,7 @@ export function createProducerCatalog(rosters = {}, names = {}, defaults = {}, u
         tier: unit?.techTier || getProducerTier(unitDefaults),
         rosterSize: Array.isArray(rosters[id]) ? rosters[id].length : 0,
         isClone: Boolean(unit?.isClone),
+        producerSubtype: isConstructionTurret ? 'construction-turret' : kind,
         sourceId,
       }];
     })

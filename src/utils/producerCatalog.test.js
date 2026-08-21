@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addCloneProducerRosters,
+  addConstructionTurretProducerRosters,
   createProducerCatalog,
   PRODUCER_KIND,
 } from './producerCatalog.js';
@@ -81,6 +82,108 @@ describe('producer catalog', () => {
       rosterSize: 2,
       isClone: true,
       sourceId: 'armavp',
+    });
+  });
+
+  it('admits vanilla construction turrets as empty editable builder rosters', () => {
+    const defaults = {
+      armnanotc: {
+        workertime: 200,
+        builddistance: 400,
+        'customparams.unitgroup': 'builder',
+      },
+      armnanotct2: {
+        workertime: 600,
+        builddistance: 500,
+        'customparams.unitgroup': 'builder',
+        'customparams.techlevel': 2,
+      },
+      armrad: {
+        workertime: 200,
+        builddistance: 400,
+        'customparams.unitgroup': 'utility',
+      },
+    };
+    const rosters = addConstructionTurretProducerRosters(
+      { armlab: ['armck'] },
+      {
+        armnanotc: 'Construction Turret',
+        armnanotct2: 'Advanced Construction Turret',
+        armrad: 'Radar Tower',
+      },
+      defaults
+    );
+    const catalog = createProducerCatalog(
+      rosters,
+      {
+        armlab: 'Bot Lab',
+        armnanotc: 'Construction Turret',
+        armnanotct2: 'Advanced Construction Turret',
+      },
+      defaults
+    );
+
+    expect(rosters.armnanotc).toEqual([]);
+    expect(rosters.armnanotct2).toEqual([]);
+    expect(rosters.armrad).toBeUndefined();
+    expect(catalog).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'armnanotc',
+        kind: PRODUCER_KIND.BUILDER,
+        kindLabel: 'Builder',
+        producerSubtype: 'construction-turret',
+        rosterSize: 0,
+      }),
+      expect.objectContaining({
+        id: 'armnanotct2',
+        kind: PRODUCER_KIND.BUILDER,
+        tier: 'T2',
+      }),
+    ]));
+  });
+
+  it('makes construction-turret clones and nested clones editable producers', () => {
+    const seeded = addConstructionTurretProducerRosters(
+      {},
+      { armnanotct2: 'Advanced Construction Turret' },
+      {
+        armnanotct2: {
+          workertime: 600,
+          builddistance: 500,
+          'customparams.unitgroup': 'builder',
+        },
+      }
+    );
+    const rosters = addCloneProducerRosters(seeded, [
+      { baseId: 'armnanotct2', newId: 'epic_construction_turret' },
+      { baseId: 'epic_construction_turret', newId: 'epic_construction_turret_mk2' },
+    ]);
+
+    expect(rosters.epic_construction_turret).toEqual([]);
+    expect(rosters.epic_construction_turret_mk2).toEqual([]);
+
+    const [producer] = createProducerCatalog(
+      { epic_construction_turret: [] },
+      { armnanotct2: 'Advanced Construction Turret' },
+      {
+        armnanotct2: {
+          workertime: 600,
+          builddistance: 500,
+          'customparams.unitgroup': 'builder',
+        },
+      },
+      [{
+        id: 'epic_construction_turret',
+        name: 'Nanoforge Omega',
+        isClone: true,
+        rootBaseId: 'armnanotct2',
+      }]
+    );
+    expect(producer).toMatchObject({
+      id: 'epic_construction_turret',
+      name: 'Nanoforge Omega',
+      kind: PRODUCER_KIND.BUILDER,
+      producerSubtype: 'construction-turret',
     });
   });
 });
