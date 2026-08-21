@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addCloneProducerRosters,
-  addConstructionTurretProducerRosters,
+  addStaticBuilderProducerRosters,
   createProducerCatalog,
   PRODUCER_KIND,
 } from './producerCatalog.js';
@@ -104,7 +104,7 @@ describe('producer catalog', () => {
         'customparams.unitgroup': 'utility',
       },
     };
-    const rosters = addConstructionTurretProducerRosters(
+    const rosters = addStaticBuilderProducerRosters(
       { armlab: ['armck'] },
       {
         armnanotc: 'Construction Turret',
@@ -143,7 +143,7 @@ describe('producer catalog', () => {
   });
 
   it('makes construction-turret clones and nested clones editable producers', () => {
-    const seeded = addConstructionTurretProducerRosters(
+    const seeded = addStaticBuilderProducerRosters(
       {},
       { armnanotct2: 'Advanced Construction Turret' },
       {
@@ -185,5 +185,52 @@ describe('producer catalog', () => {
       kind: PRODUCER_KIND.BUILDER,
       producerSubtype: 'construction-turret',
     });
+  });
+
+  it('admits BAR Base Builders and their renamed clones as editable builders', () => {
+    const defaults = {
+      armrespawn: {
+        canassist: true,
+        canreclaim: true,
+        'customparams.unitgroup': 'builder',
+      },
+    };
+    const seeded = addStaticBuilderProducerRosters(
+      {},
+      { armrespawn: 'Base Builder' },
+      defaults
+    );
+    const rosters = addCloneProducerRosters(seeded, [
+      { baseId: 'armrespawn', newId: 'epic_base_forge' },
+    ]);
+    const catalog = createProducerCatalog(
+      rosters,
+      { armrespawn: 'Base Builder' },
+      defaults,
+      [
+        { id: 'armrespawn', name: 'Base Builder' },
+        {
+          id: 'epic_base_forge',
+          name: 'Epic Base Forge',
+          isClone: true,
+          rootBaseId: 'armrespawn',
+        },
+      ]
+    );
+
+    expect(rosters.armrespawn).toEqual([]);
+    expect(rosters.epic_base_forge).toEqual([]);
+    expect(catalog).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'armrespawn',
+        kind: PRODUCER_KIND.BUILDER,
+        producerSubtype: 'base-builder',
+      }),
+      expect.objectContaining({
+        id: 'epic_base_forge',
+        kind: PRODUCER_KIND.BUILDER,
+        producerSubtype: 'base-builder',
+      }),
+    ]));
   });
 });

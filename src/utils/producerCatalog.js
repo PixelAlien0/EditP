@@ -10,22 +10,31 @@ const PRODUCER_KIND_ORDER = {
   [PRODUCER_KIND.BUILDER]: 1,
 };
 
-function isConstructionTurretProducer(name, unitDefaults = {}) {
+function getStaticBuilderSubtype(name, unitDefaults = {}) {
   const unitGroup = String(unitDefaults['customparams.unitgroup'] || '').trim().toLowerCase();
   const workertime = Number(unitDefaults.workertime);
   const builddistance = Number(unitDefaults.builddistance);
   const maxVelocity = Number(unitDefaults.maxvelocity);
-  return /construction turret/i.test(String(name || ''))
-    && unitGroup === 'builder'
+  const isStaticBuilder = unitGroup === 'builder'
+    && (!Number.isFinite(maxVelocity) || maxVelocity <= 0);
+  if (!isStaticBuilder) return null;
+  if (/construction turret/i.test(String(name || ''))
     && Number.isFinite(workertime)
     && workertime > 0
     && Number.isFinite(builddistance)
-    && builddistance > 0
-    && (!Number.isFinite(maxVelocity) || maxVelocity <= 0);
+    && builddistance > 0) {
+    return 'construction-turret';
+  }
+  if (/^base builder$/i.test(String(name || '').trim())
+    && unitDefaults.canassist === true
+    && unitDefaults.canreclaim === true) {
+    return 'base-builder';
+  }
+  return null;
 }
 
 function getProducerKind(unitDefaults = {}, name = '') {
-  if (isConstructionTurretProducer(name, unitDefaults)) return PRODUCER_KIND.BUILDER;
+  if (getStaticBuilderSubtype(name, unitDefaults)) return PRODUCER_KIND.BUILDER;
   const maxVelocity = Number(unitDefaults.maxvelocity);
   return Number.isFinite(maxVelocity) && maxVelocity > 0
     ? PRODUCER_KIND.BUILDER
@@ -44,12 +53,12 @@ function cleanId(value) {
 }
 
 /**
- * Construction turrets are real BAR builders, but vanilla BAR gives them no
- * buildoptions. Keep an empty editable roster for them so the roster designer
- * can author one without pretending that every static utility unit is a
- * producer.
+ * Construction turrets and Base Builders are real BAR builders, but vanilla
+ * BAR gives them no buildoptions. Keep an empty editable roster for them so
+ * the roster designer can author one without pretending that every static
+ * utility unit is a producer.
  */
-export function addConstructionTurretProducerRosters(
+export function addStaticBuilderProducerRosters(
   rosters = {},
   names = {},
   defaults = {},
@@ -70,7 +79,7 @@ export function addConstructionTurretProducerRosters(
     if (!id || Object.hasOwn(result, id)) return;
     const unit = unitsById.get(id);
     const name = String(unit?.name || names[id] || '').trim();
-    if (isConstructionTurretProducer(name, unitDefaults)) result[id] = [];
+    if (getStaticBuilderSubtype(name, unitDefaults)) result[id] = [];
   });
 
   return result;
@@ -127,9 +136,9 @@ export function createProducerCatalog(rosters = {}, names = {}, defaults = {}, u
       const sourceId = cleanId(unit?.rootBaseId || unit?.baseId || id);
       const unitDefaults = defaults[id] || defaults[sourceId] || {};
       const sourceName = String(names[sourceId] || '').trim();
-      const isConstructionTurret = isConstructionTurretProducer(name, unitDefaults)
-        || isConstructionTurretProducer(sourceName, unitDefaults);
-      const kind = isConstructionTurret
+      const producerSubtype = getStaticBuilderSubtype(name, unitDefaults)
+        || getStaticBuilderSubtype(sourceName, unitDefaults);
+      const kind = producerSubtype
         ? PRODUCER_KIND.BUILDER
         : getProducerKind(unitDefaults, name);
       return [{
@@ -141,7 +150,7 @@ export function createProducerCatalog(rosters = {}, names = {}, defaults = {}, u
         tier: unit?.techTier || getProducerTier(unitDefaults),
         rosterSize: Array.isArray(rosters[id]) ? rosters[id].length : 0,
         isClone: Boolean(unit?.isClone),
-        producerSubtype: isConstructionTurret ? 'construction-turret' : kind,
+        producerSubtype: producerSubtype || kind,
         sourceId,
       }];
     })
