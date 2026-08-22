@@ -2,6 +2,10 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
+import {
+  RGBA_S3TC_DXT3_Format,
+  RGBA_S3TC_DXT5_Format,
+} from 'three';
 import { DDSLoader } from 'three/examples/jsm/loaders/DDSLoader.js';
 import {
   MANIFEST_PATH,
@@ -172,6 +176,13 @@ function decodeDds(buffer) {
   if (!image?.data || !image.width || !image.height) throw new Error('DDS has no base mipmap');
   const raw = Buffer.from(image.data);
   const expectedLength = image.width * image.height * 4;
+  const bc3Length = Math.ceil(image.width / 4) * Math.ceil(image.height / 4) * 16;
+  if (raw.length === bc3Length && parsed.format === RGBA_S3TC_DXT3_Format) {
+    return { data: decodeBc2(raw, image.width, image.height), width: image.width, height: image.height };
+  }
+  if (raw.length === bc3Length && parsed.format === RGBA_S3TC_DXT5_Format) {
+    return { data: decodeBc3(raw, image.width, image.height), width: image.width, height: image.height };
+  }
   if (raw.length === Math.ceil(image.width / 4) * Math.ceil(image.height / 4) * 8) {
     return { data: decodeBc1(raw, image.width, image.height), width: image.width, height: image.height };
   }
@@ -179,48 +190,112 @@ function decodeDds(buffer) {
   return { data: raw, width: image.width, height: image.height };
 }
 
-function decodeBc1(data, width, height) {
-  const output = Buffer.alloc(width * height * 4);
-  const blockWidth = Math.ceil(width / 4);
-  const blockHeight = Math.ceil(height / 4);
-  const unpack565 = value => [
+function unpack565(value) {
+  return [
     Math.round(((value >> 11) & 31) * 255 / 31),
     Math.round(((value >> 5) & 63) * 255 / 63),
     Math.round((value & 31) * 255 / 31),
     255,
   ];
+}
+
+function decodeColorBlock(data, offset, forceFourColor = false) {
+  const color0Value = data.readUInt16LE(offset);
+  const color1Value = data.readUInt16LE(offset + 2);
+  const color0 = unpack565(color0Value);
+  const color1 = unpack565(color1Value);
+  const colors = [color0, color1];
+  if (forceFourColor || color0Value > color1Value) {
+    colors.push(
+      color0.map((value, channel) => channel === 3 ? 255 : Math.round((2 * value + color1[channel]) / 3)),
+      color0.map((value, channel) => channel === 3 ? 255 : Math.round((value + 2 * color1[channel]) / 3)),
+    );
+  } else {
+    colors.push(
+      color0.map((value, channel) => channel === 3 ? 255 : Math.round((value + color1[channel]) / 2)),
+      [0, 0, 0, 0],
+    );
+  }
+  return { colors, indices: data.readUInt32LE(offset + 4) };
+}
+
+function writeBlockPixel(output, width, height, blockX, blockY, pixelX, pixelY, color, alpha = color[3]) {
+  const x = blockX * 4 + pixelX;
+  const y = blockY * 4 + pixelY;
+  if (x >= width || y >= height) return;
+  const target = (y * width + x) * 4;
+  output[target] = color[0];
+  output[target + 1] = color[1];
+  output[target + 2] = color[2];
+  output[target + 3] = alpha;
+}
+
+function decodeBc2(data, width, height) {
+  const output = Buffer.alloc(width * height * 4);
+  const blockWidth = Math.ceil(width / 4);
+  const blockHeight = Math.ceil(height / 4);
+  for (let blockY = 0; blockY < blockHeight; blockY += 1) {
+    for (let blockX = 0; blockX < blockWidth; blockX += 1) {
+      const offset = (blockY * blockWidth + blockX) * 16;
+      const { colors, indices } = decodeColorBlock(data, offset + 8, true);
+      for (let pixelY = 0; pixelY < 4; pixelY += 1) {
+        for (let pixelX = 0; pixelX < 4; pixelX += 1) {
+          const pixel = pixelY * 4 + pixelX;
+          const alphaByte = data[offset + Math.floor(pixel / 2)];
+          const alpha = ((alphaByte >> ((pixel % 2) * 4)) & 0x0f) * 17;
+          writeBlockPixel(output, width, height, blockX, blockY, pixelX, pixelY, colors[(indices >>> (pixel * 2)) & 3], alpha);
+        }
+      }
+    }
+  }
+  return output;
+}
+
+function decodeBc3(data, width, height) {
+  const output = Buffer.alloc(width * height * 4);
+  const blockWidth = Math.ceil(width / 4);
+  const blockHeight = Math.ceil(height / 4);
+  for (let blockY = 0; blockY < blockHeight; blockY += 1) {
+    for (let blockX = 0; blockX < blockWidth; blockX += 1) {
+      const offset = (blockY * blockWidth + blockX) * 16;
+      const alpha0 = data[offset];
+      const alpha1 = data[offset + 1];
+      const alphas = [alpha0, alpha1];
+      if (alpha0 > alpha1) {
+        for (let step = 1; step <= 6; step += 1) alphas.push(Math.round(((7 - step) * alpha0 + step * alpha1) / 7));
+      } else {
+        for (let step = 1; step <= 4; step += 1) alphas.push(Math.round(((5 - step) * alpha0 + step * alpha1) / 5));
+        alphas.push(0, 255);
+      }
+      let alphaIndices = 0n;
+      for (let byte = 0; byte < 6; byte += 1) alphaIndices |= BigInt(data[offset + 2 + byte]) << BigInt(byte * 8);
+      const { colors, indices } = decodeColorBlock(data, offset + 8, true);
+      for (let pixelY = 0; pixelY < 4; pixelY += 1) {
+        for (let pixelX = 0; pixelX < 4; pixelX += 1) {
+          const pixel = pixelY * 4 + pixelX;
+          const alphaIndex = Number((alphaIndices >> BigInt(pixel * 3)) & 7n);
+          writeBlockPixel(output, width, height, blockX, blockY, pixelX, pixelY, colors[(indices >>> (pixel * 2)) & 3], alphas[alphaIndex]);
+        }
+      }
+    }
+  }
+  return output;
+}
+
+function decodeBc1(data, width, height) {
+  const output = Buffer.alloc(width * height * 4);
+  const blockWidth = Math.ceil(width / 4);
+  const blockHeight = Math.ceil(height / 4);
 
   for (let blockY = 0; blockY < blockHeight; blockY += 1) {
     for (let blockX = 0; blockX < blockWidth; blockX += 1) {
       const offset = (blockY * blockWidth + blockX) * 8;
-      const color0Value = data.readUInt16LE(offset);
-      const color1Value = data.readUInt16LE(offset + 2);
-      const color0 = unpack565(color0Value);
-      const color1 = unpack565(color1Value);
-      const colors = [color0, color1];
-      if (color0Value > color1Value) {
-        colors.push(
-          color0.map((value, channel) => channel === 3 ? 255 : Math.round((2 * value + color1[channel]) / 3)),
-          color0.map((value, channel) => channel === 3 ? 255 : Math.round((value + 2 * color1[channel]) / 3)),
-        );
-      } else {
-        colors.push(
-          color0.map((value, channel) => channel === 3 ? 255 : Math.round((value + color1[channel]) / 2)),
-          [0, 0, 0, 0],
-        );
-      }
-      const indices = data.readUInt32LE(offset + 4);
+      const { colors, indices } = decodeColorBlock(data, offset);
       for (let pixelY = 0; pixelY < 4; pixelY += 1) {
         for (let pixelX = 0; pixelX < 4; pixelX += 1) {
-          const x = blockX * 4 + pixelX;
-          const y = blockY * 4 + pixelY;
-          if (x >= width || y >= height) continue;
-          const color = colors[(indices >>> (2 * (pixelY * 4 + pixelX))) & 3];
-          const target = (y * width + x) * 4;
-          output[target] = color[0];
-          output[target + 1] = color[1];
-          output[target + 2] = color[2];
-          output[target + 3] = color[3];
+          const pixel = pixelY * 4 + pixelX;
+          const color = colors[(indices >>> (2 * pixel)) & 3];
+          writeBlockPixel(output, width, height, blockX, blockY, pixelX, pixelY, color);
         }
       }
     }

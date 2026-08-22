@@ -1,10 +1,10 @@
 {
   "version": 2,
   "schemaVersion": 2,
-  "snapshotId": "bar-32b0375ab2f9",
+  "snapshotId": "bar-c91b81d4665b",
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
-  "sourceCommit": "32b0375ab2f928323e1a79880ca62b8734ec39d1",
-  "sourceDate": "2026-08-20T02:09:06Z",
+  "sourceCommit": "c91b81d4665b2443106387c2c15851cba3539ade",
+  "sourceDate": "2026-08-22T00:09:42Z",
   "counts": {
     "units": 1789,
     "descriptions": 1789,
@@ -47,22 +47,22 @@
     "artwork": {
       "path": "src/data/unitpic-manifest.json",
       "schemaVersion": 2,
-      "sha256": "4a5f1f5b7a04187412aba5ed7454239ae5d9992f18b5b370561d72563f28bf91"
+      "sha256": "c12bae0591f1e66c5d19e0fae9b3fb28d8b613e4a4c164437256ed95a704c336"
     },
     "tacticalIcons": {
       "path": "src/data/tactical-icon-manifest.json",
       "schemaVersion": 2,
-      "sha256": "1df706ace7eab6e629622a8f7d6a618c05f9e4d53f82f8dcb503d62f26f1da95"
+      "sha256": "b4c0fbf0c9d819294e251151b4cacddd518d41b3011efd13c315ed4bd3cffdee"
     },
     "assets": {
       "path": "src/data/bar-asset-manifest.json",
       "schemaVersion": 2,
-      "sha256": "d4b55e7ad1c621f371ee68cd1c4bd4a37f94d218e560423cf60e776a8c463452"
+      "sha256": "dbc23aa5a128ffb291aad435486c3a1a1298a547fb1c53545da277f9173c8908"
     },
     "customParameters": {
       "path": "src/data/custom-parameter-discovery.json",
       "schemaVersion": 2,
-      "sha256": "d0a4db6d83a7eecd7a3232913a0c45dd3f53e17f9be0a887a7b86b8c23eb57c7"
+      "sha256": "7052b39afc0c1c5425b35caa027aaf0ccd93ddbfd9cc49557c57922075e2a1af"
     }
   }
 }

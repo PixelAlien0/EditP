@@ -3,7 +3,9 @@ import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 
-const SOURCE_COMMIT = 'e03f8af274ad97c327d4863432c406e33a4062fa';
+const SOURCE_COMMIT = String(
+  process.env.BAR_SOURCE_COMMIT || 'e03f8af274ad97c327d4863432c406e33a4062fa',
+).trim();
 const SOURCE_ROOT = `https://raw.githubusercontent.com/beyond-all-reason/Beyond-All-Reason/${SOURCE_COMMIT}`;
 const VIEWER_ORIGIN = 'https://pub-6bd55f3ce081404a8ed10246598d1b21.r2.dev';
 const VIEWER_MODEL_ROOT = `${VIEWER_ORIGIN}/glb`;

@@ -1,13 +1,13 @@
 {
   "version": 3,
   "sourceRepository": "beyond-all-reason/Beyond-All-Reason",
-  "sourceCommit": "32b0375ab2f928323e1a79880ca62b8734ec39d1",
+  "sourceCommit": "c91b81d4665b2443106387c2c15851cba3539ade",
   "counts": {
     "scannedUnitFiles": 968,
     "unitParameters": 123,
     "weaponParameters": 96,
     "totalParameters": 219,
-    "scannedConsumerFiles": 950,
+    "scannedConsumerFiles": 951,
     "unitParametersWithConsumers": 80,
     "weaponParametersWithConsumers": 76,
     "unresolvedConsumerKeys": 28,
@@ -4475,7 +4475,7 @@
             "path": "luarules/gadgets/scav_spawner_defense.lua",
             "layer": "runtime-gadget",
             "confidence": "medium",
-            "line": 3071,
+            "line": 3078,
             "access": "customParams"
           }
         ],
@@ -4487,7 +4487,7 @@
             "value": "delete",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/scav_spawner_defense.lua",
-            "line": 3087
+            "line": 3094
           },
           {
             "kind": "comparison",
@@ -4496,7 +4496,7 @@
             "value": "null",
             "occurrences": 1,
             "sourcePath": "luarules/gadgets/scav_spawner_defense.lua",
-            "line": 3089
+            "line": 3096
           }
         ],
         "valueDiscovery": {
@@ -10221,7 +10221,7 @@
             "value": "0",
             "occurrences": 2,
             "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-            "line": 524
+            "line": 534
           },
           {
             "kind": "default",
@@ -13071,7 +13071,7 @@
           "value": "abductor",
           "occurrences": 1,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 1832
+          "line": 1842
         },
         {
           "kind": "comparison",
@@ -13080,7 +13080,7 @@
           "value": "bomber",
           "occurrences": 2,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 962
+          "line": 972
         },
         {
           "kind": "comparison",
@@ -13089,7 +13089,7 @@
           "value": "infantry",
           "occurrences": 1,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 350
+          "line": 360
         },
         {
           "kind": "comparison",
@@ -13098,7 +13098,7 @@
           "value": "printer",
           "occurrences": 2,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 377
+          "line": 387
         },
         {
           "kind": "comparison",
@@ -13107,7 +13107,7 @@
           "value": "turret",
           "occurrences": 1,
           "sourcePath": "luarules/gadgets/unit_carrier_spawner.lua",
-          "line": 1846
+          "line": 1856
         },
         {
           "kind": "default",
