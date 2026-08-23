@@ -217,17 +217,18 @@ export default function BarbarianAiAuditPage({ units = [], onBack, onNotice }) {
     >
       {error && <Callout tone="danger" title="Package could not be inspected">{error}</Callout>}
       {!audit ? (
-        <section className="barbarian-ai-audit__empty">
-          <EmptyState
-            title="Import a Skirmish AI package"
-            description="BAR Editor will map identity, lobby options, JSONC profile groups, script routes, and native runtime fingerprints into a versioned audit report."
-          />
-          <div className="barbarian-ai-audit__empty-ledger">
-            <span><b>01</b> Discover contract</span>
-            <span><b>02</b> Parse profiles</span>
-            <span><b>03</b> Compare unit references</span>
-            <span><b>04</b> Report compatibility</span>
+        <section className="barbarian-ai-audit__empty" aria-labelledby="ai-audit-empty-title">
+          <div className="barbarian-ai-audit__empty-copy">
+            <Type variant="eyebrow">Inspection workspace</Type>
+            <Type as="h2" variant="section-title" id="ai-audit-empty-title">Choose a package to begin</Type>
+            <Type as="p" variant="description">Select an AI root folder for the clearest audit, or use a ZIP and selected files. Imported code is read as text only and is never executed.</Type>
           </div>
+          <ol className="barbarian-ai-audit__empty-ledger" aria-label="Audit workflow">
+            <li><b>01</b><span>Discover contract</span></li>
+            <li><b>02</b><span>Parse profiles</span></li>
+            <li><b>03</b><span>Compare references</span></li>
+            <li><b>04</b><span>Report compatibility</span></li>
+          </ol>
         </section>
       ) : (
         <section className="barbarian-ai-audit__workbench">

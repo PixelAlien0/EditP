@@ -10,10 +10,10 @@
 }
 
 .barbarian-ai-audit__import-deck {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--density-section-gap);
+  gap: var(--space-6);
   width: 100%;
 }
 
@@ -39,7 +39,6 @@
 
 .barbarian-ai-audit__empty,
 .barbarian-ai-audit__workbench {
-  min-height: min(620px, 68vh);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -47,20 +46,36 @@
 
 .barbarian-ai-audit__empty {
   display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+  align-items: center;
+  gap: clamp(var(--space-6), 5vw, var(--space-12));
+  min-height: clamp(250px, 32vh, 360px);
+  padding: clamp(var(--space-6), 4vw, var(--space-10));
+}
+
+.barbarian-ai-audit__empty-copy {
+  display: grid;
   align-content: center;
-  gap: var(--space-8);
-  padding: var(--space-10);
+  gap: var(--space-3);
+  max-width: 44ch;
+}
+
+.barbarian-ai-audit__empty-copy .ui-type--section-title {
+  margin: 0;
 }
 
 .barbarian-ai-audit__empty-ledger {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  max-width: 920px;
-  margin-inline: auto;
-  border-block: 1px solid var(--color-border);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 }
 
-.barbarian-ai-audit__empty-ledger span {
+.barbarian-ai-audit__empty-ledger li {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -69,8 +84,12 @@
   font-size: var(--font-size-sm);
 }
 
-.barbarian-ai-audit__empty-ledger span + span {
+.barbarian-ai-audit__empty-ledger li:nth-child(even) {
   border-inline-start: 1px solid var(--color-border);
+}
+
+.barbarian-ai-audit__empty-ledger li:nth-child(n + 3) {
+  border-block-start: 1px solid var(--color-border);
 }
 
 .barbarian-ai-audit__empty-ledger b {
@@ -79,6 +98,7 @@
 }
 
 .barbarian-ai-audit__workbench {
+  min-height: min(620px, 68vh);
   overflow: hidden;
 }
 
@@ -564,7 +584,11 @@
 }
 
 @media (max-width: 1180px) {
-  .barbarian-ai-audit__import-deck,
+  .barbarian-ai-audit__import-deck {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
   .barbarian-ai-audit__contract-grid section > header {
     align-items: stretch;
     flex-direction: column;
@@ -604,11 +628,16 @@
 }
 
 @media (max-width: 760px) {
+  .barbarian-ai-audit__empty {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
   .barbarian-ai-audit__empty-ledger {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .barbarian-ai-audit__empty-ledger span:nth-child(3) {
+  .barbarian-ai-audit__empty-ledger li:nth-child(3) {
     border-inline-start: 0;
   }
 
