@@ -1022,10 +1022,23 @@ test('collapsed workbench panes expand parameter groups across the available can
   await expect(page.locator('.editor-shell')).toHaveClass(/is-library-collapsed/);
   await expect(page.locator('.editor-shell')).toHaveClass(/is-inspector-collapsed/);
   await expect(groups).toBeVisible();
-  await expect(groups).toHaveCSS('column-count', '4');
+  await expect(groups).toHaveCSS('display', 'grid');
+  await expect.poll(() => groups.evaluate(element => getComputedStyle(element).gridTemplateColumns.split(' ').length)).toBe(4);
+
+  const structurePanel = page.locator('#workspace-panel-structure');
+  const flow = await structurePanel.evaluate(element => {
+    const groupBounds = [...element.querySelectorAll('.parameter-compact-group')]
+      .map(group => group.getBoundingClientRect());
+    const followingPanel = element.querySelector('.advanced-custom-parameters')?.getBoundingClientRect();
+    return {
+      lastGroupBottom: Math.max(...groupBounds.map(bounds => bounds.bottom)),
+      followingPanelTop: followingPanel?.top ?? Number.POSITIVE_INFINITY,
+    };
+  });
+  expect(flow.followingPanelTop).toBeGreaterThanOrEqual(flow.lastGroupBottom - 1);
 
   await page.setViewportSize({ width: 1440, height: 900 });
-  await expect(groups).toHaveCSS('column-count', '3');
+  await expect.poll(() => groups.evaluate(element => getComputedStyle(element).gridTemplateColumns.split(' ').length)).toBe(3);
 });
 
 test('Edit Units keeps one stable viewport-height parameter scroller', async ({ page }) => {

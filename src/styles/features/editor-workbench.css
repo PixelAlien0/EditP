@@ -402,13 +402,22 @@
 /* Use reclaimed canvas space only when both supporting panes are parked. */
 @container parameter-canvas (min-width: 1280px) {
   .editor-shell.is-library-collapsed.is-inspector-collapsed .parameter-compact-groups {
-    column-count: 3;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--space-3);
+    column-count: auto;
+  }
+
+  .editor-shell.is-library-collapsed.is-inspector-collapsed .parameter-compact-group {
+    margin: 0;
+    display: block;
   }
 }
 
 @container parameter-canvas (min-width: 1680px) {
   .editor-shell.is-library-collapsed.is-inspector-collapsed .parameter-compact-groups {
-    column-count: 4;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
