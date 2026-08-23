@@ -44,6 +44,11 @@ export default function useMainMenuGsap(rootRef) {
           const workspaceEditorialLines = gsap.utils.toArray('[data-gsap-editorial-line]', launchpad);
           const projectSignal = liveRoot.querySelector('[data-gsap-signal]');
           const signalRings = gsap.utils.toArray('[data-project-signal]', liveRoot);
+          const signalGuides = gsap.utils.toArray('[data-project-signal-guide]', liveRoot);
+          const signalNodes = gsap.utils.toArray('[data-project-signal-node]', liveRoot);
+          const projectPanels = gsap.utils.toArray('[data-gsap-project-panel]', projectDesk);
+          const deskSeam = projectDesk?.querySelector('[data-gsap-desk-seam]');
+          const fileActions = gsap.utils.toArray('[data-gsap-file-action]', projectDesk);
           const atmosphere = liveRoot.querySelector('.main-menu__atmosphere');
 
           gsap.set([topbar, projectDesk, launchpad, footer].filter(Boolean), { autoAlpha: 0 });
@@ -53,6 +58,11 @@ export default function useMainMenuGsap(rootRef) {
           gsap.set([...workspaceCards, ...toolCards], { autoAlpha: 0, y: 12 });
           gsap.set(editorialLines, { yPercent: 112 });
           gsap.set(signalRings, { strokeDashoffset: 100, transformOrigin: '50% 50%' });
+          gsap.set(signalGuides, { strokeDasharray: 1, strokeDashoffset: 1 });
+          gsap.set(signalNodes, { autoAlpha: 0, scale: 0, transformOrigin: '50% 50%' });
+          gsap.set(projectPanels, { autoAlpha: 0, x: index => index === 0 ? -16 : 16 });
+          gsap.set(fileActions, { autoAlpha: 0, y: 8 });
+          if (deskSeam) gsap.set(deskSeam, { scaleY: 0, transformOrigin: '50% 0%' });
           workspaceCards.forEach(card => {
             const detail = card.querySelector('[data-gsap-workspace-detail]');
             if (detail) gsap.set(detail, { autoAlpha: 0, clipPath: 'inset(0 100% 0 0)' });
@@ -62,13 +72,24 @@ export default function useMainMenuGsap(rootRef) {
 
           const entrance = gsap.timeline({
             defaults: { ease: 'power3.out' },
-            onComplete: () => liveRoot.classList.add('is-gsap-settled'),
+            onComplete: () => {
+              // Entrance transforms must not remain on the structural grid panels.
+              // Keeping an identity transform here makes Chromium include the
+              // animated signal layer when measuring the Continue action on hover.
+              gsap.set(projectPanels, { clearProps: 'transform' });
+              liveRoot.classList.add('is-gsap-settled');
+            },
           });
           entrance
             .to(topbar, { autoAlpha: 1, y: 0, duration: 0.42 })
             .to(projectDesk, { autoAlpha: 1, y: 0, duration: 0.62 }, '-=0.2')
+            .to(projectPanels, { autoAlpha: 1, x: 0, duration: 0.58, stagger: 0.08 }, '-=0.5')
+            .to(deskSeam, { scaleY: 1, duration: 0.64, ease: 'power2.inOut' }, '-=0.54')
             .to(projectEditorialLines, { yPercent: 0, duration: 0.58, stagger: 0.075 }, '-=0.48')
-            .to(signalRings, { strokeDashoffset: 0, duration: 0.9, stagger: 0.08, ease: 'power2.out' }, '-=0.54')
+            .to(signalGuides, { strokeDashoffset: 0, duration: 0.88, stagger: 0.1, ease: 'power2.inOut' }, '-=0.56')
+            .to(signalRings, { strokeDashoffset: 0, duration: 0.9, stagger: 0.08, ease: 'power2.out' }, '-=0.7')
+            .to(signalNodes, { autoAlpha: 1, scale: 1, duration: 0.34, stagger: 0.08 }, '-=0.46')
+            .to(fileActions, { autoAlpha: 1, y: 0, duration: 0.34, stagger: 0.06 }, '-=0.36')
             .to(metrics, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.055 }, '-=0.3')
             .to(launchpad, { autoAlpha: 1, y: 0, duration: 0.48 }, '-=0.28')
             .to(workspaceCards, { autoAlpha: 1, y: 0, duration: 0.44, stagger: 0.065 }, '-=0.3')
@@ -130,6 +151,33 @@ export default function useMainMenuGsap(rootRef) {
             });
             ambientAnimations.push(signalDrift);
 
+            if (signalNodes.length) {
+              const nodePulse = gsap.to(signalNodes, {
+                scale: 1.28,
+                opacity: 0.34,
+                duration: 2.8,
+                stagger: { each: 0.55, repeat: -1, yoyo: true },
+                ease: 'sine.inOut',
+              });
+              ambientAnimations.push(nodePulse);
+            }
+
+            const projectSurface = liveRoot.querySelector('.main-menu__active-project');
+            if (projectSurface) {
+              const moveX = gsap.quickTo(projectSignal, 'x', { duration: 0.9, ease: 'power3.out' });
+              const onPointerMove = event => {
+                const bounds = projectSurface.getBoundingClientRect();
+                moveX((((event.clientX - bounds.left) / bounds.width) - 0.5) * 8);
+              };
+              const onPointerLeave = () => moveX(0);
+              projectSurface.addEventListener('pointermove', onPointerMove);
+              projectSurface.addEventListener('pointerleave', onPointerLeave);
+              removeListeners.push(() => {
+                projectSurface.removeEventListener('pointermove', onPointerMove);
+                projectSurface.removeEventListener('pointerleave', onPointerLeave);
+              });
+            }
+
             gsap.utils.toArray('[data-project-signal-source]', liveRoot).forEach(source => {
               const signalId = source.dataset.projectSignalSource;
               const target = liveRoot.querySelector(`[data-project-signal="${signalId}"]`);
@@ -176,7 +224,7 @@ export default function useMainMenuGsap(rootRef) {
             const compose = () => {
               workspaceCards.forEach(card => card.classList.toggle('is-composed', card === activeCard));
               gsap.to(workspaceCards, {
-                opacity: (_, card) => card === activeCard ? 1 : 0.46,
+                opacity: (_, card) => card === activeCard ? 1 : 0.72,
                 duration: 0.32,
                 ease: 'power2.out',
                 overwrite: 'auto',

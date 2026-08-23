@@ -14,8 +14,20 @@ export default function MainMenuProjectSignal({ changes, clones, rosters }) {
 
   return (
     <div className="main-menu__project-signal" data-gsap-signal aria-hidden="true">
-      <svg viewBox="0 0 520 250" preserveAspectRatio="xMaxYMid slice">
-        <g transform="translate(412 125)">
+      <svg viewBox="0 0 760 280" preserveAspectRatio="xMaxYMid slice">
+        <path
+          className="main-menu__signal-guide"
+          data-project-signal-guide
+          pathLength="1"
+          d="M88 212 C218 212 264 88 414 88 S560 164 652 140"
+        />
+        <path
+          className="main-menu__signal-guide is-secondary"
+          data-project-signal-guide
+          pathLength="1"
+          d="M192 238 C318 238 350 154 468 154 S582 96 702 116"
+        />
+        <g className="main-menu__signal-orbits" transform="translate(652 140)">
           {signals.map(({ id, value, reference, radius }) => (
             <g key={id}>
               <circle className="main-menu__signal-track" r={radius} pathLength="100" />
@@ -30,6 +42,11 @@ export default function MainMenuProjectSignal({ changes, clones, rosters }) {
             </g>
           ))}
           <circle className="main-menu__signal-core" r="3" />
+        </g>
+        <g className="main-menu__signal-nodes">
+          <circle data-project-signal-node cx="88" cy="212" r="3" />
+          <circle data-project-signal-node cx="414" cy="88" r="3" />
+          <circle data-project-signal-node cx="468" cy="154" r="2.5" />
         </g>
       </svg>
     </div>

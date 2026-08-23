@@ -144,10 +144,11 @@ export default function MainMenu({
           aria-labelledby="main-menu-title"
           data-gsap-reveal="project"
         >
-          <aside className="main-menu__studio-intro" aria-labelledby="main-menu-title">
+          <span className="main-menu__desk-seam" data-gsap-desk-seam aria-hidden="true" />
+          <aside className="main-menu__studio-intro" aria-labelledby="main-menu-title" data-gsap-project-panel>
             <MainMenuAtmosphere themeMode={themeMode} />
             <div className="main-menu__project-summary">
-              <span>Definition workspace</span>
+              <span>Definition workspace · local-first</span>
               <h1 id="main-menu-title"><EditorialLine>Bar EditP</EditorialLine></h1>
               <p>A focused workshop for shaping BAR units, production rosters, and lobby-ready projects.</p>
             </div>
@@ -158,14 +159,17 @@ export default function MainMenu({
             </dl>
 
             <section className="main-menu__project-files" aria-labelledby="main-menu-files-title">
-              <h2 id="main-menu-files-title">Project files</h2>
+              <div className="main-menu__project-files-heading">
+                <h2 id="main-menu-files-title">Project files</h2>
+                <span>JSON workspace</span>
+              </div>
               <div className="main-menu__project-file-actions">
-                <label data-gsap-interactive>
+                <label data-gsap-interactive data-gsap-file-action>
                   <FileIcon direction="in" />
                   <span><strong>Load project</strong><small>Open a saved JSON workspace</small></span>
                   <input type="file" accept=".json" onChange={onLoadProject} />
                 </label>
-                <button type="button" onClick={onSaveProject} data-gsap-interactive>
+                <button type="button" onClick={onSaveProject} data-gsap-interactive data-gsap-file-action>
                   <FileIcon direction="out" />
                   <span><strong>Save project</strong><small>Download the current workspace</small></span>
                 </button>
@@ -173,14 +177,17 @@ export default function MainMenu({
             </section>
           </aside>
 
-          <article className="main-menu__active-project" aria-labelledby="main-menu-project-title">
+          <article className="main-menu__active-project" aria-labelledby="main-menu-project-title" data-gsap-project-panel>
             <MainMenuProjectSignal changes={projectChangeCount} clones={cloneCount} rosters={rosterCount} />
             <header>
               <div>
                 <span>Active local project</span>
                 <h2 id="main-menu-project-title"><EditorialLine>{currentProjectName}</EditorialLine></h2>
               </div>
-              <small className={hasWork ? 'is-active' : ''}><i aria-hidden="true" />{hasWork ? 'In progress' : 'Ready'}</small>
+              <div className="main-menu__project-state">
+                <span>{gameDataSnapshot?.sourceCommit ? `BAR ${gameDataSnapshot.sourceCommit.slice(0, 8)}` : 'Bundled snapshot'}</span>
+                <small className={hasWork ? 'is-active' : ''}><i aria-hidden="true" />{hasWork ? 'In progress' : 'Ready'}</small>
+              </div>
             </header>
             <div className="main-menu__project-overview">
               <div
@@ -191,15 +198,11 @@ export default function MainMenu({
                 <span>Project activity</span>
                 <div className="main-menu__project-pulse-value">
                   <strong data-gsap-count={projectChangeCount} aria-label={`${projectChangeCount} tracked changes`}>{projectChangeCount.toLocaleString()}</strong>
-                  <p>{hasWork ? 'Tracked changes' : 'No pending changes'}</p>
+                  <p>{hasWork ? 'Changes held in the current draft' : 'No pending changes'}</p>
                 </div>
-                <small>{hasWork ? 'Continue editing or review the current output.' : 'The workspace is ready for a new edit.'}</small>
+                <small>{hasWork ? 'Your local project state is ready to continue, compare, or validate.' : 'The workspace is ready for a new edit.'}</small>
               </div>
               <div className="main-menu__project-inventory">
-                <div className="main-menu__project-inventory-heading">
-                  <span>Project inventory</span>
-                  <small>Local snapshot</small>
-                </div>
                 <dl
                   className="main-menu__project-ledger"
                   aria-label="Current project inventory"
@@ -219,12 +222,13 @@ export default function MainMenu({
             <footer className="main-menu__project-footer">
               <div className="main-menu__project-context">
                 <div><span>Workspace state</span><strong>{hasWork ? 'Working draft' : 'Clean workspace'}</strong></div>
-                <div><span>Definition source</span><strong>{gameDataSnapshot?.sourceCommit ? `BAR ${gameDataSnapshot.sourceCommit.slice(0, 8)}` : 'Bundled snapshot'}</strong></div>
+                <div><span>Next step</span><strong>{hasWork ? 'Continue or run preflight' : 'Choose a unit to begin'}</strong></div>
               </div>
               <button
                 type="button"
                 className="main-menu__enter"
                 data-gsap-interactive
+                data-gsap-project-action
                 onClick={event => navigateWithMotion(onEditUnits, event.currentTarget)}
               >
                 <span><small>Enter workspace</small><strong>{hasWork ? 'Continue editing' : 'Open editor'}</strong></span>
