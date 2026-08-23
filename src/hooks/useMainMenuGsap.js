@@ -45,7 +45,6 @@ export default function useMainMenuGsap(rootRef) {
           const projectSignal = liveRoot.querySelector('[data-gsap-signal]');
           const signalRings = gsap.utils.toArray('[data-project-signal]', liveRoot);
           const signalGuides = gsap.utils.toArray('[data-project-signal-guide]', liveRoot);
-          const signalNodes = gsap.utils.toArray('[data-project-signal-node]', liveRoot);
           const projectPanels = gsap.utils.toArray('[data-gsap-project-panel]', projectDesk);
           const deskSeam = projectDesk?.querySelector('[data-gsap-desk-seam]');
           const fileActions = gsap.utils.toArray('[data-gsap-file-action]', projectDesk);
@@ -59,7 +58,6 @@ export default function useMainMenuGsap(rootRef) {
           gsap.set(editorialLines, { yPercent: 112 });
           gsap.set(signalRings, { strokeDashoffset: 100, transformOrigin: '50% 50%' });
           gsap.set(signalGuides, { strokeDasharray: 1, strokeDashoffset: 1 });
-          gsap.set(signalNodes, { autoAlpha: 0, scale: 0, transformOrigin: '50% 50%' });
           gsap.set(projectPanels, { autoAlpha: 0, x: index => index === 0 ? -16 : 16 });
           gsap.set(fileActions, { autoAlpha: 0, y: 8 });
           if (deskSeam) gsap.set(deskSeam, { scaleY: 0, transformOrigin: '50% 0%' });
@@ -88,7 +86,6 @@ export default function useMainMenuGsap(rootRef) {
             .to(projectEditorialLines, { yPercent: 0, duration: 0.58, stagger: 0.075 }, '-=0.48')
             .to(signalGuides, { strokeDashoffset: 0, duration: 0.88, stagger: 0.1, ease: 'power2.inOut' }, '-=0.56')
             .to(signalRings, { strokeDashoffset: 0, duration: 0.9, stagger: 0.08, ease: 'power2.out' }, '-=0.7')
-            .to(signalNodes, { autoAlpha: 1, scale: 1, duration: 0.34, stagger: 0.08 }, '-=0.46')
             .to(fileActions, { autoAlpha: 1, y: 0, duration: 0.34, stagger: 0.06 }, '-=0.36')
             .to(metrics, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.055 }, '-=0.3')
             .to(launchpad, { autoAlpha: 1, y: 0, duration: 0.48 }, '-=0.28')
@@ -150,17 +147,6 @@ export default function useMainMenuGsap(rootRef) {
               ease: 'none',
             });
             ambientAnimations.push(signalDrift);
-
-            if (signalNodes.length) {
-              const nodePulse = gsap.to(signalNodes, {
-                scale: 1.28,
-                opacity: 0.34,
-                duration: 2.8,
-                stagger: { each: 0.55, repeat: -1, yoyo: true },
-                ease: 'sine.inOut',
-              });
-              ambientAnimations.push(nodePulse);
-            }
 
             const projectSurface = liveRoot.querySelector('.main-menu__active-project');
             if (projectSurface) {
@@ -298,20 +284,34 @@ export default function useMainMenuGsap(rootRef) {
 
     exitInProgressRef.current = true;
     root.classList.add('is-gsap-exiting');
-    const tools = gsap.utils.toArray('[data-gsap-tool]', root).reverse();
-    const workspaces = gsap.utils.toArray('[data-gsap-workspace]', root).reverse();
-    const projectDesk = root.querySelector('[data-gsap-reveal="project"]');
-    const topbar = root.querySelector('[data-gsap-reveal="topbar"]');
 
-    const timeline = gsap.timeline({
-      defaults: { ease: 'power2.in' },
-      onComplete,
-    });
-    if (selectedElement) timeline.to(selectedElement, { scale: 0.99, duration: 0.08 }, 0);
-    timeline
-      .to(tools, { autoAlpha: 0, y: -5, duration: 0.16, stagger: 0.012 }, 0)
-      .to(workspaces, { autoAlpha: 0, y: -7, duration: 0.18, stagger: 0.018 }, 0.03)
-      .to(projectDesk, { autoAlpha: 0, y: -9, duration: 0.22 }, 0.08)
-      .to(topbar, { autoAlpha: 0, y: -7, duration: 0.16 }, 0.12);
+    const completeNavigation = () => {
+      try {
+        onComplete();
+      } finally {
+        exitInProgressRef.current = false;
+        root.classList.remove('is-gsap-exiting');
+      }
+    };
+
+    // Keep the complete menu painted until the destination is ready to mount.
+    // Fading its sections first exposed the empty structural frame and footer.
+    if (!selectedElement) {
+      completeNavigation();
+      return;
+    }
+
+    gsap.timeline({ onComplete: completeNavigation })
+      .to(selectedElement, {
+        scale: 0.992,
+        duration: 0.055,
+        ease: 'power1.out',
+        overwrite: 'auto',
+      })
+      .to(selectedElement, {
+        scale: 1,
+        duration: 0.065,
+        ease: 'power2.out',
+      });
   }, [rootRef]);
 }

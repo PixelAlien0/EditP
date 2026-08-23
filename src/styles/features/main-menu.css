@@ -298,7 +298,6 @@
   vector-effect: non-scaling-stroke;
 }
 .main-menu__signal-guide.is-secondary { stroke: var(--color-border); opacity: .38; }
-.main-menu__signal-nodes circle { fill: var(--color-accent-strong); opacity: .7; }
 .main-menu__signal-track { stroke: var(--color-border); stroke-width: .65; opacity: .34; }
 .main-menu__signal-ring {
   stroke: var(--color-accent-strong);
@@ -607,8 +606,7 @@
   .main-menu [data-gsap-workspace-detail] { visibility: visible !important; transform: none !important; }
   .main-menu__workspaces > button:hover .main-menu__workspace-detail,
   .main-menu__workspaces > button:focus-visible .main-menu__workspace-detail { clip-path: none !important; opacity: 1 !important; }
-  .main-menu__signal-ring,
-  .main-menu__signal-nodes circle { transform: none !important; }
+  .main-menu__signal-ring { transform: none !important; }
 }
 
 .workspace-loading {

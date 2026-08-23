@@ -43,11 +43,6 @@ export default function MainMenuProjectSignal({ changes, clones, rosters }) {
           ))}
           <circle className="main-menu__signal-core" r="3" />
         </g>
-        <g className="main-menu__signal-nodes">
-          <circle data-project-signal-node cx="88" cy="212" r="3" />
-          <circle data-project-signal-node cx="414" cy="88" r="3" />
-          <circle data-project-signal-node cx="468" cy="154" r="2.5" />
-        </g>
       </svg>
     </div>
   );
