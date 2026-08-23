@@ -321,6 +321,8 @@
 }
 
 .parameter-canvas {
+  container-name: parameter-canvas;
+  container-type: inline-size;
   min-width: 0;
   min-height: 0;
   height: 100%;
@@ -395,6 +397,19 @@
   column-count: 2;
   column-fill: balance;
   column-gap: var(--space-3);
+}
+
+/* Use reclaimed canvas space only when both supporting panes are parked. */
+@container parameter-canvas (min-width: 1280px) {
+  .editor-shell.is-library-collapsed.is-inspector-collapsed .parameter-compact-groups {
+    column-count: 3;
+  }
+}
+
+@container parameter-canvas (min-width: 1680px) {
+  .editor-shell.is-library-collapsed.is-inspector-collapsed .parameter-compact-groups {
+    column-count: 4;
+  }
 }
 
 .parameter-compact-group {

@@ -1004,6 +1004,30 @@ test('editor workbench panes resize, collapse, and persist', async ({ page }) =>
   expect(saved.leftCollapsed).toBe(true);
 });
 
+test('collapsed workbench panes expand parameter groups across the available canvas', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 900 });
+  await page.addInitScript(() => localStorage.setItem('editp_workspace_layout_v1', JSON.stringify({
+    leftWidth: 304,
+    rightWidth: 380,
+    leftCollapsed: true,
+    rightCollapsed: true,
+    density: 'balanced',
+    inspectorTab: 'details',
+    collapsedGroups: {},
+  })));
+  await waitForMainMenu(page);
+  await page.getByRole('button', { name: /Open editor|Continue editing/i }).click();
+
+  const groups = page.locator('.parameter-compact-groups').first();
+  await expect(page.locator('.editor-shell')).toHaveClass(/is-library-collapsed/);
+  await expect(page.locator('.editor-shell')).toHaveClass(/is-inspector-collapsed/);
+  await expect(groups).toBeVisible();
+  await expect(groups).toHaveCSS('column-count', '4');
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(groups).toHaveCSS('column-count', '3');
+});
+
 test('Edit Units keeps one stable viewport-height parameter scroller', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 720 });
   await waitForMainMenu(page);
