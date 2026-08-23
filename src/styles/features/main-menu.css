@@ -11,6 +11,19 @@
   color: var(--color-text);
 }
 
+.main-menu.is-gsap-preparing [data-gsap-reveal],
+.main-menu.is-gsap-preparing [data-gsap-metric],
+.main-menu.is-gsap-preparing [data-gsap-workspace],
+.main-menu.is-gsap-preparing [data-gsap-tool] {
+  visibility: hidden;
+}
+
+.main-menu.is-gsap-exiting { pointer-events: none; }
+
+.main-menu.is-gsap-ready [data-gsap-interactive] {
+  will-change: transform;
+}
+
 .main-menu__topbar {
   min-height: var(--header-height);
   border-bottom: 1px solid var(--color-border);
@@ -139,6 +152,7 @@
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  will-change: transform;
 }
 
 [data-theme="dark"] .main-menu__atmosphere {
@@ -341,7 +355,6 @@
 }
 
 .main-menu__enter:hover { background: var(--color-accent-soft); }
-.main-menu__enter:hover .main-menu__motion-arrow { transform: translateX(3px); }
 .main-menu__enter > span:first-child { display: grid; gap: 4px; }
 .main-menu__enter small { color: var(--color-accent-strong); }
 .main-menu__enter strong { font-size: var(--font-size-sm); }
@@ -493,6 +506,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .main-menu * { scroll-behavior: auto; transition-duration: 0ms !important; }
+  .main-menu [data-gsap-reveal],
+  .main-menu [data-gsap-metric],
+  .main-menu [data-gsap-workspace],
+  .main-menu [data-gsap-tool] { visibility: visible !important; transform: none !important; opacity: 1 !important; }
 }
 
 .workspace-loading {

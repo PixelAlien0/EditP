@@ -1,17 +1,17 @@
+import { useRef } from 'react';
 import OnlinePresenceBadge from './OnlinePresenceBadge.jsx';
 import MainMenuAtmosphere from './MainMenuAtmosphere.jsx';
 import { CapabilityLabels } from './ui.jsx';
-import { m } from 'motion/react';
-import { MOTION_DELAY, MOTION_STAGGER, MOTION_TRANSITION, MOTION_VARIANTS } from './ui/motionConfig.js';
+import useMainMenuGsap from '../hooks/useMainMenuGsap.js';
 
 const ArrowIcon = () => (
   <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9h11" /><path d="m10.5 5 4 4-4 4" /></svg>
 );
 
 const MotionArrow = () => (
-  <m.span className="main-menu__motion-arrow" variants={MOTION_VARIANTS.directional} aria-hidden="true">
+  <span className="main-menu__motion-arrow" aria-hidden="true">
     <ArrowIcon />
-  </m.span>
+  </span>
 );
 
 const FileIcon = ({ direction = 'in' }) => (
@@ -51,6 +51,8 @@ export default function MainMenu({
   onLoadProject,
   onSaveProject,
 }) {
+  const mainMenuRef = useRef(null);
+  const navigateWithMotion = useMainMenuGsap(mainMenuRef);
   const hasWork = projectChangeCount > 0;
   const currentProjectName = projectName?.trim() || 'Untitled BAR project';
   const workspaces = [
@@ -88,19 +90,10 @@ export default function MainMenu({
   ];
 
   return (
-    <m.main
-      className="main-menu"
-      variants={MOTION_VARIANTS.fade}
-      initial="hidden"
-      animate="visible"
-      transition={MOTION_TRANSITION.enter}
-    >
-      <m.header
+    <main ref={mainMenuRef} className="main-menu is-gsap-preparing">
+      <header
         className="main-menu__topbar"
-        variants={MOTION_VARIANTS.topbar}
-        initial="hidden"
-        animate="visible"
-        transition={MOTION_TRANSITION.enter}
+        data-gsap-reveal="topbar"
       >
         <div className="main-menu__topbar-inner">
           <div className="main-menu__brand">
@@ -123,7 +116,7 @@ export default function MainMenu({
             <button type="button" onClick={onOpenCredits}>Credits</button>
           </div>
         </div>
-      </m.header>
+      </header>
 
       <div className="main-menu__frame">
         {gameDataStatus === 'error' && (
@@ -136,13 +129,10 @@ export default function MainMenu({
           </aside>
         )}
 
-        <m.section
+        <section
           className="main-menu__project-desk"
           aria-labelledby="main-menu-title"
-          variants={MOTION_VARIANTS.surface}
-          initial="hidden"
-          animate="visible"
-          transition={MOTION_TRANSITION.enter}
+          data-gsap-reveal="project"
         >
           <aside className="main-menu__studio-intro" aria-labelledby="main-menu-title">
             <MainMenuAtmosphere themeMode={themeMode} />
@@ -160,15 +150,15 @@ export default function MainMenu({
             <section className="main-menu__project-files" aria-labelledby="main-menu-files-title">
               <h2 id="main-menu-files-title">Project files</h2>
               <div className="main-menu__project-file-actions">
-                <m.label variants={MOTION_VARIANTS.interactiveCard} initial="rest" whileHover="hover" whileTap="tap">
+                <label data-gsap-interactive>
                   <FileIcon direction="in" />
                   <span><strong>Load project</strong><small>Open a saved JSON workspace</small></span>
                   <input type="file" accept=".json" onChange={onLoadProject} />
-                </m.label>
-                <m.button type="button" onClick={onSaveProject} variants={MOTION_VARIANTS.interactiveCard} initial="rest" whileHover="hover" whileTap="tap">
+                </label>
+                <button type="button" onClick={onSaveProject} data-gsap-interactive>
                   <FileIcon direction="out" />
                   <span><strong>Save project</strong><small>Download the current workspace</small></span>
-                </m.button>
+                </button>
               </div>
             </section>
           </aside>
@@ -182,40 +172,36 @@ export default function MainMenu({
               <small className={hasWork ? 'is-active' : ''}><i aria-hidden="true" />{hasWork ? 'In progress' : 'Ready'}</small>
             </header>
             <div className="main-menu__project-overview">
-              <m.div
+              <div
                 className="main-menu__project-pulse"
-                variants={MOTION_VARIANTS.metricItem}
-                initial="hidden"
-                animate="visible"
-                transition={MOTION_TRANSITION.feedback}
+                data-gsap-metric
               >
                 <span>Project activity</span>
                 <div className="main-menu__project-pulse-value">
-                  <strong>{projectChangeCount.toLocaleString()}</strong>
+                  <strong data-gsap-count={projectChangeCount} aria-label={`${projectChangeCount} tracked changes`}>{projectChangeCount.toLocaleString()}</strong>
                   <p>{hasWork ? 'Tracked changes' : 'No pending changes'}</p>
                 </div>
                 <small>{hasWork ? 'Continue editing or review the current output.' : 'The workspace is ready for a new edit.'}</small>
-              </m.div>
+              </div>
               <div className="main-menu__project-inventory">
                 <div className="main-menu__project-inventory-heading">
                   <span>Project inventory</span>
                   <small>Local snapshot</small>
                 </div>
-                <m.dl
+                <dl
                   className="main-menu__project-ledger"
-                  variants={MOTION_VARIANTS.staggerGroup}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ delayChildren: MOTION_DELAY.relatedSection, staggerChildren: MOTION_STAGGER.standard }}
                   aria-label="Current project inventory"
                 >
-                  {projectLedger.map(({ label, value, note }) => (
-                    <m.div key={label} variants={MOTION_VARIANTS.metricItem} transition={MOTION_TRANSITION.feedback}>
+                  {projectLedger.map(({ label, value, note }) => {
+                    const numericValue = Number(String(value).replaceAll(',', ''));
+                    return (
+                    <div key={label} data-gsap-metric>
                       <span><dt>{label}</dt><small>{note}</small></span>
-                      <dd>{value}</dd>
-                    </m.div>
-                  ))}
-                </m.dl>
+                      <dd data-gsap-count={numericValue} aria-label={`${value} ${label.toLowerCase()}`}>{value}</dd>
+                    </div>
+                    );
+                  })}
+                </dl>
               </div>
             </div>
             <footer className="main-menu__project-footer">
@@ -226,41 +212,33 @@ export default function MainMenu({
               <button
                 type="button"
                 className="main-menu__enter"
-                onClick={onEditUnits}
+                data-gsap-interactive
+                onClick={event => navigateWithMotion(onEditUnits, event.currentTarget)}
               >
                 <span><small>Enter workspace</small><strong>{hasWork ? 'Continue editing' : 'Open editor'}</strong></span>
                 <MotionArrow />
               </button>
             </footer>
           </article>
-        </m.section>
+        </section>
 
-        <m.section
+        <section
           className="main-menu__launchpad"
           aria-label="Project workspaces and tools"
-          variants={MOTION_VARIANTS.surface}
-          initial="hidden"
-          animate="visible"
-          transition={{ ...MOTION_TRANSITION.enter, delay: MOTION_DELAY.relatedSection }}
+          data-gsap-reveal="launchpad"
         >
-          <m.nav
+          <nav
             className="main-menu__workspaces"
-            variants={MOTION_VARIANTS.staggerGroup}
-            initial="hidden"
-            animate="visible"
-            transition={{ delayChildren: MOTION_DELAY.relatedSection, staggerChildren: MOTION_STAGGER.standard }}
             aria-label="Core workspaces"
           >
             {workspaces.map(item => (
-              <m.button
+              <button
                 key={item.id}
                 type="button"
                 className={item.primary ? 'is-primary' : ''}
-                onClick={item.onSelect}
-                variants={MOTION_VARIANTS.interactiveSurface}
-                transition={MOTION_TRANSITION.enter}
-                whileHover="hover"
-                whileTap="tap"
+                data-gsap-workspace
+                data-gsap-interactive
+                onClick={event => navigateWithMotion(item.onSelect, event.currentTarget)}
               >
                 <span className="main-menu__workspace-number">{item.number}</span>
                 <span className="main-menu__workspace-copy">
@@ -273,26 +251,19 @@ export default function MainMenu({
                 </span>
                 <span className="main-menu__workspace-meta">{item.meta}</span>
                 <MotionArrow />
-              </m.button>
+              </button>
             ))}
-          </m.nav>
+          </nav>
 
           <section className="main-menu__tool-directory" aria-label="Research & package tools">
-            <m.div
-              variants={MOTION_VARIANTS.staggerGroup}
-              initial="hidden"
-              animate="visible"
-              transition={{ delayChildren: MOTION_DELAY.relatedSection, staggerChildren: MOTION_STAGGER.tight }}
-            >
+            <div>
               {tools.map(tool => (
-                <m.button
+                <button
                   type="button"
                   key={tool.id}
-                  onClick={tool.onSelect}
-                  variants={MOTION_VARIANTS.interactiveSurface}
-                  transition={MOTION_TRANSITION.enter}
-                  whileHover="hover"
-                  whileTap="tap"
+                  data-gsap-tool
+                  data-gsap-interactive
+                  onClick={event => navigateWithMotion(tool.onSelect, event.currentTarget)}
                 >
                   <span>{tool.code}</span>
                   <span>
@@ -303,14 +274,14 @@ export default function MainMenu({
                     <small>{tool.description}</small>
                   </span>
                   <MotionArrow />
-                </m.button>
+                </button>
               ))}
-            </m.div>
+            </div>
           </section>
-        </m.section>
+        </section>
       </div>
 
-      <footer className="main-menu__footer">
+      <footer className="main-menu__footer" data-gsap-reveal="footer">
         <span>Maintained by <strong>[Grump]SunlessK</strong></span>
         <span>
           {gameDataStatus === 'ready'
@@ -320,6 +291,6 @@ export default function MainMenu({
               : 'Validating BAR definitions'}
         </span>
       </footer>
-    </m.main>
+    </main>
   );
 }
