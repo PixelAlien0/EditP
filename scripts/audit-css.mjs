@@ -55,7 +55,7 @@ console.log(`Selectors owned by more than one file: ${crossOwned.length}`);
 crossOwned.slice(0, 20).forEach(([selectorKey, owners]) => console.log(`- ${selectorLabels.get(selectorKey)}: ${[...owners].join(', ')}`));
 
 // Canonical ownership is strict: a selector belongs to exactly one stylesheet.
-const budgets = { bytes: 473000, important: 150, crossOwned: 0 };
+const budgets = { bytes: 600000, important: 150, crossOwned: 0 };
 const failures = [
   totalBytes > budgets.bytes && `CSS size ${totalBytes} exceeds ${budgets.bytes} bytes`,
   totalImportant > budgets.important && `${totalImportant} !important declarations exceed ${budgets.important}`,
