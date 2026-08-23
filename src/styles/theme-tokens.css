@@ -127,6 +127,8 @@
   --shadow-soft: 0 5px 18px rgba(58, 48, 42, 0.07);
   --shadow-float: 0 18px 48px rgba(58, 48, 42, 0.12);
   --shadow-focus: 0 0 0 3px var(--color-focus-ring);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0, 1);
   --motion-fast: 150ms ease;
   --motion-pane: 250ms cubic-bezier(0.16, 1, 0.3, 1);
 

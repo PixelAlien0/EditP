@@ -31,6 +31,23 @@
 
 .main-menu.is-gsap-exiting { pointer-events: none; }
 
+::view-transition-old(root) {
+  animation: main-menu-view-out 160ms var(--ease-standard) both;
+}
+
+::view-transition-new(root) {
+  animation: main-menu-view-in 260ms var(--ease-decelerate) both;
+}
+
+@keyframes main-menu-view-out {
+  to { opacity: 0.72; }
+}
+
+@keyframes main-menu-view-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .main-menu.is-gsap-ready [data-gsap-interactive] {
   will-change: transform;
 }
@@ -298,6 +315,7 @@
   vector-effect: non-scaling-stroke;
 }
 .main-menu__signal-guide.is-secondary { stroke: var(--color-border); opacity: .38; }
+.main-menu__signal-nodes circle { fill: var(--color-accent-strong); opacity: .7; }
 .main-menu__signal-track { stroke: var(--color-border); stroke-width: .65; opacity: .34; }
 .main-menu__signal-ring {
   stroke: var(--color-accent-strong);
@@ -349,11 +367,10 @@
   align-content: center;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
-  border-left: 2px solid var(--color-border-accent-muted);
-  background: color-mix(in srgb, var(--color-surface-accent-subtle) 72%, transparent);
+  border-left: 1px solid var(--color-border);
+  background: transparent;
 }
-.main-menu [data-project-signal-source] { transition: background-color var(--motion-fast), color var(--motion-fast); }
-.main-menu [data-project-signal-source]:hover { background-color: color-mix(in srgb, var(--color-accent-soft) 42%, transparent); }
+.main-menu [data-project-signal-source] { transition: color var(--motion-fast); }
 
 .main-menu__project-pulse > span { color: var(--color-accent-strong); }
 .main-menu__project-pulse-value { display: flex; align-items: baseline; gap: var(--space-4); }
@@ -414,8 +431,8 @@
   justify-content: space-between;
   gap: var(--space-5);
   border: 0;
-  border-left: 1px solid var(--color-border-accent-muted);
-  background: var(--color-surface-accent-subtle);
+  border-left: 1px solid var(--color-border);
+  background: transparent;
   color: var(--color-text-strong);
   text-align: left;
   cursor: pointer;
@@ -424,7 +441,7 @@
 }
 
 .main-menu__enter:hover {
-  background: var(--color-accent-soft);
+  background: var(--color-surface-hover);
   transform: none;
 }
 .main-menu__enter > span:first-child { display: grid; gap: 4px; }
@@ -470,12 +487,12 @@
 }
 
 .main-menu__workspaces > button:last-child { border-right: 0; }
-.main-menu__workspaces > button.is-primary { background: var(--color-surface-accent-subtle); box-shadow: inset 0 2px 0 var(--color-border-accent-muted); }
+.main-menu__workspaces > button.is-primary { background: transparent; box-shadow: none; }
 .main-menu__workspaces > button:not(.is-primary) {
   padding: var(--space-4);
 }
 .main-menu__workspaces > button:hover { background: var(--color-surface-hover); }
-.main-menu__workspaces > button.is-primary:hover { background: var(--color-accent-soft); }
+.main-menu__workspaces > button.is-primary:hover { background: var(--color-surface-hover); }
 .main-menu__workspace-number { color: var(--color-accent-strong); font: 700 9px/1 var(--font-mono); }
 .main-menu__workspace-copy { min-width: 0; display: grid; align-content: start; gap: 6px; }
 .main-menu__workspace-capabilities,
@@ -606,7 +623,8 @@
   .main-menu [data-gsap-workspace-detail] { visibility: visible !important; transform: none !important; }
   .main-menu__workspaces > button:hover .main-menu__workspace-detail,
   .main-menu__workspaces > button:focus-visible .main-menu__workspace-detail { clip-path: none !important; opacity: 1 !important; }
-  .main-menu__signal-ring { transform: none !important; }
+  .main-menu__signal-ring,
+  .main-menu__signal-nodes circle { transform: none !important; }
 }
 
 .workspace-loading {

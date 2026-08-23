@@ -1,4 +1,5 @@
 import { useCallback, useLayoutEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
@@ -273,11 +274,10 @@ export default function useMainMenuGsap(rootRef) {
     };
   }, [rootRef]);
 
-  return useCallback((onComplete, selectedElement = null) => {
+  return useCallback((onComplete) => {
     if (typeof onComplete !== 'function' || exitInProgressRef.current) return;
     const root = rootRef.current;
-    const gsap = gsapRef.current;
-    if (!root || !gsap || prefersReducedMotion()) {
+    if (!root || prefersReducedMotion() || typeof document.startViewTransition !== 'function') {
       onComplete();
       return;
     }
@@ -285,33 +285,19 @@ export default function useMainMenuGsap(rootRef) {
     exitInProgressRef.current = true;
     root.classList.add('is-gsap-exiting');
 
-    const completeNavigation = () => {
-      try {
-        onComplete();
-      } finally {
+    try {
+      const transition = document.startViewTransition(() => {
+        flushSync(() => onComplete());
+      });
+      const finishTransition = () => {
         exitInProgressRef.current = false;
         root.classList.remove('is-gsap-exiting');
-      }
-    };
-
-    // Keep the complete menu painted until the destination is ready to mount.
-    // Fading its sections first exposed the empty structural frame and footer.
-    if (!selectedElement) {
-      completeNavigation();
-      return;
+      };
+      transition.finished.then(finishTransition, finishTransition);
+    } catch {
+      exitInProgressRef.current = false;
+      root.classList.remove('is-gsap-exiting');
+      onComplete();
     }
-
-    gsap.timeline({ onComplete: completeNavigation })
-      .to(selectedElement, {
-        scale: 0.992,
-        duration: 0.055,
-        ease: 'power1.out',
-        overwrite: 'auto',
-      })
-      .to(selectedElement, {
-        scale: 1,
-        duration: 0.065,
-        ease: 'power2.out',
-      });
   }, [rootRef]);
 }
