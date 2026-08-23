@@ -65,6 +65,7 @@ const LazyReviewPage = lazy(() => import('./components/ReviewPage.jsx'));
 const LazyBatchAdjustDialog = lazy(() => import('./components/BatchAdjustDialog.jsx'));
 const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplorerDialog.jsx'));
 const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
+const LazyBarbarianAiAuditPage = lazy(() => import('./components/BarbarianAiAuditPage.jsx'));
 const LazyWeaponDefLibraryPage = lazy(() => import('./components/WeaponDefLibraryPage.jsx'));
 const LazyBarReferenceLibraryPage = lazy(() => import('./components/BarReferenceLibraryPage.jsx'));
 const LazyBarUpdateCenterPage = lazy(() => import('./components/BarUpdateCenterPage.jsx'));
@@ -604,6 +605,7 @@ export default function App() {
       || activeWorkspace === 'collections'
       || activeWorkspace === 'weapon-lab'
       || activeWorkspace === 'tweak-lab'
+      || activeWorkspace === 'ai-audit'
       || activeWorkspace === 'weapondef-library'
       || activeWorkspace === 'reference-library'
       || activeWorkspace === 'update-center'
@@ -772,6 +774,7 @@ export default function App() {
       { id: 'workspace-review', kind: 'Workspace', label: 'Review & export', description: 'Validate and compile the current project.', priority: 27, onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('review'); } },
       { id: 'tool-presets', kind: 'Tool', label: 'Preset gallery', description: 'Save or apply reusable project snapshots.', onSelect: () => { setShowMainMenu(false); setShowPresetGallery(true); setActiveWorkspace('preset-gallery'); } },
       { id: 'tool-tweak-package', kind: 'Tool', label: 'Tweak Package Lab', description: 'Inspect and package modular tweakdefs and tweakunits safely.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); } },
+      { id: 'tool-ai-package-audit', kind: 'Tool', label: 'AI Package Audit', description: 'Discover and audit BARbarIAn or other Skirmish AI packages without executing imported code.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('ai-audit'); } },
       { id: 'tool-weapondef-library', kind: 'Tool', label: 'WeaponDef Library', description: 'Create, validate, and maintain supporting WeaponDefs.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('weapondef-library'); } },
       { id: 'tool-bar-reference-library', kind: 'Tool', label: 'BAR Reference Library', description: 'Search verified units, WeaponDefs, models, scripts, artwork, effects, sounds, and explosion profiles.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('reference-library'); } },
       { id: 'tool-bar-update-center', kind: 'Tool', label: 'BAR Update Center', description: 'Review changes between the BAR snapshots bundled with this editor.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('update-center'); } },
@@ -1276,6 +1279,12 @@ export default function App() {
             setActiveWorkspace('tweak-lab');
             setShowMainMenu(false);
           }}
+          onAiAudit={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('ai-audit');
+            setShowMainMenu(false);
+          }}
           onWeaponDefLibrary={() => {
             setShowDesignerPanel(false);
             setShowPresetGallery(false);
@@ -1393,6 +1402,12 @@ export default function App() {
           setShowPresetGallery(false);
           setActiveWorkspace('tweak-lab');
         }}
+        onAiAudit={() => {
+          setShowMainMenu(false);
+          setShowDesignerPanel(false);
+          setShowPresetGallery(false);
+          setActiveWorkspace('ai-audit');
+        }}
         onWeaponDefLibrary={() => {
           setShowMainMenu(false);
           setShowDesignerPanel(false);
@@ -1479,6 +1494,14 @@ export default function App() {
             knownUnitIds={knownTweakPackageUnitIds}
             onBack={() => setActiveWorkspace('edit')}
             onToast={showToast}
+          />
+        </Suspense>
+      ) : activeWorkspace === 'ai-audit' ? (
+        <Suspense fallback={<main className="barbarian-ai-audit workspace-loading"><span>Preparing AI Package Audit…</span></main>}>
+          <LazyBarbarianAiAuditPage
+            units={allUnitsList}
+            onBack={() => setActiveWorkspace('edit')}
+            onNotice={showToast}
           />
         </Suspense>
       ) : activeWorkspace === 'weapondef-library' ? (

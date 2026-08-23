@@ -37,6 +37,7 @@ export default function AppHeader({
   onPresetGallery,
   onWeaponLab,
   onTweakLab,
+  onAiAudit,
   onWeaponDefLibrary,
   onReferenceLibrary,
   onUpdateCenter,
@@ -296,6 +297,9 @@ export default function AppHeader({
                 </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onTweakLab)}>
                   <span><span className="header-tool-title"><strong>Tweak Package Lab</strong><CapabilityLabels featureId="tool.tweak-package-lab" compact /></span><small>Inspect community Lua safely</small></span>
+                </button>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onAiAudit)}>
+                  <span><span className="header-tool-title"><strong>AI Package Audit</strong><CapabilityLabels featureId="tool.ai-package-audit" compact /></span><small>Inspect Skirmish AI packages without executing code</small></span>
                 </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onWeaponDefLibrary)}>
                   <span><span className="header-tool-title"><strong>WeaponDef Library</strong><CapabilityLabels featureId="tool.weapondef-library" compact /></span><small>Create and validate supporting definitions</small></span>
