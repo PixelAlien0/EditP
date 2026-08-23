@@ -148,45 +148,58 @@ export default function BarUpdateCenterPage({ onBack, onOpenReference }) {
       actions={<Button variant="secondary" onClick={onBack}>Back to editor</Button>}
     >
       <section className="bar-update-center__verdict" aria-labelledby="bar-update-verdict-title">
-        <div className="bar-update-center__verdict-index" aria-hidden="true">01</div>
-        <div className="bar-update-center__verdict-copy">
-          <Type variant="eyebrow">Release verdict</Type>
-          <Type as="h3" variant="page-title" id="bar-update-verdict-title">{verdictTitle}</Type>
-          <Type as="p" variant="description">{verdictBody}</Type>
+        <div className="bar-update-center__verdict-main">
+          <div className="bar-update-center__verdict-index" aria-hidden="true">01</div>
+          <div className="bar-update-center__verdict-copy">
+            <Type variant="eyebrow">Release verdict</Type>
+            <Type as="h3" variant="page-title" id="bar-update-verdict-title">{verdictTitle}</Type>
+            <Type as="p" variant="description">{verdictBody}</Type>
+          </div>
+          <div className="bar-update-center__verdict-actions">
+            <Button variant="primary" onClick={onOpenReference}>Open reference library</Button>
+            <a className="ui-button ui-button--secondary ui-button--md" href={currentCommitUrl} target="_blank" rel="noreferrer">View BAR commit</a>
+          </div>
         </div>
-        <dl className="bar-update-center__verdict-ledger">
-          <div><dt>Gameplay</dt><dd>{formatNumber(gameplayChanges)}</dd></div>
-          <div><dt>Delivery</dt><dd>{formatNumber(deliveryChanges)}</dd></div>
-          <div><dt>Contracts</dt><dd>{formatNumber(compatibilityChanges)}</dd></div>
-        </dl>
-        <div className="bar-update-center__verdict-actions">
-          <Button variant="primary" onClick={onOpenReference}>Open reference library</Button>
-          <a className="ui-button ui-button--secondary ui-button--md" href={currentCommitUrl} target="_blank" rel="noreferrer">View BAR commit</a>
+        <div className="bar-update-center__verdict-rail">
+          <dl className="bar-update-center__verdict-ledger">
+            <div><dt>Gameplay</dt><dd>{formatNumber(gameplayChanges)}</dd></div>
+            <div><dt>Delivery</dt><dd>{formatNumber(deliveryChanges)}</dd></div>
+            <div><dt>Contracts</dt><dd>{formatNumber(compatibilityChanges)}</dd></div>
+          </dl>
         </div>
       </section>
 
-      <section className="bar-update-center__tracks" aria-label="Snapshot change tracks">
-        {UPDATE_TRACKS.map(track => {
-          const summary = updateReport.summary[track.id];
-          const datasets = updateReport.datasets.filter(dataset => dataset.group === track.id);
-          const changes = changeTotal(summary);
-          return (
-            <section className="bar-update-center__track" key={track.id} aria-labelledby={`bar-update-track-${track.id}`}>
-              <header className="bar-update-center__track-header">
-                <span className="bar-update-center__track-index" aria-hidden="true">{track.index}</span>
-                <div>
-                  <Type variant="eyebrow">{track.eyebrow}</Type>
-                  <Type as="h3" variant="section-title" id={`bar-update-track-${track.id}`}>{track.title}</Type>
-                  <Type as="p" variant="description">{track.description}</Type>
+      <section className="bar-update-center__change-board" aria-labelledby="bar-update-change-board-title">
+        <header className="bar-update-center__change-board-header">
+          <div>
+            <Type variant="eyebrow">Snapshot comparison</Type>
+            <Type as="h3" variant="section-title" id="bar-update-change-board-title">What changed in this editor build</Type>
+          </div>
+          <Type as="p" variant="description">Gameplay data, reference delivery, and runtime knowledge are reviewed separately.</Type>
+        </header>
+        <div className="bar-update-center__tracks">
+          {UPDATE_TRACKS.map(track => {
+            const summary = updateReport.summary[track.id];
+            const datasets = updateReport.datasets.filter(dataset => dataset.group === track.id);
+            const changes = changeTotal(summary);
+            return (
+              <section className="bar-update-center__track" key={track.id} aria-labelledby={`bar-update-track-${track.id}`}>
+                <header className="bar-update-center__track-header">
+                  <span className="bar-update-center__track-index" aria-hidden="true">{track.index}</span>
+                  <div>
+                    <Type variant="eyebrow">{track.eyebrow}</Type>
+                    <Type as="h4" variant="section-title" id={`bar-update-track-${track.id}`}>{track.title}</Type>
+                    <Type as="p" variant="description">{track.description}</Type>
+                  </div>
+                  <StatusBadge status={changes > 0 ? 'warning' : 'success'}>{changes > 0 ? `${formatNumber(changes)} changes` : 'No changes'}</StatusBadge>
+                </header>
+                <div className="bar-update-center__dataset-list">
+                  {datasets.map(dataset => <DatasetRow dataset={dataset} key={dataset.id} />)}
                 </div>
-                <StatusBadge status={changes > 0 ? 'warning' : 'success'}>{changes > 0 ? `${formatNumber(changes)} changes` : 'No changes'}</StatusBadge>
-              </header>
-              <div className="bar-update-center__dataset-list">
-                {datasets.map(dataset => <DatasetRow dataset={dataset} key={dataset.id} />)}
-              </div>
-            </section>
-          );
-        })}
+              </section>
+            );
+          })}
+        </div>
       </section>
 
       <section className="bar-update-center__coverage" aria-labelledby="bar-update-coverage-title">
