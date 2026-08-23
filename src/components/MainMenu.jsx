@@ -45,6 +45,7 @@ export default function MainMenu({
   onTweakLab,
   onWeaponDefLibrary,
   onReferenceLibrary,
+  onUpdateCenter,
   onCommunity,
   onLoadProject,
   onSaveProject,
@@ -75,6 +76,7 @@ export default function MainMenu({
     { id: 'tweak-lab', code: 'LAB', title: 'Tweak Package Lab', description: 'Lua package analysis', capabilityId: 'tool.tweak-package-lab', onSelect: onTweakLab },
     { id: 'weapondefs', code: 'WDF', title: 'WeaponDef Library', description: 'Supporting definitions', capabilityId: 'tool.weapondef-library', onSelect: onWeaponDefLibrary },
     { id: 'reference', code: 'REF', title: 'BAR Reference Library', description: 'Verified game data', capabilityId: 'tool.reference-library', onSelect: onReferenceLibrary },
+    { id: 'updates', code: 'UPD', title: 'BAR Update Center', description: 'Snapshot change report', capabilityId: 'tool.update-center', onSelect: onUpdateCenter },
   ];
 
   const projectLedger = [

@@ -25,6 +25,7 @@ function renderHeader(overrides = {}) {
     onTweakLab: vi.fn(),
     onWeaponDefLibrary: vi.fn(),
     onReferenceLibrary: vi.fn(),
+    onUpdateCenter: vi.fn(),
     onExport: vi.fn(),
     onImport: vi.fn(),
   };
@@ -133,6 +134,7 @@ describe('AppHeader', () => {
     expect(screen.getByRole('menuitem', { name: /weapondef library/i })).toHaveTextContent('Generated');
     expect(screen.getByRole('menuitem', { name: /weapondef library/i })).toHaveTextContent('Preflight');
     expect(screen.getByRole('menuitem', { name: /bar reference library/i })).toHaveTextContent('Reference');
+    expect(screen.getByRole('menuitem', { name: /bar update center/i })).toHaveTextContent('Reference');
   });
 
   it('opens the controlled Batch Adjust workspace and closes the Tools menu', async () => {

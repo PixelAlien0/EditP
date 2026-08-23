@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import assetManifest from './bar-asset-manifest.json';
+import barUpdateReport from './bar-update-report.json';
 import factoryRosters from './factory-rosters.json';
 import gameDataManifest from './game-data-manifest.json';
 import tacticalIconManifest from './tactical-icon-manifest.json';
@@ -31,6 +32,13 @@ describe('bundled BAR game-data snapshot', () => {
     expect(unitpicManifest.sourceCommit).toBe(gameDataManifest.sourceCommit);
     expect(tacticalIconManifest.sourceCommit).toBe(gameDataManifest.sourceCommit);
     expect(assetManifest.sourceCommit).toBe(gameDataManifest.sourceCommit);
+  });
+
+  it('ships an update report for the active snapshot', () => {
+    expect(barUpdateReport.version).toBe(1);
+    expect(barUpdateReport.current.snapshotId).toBe(gameDataManifest.snapshotId);
+    expect(barUpdateReport.current.sourceCommit).toBe(gameDataManifest.sourceCommit);
+    expect(barUpdateReport.datasets.length).toBeGreaterThan(0);
   });
 
   it('does not retain broken factory roster references', () => {

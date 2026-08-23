@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "generatedAt": "2026-08-22T00:09:42Z",
+  "current": {
+    "snapshotId": "bar-c91b81d4665b",
+    "sourceCommit": "c91b81d4665b2443106387c2c15851cba3539ade",
+    "sourceDate": "2026-08-22T00:09:42Z",
+    "schemaVersion": 2,
+    "counts": {
+      "units": 1789,
+      "descriptions": 1789,
+      "defaults": 1789,
+      "weaponDefs": 1881,
+      "categories": 1789,
+      "rosters": 170,
+      "explosions": 133,
+      "artwork": 1789,
+      "tacticalIcons": 990,
+      "assetReferences": 3962,
+      "customParameters": 219
+    }
+  },
+  "previous": {
+    "snapshotId": "bar-32b0375ab2f9",
+    "sourceCommit": "32b0375ab2f928323e1a79880ca62b8734ec39d1",
+    "sourceDate": "2026-08-20T02:09:06Z",
+    "schemaVersion": 2,
+    "counts": {
+      "units": 1789,
+      "descriptions": 1789,
+      "defaults": 1789,
+      "weaponDefs": 1881,
+      "categories": 1789,
+      "rosters": 170,
+      "explosions": 133,
+      "artwork": 1789,
+      "tacticalIcons": 990,
+      "assetReferences": 3962,
+      "customParameters": 219
+    }
+  },
+  "summary": {
+    "gameplay": {
+      "datasets": 4,
+      "changedDatasets": 0,
+      "added": 0,
+      "removed": 0,
+      "changed": 0
+    },
+    "delivery": {
+      "datasets": 3,
+      "changedDatasets": 1,
+      "added": 0,
+      "removed": 0,
+      "changed": 2
+    },
+    "compatibility": {
+      "datasets": 1,
+      "changedDatasets": 1,
+      "added": 0,
+      "removed": 0,
+      "changed": 2
+    }
+  },
+  "datasets": [
+    {
+      "id": "units",
+      "label": "Unit definitions",
+      "group": "gameplay",
+      "status": "unchanged",
+      "currentCount": 1789,
+      "previousCount": 1789,
+      "delta": 0,
+      "addedCount": 0,
+      "removedCount": 0,
+      "changedCount": 0,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    {
+      "id": "identity",
+      "label": "Names and descriptions",
+      "group": "gameplay",
+      "status": "unchanged",
+      "currentCount": 3578,
+      "previousCount": 3578,
+      "delta": 0,
+      "addedCount": 0,
+      "removedCount": 0,
+      "changedCount": 0,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    {
+      "id": "rosters",
+      "label": "Factory rosters",
+      "group": "gameplay",
+      "status": "unchanged",
+      "currentCount": 170,
+      "previousCount": 170,
+      "delta": 0,
+      "addedCount": 0,
+      "removedCount": 0,
+      "changedCount": 0,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    {
+      "id": "explosions",
+      "label": "Explosion profiles",
+      "group": "gameplay",
+      "status": "unchanged",
+      "currentCount": 133,
+      "previousCount": 133,
+      "delta": 0,
+      "addedCount": 0,
+      "removedCount": 0,
+      "changedCount": 0,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    {
+      "id": "artwork",
+      "label": "Unit artwork mappings",
+      "group": "delivery",
+      "status": "changed",
+      "currentCount": 1789,
+      "previousCount": 1789,
+      "delta": 0,
+      "addedCount": 0,
+      "removedCount": 0,
+      "changedCount": 2,
+      "added": [],
+      "removed": [],
+      "changed": [
+        "legkeres",
+        "xl"
+      ]
+    },
+    {
+      "id": "tacticalIcons",
+      "label": "Tactical icons",
+      "group": "delivery",
+      "status": "unchanged",
+      "currentCount": 990,
+      "previousCount": 990,
+      "delta": 0,
+      "addedCount": 0,
+      "removedCount": 0,
+      "changedCount": 0,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    {
+      "id": "assets",
+      "label": "BAR asset references",
+      "group": "delivery",
+      "status": "unchanged",
+      "currentCount": 3962,
+      "previousCount": 3962,
+      "delta": 0,
+      "addedCount": 0,
+      "removedCount": 0,
+      "changedCount": 0,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    {
+      "id": "customParameters",
+      "label": "Custom parameter contracts",
+      "group": "compatibility",
+      "status": "changed",
+      "currentCount": 219,
+      "previousCount": 219,
+      "delta": 0,
+      "addedCount": 0,
+      "removedCount": 0,
+      "changedCount": 2,
+      "added": [],
+      "removed": [],
+      "changed": [
+        "unit:scav_swap_override_captured",
+        "weapon:startingdronecount"
+      ]
+    }
+  ]
+}

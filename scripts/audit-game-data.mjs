@@ -10,6 +10,7 @@ import {
   sha256File,
 } from './game-data-snapshot.mjs';
 import { SCAVENGER_BOSS_DIFFICULTIES } from './dynamic-unit-families.mjs';
+import { BAR_UPDATE_REPORT_PATH, BAR_UPDATE_REPORT_VERSION } from './bar-update-report.mjs';
 
 const errors = [];
 const manifest = readJson(GAME_DATA_MANIFEST_PATH);
@@ -17,6 +18,7 @@ const datasets = loadSnapshotDatasets();
 const counts = getDatasetCounts(datasets);
 const unitIds = Object.keys(datasets.units.names || {}).map(normalizeUnitId).sort();
 const expectedIds = new Set(unitIds);
+const updateReport = fs.existsSync(BAR_UPDATE_REPORT_PATH) ? readJson(BAR_UPDATE_REPORT_PATH) : null;
 
 function compareKeys(label, source) {
   const actual = Object.keys(source || {}).map(normalizeUnitId).sort();
@@ -37,6 +39,20 @@ if (manifest.snapshotId !== `bar-${String(manifest.sourceCommit || '').slice(0, 
 }
 if (manifest.sourceRepository !== 'beyond-all-reason/Beyond-All-Reason') {
   errors.push(`Unexpected snapshot repository: ${manifest.sourceRepository || 'unknown'}.`);
+}
+if (!updateReport) {
+  errors.push('BAR Update Center report is missing.');
+} else {
+  if (updateReport.version !== BAR_UPDATE_REPORT_VERSION) {
+    errors.push(`Unsupported BAR update report schema ${updateReport.version ?? 'unknown'}.`);
+  }
+  if (updateReport.current?.snapshotId !== manifest.snapshotId
+    || updateReport.current?.sourceCommit !== manifest.sourceCommit) {
+    errors.push('BAR Update Center report does not describe the active bundled snapshot.');
+  }
+  if (!Array.isArray(updateReport.datasets) || updateReport.datasets.length === 0) {
+    errors.push('BAR Update Center report has no dataset comparisons.');
+  }
 }
 
 compareKeys('Descriptions', datasets.units.descriptions);

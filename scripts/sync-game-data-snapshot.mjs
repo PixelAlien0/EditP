@@ -41,6 +41,7 @@ if (!/^[a-f0-9]{40}$/i.test(sourceCommit)) throw new Error(`Unable to resolve ${
 
 const stagingRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'editp-bar-snapshot-'));
 const worktree = path.join(stagingRoot, 'checkout');
+const baselineData = path.join(stagingRoot, 'baseline-data');
 const environment = {
   ...process.env,
   BAR_REPOSITORY: worktree,
@@ -50,6 +51,7 @@ const environment = {
 
 console.log(`Synchronizing every BAR dataset from ${sourceCommit}.`);
 try {
+  fs.cpSync(path.join(root, 'src', 'data'), baselineData, { recursive: true });
   execFileSync('git', ['-C', repository, 'worktree', 'add', '--detach', worktree, sourceCommit], {
     stdio: 'inherit',
   });
@@ -62,6 +64,7 @@ try {
   runNode('scripts/sync-tactical-icons.mjs', environment);
   runNode('scripts/sync-unitpics.mjs', environment);
   runNode('scripts/finalize-game-data-snapshot.mjs', environment, ['--write']);
+  runNode('scripts/bar-update-report.mjs', environment, ['--baseline-dir', baselineData, '--write']);
   runNode('scripts/audit-game-data.mjs', environment);
   runNode('scripts/audit-unitpics.mjs', environment);
 } finally {

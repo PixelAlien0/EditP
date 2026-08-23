@@ -67,6 +67,7 @@ const LazySummaryExplorerDialog = lazy(() => import('./components/SummaryExplore
 const LazyTweakPackageLabPage = lazy(() => import('./components/TweakPackageLabPage.jsx'));
 const LazyWeaponDefLibraryPage = lazy(() => import('./components/WeaponDefLibraryPage.jsx'));
 const LazyBarReferenceLibraryPage = lazy(() => import('./components/BarReferenceLibraryPage.jsx'));
+const LazyBarUpdateCenterPage = lazy(() => import('./components/BarUpdateCenterPage.jsx'));
 const LazyCommunityGalleryPage = lazy(() => import('./components/CommunityGalleryPage.jsx'));
 const LazyFormulaMutatorDialog = MUTATOR_TOOLS_ENABLED
   ? lazy(() => import('./components/FormulaMutatorDialog.jsx'))
@@ -605,6 +606,7 @@ export default function App() {
       || activeWorkspace === 'tweak-lab'
       || activeWorkspace === 'weapondef-library'
       || activeWorkspace === 'reference-library'
+      || activeWorkspace === 'update-center'
       || activeWorkspace === 'community'
     ) {
       return PRESENCE_ACTIVITY.TOOLS;
@@ -772,6 +774,7 @@ export default function App() {
       { id: 'tool-tweak-package', kind: 'Tool', label: 'Tweak Package Lab', description: 'Inspect and package modular tweakdefs and tweakunits safely.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('tweak-lab'); } },
       { id: 'tool-weapondef-library', kind: 'Tool', label: 'WeaponDef Library', description: 'Create, validate, and maintain supporting WeaponDefs.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('weapondef-library'); } },
       { id: 'tool-bar-reference-library', kind: 'Tool', label: 'BAR Reference Library', description: 'Search verified units, WeaponDefs, models, scripts, artwork, effects, sounds, and explosion profiles.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('reference-library'); } },
+      { id: 'tool-bar-update-center', kind: 'Tool', label: 'BAR Update Center', description: 'Review changes between the BAR snapshots bundled with this editor.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('update-center'); } },
       { id: 'community-gallery', kind: 'Community', label: 'Community projects', description: 'Browse public projects shared by BAR Editor creators.', onSelect: () => { setShowMainMenu(false); setShowDesignerPanel(false); setShowPresetGallery(false); setActiveWorkspace('community'); } },
     ];
 
@@ -1285,6 +1288,12 @@ export default function App() {
             setActiveWorkspace('reference-library');
             setShowMainMenu(false);
           }}
+          onUpdateCenter={() => {
+            setShowDesignerPanel(false);
+            setShowPresetGallery(false);
+            setActiveWorkspace('update-center');
+            setShowMainMenu(false);
+          }}
           onCommunity={() => {
             setShowDesignerPanel(false);
             setShowPresetGallery(false);
@@ -1396,6 +1405,12 @@ export default function App() {
           setShowPresetGallery(false);
           setActiveWorkspace('reference-library');
         }}
+        onUpdateCenter={() => {
+          setShowMainMenu(false);
+          setShowDesignerPanel(false);
+          setShowPresetGallery(false);
+          setActiveWorkspace('update-center');
+        }}
         onCommunity={() => {
           setShowMainMenu(false);
           setShowDesignerPanel(false);
@@ -1493,6 +1508,13 @@ export default function App() {
             onOpenUnit={id => { setSelectedUnitId(id); setActiveWorkspace('edit'); }}
             onBack={() => setActiveWorkspace('edit')}
             onToast={showToast}
+          />
+        </Suspense>
+      ) : activeWorkspace === 'update-center' ? (
+        <Suspense fallback={<main className="bar-update-center workspace-loading"><span>Preparing BAR Update Center…</span></main>}>
+          <LazyBarUpdateCenterPage
+            onOpenReference={() => setActiveWorkspace('reference-library')}
+            onBack={() => setActiveWorkspace('edit')}
           />
         </Suspense>
       ) : activeWorkspace === 'community' ? (

@@ -39,6 +39,7 @@ export default function AppHeader({
   onTweakLab,
   onWeaponDefLibrary,
   onReferenceLibrary,
+  onUpdateCenter,
   onCommunity,
   onExport,
   onImport,
@@ -301,6 +302,9 @@ export default function AppHeader({
                 </button>
                 <button type="button" role="menuitem" onClick={() => runToolAction(onReferenceLibrary)}>
                   <span><span className="header-tool-title"><strong>BAR Reference Library</strong><CapabilityLabels featureId="tool.reference-library" compact /></span><small>Search definitions and assets</small></span>
+                </button>
+                <button type="button" role="menuitem" onClick={() => runToolAction(onUpdateCenter)}>
+                  <span><span className="header-tool-title"><strong>BAR Update Center</strong><CapabilityLabels featureId="tool.update-center" compact /></span><small>Review bundled snapshot changes</small></span>
                 </button>
               </div>
               <div className="header-tools-menu-project-actions" role="group" aria-label="Project files">
