@@ -1,4 +1,28 @@
+import { useLayoutEffect, useRef } from 'react';
 import { CapabilityLabels } from '../ui.jsx';
+
+const PARAMETER_GROUP_GAP = 12;
+
+function MeasuredParameterGroup({ className, children }) {
+  const groupRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const group = groupRef.current;
+    if (!group) return undefined;
+
+    const updateSpan = () => {
+      const height = Math.ceil(group.getBoundingClientRect().height);
+      group.style.setProperty('--parameter-group-span', String(Math.max(1, height + PARAMETER_GROUP_GAP)));
+    };
+
+    updateSpan();
+    const observer = new ResizeObserver(updateSpan);
+    observer.observe(group);
+    return () => observer.disconnect();
+  }, []);
+
+  return <section ref={groupRef} className={className}>{children}</section>;
+}
 
 function makeGroupPanelId(sectionId, groupId) {
   return `parameter-group-${sectionId}-${groupId}`
@@ -47,7 +71,7 @@ export function ParameterMatrix({
           const panelId = makeGroupPanelId(sectionId, group.id);
           const modifiedCount = group.parameters.filter(isParameterModified).length;
           return (
-            <section
+            <MeasuredParameterGroup
               className={`parameter-compact-group ${collapsed ? 'is-collapsed' : ''} ${modifiedCount > 0 ? 'has-edits' : ''}`}
               key={group.id}
             >
@@ -81,7 +105,7 @@ export function ParameterMatrix({
                   {group.parameters.map(renderParameter)}
                 </div>
               )}
-            </section>
+            </MeasuredParameterGroup>
           );
         })}
       </div>

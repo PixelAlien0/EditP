@@ -1029,13 +1029,19 @@ test('collapsed workbench panes expand parameter groups across the available can
   const flow = await structurePanel.evaluate(element => {
     const groupBounds = [...element.querySelectorAll('.parameter-compact-group')]
       .map(group => group.getBoundingClientRect());
+    const columns = Map.groupBy(groupBounds, bounds => Math.round(bounds.x));
     const followingPanel = element.querySelector('.advanced-custom-parameters')?.getBoundingClientRect();
     return {
       lastGroupBottom: Math.max(...groupBounds.map(bounds => bounds.bottom)),
       followingPanelTop: followingPanel?.top ?? Number.POSITIVE_INFINITY,
+      columnGaps: [...columns.values()].flatMap(column => {
+        const ordered = column.toSorted((a, b) => a.top - b.top);
+        return ordered.slice(1).map((bounds, index) => Math.round(bounds.top - ordered[index].bottom));
+      }),
     };
   });
   expect(flow.followingPanelTop).toBeGreaterThanOrEqual(flow.lastGroupBottom - 1);
+  expect(Math.max(...flow.columnGaps)).toBeLessThanOrEqual(16);
 
   await page.setViewportSize({ width: 1440, height: 900 });
   await expect.poll(() => groups.evaluate(element => getComputedStyle(element).gridTemplateColumns.split(' ').length)).toBe(3);
