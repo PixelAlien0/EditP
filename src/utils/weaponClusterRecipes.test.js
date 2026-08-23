@@ -36,11 +36,52 @@ describe('Cluster recipe library', () => {
     expect(new Set(Object.values(WEAPON_CLUSTER_RECIPES).map(recipe => recipe.supportingKey)).size).toBe(24);
     expect(Object.values(WEAPON_CLUSTER_RECIPES).filter(recipe => recipe.kind === 'combat')).toHaveLength(12);
     expect(Object.values(WEAPON_CLUSTER_RECIPES).filter(recipe => recipe.kind === 'visual')).toHaveLength(12);
+    Object.values(WEAPON_CLUSTER_RECIPES).forEach(recipe => {
+      expect(recipe.flight).toBeTruthy();
+      expect(recipe.pattern).toBeTruthy();
+    });
+  });
+
+  it('gives every preset a distinct projectile signature, independent of its impact effect', () => {
+    const signatures = Object.keys(WEAPON_CLUSTER_RECIPES).map(recipeId => {
+      const definition = buildWeaponClusterRecipeApplication({
+        recipeId,
+        ownerUnitId: 'armtest',
+        slotNumber: 1,
+        sourceSlot: { damage: 900, aoe: 160 },
+      }).supportingDefinition.definition;
+      return JSON.stringify([
+        definition.weapontype,
+        definition.range,
+        definition.weaponvelocity,
+        definition.startvelocity,
+        definition.weaponacceleration,
+        definition.flighttime,
+        definition.gravityaffected,
+        definition.mygravity,
+        definition.accuracy,
+        definition.sprayangle,
+        definition.trajectoryheight,
+        definition.wobble,
+        definition.dance,
+        definition.duration,
+        definition.sizegrowth,
+        definition.tracks,
+        definition.turnrate,
+        definition.areaofeffect,
+        definition.impulsefactor,
+        definition.paralyzer,
+        definition.burnblow,
+        definition.selfexplode,
+      ]);
+    });
+
+    expect(new Set(signatures).size).toBe(signatures.length);
   });
 });
 
 describe('Napalm Blossom cluster recipe', () => {
-  it('builds a BAR cluster-compatible incendiary Cannon child', () => {
+  it('builds a BAR cluster-compatible curling flame child', () => {
     const application = buildWeaponClusterRecipeApplication({
       recipeId: 'napalm-blossom',
       ownerUnitId: 'ARMTEST',
@@ -57,7 +98,7 @@ describe('Napalm Blossom cluster recipe', () => {
       key: 'editp_napalm_blossom',
       mode: 'replace',
       definition: {
-        weapontype: 'Cannon',
+        weapontype: 'Flame',
         areaofeffect: 117,
         firestarter: 100,
         damage: { default: 50 },
@@ -120,15 +161,15 @@ describe('Meteor Rain cluster recipe', () => {
 });
 
 describe.each([
-  ['emp-starburst', 6, { weapontype: 'Cannon', paralyzer: true, paralyzetime: 6 }],
-  ['razor-halo', 12, { weapontype: 'Cannon', weaponvelocity: 760, sprayangle: 1450 }],
-  ['seismic-crown', 5, { weapontype: 'Cannon', impulsefactor: 1.4, cratermult: 0.8 }],
+  ['emp-starburst', 6, { weapontype: 'EmgCannon', paralyzer: true, paralyzetime: 6 }],
+  ['razor-halo', 12, { weapontype: 'LaserCannon', weaponvelocity: 1250, sprayangle: 1450 }],
+  ['seismic-crown', 5, { weapontype: 'AircraftBomb', impulsefactor: 1.4, cratermult: 0.8 }],
   ['pursuit-swarm', 9, { weapontype: 'MissileLauncher', tracks: true, turnrate: 42000 }],
-  ['plasma-rosette', 10, { weapontype: 'Cannon', explosiongenerator: 'custom:plasmahit-medium' }],
-  ['thunder-web', 7, { weapontype: 'Cannon', paralyzer: true, paralyzetime: 2.5 }],
+  ['plasma-rosette', 10, { weapontype: 'LaserCannon', explosiongenerator: 'custom:plasmahit-medium' }],
+  ['thunder-web', 7, { weapontype: 'EmgCannon', paralyzer: true, paralyzetime: 2.5 }],
   ['gravity-sink', 6, { weapontype: 'Cannon', impulsefactor: -1.8, impulseboost: -24 }],
-  ['flak-constellation', 11, { weapontype: 'Cannon', explosiongenerator: 'custom:flak' }],
-  ['breach-needles', 4, { weapontype: 'Cannon', weaponvelocity: 1800, areaofeffect: 12 }],
+  ['flak-constellation', 11, { weapontype: 'Cannon', selfexplode: true, explosiongenerator: 'custom:flak' }],
+  ['breach-needles', 4, { weapontype: 'LaserCannon', weaponvelocity: 1800, areaofeffect: 12 }],
   ['starfire-choir', 8, { weapontype: 'MissileLauncher', cegtag: 'starfire-small' }],
 ])('%s cluster recipe', (recipeId, clusterCount, expectedDefinition) => {
   it('builds its distinctive compiler-safe child definition', () => {

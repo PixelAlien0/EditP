@@ -14,7 +14,9 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_napalm_blossom',
     clusterCount: 7,
     kind: 'combat',
-    description: 'Impact-fired incendiary Cannon fragments with BAR-native flame presentation and area-on-hit behavior.',
+    flight: 'Flame curls',
+    pattern: 'Short radial bloom',
+    description: 'Slow flame tongues curl out from the impact and ignite a compact area.',
   }),
   'meteor-rain': Object.freeze({
     id: 'meteor-rain',
@@ -22,6 +24,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_meteor_rain',
     clusterCount: 8,
     kind: 'combat',
+    flight: 'Heavy ballistic',
+    pattern: 'Falling rain',
     description: 'Impact-fired meteor fragments that arc outward, lose height quickly, and saturate the surrounding ground.',
   }),
   'emp-starburst': Object.freeze({
@@ -30,6 +34,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_emp_starburst',
     clusterCount: 6,
     kind: 'combat',
+    flight: 'Drifting EMP',
+    pattern: 'Staggered star',
     description: 'A short-lived ring of paralyzing fragments that trades raw damage for a compact EMP lockdown.',
   }),
   'razor-halo': Object.freeze({
@@ -38,6 +44,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_razor_halo',
     clusterCount: 12,
     kind: 'combat',
+    flight: 'Laser shards',
+    pattern: 'Fast wide halo',
     description: 'Twelve fast, low-area shrapnel rounds form a wide kinetic halo around the impact point.',
   }),
   'seismic-crown': Object.freeze({
@@ -46,6 +54,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_seismic_crown',
     clusterCount: 5,
     kind: 'combat',
+    flight: 'Bomb fragments',
+    pattern: 'Tight heavy crown',
     description: 'Five heavy fragments fall into a tight crown with strong terrain and impulse character.',
   }),
   'pursuit-swarm': Object.freeze({
@@ -54,6 +64,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_pursuit_swarm',
     clusterCount: 9,
     kind: 'combat',
+    flight: 'Guided missiles',
+    pattern: 'Homing swarm',
     description: 'Guided child missiles accelerate away from the impact and continue tracking the inherited target.',
   }),
   'plasma-rosette': Object.freeze({
@@ -62,6 +74,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_plasma_rosette',
     clusterCount: 10,
     kind: 'combat',
+    flight: 'Plasma petals',
+    pattern: 'Rotating rosette',
     description: 'A balanced flower of medium plasma fragments with readable spacing and dependable splash damage.',
   }),
   'thunder-web': Object.freeze({
@@ -70,6 +84,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_thunder_web',
     clusterCount: 7,
     kind: 'combat',
+    flight: 'Dancing EMP',
+    pattern: 'Unstable web',
     description: 'Electrical fragments lace the impact zone with light paralysis and bright lightning hits.',
   }),
   'gravity-sink': Object.freeze({
@@ -78,6 +94,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_gravity_sink',
     clusterCount: 6,
     kind: 'combat',
+    flight: 'Slow imploders',
+    pattern: 'Inward sink',
     description: 'Wide, low-damage fragments use negative impulse to pull nearby units toward the impact.',
   }),
   'flak-constellation': Object.freeze({
@@ -86,6 +104,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_flak_constellation',
     clusterCount: 11,
     kind: 'combat',
+    flight: 'Timed airburst',
+    pattern: 'Broad AA field',
     description: 'A broad constellation of flak bursts weighted toward airborne targets.',
   }),
   'breach-needles': Object.freeze({
@@ -94,6 +114,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_breach_needles',
     clusterCount: 4,
     kind: 'combat',
+    flight: 'Rail needles',
+    pattern: 'Narrow penetration',
     description: 'Four extremely fast, precise shards concentrate damage with almost no splash.',
   }),
   'starfire-choir': Object.freeze({
@@ -102,6 +124,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_starfire_choir',
     clusterCount: 8,
     kind: 'combat',
+    flight: 'Rising rockets',
+    pattern: 'Delayed high arc',
     description: 'A rising chorus of accelerating missiles creates a dramatic delayed second strike.',
   }),
   'blue-nova': Object.freeze({
@@ -110,6 +134,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_blue_nova',
     clusterCount: 9,
     kind: 'visual',
+    flight: 'Blue laser rays',
+    pattern: 'Clean radial nova',
     description: 'Visual only: a clean blue laser-hit bloom with zero damage, impulse, or terrain deformation.',
   }),
   'spark-veil': Object.freeze({
@@ -118,6 +144,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_spark_veil',
     clusterCount: 14,
     kind: 'visual',
+    flight: 'Jittering sparks',
+    pattern: 'Fine particle veil',
     description: 'Visual only: a fine veil of plasma sparks with zero damage, impulse, or terrain deformation.',
   }),
   'scav-mirage': Object.freeze({
@@ -126,6 +154,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_scav_mirage',
     clusterCount: 6,
     kind: 'visual',
+    flight: 'Wobbling wisps',
+    pattern: 'Slow mirage spiral',
     description: 'Visual only: eerie Scavenger mist blooms around the impact without changing combat.',
   }),
   'aqua-prism': Object.freeze({
@@ -134,6 +164,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_aqua_prism',
     clusterCount: 8,
     kind: 'visual',
+    flight: 'Aqua prisms',
+    pattern: 'Angular refraction',
     description: 'Visual only: cool aqua laser facets radiate from the impact without changing combat.',
   }),
   'verdant-echo': Object.freeze({
@@ -142,6 +174,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_verdant_echo',
     clusterCount: 10,
     kind: 'visual',
+    flight: 'Arcing motes',
+    pattern: 'Layered green echo',
     description: 'Visual only: layered green energy blooms leave a restrained luminous echo.',
   }),
   'crimson-petals': Object.freeze({
@@ -150,6 +184,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_crimson_petals',
     clusterCount: 12,
     kind: 'visual',
+    flight: 'Red light petals',
+    pattern: 'Compact flower',
     description: 'Visual only: compact red laser impacts scatter like petals around the target.',
   }),
   'golden-flicker': Object.freeze({
@@ -158,6 +194,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_golden_flicker',
     clusterCount: 15,
     kind: 'visual',
+    flight: 'Golden pulses',
+    pattern: 'Rapid shimmer',
     description: 'Visual only: small golden flashes create a dense celebratory shimmer.',
   }),
   'acid-aurora': Object.freeze({
@@ -166,6 +204,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_acid_aurora',
     clusterCount: 7,
     kind: 'visual',
+    flight: 'Acid flame curls',
+    pattern: 'Rising aurora',
     description: 'Visual only: vivid acidic light curls through the impact zone with no damage.',
   }),
   'raptor-embers': Object.freeze({
@@ -174,6 +214,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_raptor_embers',
     clusterCount: 9,
     kind: 'visual',
+    flight: 'Falling embers',
+    pattern: 'Raptor scatter',
     description: 'Visual only: hot Raptor sparks and embers punctuate the impact without applying damage.',
   }),
   'black-ash': Object.freeze({
@@ -182,6 +224,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_black_ash',
     clusterCount: 5,
     kind: 'visual',
+    flight: 'Heavy ash',
+    pattern: 'Slow descending plume',
     description: 'Visual only: dark combustion plumes give heavy impacts a smoky afterimage.',
   }),
   'dust-halo': Object.freeze({
@@ -190,6 +234,8 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_dust_halo',
     clusterCount: 14,
     kind: 'visual',
+    flight: 'Ground skimmers',
+    pattern: 'Wide flat ring',
     description: 'Visual only: a broad ring of earth-toned dust marks the impact without deforming terrain.',
   }),
   'void-pulse': Object.freeze({
@@ -198,23 +244,26 @@ export const WEAPON_CLUSTER_RECIPES = Object.freeze({
     supportingKey: 'editp_void_pulse',
     clusterCount: 6,
     kind: 'visual',
+    flight: 'Accelerating wisps',
+    pattern: 'Pulsing void spiral',
     description: 'Visual only: compact Scavenger haze creates a muted, otherworldly pulse.',
   }),
 });
 
 function buildNapalmBlossomDefinition({ recipe, childDamage, childAoe }) {
   return {
-    name: `${recipe.label} fragment`,
-    weapontype: 'Cannon',
-    range: 360,
+    name: `${recipe.label} flame`,
+    weapontype: 'Flame',
+    range: 260,
     reloadtime: 1,
-    weaponvelocity: 360,
+    weaponvelocity: 230,
+    duration: 0.75,
+    sizegrowth: 0.45,
     areaofeffect: childAoe,
     edgeeffectiveness: 0.35,
     accuracy: 0,
     sprayangle: 0,
-    gravityaffected: true,
-    mygravity: 0.1,
+    gravityaffected: false,
     avoidfeature: false,
     avoidfriendly: false,
     collidefriendly: false,
@@ -268,14 +317,14 @@ function buildMeteorRainDefinition({ recipe, parentDamage, parentAoe }) {
 function buildEmpStarburstDefinition({ recipe, parentDamage, parentAoe }) {
   return {
     name: `${recipe.label} pulse`,
-    weapontype: 'Cannon',
+    weapontype: 'EmgCannon',
     range: 400,
     reloadtime: 1,
-    weaponvelocity: 520,
+    weaponvelocity: 390,
     areaofeffect: Math.round(clamp(parentAoe * 0.7, 56, 144)),
     edgeeffectiveness: 0.55,
-    accuracy: 420,
-    sprayangle: 720,
+    accuracy: 260,
+    sprayangle: 1080,
     gravityaffected: false,
     avoidfeature: false,
     avoidfriendly: false,
@@ -299,10 +348,13 @@ function buildEmpStarburstDefinition({ recipe, parentDamage, parentAoe }) {
 function buildRazorHaloDefinition({ recipe, parentDamage, parentAoe }) {
   return {
     name: `${recipe.label} shard`,
-    weapontype: 'Cannon',
+    weapontype: 'LaserCannon',
     range: 460,
     reloadtime: 1,
-    weaponvelocity: 760,
+    weaponvelocity: 1250,
+    duration: 0.08,
+    thickness: 1.4,
+    rgbcolor: '1 0.72 0.78',
     areaofeffect: Math.round(clamp(parentAoe * 0.25, 16, 56)),
     edgeeffectiveness: 0.15,
     accuracy: 160,
@@ -325,11 +377,11 @@ function buildRazorHaloDefinition({ recipe, parentDamage, parentAoe }) {
 
 function buildSeismicCrownDefinition({ recipe, parentDamage, parentAoe }) {
   return {
-    name: `${recipe.label} fragment`,
-    weapontype: 'Cannon',
+    name: `${recipe.label} bomb`,
+    weapontype: 'AircraftBomb',
     range: 340,
     reloadtime: 1,
-    weaponvelocity: 215,
+    weaponvelocity: 170,
     areaofeffect: Math.round(clamp(parentAoe * 0.85, 80, 200)),
     edgeeffectiveness: 0.6,
     accuracy: 520,
@@ -393,10 +445,13 @@ function buildPursuitSwarmDefinition({ recipe, parentDamage, parentAoe }) {
 function buildPlasmaRosetteDefinition({ recipe, parentDamage, parentAoe }) {
   return {
     name: `${recipe.label} petal`,
-    weapontype: 'Cannon',
+    weapontype: 'LaserCannon',
     range: 480,
     reloadtime: 1,
     weaponvelocity: 520,
+    duration: 0.32,
+    thickness: 3.2,
+    rgbcolor: '0.72 0.42 1',
     areaofeffect: Math.round(clamp(parentAoe * 0.5, 40, 104)),
     edgeeffectiveness: 0.4,
     accuracy: 260,
@@ -421,10 +476,12 @@ function buildPlasmaRosetteDefinition({ recipe, parentDamage, parentAoe }) {
 function buildThunderWebDefinition({ recipe, parentDamage, parentAoe }) {
   return {
     name: `${recipe.label} arc`,
-    weapontype: 'Cannon',
+    weapontype: 'EmgCannon',
     range: 430,
     reloadtime: 1,
-    weaponvelocity: 610,
+    weaponvelocity: 460,
+    wobble: 2400,
+    dance: 18,
     areaofeffect: Math.round(clamp(parentAoe * 0.58, 48, 120)),
     edgeeffectiveness: 0.5,
     accuracy: 380,
@@ -489,6 +546,9 @@ function buildFlakConstellationDefinition({ recipe, parentDamage, parentAoe }) {
     accuracy: 720,
     sprayangle: 1250,
     gravityaffected: false,
+    burnblow: true,
+    selfexplode: true,
+    flighttime: 0.65,
     avoidfeature: false,
     avoidfriendly: false,
     collidefriendly: false,
@@ -509,10 +569,13 @@ function buildFlakConstellationDefinition({ recipe, parentDamage, parentAoe }) {
 function buildBreachNeedlesDefinition({ recipe, parentDamage }) {
   return {
     name: `${recipe.label} shard`,
-    weapontype: 'Cannon',
+    weapontype: 'LaserCannon',
     range: 720,
     reloadtime: 1,
     weaponvelocity: 1800,
+    duration: 0.04,
+    thickness: 0.8,
+    rgbcolor: '0.9 0.95 1',
     areaofeffect: 12,
     edgeeffectiveness: 0.05,
     accuracy: 35,
@@ -546,6 +609,8 @@ function buildStarfireChoirDefinition({ recipe, parentDamage, parentAoe }) {
     flighttime: 3.2,
     tracks: false,
     trajectoryheight: 1.25,
+    wobble: 420,
+    dance: 6,
     areaofeffect: Math.round(clamp(parentAoe * 0.42, 40, 96)),
     edgeeffectiveness: 0.35,
     avoidfeature: false,
@@ -568,18 +633,14 @@ function buildStarfireChoirDefinition({ recipe, parentDamage, parentAoe }) {
   };
 }
 
-function buildVisualRecipeDefinition({ recipe, parentAoe, effect, trail }) {
+function buildVisualRecipeDefinition({ recipe, parentAoe, effect, trail, projectile = {} }) {
   return {
     name: `${recipe.label} visual`,
-    weapontype: 'Cannon',
     range: 400,
     reloadtime: 1,
-    weaponvelocity: 520,
     areaofeffect: Math.round(clamp(parentAoe * 0.45, 32, 96)),
     edgeeffectiveness: 0,
-    accuracy: 480,
-    sprayangle: 980,
-    gravityaffected: false,
+    ...projectile,
     avoidfeature: false,
     avoidfriendly: false,
     collidefriendly: false,
@@ -600,6 +661,16 @@ function buildBlueNovaDefinition(options) {
     ...options,
     effect: 'custom:laserhit-large-blue',
     trail: 'blob_trail_blue',
+    projectile: {
+      weapontype: 'LaserCannon',
+      weaponvelocity: 980,
+      duration: 0.18,
+      thickness: 2.6,
+      rgbcolor: '0.2 0.55 1',
+      accuracy: 40,
+      sprayangle: 1150,
+      gravityaffected: false,
+    },
   });
 }
 
@@ -607,6 +678,15 @@ function buildSparkVeilDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:plasmahit-sparkonly',
+    projectile: {
+      weapontype: 'EmgCannon',
+      weaponvelocity: 620,
+      accuracy: 780,
+      sprayangle: 1550,
+      wobble: 1200,
+      dance: 8,
+      gravityaffected: false,
+    },
   });
 }
 
@@ -615,6 +695,17 @@ function buildScavMirageDefinition(options) {
     ...options,
     effect: 'custom:scav_mist_explosion',
     trail: 'scaspawn-greentrail',
+    projectile: {
+      weapontype: 'MissileLauncher',
+      startvelocity: 90,
+      weaponacceleration: 45,
+      weaponvelocity: 310,
+      flighttime: 2.2,
+      tracks: false,
+      wobble: 3200,
+      dance: 28,
+      trajectoryheight: 0.35,
+    },
   });
 }
 
@@ -622,6 +713,16 @@ function buildAquaPrismDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:laserhit-large-aqua',
+    projectile: {
+      weapontype: 'LaserCannon',
+      weaponvelocity: 720,
+      duration: 0.45,
+      thickness: 4,
+      rgbcolor: '0.2 1 0.9',
+      accuracy: 180,
+      sprayangle: 680,
+      gravityaffected: false,
+    },
   });
 }
 
@@ -629,6 +730,14 @@ function buildVerdantEchoDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:laserhit-large-green',
+    projectile: {
+      weapontype: 'Cannon',
+      weaponvelocity: 280,
+      accuracy: 360,
+      sprayangle: 820,
+      gravityaffected: true,
+      mygravity: 0.18,
+    },
   });
 }
 
@@ -636,6 +745,16 @@ function buildCrimsonPetalsDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:laserhit-medium-red',
+    projectile: {
+      weapontype: 'LaserCannon',
+      weaponvelocity: 1120,
+      duration: 0.1,
+      thickness: 1.7,
+      rgbcolor: '1 0.16 0.22',
+      accuracy: 120,
+      sprayangle: 1320,
+      gravityaffected: false,
+    },
   });
 }
 
@@ -643,6 +762,13 @@ function buildGoldenFlickerDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:laserhit-small-yellow',
+    projectile: {
+      weapontype: 'EmgCannon',
+      weaponvelocity: 1350,
+      accuracy: 960,
+      sprayangle: 1850,
+      gravityaffected: false,
+    },
   });
 }
 
@@ -650,6 +776,15 @@ function buildAcidAuroraDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:acid-explosion-small',
+    projectile: {
+      weapontype: 'Flame',
+      weaponvelocity: 190,
+      duration: 1.1,
+      sizegrowth: 0.7,
+      accuracy: 260,
+      sprayangle: 760,
+      gravityaffected: false,
+    },
   });
 }
 
@@ -657,6 +792,14 @@ function buildRaptorEmbersDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:raptorspike-small-sparks-burn',
+    projectile: {
+      weapontype: 'AircraftBomb',
+      weaponvelocity: 205,
+      accuracy: 620,
+      sprayangle: 920,
+      gravityaffected: true,
+      mygravity: 0.28,
+    },
   });
 }
 
@@ -664,6 +807,14 @@ function buildBlackAshDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:burnblackbig',
+    projectile: {
+      weapontype: 'Cannon',
+      weaponvelocity: 145,
+      accuracy: 210,
+      sprayangle: 520,
+      gravityaffected: true,
+      mygravity: 0.42,
+    },
   });
 }
 
@@ -671,6 +822,15 @@ function buildDustHaloDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:dirtpoof',
+    projectile: {
+      weapontype: 'Cannon',
+      range: 300,
+      weaponvelocity: 440,
+      accuracy: 60,
+      sprayangle: 1750,
+      gravityaffected: true,
+      mygravity: 0.035,
+    },
   });
 }
 
@@ -678,6 +838,17 @@ function buildVoidPulseDefinition(options) {
   return buildVisualRecipeDefinition({
     ...options,
     effect: 'custom:scavmist',
+    projectile: {
+      weapontype: 'MissileLauncher',
+      startvelocity: 35,
+      weaponacceleration: 180,
+      weaponvelocity: 680,
+      flighttime: 1.5,
+      tracks: false,
+      wobble: 850,
+      dance: 12,
+      trajectoryheight: 0.8,
+    },
   });
 }
 

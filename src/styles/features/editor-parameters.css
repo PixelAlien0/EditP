@@ -315,14 +315,16 @@
 .weapon-advanced-group-heading--cluster {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(220px, 0.3fr) minmax(0, 1fr);
+  grid-template-columns: minmax(200px, 0.24fr) minmax(0, 1fr);
   align-items: start;
   gap: var(--space-5);
-  padding-block: var(--space-3);
+  padding-block: var(--space-4);
 }
 
 .weapon-advanced-group-heading--cluster .weapon-advanced-group-heading__copy {
-  padding-top: calc(var(--space-4) + var(--space-1));
+  position: sticky;
+  top: var(--space-3);
+  padding-top: var(--space-1);
 }
 
 .weapon-advanced-group-heading--cluster .weapon-advanced-group-heading__actions {
@@ -334,7 +336,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
-  gap: var(--space-2);
+  gap: var(--space-4);
   width: 100%;
 }
 
@@ -342,7 +344,23 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
+}
+
+.weapon-cluster-recipe-palette__group-heading {
+  min-height: 28px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.weapon-cluster-recipe-palette__group-heading > span:last-child {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-metadata)/1.2 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .weapon-cluster-recipe-palette__label {
@@ -355,13 +373,90 @@
 .weapon-cluster-recipe-palette__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
-.weapon-cluster-recipe-palette__grid .ui-button {
+.weapon-cluster-recipe-card.ui-button {
+  position: relative;
   min-width: 0;
-  justify-content: center;
+  min-height: 78px;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: center;
+  justify-items: stretch;
+  gap: 3px;
+  padding: var(--space-2) var(--space-3);
+  border-color: var(--color-border-subtle);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: left;
+  white-space: normal;
+}
+
+.weapon-cluster-recipe-card.ui-button:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-hover);
+}
+
+.weapon-cluster-recipe-card.ui-button[aria-pressed='true'] {
+  border-color: var(--color-border-accent-muted);
+  background: var(--color-surface-accent-subtle);
+  box-shadow: var(--shadow-selection);
+}
+
+.weapon-cluster-recipe-card__topline {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.weapon-cluster-recipe-card__topline strong {
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: 700 var(--font-size-xs)/1.2 var(--font-ui);
+  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.weapon-cluster-recipe-card__topline > span {
+  flex: 0 0 auto;
+  min-width: 20px;
+  padding: 2px var(--space-1);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  font: 700 var(--font-size-metadata)/1 var(--font-mono);
+  text-align: center;
+}
+
+.weapon-cluster-recipe-card__flight {
+  overflow: hidden;
+  color: var(--color-accent-strong);
+  font: 700 var(--font-size-metadata)/1.2 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.weapon-cluster-recipe-card__pattern {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font: 500 var(--font-size-metadata)/1.25 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weapon-cluster-recipe-card__active {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  color: var(--color-accent-strong);
+  font: 700 var(--font-size-metadata)/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 1180px) {
@@ -371,7 +466,16 @@
   }
 
   .weapon-advanced-group-heading--cluster .weapon-advanced-group-heading__copy {
+    position: static;
     padding-top: 0;
+  }
+
+  .weapon-cluster-recipe-palette {
+    grid-template-columns: 1fr;
+  }
+
+  .weapon-cluster-recipe-palette__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -409,11 +513,6 @@
   .weapon-advanced-group-heading__actions .ui-button-group {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .weapon-cluster-recipe-palette {
-    width: 100%;
-    grid-template-columns: 1fr;
   }
 
   .weapon-cluster-recipe-palette__grid {

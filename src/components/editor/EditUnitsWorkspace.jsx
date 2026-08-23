@@ -469,6 +469,13 @@ export default function EditUnitsWorkspace({ context }) {
                   ?? ''
               ).trim().toLowerCase()
               : '';
+            const activeClusterDefinition = slot
+              ? String(
+                activeSlotTweaks[`weapon_slot_${slot.slot}_cluster_def`]
+                  ?? slot.cluster_def
+                  ?? ''
+              ).trim().toLowerCase()
+              : '';
             const applicableAdvancedWeaponGroups = advancedWeaponGroups
               .map(group => {
                 const groupParameters = group.kind === 'special-projectile'
@@ -1404,15 +1411,35 @@ export default function EditUnitsWorkspace({ context }) {
                                           ['visual', 'Visual only'],
                                         ].map(([kind, label]) => (
                                           <div className="weapon-cluster-recipe-palette__group" key={kind}>
-                                            <span className="weapon-cluster-recipe-palette__label">{label}</span>
+                                            <div className="weapon-cluster-recipe-palette__group-heading">
+                                              <span className="weapon-cluster-recipe-palette__label">{label}</span>
+                                              <span>{kind === 'combat' ? 'Distinct projectile mechanics' : 'Zero-damage motion studies'}</span>
+                                            </div>
                                             <div className="weapon-cluster-recipe-palette__grid">
                                               {Object.values(WEAPON_CLUSTER_RECIPES)
                                                 .filter(recipe => recipe.kind === kind)
-                                                .map(recipe => (
-                                                  <Button key={recipe.id} size="sm" variant="secondary" title={recipe.description} onClick={() => applyClusterRecipe(recipe.id)}>
-                                                    {recipe.label}
-                                                  </Button>
-                                                ))}
+                                                .map(recipe => {
+                                                  const isActive = activeClusterDefinition === recipe.supportingKey;
+                                                  return (
+                                                    <Button
+                                                      key={recipe.id}
+                                                      className="weapon-cluster-recipe-card"
+                                                      size="sm"
+                                                      variant="secondary"
+                                                      title={recipe.description}
+                                                      aria-pressed={isActive}
+                                                      onClick={() => applyClusterRecipe(recipe.id)}
+                                                    >
+                                                      <span className="weapon-cluster-recipe-card__topline">
+                                                        <strong>{recipe.label}</strong>
+                                                        <span>{recipe.clusterCount}</span>
+                                                      </span>
+                                                      <span className="weapon-cluster-recipe-card__flight">{recipe.flight}</span>
+                                                      <span className="weapon-cluster-recipe-card__pattern">{recipe.pattern}</span>
+                                                      {isActive && <span className="weapon-cluster-recipe-card__active">Applied</span>}
+                                                    </Button>
+                                                  );
+                                                })}
                                             </div>
                                           </div>
                                         ))}
