@@ -4,6 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 async function waitForMainMenu(page) {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /Bar EditP/i })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('.main-menu')).toHaveClass(/is-gsap-settled/, { timeout: 30_000 });
 }
 
 async function readPrimaryActionPalette(locator) {
@@ -62,6 +63,8 @@ test('main menu separates the active project, core workspaces, and specialist wo
 
   await expect(page.locator('.main-menu__active-project')).toBeVisible();
   await expect(page.locator('.main-menu__atmosphere canvas')).toBeVisible();
+  await expect(page.locator('.main-menu__project-signal')).toBeVisible();
+  await expect(page.locator('.main-menu__signal-ring')).toHaveCount(3);
   const continueEditing = page.locator('.main-menu__enter');
   await expect(continueEditing).toBeVisible();
   const continueEditingBeforeHover = await continueEditing.boundingBox();
@@ -75,8 +78,9 @@ test('main menu separates the active project, core workspaces, and specialist wo
   expect(Math.abs(continueEditingAfterHover.width - continueEditingBeforeHover.width)).toBeLessThan(0.5);
   expect(Math.abs(continueEditingAfterHover.height - continueEditingBeforeHover.height)).toBeLessThan(0.5);
   await expect(page.getByRole('navigation', { name: 'Core workspaces' }).getByRole('button')).toHaveCount(3);
+  await expect(page.locator('.main-menu__workspace-detail')).toHaveCount(3);
   const tools = page.getByRole('region', { name: 'Research & package tools' });
-  await expect(tools.getByRole('button')).toHaveCount(6);
+  await expect(tools.getByRole('button')).toHaveCount(8);
   await expect(page.getByRole('button', { name: 'Save project' })).toBeVisible();
 
   await tools.getByRole('button', { name: /Collections/ }).click();

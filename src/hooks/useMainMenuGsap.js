@@ -17,7 +17,7 @@ export default function useMainMenuGsap(rootRef) {
 
     if (prefersReducedMotion()) {
       root.classList.remove('is-gsap-preparing');
-      root.classList.add('is-gsap-ready');
+      root.classList.add('is-gsap-ready', 'is-gsap-settled');
       return undefined;
     }
 
@@ -39,6 +39,11 @@ export default function useMainMenuGsap(rootRef) {
           const metrics = gsap.utils.toArray('[data-gsap-metric]', liveRoot);
           const workspaceCards = gsap.utils.toArray('[data-gsap-workspace]', liveRoot);
           const toolCards = gsap.utils.toArray('[data-gsap-tool]', liveRoot);
+          const editorialLines = gsap.utils.toArray('[data-gsap-editorial-line]', liveRoot);
+          const projectEditorialLines = gsap.utils.toArray('[data-gsap-editorial-line]', projectDesk);
+          const workspaceEditorialLines = gsap.utils.toArray('[data-gsap-editorial-line]', launchpad);
+          const projectSignal = liveRoot.querySelector('[data-gsap-signal]');
+          const signalRings = gsap.utils.toArray('[data-project-signal]', liveRoot);
           const atmosphere = liveRoot.querySelector('.main-menu__atmosphere');
 
           gsap.set([topbar, projectDesk, launchpad, footer].filter(Boolean), { autoAlpha: 0 });
@@ -46,16 +51,28 @@ export default function useMainMenuGsap(rootRef) {
           gsap.set([projectDesk, launchpad, footer].filter(Boolean), { y: 14 });
           gsap.set(metrics, { autoAlpha: 0, y: 8 });
           gsap.set([...workspaceCards, ...toolCards], { autoAlpha: 0, y: 12 });
+          gsap.set(editorialLines, { yPercent: 112 });
+          gsap.set(signalRings, { strokeDashoffset: 100, transformOrigin: '50% 50%' });
+          workspaceCards.forEach(card => {
+            const detail = card.querySelector('[data-gsap-workspace-detail]');
+            if (detail) gsap.set(detail, { autoAlpha: 0, clipPath: 'inset(0 100% 0 0)' });
+          });
           liveRoot.classList.remove('is-gsap-preparing');
           liveRoot.classList.add('is-gsap-ready');
 
-          const entrance = gsap.timeline({ defaults: { ease: 'power3.out' } });
+          const entrance = gsap.timeline({
+            defaults: { ease: 'power3.out' },
+            onComplete: () => liveRoot.classList.add('is-gsap-settled'),
+          });
           entrance
             .to(topbar, { autoAlpha: 1, y: 0, duration: 0.42 })
             .to(projectDesk, { autoAlpha: 1, y: 0, duration: 0.62 }, '-=0.2')
+            .to(projectEditorialLines, { yPercent: 0, duration: 0.58, stagger: 0.075 }, '-=0.48')
+            .to(signalRings, { strokeDashoffset: 0, duration: 0.9, stagger: 0.08, ease: 'power2.out' }, '-=0.54')
             .to(metrics, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.055 }, '-=0.3')
             .to(launchpad, { autoAlpha: 1, y: 0, duration: 0.48 }, '-=0.28')
             .to(workspaceCards, { autoAlpha: 1, y: 0, duration: 0.44, stagger: 0.065 }, '-=0.3')
+            .to(workspaceEditorialLines, { yPercent: 0, duration: 0.46, stagger: 0.055 }, '-=0.48')
             .to(toolCards, { autoAlpha: 1, y: 0, duration: 0.36, stagger: 0.035 }, '-=0.25')
             .to(footer, { autoAlpha: 1, y: 0, duration: 0.32 }, '-=0.18');
 
@@ -104,6 +121,86 @@ export default function useMainMenuGsap(rootRef) {
             }
           }
 
+          if (projectSignal && signalRings.length) {
+            const signalDrift = gsap.to(signalRings, {
+              rotation: index => index % 2 === 0 ? 360 : -360,
+              duration: index => 34 + (index * 9),
+              repeat: -1,
+              ease: 'none',
+            });
+            ambientAnimations.push(signalDrift);
+
+            gsap.utils.toArray('[data-project-signal-source]', liveRoot).forEach(source => {
+              const signalId = source.dataset.projectSignalSource;
+              const target = liveRoot.querySelector(`[data-project-signal="${signalId}"]`);
+              if (!target) return;
+              const onEnter = () => {
+                gsap.to(signalRings, { opacity: 0.12, duration: 0.28, overwrite: 'auto' });
+                gsap.to(target, { opacity: 0.95, scale: 1.035, duration: 0.32, ease: 'power2.out', overwrite: 'auto' });
+              };
+              const onLeave = () => {
+                gsap.to(signalRings, {
+                  opacity: 0.46,
+                  scale: 1,
+                  duration: 0.36,
+                  ease: 'power3.out',
+                  overwrite: 'auto',
+                  onComplete: () => gsap.set(signalRings, { clearProps: 'opacity' }),
+                });
+              };
+              source.addEventListener('pointerenter', onEnter);
+              source.addEventListener('pointerleave', onLeave);
+              removeListeners.push(() => {
+                source.removeEventListener('pointerenter', onEnter);
+                source.removeEventListener('pointerleave', onLeave);
+              });
+            });
+          }
+
+          const resetWorkspaceComposition = () => {
+            gsap.to(workspaceCards, { opacity: 1, duration: 0.34, ease: 'power2.out', overwrite: 'auto' });
+            workspaceCards.forEach(card => {
+              card.classList.remove('is-composed');
+              const detail = card.querySelector('[data-gsap-workspace-detail]');
+              if (detail) gsap.to(detail, {
+                autoAlpha: 0,
+                clipPath: 'inset(0 100% 0 0)',
+                duration: 0.24,
+                overwrite: 'auto',
+              });
+            });
+          };
+
+          workspaceCards.forEach(activeCard => {
+            const detail = activeCard.querySelector('[data-gsap-workspace-detail]');
+            const compose = () => {
+              workspaceCards.forEach(card => card.classList.toggle('is-composed', card === activeCard));
+              gsap.to(workspaceCards, {
+                opacity: (_, card) => card === activeCard ? 1 : 0.46,
+                duration: 0.32,
+                ease: 'power2.out',
+                overwrite: 'auto',
+              });
+              if (detail) gsap.to(detail, {
+                autoAlpha: 1,
+                clipPath: 'inset(0 0% 0 0)',
+                duration: 0.38,
+                ease: 'power3.out',
+                overwrite: 'auto',
+              });
+            };
+            activeCard.addEventListener('pointerenter', compose);
+            activeCard.addEventListener('pointerleave', resetWorkspaceComposition);
+            activeCard.addEventListener('focus', compose);
+            activeCard.addEventListener('blur', resetWorkspaceComposition);
+            removeListeners.push(() => {
+              activeCard.removeEventListener('pointerenter', compose);
+              activeCard.removeEventListener('pointerleave', resetWorkspaceComposition);
+              activeCard.removeEventListener('focus', compose);
+              activeCard.removeEventListener('blur', resetWorkspaceComposition);
+            });
+          });
+
           gsap.utils.toArray('[data-gsap-interactive]', liveRoot).forEach(node => {
             const arrow = node.querySelector('.main-menu__motion-arrow');
             const onEnter = () => {
@@ -129,7 +226,7 @@ export default function useMainMenuGsap(rootRef) {
       })
       .catch(() => {
         root.classList.remove('is-gsap-preparing');
-        root.classList.add('is-gsap-ready');
+        root.classList.add('is-gsap-ready', 'is-gsap-settled');
       });
 
     return () => {

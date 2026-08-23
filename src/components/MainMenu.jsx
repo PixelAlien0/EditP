@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import OnlinePresenceBadge from './OnlinePresenceBadge.jsx';
 import MainMenuAtmosphere from './MainMenuAtmosphere.jsx';
+import MainMenuProjectSignal from './MainMenuProjectSignal.jsx';
 import { CapabilityLabels } from './ui.jsx';
 import useMainMenuGsap from '../hooks/useMainMenuGsap.js';
 
@@ -11,6 +12,12 @@ const ArrowIcon = () => (
 const MotionArrow = () => (
   <span className="main-menu__motion-arrow" aria-hidden="true">
     <ArrowIcon />
+  </span>
+);
+
+const EditorialLine = ({ children }) => (
+  <span className="main-menu__editorial-mask">
+    <span data-gsap-editorial-line>{children}</span>
   </span>
 );
 
@@ -59,16 +66,19 @@ export default function MainMenu({
     {
       id: 'edit', number: '01', eyebrow: 'Editor', title: 'Edit units',
       description: 'Unit stats, weapons, behavior, assets, and clones.',
+      focusDetail: `${unitCount.toLocaleString()} definitions · ${cloneCount} custom clones`,
       meta: hasWork ? `${projectChangeCount} changes` : 'No changes', capabilityId: 'workspace.edit', primary: true, onSelect: onEditUnits,
     },
     {
       id: 'build', number: '02', eyebrow: 'Production', title: 'Build menus',
       description: 'Factory and builder production rosters.',
+      focusDetail: `${rosterCount} edited producers · ordered output`,
       meta: rosterCount ? `${rosterCount} roster changes` : 'No roster changes', capabilityId: 'workspace.build-menus', onSelect: onBuildMenus,
     },
     {
       id: 'review', number: '03', eyebrow: 'Output', title: 'Review & export',
       description: 'Validation, Lua output, and lobby commands.',
+      focusDetail: `${projectChangeCount} tracked edits · compatibility preflight`,
       meta: hasWork ? 'Ready for review' : 'No changes to export', capabilityId: 'workspace.review', onSelect: onReviewExport,
     },
   ];
@@ -84,9 +94,9 @@ export default function MainMenu({
   ];
 
   const projectLedger = [
-    { label: 'Definitions', value: unitCount.toLocaleString(), note: 'BAR records available' },
-    { label: 'Clones', value: cloneCount, note: 'Custom units' },
-    { label: 'Rosters', value: rosterCount, note: 'Edited producers' },
+    { label: 'Definitions', value: unitCount.toLocaleString(), note: 'BAR records available', signalId: null },
+    { label: 'Clones', value: cloneCount, note: 'Custom units', signalId: 'clones' },
+    { label: 'Rosters', value: rosterCount, note: 'Edited producers', signalId: 'rosters' },
   ];
 
   return (
@@ -138,7 +148,7 @@ export default function MainMenu({
             <MainMenuAtmosphere themeMode={themeMode} />
             <div className="main-menu__project-summary">
               <span>Definition workspace</span>
-              <h1 id="main-menu-title">Bar EditP</h1>
+              <h1 id="main-menu-title"><EditorialLine>Bar EditP</EditorialLine></h1>
               <p>A focused workshop for shaping BAR units, production rosters, and lobby-ready projects.</p>
             </div>
 
@@ -164,10 +174,11 @@ export default function MainMenu({
           </aside>
 
           <article className="main-menu__active-project" aria-labelledby="main-menu-project-title">
+            <MainMenuProjectSignal changes={projectChangeCount} clones={cloneCount} rosters={rosterCount} />
             <header>
               <div>
                 <span>Active local project</span>
-                <h2 id="main-menu-project-title">{currentProjectName}</h2>
+                <h2 id="main-menu-project-title"><EditorialLine>{currentProjectName}</EditorialLine></h2>
               </div>
               <small className={hasWork ? 'is-active' : ''}><i aria-hidden="true" />{hasWork ? 'In progress' : 'Ready'}</small>
             </header>
@@ -175,6 +186,7 @@ export default function MainMenu({
               <div
                 className="main-menu__project-pulse"
                 data-gsap-metric
+                data-project-signal-source="changes"
               >
                 <span>Project activity</span>
                 <div className="main-menu__project-pulse-value">
@@ -192,10 +204,10 @@ export default function MainMenu({
                   className="main-menu__project-ledger"
                   aria-label="Current project inventory"
                 >
-                  {projectLedger.map(({ label, value, note }) => {
+                  {projectLedger.map(({ label, value, note, signalId }) => {
                     const numericValue = Number(String(value).replaceAll(',', ''));
                     return (
-                    <div key={label} data-gsap-metric>
+                    <div key={label} data-gsap-metric data-project-signal-source={signalId || undefined}>
                       <span><dt>{label}</dt><small>{note}</small></span>
                       <dd data-gsap-count={numericValue} aria-label={`${value} ${label.toLowerCase()}`}>{value}</dd>
                     </div>
@@ -246,8 +258,9 @@ export default function MainMenu({
                     <small>{item.eyebrow}</small>
                     <CapabilityLabels featureId={item.capabilityId} compact />
                   </span>
-                  <strong>{item.title}</strong>
+                  <strong><EditorialLine>{item.title}</EditorialLine></strong>
                   <p>{item.description}</p>
+                  <small className="main-menu__workspace-detail" data-gsap-workspace-detail>{item.focusDetail}</small>
                 </span>
                 <span className="main-menu__workspace-meta">{item.meta}</span>
                 <MotionArrow />
