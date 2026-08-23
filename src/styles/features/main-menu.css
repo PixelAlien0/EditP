@@ -29,23 +29,46 @@
   will-change: transform;
 }
 
-.main-menu.is-gsap-exiting { pointer-events: none; }
-
-::view-transition-old(root) {
-  animation: main-menu-view-out 160ms var(--ease-standard) both;
+.main-menu.is-gsap-exiting {
+  pointer-events: none;
+  cursor: progress;
 }
 
-::view-transition-new(root) {
-  animation: main-menu-view-in 260ms var(--ease-decelerate) both;
+html.is-menu-route-transition::view-transition-group(root) {
+  animation-duration: 480ms;
+  animation-timing-function: var(--ease-decelerate);
 }
 
-@keyframes main-menu-view-out {
-  to { opacity: 0.72; }
+html.is-menu-route-transition::view-transition-old(root) {
+  z-index: 1;
+  animation: main-menu-route-out 420ms var(--ease-standard) both;
 }
 
-@keyframes main-menu-view-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+html.is-menu-route-transition::view-transition-new(root) {
+  z-index: 2;
+  animation: main-menu-route-reveal 480ms var(--ease-decelerate) both;
+}
+
+@keyframes main-menu-route-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.76;
+    transform: scale(0.994);
+  }
+}
+
+@keyframes main-menu-route-reveal {
+  from {
+    opacity: 0.88;
+    clip-path: circle(0 at var(--menu-transition-x, 50vw) var(--menu-transition-y, 50vh));
+  }
+  to {
+    opacity: 1;
+    clip-path: circle(150vmax at var(--menu-transition-x, 50vw) var(--menu-transition-y, 50vh));
+  }
 }
 
 .main-menu.is-gsap-ready [data-gsap-interactive] {

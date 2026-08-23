@@ -229,7 +229,7 @@ export default function MainMenu({
                 className="main-menu__enter"
                 data-gsap-interactive
                 data-gsap-project-action
-                onClick={() => navigateWithMotion(onEditUnits)}
+                onClick={(event) => navigateWithMotion(onEditUnits, event.currentTarget)}
               >
                 <span><small>Enter workspace</small><strong>{hasWork ? 'Continue editing' : 'Open editor'}</strong></span>
                 <MotionArrow />
@@ -254,7 +254,7 @@ export default function MainMenu({
                 className={item.primary ? 'is-primary' : ''}
                 data-gsap-workspace
                 data-gsap-interactive
-                onClick={() => navigateWithMotion(item.onSelect)}
+                onClick={(event) => navigateWithMotion(item.onSelect, event.currentTarget)}
               >
                 <span className="main-menu__workspace-number">{item.number}</span>
                 <span className="main-menu__workspace-copy">
@@ -280,7 +280,7 @@ export default function MainMenu({
                   key={tool.id}
                   data-gsap-tool
                   data-gsap-interactive
-                  onClick={() => navigateWithMotion(tool.onSelect)}
+                  onClick={(event) => navigateWithMotion(tool.onSelect, event.currentTarget)}
                 >
                   <span>{tool.code}</span>
                   <span>

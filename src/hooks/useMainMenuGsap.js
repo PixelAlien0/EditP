@@ -274,7 +274,7 @@ export default function useMainMenuGsap(rootRef) {
     };
   }, [rootRef]);
 
-  return useCallback((onComplete) => {
+  return useCallback((onComplete, originElement = null) => {
     if (typeof onComplete !== 'function' || exitInProgressRef.current) return;
     const root = rootRef.current;
     if (!root || prefersReducedMotion() || typeof document.startViewTransition !== 'function') {
@@ -282,22 +282,40 @@ export default function useMainMenuGsap(rootRef) {
       return;
     }
 
+    const documentRoot = document.documentElement;
+    const originBounds = originElement?.getBoundingClientRect?.();
+    const originX = originBounds
+      ? originBounds.left + (originBounds.width / 2)
+      : window.innerWidth / 2;
+    const originY = originBounds
+      ? originBounds.top + (originBounds.height / 2)
+      : window.innerHeight / 2;
+
     exitInProgressRef.current = true;
     root.classList.add('is-gsap-exiting');
+    documentRoot.classList.add('is-menu-route-transition');
+    documentRoot.style.setProperty('--menu-transition-x', `${Math.round(originX)}px`);
+    documentRoot.style.setProperty('--menu-transition-y', `${Math.round(originY)}px`);
+
+    const finishTransition = () => {
+      exitInProgressRef.current = false;
+      root.classList.remove('is-gsap-exiting');
+      documentRoot.classList.remove('is-menu-route-transition');
+      documentRoot.style.removeProperty('--menu-transition-x');
+      documentRoot.style.removeProperty('--menu-transition-y');
+    };
+
+    let didNavigate = false;
 
     try {
       const transition = document.startViewTransition(() => {
+        didNavigate = true;
         flushSync(() => onComplete());
       });
-      const finishTransition = () => {
-        exitInProgressRef.current = false;
-        root.classList.remove('is-gsap-exiting');
-      };
       transition.finished.then(finishTransition, finishTransition);
     } catch {
-      exitInProgressRef.current = false;
-      root.classList.remove('is-gsap-exiting');
-      onComplete();
+      finishTransition();
+      if (!didNavigate) onComplete();
     }
   }, [rootRef]);
 }
