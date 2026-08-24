@@ -3,19 +3,16 @@
   height: calc(100dvh - var(--header-height));
   background: var(--color-canvas);
 }
-
 .barbarian-ai-audit > .ui-page-shell__toolbar {
   padding: var(--space-4) clamp(var(--space-5), 2.6vw, var(--space-8));
   border-bottom: 1px solid var(--color-border-subtle);
   background: var(--color-surface);
 }
-
 .barbarian-ai-audit__body {
   min-height: 0;
   padding: var(--density-page-gutter);
   overflow: auto;
 }
-
 .barbarian-ai-audit__import-deck {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -23,19 +20,16 @@
   gap: var(--space-6);
   width: 100%;
 }
-
 .barbarian-ai-audit__import-deck > div:first-child {
   display: grid;
   gap: var(--space-1);
 }
-
 .barbarian-ai-audit__import-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--density-inline-gap);
 }
-
 .barbarian-ai-audit__native-input {
   position: fixed;
   width: 1px;
@@ -43,14 +37,12 @@
   opacity: 0;
   pointer-events: none;
 }
-
 .barbarian-ai-audit__empty,
 .barbarian-ai-audit__workbench {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface);
 }
-
 .barbarian-ai-audit__empty {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
@@ -59,18 +51,15 @@
   min-height: clamp(250px, 32vh, 360px);
   padding: clamp(var(--space-6), 4vw, var(--space-10));
 }
-
 .barbarian-ai-audit__empty-copy {
   display: grid;
   align-content: center;
   gap: var(--space-3);
   max-width: 44ch;
 }
-
 .barbarian-ai-audit__empty-copy .ui-type--section-title {
   margin: 0;
 }
-
 .barbarian-ai-audit__empty-ledger {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -81,7 +70,6 @@
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
-
 .barbarian-ai-audit__empty-ledger li {
   display: flex;
   align-items: center;
@@ -90,34 +78,30 @@
   color: var(--color-text);
   font-size: var(--font-size-sm);
 }
-
 .barbarian-ai-audit__empty-ledger li:nth-child(even) {
   border-inline-start: 1px solid var(--color-border);
 }
-
 .barbarian-ai-audit__empty-ledger li:nth-child(n + 3) {
   border-block-start: 1px solid var(--color-border);
 }
-
 .barbarian-ai-audit__empty-ledger b {
   color: var(--color-accent);
   font: 600 var(--font-size-metadata)/1 var(--font-mono);
 }
-
 .barbarian-ai-audit__workbench {
   min-height: min(620px, 68vh);
   overflow: hidden;
 }
-
 .barbarian-ai-audit__tabs {
   display: flex;
   gap: var(--space-1);
   padding: var(--space-2);
   border-block-end: 1px solid var(--color-border);
   background: var(--color-surface-subtle);
+  overflow-x: auto;
 }
-
 .barbarian-ai-audit__tabs button {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -136,24 +120,20 @@
   background: var(--color-surface-hover);
   color: var(--color-text-strong);
 }
-
 .barbarian-ai-audit__tabs button.is-active {
   border-color: var(--color-border-accent-muted);
   background: var(--color-surface-accent-subtle);
   color: var(--color-accent-strong);
 }
-
 .barbarian-ai-audit__panel {
   min-height: 480px;
   padding: var(--space-6);
 }
-
 .barbarian-ai-smoke-test {
   display: grid;
   gap: var(--space-6);
   min-width: 0;
 }
-
 .barbarian-ai-smoke-test__header,
 .barbarian-ai-smoke-test__section-heading {
   display: flex;
@@ -161,18 +141,15 @@
   justify-content: space-between;
   gap: var(--space-5);
 }
-
 .barbarian-ai-smoke-test__header > div:first-child,
 .barbarian-ai-smoke-test__section-heading > div {
   display: grid;
   gap: var(--space-1);
   min-width: 0;
 }
-
 .barbarian-ai-smoke-test__header .ui-type--description {
   max-width: 72ch;
 }
-
 .barbarian-ai-smoke-test__actions {
   display: flex;
   flex: none;
@@ -180,7 +157,6 @@
   justify-content: flex-end;
   gap: var(--density-inline-gap);
 }
-
 .barbarian-ai-smoke-test__status {
   display: grid;
   grid-template-columns: minmax(260px, 1.2fr) minmax(360px, 1fr);

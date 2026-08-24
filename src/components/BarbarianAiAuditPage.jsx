@@ -5,6 +5,8 @@ import BarbarianAiDeploymentPlan from './BarbarianAiDeploymentPlan.jsx';
 import BarbarianAiProfileComposer from './BarbarianAiProfileComposer.jsx';
 import BarbarianAiReleaseDossier from './BarbarianAiReleaseDossier.jsx';
 import BarbarianAiSmokeTest from './BarbarianAiSmokeTest.jsx';
+import BarbarianAiVersionComparison from './BarbarianAiVersionComparison.jsx';
+import BarbarianAiMigrationPlan from './BarbarianAiMigrationPlan.jsx';
 import { Badge, Button, Callout, EmptyState, PageShell, StatusBadge, Type } from './ui.jsx';
 import '../styles/features/barbarian-ai-audit.css';
 
@@ -16,6 +18,8 @@ const AUDIT_TABS = Object.freeze([
   ['deployment', 'Deployment Plan'],
   ['testing', 'Smoke Test'],
   ['release', 'Release Dossier'],
+  ['comparison', 'Version Comparison'],
+  ['migration', 'Migration Plan'],
   ['findings', 'Findings'],
   ['files', 'Files'],
 ]);
@@ -160,6 +164,7 @@ export default function BarbarianAiAuditPage({ units = [], onBack, onNotice }) {
   const folderInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const [audit, setAudit] = useState(null);
+  const [baselineAudit, setBaselineAudit] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -174,10 +179,12 @@ export default function BarbarianAiAuditPage({ units = [], onBack, onNotice }) {
       const records = await readAiPackageFiles(selectedFiles);
       const nextAudit = auditBarbarianAiPackage(records, { knownUnitIds });
       setAudit(nextAudit);
+      setBaselineAudit(null);
       setActiveTab('overview');
       onNotice?.(`Inspected ${records.length} AI package files without executing package code.`);
     } catch (importError) {
       setAudit(null);
+      setBaselineAudit(null);
       setError(importError.message || 'The package could not be inspected.');
     } finally {
       event.target.value = '';
@@ -216,7 +223,7 @@ export default function BarbarianAiAuditPage({ units = [], onBack, onNotice }) {
           <div className="barbarian-ai-audit__import-actions">
             <Button variant="primary" loading={loading} onClick={() => folderInputRef.current?.click()}>Choose AI folder</Button>
             <Button variant="secondary" disabled={loading} onClick={() => fileInputRef.current?.click()}>Choose ZIP or files</Button>
-            {audit && <Button variant="quiet" onClick={() => { setAudit(null); setError(''); }}>Clear audit</Button>}
+            {audit && <Button variant="quiet" onClick={() => { setAudit(null); setBaselineAudit(null); setError(''); }}>Clear audit</Button>}
             <input ref={folderInputRef} className="barbarian-ai-audit__native-input" type="file" multiple webkitdirectory="" directory="" onChange={importFiles} />
             <input ref={fileInputRef} className="barbarian-ai-audit__native-input" type="file" multiple accept=".zip,.lua,.as,.json,.jsonc,.dll,.so,.dylib,.txt,.md" onChange={importFiles} />
           </div>
@@ -264,6 +271,8 @@ export default function BarbarianAiAuditPage({ units = [], onBack, onNotice }) {
             {activeTab === 'deployment' && <BarbarianAiDeploymentPlan audit={audit} onNotice={onNotice} />}
             {activeTab === 'testing' && <BarbarianAiSmokeTest audit={audit} onNotice={onNotice} />}
             {activeTab === 'release' && <BarbarianAiReleaseDossier audit={audit} onNotice={onNotice} />}
+            {activeTab === 'comparison' && <BarbarianAiVersionComparison audit={audit} baselineAudit={baselineAudit} onBaselineAuditChange={setBaselineAudit} knownUnitIds={knownUnitIds} onNotice={onNotice} />}
+            {activeTab === 'migration' && <BarbarianAiMigrationPlan audit={audit} baselineAudit={baselineAudit} onOpenComparison={() => setActiveTab('comparison')} onNotice={onNotice} />}
             {activeTab === 'findings' && <FindingsPanel audit={audit} />}
             {activeTab === 'files' && <FilesPanel audit={audit} />}
           </div>
