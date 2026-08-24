@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { strFromU8, unzipSync } from 'fflate';
 import {
   buildAiProfileOverlay,
+  createAiProfileSchema,
   createAiProfileWorkspace,
   resetAiProfileDraft,
+  resetAiProfileValue,
   updateAiProfileDraft,
+  updateAiProfileValue,
   validateAiProfileSource,
 } from './barbarianAiProfiles.js';
 
@@ -45,6 +48,41 @@ describe('BARbarIAn profile composer', () => {
     const changed = updateAiProfileDraft(profile, '{"economy":{"energy":0.9},"extension":true}');
     expect(changed.changed).toBe(true);
     expect(resetAiProfileDraft(changed)).toMatchObject({ changed: false, valid: true });
+  });
+
+  it('builds a human-readable schema for visual profile editing', () => {
+    const [profile] = createAiProfileWorkspace(auditFixture());
+    const schema = createAiProfileSchema(profile);
+
+    expect(schema.groups).toEqual([
+      expect.objectContaining({ id: 'economy', label: 'Economy', editableCount: 1 }),
+      expect.objectContaining({ id: 'extension', label: 'Extension', editableCount: 1 }),
+    ]);
+    expect(schema.fields).toContainEqual(expect.objectContaining({
+      label: 'Energy',
+      type: 'number',
+      editable: true,
+      path: ['economy', 'energy'],
+    }));
+    expect(schema.fields.find(field => field.key === 'energy')?.description).toBeTruthy();
+  });
+
+  it('updates and resets one visual field without dropping unknown keys', () => {
+    const [profile] = createAiProfileWorkspace(auditFixture());
+    const changed = updateAiProfileValue(profile, ['economy', 'energy'], 0.95);
+
+    expect(changed.changed).toBe(true);
+    expect(JSON.parse(changed.draftSource)).toMatchObject({
+      economy: { energy: 0.95 },
+      extension: true,
+    });
+
+    const reset = resetAiProfileValue(changed, ['economy', 'energy']);
+    expect(reset.changed).toBe(false);
+    expect(JSON.parse(reset.draftSource)).toMatchObject({
+      economy: { energy: 0.7 },
+      extension: true,
+    });
   });
 
   it('exports only changed profiles in a config-only overlay', () => {
