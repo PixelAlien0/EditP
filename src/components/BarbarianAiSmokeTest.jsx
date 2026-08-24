@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  aiSmokeTestStorageKey,
   buildAiSmokeTestProtocol,
   buildAiSmokeTestSummary,
   createAiSmokeTestRecord,
@@ -19,13 +20,9 @@ function safeFileName(value) {
   return String(value || 'ai-package').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'ai-package';
 }
 
-function storageKey(fingerprint) {
-  return `editp_ai_smoke_test_v1_${fingerprint}`;
-}
-
 function loadRecord(audit, fingerprint) {
   try {
-    const stored = localStorage.getItem(storageKey(fingerprint));
+    const stored = localStorage.getItem(aiSmokeTestStorageKey(fingerprint));
     return stored ? normalizeAiSmokeTestRecord(audit, JSON.parse(stored)) : createAiSmokeTestRecord(audit);
   } catch {
     return createAiSmokeTestRecord(audit);
@@ -55,7 +52,7 @@ export default function BarbarianAiSmokeTest({ audit, onNotice }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(storageKey(protocol.package.fingerprint), JSON.stringify(record));
+      localStorage.setItem(aiSmokeTestStorageKey(protocol.package.fingerprint), JSON.stringify(record));
     } catch {
       // The workbench remains usable when browser storage is unavailable.
     }

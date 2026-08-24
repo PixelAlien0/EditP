@@ -3,6 +3,7 @@ import { AI_PACKAGE_LIMITS, auditBarbarianAiPackage, readAiPackageFiles } from '
 import BarbarianAiCompatibilityReport from './BarbarianAiCompatibilityReport.jsx';
 import BarbarianAiDeploymentPlan from './BarbarianAiDeploymentPlan.jsx';
 import BarbarianAiProfileComposer from './BarbarianAiProfileComposer.jsx';
+import BarbarianAiReleaseDossier from './BarbarianAiReleaseDossier.jsx';
 import BarbarianAiSmokeTest from './BarbarianAiSmokeTest.jsx';
 import { Badge, Button, Callout, EmptyState, PageShell, StatusBadge, Type } from './ui.jsx';
 import '../styles/features/barbarian-ai-audit.css';
@@ -14,6 +15,7 @@ const AUDIT_TABS = Object.freeze([
   ['report', 'Compatibility Report'],
   ['deployment', 'Deployment Plan'],
   ['testing', 'Smoke Test'],
+  ['release', 'Release Dossier'],
   ['findings', 'Findings'],
   ['files', 'Files'],
 ]);
@@ -261,6 +263,7 @@ export default function BarbarianAiAuditPage({ units = [], onBack, onNotice }) {
             {activeTab === 'report' && <BarbarianAiCompatibilityReport audit={audit} onNotice={onNotice} />}
             {activeTab === 'deployment' && <BarbarianAiDeploymentPlan audit={audit} onNotice={onNotice} />}
             {activeTab === 'testing' && <BarbarianAiSmokeTest audit={audit} onNotice={onNotice} />}
+            {activeTab === 'release' && <BarbarianAiReleaseDossier audit={audit} onNotice={onNotice} />}
             {activeTab === 'findings' && <FindingsPanel audit={audit} />}
             {activeTab === 'files' && <FilesPanel audit={audit} />}
           </div>

@@ -2,6 +2,10 @@ import { buildAiCompatibilityReport } from './barbarianAiCompatibilityReport.js'
 
 export const AI_SMOKE_TEST_RECORD_VERSION = 1;
 
+export function aiSmokeTestStorageKey(fingerprint) {
+  return `editp_ai_smoke_test_v1_${fingerprint}`;
+}
+
 const RESULT_VALUES = new Set(['pending', 'passed', 'failed', 'skipped']);
 
 const TEST_PROTOCOL = Object.freeze([
