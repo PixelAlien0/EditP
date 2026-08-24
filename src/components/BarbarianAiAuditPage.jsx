@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { AI_PACKAGE_LIMITS, auditBarbarianAiPackage, readAiPackageFiles } from '../utils/barbarianAiPackage.js';
 import BarbarianAiCompatibilityReport from './BarbarianAiCompatibilityReport.jsx';
+import BarbarianAiDeploymentPlan from './BarbarianAiDeploymentPlan.jsx';
 import BarbarianAiProfileComposer from './BarbarianAiProfileComposer.jsx';
 import { Badge, Button, Callout, EmptyState, PageShell, StatusBadge, Type } from './ui.jsx';
 import '../styles/features/barbarian-ai-audit.css';
@@ -10,6 +11,7 @@ const AUDIT_TABS = Object.freeze([
   ['contract', 'Contract'],
   ['profiles', 'Profile Composer'],
   ['report', 'Compatibility Report'],
+  ['deployment', 'Deployment Plan'],
   ['findings', 'Findings'],
   ['files', 'Files'],
 ]);
@@ -255,6 +257,7 @@ export default function BarbarianAiAuditPage({ units = [], onBack, onNotice }) {
             {activeTab === 'contract' && <ContractPanel audit={audit} />}
             {activeTab === 'profiles' && <BarbarianAiProfileComposer audit={audit} onNotice={onNotice} />}
             {activeTab === 'report' && <BarbarianAiCompatibilityReport audit={audit} onNotice={onNotice} />}
+            {activeTab === 'deployment' && <BarbarianAiDeploymentPlan audit={audit} onNotice={onNotice} />}
             {activeTab === 'findings' && <FindingsPanel audit={audit} />}
             {activeTab === 'files' && <FilesPanel audit={audit} />}
           </div>

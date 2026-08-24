@@ -797,6 +797,228 @@
   font: 600 var(--font-size-metadata)/var(--line-height-ui) var(--font-mono);
 }
 
+.barbarian-ai-deployment {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.barbarian-ai-deployment__header,
+.barbarian-ai-deployment__section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.barbarian-ai-deployment__header {
+  padding-block-end: var(--space-5);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.barbarian-ai-deployment__header > div:first-child,
+.barbarian-ai-deployment__section-heading > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.barbarian-ai-deployment__header > div:first-child {
+  max-width: 72ch;
+}
+
+.barbarian-ai-deployment__header p {
+  margin: 0;
+}
+
+.barbarian-ai-deployment__actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.barbarian-ai-deployment__route {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.7fr) minmax(0, 1.3fr);
+  align-items: end;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+}
+
+.barbarian-ai-deployment__route > div {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-1);
+}
+
+.barbarian-ai-deployment__route .ui-status-badge {
+  margin-block-end: var(--space-2);
+}
+
+.barbarian-ai-deployment__path {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: var(--control-height-lg);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-duration-fast) var(--motion-ease-standard),
+    background-color var(--motion-duration-fast) var(--motion-ease-standard);
+}
+
+.barbarian-ai-deployment__path:hover {
+  border-color: var(--color-accent-border);
+  background: var(--color-surface-hover);
+}
+
+.barbarian-ai-deployment__path:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.barbarian-ai-deployment__path code {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-strong);
+  font: var(--font-size-xs)/var(--line-height-ui) var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barbarian-ai-deployment__path span {
+  flex: 0 0 auto;
+  color: var(--color-accent-strong);
+  font: 600 var(--font-size-metadata)/var(--line-height-ui) var(--font-mono);
+  text-transform: uppercase;
+}
+
+.barbarian-ai-deployment__section-heading {
+  align-items: end;
+  margin-block-end: var(--space-3);
+}
+
+.barbarian-ai-deployment__platform-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.barbarian-ai-deployment__platform {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+}
+
+.barbarian-ai-deployment__platform.is-present {
+  border-color: var(--color-success-border);
+}
+
+.barbarian-ai-deployment__platform header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.barbarian-ai-deployment__platform strong {
+  color: var(--color-text-strong);
+  font-size: var(--font-size-sm);
+}
+
+.barbarian-ai-deployment__platform > div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.barbarian-ai-deployment__platform code {
+  overflow: hidden;
+  color: var(--color-text);
+  font: var(--font-size-xs)/var(--line-height-ui) var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barbarian-ai-deployment__platform span {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font: var(--font-size-metadata)/var(--line-height-ui) var(--font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barbarian-ai-deployment__platform p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.55;
+}
+
+.barbarian-ai-deployment__closing-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: var(--space-5);
+}
+
+.barbarian-ai-deployment__steps {
+  display: grid;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  border-block-start: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.barbarian-ai-deployment__steps li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-block-end: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: var(--font-size-xs);
+  line-height: 1.55;
+}
+
+.barbarian-ai-deployment__steps b {
+  color: var(--color-accent-strong);
+  font: 600 var(--font-size-metadata)/var(--line-height-ui) var(--font-mono);
+}
+
+.barbarian-ai-deployment__boundary {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.barbarian-ai-deployment__boundary .ui-callout {
+  margin-block-start: var(--space-1);
+}
+
+.barbarian-ai-deployment__boundary ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding-inline-start: var(--space-5);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.55;
+}
+
 @media (max-width: 1180px) {
   .barbarian-ai-audit__import-deck {
     align-items: stretch;
@@ -841,7 +1063,9 @@
   }
 
   .barbarian-ai-report__verdict,
-  .barbarian-ai-report__closing-grid {
+  .barbarian-ai-report__closing-grid,
+  .barbarian-ai-deployment__route,
+  .barbarian-ai-deployment__closing-grid {
     grid-template-columns: 1fr;
   }
 
@@ -915,9 +1139,19 @@
   }
 
   .barbarian-ai-report__header,
-  .barbarian-ai-report__section-heading {
+  .barbarian-ai-report__section-heading,
+  .barbarian-ai-deployment__header,
+  .barbarian-ai-deployment__section-heading {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .barbarian-ai-deployment__actions {
+    justify-content: flex-start;
+  }
+
+  .barbarian-ai-deployment__platform-grid {
+    grid-template-columns: 1fr;
   }
 
   .barbarian-ai-report__actions {
