@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
+  AI_PROFILE_STRATEGIES,
+  applyAiProfileStrategy,
   buildAiProfileOverlay,
   createAiProfileSchema,
   createAiProfileWorkspace,
   resetAiProfileDraft,
   resetAiProfileValue,
+  previewAiProfileStrategy,
   updateAiProfileDraft,
   updateAiProfileValue,
 } from '../utils/barbarianAiProfiles.js';
@@ -54,6 +57,10 @@ function parseListDraft(source, originalValues) {
     return values.map(value => value.toLowerCase() === 'true');
   }
   return values;
+}
+
+function strategyValue(value) {
+  return Array.isArray(value) ? value.join(' / ') : String(value);
 }
 
 function ProfileFieldEditor({ field, onChange, onReset, onOpenSource }) {
@@ -170,6 +177,7 @@ export default function BarbarianAiProfileComposer({ audit, onNotice }) {
   const [selectedGroup, setSelectedGroup] = useState('');
   const [fieldQuery, setFieldQuery] = useState('');
   const [exportError, setExportError] = useState('');
+  const [strategyExpanded, setStrategyExpanded] = useState(false);
 
   useEffect(() => {
     setProfiles(initialProfiles);
@@ -178,12 +186,18 @@ export default function BarbarianAiProfileComposer({ audit, onNotice }) {
     setEditorMode('visual');
     setFieldQuery('');
     setExportError('');
+    setStrategyExpanded(false);
   }, [audit, initialProfiles]);
 
   const selected = profiles.find(profile => profile.id === selectedId) || profiles[0] || null;
   const schema = useMemo(() => createAiProfileSchema(selected), [selected]);
   const changedCount = profiles.filter(profile => profile.changed).length;
   const invalidCount = profiles.filter(profile => !profile.valid).length;
+  const fullMetalStrategy = AI_PROFILE_STRATEGIES.find(strategy => strategy.id === 'full-metal-pressure');
+  const fullMetalPreview = useMemo(
+    () => previewAiProfileStrategy(profiles, fullMetalStrategy.id),
+    [profiles, fullMetalStrategy.id],
+  );
 
   useEffect(() => {
     if (!schema.groups.some(group => group.id === selectedGroup)) setSelectedGroup(schema.groups[0]?.id || '');
@@ -219,6 +233,15 @@ export default function BarbarianAiProfileComposer({ audit, onNotice }) {
     }
   };
 
+  const applyFullMetalStrategy = () => {
+    const result = applyAiProfileStrategy(profiles, fullMetalStrategy.id);
+    setProfiles(result.profiles);
+    const firstChanged = result.report.changes.find(change => change.changed);
+    if (firstChanged) setSelectedId(firstChanged.profileId);
+    setStrategyExpanded(true);
+    onNotice?.(`Applied Full Metal Pressure to ${result.report.changeCount} recognized AI settings. Review the ledger before exporting.`);
+  };
+
   if (!profiles.length) {
     return <EmptyState title="No editable profiles discovered" description="Import a package with recognized JSON or JSONC files under a config or profiles directory." />;
   }
@@ -243,6 +266,47 @@ export default function BarbarianAiProfileComposer({ audit, onNotice }) {
       <div className="barbarian-profile-composer__ledger" aria-label="Profile draft summary">
         <span><b>{profiles.length}</b> recognized profiles</span><span><b>{changedCount}</b> changed</span><span><b>{invalidCount}</b> invalid</span><span><b>Config only</b> export boundary</span>
       </div>
+
+      <section className="barbarian-profile-strategy" aria-labelledby="full-metal-strategy-title">
+        <div className="barbarian-profile-strategy__intro">
+          <Type variant="eyebrow">Map strategy recipe / {fullMetalStrategy.mapType}</Type>
+          <Type as="h4" variant="subsection-title" id="full-metal-strategy-title">{fullMetalStrategy.label}</Type>
+          <Type as="p" variant="description">{fullMetalStrategy.description}</Type>
+          <p className="barbarian-profile-strategy__safety">{fullMetalStrategy.safety}</p>
+        </div>
+        <div className="barbarian-profile-strategy__summary" aria-label="Full Metal profile compatibility">
+          <span><b>{fullMetalPreview.supportedCount}</b><small>recognized</small></span>
+          <span><b>{fullMetalPreview.changeCount}</b><small>will change</small></span>
+          <span><b>{fullMetalPreview.unavailableCount}</b><small>unavailable</small></span>
+        </div>
+        <div className="barbarian-profile-strategy__actions">
+          <Button variant="quiet" onClick={() => setStrategyExpanded(value => !value)} aria-expanded={strategyExpanded} aria-controls="full-metal-strategy-ledger">
+            {strategyExpanded ? 'Hide review' : 'Review changes'}
+          </Button>
+          <Button variant="primary" disabled={!fullMetalPreview.changeCount || Boolean(invalidCount)} onClick={applyFullMetalStrategy}>
+            {fullMetalPreview.changeCount ? 'Apply Full Metal profile' : 'Profile applied'}
+          </Button>
+        </div>
+        {strategyExpanded && (
+          <div className="barbarian-profile-strategy__ledger" id="full-metal-strategy-ledger">
+            <header><strong>Before / after ledger</strong><small>Only recognized settings are written.</small></header>
+            <div className="barbarian-profile-strategy__changes">
+              {fullMetalPreview.changes.map(change => (
+                <article key={`${change.profileId}:${change.path.join('.')}`} className={change.changed ? '' : 'is-applied'}>
+                  <div><strong>{change.label}</strong><code>{change.path.join('.')}</code></div>
+                  <span className="barbarian-profile-strategy__value"><s>{strategyValue(change.before)}</s><b>{strategyValue(change.after)}</b></span>
+                  <p>{change.reason}</p>
+                </article>
+              ))}
+            </div>
+            {fullMetalPreview.unavailableCount > 0 && (
+              <Callout tone="warning" title={`${fullMetalPreview.unavailableCount} package setting${fullMetalPreview.unavailableCount === 1 ? '' : 's'} unavailable`}>
+                Missing settings are skipped; the recipe never creates guessed AI configuration keys.
+              </Callout>
+            )}
+          </div>
+        )}
+      </section>
 
       <div className="barbarian-profile-composer__workspace">
         <nav className="barbarian-profile-composer__profile-list" aria-label="Editable AI profiles">

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { strFromU8, unzipSync } from 'fflate';
 import {
+  applyAiProfileStrategy,
   buildAiProfileOverlay,
   createAiProfileSchema,
   createAiProfileWorkspace,
+  previewAiProfileStrategy,
   resetAiProfileDraft,
   resetAiProfileValue,
   updateAiProfileDraft,
@@ -26,6 +28,29 @@ function auditFixture() {
       isText: true,
       text: '{ // keep unknown fields\n "economy": { "energy": 0.7, }, "extension": true }',
     }],
+  };
+}
+
+function fullMetalAuditFixture() {
+  return {
+    contract: {
+      profileSurfaces: [
+        { id: 'behaviour', label: 'Behaviour', description: 'Combat policy.', files: ['stable/config/behaviour.json'] },
+        { id: 'economy', label: 'Economy', description: 'Resource policy.', files: ['stable/config/economy.json'] },
+      ],
+    },
+    files: [
+      {
+        path: 'stable/config/behaviour.json',
+        isText: true,
+        text: JSON.stringify({ quota: { attack: 60, raid: [9, 420], num_batch: 5 }, extension: true }),
+      },
+      {
+        path: 'stable/config/economy.json',
+        isText: true,
+        text: JSON.stringify({ economy: { energy: { link_inc: 16 }, cluster_range: 800, mex_up: 3, goal_exec: 42, buildpower: 1.2 } }),
+      },
+    ],
   };
 }
 
@@ -116,5 +141,37 @@ describe('BARbarIAn profile composer', () => {
     expect(() => buildAiProfileOverlay([profile])).toThrow('Change at least one');
     const invalid = updateAiProfileDraft(profile, '{ invalid');
     expect(() => buildAiProfileOverlay([invalid])).toThrow('Fix 1 invalid profile');
+  });
+
+  it('previews and applies the Full Metal strategy using recognized package keys only', () => {
+    const profiles = createAiProfileWorkspace(fullMetalAuditFixture());
+    const preview = previewAiProfileStrategy(profiles, 'full-metal-pressure');
+
+    expect(preview).toMatchObject({ ruleCount: 8, supportedCount: 8, changeCount: 8, unavailableCount: 0 });
+    expect(preview.changes).toContainEqual(expect.objectContaining({
+      path: ['quota', 'attack'],
+      before: 60,
+      after: 44,
+    }));
+
+    const result = applyAiProfileStrategy(profiles, 'full-metal-pressure');
+    const behaviour = result.profiles.find(profile => profile.surfaceId === 'behaviour');
+    const economy = result.profiles.find(profile => profile.surfaceId === 'economy');
+    expect(JSON.parse(behaviour.draftSource)).toMatchObject({
+      quota: { attack: 44, raid: [7, 320], num_batch: 7 },
+      extension: true,
+    });
+    expect(JSON.parse(economy.draftSource)).toMatchObject({
+      economy: { energy: { link_inc: 10 }, cluster_range: 650, mex_up: 5, goal_exec: 32, buildpower: 1.5 },
+    });
+  });
+
+  it('reports unavailable Full Metal controls instead of fabricating missing settings', () => {
+    const profiles = createAiProfileWorkspace(auditFixture());
+    const preview = previewAiProfileStrategy(profiles, 'full-metal-pressure');
+
+    expect(preview.supportedCount).toBe(0);
+    expect(preview.unavailableCount).toBe(8);
+    expect(preview.changes).toEqual([]);
   });
 });
