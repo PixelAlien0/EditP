@@ -98,6 +98,22 @@ function readLuaString(source, key) {
   return match?.[2]?.trim() || '';
 }
 
+function readLuaInfoValue(source, key) {
+  const expectedKey = String(key || '').toLowerCase();
+  for (const match of String(source || '').matchAll(/\{([\s\S]*?)\}/g)) {
+    const block = match[1];
+    const keyMatch = block.match(/\bkey\s*=\s*(["'])(.*?)\1/ims);
+    if (keyMatch?.[2]?.trim().toLowerCase() !== expectedKey) continue;
+    const valueMatch = block.match(/\bvalue\s*=\s*(["'])(.*?)\1/ims);
+    if (valueMatch?.[2]) return valueMatch[2].trim();
+  }
+  return '';
+}
+
+function readAiInfoString(source, key) {
+  return readLuaInfoValue(source, key) || readLuaString(source, key);
+}
+
 function collectLuaOptionKeys(source) {
   const keys = new Set();
   for (const match of source.matchAll(/\bkey\s*=\s*(["'])(.*?)\1/gims)) {
@@ -241,10 +257,10 @@ export function discoverBarbarianContract(records) {
 
   const optionKeys = optionsFile ? collectLuaOptionKeys(optionsFile.text) : [];
   const identity = infoFile ? {
-    shortName: readLuaString(infoFile.text, 'shortName') || readLuaString(infoFile.text, 'shortname'),
-    name: readLuaString(infoFile.text, 'name'),
-    version: readLuaString(infoFile.text, 'version'),
-    description: readLuaString(infoFile.text, 'description'),
+    shortName: readAiInfoString(infoFile.text, 'shortName') || readAiInfoString(infoFile.text, 'shortname'),
+    name: readAiInfoString(infoFile.text, 'name'),
+    version: readAiInfoString(infoFile.text, 'version'),
+    description: readAiInfoString(infoFile.text, 'description'),
   } : {};
 
   return {
