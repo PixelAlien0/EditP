@@ -313,10 +313,10 @@
 
 /* Canonical selected-unit dossier header. */
 .editor-unit-header {
-  min-height: 72px;
-  height: 72px;
+  min-height: 80px;
+  height: 80px;
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) auto minmax(238px, auto);
+  grid-template-columns: minmax(320px, 1fr) auto minmax(238px, auto);
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-2) var(--space-5);
@@ -336,10 +336,10 @@
 .unit-dossier-mark {
   position: relative;
   box-sizing: border-box;
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   padding: 4px;
-  flex: 0 0 48px;
+  flex: 0 0 54px;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   background: var(--color-surface-muted);
@@ -375,7 +375,7 @@
   min-width: 0;
   display: grid;
   align-content: center;
-  gap: 1px;
+  gap: 2px;
 }
 
 .unit-dossier-eyebrow {
@@ -396,9 +396,9 @@
   max-width: 100%;
   color: var(--color-text-strong);
   font-family: var(--font-display);
-  font-size: var(--font-size-lg);
-  font-weight: 550;
-  line-height: 1.1;
+  font-size: var(--font-size-title-section);
+  font-weight: 600;
+  line-height: 1.05;
   letter-spacing: -.025em;
 }
 
@@ -469,7 +469,7 @@
   align-items: stretch;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
+  background: var(--color-surface-subtle);
 }
 
 .unit-dossier-metrics > div {
