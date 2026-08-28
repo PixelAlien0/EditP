@@ -18,6 +18,9 @@ export const CARRIER_LINKAGE_BEGIN = '-- EDITP_CARRIER_LINKAGE_BEGIN';
 export const CARRIER_LINKAGE_END = '-- EDITP_CARRIER_LINKAGE_END';
 export const CLONES_BEGIN = '-- EDITP_CLONES_BEGIN';
 export const CLONES_END = '-- EDITP_CLONES_END';
+export const CLONE_HELPERS_END = '-- EDITP_CLONE_HELPERS_END';
+export const CLONE_ENTRY_BEGIN = '-- EDITP_CLONE_ENTRY_BEGIN';
+export const CLONE_ENTRY_END = '-- EDITP_CLONE_ENTRY_END';
 
 
 export const UNIT_TWEAKS_BEGIN = '-- EDITP_UNIT_TWEAKS_BEGIN';
@@ -676,8 +679,13 @@ export function generateClonesBlockLua(clones, weaponLibrary = [], options = {})
     `  end`
   ].join('\n');
 
-  const cloneCodes = sorted.map(clone => generateSingleCloneLua(clone, weaponLibrary)).filter(Boolean);
-  return helpers + '\n\n' + cloneCodes.join('\n\n');
+  const cloneCodes = sorted.map(clone => {
+    const code = generateSingleCloneLua(clone, weaponLibrary);
+    if (!code) return '';
+    const cloneId = cleanHeaderValue(clone?.newId, 'clone');
+    return `${CLONE_ENTRY_BEGIN} ${cloneId}\n${code}\n${CLONE_ENTRY_END} ${cloneId}`;
+  }).filter(Boolean);
+  return `${helpers}\n${CLONE_HELPERS_END}\n\n${cloneCodes.join('\n\n')}`;
 }
 
 function generateRemoveTableLua(removeSet) {

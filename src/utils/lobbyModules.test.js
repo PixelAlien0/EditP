@@ -8,6 +8,13 @@ import {
 } from './lobbyModules.js';
 import luaparse from 'luaparse';
 import { serializeLuaTable } from './tweakSerializer.js';
+import {
+  CLONE_ENTRY_BEGIN,
+  CLONE_ENTRY_END,
+  CLONE_HELPERS_END,
+  CLONES_BEGIN,
+  CLONES_END,
+} from './tweakdefsHelper.js';
 
 const moduleOf = (kind, index, stage = 'before-editor') => ({
   id: `${kind}-${index}`, kind, label: `${kind} ${index}`,
@@ -92,6 +99,52 @@ describe('numbered lobby module compilation', () => {
     });
     expect(compiled.units.required).toBeGreaterThan(1);
     compiled.units.slots.forEach(slot => expect(() => luaparse.parse(`return ${slot.lua}`)).not.toThrow());
+  });
+
+  it('splits generated clone definitions between complete clones before the multiplayer limit', () => {
+    const cloneEntry = index => [
+      `${CLONE_ENTRY_BEGIN} clone_${index}`,
+      'do',
+      `  local source = UnitDefs["source_${index}"]`,
+      `  local payload = "${`${index}-`.repeat(1800)}"`,
+      `  if source then UnitDefs["clone_${index}"] = clone_copy(source) end`,
+      'end',
+      `${CLONE_ENTRY_END} clone_${index}`,
+    ].join('\n');
+    const generatedTweakDefsLua = [
+      CLONES_BEGIN,
+      'do',
+      '  local function clone_copy(value)',
+      '    if type(value) ~= "table" then return value end',
+      '    local copy = {}',
+      '    for key, child in pairs(value) do copy[key] = clone_copy(child) end',
+      '    return copy',
+      '  end',
+      CLONE_HELPERS_END,
+      ...Array.from({ length: 8 }, (_, index) => cloneEntry(index + 1)),
+      'end',
+      CLONES_END,
+    ].join('\n');
+    const compiled = compileLobbyModules({
+      tweakModules: [],
+      generatedTweakDefsLua,
+      generatedTweakUnitsLua: '',
+      base64Options: { padding: false },
+    }, { compactGenerated: false });
+
+    expect(compiled.defs.required).toBeGreaterThan(1);
+    expect(compiled.defs.required).toBeLessThanOrEqual(9);
+    expect(compiled.defs.overflow).toBe(false);
+    compiled.defs.slots.forEach(slot => {
+      expect(slot.encodedBytes).toBeLessThanOrEqual(GENERATED_SLOT_TARGET);
+      expect(slot.lua).toContain(CLONE_HELPERS_END);
+      expect(() => luaparse.parse(slot.lua)).not.toThrow();
+    });
+
+    const combined = compiled.defs.slots.map(slot => slot.lua).join('\n');
+    for (let index = 1; index <= 8; index += 1) {
+      expect(combined.match(new RegExp(`${CLONE_ENTRY_BEGIN} clone_${index}`, 'g'))).toHaveLength(1);
+    }
   });
 
   it('compacts and packs generated definition features below the safe target', () => {

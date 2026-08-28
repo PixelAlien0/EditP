@@ -10,6 +10,9 @@ import {
   BUILDMENU_END,
   CARRIER_LINKAGE_BEGIN,
   CARRIER_LINKAGE_END,
+  CLONE_ENTRY_BEGIN,
+  CLONE_ENTRY_END,
+  CLONE_HELPERS_END,
   CLONES_BEGIN,
   CLONES_END,
   DEATH_PROFILE_BEGIN,
@@ -343,12 +346,16 @@ function splitGeneratedDefinitions(lua) {
         lua: prefix,
       });
     }
-    blocks.push({
+    const spanLua = source.slice(span.start, span.end).trim();
+    const spanChunks = span.category === 'clone-definitions'
+      ? splitGeneratedCloneDefinitions(spanLua)
+      : [spanLua];
+    spanChunks.forEach((chunk, chunkIndex) => blocks.push({
       category: span.category,
       feature: span.feature,
-      occurrence: span.occurrence,
-      lua: source.slice(span.start, span.end).trim(),
-    });
+      occurrence: spanChunks.length === 1 ? span.occurrence : (span.occurrence * 1000) + chunkIndex,
+      lua: chunk,
+    }));
     cursor = span.end;
   });
   const suffix = source.slice(cursor).trim();
@@ -367,6 +374,62 @@ function splitGeneratedDefinitions(lua) {
     occurrence: 1,
     lua: source,
   }];
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function generatedEncodedBytes(lua) {
+  return compactLuaIfEquivalent(lua, {
+    kind: 'defs',
+    enabled: false,
+    padding: false,
+  }).encodedBytesAfter;
+}
+
+// Clone generation shares helper functions across every clone. Keep those
+// helpers with each lobby field, but split only between complete clone bodies.
+// This makes every tweakdefsN independently executable without cutting raw Lua.
+function splitGeneratedCloneDefinitions(lua) {
+  const source = normalizeCompilerLua(lua);
+  const helperMarkerIndex = source.indexOf(CLONE_HELPERS_END);
+  if (helperMarkerIndex < 0) return [source];
+
+  const helperLineEnd = source.indexOf('\n', helperMarkerIndex);
+  if (helperLineEnd < 0) return [source];
+
+  const suffixPattern = new RegExp(`\\nend\\s*\\n${escapeRegExp(CLONES_END)}\\s*$`);
+  const suffixMatch = suffixPattern.exec(source);
+  if (!suffixMatch) return [source];
+
+  const preamble = source.slice(0, helperLineEnd).trim();
+  const entriesSource = source.slice(helperLineEnd, suffixMatch.index).trim();
+  const entryPattern = new RegExp(
+    `${escapeRegExp(CLONE_ENTRY_BEGIN)}[^\\n]*\\n[\\s\\S]*?\\n${escapeRegExp(CLONE_ENTRY_END)}[^\\n]*(?=\\n|$)`,
+    'g',
+  );
+  const matches = [...entriesSource.matchAll(entryPattern)];
+  if (matches.length < 2) return [source];
+
+  const unmatched = entriesSource.replace(entryPattern, '').trim();
+  if (unmatched) return [source];
+
+  const entries = matches.map(match => match[0].trim());
+  const assemble = selected => `${preamble}\n\n${selected.join('\n\n')}\nend\n${CLONES_END}`;
+  const chunks = [];
+  let current = [];
+  entries.forEach(entry => {
+    const candidate = [...current, entry];
+    if (current.length && generatedEncodedBytes(assemble(candidate)) > GENERATED_SLOT_TARGET) {
+      chunks.push(assemble(current));
+      current = [entry];
+    } else {
+      current = candidate;
+    }
+  });
+  if (current.length) chunks.push(assemble(current));
+  return chunks;
 }
 
 function extractUnitId(lua, fallbackIndex) {
