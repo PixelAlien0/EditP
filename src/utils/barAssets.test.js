@@ -30,6 +30,13 @@ describe('BAR asset manifest', () => {
     }
   });
 
+  it('contains the full BAR CEG definition catalog, not only referenced effects', () => {
+    const cegs = getAssetOptions('ceg');
+    expect(cegs.length).toBeGreaterThan(900);
+    expect(cegs).toContain('barrelshot-greenblaster');
+    expect(cegs).toContain('genericshellexplosion-medium');
+  });
+
   it('provides the complete visual BAR tactical icon catalog', async () => {
     const icons = getAssetOptions('iconType');
     expect(icons.length).toBeGreaterThan(900);
