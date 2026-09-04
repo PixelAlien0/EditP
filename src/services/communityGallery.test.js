@@ -63,6 +63,18 @@ describe('community gallery publication safety', () => {
     });
   });
 
+  it('accepts the current base-through-29 Units-first BAR contract', () => {
+    const result = validateCommunityLobbyArtifact({
+      commands: '!bset tweakunits QUJD\n!bset tweakunits1 REVG\n!bset tweakdefs R0hJ',
+      optimizationProfile: 'balanced',
+    });
+
+    expect(result).toMatchObject({
+      valid: true,
+      value: { slotCount: 3, payloadCharacters: 12 },
+    });
+  });
+
   it('rejects arbitrary lobby commands and non-deterministic field ordering', () => {
     expect(validateCommunityLobbyArtifact({
       commands: '!bset tweakunits1 REVG\n!bset tweakdefs1 QUJD\n!bset forceallunits 1',

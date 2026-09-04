@@ -23,8 +23,12 @@ import {
   UNIT_TWEAKS_END,
 } from './tweakdefsHelper.js';
 
-export const MAX_DEFS_SLOTS = 9;
-export const MAX_UNITS_SLOTS = 9;
+// Current BAR exposes the base field plus numbered fields 1..29 for each lane.
+// Keep these as counts (30), not the highest suffix (29).
+export const MAX_DEFS_SLOTS = 30;
+export const MAX_UNITS_SLOTS = 30;
+export const LEGACY_MAX_DEFS_SLOTS = 10;
+export const LEGACY_MAX_UNITS_SLOTS = 10;
 export const GENERATED_SLOT_TARGET = GENERATED_SLOT_TARGET_BYTES;
 export const COMPILER_BLOCK_SCHEMA_VERSION = 1;
 
@@ -476,6 +480,57 @@ function generatedCanonicalBlocks(kind, lua) {
   })).filter(Boolean);
 }
 
+function generatedDefinitionUnitIds(lua) {
+  const ids = new Set();
+  const source = String(lua || '');
+  for (const pattern of [
+    /-- EDITP_CLONE_ENTRY_BEGIN\s+([A-Za-z_][A-Za-z0-9_]*)/g,
+    /UnitDefs\.([A-Za-z_][A-Za-z0-9_]*)\s*=/g,
+    /UnitDefs\[\s*["']([A-Za-z_][A-Za-z0-9_]*)["']\s*\]\s*=/g,
+  ]) {
+    for (const match of source.matchAll(pattern)) ids.add(match[1].toLowerCase());
+  }
+  return ids;
+}
+
+function generatedUnitPatchDefinitionBlocks(lua, migratedUnitIds) {
+  const normalizedLua = normalizeCompilerLua(lua);
+  if (!normalizedLua || /^\{\s*\}$/.test(normalizedLua)) return [];
+  return splitSerializedUnitTable(normalizedLua).map((blockLua, index) => {
+    const unitId = extractUnitId(blockLua, index + 1);
+    if (!migratedUnitIds.has(unitId.toLowerCase())) return null;
+    const executableLua = [
+      'do',
+      `  local editp_patches = ${blockLua}`,
+      '  local function editp_merge(target, patch)',
+      '    for key, value in pairs(patch) do',
+      '      if type(value) == "table" and type(target[key]) == "table" then',
+      '        editp_merge(target[key], value)',
+      '      else',
+      '        target[key] = value',
+      '      end',
+      '    end',
+      '  end',
+      '  for name, patch in pairs(editp_patches) do',
+      '    if UnitDefs[name] then editp_merge(UnitDefs[name], patch) end',
+      '  end',
+      'end',
+    ].join('\n');
+    return canonicalBlock({
+      id: `generated:defs:unit-patch:${unitId}`,
+      label: `Post-definition unit patch - ${unitId}`,
+      kind: 'defs',
+      category: 'unit-patch',
+      source: 'generated',
+      stage: 'editor',
+      order: index,
+      sourceFeature: 'unit-parameters',
+      lua: executableLua,
+      metadata: { unitId, migratedFromLane: 'units' },
+    });
+  }).filter(Boolean);
+}
+
 function combineUnitTables(left, right) {
   return `{\n${left.trim().slice(1, -1).trim()}\n${right.trim().slice(1, -1).trim()}\n}`;
 }
@@ -595,14 +650,17 @@ function materializeLane(blocks, kind, options) {
 
 export function buildCanonicalCompilerBlocks(projectState = {}) {
   const imported = projectState.tweakModules || [];
+  const migratedUnitIds = generatedDefinitionUnitIds(projectState.generatedTweakDefsLua);
+  const generatedUnitBlocks = generatedCanonicalBlocks('units', projectState.generatedTweakUnitsLua);
   const defs = [
     ...normalizeImported(imported, 'defs', 'before-editor'),
     ...generatedCanonicalBlocks('defs', projectState.generatedTweakDefsLua),
+    ...generatedUnitPatchDefinitionBlocks(projectState.generatedTweakUnitsLua, migratedUnitIds),
     ...normalizeImported(imported, 'defs', 'after-editor'),
   ].map((block, sequence) => ({ ...block, sequence }));
   const units = [
     ...normalizeImported(imported, 'units', 'before-editor'),
-    ...generatedCanonicalBlocks('units', projectState.generatedTweakUnitsLua),
+    ...generatedUnitBlocks.filter(block => !migratedUnitIds.has(String(block.metadata?.unitId || '').toLowerCase())),
     ...normalizeImported(imported, 'units', 'after-editor'),
   ].map((block, sequence) => ({ ...block, sequence }));
   return {
@@ -613,7 +671,7 @@ export function buildCanonicalCompilerBlocks(projectState = {}) {
   };
 }
 
-function finalizeSlots(blocks, kind, maximum, padding) {
+function finalizeSlots(blocks, kind, maximum, padding, firstIndex = 0) {
   const required = blocks.length;
   const slotOverflow = required > maximum;
   const prepared = blocks.map(block => {
@@ -625,12 +683,13 @@ function finalizeSlots(blocks, kind, maximum, padding) {
   ));
   const sizeOverflow = oversizedModules.length > 0;
   const overflow = slotOverflow || sizeOverflow;
-  const slots = prepared.slice(0, maximum).map((block, index) => {
+  const slots = prepared.slice(0, maximum).map((block, offset) => {
+    const index = firstIndex + offset;
     const encoded = block.encoded;
-    const fieldName = `tweak${kind}${index + 1}`;
+    const fieldName = `tweak${kind}${index || ''}`;
     return {
       ...block,
-      index: index + 1,
+      index,
       fieldName,
       encoded,
       compatibility: encoded.length > LOBBY_SLOT_LIMIT_CHARACTERS
@@ -681,6 +740,8 @@ function finalizeSlots(blocks, kind, maximum, padding) {
 export function compileLobbyModules(projectState, options = {}) {
   const maxDefsSlots = options.maxDefsSlots ?? MAX_DEFS_SLOTS;
   const maxUnitsSlots = options.maxUnitsSlots ?? MAX_UNITS_SLOTS;
+  const firstSlotIndex = options.firstSlotIndex ?? 0;
+  const executionOrder = options.executionOrder || ['units', 'defs'];
   // BAR lobby fields use one canonical encoding. Padding is intentionally
   // disabled even when an older project document contains base64Options.
   const base64Padding = false;
@@ -694,17 +755,18 @@ export function compileLobbyModules(projectState, options = {}) {
     : deduplicateCanonicalBlocks(canonicalBlocks);
   const defsBlocks = materializeLane(deduplicated.blocks.defs, 'defs', compactionOptions);
   const unitsBlocks = materializeLane(deduplicated.blocks.units, 'units', compactionOptions);
-  const defs = finalizeSlots(defsBlocks, 'defs', maxDefsSlots, base64Padding);
-  const units = finalizeSlots(unitsBlocks, 'units', maxUnitsSlots, base64Padding);
+  const defs = finalizeSlots(defsBlocks, 'defs', maxDefsSlots, base64Padding, firstSlotIndex);
+  const units = finalizeSlots(unitsBlocks, 'units', maxUnitsSlots, base64Padding, firstSlotIndex);
   const hasDuplicates = deduplicated.groups.length > 0;
   const baselineDefs = hasDuplicates
-    ? finalizeSlots(materializeLane(canonicalBlocks.defs, 'defs', compactionOptions), 'defs', maxDefsSlots, base64Padding)
+    ? finalizeSlots(materializeLane(canonicalBlocks.defs, 'defs', compactionOptions), 'defs', maxDefsSlots, base64Padding, firstSlotIndex)
     : defs;
   const baselineUnits = hasDuplicates
-    ? finalizeSlots(materializeLane(canonicalBlocks.units, 'units', compactionOptions), 'units', maxUnitsSlots, base64Padding)
+    ? finalizeSlots(materializeLane(canonicalBlocks.units, 'units', compactionOptions), 'units', maxUnitsSlots, base64Padding, firstSlotIndex)
     : units;
   const overflow = defs.overflow || units.overflow;
-  const allSlots = [...defs.slots, ...units.slots];
+  const lanes = { defs, units };
+  const allSlots = executionOrder.flatMap(kind => lanes[kind]?.slots || []);
   const removedBlockCount = deduplicated.groups.reduce(
     (total, group) => total + group.removedBlockIds.length,
     0,
@@ -721,6 +783,13 @@ export function compileLobbyModules(projectState, options = {}) {
     canonicalBlocks,
     effectiveBlocks: deduplicated.blocks,
     base64Padding,
+    executionOrder,
+    contract: {
+      id: firstSlotIndex === 0 && maxDefsSlots === 30 && maxUnitsSlots === 30 ? 'bar-30' : 'custom',
+      firstSlotIndex,
+      defsSlots: maxDefsSlots,
+      unitsSlots: maxUnitsSlots,
+    },
     optimizationProfile: options.optimizationProfile || 'balanced',
     compaction: {
       enabled: options.compactGenerated !== false,

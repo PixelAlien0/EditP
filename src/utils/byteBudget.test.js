@@ -58,7 +58,7 @@ describe('byte budget inspector analysis', () => {
 
   it('turns lane overflow into a blocking reduction action', () => {
     const compiled = compileLobbyModules({
-      tweakModules: Array.from({ length: 10 }, (_, index) => (
+      tweakModules: Array.from({ length: 31 }, (_, index) => (
         importedModule(String(index + 1), `local value_${index + 1} = true`)
       )),
       generatedTweakDefsLua: '',
@@ -69,12 +69,12 @@ describe('byte budget inspector analysis', () => {
 
     expect(report.status).toBe('blocked');
     expect(report.lanes[0]).toMatchObject({
-      required: 10,
-      maximum: 9,
+      required: 31,
+      maximum: 30,
       overflowBy: 1,
       overflow: true,
     });
-    expect(report.aggregate.slotsRequired).toBe(10);
+    expect(report.aggregate.slotsRequired).toBe(31);
     expect(report.suggestions[0]).toMatchObject({
       level: 'error',
       title: 'Definitions needs 1 fewer slot',
@@ -97,7 +97,7 @@ describe('byte budget inspector analysis', () => {
     expect(report.deduplication.removedBlockCount).toBe(1);
     expect(report.contributors).toHaveLength(1);
     expect(report.contributors[0]).toMatchObject({
-      slotFieldName: 'tweakdefs1',
+      slotFieldName: 'tweakdefs',
       duplicateCount: 1,
     });
     expect(report.suggestions.some(suggestion => suggestion.title.includes('Safe deduplication'))).toBe(true);

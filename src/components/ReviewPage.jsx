@@ -99,7 +99,7 @@ export default function ReviewPage({
     if (!lobbyCommands || !compatibilityReport.canCopyLobbyCommands) return;
     try {
       await navigator.clipboard.writeText(lobbyCommands);
-      onToast('All numbered !bset commands copied');
+      onToast('All BAR lobby commands copied');
     } catch {
       onToast('Could not copy lobby commands. Copy each slot separately.');
     }
@@ -267,9 +267,9 @@ export default function ReviewPage({
             <div className="modular-lobby-package__heading">
               <div>
                 <Type variant="eyebrow" className="workflow-eyebrow">Current BAR setup</Type>
-                <Type as="h4" variant="subsection-title" id="lobby-export-guide-title">Numbered lobby package</Type>
+                <Type as="h4" variant="subsection-title" id="lobby-export-guide-title">Expanded lobby package</Type>
                 <Type as="p" variant="description">
-                  Definitions load first, followed by Units. Each group has exactly nine available fields.
+                  Units load first, followed by Definitions. Current BAR provides 30 fields per group: the base field plus 1-29.
                   {compiledLobbyModules?.deduplication?.removedBlockCount > 0
                     ? ` Safe deduplication removed ${compiledLobbyModules.deduplication.removedBlockCount} exact ${compiledLobbyModules.deduplication.removedBlockCount === 1 ? 'duplicate' : 'duplicates'} and saved ${compiledLobbyModules.deduplication.encodedBytesSaved.toLocaleString()} encoded bytes.`
                     : ''}
@@ -280,12 +280,12 @@ export default function ReviewPage({
 
             <div className="lobby-slot-capacity" aria-label="Lobby slot usage">
               {[
-                { id: 'defs', label: 'Definitions', data: compiledLobbyModules?.defs },
                 { id: 'units', label: 'Units', data: compiledLobbyModules?.units },
+                { id: 'defs', label: 'Definitions', data: compiledLobbyModules?.defs },
               ].map(group => (
-                <div key={group.id} className={group.data?.overflow ? 'is-overflow' : ''} style={{ '--slot-capacity': `${Math.min(100, ((group.data?.required || 0) / 9) * 100)}%` }}>
+                <div key={group.id} className={group.data?.overflow ? 'is-overflow' : ''} style={{ '--slot-capacity': `${Math.min(100, ((group.data?.required || 0) / (group.data?.maximum || 30)) * 100)}%` }}>
                   <span>{group.label}</span>
-                  <strong>{group.data?.required || 0} / 9</strong>
+                  <strong>{group.data?.required || 0} / {group.data?.maximum || 30}</strong>
                   <i aria-hidden="true"><b /></i>
                 </div>
               ))}
@@ -299,7 +299,7 @@ export default function ReviewPage({
                 <strong>Package cannot be delivered safely.</strong>
                 <span>{compiledLobbyModules.defs.sizeOverflow || compiledLobbyModules.units.sizeOverflow
                   ? `At least one encoded field exceeds the ${LOBBY_SLOT_LIMIT_CHARACTERS.toLocaleString()}-character multiplayer limit.`
-                  : 'The package requires more than the nine available fields in one lane.'} Disable an imported module or reduce a complete generated section; output is never silently truncated.</span>
+                  : 'The package requires more fields than BAR exposes in one lane.'} Disable an imported module or reduce a complete generated section; output is never silently truncated.</span>
                 {[...(compiledLobbyModules.defs.overflow ? compiledLobbyModules.defs.largestModules : []), ...(compiledLobbyModules.units.overflow ? compiledLobbyModules.units.largestModules : [])]
                   .slice(0, 3)
                   .map(module => <small key={`${module.id}-${module.label}`}>{module.label} · {module.encodedBytes.toLocaleString()} bytes{module.source === 'imported' ? ' · disable from Tweak Package Lab' : ''}</small>)}
@@ -308,7 +308,7 @@ export default function ReviewPage({
 
             <div className="lobby-slot-workbench">
               <nav className="lobby-slot-index" aria-label="Generated lobby slots">
-                {['defs', 'units'].map(kind => (
+                {['units', 'defs'].map(kind => (
                   <div className="lobby-slot-index__group" key={kind}>
                     <span>{kind === 'defs' ? 'Definitions' : 'Units'}</span>
                     {lobbySlots.filter(slot => slot.kind === kind).map(slot => (

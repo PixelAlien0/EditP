@@ -19,11 +19,11 @@ describe('ExportTraceInspector', () => {
 
     await user.click(screen.getByText('Export Trace Inspector'));
     expect(screen.getByText('Source-to-delivery map')).toBeInTheDocument();
-    expect(screen.getAllByText('tweakdefs1').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('tweakdefs').length).toBeGreaterThan(0);
 
     await user.selectOptions(screen.getByLabelText('Output lane'), 'units');
     const traceIndex = screen.getByRole('navigation', { name: 'Compiler block traces' });
-    expect(within(traceIndex).getByText('tweakunits1')).toBeInTheDocument();
-    expect(within(traceIndex).queryByText('tweakdefs1')).not.toBeInTheDocument();
+    expect(within(traceIndex).getByText('tweakunits')).toBeInTheDocument();
+    expect(within(traceIndex).queryByText('tweakdefs')).not.toBeInTheDocument();
   });
 });

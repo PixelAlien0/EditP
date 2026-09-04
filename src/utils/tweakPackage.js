@@ -10,7 +10,7 @@ import {
 export const MAX_TWEAK_MODULE_BYTES = 1024 * 1024;
 export const MAX_TWEAK_PACKAGE_BYTES = 5 * 1024 * 1024;
 
-const FIELD_PATTERN = /^tweak(defs|units)(\d+)?$/i;
+const FIELD_PATTERN = /^tweak(defs|units)([1-9]|1\d|2\d)?$/i;
 // Carrier and projectile-spawner parameters belong to WeaponDef.customparams.
 // UnitDef.customparams with the same names may be consumed by arbitrary mod
 // code, so the analyzer reports them but never converts them into editor fields.

@@ -39,7 +39,7 @@ describe('useCompiledProjectOutputs', () => {
     expect(result.current.generatedTweakUnitsLua).toContain('health = 900');
     expect(result.current.tweakUnitsB64).not.toBe('');
     expect(result.current.compiledLobbyModules.units.slots).toHaveLength(1);
-    expect(result.current.lobbyCommands).toContain('tweakunits1');
+    expect(result.current.lobbyCommands).toContain('!bset tweakunits ');
   });
 
   it('keeps Units output empty when parameter tweaks are disabled', () => {

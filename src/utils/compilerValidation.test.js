@@ -112,10 +112,10 @@ describe('canonical compiler semantic validation', () => {
     const compiled = compileLobbyModules(COMPILER_REGRESSION_FIXTURES[0].projectState);
     const tampered = structuredClone(compiled);
     tampered.slots[0].encoded = 'tampered';
-    tampered.slots[0].command = '!bset tweakdefs1 tampered';
+    tampered.slots[0].command = '!bset tweakdefs tampered';
     tampered.slots[0].blockIds.push(tampered.slots[0].blockIds[0]);
     tampered.slots[0].blockCount = tampered.slots[0].blockIds.length;
-    tampered.canonicalBlocks.units[0].metadata.unitId = 'wrong_unit';
+    tampered.canonicalBlocks.defs.find(block => block.metadata?.migratedFromLane === 'units').metadata.unitId = 'wrong_unit';
     tampered.canonicalBlocks.all = [
       ...tampered.canonicalBlocks.defs,
       ...tampered.canonicalBlocks.units,

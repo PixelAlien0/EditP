@@ -309,7 +309,7 @@ export function useProjectValidation({
         unitName: 'Lobby package',
         key: 'tweakdefs_slots',
         level: 'error',
-        message: `${compiledLobbyModules.defs.required} Definitions slots required; BAR provides 9.`,
+        message: `${compiledLobbyModules.defs.required} Definitions slots required; BAR provides ${compiledLobbyModules.defs.maximum}.`,
       });
     }
     if (compiledLobbyModules.units.overflow) {
@@ -318,7 +318,7 @@ export function useProjectValidation({
         unitName: 'Lobby package',
         key: 'tweakunits_slots',
         level: 'error',
-        message: `${compiledLobbyModules.units.required} Units slots required; BAR provides 9.`,
+        message: `${compiledLobbyModules.units.required} Units slots required; BAR provides ${compiledLobbyModules.units.maximum}.`,
       });
     }
     issues.push(...gadgetContractResultsToIssues(gadgetContractResults));

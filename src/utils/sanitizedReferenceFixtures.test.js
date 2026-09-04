@@ -113,7 +113,7 @@ describe('sanitized real-world reference fixtures', () => {
     ]));
   });
 
-  it('fills all nine defs and all nine units slots without inventing a tenth field', () => {
+  it('places a nine-by-nine legacy fixture inside the modern 30-field lanes', () => {
     const compiled = compileLobbyModules({
       tweakModules: createSanitizedReferenceModules(),
       generatedTweakDefsLua: '',
@@ -122,15 +122,15 @@ describe('sanitized real-world reference fixtures', () => {
     });
 
     expect(compiled.overflow).toBe(false);
-    expect(compiled.defs).toMatchObject({ required: 9, maximum: 9, overflow: false });
-    expect(compiled.units).toMatchObject({ required: 9, maximum: 9, overflow: false });
+    expect(compiled.defs).toMatchObject({ required: 9, maximum: 30, overflow: false });
+    expect(compiled.units).toMatchObject({ required: 9, maximum: 30, overflow: false });
     expect(compiled.defs.slots.map(slot => slot.fieldName)).toEqual(
-      Array.from({ length: 9 }, (_, index) => `tweakdefs${index + 1}`),
+      Array.from({ length: 9 }, (_, index) => `tweakdefs${index || ''}`),
     );
     expect(compiled.units.slots.map(slot => slot.fieldName)).toEqual(
-      Array.from({ length: 9 }, (_, index) => `tweakunits${index + 1}`),
+      Array.from({ length: 9 }, (_, index) => `tweakunits${index || ''}`),
     );
-    expect(compiled.slots.some(slot => /10$/.test(slot.fieldName))).toBe(false);
+    expect(compiled.slots.some(slot => /29$/.test(slot.fieldName))).toBe(false);
   });
 
   it('round-trips as a full sanitized lobby bundle with no embedded source payloads', () => {

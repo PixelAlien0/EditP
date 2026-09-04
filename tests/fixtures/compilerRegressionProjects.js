@@ -59,7 +59,7 @@ export const COMPILER_REGRESSION_FIXTURES = Object.freeze([
     },
     expected: {
       defsSlots: 1,
-      unitsSlots: 1,
+      unitsSlots: 0,
       categories: [
         'custom-generated-source',
         'clone-definitions',
@@ -70,7 +70,7 @@ export const COMPILER_REGRESSION_FIXTURES = Object.freeze([
         'death-profiles',
         'unit-patch',
       ],
-      commandSha256: '04150b4912cfdcf1e777ccb89d4a7dfa88614007beeddec19ef144327f14aed2',
+      commandSha256: 'a7b4e55fb56519a8369bc5f53e6df5b066f557f003caa9185b5510de5ac77260',
     },
   },
   {
@@ -115,16 +115,16 @@ export const COMPILER_REGRESSION_FIXTURES = Object.freeze([
     },
     expected: {
       defsSlots: 3,
-      unitsSlots: 3,
+      unitsSlots: 2,
       categories: [
         'imported-module',
         'clone-definitions',
-        'imported-module',
-        'imported-module',
         'unit-patch',
         'imported-module',
+        'imported-module',
+        'imported-module',
       ],
-      commandSha256: '8a8e821a2133dff581a56f3d0b31249c97a118222a63da9ff328cebce48edcfb',
+      commandSha256: '8a568a38050003082167cf2fac7d003c9c86b5b66ee67651ba932a6b73e9aad4',
     },
   },
 ]);

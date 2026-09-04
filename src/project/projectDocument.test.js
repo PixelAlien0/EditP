@@ -163,7 +163,7 @@ describe('project documents', () => {
     });
     expect(project.lobbySetup).toMatchObject({
       sourceName: 'Community setup.txt',
-      slotClears: ['tweakdefs9'],
+      slotClears: ['tweakdefs9', 'tweakdefs10'],
       slotResetFields: ['tweakunits', 'tweakunits4'],
       requirements: ['forceallunits'],
       overwrittenCount: 2,

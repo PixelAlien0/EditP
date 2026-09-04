@@ -293,7 +293,7 @@ const LOBBY_COMMAND_CATEGORIES = new Set([
   'game-settings', 'lobby-control', 'map-setup', 'lobby-identity', 'unknown',
 ]);
 const LOBBY_COMMAND_SAFETY = new Set(['review', 'manual', 'unknown']);
-const TWEAK_FIELD_PATTERN = /^tweak(?:defs|units)(?:[1-9])?$/i;
+const TWEAK_FIELD_PATTERN = /^tweak(?:defs|units)(?:[1-9]|1\d|2\d)?$/i;
 
 function normalizeLobbySetup(value) {
   const empty = {
@@ -329,7 +329,7 @@ function normalizeLobbySetup(value) {
     }];
   }) : [];
   const normalizeFields = fields => Array.isArray(fields)
-    ? [...new Set(fields.map(field => text(field, '', 40).trim().toLowerCase()).filter(field => TWEAK_FIELD_PATTERN.test(field)))].slice(0, 20)
+    ? [...new Set(fields.map(field => text(field, '', 40).trim().toLowerCase()).filter(field => TWEAK_FIELD_PATTERN.test(field)))].slice(0, 60)
     : [];
   return {
     version: 1,

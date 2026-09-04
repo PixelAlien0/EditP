@@ -3,7 +3,7 @@ import { normalizeExportOptimizationProfile } from '../config/exportOptimization
 
 export const COMMUNITY_PAGE_SIZE = 24;
 export const COMMUNITY_MAX_PROJECT_BYTES = 1024 * 1024;
-export const COMMUNITY_MAX_LOBBY_SLOTS = 18;
+export const COMMUNITY_MAX_LOBBY_SLOTS = 60;
 export const COMMUNITY_MAX_LOBBY_PAYLOAD_CHARACTERS = 16384 * COMMUNITY_MAX_LOBBY_SLOTS;
 
 const COMMUNITY_PROJECT_FIELDS = [
@@ -51,7 +51,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TAG_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N}\s-]{0,23}$/u;
 const REPORT_REASONS = new Set(['broken', 'unsafe', 'misleading', 'copyright', 'other']);
 const COMPATIBILITY_STATUSES = new Set(['compatible', 'review', 'outdated', 'experimental']);
-const LOBBY_COMMAND_PATTERN = /^!bset (tweakdefs|tweakunits)([1-9]) ([A-Za-z0-9+/_-]+={0,2})$/;
+const LOBBY_COMMAND_PATTERN = /^!bset (tweakdefs|tweakunits)([1-9]|1\d|2\d)? ([A-Za-z0-9+/_-]+={0,2})$/;
 const PUBLIC_PROJECT_FIELDS = new Set([
   'version', 'tweaks', 'clones', 'disabledUnitIds', 'buildMenuSteps', 'buildMenuPacks',
   'unitDescriptions', 'weaponLibrary', 'supportingWeaponDefs', 'unitCollections',
@@ -156,10 +156,19 @@ export function validateCommunityLobbyArtifact({ commands, optimizationProfile }
     errors.push(`Lobby output uses more than ${COMMUNITY_MAX_LOBBY_SLOTS} fields.`);
   }
 
-  let unitsStarted = false;
+  // Published projects made by older editor builds used suffixes 1..9 and
+  // Definitions-first ordering. Continue accepting those artifacts while all
+  // newly compiled BAR-30 output uses base..29 and Units-first ordering.
+  const recognizedCommands = normalizedCommands
+    .map(command => command.match(LOBBY_COMMAND_PATTERN))
+    .filter(Boolean);
+  const legacyArtifact = recognizedCommands.length > 0 && recognizedCommands.every(match => (
+    match[2] && Number(match[2]) <= 9
+  ));
+  let secondLaneStarted = false;
   let payloadCharacters = 0;
   const seenFields = new Set();
-  const expectedIndex = { tweakdefs: 1, tweakunits: 1 };
+  const expectedIndex = { tweakdefs: legacyArtifact ? 1 : 0, tweakunits: legacyArtifact ? 1 : 0 };
 
   normalizedCommands.forEach(command => {
     const match = command.match(LOBBY_COMMAND_PATTERN);
@@ -167,14 +176,22 @@ export function validateCommunityLobbyArtifact({ commands, optimizationProfile }
       errors.push('Lobby output contains a command outside the supported tweakdefs/tweakunits format.');
       return;
     }
-    const [, kind, indexText, payload] = match;
+    const [, kind, indexText = '', payload] = match;
     const fieldName = `${kind}${indexText}`;
-    const index = Number(indexText);
+    const index = indexText === '' ? 0 : Number(indexText);
     if (seenFields.has(fieldName)) errors.push(`Lobby output repeats ${fieldName}.`);
     seenFields.add(fieldName);
-    if (kind === 'tweakunits') unitsStarted = true;
-    if (kind === 'tweakdefs' && unitsStarted) errors.push('Definitions fields must appear before Units fields.');
-    if (index !== expectedIndex[kind]) errors.push(`${kind} fields must be numbered consecutively from 1.`);
+    const firstLane = legacyArtifact ? 'tweakdefs' : 'tweakunits';
+    const secondLane = legacyArtifact ? 'tweakunits' : 'tweakdefs';
+    if (kind === secondLane) secondLaneStarted = true;
+    if (kind === firstLane && secondLaneStarted) {
+      errors.push(legacyArtifact
+        ? 'Definitions fields must appear before Units fields.'
+        : 'Units fields must appear before Definitions fields.');
+    }
+    if (index !== expectedIndex[kind]) errors.push(legacyArtifact
+      ? `${kind} fields must be numbered consecutively from 1.`
+      : `${kind} fields must use the base field, then be numbered consecutively from 1.`);
     expectedIndex[kind] = index + 1;
     if (payload.length > 16384) errors.push(`${fieldName} exceeds BAR's 16,384-character field limit.`);
     payloadCharacters += payload.length;

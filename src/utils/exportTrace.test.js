@@ -13,8 +13,8 @@ describe('export trace report', () => {
 
     expect(report.summary).toMatchObject({ canonicalBlocks: 2, deliveredBlocks: 2, slots: 2 });
     expect(report.traces).toEqual(expect.arrayContaining([
-      expect.objectContaining({ lane: 'defs', sourceFeature: 'build-menus', slotFieldName: 'tweakdefs1' }),
-      expect.objectContaining({ lane: 'units', sourceIdentity: 'armflash', slotFieldName: 'tweakunits1' }),
+      expect.objectContaining({ lane: 'defs', sourceFeature: 'build-menus', slotFieldName: 'tweakdefs' }),
+      expect.objectContaining({ lane: 'units', sourceIdentity: 'armflash', slotFieldName: 'tweakunits' }),
     ]));
   });
 
@@ -29,6 +29,6 @@ describe('export trace report', () => {
 
     expect(report.summary.deduplicatedBlocks).toBe(1);
     expect(report.traces).toHaveLength(2);
-    expect(report.traces.every(trace => trace.slotFieldName === 'tweakdefs1')).toBe(true);
+    expect(report.traces.every(trace => trace.slotFieldName === 'tweakdefs')).toBe(true);
   });
 });

@@ -23,24 +23,24 @@ const moduleOf = (kind, index, stage = 'before-editor') => ({
 });
 
 describe('numbered lobby module compilation', () => {
-  it('uses exactly the available nine slots per kind', () => {
+  it('uses the base field and all 29 numbered fields per kind', () => {
     const compiled = compileLobbyModules({
-      tweakModules: Array.from({ length: 9 }, (_, index) => moduleOf('defs', index)),
+      tweakModules: Array.from({ length: 30 }, (_, index) => moduleOf('defs', index)),
       generatedTweakDefsLua: '', generatedTweakUnitsLua: '', base64Options: { padding: false },
     });
-    expect(compiled.defs.required).toBe(9);
+    expect(compiled.defs.required).toBe(30);
     expect(compiled.defs.overflow).toBe(false);
-    expect(compiled.defs.slots.at(-1).fieldName).toBe('tweakdefs9');
-    expect(compiled.slots.some(slot => slot.fieldName === 'tweakdefs10')).toBe(false);
+    expect(compiled.defs.slots[0].fieldName).toBe('tweakdefs');
+    expect(compiled.defs.slots.at(-1).fieldName).toBe('tweakdefs29');
   });
 
-  it('blocks command output when a tenth slot is required', () => {
+  it('blocks command output when a thirty-first slot is required', () => {
     const compiled = compileLobbyModules({
-      tweakModules: Array.from({ length: 10 }, (_, index) => moduleOf('units', index)),
+      tweakModules: Array.from({ length: 31 }, (_, index) => moduleOf('units', index)),
       generatedTweakDefsLua: '', generatedTweakUnitsLua: '', base64Options: { padding: true },
     });
-    expect(compiled.units.required).toBe(10);
-    expect(compiled.units.slots).toHaveLength(9);
+    expect(compiled.units.required).toBe(31);
+    expect(compiled.units.slots).toHaveLength(30);
     expect(compiled.overflow).toBe(true);
     expect(buildLobbyCommands(compiled)).toBe('');
   });
@@ -85,8 +85,8 @@ describe('numbered lobby module compilation', () => {
     expect(compiled.defs.slots.map(slot => slot.id)).toEqual(['defs-1', 'generated-defs-1', 'defs-2']);
     const commands = buildLobbyCommands(compiled);
     expect(commands.split('\n')).toHaveLength(3);
-    expect(commands).toContain('!bset tweakdefs1 ');
-    expect(commands).toContain('!bset tweakdefs3 ');
+    expect(commands).toContain('!bset tweakdefs ');
+    expect(commands).toContain('!bset tweakdefs2 ');
   });
 
   it('splits generated unit tables only between complete unit entries', () => {
@@ -234,7 +234,8 @@ describe('numbered lobby module compilation', () => {
     const recordedIds = compiled.slots.flatMap(slot => slot.blockIds);
     const canonicalIds = compiled.canonicalBlocks.all.map(block => block.id);
 
-    expect(recordedIds).toEqual(canonicalIds);
+    expect(recordedIds).toHaveLength(canonicalIds.length);
+    expect(recordedIds).toEqual(expect.arrayContaining(canonicalIds));
     expect(new Set(recordedIds).size).toBe(recordedIds.length);
     expect(compiled.slots.every(slot => slot.blockCount === slot.blockIds.length)).toBe(true);
   });

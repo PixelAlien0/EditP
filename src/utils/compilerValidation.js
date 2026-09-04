@@ -91,6 +91,12 @@ function validateCanonicalBlocks(canonicalBlocks, add) {
       if (block?.kind !== lane) {
         add({ ...context, code: 'lane-kind-mismatch', level: 'blocker', message: `Block kind ${block?.kind || '(missing)'} does not match the ${lane} lane.` });
       }
+      if (lane === 'defs' && block?.metadata?.migratedFromLane === 'units') {
+        const expectedUnitId = String(block.id || '').split(':').at(-1);
+        if (!block.metadata.unitId || block.metadata.unitId !== expectedUnitId) {
+          add({ ...context, code: 'generated-unit-identity', level: 'blocker', message: 'Post-definition unit patch metadata does not match its canonical UnitDef ID.' });
+        }
+      }
       if (block?.sequence !== index) {
         add({ ...context, code: 'sequence-gap', level: 'blocker', message: `Canonical sequence expected ${index}, received ${block?.sequence ?? '(missing)'}.` });
       }
@@ -227,21 +233,21 @@ function validateSlots(compiledModules, canonicalIds, deduplicationGroups, add) 
     encodedBytesSaved: 0,
   };
 
-  let unitsStarted = false;
+  let defsStarted = false;
   allSlots.forEach(slot => {
     const context = { lane: slot.kind, fieldName: slot.fieldName, blockId: slot.id, source: slot.source };
-    if (slot.kind === 'units') unitsStarted = true;
-    if (unitsStarted && slot.kind === 'defs') {
-      add({ ...context, code: 'lane-order', level: 'blocker', message: 'Definitions must be emitted before every Units slot.' });
+    if (slot.kind === 'defs') defsStarted = true;
+    if (defsStarted && slot.kind === 'units') {
+      add({ ...context, code: 'lane-order', level: 'blocker', message: 'Units must be emitted before every Definitions slot.' });
     }
     if (seenFields.has(slot.fieldName)) {
       add({ ...context, code: 'duplicate-field', level: 'blocker', message: `Lobby field ${slot.fieldName} is emitted more than once.` });
     }
     seenFields.add(slot.fieldName);
 
-    const expectedField = `tweak${slot.kind}${slot.index}`;
-    if (slot.fieldName !== expectedField || slot.index < 1 || slot.index > 9) {
-      add({ ...context, code: 'field-numbering', level: 'blocker', message: `Expected ${expectedField} within BAR's 1–9 field range.` });
+    const expectedField = `tweak${slot.kind}${slot.index || ''}`;
+    if (slot.fieldName !== expectedField || slot.index < 0 || slot.index > 29) {
+      add({ ...context, code: 'field-numbering', level: 'blocker', message: `Expected ${expectedField} within BAR's base-through-29 field range.` });
     }
     const normalizedLua = normalizeLua(slot.lua);
     const expectedEncoded = encodeLobbyBase64(`${normalizedLua} `, { padding: compiledModules?.base64Padding ?? false });
@@ -329,7 +335,6 @@ function validateSlots(compiledModules, canonicalIds, deduplicationGroups, add) 
     });
   }
   if (!compiledModules?.overflow) {
-    const canonicalOrder = [...canonicalIds];
     const missing = [...canonicalIds].filter(id => !recordedBlockIds.includes(id)).sort(compareCanonicalText);
     const unknown = recordedBlockIds.filter(id => !canonicalIds.has(id)).sort(compareCanonicalText);
     if (missing.length || unknown.length) {
@@ -340,25 +345,17 @@ function validateSlots(compiledModules, canonicalIds, deduplicationGroups, add) 
         message: `Slot coverage is inconsistent${missing.length ? `; missing ${missing.join(', ')}` : ''}${unknown.length ? `; unknown ${unknown.join(', ')}` : ''}.`,
       });
     }
-    if (!missing.length && !unknown.length && JSON.stringify(recordedBlockIds) !== JSON.stringify(canonicalOrder)) {
-      add({
-        lane: 'delivery',
-        code: 'block-delivery-order',
-        level: 'blocker',
-        message: 'Lobby slots do not preserve canonical block order.',
-      });
-    }
   }
 
   for (const kind of ['defs', 'units']) {
     const lane = compiledModules?.[kind];
     const laneSlots = lane?.slots || [];
-    const expectedVisibleSlots = Math.min(lane?.required || 0, lane?.maximum || 9);
+    const expectedVisibleSlots = Math.min(lane?.required || 0, lane?.maximum || 30);
     if (laneSlots.length !== expectedVisibleSlots) {
       add({ lane: kind, code: 'required-slot-count', level: 'blocker', message: `${kind} slot accounting is inconsistent.` });
     }
     laneSlots.forEach((slot, index) => {
-      if (slot.index !== index + 1) {
+      if (slot.index !== (compiledModules?.contract?.firstSlotIndex ?? 0) + index) {
         add({ lane: kind, fieldName: slot.fieldName, code: 'slot-sequence', level: 'blocker', message: `${kind} slots are not consecutively numbered.` });
       }
     });

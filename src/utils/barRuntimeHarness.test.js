@@ -205,7 +205,7 @@ describe('BAR runtime compatibility harness', () => {
         },
       },
     });
-    expect(result.execution.map(item => item.kind)).toEqual(['defs', 'units']);
+    expect(result.execution.map(item => item.kind)).toEqual(['defs']);
   });
 
   it('edits the inherited build menu of a cloned factory producer', () => {
@@ -548,7 +548,7 @@ describe('BAR runtime compatibility harness', () => {
     });
     expect(() => executeCompiledBarModules(runtimeFailure, {
       unitDefs: { armflash: baseArmflash },
-    })).toThrow(/tweakdefs1 failed at runtime.*runtime fixture failure/);
+    })).toThrow(/tweakdefs failed at runtime.*runtime fixture failure/);
 
     const runaway = compileLobbyModules({
       tweakModules: [],
@@ -559,7 +559,7 @@ describe('BAR runtime compatibility harness', () => {
     expect(() => executeCompiledBarModules(runaway, {
       unitDefs: {},
       instructionLimit: 1000,
-    })).toThrow(/Instruction budget exceeded in tweakdefs1/);
+    })).toThrow(/Instruction budget exceeded in tweakdefs/);
   });
 });
 

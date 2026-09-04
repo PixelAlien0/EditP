@@ -16,7 +16,7 @@ export const LOBBY_SETUP_CATEGORY_META = Object.freeze({
   [LOBBY_SETUP_CATEGORIES.UNKNOWN]: { label: 'Other commands', description: 'Recognized command syntax that needs manual review.' },
 });
 
-const TWEAK_FIELD_PATTERN = /^tweak(?:defs|units)\d*$/i;
+const TWEAK_FIELD_PATTERN = /^tweak(?:defs|units)(?:[1-9]|1\d|2\d)?$/i;
 const MAP_COMMANDS = new Set(['map', 'addbox', 'clearbox']);
 const LOBBY_COMMANDS = new Set(['preset', 'teamsize', 'autobalance', 'balance']);
 const IDENTITY_COMMANDS = new Set(['rename', 'welcome-message']);
