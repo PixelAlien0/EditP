@@ -14,10 +14,10 @@
     "discoveryConcurrency": 12
   },
   "coverage": {
-    "totalUnits": 1789,
-    "unitsWithModels": 1771,
-    "uniqueModelPaths": 874,
-    "supported": 865,
+    "totalUnits": 1790,
+    "unitsWithModels": 1772,
+    "uniqueModelPaths": 875,
+    "supported": 866,
     "unsupported": 9,
     "nativeMaterialModels": 28,
     "discoveredMaterialModels": 117,
@@ -7364,6 +7364,14 @@
       "modelPath": "xmasball2_6.s3o",
       "textureFamily": null,
       "modelBytes": 14912
+    },
+    "corgatr": {
+      "name": "Obligator",
+      "role": "Unit",
+      "faction": "cor",
+      "modelPath": "units/corgatr.s3o",
+      "textureFamily": "cor",
+      "modelBytes": 233935
     }
   },
   "aliases": {
@@ -8231,7 +8239,8 @@
     "xmasball2_3.s3o": "xmasball2_3",
     "xmasball2_4.s3o": "xmasball2_4",
     "xmasball2_5.s3o": "xmasball2_5",
-    "xmasball2_6.s3o": "xmasball2_6"
+    "xmasball2_6.s3o": "xmasball2_6",
+    "units/corgatr.s3o": "corgatr"
   },
   "unitAliases": {
     "chip": "chip",
@@ -10004,7 +10013,8 @@
     "xmasball2_5": "xmasball2_5",
     "scav_xmasball2_5": "xmasball2_5",
     "xmasball2_6": "xmasball2_6",
-    "scav_xmasball2_6": "xmasball2_6"
+    "scav_xmasball2_6": "xmasball2_6",
+    "corgatr": "corgatr"
   },
   "unsupported": {
     "raptors/raptor_turretl_brood_v2.s3o": {

@@ -1800,7 +1800,8 @@
     "scav_corsacv": "scav_corsacv",
     "scav_armminebomber": "scav_armminebomber",
     "armcomnew": "armcomnew",
-    "xl": "xl"
+    "xl": "xl",
+    "corgatr": "Obligator"
   },
   "descriptions": {
     "legsplab": "Constructs Seaplanes",
@@ -3591,6 +3592,7 @@
     "scav_corsacv": "",
     "scav_armminebomber": "",
     "armcomnew": "",
-    "xl": ""
+    "xl": "",
+    "corgatr": "Long Range Missile Battery"
   }
 }

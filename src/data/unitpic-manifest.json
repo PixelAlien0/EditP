@@ -11,10 +11,10 @@
     "fit": "contain"
   },
   "stats": {
-    "unitCount": 1789,
-    "sourceCount": 1447,
-    "uniqueAssetCount": 1418,
-    "assetBytes": 14834482,
+    "unitCount": 1790,
+    "sourceCount": 1449,
+    "uniqueAssetCount": 1420,
+    "assetBytes": 14859366,
     "unresolvedSourceCount": 16,
     "failedSourceCount": 0,
     "scavengerUnitCount": 795,
@@ -1812,7 +1812,8 @@
     "scav_corsacv": "/unitpics/assets/f48e3622c6fbea2becf6.webp",
     "scav_armminebomber": "/unitpics/assets/bd256b0cf86252f72136.webp",
     "armcomnew": "/unitpics/assets/284b191dbc9e8b42d5e5.webp",
-    "xl": "/unitpics/assets/2c2e50fef21c579d3774.webp"
+    "xl": "/unitpics/assets/2c2e50fef21c579d3774.webp",
+    "corgatr": "/unitpics/assets/827b70891e0b169c3026.webp"
   },
   "pictures": {
     "LEGESTOR.dds": "/unitpics/assets/2ad8fc90bc7f2f78cab3.webp",
@@ -3261,7 +3262,8 @@
     "scavengers/scavfort.dds": "/unitpics/assets/f64a505c380f7522ddcd.webp",
     "scavengers/scavmist.dds": "/unitpics/assets/2c2e50fef21c579d3774.webp",
     "scavengers/scavsafeareabeacon.dds": "/unitpics/assets/6f3d7266e1dc805b896a.webp",
-    "scavfort.dds": "/unitpics/assets/f64a505c380f7522ddcd.webp"
+    "scavfort.dds": "/unitpics/assets/f64a505c380f7522ddcd.webp",
+    "corgatr.dds": "/unitpics/assets/827b70891e0b169c3026.webp"
   },
   "placeholders": [
     "armscavengerbossv2_easy",

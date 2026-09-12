@@ -4952,6 +4952,11 @@
       "bitmap": "icons/blank.png",
       "size": 1.04999995,
       "url": "/tactical-icons/assets/06c091572c3253316203.png"
+    },
+    "corgatr": {
+      "bitmap": "icons/corgatr.png",
+      "size": 1.89999997,
+      "url": "/tactical-icons/assets/c7456ab732547e8567ac.png"
     }
   }
 }
