@@ -272,4 +272,25 @@ describe('useCompiledProjectOutputs', () => {
     expect(result.current.generatedTweakUnitsLua).toContain('interceptor = 2');
     expect(result.current.generatedTweakUnitsLua).toContain('coverage = 500');
   });
+
+  it('compiles weapon slot turretspeedy and turretspeedx to weapondefs customparams', () => {
+    const { result } = renderHook(() => useCompiledProjectOutputs(createInput({
+      tweaks: {
+        armflash: {
+          weapon_slot_1_turretspeedy: 220,
+          weapon_slot_1_turretspeedx: 180,
+        },
+      },
+      defaultsDb: {
+        armflash: {
+          health: 620,
+          weaponSlots: [{ slot: 1, defKey: 'armflash_laser' }],
+        },
+      },
+    })));
+
+    expect(result.current.generatedTweakUnitsLua).toContain('turretspeedy = 220');
+    expect(result.current.generatedTweakUnitsLua).toContain('turretspeedx = 180');
+    expect(result.current.generatedTweakUnitsLua).toContain('customparams = {');
+  });
 });

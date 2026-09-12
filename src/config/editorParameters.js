@@ -470,6 +470,7 @@ export const WEAPON_SLOT_PATHS = Object.freeze({
   trajectoryheight: 'trajectoryheight', targetmoveerror: 'targetmoveerror', targetborder: 'targetborder',
   flighttime: 'flighttime',
   cylindertargeting: 'cylindertargeting', firetolerance: 'firetolerance', proximitypriority: 'proximitypriority',
+  turretspeedy: 'customparams.turretspeedy', turretspeedx: 'customparams.turretspeedx',
   edgeeffectiveness: 'edgeeffectiveness', impulsefactor: 'impulsefactor', impulseboost: 'impulseboost',
   energypershot: 'energypershot', metalpershot: 'metalpershot', paralyzetime: 'paralyzetime',
   movingaccuracy: 'movingaccuracy', predictboost: 'predictboost', leadlimit: 'leadlimit', leadbonus: 'leadbonus',

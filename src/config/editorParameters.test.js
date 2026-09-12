@@ -170,4 +170,21 @@ describe('editor parameter configuration', () => {
     expect(resolveUnitParameterDefault(byKey('blocking'), { blocking: false })).toMatchObject({ value: false, source: 'unit' });
     expect(resolveUnitParameterDefault(byKey('canrepair'), {})).toMatchObject({ value: undefined, label: 'Builder capability', source: 'engine-derived' });
   });
+
+  it('maps turret turn and elevation speed custom parameters to WeaponDef customparams', () => {
+    expect(WEAPON_SLOT_PATHS.turretspeedy).toBe('customparams.turretspeedy');
+    expect(WEAPON_SLOT_PATHS.turretspeedx).toBe('customparams.turretspeedx');
+    expect(getWeaponParameterDefinition('turretspeedy')).toMatchObject({
+      path: 'customparams.turretspeedy',
+      type: 'number',
+      unit: 'deg/s',
+      compileTarget: 'weapondef',
+    });
+    expect(getWeaponParameterDefinition('turretspeedx')).toMatchObject({
+      path: 'customparams.turretspeedx',
+      type: 'number',
+      unit: 'deg/s',
+      compileTarget: 'weapondef',
+    });
+  });
 });

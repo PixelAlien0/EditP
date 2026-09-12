@@ -320,7 +320,7 @@ for (const parameter of WEAPON_PARAMETER_CATALOG) {
     type: parameter.valueType === 'boolean' ? 'boolean' : parameter.valueType === 'number' ? 'number' : 'string',
     valueEncoding: parameter.valueEncoding,
     acceptedTypes: parameter.acceptedTypes,
-    owner: 'BAR gadget',
+    owner: parameter.owner || 'BAR gadget',
     maturity: parameter.capabilities?.includes('experimental') ? 'experimental' : 'supported',
     reviewed: true,
     documented: true,
